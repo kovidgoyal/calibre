@@ -8,7 +8,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 # Based on work of John Howell reversing the KFX format
 # https://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
 
-import struct, sys, base64, re
+import struct, sys, re
 from collections import defaultdict
 
 from calibre.ebooks.metadata.book.base import Metadata
@@ -19,6 +19,7 @@ from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.imghdr import identify
 from polyglot.builtins import unicode_type
+from polyglot.binary import as_base64_bytes, from_base64_bytes
 
 
 class InvalidKFX(ValueError):
@@ -155,7 +156,7 @@ class Entity(PackedBlock):
         if PackedData(self.entity_data).unpack_one('4s') == ION_MAGIC:
             entity_value = PackedIon(self.entity_data).decode()
         else:
-            entity_value = base64.b64encode(self.entity_data)
+            entity_value = as_base64_bytes(self.entity_data)
 
         return (property_name(self.entity_type), property_name(self.entity_id), entity_value)
 
@@ -343,8 +344,8 @@ def read_metadata_kfx(stream, read_cover=True):
         mi.publisher = get('publisher')
     if read_cover and m[COVER_KEY]:
         try:
-            data = base64.standard_b64decode(m[COVER_KEY])
-            fmt, w, h = identify(bytes(data))
+            data = from_base64_bytes(m[COVER_KEY])
+            fmt, w, h = identify(data)
         except Exception:
             w, h, fmt = 0, 0, None
         if fmt and w > -1 and h > -1:

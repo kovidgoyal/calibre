@@ -5,7 +5,6 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import socket, os, struct, errno, numbers
-from base64 import standard_b64encode
 from collections import deque, namedtuple
 from functools import partial
 from hashlib import sha1
@@ -17,6 +16,7 @@ from calibre.srv.web_socket import (
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import range, unicode_type
+from polyglot.binary import as_base64_bytes, as_base64_unicode
 
 HANDSHAKE_STR = '''\
 GET / HTTP/1.1\r
@@ -35,7 +35,7 @@ class WSClient(object):
         self.timeout = timeout
         self.socket = socket.create_connection(('localhost', port), timeout)
         set_socket_inherit(self.socket, False)
-        self.key = standard_b64encode(os.urandom(8))
+        self.key = as_base64_bytes(os.urandom(8))
         self.socket.sendall(HANDSHAKE_STR.format(self.key).encode('ascii'))
         self.read_buf = deque()
         self.read_upgrade_response()
@@ -64,7 +64,7 @@ class WSClient(object):
         if rl != b'HTTP/1.1 101 Switching Protocols\r\n':
             raise ValueError('Server did not respond with correct switching protocols line')
         headers = read_headers(partial(next, lines))
-        key = standard_b64encode(sha1(self.key + GUID_STR).digest())
+        key = as_base64_unicode(sha1(self.key + GUID_STR).digest())
         if headers.get('Sec-WebSocket-Accept') != key:
             raise ValueError('Server did not respond with correct key in Sec-WebSocket-Accept')
 

@@ -66,13 +66,11 @@ def json_dumps(data, **kw):
 
 
 def decode_metadata(x, for_json):
-    import base64
+    from polyglot.binary import from_base64_bytes
     from calibre.ebooks.metadata.book.serialize import metadata_from_dict
     obj = metadata_from_dict(x)
     if for_json and obj.cover_data and obj.cover_data[1]:
-        obj.cover_data = obj.cover_data[0], base64.standard_b64decode(
-            obj.cover_data[1]
-        )
+        obj.cover_data = obj.cover_data[0], from_base64_bytes(obj.cover_data[1])
     return obj
 
 

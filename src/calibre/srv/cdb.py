@@ -5,7 +5,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from base64 import standard_b64decode
 from functools import partial
 from io import BytesIO
 
@@ -20,6 +19,7 @@ from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
 from polyglot.builtins import iteritems
+from polyglot.binary import from_base64_bytes
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -160,7 +160,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     if cdata is not False:
         if cdata is not None:
             try:
-                cdata = standard_b64decode(cdata.split(',', 1)[-1].encode('ascii'))
+                cdata = from_base64_bytes(cdata.split(',', 1)[-1])
             except Exception:
                 raise HTTPBadRequest('Cover data is not valid base64 encoded data')
             try:

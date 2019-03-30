@@ -2,45 +2,41 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import sys, os, json, re
-from base64 import standard_b64encode, standard_b64decode
-from collections import defaultdict, OrderedDict
-from itertools import count
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+import os
+import re
+import sys
+from collections import OrderedDict, defaultdict
 from functools import partial
+from itertools import count
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
 
-from calibre import prepare_string_for_xml, force_unicode
+from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks import parse_css_length
+from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
-    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML, EPUB_NS)
+    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath, rewrite_links,
+    urlunquote
+)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
+from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
 from calibre.ebooks.oeb.polish.css import transform_css
-from calibre.ebooks.oeb.polish.utils import extract
-from calibre.ebooks.css_transform_rules import StyleDeclaration
-from calibre.ebooks.oeb.polish.toc import get_toc, get_landmarks
-from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.utils.short_uuid import uuid4
+from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
+from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.utils.logging import default_log
+from calibre.utils.short_uuid import uuid4
+from polyglot.binary import as_base64_unicode as encode_component, from_base64_unicode as decode_component
 from polyglot.builtins import iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
-
-
-def encode_component(x):
-    return standard_b64encode(x.encode('utf-8')).decode('ascii')
-
-
-def decode_component(x):
-    return standard_b64decode(x).decode('utf-8')
 
 
 def encode_url(name, frag=''):

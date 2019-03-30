@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, base64, os
+import zlib, json, os
 from io import BytesIO
 from functools import partial
 
@@ -14,11 +14,12 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from polyglot.http_client import OK, NOT_FOUND, FORBIDDEN
 from polyglot.urllib import urlencode, quote
+from polyglot.binary import as_base64_bytes
 
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):
     if username and password:
-        headers[b'Authorization'] = b'Basic ' + base64.standard_b64encode((username + ':' + password).encode('utf-8'))
+        headers[b'Authorization'] = b'Basic ' + as_base64_bytes((username + ':' + password))
     conn.request(method, prefix + url, headers=headers, body=data)
     r = conn.getresponse()
     data = r.read()

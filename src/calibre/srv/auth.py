@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import binascii, os, random, struct, base64
+import binascii, os, random, struct
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
@@ -17,6 +17,7 @@ from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client
+from polyglot.binary import from_base64_unicode
 
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
@@ -76,7 +77,7 @@ def sha256_hex(s):
 
 
 def base64_decode(s):
-    return base64.standard_b64decode(as_bytestring(s)).decode('utf-8')
+    return from_base64_unicode(s)
 
 
 def synthesize_nonce(key_order, realm, secret, timestamp=None):

@@ -52,7 +52,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
             # We could use the <link rel="alternate" type="text/html" ...> tag from the
             # detail odps page but this is easier.
             id = fix_url(''.join(data.xpath('./*[local-name() = "id"]/text()')).strip())
-            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id)))
+            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub(r'[^\d]', '', id)))
             s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
             s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
             if not s.title or not s.author:
@@ -83,7 +83,10 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
                     href = fix_url(href)
                     if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
                         if href.startswith('data:image/png;base64,'):
-                            s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
+                            cdata = href.replace('data:image/png;base64,', '')
+                            if not isinstance(cdata, bytes):
+                                cdata = cdata.encode('ascii')
+                            s.cover_data = base64.b64decode(cdata)
 
             yield s
 
@@ -122,6 +125,7 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
         '''
         for result in search(query, max_results, timeout):
             yield result
+
 
 if __name__ == '__main__':
     import sys

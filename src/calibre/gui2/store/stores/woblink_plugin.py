@@ -23,6 +23,15 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
+def as_base64(data):
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
+    ans = b64encode(data)
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans
+
+
 def search(query, max_results=10, timeout=60):
     url = 'http://woblink.com/publication/ajax?mode=none&query=' + urllib.quote_plus(query.encode('utf-8'))
     if max_results > 10:
@@ -79,11 +88,11 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'http://woblink.com/publication'
 
-        aff_url = aff_root + str(b64encode(url))
+        aff_url = aff_root + as_base64(url)
         detail_url = None
 
         if detail_item:
-            detail_url = aff_root + str(b64encode('http://woblink.com' + detail_item))
+            detail_url = aff_root + as_base64('http://woblink.com' + detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))

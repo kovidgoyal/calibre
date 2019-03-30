@@ -8,7 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json
-from base64 import b64encode
 
 from PyQt5.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
                       pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
@@ -20,6 +19,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.gui2 import error_dialog, question_dialog, gprefs, secure_web_page
 from calibre.utils.logging import default_log
 from polyglot.builtins import unicode_type, range
+from polyglot.binary import as_base64_unicode
 
 
 class Page(QWebPage):  # {{{
@@ -77,7 +77,7 @@ class WebView(QWebView):  # {{{
         '''
         raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
-        data += b64encode(raw.encode('utf-8'))
+        data += as_base64_unicode(raw)
         self.settings().setUserStyleSheetUrl(QUrl(data))
 
     def load_js(self):

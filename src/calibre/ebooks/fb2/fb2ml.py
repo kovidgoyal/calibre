@@ -9,7 +9,6 @@ Transform OEB content into FB2 markup
 '''
 
 import re, textwrap, uuid
-from base64 import b64encode
 from datetime import datetime
 
 from lxml import etree
@@ -20,6 +19,7 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
 from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.binary import as_base64_unicode
 
 
 class FB2MLizer(object):
@@ -308,9 +308,9 @@ class FB2MLizer(object):
                 try:
                     if item.media_type != 'image/jpeg':
                         imdata = save_cover_data_to(item.data, compression_quality=70)
-                        raw_data = b64encode(imdata)
+                        raw_data = as_base64_unicode(imdata)
                     else:
-                        raw_data = b64encode(item.data)
+                        raw_data = as_base64_unicode(item.data)
                     # Don't put the encoded image on a single line.
                     data = ''
                     col = 1

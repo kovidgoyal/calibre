@@ -28,9 +28,9 @@ class DataURL(object):
                     continue
                 if ';base64' in header:
                     data = re.sub(r'\s+', '', data)
-                    from base64 import b64decode
+                    from polyglot.binary import from_base64_bytes
                     try:
-                        data = b64decode(data)
+                        data = from_base64_bytes(data)
                     except Exception:
                         self.log.error('Found invalid base64 encoded data URI, ignoring it')
                         continue

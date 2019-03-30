@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time
-from base64 import b64decode
 from datetime import date
 
 from calibre import prints, guess_type, isbytestring, fsync
@@ -16,6 +15,7 @@ from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
+from polyglot.binary import from_base64_bytes
 
 '''
 cahceExt.xml
@@ -380,8 +380,8 @@ class XMLCache(object):
                             'descendant::*[local-name()="png"]'):
                         if img.text:
                             try:
-                                raw = b64decode(img.text.strip())
-                            except:
+                                raw = from_base64_bytes(img.text.strip())
+                            except Exception:
                                 continue
                             book.thumbnail = raw
                             break

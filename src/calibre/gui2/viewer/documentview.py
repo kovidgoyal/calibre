@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 
 # Imports {{{
 import math, json
-from base64 import b64encode
 from functools import partial
 from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 
@@ -33,6 +32,7 @@ from calibre.gui2.viewer.footnote import Footnotes
 from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
+from polyglot.binary import as_base64_unicode
 # }}}
 
 
@@ -144,7 +144,7 @@ class Document(QWebPage):  # {{{
         raw = prefix + opts.user_css
         raw = '::selection {background:#ffff00; color:#000;}\n'+raw
         data = 'data:text/css;charset=utf-8;base64,'
-        data += b64encode(raw.encode('utf-8'))
+        data += as_base64_unicode(raw)
         self.settings().setUserStyleSheetUrl(QUrl(data))
 
     def findText(self, q, flags):

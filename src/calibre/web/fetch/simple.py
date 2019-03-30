@@ -17,7 +17,6 @@ import sys
 import threading
 import time
 import traceback
-from base64 import b64decode
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -35,6 +34,7 @@ from polyglot.urllib import (
     URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
     urlunsplit
 )
+from polyglot.binary import from_base64_bytes
 
 
 class AbortArticle(Exception):
@@ -391,8 +391,8 @@ class RecursiveFetcher(object):
             iurl = tag['src']
             if iurl.startswith('data:image/'):
                 try:
-                    data = b64decode(iurl.partition(',')[-1])
-                except:
+                    data = from_base64_bytes(iurl.partition(',')[-1])
+                except Exception:
                     self.log.exception('Failed to decode embedded image')
                     continue
             else:

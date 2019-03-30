@@ -21,9 +21,9 @@ plugin_dir = os.path.join(config_dir, 'plugins')
 def to_json(obj):
     import datetime
     if isinstance(obj, bytearray):
-        import base64
+        from base64 import standard_b64encode
         return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
+                '__value__': standard_b64encode(bytes(obj)).decode('ascii')}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
         return {'__class__': 'datetime.datetime',
@@ -42,8 +42,8 @@ def from_json(obj):
     custom = obj.get('__class__')
     if custom is not None:
         if custom == 'bytearray':
-            import base64
-            return bytearray(base64.standard_b64decode(obj['__value__']))
+            from base64 import standard_b64decode
+            return bytearray(standard_b64decode(obj['__value__'].encode('ascii')))
         if custom == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
             return parse_iso8601(obj['__value__'], assume_utc=True)

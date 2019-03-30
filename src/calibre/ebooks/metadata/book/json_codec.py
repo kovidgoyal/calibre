@@ -5,7 +5,6 @@ Created on 4 Jun 2010
 '''
 from __future__ import print_function
 
-from base64 import b64encode, b64decode
 import json, traceback
 from datetime import datetime, time
 
@@ -14,6 +13,7 @@ from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
 from polyglot.builtins import iteritems, itervalues
+from polyglot.binary import as_base64_unicode, from_base64_bytes
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
@@ -57,7 +57,7 @@ def encode_thumbnail(thumbnail):
             thumbnail = (width, height, thumbnail)
         except Exception:
             return None
-    return (thumbnail[0], thumbnail[1], b64encode(str(thumbnail[2])))
+    return (thumbnail[0], thumbnail[1], as_base64_unicode(thumbnail[2]))
 
 
 def decode_thumbnail(tup):
@@ -66,7 +66,7 @@ def decode_thumbnail(tup):
     '''
     if tup is None:
         return None
-    return (tup[0], tup[1], b64decode(tup[2]))
+    return (tup[0], tup[1], from_base64_bytes(tup[2]))
 
 
 def object_to_unicode(obj, enc=preferred_encoding):

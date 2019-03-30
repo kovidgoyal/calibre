@@ -23,6 +23,15 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
+def as_base64(data):
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
+    ans = b64encode(data)
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans
+
+
 class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -30,11 +39,11 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
 
         url = 'https://www.swiatebookow.pl/'
 
-        aff_url = aff_root + str(b64encode(url))
+        aff_url = aff_root + as_base64(url)
 
         detail_url = None
         if detail_item:
-            detail_url = aff_root + str(b64encode(detail_item))
+            detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))

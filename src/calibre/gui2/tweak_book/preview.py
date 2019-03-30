@@ -8,7 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, json
 from bisect import bisect_right
-from base64 import b64encode
 from polyglot.builtins import map, unicode_type
 from threading import Thread
 from functools import partial
@@ -31,6 +30,7 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from polyglot.urllib import urlparse
 from polyglot.queue import Queue, Empty
+from polyglot.binary import as_base64_unicode
 
 shutdown = object()
 
@@ -269,7 +269,7 @@ class WebPage(QWebPage):
         settings.setDefaultTextEncoding('utf-8')
         data = 'data:text/css;charset=utf-8;base64,'
         css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-        data += b64encode(css.encode('utf-8'))
+        data += as_base64_unicode(css)
         settings.setUserStyleSheetUrl(QUrl(data))
 
         self.setNetworkAccessManager(NetworkAccessManager(self))

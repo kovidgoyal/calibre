@@ -10,7 +10,6 @@ import os
 import posixpath
 import re
 import shutil
-from base64 import standard_b64decode
 from collections import defaultdict
 from contextlib import closing
 from functools import partial
@@ -25,6 +24,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
 from polyglot.builtins import iteritems
 from polyglot.urllib import urlopen, urlparse
+from polyglot.binary import from_base64_bytes
 
 
 def is_external(url):
@@ -117,7 +117,7 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
                 parts = prefix.split(';')
                 if parts and parts[-1].lower() == 'base64':
                     payload = re.sub(r'\s+', '', payload)
-                    payload = standard_b64decode(payload)
+                    payload = from_base64_bytes(payload)
                 else:
                     payload = payload.encode('utf-8')
                 seen_before = data_uri_map.get(payload)

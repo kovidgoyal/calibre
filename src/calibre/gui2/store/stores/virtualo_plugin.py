@@ -24,6 +24,15 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
+def as_base64(data):
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
+    ans = b64encode(data)
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans
+
+
 class VirtualoStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -31,11 +40,11 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
 
         url = 'http://virtualo.pl/ebook/c2/'
 
-        aff_url = aff_root + str(b64encode(url))
+        aff_url = aff_root + as_base64(url)
 
         detail_url = None
         if detail_item:
-            detail_url = aff_root + str(b64encode(detail_item))
+            detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
@@ -75,7 +84,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = re.sub('\.',',',price.strip())
+                s.price = re.sub(r'\.',',',price.strip())
                 s.detail_item = id
                 s.formats = ', '.join(formats).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED

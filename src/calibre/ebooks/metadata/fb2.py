@@ -8,7 +8,6 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
 import os, random
 from functools import partial
 from string import ascii_letters, digits
-from base64 import b64encode
 
 from lxml import etree
 
@@ -19,6 +18,7 @@ from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import unicode_type
+from polyglot.binary import as_base64_unicode
 
 
 NAMESPACES = {
@@ -383,7 +383,7 @@ def _rnd_pic_file_name(prefix='calibre_cover_', size=32, ext='jpg'):
 
 def _encode_into_jpeg(data):
     data = save_cover_data_to(data)
-    return b64encode(data)
+    return as_base64_unicode(data)
 
 
 def _set_cover(title_info, mi, ctx):
