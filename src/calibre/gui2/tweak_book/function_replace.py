@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, io, weakref, sys
-from cStringIO import StringIO
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
@@ -24,6 +23,7 @@ from calibre.utils.icu import capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import iteritems, unicode_type
+from polyglot.io import PolyglotBytesIO
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
@@ -68,7 +68,7 @@ class Function(object):
         self.match_index = 0
         self.boss = get_boss()
         self.data = {}
-        self.debug_buf = StringIO()
+        self.debug_buf = PolyglotBytesIO()
         self.functions = {name:func.mod for name, func in iteritems(functions()) if func.mod is not None}
 
     def __hash__(self):
@@ -123,6 +123,8 @@ class DebugOutput(Dialog):
         b.setIcon(QIcon(I('edit-copy.png')))
 
     def show_log(self, name, text):
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', 'replace')
         self.setWindowTitle(_('Debug output from %s') % name)
         self.text.setPlainText(self.windowTitle() + '\n\n' + text)
         self.log_text = text
