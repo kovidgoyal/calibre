@@ -5,7 +5,6 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
-from binascii import hexlify
 from collections import Counter
 
 from calibre import prints
@@ -14,6 +13,7 @@ from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
 from polyglot.builtins import iteritems, raw_input
+from polyglot.binary import as_hex_unicode
 
 
 # Export {{{
@@ -133,7 +133,7 @@ class Exporter(object):
         return FileDest(key, self, mtime=mtime)
 
     def export_dir(self, path, dir_key):
-        pkey = hexlify(dir_key)
+        pkey = as_hex_unicode(dir_key)
         self.metadata[dir_key] = files = []
         for dirpath, dirnames, filenames in os.walk(path):
             for fname in filenames:

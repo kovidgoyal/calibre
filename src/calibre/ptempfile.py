@@ -105,10 +105,10 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
-            import binascii
             from calibre.utils.serialize import msgpack_loads
+            from polyglot.binary import from_hex_bytes
             try:
-                td = msgpack_loads(binascii.unhexlify(td))
+                td = msgpack_loads(from_hex_bytes(td))
             except Exception:
                 td = None
         if td and os.path.exists(td):

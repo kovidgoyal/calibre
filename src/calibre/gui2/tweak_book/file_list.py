@@ -7,7 +7,6 @@ import os
 import posixpath
 import sys
 import textwrap
-from binascii import hexlify
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 
@@ -40,6 +39,7 @@ from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import numeric_sort_key
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.binary import as_hex_unicode
 
 try:
     from PyQt5 import sip
@@ -392,7 +392,7 @@ class FileList(QTreeWidget):
 
             seen[text] = item
             item.setText(0, text)
-            item.setText(1, hexlify(numeric_sort_key(text)))
+            item.setText(1, as_hex_unicode(numeric_sort_key(text)))
 
         def render_emblems(item, emblems):
             emblems = tuple(emblems)

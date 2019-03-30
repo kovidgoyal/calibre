@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import binascii, os, random, struct
+import os, random, struct
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
@@ -17,7 +17,7 @@ from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client
-from polyglot.binary import from_base64_unicode
+from polyglot.binary import from_base64_unicode, from_hex_bytes, as_hex_unicode
 
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
@@ -94,7 +94,7 @@ def synthesize_nonce(key_order, realm, secret, timestamp=None):
             # The resolution of monotonic() on windows is very low (10s of
             # milliseconds) so to ensure nonce values are not re-used, we have a
             # global counter
-            timestamp = binascii.hexlify(struct.pack(b'!dH', float(monotonic()), nonce_counter))
+            timestamp = as_hex_unicode(struct.pack(b'!dH', float(monotonic()), nonce_counter))
     h = sha256_hex(key_order.format(timestamp, realm, secret))
     nonce = ':'.join((timestamp, h))
     return nonce
@@ -108,7 +108,7 @@ def validate_nonce(key_order, nonce, realm, secret):
 
 def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     try:
-        timestamp = struct.unpack(b'!dH', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
+        timestamp = struct.unpack(b'!dH', from_hex_bytes(as_bytestring(nonce.partition(':')[0])))[0]
         return timestamp + max_age_seconds < monotonic()
     except Exception:
         pass
@@ -243,7 +243,7 @@ class AuthController(object):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
-        self.secret = binascii.hexlify(os.urandom(random.randint(20, 30))).decode('ascii')
+        self.secret = as_hex_unicode(os.urandom(random.randint(20, 30)))
         self.max_age_seconds = max_age_seconds
         self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))
         self.realm = realm

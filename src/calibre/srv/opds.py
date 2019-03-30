@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib, binascii
+import hashlib
 from functools import partial
 from collections import OrderedDict, namedtuple
 
@@ -28,16 +28,7 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
 from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import urlencode
-
-
-def hexlify(x):
-    if isinstance(x, unicode_type):
-        x = x.encode('utf-8')
-    return binascii.hexlify(x)
-
-
-def unhexlify(x):
-    return binascii.unhexlify(x).decode('utf-8')
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
 def atom(ctx, rd, endpoint, output):
@@ -105,7 +96,7 @@ SUBTITLE = E.subtitle
 
 
 def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
-    href = url_for('/opds/navcatalog', which=hexlify(query))
+    href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
     id_ = 'calibre-navcatalog:'+str(hashlib.sha1(href).hexdigest())
     return E.entry(
         TITLE(title),
@@ -154,7 +145,7 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
     if item.id is not None:
         iid = 'I' + str(item.id)
         iid += ':'+item_kind
-    href = request_context.url_for('/opds/category', category=hexlify(catalog_name), which=hexlify(iid))
+    href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
     link = NAVLINK(href=href)
     if ignore_count:
         count = ''
@@ -176,7 +167,7 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
 def CATALOG_GROUP_ENTRY(item, category, request_context, updated):
     id_ = 'calibre:category-group:'+category+':'+item.text
     iid = item.text
-    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=hexlify(category), which=hexlify(iid)))
+    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
     return E.entry(
         TITLE(item.text),
         ID(id_),
@@ -519,7 +510,7 @@ def opds_navcatalog(ctx, rd, which):
 
     page_url = rc.url_for('/opds/navcatalog', which=which)
     up_url = rc.url_for('/opds')
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     type_ = which[0]
     which = which[1:]
     if type_ == 'O':
@@ -542,7 +533,7 @@ def opds_category(ctx, rd, category, which):
     page_url = rc.url_for('/opds/category', which=which, category=category)
     up_url = rc.url_for('/opds/navcatalog', which=category)
 
-    which, category = unhexlify(which), unhexlify(category)
+    which, category = from_hex_unicode(which), from_hex_unicode(category)
     type_ = which[0]
     which = which[1:]
     if type_ == 'I':
@@ -594,15 +585,15 @@ def opds_categorygroup(ctx, rd, category, which):
     categories = rc.get_categories()
     page_url = rc.url_for('/opds/categorygroup', category=category, which=which)
 
-    category = unhexlify(category)
+    category = from_hex_unicode(category)
     if category not in categories:
         raise HTTPNotFound('Category %r not found'%which)
     category_meta = rc.db.field_metadata
     meta = category_meta.get(category, {})
     category_name = meta.get('name', which)
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
-    owhich = hexlify('N'+which)
+    owhich = as_hex_unicode('N'+which)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
     items = categories[category]
 

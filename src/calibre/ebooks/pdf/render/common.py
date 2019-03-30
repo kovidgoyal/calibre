@@ -10,11 +10,11 @@ __docformat__ = 'restructuredtext en'
 import codecs, zlib, numbers
 from io import BytesIO
 from datetime import datetime
-from binascii import hexlify
 
 from calibre.constants import plugins, ispy3
 from calibre.utils.logging import default_log
 from polyglot.builtins import iteritems, unicode_type
+from polyglot.binary import as_hex_bytes
 
 pdf_float = plugins['speedup'][0].pdf_float
 
@@ -137,7 +137,7 @@ class UTF16String(unicode_type):
         if False:
             # Disabled as the parentheses based strings give easier to debug
             # PDF files
-            stream.write(b'<' + hexlify(raw) + b'>')
+            stream.write(b'<' + as_hex_bytes(raw) + b'>')
         else:
             stream.write(b'('+escape_pdf_string(raw)+b')')
 

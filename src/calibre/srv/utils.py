@@ -10,7 +10,6 @@ import errno, socket, select, os, time
 from contextlib import closing
 from email.utils import formatdate
 from operator import itemgetter
-from binascii import hexlify, unhexlify
 
 from calibre import prints
 from calibre.constants import iswindows, ispy3
@@ -20,14 +19,16 @@ from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
-from polyglot.builtins import iteritems, map, unicode_type, range
+from polyglot.builtins import iteritems, map, range
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
 from polyglot.urllib import parse_qs, quote as urlquote
+from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
+encode_name, decode_name
 
 
 def http_date(timeval=None):
@@ -284,17 +285,6 @@ def get_translator_for_lang(cache, bcp_47_code):
 def encode_path(*components):
     'Encode the path specified as a list of path components using URL encoding'
     return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
-
-
-def encode_name(name):
-    'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
-    if isinstance(name, unicode_type):
-        name = name.encode('utf-8')
-    return hexlify(name)
-
-
-def decode_name(name):
-    return unhexlify(name).decode('utf-8')
 
 
 class Cookie(SimpleCookie):

@@ -2206,8 +2206,8 @@ class Cache(object):
 
     @read_api
     def export_library(self, library_key, exporter, progress=None, abort=None):
-        from binascii import hexlify
-        key_prefix = hexlify(library_key)
+        from polyglot.binary import as_hex_unicode
+        key_prefix = as_hex_unicode(library_key)
         book_ids = self._all_book_ids()
         total = len(book_ids) + 1
         format_metadata = {}

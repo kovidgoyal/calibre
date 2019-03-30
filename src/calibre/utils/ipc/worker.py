@@ -11,7 +11,6 @@ import os, sys, importlib
 from multiprocessing.connection import Client
 from threading import Thread
 from contextlib import closing
-from binascii import unhexlify
 from zipimport import ZipImportError
 
 from calibre import prints
@@ -19,6 +18,7 @@ from calibre.constants import iswindows, isosx
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_loads, pickle_dumps
 from polyglot.queue import Queue
+from polyglot.binary import from_hex_bytes, from_hex_unicode
 
 PARALLEL_FUNCS = {
     'lrfviewer'    :
@@ -183,9 +183,9 @@ def main():
             print('Failed to run pipe worker with command:', sys.argv[-1])
             raise
         return
-    address = msgpack_loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
-    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
+    address = msgpack_loads(from_hex_bytes(os.environ['CALIBRE_WORKER_ADDRESS']))
+    key     = from_hex_bytes(os.environ['CALIBRE_WORKER_KEY'])
+    resultf = from_hex_unicode(os.environ['CALIBRE_WORKER_RESULT'])
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs, desc = eintr_retry_call(conn.recv)
         if desc:

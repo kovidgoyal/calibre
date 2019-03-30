@@ -4,7 +4,6 @@
 
 import os
 import re
-from binascii import unhexlify
 from collections import namedtuple
 from functools import partial
 
@@ -35,6 +34,8 @@ from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type
+from polyglot.binary import from_hex_bytes, from_hex_unicode
+
 
 _css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
@@ -286,7 +287,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                                    lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             if data:
                 try:
-                    field, value, book_id = json_loads(unhexlify(data))
+                    field, value, book_id = json_loads(from_hex_bytes(data))
                 except Exception:
                     field = value = book_id = None
                 if field:
@@ -874,7 +875,7 @@ class BookDetails(QWidget):  # {{{
         elif typ == 'devpath':
             self.view_device_book.emit(val)
         elif typ == 'search':
-            self.search_requested.emit(unhexlify(val).decode('utf-8'))
+            self.search_requested.emit(from_hex_unicode(val))
         else:
             try:
                 open_url(QUrl(link, QUrl.TolerantMode))

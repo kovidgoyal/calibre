@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, errno
-from binascii import hexlify
 from io import BytesIO
 from threading import Lock
 from polyglot.builtins import map
@@ -30,6 +29,7 @@ from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.shared_file import share_open
 from polyglot.urllib import quote
+from polyglot.binary import as_hex_unicode
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -111,7 +111,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
                 ans.seek(0)
         if ctx.testing:
             rd.outheaders['Used-Cache'] = used_cache
-            rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
+            rd.outheaders['Tempfile'] = as_hex_unicode(fname)
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
 

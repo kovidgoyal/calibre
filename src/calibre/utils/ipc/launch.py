@@ -6,14 +6,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii
+import subprocess, os, sys, time
 from functools import partial
 
-from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
+from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding, ispy3
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, environ_item
+from polyglot.binary import as_hex_unicode
 
 if iswindows:
     import win32process
@@ -88,26 +89,29 @@ class Worker(object):
 
     @property
     def env(self):
-        # We use this inefficient method of copying the environment variables
-        # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
-        env = {}
-        for key in os.environ:
-            try:
-                val = os.environ[key]
-                if isinstance(val, unicode_type):
-                    # On windows subprocess cannot handle unicode env vars
-                    try:
-                        val = val.encode(filesystem_encoding)
-                    except ValueError:
-                        val = val.encode('utf-8')
-                if isinstance(key, unicode_type):
-                    key = key.encode('ascii')
-                env[key] = val
-            except:
-                pass
-        env[str('CALIBRE_WORKER')] = str('1')
-        td = binascii.hexlify(msgpack_dumps(base_dir())).decode('ascii')
-        env[b'CALIBRE_WORKER_TEMP_DIR'] = str(td)
+        if ispy3:
+            env = os.environ.copy()
+        else:
+            # We use this inefficient method of copying the environment variables
+            # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
+            env = {}
+            for key in os.environ:
+                try:
+                    val = os.environ[key]
+                    if isinstance(val, unicode_type):
+                        # On windows subprocess cannot handle unicode env vars
+                        try:
+                            val = val.encode(filesystem_encoding)
+                        except ValueError:
+                            val = val.encode('utf-8')
+                    if isinstance(key, unicode_type):
+                        key = key.encode('ascii')
+                    env[key] = val
+                except:
+                    pass
+        env[str('CALIBRE_WORKER')] = environ_item('1')
+        td = as_hex_unicode(msgpack_dumps(base_dir()))
+        env[str('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
         env.update(self._env)
         return env
 
@@ -181,7 +185,7 @@ class Worker(object):
         except EnvironmentError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser(u'~')
-        env[str('ORIGWD')] = binascii.hexlify(msgpack_dumps(origwd))
+        env[str('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']

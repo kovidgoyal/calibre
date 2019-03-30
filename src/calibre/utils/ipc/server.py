@@ -13,7 +13,6 @@ import os
 import sys
 import tempfile
 import time
-from binascii import hexlify
 from collections import deque
 from math import ceil
 from multiprocessing.connection import Listener, arbitrary_address
@@ -28,6 +27,7 @@ from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre.utils.serialize import msgpack_dumps, pickle_loads
 from polyglot.builtins import string_or_bytes, environ_item
 from polyglot.queue import Empty, Queue
+from polyglot.binary import as_hex_unicode
 
 
 _counter = 0
@@ -219,10 +219,10 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : environ_item(hexlify(msgpack_dumps(
+                'CALIBRE_WORKER_ADDRESS' : environ_item(as_hex_unicode(msgpack_dumps(
                     self.listener.address))),
-                'CALIBRE_WORKER_KEY' : environ_item(hexlify(self.auth_key)),
-                'CALIBRE_WORKER_RESULT' : environ_item(hexlify(rfile.encode('utf-8'))),
+                'CALIBRE_WORKER_KEY' : environ_item(as_hex_unicode(self.auth_key)),
+                'CALIBRE_WORKER_RESULT' : environ_item(as_hex_unicode(rfile)),
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
         if isinstance(cw, string_or_bytes):

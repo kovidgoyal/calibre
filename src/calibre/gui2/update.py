@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, binascii, ssl, json
+import re, ssl, json
 from polyglot.builtins import map, unicode_type
 from threading import Thread, Event
 
@@ -17,6 +17,7 @@ from calibre.utils.https import get_https_resource_securely
 from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+from polyglot.binary import as_hex_unicode, from_hex_bytes
 
 URL = 'https://code.calibre-ebook.com/latest'
 # URL = 'http://localhost:8000/latest'
@@ -209,7 +210,7 @@ class UpdateMixin(object):
         has_calibre_update = calibre_version != NO_CALIBRE_UPDATE
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
-        version_url = binascii.hexlify(msgpack_dumps((calibre_version, number_of_plugin_updates)))
+        version_url = as_hex_unicode(msgpack_dumps((calibre_version, number_of_plugin_updates)))
         calibre_version = u'.'.join(map(unicode_type, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
@@ -263,7 +264,7 @@ class UpdateMixin(object):
     def update_link_clicked(self, url):
         url = unicode_type(url)
         if url.startswith('update:'):
-            calibre_version, number_of_plugin_updates = msgpack_loads(binascii.unhexlify(url[len('update:'):]))
+            calibre_version, number_of_plugin_updates = msgpack_loads(from_hex_bytes(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)
 
 
