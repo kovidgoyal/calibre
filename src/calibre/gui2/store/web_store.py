@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import shutil
-from base64 import standard_b64decode, standard_b64encode
 
 from PyQt5.Qt import (
     QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl, QVBoxLayout,
@@ -26,6 +25,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.ptempfile import PersistentTemporaryDirectory, reset_base_dir
 from calibre.utils.ipc import RC
 from polyglot.builtins import string_or_bytes
+from polyglot.binary import from_base64_bytes, as_base64_bytes
 
 
 class DownloadItem(QWidget):
@@ -241,7 +241,7 @@ def main(args):
         set_app_uid(STORE_DIALOG_APP_UID)
 
     data = args[-1]
-    data = json.loads(standard_b64decode(data))
+    data = json.loads(from_base64_bytes(data))
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     m = Main(data)
@@ -252,7 +252,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    sample_data = standard_b64encode(
+    sample_data = as_base64_bytes(
         json.dumps({
             'window_title': 'MobileRead',
             'base_url': 'https://www.mobileread.com/',
