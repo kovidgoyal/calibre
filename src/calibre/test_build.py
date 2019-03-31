@@ -73,44 +73,6 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
-    def test_import_of_all_python_modules(self):
-        import importlib
-        exclude_modules = {'calibre.gui2.dbus_export.demo', 'calibre.gui2.dbus_export.gtk'}
-        exclude_packages = {'calibre.devices.mtp.unix.upstream'}
-        if not iswindows:
-            exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
-            exclude_packages |= {'calibre.utils.winreg'}
-        if not isosx:
-            exclude_modules.add('calibre.utils.open_with.osx')
-        if not islinux:
-            exclude_modules |= {
-                    'calibre.utils.dbus_service', 'calibre.linux',
-                    'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
-                    'calibre.gui2.linux_file_dialogs'
-            }
-            exclude_packages.add('calibre.gui2.dbus_export')
-        base = os.path.dirname(__file__)
-        import_base = os.path.dirname(base)
-        count = 0
-        for root, dirs, files in os.walk(base):
-            for d in dirs:
-                if not os.path.isfile(os.path.join(root, d, '__init__.py')):
-                    dirs.remove(d)
-            for fname in files:
-                module_name, ext = os.path.splitext(fname)
-                if ext != '.py':
-                    continue
-                path = os.path.join(root, module_name)
-                relpath = os.path.relpath(path, import_base).replace(os.sep, '/')
-                full_module_name = '.'.join(relpath.split('/'))
-                if full_module_name.endswith('.__init__'):
-                    full_module_name = full_module_name.rpartition('.')[0]
-                if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
-                    continue
-                importlib.import_module(full_module_name)
-                count += 1
-        self.assertGreater(count, 1000)
-
     def test_plugins(self):
         exclusions = set()
         if is_ci:
