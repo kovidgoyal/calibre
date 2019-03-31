@@ -69,7 +69,7 @@ def compiler():
         c.eval('exports = {}; sha1sum = Duktape.sha1sum;', noreturn=True)
         buf = BytesIO()
         decompress(P(COMPILER_PATH, data=True, allow_user_override=False), buf)
-        c.eval(buf.getvalue(), fname=COMPILER_PATH, noreturn=True)
+        c.eval(buf.getvalue().decode('utf-8'), fname=COMPILER_PATH, noreturn=True)
     return c
 
 

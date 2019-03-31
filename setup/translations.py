@@ -11,7 +11,7 @@ from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json
+from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, ispy3
 from setup.parallel_build import parallel_check_output
 from polyglot.builtins import codepoint_to_chr, iteritems, range
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -508,15 +508,18 @@ class Translations(POT):  # {{{
                 if l == 'en':
                     t = get_language
                 else:
-                    t = get_iso639_translator(l).ugettext
+                    t = getattr(get_iso639_translator(l), 'gettext' if ispy3 else 'ugettext')
                     t = partial(get_iso_language, t)
                 lang_names[l] = {x: t(x) for x in dl}
             zi = ZipInfo('lang-names.json')
             zi.compress_type = ZIP_STORED
             zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
         dest = self.j(self.d(self.stats), 'website-languages.txt')
+        data = ' '.join(sorted(done))
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with open(dest, 'wb') as f:
-            f.write(' '.join(sorted(done)))
+            f.write(data)
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')

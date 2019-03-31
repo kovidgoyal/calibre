@@ -334,8 +334,8 @@ class ZipInfo (object):
         self.date_time = date_time      # year, month, day, hour, min, sec
         # Standard values:
         self.compress_type = ZIP_STORED  # Type of compression for the file
-        self.comment = ""               # Comment for each file
-        self.extra = ""                 # ZIP extra data
+        self.comment = b""               # Comment for each file
+        self.extra = b""                 # ZIP extra data
         if sys.platform == 'win32':
             self.create_system = 0          # System which created ZIP archive
         else:
@@ -744,7 +744,7 @@ class ZipFile:
         self.compression = compression  # Method of compression
         self.mode = key = mode.replace('b', '')[0]
         self.pwd = None
-        self.comment = ''
+        self.comment = b''
 
         # Check if we were passed a file-like object
         if isinstance(file, string_or_bytes):
@@ -1280,13 +1280,15 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes, permissions=0o600,
+    def writestr(self, zinfo_or_arcname, byts, permissions=0o600,
             compression=ZIP_DEFLATED, raw_bytes=False):
         """Write a file into the archive.  The contents is the string
-        'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
+        'byts'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
+        if not isinstance(byts, bytes):
+            byts = byts.encode('utf-8')
         if not isinstance(zinfo_or_arcname, ZipInfo):
             if not isinstance(zinfo_or_arcname, unicode_type):
                 zinfo_or_arcname = zinfo_or_arcname.decode(filesystem_encoding)
@@ -1302,22 +1304,22 @@ class ZipFile:
                   "Attempt to write to ZIP archive that was already closed")
 
         if not raw_bytes:
-            zinfo.file_size = len(bytes)            # Uncompressed size
+            zinfo.file_size = len(byts)            # Uncompressed size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self._writecheck(zinfo)
         self._didModify = True
         if not raw_bytes:
-            zinfo.CRC = crc32(bytes) & 0xffffffff       # CRC-32 checksum
+            zinfo.CRC = crc32(byts) & 0xffffffff       # CRC-32 checksum
             if zinfo.compress_type == ZIP_DEFLATED:
                 co = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION,
                     zlib.DEFLATED, -15)
-                bytes = co.compress(bytes) + co.flush()
-                zinfo.compress_size = len(bytes)    # Compressed size
+                byts = co.compress(byts) + co.flush()
+                zinfo.compress_size = len(byts)    # Compressed size
             else:
                 zinfo.compress_size = zinfo.file_size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self.fp.write(zinfo.FileHeader())
-        self.fp.write(bytes)
+        self.fp.write(byts)
         self.fp.flush()
         if zinfo.flag_bits & 0x08:
             # Write CRC and file sizes after the file data
@@ -1331,7 +1333,7 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            self.writestr(prefix+'/', '', 0o755)
+            self.writestr(prefix+'/', b'', 0o755)
         cwd = os.path.abspath(os.getcwdu())
         try:
             os.chdir(path)
