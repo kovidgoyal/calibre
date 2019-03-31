@@ -51,7 +51,7 @@ def decode_var_int(f):
 def decode_var_int2(raw, pos):
     ans, ch, opos = 0, 0x80, pos
     while ch >= 0x80:
-        ch = ord(raw[pos])
+        ch = ord(raw[pos:pos+1])
         if ch == 0:
             return 0, pos
         ans |= (ch & 0x7f) << ((pos - opos) * 7)
@@ -235,7 +235,7 @@ def read_block_header(f, block_header_size_, check_type):
     )
     if crc != crc32(block_header_size_ + header):
         raise InvalidXZ('Block header CRC mismatch')
-    block_flags = ord(header[0])
+    block_flags = ord(header[0:1])
     number_of_filters = (0x03 & block_flags) + 1
     if not (0 < number_of_filters <= 4):
         raise InvalidXZ('Invalid number of filters: %d' % number_of_filters)
