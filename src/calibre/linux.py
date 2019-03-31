@@ -9,7 +9,7 @@ from subprocess import check_call, check_output
 from functools import partial
 
 from calibre import __appname__, prints, guess_type
-from calibre.constants import islinux, isbsd
+from calibre.constants import islinux, isbsd, ispy3
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
@@ -1103,7 +1103,7 @@ def write_appdata(key, entry, base, translators):
     for para in entry['description']:
         description.append(E.p(para))
         for lang, t in iteritems(translators):
-            tp = t.ugettext(para)
+            tp = getattr(t, 'gettext' if ispy3 else 'ugettext')(para)
             if tp != para:
                 description.append(E.p(tp))
                 description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
@@ -1120,7 +1120,7 @@ def write_appdata(key, entry, base, translators):
         type='desktop'
     )
     for lang, t in iteritems(translators):
-        tp = t.ugettext(entry['summary'])
+        tp = getattr(t, 'gettext' if ispy3 else 'ugettext')(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))
             root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)

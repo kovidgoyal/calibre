@@ -16,7 +16,7 @@ from functools import wraps
 from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3
 
 from calibre import guess_type, force_unicode
-from calibre.constants import __version__, plugins
+from calibre.constants import __version__, plugins, ispy3
 from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
@@ -288,8 +288,8 @@ class RequestData(object):  # {{{
         if lang_code != self.lang_code:
             found, lang, t = self.get_translator(lang_code)
             self.lang_code = lang
-            self.gettext_func = t.ugettext
-            self.ngettext_func = t.ungettext
+            self.gettext_func = getattr(t, 'gettext' if ispy3 else 'ugettext')
+            self.ngettext_func = getattr(t, 'ngettext' if ispy3 else 'ungettext')
 # }}}
 
 

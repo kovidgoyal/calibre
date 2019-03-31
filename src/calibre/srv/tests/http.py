@@ -11,6 +11,7 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
+from calibre.constants import ispy3
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
@@ -96,7 +97,7 @@ class TestHTTP(BaseTest):
                 conn.request('GET', '/', headers={'Accept-Language': al})
                 r = conn.getresponse()
                 self.ae(r.status, http_client.OK)
-                q += get_translator(q)[-1].ugettext('Unknown')
+                q += getattr(get_translator(q)[-1], 'gettext' if ispy3 else 'ugettext')('Unknown')
                 self.ae(r.read(), q)
 
             test('en', 'en')
