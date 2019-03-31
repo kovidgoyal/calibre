@@ -1,20 +1,23 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 """
 Edit metadata in RTF files.
 """
-import re, codecs
+from __future__ import absolute_import, division, print_function, unicode_literals
+import codecs
+import re
 
 from calibre import force_unicode
-from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes
+from calibre.ebooks.metadata import MetaInformation
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, unicode_type, int_to_byte
 
-title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
-author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
-comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
-tags_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
-publisher_pat = re.compile(r'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
+title_pat    = re.compile(br'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
+author_pat   = re.compile(br'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
+comment_pat  = re.compile(br'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
+tags_pat = re.compile(br'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
+publisher_pat = re.compile(br'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
 
 def get_document_info(stream):
@@ -61,36 +64,48 @@ def get_document_info(stream):
 
 
 def detect_codepage(stream):
-    pat = re.compile(r'\\ansicpg(\d+)')
+    pat = re.compile(br'\\ansicpg(\d+)')
     match = pat.search(stream.read(512))
     if match is not None:
         num = match.group(1)
-        if num == '0':
-            num = '1252'
-        codec = 'cp'+num
+        if num == b'0':
+            num = b'1252'
         try:
+            codec = (b'cp'+num).decode('ascii')
             codecs.lookup(codec)
             return codec
-        except:
+        except Exception:
             pass
 
 
 def encode(unistr):
     if not isinstance(unistr, unicode_type):
         unistr = force_unicode(unistr)
-    return ''.join([str(c) if ord(c) < 128 else '\\u' + str(ord(c)) + '?' for c in unistr])
+    return ''.join(c if ord(c) < 128 else '\\u{}?'.format(ord(c)) for c in unistr)
 
 
 def decode(raw, codec):
-    if codec is not None:
-        def codepage(match):
-            return chr(int(match.group(1), 16))
-        raw = re.sub(r"\\'([a-fA-F0-9]{2})", codepage, raw)
-        raw = raw.decode(codec)
+    # https://en.wikipedia.org/wiki/Rich_Text_Format#Character_encoding
+
+    def codepage(match):
+        try:
+            return int_to_byte(int(match.group(1), 16)).decode(codec)
+        except ValueError:
+            return '?'
 
     def uni(match):
-        return codepoint_to_chr(int(match.group(1)))
-    raw = re.sub(r'\\u([0-9]{3,4}).', uni, raw)
+        try:
+            return codepoint_to_chr(int(match.group(1)))
+        except Exception:
+            return '?'
+
+    if isinstance(raw, bytes):
+        raw = raw.decode('ascii', 'replace')
+
+    if codec is not None:
+        raw = re.sub(r"\\'([a-fA-F0-9]{2})", codepage, raw)
+
+    raw = re.sub(r'\\u([0-9]{3,5}).', uni, raw)
     return raw
 
 
@@ -99,7 +114,7 @@ def get_metadata(stream):
     Return metadata as a L{MetaInfo} object
     """
     stream.seek(0)
-    if stream.read(5) != r'{\rtf':
+    if stream.read(5) != br'{\rtf':
         return MetaInformation(_('Unknown'))
     block = get_document_info(stream)[0]
     if not block:
@@ -121,7 +136,7 @@ def get_metadata(stream):
         author = None
     mi = MetaInformation(title)
     if author:
-        mi.authors = string_to_authors(author)
+        mi.authors = [x.strip() for x in author.split(',')]
 
     comment_match = comment_pat.search(block)
     if comment_match is not None:
@@ -147,7 +162,7 @@ def create_metadata(stream, options):
     if options.authors:
         au = options.authors
         if not isinstance(au, string_or_bytes):
-            au = u', '.join(au)
+            au = ', '.join(au)
         author = encode(au)
         md.append(r'{\author %s}'%(author,))
     comp = options.comment if hasattr(options, 'comment') else options.comments
@@ -165,7 +180,7 @@ def create_metadata(stream, options):
         md.append('}')
         stream.seek(0)
         src   = stream.read()
-        ans = src[:6] + u''.join(md) + src[6:]
+        ans = src[:6] + ''.join(md).encode('ascii') + src[6:]
         stream.seek(0)
         stream.write(ans)
 
@@ -178,58 +193,59 @@ def set_metadata(stream, options):
     def add_metadata_item(src, name, val):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
+
     src, pos = get_document_info(stream)
     if src is None:
         create_metadata(stream, options)
     else:
+        src = src.decode('ascii')
         olen = len(src)
 
         base_pat = r'\{\\name(.*?)(?<!\\)\}'
-        title = options.title
-        if title is not None:
-            title = encode(title)
-            pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\title ' + title + r'}', src)
-            else:
-                src = add_metadata_item(src, 'title', title)
-        comment = options.comments
-        if comment is not None:
-            comment = encode(comment)
-            pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\subject ' + comment + r'}', src)
-            else:
-                src = add_metadata_item(src, 'subject', comment)
-        author = options.authors
-        if author is not None:
-            author =  ', '.join(author)
-            author = encode(author)
-            pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\author ' + author + r'}', src)
-            else:
-                src = add_metadata_item(src, 'author', author)
-        tags = options.tags
-        if tags is not None:
-            tags =  ', '.join(tags)
-            tags = encode(tags)
-            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\category ' + tags + r'}', src)
-            else:
-                src = add_metadata_item(src, 'category', tags)
-        publisher = options.publisher
-        if publisher is not None:
-            publisher = encode(publisher)
-            pat = re.compile(base_pat.replace('name', 'manager'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\manager ' + publisher + r'}', src)
-            else:
-                src = add_metadata_item(src, 'manager', publisher)
+
+        def replace_or_create(src, name, val):
+            val = encode(val)
+            pat = re.compile(base_pat.replace('name', name), re.DOTALL)
+            src, num = pat.subn('{\\' + name + ' ' + val + '}', src)
+            if num == 0:
+                src = add_metadata_item(src, name, val)
+            return src
+
+        if options.title is not None:
+            src = replace_or_create(src, 'title', options.title)
+        if options.comments is not None:
+            src = replace_or_create(src, 'subject', options.comments)
+        if options.authors is not None:
+            src = replace_or_create(src, 'author', ', '.join(options.authors))
+        if options.tags is not None:
+            src = replace_or_create(src, 'category', ', '.join(options.tags))
+        if options.publisher is not None:
+            src = replace_or_create(src, 'manager', options.publisher)
         stream.seek(pos + olen)
         after = stream.read()
         stream.seek(pos)
         stream.truncate()
-        stream.write(src)
+        stream.write(src.encode('ascii'))
         stream.write(after)
+
+
+def find_tests():
+    import unittest
+    from io import BytesIO
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    class Test(unittest.TestCase):
+
+        def test_rtf_metadata(self):
+            stream = BytesIO(br'{\rtf1\ansi\ansicpg1252}')
+            m = Metadata('Test ø̄title', ['Author One', 'Author БTwo'])
+            m.tags = 'tag1 見tag2'.split()
+            m.comments = '<p>some ⊹comments</p>'
+            m.publisher = 'publiSher'
+            set_metadata(stream, m)
+            stream.seek(0)
+            o = get_metadata(stream)
+            for attr in 'title authors publisher comments tags'.split():
+                self.assertEqual(getattr(m, attr), getattr(o, attr))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(Test)

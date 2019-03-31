@@ -59,6 +59,9 @@ if is_py3:
     def cmp(a, b):
         return (a > b) - (a < b)
 
+    def int_to_byte(x):
+        return bytes((x,))
+
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -78,6 +81,7 @@ else:
     exec_path = execfile
     raw_input = builtins.raw_input
     cmp = builtins.cmp
+    int_to_byte = chr
 
     def iteritems(d):
         return d.iteritems()
