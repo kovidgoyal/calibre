@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, codecs
+import re, codecs
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -26,38 +26,38 @@ def get_document_info(stream):
     """
     block_size = 4096
     stream.seek(0)
-    found, block = False, ""
+    found, block = False, b""
     while not found:
         prefix = block[-6:]
         block = prefix + stream.read(block_size)
         actual_block_size = len(block) - len(prefix)
         if len(block) == len(prefix):
             break
-        idx = block.find(r'{\info')
+        idx = block.find(br'{\info')
         if idx >= 0:
             found = True
             pos = stream.tell() - actual_block_size + idx - len(prefix)
             stream.seek(pos)
         else:
-            if block.find(r'\sect') > -1:
+            if block.find(br'\sect') > -1:
                 break
     if not found:
         return None, 0
-    data, count, = cStringIO.StringIO(), 0
+    data, count, = [], 0
     pos = stream.tell()
     while True:
         ch = stream.read(1)
-        if ch == '\\':
-            data.write(ch + stream.read(1))
+        if ch == b'\\':
+            data.append(ch + stream.read(1))
             continue
-        if ch == '{':
+        if ch == b'{':
             count += 1
-        elif ch == '}':
+        elif ch == b'}':
             count -= 1
-        data.write(ch)
+        data.append(ch)
         if count == 0:
             break
-    return data.getvalue(), pos
+    return b''.join(data), pos
 
 
 def detect_codepage(stream):
