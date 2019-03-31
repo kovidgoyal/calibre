@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, json, subprocess, errno, hashlib
-from setup import Command, build_cache_dir, edit_file
+from setup import Command, build_cache_dir, edit_file, dump_json
 
 
 class Message:
@@ -72,8 +72,7 @@ class Check(Command):
         return self.j(build_cache_dir(), self.CACHE)
 
     def save_cache(self, cache):
-        with open(self.cache_file, 'wb') as f:
-            json.dump(cache, f)
+        dump_json(cache, self.cache_file)
 
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]

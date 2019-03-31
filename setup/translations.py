@@ -11,7 +11,7 @@ from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file
+from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json
 from setup.parallel_build import parallel_check_output
 from polyglot.builtins import codepoint_to_chr, iteritems, range
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -288,8 +288,11 @@ class Translations(POT):  # {{{
             cname = self.cache_name(src) + '.stats.json'
             with open(self.j(self.cache_dir, cname), ('rb' if data is None else 'wb')) as f:
                 if data is None:
-                    return json.load(f)
-                json.dump(data, f)
+                    return json.loads(f.read())
+                data = json.dumps(data)
+                if not isinstance(data, bytes):
+                    data = data.encode('utf-8')
+                f.write(data)
 
         for src, dest in files:
             base = os.path.dirname(dest)
@@ -543,14 +546,12 @@ class Translations(POT):  # {{{
 
         self.compile_group(files, handle_stats=handle_stats)
         for locale, stats in iteritems(all_stats):
-            with open(self.j(srcbase, locale, 'stats.json'), 'wb') as f:
-                json.dump(stats, f)
+            dump_json(stats, self.j(srcbase, locale, 'stats.json'))
             total = stats['translated'] + stats['untranslated']
             # Raise the 30% threshold in the future
             if total and (stats['translated'] / float(total)) > 0.3:
                 complete[locale] = stats
-        with open(self.j(destbase, 'completed.json'), 'wb') as f:
-            json.dump(complete, f, indent=True, sort_keys=True)
+        dump_json(complete, self.j(destbase, 'completed.json'))
 
     def clean(self):
         if os.path.exists(self.stats):

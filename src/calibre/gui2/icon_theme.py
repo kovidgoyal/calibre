@@ -260,8 +260,11 @@ class ThemeCreateDialog(Dialog):
         }
 
     def save_metadata(self):
+        data = json.dumps(self.metadata, indent=2)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with open(os.path.join(self.report.path, THEME_METADATA), 'wb') as f:
-            json.dump(self.metadata, f, indent=2)
+            f.write(data)
 
     def refresh(self):
         self.save_metadata()

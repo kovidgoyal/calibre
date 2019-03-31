@@ -568,8 +568,11 @@ def update_stats():
         if m is not None:
             plugin = m.group(1).decode('utf-8')
             stats[plugin] = stats.get(plugin, 0) + 1
+    data = json.dumps(stats, indent=2)
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
     with open('stats.json', 'wb') as f:
-        json.dump(stats, f, indent=2)
+        f.write(data)
     return stats
 
 

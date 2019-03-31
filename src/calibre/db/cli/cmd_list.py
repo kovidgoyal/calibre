@@ -161,12 +161,14 @@ def do_list(
     fields = ['id'] + fields
     stringify(data, metadata, for_machine)
     if for_machine:
-        json.dump(
+        raw = json.dumps(
             list(as_machine_data(book_ids, data, metadata)),
-            sys.stdout,
             indent=2,
             sort_keys=True
         )
+        if not isinstance(raw, bytes):
+            raw = raw.encode('utf-8')
+        getattr(sys.stdout, 'buffer', sys.stdout).write(raw)
         return
     from calibre.utils.terminal import ColoredStream, geometry
 
