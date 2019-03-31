@@ -430,6 +430,8 @@ class Translations(POT):  # {{{
         rmap = {}
         msgid = None
         has_errors = False
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8')
         for match in re.finditer(r'^(msgid|msgstr)\s+"(.*?)"', raw, re.M):
             if match.group(1) == 'msgid':
                 msgid = match.group(2)
