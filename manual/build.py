@@ -88,7 +88,7 @@ def build_linkcheck(base):
 
 
 def build_man_pages(language, base):
-    os.environ[b'CALIBRE_BUILD_MAN_PAGES'] = b'1'
+    os.environ['CALIBRE_BUILD_MAN_PAGES'] = '1'
     sphinx_build(language, base, builder='man', bdir=language, very_quiet=True)
 
 
