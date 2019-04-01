@@ -192,7 +192,7 @@
                    <width>32</width>
                    <height>16777215</height>
                  </size>
-			   </property> 
+			   </property>
 			   <property name="enabled">
                  <bool>false</bool>
                </property>
@@ -233,7 +233,7 @@
            </item>
 		 </layout>
 	   </item>
-	 </layout>   
+	 </layout>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="rh_label">
@@ -254,7 +254,7 @@
   <customwidget>
    <class>RegexEdit</class>
    <extends>QWidget</extends>
-   <header>regex_builder.h</header>
+   <header>calibre.gui2.convert.regex_builder.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
