@@ -57,12 +57,15 @@ class Ozon(Source):
     )
 
     def get_book_url(self, identifiers):  # {{{
-        import urllib2
+        try:
+            from urllib.parse import quote
+        except ImportError:
+            from urllib import quote
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
             # no affiliateId is used in search/detail
-            url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
+            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
 

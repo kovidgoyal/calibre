@@ -65,7 +65,10 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         import json
         from collections import OrderedDict
         ans = OrderedDict()

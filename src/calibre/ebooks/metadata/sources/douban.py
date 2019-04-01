@@ -178,7 +178,10 @@ class Douban(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         SEARCH_URL = 'https://api.douban.com/book/subjects?'
         ISBN_URL = 'https://api.douban.com/book/subject/isbn/'
         SUBJECT_URL = 'https://api.douban.com/book/subject/'

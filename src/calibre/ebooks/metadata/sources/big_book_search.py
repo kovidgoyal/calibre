@@ -11,7 +11,10 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 
 
 def get_urls(br, tokens):
-    from urllib import quote_plus
+    try:
+        from urllib.parse import quote_plus
+    except ImportError:
+        from urllib import quote_plus
     from mechanize import Request
     from lxml import html
     escaped = [quote_plus(x.encode('utf-8')) for x in tokens if x and x.strip()]

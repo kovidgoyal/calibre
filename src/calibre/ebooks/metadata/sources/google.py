@@ -199,7 +199,10 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

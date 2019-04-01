@@ -8,8 +8,11 @@ import json
 import re
 import time
 from collections import defaultdict, namedtuple
-from urllib import quote_plus, urlencode
-from urlparse import parse_qs
+try:
+    from urllib.parse import parse_qs, quote_plus, urlencode
+except ImportError:
+    from urlparse import parse_qs
+    from urllib import quote_plus, urlencode
 
 from lxml import etree
 

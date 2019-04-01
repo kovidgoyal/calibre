@@ -12,8 +12,7 @@ from datetime import datetime
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
-from urlparse import urlparse
-from urllib import quote
+from polyglot.urllib import urlparse, quote
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata import check_issn, authors_to_sort_string

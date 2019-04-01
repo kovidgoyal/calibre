@@ -12,7 +12,10 @@ try:
 except ImportError:
     from Queue import Empty, Queue
 from threading import Thread
-from urlparse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 from calibre import as_unicode, browser, random_user_agent
 from calibre.ebooks.metadata import check_isbn
@@ -579,7 +582,10 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root, raw):
-        from urllib import unquote
+        try:
+            from urllib.parse import unquote
+        except ImportError:
+            from urllib import unquote
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
@@ -1048,7 +1054,10 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         if domain is None:
             domain = self.domain
 
