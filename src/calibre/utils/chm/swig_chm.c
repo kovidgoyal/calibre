@@ -4795,7 +4795,7 @@ SWIGINTERN PyObject *_wrap_chm_retrieve_object(PyObject *self, PyObject *args) {
   resultobj = SWIG_From_long_SS_long((long long)(result));
   {
     PyObject *o;
-    o = PyString_FromStringAndSize((const char*)arg3, arg5);
+    o = PyBytes_FromStringAndSize((const char*)arg3, arg5);
     resultobj = t_output_helper(resultobj,o);
 
 
