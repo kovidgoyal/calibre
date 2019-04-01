@@ -3508,9 +3508,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             if mi.series_index is None else mi.series_index
             aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
             title = mi.title
-            if isinstance(aus, str):
+            if isinstance(aus, bytes):
                 aus = aus.decode(preferred_encoding, 'replace')
-            if isinstance(title, str):
+            if isinstance(title, bytes):
                 title = title.decode(preferred_encoding)
             obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                               (title, series_index, aus))
@@ -3552,7 +3552,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not mi.authors:
             mi.authors = [_('Unknown')]
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
-        if isinstance(aus, str):
+        if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
         title = mi.title if isinstance(mi.title, unicode_type) else \
                 mi.title.decode(preferred_encoding, 'replace')

@@ -248,7 +248,7 @@ class ParseRtf:
             enc = 'cp' + enc
             msg = '%s\nException in token processing' % str(msg)
             if check_encoding_obj.check_encoding(self.__file, enc):
-                file_name = self.__file if isinstance(self.__file, str) \
+                file_name = self.__file if isinstance(self.__file, bytes) \
                                     else self.__file.encode('utf-8')
                 msg +='\nFile %s does not appear to be correctly encoded.\n' % file_name
             try:

@@ -42,7 +42,7 @@ def serialize_recipe(urn, recipe_class):
 
     def attr(n, d):
         ans = getattr(recipe_class, n, d)
-        if isinstance(ans, str):
+        if isinstance(ans, bytes):
             ans = ans.decode('utf-8', 'replace')
         return ans
 
@@ -66,7 +66,7 @@ def serialize_collection(mapping_of_recipe_classes):
     collection = E.recipe_collection()
     '''for u, x in mapping_of_recipe_classes.items():
         print 11111, u, repr(x.title)
-        if isinstance(x.title, str):
+        if isinstance(x.title, bytes):
             x.title.decode('ascii')
     '''
     for urn in sorted(mapping_of_recipe_classes.keys(),

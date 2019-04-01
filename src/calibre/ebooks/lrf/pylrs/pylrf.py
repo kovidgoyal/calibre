@@ -10,7 +10,7 @@ import codecs
 import os
 
 from pylrfopt import tagListOptimizer
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, string_or_bytes
 
 PYLRF_VERSION = "1.0"
 
@@ -130,7 +130,7 @@ def writeLineWidth(f, width):
 
 
 def writeUnicode(f, string, encoding):
-    if isinstance(string, str):
+    if isinstance(string, bytes):
         string = string.decode(encoding)
     string = string.encode("utf-16-le")
     length = len(string)
@@ -141,7 +141,7 @@ def writeUnicode(f, string, encoding):
 
 
 def writeRaw(f, string, encoding):
-    if isinstance(string, str):
+    if isinstance(string, bytes):
         string = string.decode(encoding)
 
     string = string.encode("utf-16-le")
@@ -398,7 +398,7 @@ class LrfTag(object):
         for f in self.format:
             if isinstance(f, dict):
                 p = f[p]
-            elif isinstance(f, str):
+            elif isinstance(f, string_or_bytes):
                 if isinstance(p, tuple):
                     writeString(lrf, struct.pack(f, *p))
                 else:

@@ -1137,7 +1137,7 @@ class ServiceInfo(object):
                 value = properties[key]
                 if value is None:
                     suffix = ''
-                elif isinstance(value, str):
+                elif isinstance(value, bytes):
                     suffix = value
                 elif isinstance(value, numbers.Integral):
                     suffix = value and 'true' or 'false'

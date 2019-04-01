@@ -37,7 +37,7 @@ def prints(*args, **kwargs):
                 if not safe_encode:
                     raise
                 arg = repr(arg)
-        if not isinstance(arg, str):
+        if not isinstance(arg, bytes):
             try:
                 arg = str(arg)
             except ValueError:

@@ -22,6 +22,7 @@ from calibre.utils.config_base import (
     tweaks, from_json, to_json
 )
 from calibre.utils.lock import ExclusiveFile
+from polyglot.builtins import string_or_bytes
 
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
@@ -379,7 +380,7 @@ class XMLConfig(dict):
             return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
-        if isinstance(val, (bytes, str)):
+        if isinstance(val, string_or_bytes):
             val = plistlib.Data(val)
         dict.__setitem__(self, key, val)
         self.commit()

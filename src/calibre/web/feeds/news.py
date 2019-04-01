@@ -1104,7 +1104,7 @@ class BasicNewsRecipe(Recipe):
                             self.image_map[feed.image_url] = img
                         except:
                             pass
-            if isinstance(feed.image_url, str):
+            if isinstance(feed.image_url, bytes):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
 
         templ = (templates.TouchscreenFeedTemplate if self.touchscreen else

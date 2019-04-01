@@ -203,7 +203,7 @@ class DateSearch(object):  # {{{
                     field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
-            if isinstance(v, (str, unicode_type)):
+            if isinstance(v, string_or_bytes):
                 v = parse_date(v)
             if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids

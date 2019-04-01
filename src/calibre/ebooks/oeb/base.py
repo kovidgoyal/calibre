@@ -1079,7 +1079,7 @@ class Manifest(object):
             return property(fget, fset, fdel, doc=doc)
 
         def unload_data_from_memory(self, memory=None):
-            if isinstance(self._data, (str, bytes)):
+            if isinstance(self._data, bytes):
                 if memory is None:
                     from calibre.ptempfile import PersistentTemporaryFile
                     pt = PersistentTemporaryFile(suffix='_oeb_base_mem_unloader.img')

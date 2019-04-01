@@ -217,7 +217,7 @@ class Resource(object):
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
-            if isinstance(path, str):
+            if isinstance(path, bytes):
                 path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:

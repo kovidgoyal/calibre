@@ -1721,7 +1721,7 @@ class Text(LrsContainer):
 
     def toLrfContainer(self, lrfWriter, parent):
         if self.text:
-            if isinstance(self.text, str):
+            if isinstance(self.text, bytes):
                 parent.appendLrfTag(LrfTag("rawtext", self.text))
             else:
                 parent.appendLrfTag(LrfTag("textstring", self.text))
