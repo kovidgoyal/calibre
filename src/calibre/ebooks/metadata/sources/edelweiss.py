@@ -9,7 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from threading import Thread
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn

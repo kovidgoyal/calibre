@@ -7,7 +7,10 @@ import re
 import socket
 import time
 from functools import partial
-from Queue import Empty, Queue
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 from threading import Thread
 from urlparse import urlparse
 

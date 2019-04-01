@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from datetime import datetime
-from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
@@ -28,6 +27,7 @@ from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter
 from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.queue import Queue, Empty
 
 # Download worker {{{
 

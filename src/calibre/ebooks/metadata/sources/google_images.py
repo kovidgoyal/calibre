@@ -95,7 +95,10 @@ class GoogleImages(Source):
 
 
 def test():
-    from Queue import Queue
+    try:
+        from queue import Queue
+    except ImportError:
+        from Queue import Queue
     from threading import Event
     from calibre.utils.logging import default_log
     p = GoogleImages(None)

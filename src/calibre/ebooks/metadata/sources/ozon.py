@@ -12,7 +12,10 @@ __docformat__ = 'restructuredtext en'
 # bitcoins to 1E6CRSLY1uNstcZjLYZBHRVs1CPKbdi4ep
 
 import re
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode, replace_entities
 from calibre.ebooks.metadata import check_isbn

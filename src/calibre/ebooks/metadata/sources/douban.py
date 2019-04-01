@@ -9,7 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from functools import partial
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 
 from calibre.ebooks.metadata import check_isbn
