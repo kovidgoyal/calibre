@@ -5,7 +5,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 economist.com
 '''
-import cookielib
+try:
+    from http.cookiejar import Cookie
+except ImportError:
+    from cookielib import Cookie
 from collections import OrderedDict
 
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
@@ -113,7 +116,7 @@ class Economist(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         # Add a cookie indicating we have accepted Economist's cookie
         # policy (needed when running from some European countries)
-        ck = cookielib.Cookie(
+        ck = Cookie(
             version=0,
             name='notice_preferences',
             value='2:',

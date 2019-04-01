@@ -1,5 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import cookielib
+try:
+    from http.cookiejar import Cookie
+except ImportError:
+    from cookielib import Cookie
 
 
 class BasicUserRecipe1333905513(BasicNewsRecipe):
@@ -15,7 +18,7 @@ class BasicUserRecipe1333905513(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         # Add a cookie indicating we have accepted the cookie
         # policy
-        ck = cookielib.Cookie(
+        ck = Cookie(
             version=0, name='nl_cookiewall_version', value='1', port=None,
             port_specified=False, domain='.trouw.nl',
             domain_specified=False, domain_initial_dot=True, path='/',
