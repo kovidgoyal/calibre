@@ -7,14 +7,15 @@ Provides a command-line interface to ebook devices.
 For usage information run the script.
 """
 
-import StringIO, sys, time, os
+import sys, time, os
 from optparse import OptionParser
 
-from calibre import __version__, __appname__, human_readable, fsync
+from calibre import __version__, __appname__, human_readable, fsync, prints
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
+from polyglot.io import PolyglotBytesIO
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 
@@ -127,13 +128,13 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 c += 1
         return rowwidths
 
-    output = StringIO.StringIO()
+    output = PolyglotBytesIO()
     if path.endswith("/") and len(path) > 1:
         path = path[:-1]
     dirs = dev.list(path, recurse)
     for dir in dirs:
         if recurse:
-            print(dir[0] + ":", file=output)
+            prints(dir[0] + ":", file=output)
         lsoutput, lscoloutput = [], []
         files = dir[1]
         maxlen = 0
@@ -154,7 +155,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 size = str(file.size)
                 if human_readable_size:
                     size = file.human_readable_size
-                print(file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name, file=output)
+                prints(file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name, file=output)
         if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
@@ -176,10 +177,10 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             for r in range(len(trytable)):
                 for c in range(len(trytable[r])):
                     padding = rowwidths[c] - len(trytable[r][c])
-                    print(trytablecol[r][c], "".ljust(padding), end=' ', file=output)
-                print(file=output)
-        print(file=output)
-    listing = output.getvalue().rstrip()+ "\n"
+                    prints(trytablecol[r][c], "".ljust(padding), end=' ', file=output)
+                prints(file=output)
+        prints(file=output)
+    listing = output.getvalue().rstrip().decode('utf-8') + "\n"
     output.close()
     return listing
 
