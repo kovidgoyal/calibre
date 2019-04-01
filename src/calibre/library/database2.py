@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, types, numbers
+        json, uuid, hashlib, copy, numbers
 from collections import defaultdict, namedtuple
 import threading, random
 
@@ -147,11 +147,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
+    get_data_as_dict = get_data_as_dict
+
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False, is_second_db=False, progress_callback=None,
             restore_all_prefs=False):
         self.is_second_db = is_second_db
-        self.get_data_as_dict = types.MethodType(get_data_as_dict, self, LibraryDatabase2)
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)

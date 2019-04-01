@@ -7,9 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools, operator, os, math
-from types import MethodType
 from threading import Event, Thread
-from functools import wraps, partial
+from functools import wraps
 from textwrap import wrap
 
 from PyQt5.Qt import (
@@ -96,14 +95,14 @@ def event_has_mods(self, event=None):
     return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
 
 
-def mousePressEvent(base_class, self, event):
+def mousePressEvent(self, event):
     ep = event.pos()
     if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
             event.button() == Qt.LeftButton and not self.event_has_mods():
         self.drag_start_pos = ep
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
-    return base_class.mousePressEvent(self, event)
+    return super(self.__class__, self).mousePressEvent(event)
 
 
 def drag_icon(self, cover, multiple):
@@ -179,11 +178,11 @@ def drag_data(self):
     return drag
 
 
-def mouseMoveEvent(base_class, self, event):
+def mouseMoveEvent(self, event):
     if not self.drag_allowed:
         return
     if self.drag_start_pos is None:
-        return base_class.mouseMoveEvent(self, event)
+        return super(self.__class__, self).mouseMoveEvent(event)
 
     if self.event_has_mods():
         self.drag_start_pos = None
@@ -250,15 +249,12 @@ def paths_from_event(self, event):
 def setup_dnd_interface(cls_or_self):
     if isinstance(cls_or_self, type):
         cls = cls_or_self
-        base_class = cls.__bases__[0]
         fmap = globals()
         for x in (
             'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent',
             'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
             func = fmap[x]
-            if x in {'mouseMoveEvent', 'mousePressEvent'}:
-                func = partial(func, base_class)
-            setattr(cls, x, MethodType(func, None, cls))
+            setattr(cls, x, func)
         return cls
     else:
         self = cls_or_self

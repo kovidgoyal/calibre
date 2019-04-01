@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, traceback, types
+import os, traceback
 from polyglot.builtins import iteritems, zip
 
 from calibre import force_unicode, isbytestring
@@ -750,8 +750,6 @@ class LibraryDatabase(object):
     # }}}
 
 
-MT = lambda func: types.MethodType(func, None, LibraryDatabase)
-
 # Legacy getter API {{{
 for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher', 'max_size',
              'rating', 'series', 'series_index', 'tags', 'title', 'title_sort',
@@ -763,7 +761,7 @@ for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher', 'max_
         def func(self, index, index_is_id=False):
             return self.get_property(index, index_is_id=index_is_id, loc=self.FIELD_MAP[fm])
         return func
-    setattr(LibraryDatabase, prop, MT(getter(prop)))
+    setattr(LibraryDatabase, prop, getter(prop))
 
 for prop in ('series', 'publisher'):
     def getter(field):
@@ -775,22 +773,19 @@ for prop in ('series', 'publisher'):
             except IndexError:
                 pass
         return func
-    setattr(LibraryDatabase, prop + '_id', MT(getter(prop)))
+    setattr(LibraryDatabase, prop + '_id', getter(prop))
 
-LibraryDatabase.format_hash = MT(lambda self, book_id, fmt:self.new_api.format_hash(book_id, fmt))
-LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
-LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
-LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))
-LibraryDatabase.get_categories = MT(lambda self, sort='name', ids=None:self.new_api.get_categories(sort=sort, book_ids=ids))
-LibraryDatabase.get_identifiers = MT(
-    lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.id(index)))
-LibraryDatabase.isbn = MT(
-    lambda self, index, index_is_id=False: self.get_identifiers(index, index_is_id=index_is_id).get('isbn', None))
-LibraryDatabase.get_books_for_category = MT(
-    lambda self, category, id_:self.new_api.get_books_for_category(category, id_))
-LibraryDatabase.get_data_as_dict = MT(get_data_as_dict)
-LibraryDatabase.find_identical_books = MT(lambda self, mi:self.new_api.find_identical_books(mi))
-LibraryDatabase.get_top_level_move_items = MT(lambda self:self.new_api.get_top_level_move_items())
+LibraryDatabase.format_hash = lambda self, book_id, fmt:self.new_api.format_hash(book_id, fmt)
+LibraryDatabase.index = lambda self, book_id, cache=False:self.data.id_to_index(book_id)
+LibraryDatabase.has_cover = lambda self, book_id:self.new_api.field_for('cover', book_id)
+LibraryDatabase.get_tags = lambda self, book_id:set(self.new_api.field_for('tags', book_id))
+LibraryDatabase.get_categories = lambda self, sort='name', ids=None:self.new_api.get_categories(sort=sort, book_ids=ids)
+LibraryDatabase.get_identifiers = lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.id(index))
+LibraryDatabase.isbn = lambda self, index, index_is_id=False: self.get_identifiers(index, index_is_id=index_is_id).get('isbn', None)
+LibraryDatabase.get_books_for_category = lambda self, category, id_:self.new_api.get_books_for_category(category, id_)
+LibraryDatabase.get_data_as_dict = get_data_as_dict
+LibraryDatabase.find_identical_books = lambda self, mi:self.new_api.find_identical_books(mi)
+LibraryDatabase.get_top_level_move_items = lambda self:self.new_api.get_top_level_move_items()
 # }}}
 
 # Legacy setter API {{{
@@ -826,7 +821,7 @@ for field in (
                     self.notify([book_id])
                 return ret if field == 'languages' else retval
         return func
-    setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), MT(setter(field)))
+    setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), setter(field))
 
 for field in ('authors', 'tags', 'publisher'):
     def renamer(field):
@@ -836,10 +831,9 @@ for field in ('authors', 'tags', 'publisher'):
                 return id_map[old_id]
         return func
     fname = field[:-1] if field in {'tags', 'authors'} else field
-    setattr(LibraryDatabase, 'rename_%s' % fname, MT(renamer(field)))
+    setattr(LibraryDatabase, 'rename_%s' % fname, renamer(field))
 
-LibraryDatabase.update_last_modified = MT(
-    lambda self, book_ids, commit=False, now=None: self.new_api.update_last_modified(book_ids, now=now))
+LibraryDatabase.update_last_modified = lambda self, book_ids, commit=False, now=None: self.new_api.update_last_modified(book_ids, now=now)
 
 # }}}
 
@@ -850,23 +844,21 @@ for field in ('authors', 'tags', 'publisher', 'series'):
             return self.new_api.all_field_names(field)
         return func
     name = field[:-1] if field in {'authors', 'tags'} else field
-    setattr(LibraryDatabase, 'all_%s_names' % name, MT(getter(field)))
-LibraryDatabase.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
-LibraryDatabase.all_custom = MT(lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num)))
+    setattr(LibraryDatabase, 'all_%s_names' % name, getter(field))
+LibraryDatabase.all_formats = lambda self:self.new_api.all_field_names('formats')
+LibraryDatabase.all_custom = lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num))
 
 for func, field in iteritems({'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}):
     def getter(field):
         def func(self):
             return self.field_id_map(field)
         return func
-    setattr(LibraryDatabase, func, MT(getter(field)))
+    setattr(LibraryDatabase, func, getter(field))
 
-LibraryDatabase.all_tags = MT(lambda self: list(self.all_tag_names()))
-LibraryDatabase.get_all_identifier_types = MT(lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types()))
-LibraryDatabase.get_authors_with_ids = MT(
-    lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in iteritems(self.new_api.author_data())])
-LibraryDatabase.get_author_id = MT(
-    lambda self, author: {icu_lower(v):k for k, v in iteritems(self.new_api.get_id_map('authors'))}.get(icu_lower(author), None))
+LibraryDatabase.all_tags = lambda self: list(self.all_tag_names())
+LibraryDatabase.get_all_identifier_types = lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types())
+LibraryDatabase.get_authors_with_ids = lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in iteritems(self.new_api.author_data())]
+LibraryDatabase.get_author_id = lambda self, author: {icu_lower(v):k for k, v in iteritems(self.new_api.get_id_map('authors'))}.get(icu_lower(author), None)
 
 for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
     def getter(field):
@@ -875,7 +867,7 @@ for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
         def func(self):
             return [[tid, tag] for tid, tag in iteritems(self.new_api.get_id_map(fname))]
         return func
-    setattr(LibraryDatabase, 'get_%s_with_ids' % field, MT(getter(field)))
+    setattr(LibraryDatabase, 'get_%s_with_ids' % field, getter(field))
 
 for field in ('author', 'tag', 'series'):
     def getter(field):
@@ -884,7 +876,7 @@ for field in ('author', 'tag', 'series'):
         def func(self, item_id):
             return self.new_api.get_item_name(field, item_id)
         return func
-    setattr(LibraryDatabase, '%s_name' % field, MT(getter(field)))
+    setattr(LibraryDatabase, '%s_name' % field, getter(field))
 
 for field in ('publisher', 'series', 'tag'):
     def getter(field):
@@ -893,7 +885,7 @@ for field in ('publisher', 'series', 'tag'):
         def func(self, item_id):
             self.new_api.remove_items(fname, (item_id,))
         return func
-    setattr(LibraryDatabase, 'delete_%s_using_id' % field, MT(getter(field)))
+    setattr(LibraryDatabase, 'delete_%s_using_id' % field, getter(field))
 # }}}
 
 # Legacy field API {{{
@@ -915,8 +907,8 @@ for func in (
             def meth(self):
                 return getattr(self.field_metadata, func)()
         return meth
-    setattr(LibraryDatabase, func.replace('!', ''), MT(getter(func)))
-LibraryDatabase.metadata_for_field = MT(lambda self, field:self.field_metadata.get(field))
+    setattr(LibraryDatabase, func.replace('!', ''), getter(func))
+LibraryDatabase.metadata_for_field = lambda self, field:self.field_metadata.get(field)
 
 # }}}
 
@@ -926,21 +918,19 @@ for meth in ('get_next_series_num_for', 'has_book',):
         def func(self, x):
             return getattr(self.new_api, meth)(x)
         return func
-    setattr(LibraryDatabase, meth, MT(getter(meth)))
+    setattr(LibraryDatabase, meth, getter(meth))
 
-LibraryDatabase.saved_search_names = MT(lambda self:self.new_api.saved_search_names())
-LibraryDatabase.saved_search_lookup = MT(lambda self, x:self.new_api.saved_search_lookup(x))
-LibraryDatabase.saved_search_set_all = MT(lambda self, smap:self.new_api.saved_search_set_all(smap))
-LibraryDatabase.saved_search_delete = MT(lambda self, x:self.new_api.saved_search_delete(x))
-LibraryDatabase.saved_search_add = MT(lambda self, x, y:self.new_api.saved_search_add(x, y))
-LibraryDatabase.saved_search_rename = MT(lambda self, x, y:self.new_api.saved_search_rename(x, y))
-LibraryDatabase.commit_dirty_cache = MT(lambda self: self.new_api.commit_dirty_cache())
-LibraryDatabase.author_sort_from_authors = MT(lambda self, x: self.new_api.author_sort_from_authors(x))
+LibraryDatabase.saved_search_names = lambda self:self.new_api.saved_search_names()
+LibraryDatabase.saved_search_lookup = lambda self, x:self.new_api.saved_search_lookup(x)
+LibraryDatabase.saved_search_set_all = lambda self, smap:self.new_api.saved_search_set_all(smap)
+LibraryDatabase.saved_search_delete = lambda self, x:self.new_api.saved_search_delete(x)
+LibraryDatabase.saved_search_add = lambda self, x, y:self.new_api.saved_search_add(x, y)
+LibraryDatabase.saved_search_rename = lambda self, x, y:self.new_api.saved_search_rename(x, y)
+LibraryDatabase.commit_dirty_cache = lambda self: self.new_api.commit_dirty_cache()
+LibraryDatabase.author_sort_from_authors = lambda self, x: self.new_api.author_sort_from_authors(x)
 # Cleaning is not required anymore
-LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
-LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)
+LibraryDatabase.clean = LibraryDatabase.clean_custom = lambda self:None
+LibraryDatabase.clean_standard_field = lambda self, field, commit=False:None
 # apsw operates in autocommit mode
-LibraryDatabase.commit = MT(lambda self:None)
+LibraryDatabase.commit = lambda self:None
 # }}}
-
-del MT
