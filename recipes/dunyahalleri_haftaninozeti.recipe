@@ -243,8 +243,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         title = self.issue_title
         date = self.issue_date.strftime(
             '%d %B %Y').decode('utf8', 'replace')
-        author = 'www.dunyahalleri.com/haftanin-ozeti'.decode(
-            'utf8', 'replace')
+        author = u'www.dunyahalleri.com/haftanin-ozeti'
         # Texts
         img = Image.new(
             'RGB', (self.COVER_WIDTH, self.COVER_HEIGHT), 'white')
