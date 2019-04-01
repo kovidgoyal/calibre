@@ -385,7 +385,7 @@ class Resources(Command):  # {{{
                 src = ''.join(inspect.getsourcelines(func)[0][1:])
             except Exception:
                 continue
-            src = src.replace('def ' + func.func_name, 'def replace')
+            src = src.replace('def ' + func.__name__, 'def replace')
             imports = ['from %s import %s' % (x.__module__, x.__name__) for x in func.imports]
             if imports:
                 src = '\n'.join(imports) + '\n\n' + src
