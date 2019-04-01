@@ -550,7 +550,9 @@ def strftime(fmt, t=None):
         fmt = fmt.replace(u'%e', u'%#d')
         ans = plugins['winutil'][0].strftime(fmt, t)
     else:
-        ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+        ans = time.strftime(fmt, t)
+        if isinstance(ans, bytes):
+            ans = ans.decode(preferred_encoding, 'replace')
     if early_year:
         ans = ans.replace(u'_early year hack##', unicode_type(orig_year))
     return ans
