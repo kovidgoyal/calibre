@@ -31,8 +31,6 @@
 #define IS_HIGH_SURROGATE(x) (0xd800 <= x && x <= 0xdbff)
 #define IS_LOW_SURROGATE(x) (0xdc00 <= x && x <= 0xdfff)
 
-// Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
-
 #ifndef NO_PYTHON_TO_ICU
 static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
     UChar *ans = NULL;
@@ -226,7 +224,7 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
 
 #ifndef NO_ICU_TO_PYTHON
 static PyObject* icu_to_python(UChar *src, int32_t sz) {
-    return PyUnicode_DecodeUTF16((char*) src, sz, NULL, NULL);
+    return PyUnicode_DecodeUTF16((char*) src, sz * sizeof(UChar), "replace", NULL);
 }
 #endif
 
