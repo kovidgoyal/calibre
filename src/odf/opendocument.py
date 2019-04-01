@@ -29,6 +29,7 @@ import element
 from attrconverters import make_NCName
 from xml.sax.xmlreader import InputSource
 from odfmanifest import manifestlist
+from polyglot.io import PolyglotBytesIO
 
 __version__= TOOLSVERSION
 
@@ -151,13 +152,13 @@ class OpenDocument:
             self._styles_dict[name] = element
 
     def toXml(self, filename=''):
-        xml=StringIO()
+        xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         self.body.toXml(0, xml)
         if not filename:
             return xml.getvalue()
         else:
-            f=file(filename,'w')
+            f=file(filename,'wb')
             f.write(xml.getvalue())
             f.close()
 
@@ -166,7 +167,7 @@ class OpenDocument:
             Always written as a bytestream in UTF-8 encoding
         """
         self.__replaceGenerator()
-        xml=StringIO()
+        xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         self.topnode.toXml(0, xml)
         return xml.getvalue()

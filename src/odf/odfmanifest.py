@@ -25,7 +25,7 @@ import zipfile
 from xml.sax import make_parser,handler
 from xml.sax.xmlreader import InputSource
 import xml.sax.saxutils
-from cStringIO import StringIO
+import io
 
 MANIFESTNS="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 
@@ -97,7 +97,7 @@ def manifestlist(manifestxml):
     parser.setErrorHandler(handler.ErrorHandler())
 
     inpsrc = InputSource()
-    inpsrc.setByteStream(StringIO(manifestxml))
+    inpsrc.setByteStream(io.BytesIO(manifestxml))
     parser.setFeature(handler.feature_external_ges, False)  # Changed by Kovid to ignore external DTDs
     parser.parse(inpsrc)
 
@@ -114,4 +114,3 @@ if __name__ == "__main__":
     result = odfmanifest(sys.argv[1])
     for file in result.values():
         print("%-40s %-40s" % (file['media-type'], file['full-path']))
-
