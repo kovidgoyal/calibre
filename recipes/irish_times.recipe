@@ -7,7 +7,10 @@ import urlparse, re
 import json
 from uuid import uuid4
 from mechanize import Request
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile

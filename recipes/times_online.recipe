@@ -3,8 +3,11 @@ __copyright__ = '2010-2017, Bobby Steel <bob at xdca.com>, Darko Miletic'
 '''
 www.thetimes.co.uk
 '''
-import urllib
 import html5lib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from lxml import html
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -79,7 +82,7 @@ class TimesOnline(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.thetimes.co.uk/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({
+            data = urlencode({
                 'gotoUrl': self.INDEX,
                 'username': self.username,
                 'password': self.password})

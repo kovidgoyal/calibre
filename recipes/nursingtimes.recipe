@@ -4,7 +4,11 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 www.nursingtimes.net
 '''
 
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
@@ -31,7 +35,7 @@ class NursingTimes(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'campaigncode': '0', 'referrer': '', 'security_text': '', 'SIemail': self.username, 'passWord': self.password, 'LoginButton.x': '27', 'LoginButton.y': '13'  # noqa
+            data = urlencode({'campaigncode': '0', 'referrer': '', 'security_text': '', 'SIemail': self.username, 'passWord': self.password, 'LoginButton.x': '27', 'LoginButton.y': '13'  # noqa
                                      })
             br.open(self.LOGIN, data)
         return br

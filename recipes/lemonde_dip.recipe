@@ -4,7 +4,10 @@ __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 mondediplo.com
 '''
 
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -43,7 +46,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
+            data = urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
                                      })
             br.open(self.LOGIN, data)
         return br

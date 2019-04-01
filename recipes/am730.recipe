@@ -11,7 +11,10 @@ Change Log:
 2013/03/30 -- first version
 '''
 
-import urllib
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
@@ -59,7 +62,7 @@ class AM730(BasicNewsRecipe):
                 continue  # not in same section
 
             title = href.split('/')[-1].split('-')[0]
-            title = urllib.unquote(title.encode('ASCII'))  # .decode('utf-8')
+            title = unquote(title.encode('ASCII'))  # .decode('utf-8')
             if self.debug:
                 print(title)
             try:

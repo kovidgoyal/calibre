@@ -7,7 +7,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 import json
 from mechanize import Request
-from urllib import quote
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -26,7 +29,7 @@ class Barrons(BasicNewsRecipe):
     timefmt = ' [%a, %b %d, %Y]'
     use_embedded_content = False
     no_stylesheets = True
-    match_regexps = ['http://online.barrons.com/.*?html\?mod=.*?|file:.*']
+    match_regexps = ['http://online.barrons.com/.*?html\\?mod=.*?|file:.*']
     conversion_options = {'linearize_tables': True}
 
     # Don't grab articles more than 7 days old

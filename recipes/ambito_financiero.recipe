@@ -9,7 +9,10 @@ http://www.ambito.com/diario/
 '''
 
 import time
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -66,7 +69,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            postdata = urllib.urlencode({
+            postdata = urlencode({
                 'txtUser': self.username,
                 'txtPassword': self.password
             })
@@ -110,7 +113,7 @@ class Ambito_Financiero(BasicNewsRecipe):
         if self.session_id:
             l, s, r = url.rpartition('.html')
             o, s1, artid = l.rpartition('_')
-            postdata = urllib.urlencode({'id': artid, 'id_session': self.session_id})
+            postdata = urlencode({'id': artid, 'id_session': self.session_id})
             response = self.browser.open(
                 'http://data.ambito.com/diario/cuerpo_noticia.asp',
                 data=postdata,
@@ -128,7 +131,7 @@ class Ambito_Financiero(BasicNewsRecipe):
 
     def cleanup(self):
         if self.session_id is not None:
-            postdata = urllib.urlencode({'session_id': self.session_id})
+            postdata = urlencode({'session_id': self.session_id})
             self.browser.open(
                 'http://www.ambito.com/diario/no-cache/login/x_logout.asp', data=postdata, timeout=self.timeout
             )

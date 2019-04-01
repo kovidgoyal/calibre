@@ -9,9 +9,12 @@ __copyright__ = '2019, Darko Miletic <darko.miletic at gmail.com>'
 www.newcriterion.com
 '''
 
-import urllib
-import urllib2
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 import re
+from mechanize import Request
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -52,7 +55,7 @@ class TheNewCriterion(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open('https://www.newcriterion.com/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'login': self.username, 'password': self.password})
+            data = urlencode({'login': self.username, 'password': self.password})
             header = {
                 'X-OCTOBER-REQUEST-HANDLER': 'onSignin',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -60,7 +63,7 @@ class TheNewCriterion(BasicNewsRecipe):
                 'X-OCTOBER-REQUEST-PARTIALS':'',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
             }
-            request = urllib2.Request('https://www.newcriterion.com/', data, header)
+            request = Request('https://www.newcriterion.com/', data, header)
             br.open(request)
         return br
 

@@ -8,8 +8,14 @@ import json
 import operator
 import re
 import tempfile
-import urllib
-import urllib2
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+try:
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib2 import HTTPError, URLError
 
 
 __license__ = 'GPL v3'
@@ -99,18 +105,8 @@ class Pocket(BasicNewsRecipe):
             self.get_auth_uri(),
             self.get_pull_articles_uri()
         )
-        try:
-            request = urllib2.Request(fetch_url)
-            response = urllib2.urlopen(request)
-            pocket_feed = json.load(response)['list']
-        except urllib2.HTTPError as e:
-            self.log.exception(
-                "Pocket returned an error: {0}".format(e.info()))
-            return []
-        except urllib2.URLError as e:
-            self.log.exception(
-                "Unable to connect to getpocket.com's api: {0}\nurl: {1}".format(e, fetch_url))
-            return []
+        data = self.index_to_soup(fetch_url, raw=True)
+        pocket_feed = json.loads(data)['list']
 
         if len(pocket_feed) < self.minimum_articles:
             self.mark_as_read_after_dl = False
@@ -143,10 +139,10 @@ class Pocket(BasicNewsRecipe):
         fc_tag = soup.find('script', text=re.compile("formCheck"))
         fc_id = re.search(r"formCheck = \'([\d\w]+)\';", fc_tag).group(1)
         article_id = url.split("/")[-1]
-        data = urllib.urlencode({'itemId': article_id, 'formCheck': fc_id})
+        data = urlencode({'itemId': article_id, 'formCheck': fc_id})
         try:
             response = self.browser.open(ajax_url, data)
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             self.log.exception("unable to get textview {0}".format(e.info()))
             raise e
         return json.load(response)['article']
@@ -186,13 +182,12 @@ class Pocket(BasicNewsRecipe):
             self.get_auth_uri()
         )
         try:
-            request = urllib2.Request(mark_read_url)
-            urllib2.urlopen(request)
-        except urllib2.HTTPError as e:
+            self.browser.open_novisit(mark_read_url)
+        except HTTPError as e:
             self.log.exception(
                 'Pocket returned an error while archiving articles: {0}'.format(e))
             return []
-        except urllib2.URLError as e:
+        except URLError as e:
             self.log.exception(
                 "Unable to connect to getpocket.com's modify api: {0}".format(e))
             return []
