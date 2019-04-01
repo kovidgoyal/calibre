@@ -10,9 +10,8 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, numbers
+import os, numbers, io
 from struct import pack, unpack
-from cStringIO import StringIO
 
 from calibre.ebooks import normalize
 from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN
@@ -261,7 +260,7 @@ class MetadataUpdater(object):
             self.record0[0x58:0x5c] = pack('>L', len(new_title))
 
         # Create an updated Record0
-        new_record0 = StringIO()
+        new_record0 = io.BytesIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
         if self.encryption_type != 0:
@@ -423,7 +422,7 @@ class MetadataUpdater(object):
             recs.append((id, self.original_exth_records[id]))
         recs = sorted(recs, key=lambda x:(x[0],x[0]))
 
-        exth = StringIO()
+        exth = io.BytesIO()
         for code, data in recs:
             exth.write(pack('>II', code, len(data) + 8))
             exth.write(data)
