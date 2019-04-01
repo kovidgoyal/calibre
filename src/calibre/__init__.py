@@ -112,7 +112,7 @@ def confirm_config_name(name):
     return name + '_again'
 
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
+_filename_sanitize = re.compile(br'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
     u'"', u':', u'>', u'+', u'/'] + list(map(codepoint_to_chr, range(32))))
 
@@ -129,20 +129,22 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''
     if isinstance(name, unicode_type):
         name = name.encode(filesystem_encoding, 'ignore')
+    if isinstance(substitute, unicode_type):
+        substitute = substitute.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
-    one = re.sub(r'\s', ' ', one).strip()
+    one = re.sub(br'\s', b' ', one).strip()
     bname, ext = os.path.splitext(one)
-    one = re.sub(r'^\.+$', '_', bname)
-    if as_unicode:
-        one = one.decode(filesystem_encoding)
-    one = one.replace('..', substitute)
+    one = re.sub(br'^\.+$', '_', bname)
+    one = one.replace(b'..', substitute)
     one += ext
     # Windows doesn't like path components that end with a period
-    if one and one[-1] in ('.', ' '):
-        one = one[:-1]+'_'
+    if one and one[-1] in (b'.', b' '):
+        one = one[:-1]+b'_'
     # Names starting with a period are hidden on Unix
-    if one.startswith('.'):
-        one = '_' + one[1:]
+    if one.startswith(b'.'):
+        one = b'_' + one[1:]
+    if as_unicode:
+        one = one.decode(filesystem_encoding)
     return one
 
 
