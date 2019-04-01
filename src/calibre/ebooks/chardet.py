@@ -18,6 +18,14 @@ ENCODING_PATS = [
     # HTML 4 Pragma directive
     re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
 ]
+ENCODING_PATS_BYTES = [
+    # XML declaration
+    re.compile(br'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
+    # HTML 5 charset
+    re.compile(br'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    # HTML 4 Pragma directive
+    re.compile(br'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
@@ -102,10 +110,10 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
         if raw.startswith(bom):
             return raw[len(bom):], x
     encoding = None
-    for pat in ENCODING_PATS:
+    for pat in ENCODING_PATS_BYTES:
         match = pat.search(raw)
         if match:
-            encoding = match.group(1)
+            encoding = match.group(1).decode('utf-8')
             break
     if encoding is None:
         encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
