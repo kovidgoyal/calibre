@@ -15,25 +15,33 @@ import operator
 import string
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
-from polyglot.builtins import unicode_type, codepoint_to_chr
+from polyglot.builtins import unicode_type, codepoint_to_chr, range
 
 
-tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 utab = {c:c+32 for c in range(ord('A'), ord('Z')+1)}
 
+if sys.version_info.major < 3:
+    tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 
-def ascii_lower(string):
-    """Lower-case, but only in the ASCII range."""
-    return string.translate(utab if isinstance(string, unicode_type) else tab)
+    def ascii_lower(string):
+        """Lower-case, but only in the ASCII range."""
+        return string.translate(utab if isinstance(string, unicode_type) else tab)
+
+    def urepr(x):
+        if isinstance(x, list):
+            return '[%s]' % ', '.join((map(urepr, x)))
+        ans = repr(x)
+        if ans.startswith("u'") or ans.startswith('u"'):
+            ans = ans[1:]
+        return ans
 
 
-def urepr(x):
-    if isinstance(x, list):
-        return '[%s]' % ', '.join((map(urepr, x)))
-    ans = repr(x)
-    if ans.startswith("u'") or ans.startswith('u"'):
-        ans = ans[1:]
-    return ans
+else:
+
+    def ascii_lower(x):
+        return x.translate(utab)
+
+    urepr = repr
 
 
 # Parsed objects
