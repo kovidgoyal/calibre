@@ -6,7 +6,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import re
 import time
-from Queue import Empty, Queue
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode
 from calibre.ebooks.chardet import xml_to_unicode
