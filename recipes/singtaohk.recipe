@@ -31,7 +31,6 @@ import os
 import datetime
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
@@ -527,5 +526,5 @@ class STHKRecipe(BasicNewsRecipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)
