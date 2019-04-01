@@ -270,7 +270,7 @@ class RecentUAs(Command):  # {{{
         from setup.browser_data import get_data
         data = get_data()
         with open(self.UA_PATH, 'wb') as f:
-            f.write(json.dumps(data, indent=2, ensure_ascii=False).encode('utf-8'))
+            f.write(json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True).encode('utf-8'))
 # }}}
 
 
