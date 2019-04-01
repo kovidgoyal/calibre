@@ -6,12 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, plistlib, re, mimetypes, subprocess
+import os, re, mimetypes, subprocess
 from collections import defaultdict
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.plistlib import loads
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
@@ -266,7 +267,8 @@ def get_bundle_data(path):
         'path': path,
     }
     try:
-        plist = plistlib.readPlist(info)
+        with open(info, 'rb') as f:
+            plist = loads(f.read())
     except Exception:
         return None
     ans['name'] = plist.get('CFBundleDisplayName') or plist.get('CFBundleName') or ans['name']
