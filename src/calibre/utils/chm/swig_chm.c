@@ -3749,10 +3749,10 @@ static swig_module_info swig_module = {swig_types, 8, 0, 0, 0, 0};
               @(target):= _chmlib.so
   ------------------------------------------------*/
 #if PY_VERSION_HEX >= 0x03000000
-#  define SWIG_init    PyInit__chmlib
+#  define SWIG_init    PyInit_chmlib
 
 #else
-#  define SWIG_init    init_chmlib
+#  define SWIG_init    initchmlib
 
 #endif
 #define SWIG_name    "chmlib"
@@ -5754,7 +5754,7 @@ PyObject*
 #else
 void
 #endif
-initchmlib(void) {
+SWIG_init(void) {
   PyObject *m, *d, *md;
 #if PY_VERSION_HEX >= 0x03000000
   static struct PyModuleDef SWIG_module = {
