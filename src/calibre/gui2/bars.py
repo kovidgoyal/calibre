@@ -225,14 +225,15 @@ class ToolBar(QToolBar):  # {{{
         if ch is None:
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
-        ch.setAutoRaise(True)
         if hasattr(ch, 'setText') and hasattr(ch, 'text'):
             self.all_widgets.append(ch)
-        m = ac.menu()
-        if m is not None:
-            if menu_mode is not None:
-                ch.setPopupMode(menu_mode)
-        return ch
+        if hasattr(ch, 'setAutoRaise'):  # is a QToolButton or similar
+            ch.setAutoRaise(True)
+            m = ac.menu()
+            if m is not None:
+                if menu_mode is not None:
+                    ch.setPopupMode(menu_mode)
+            return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins
     def check_iactions_for_drag(self, event, md, func):
