@@ -17,7 +17,7 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import as_local_time
-from calibre import strftime, prints, sanitize_file_name_unicode
+from calibre import strftime, prints, sanitize_file_name
 from calibre.db.lazy import FormatsList
 from polyglot.builtins import unicode_type
 
@@ -279,7 +279,7 @@ def save_book_to_disk(book_id, db, root, opts, length):
 def get_path_components(opts, mi, book_id, path_length):
     try:
         components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
-            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
+            ascii_filename if opts.asciiize else sanitize_file_name,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace, safe_format=False,
             last_has_extension=False, single_dir=opts.single_dir)

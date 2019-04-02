@@ -12,7 +12,7 @@ from polyglot.builtins import iteritems, itervalues, map
 from functools import partial
 from collections import Counter, defaultdict
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
@@ -207,7 +207,7 @@ def rename_files(container, file_map):
 
 def replace_file(container, name, path, basename, force_mt=None):
     dirname, base = name.rpartition('/')[0::2]
-    nname = sanitize_file_name_unicode(basename)
+    nname = sanitize_file_name(basename)
     if dirname:
         nname = dirname + '/' + nname
     with open(path, 'rb') as src:

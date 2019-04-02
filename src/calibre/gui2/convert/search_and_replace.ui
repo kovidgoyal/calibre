@@ -254,7 +254,7 @@
   <customwidget>
    <class>RegexEdit</class>
    <extends>QWidget</extends>
-   <header>regex_builder.h</header>
+   <header>calibre/gui2/convert/regex_builder.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

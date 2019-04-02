@@ -13,7 +13,7 @@ from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from polyglot.builtins import range
 
 
@@ -96,7 +96,7 @@ class GenerateCatalogAction(InterfaceAction):
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
                 destination = os.path.join(export_dir, '%s.%s' % (
-                    sanitize_file_name_unicode(job.catalog_title), job.fmt.lower()))
+                    sanitize_file_name(job.catalog_title), job.fmt.lower()))
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
                 except EnvironmentError as err:

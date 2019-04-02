@@ -9,7 +9,7 @@ from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize)
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
@@ -359,7 +359,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     all_files=False, select_only_single_file=True)
             if path:
                 icon_path = path[0]
-                icon_name = sanitize_file_name_unicode(
+                icon_name = sanitize_file_name(
                              os.path.splitext(
                                    os.path.basename(icon_path))[0]+'.png')
                 if icon_name not in self.icon_file_names:

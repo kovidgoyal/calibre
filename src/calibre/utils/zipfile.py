@@ -8,7 +8,7 @@ import binascii
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
-from calibre import sanitize_file_name2
+from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from polyglot.builtins import unicode_type, string_or_bytes
@@ -1137,7 +1137,7 @@ class ZipFile:
                 os.makedirs(upperdirs)
             except:  # Added by Kovid
                 targetpath = os.path.join(base_target,
-                        sanitize_file_name2(fname))
+                        sanitize_file_name(fname))
                 upperdirs = os.path.dirname(targetpath)
                 if upperdirs and not os.path.exists(upperdirs):
                     os.makedirs(upperdirs)
@@ -1158,7 +1158,7 @@ class ZipFile:
                 except:
                     # Try sanitizing the file name to remove invalid characters
                     components = list(os.path.split(targetpath))
-                    components[-1] = sanitize_file_name2(components[-1])
+                    components[-1] = sanitize_file_name(components[-1])
                     targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)

@@ -8,7 +8,7 @@ import os
 from functools import partial
 from io import BytesIO
 
-from calibre import as_unicode, sanitize_file_name_unicode
+from calibre import as_unicode, sanitize_file_name
 from calibre.db.cli import module_for_cmd
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.changes import books_added, books_deleted, metadata
@@ -77,7 +77,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
         raise HTTPForbidden('Cannot use the add book interface with a user who has per library restrictions')
     if not filename:
         raise HTTPBadRequest('An empty filename is not allowed')
-    sfilename = sanitize_file_name_unicode(filename)
+    sfilename = sanitize_file_name(filename)
     fmt = os.path.splitext(sfilename)[1]
     fmt = fmt[1:] if fmt else None
     if not fmt:

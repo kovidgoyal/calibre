@@ -21,22 +21,21 @@ def ascii_text(orig):
     udc = get_udc()
     try:
         ascii = udc.decode(orig)
-    except:
+    except Exception:
         if isinstance(orig, unicode_type):
             orig = orig.encode('ascii', 'replace')
-        ascii = orig.decode(preferred_encoding,
-                'replace').encode('ascii', 'replace')
+        ascii = orig.decode(preferred_encoding, 'replace')
+    if isinstance(ascii, bytes):
+        ascii = ascii.decode('ascii', 'replace')
     return ascii
 
 
-def ascii_filename(orig, substitute='_'):
-    ans = []
-    orig = ascii_text(orig).replace('?', '_')
-    for x in orig:
-        if ord(x) < 32:
-            x = substitute
-        ans.append(x)
-    return sanitize_file_name(''.join(ans), substitute=substitute)
+def ascii_filename(orig, substitute=u'_'):
+    if isinstance(substitute, bytes):
+        substitute = substitute.decode(filesystem_encoding)
+    orig = ascii_text(orig).replace(u'?', u'_')
+    ans = u''.join(x if ord(x) >= 32 else substitute for x in orig)
+    return sanitize_file_name(ans, substitute=substitute)
 
 
 def shorten_component(s, by_what):

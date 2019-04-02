@@ -10,10 +10,10 @@ import os, errno
 from threading import Thread
 
 from calibre import force_unicode
-from calibre.constants import iswindows, get_windows_username, islinux
+from calibre.constants import iswindows, get_windows_username, islinux, filesystem_encoding, ispy3
 from calibre.utils.filenames import ascii_filename
 
-ADDRESS = VADDRESS = None
+VADDRESS = None
 
 
 def eintr_retry_call(func, *args, **kwargs):
@@ -27,10 +27,9 @@ def eintr_retry_call(func, *args, **kwargs):
 
 
 def gui_socket_address():
-    global ADDRESS
-    if ADDRESS is None:
+    if gui_socket_address.ans is None:
         if iswindows:
-            ADDRESS = r'\\.\pipe\CalibreGUI'
+            gui_socket_address.ans = r'\\.\pipe\CalibreGUI'
             try:
                 user = get_windows_username()
             except:
@@ -38,25 +37,26 @@ def gui_socket_address():
             if user:
                 user = ascii_filename(user).replace(' ', '_')
                 if user:
-                    ADDRESS += '-' + user[:100] + 'x'
+                    gui_socket_address.ans += '-' + user[:100] + 'x'
         else:
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
             if islinux:
-                ADDRESS = (u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user))).encode('ascii')
+                gui_socket_address.ans = (u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user)))
             else:
                 from tempfile import gettempdir
                 tmp = gettempdir()
-                ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
-    return ADDRESS
+                gui_socket_address.ans = os.path.join(tmp, user+'-calibre-gui.socket')
+        if not ispy3 and not isinstance(gui_socket_address.ans, bytes):
+            gui_socket_address.ans = gui_socket_address.ans.encode(filesystem_encoding)
+    return gui_socket_address.ans
 
 
 def viewer_socket_address():
-    global VADDRESS
-    if VADDRESS is None:
+    if viewer_socket_address.ans is None:
         if iswindows:
-            VADDRESS = r'\\.\pipe\CalibreViewer'
+            viewer_socket_address.ans = r'\\.\pipe\CalibreViewer'
             try:
                 user = get_windows_username()
             except:
@@ -64,18 +64,23 @@ def viewer_socket_address():
             if user:
                 user = ascii_filename(user).replace(' ', '_')
                 if user:
-                    VADDRESS += '-' + user[:100] + 'x'
+                    viewer_socket_address.ans += '-' + user[:100] + 'x'
         else:
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
             if islinux:
-                VADDRESS = (u'\0%s-calibre-viewer.socket' % ascii_filename(force_unicode(user))).encode('ascii')
+                viewer_socket_address.ans = (u'\0%s-calibre-viewer.socket' % ascii_filename(force_unicode(user)))
             else:
                 from tempfile import gettempdir
                 tmp = gettempdir()
-                VADDRESS = os.path.join(tmp, user+'-calibre-viewer.socket')
-    return VADDRESS
+                viewer_socket_address.ans = os.path.join(tmp, user+'-calibre-viewer.socket')
+        if not ispy3 and not isinstance(viewer_socket_address.ans, bytes):
+            viewer_socket_address.ans = viewer_socket_address.ans.encode(filesystem_encoding)
+    return viewer_socket_address.ans
+
+
+gui_socket_address.ans = viewer_socket_address.ans = None
 
 
 class RC(Thread):

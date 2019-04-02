@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
 )
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
@@ -375,7 +375,7 @@ class TagsView(QTreeView):  # {{{
                         d = os.path.join(config_dir, 'tb_icons')
                         if not os.path.exists(d):
                             os.makedirs(d)
-                        with open(os.path.join(d, 'icon_' + sanitize_file_name_unicode(key)+'.png'), 'wb') as f:
+                        with open(os.path.join(d, 'icon_' + sanitize_file_name(key)+'.png'), 'wb') as f:
                             f.write(pixmap_to_data(p, format='PNG'))
                             path = os.path.basename(f.name)
                         self._model.set_custom_category_icon(key, unicode_type(path))

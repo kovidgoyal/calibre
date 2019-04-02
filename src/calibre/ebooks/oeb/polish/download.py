@@ -17,7 +17,7 @@ from io import BytesIO
 from multiprocessing.dummy import Pool
 from tempfile import NamedTemporaryFile
 
-from calibre import as_unicode, sanitize_file_name2
+from calibre import as_unicode, sanitize_file_name as sanitize_file_name_base
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
@@ -97,7 +97,7 @@ class ProgressTracker(object):
 
 def sanitize_file_name(x):
     from calibre.ebooks.oeb.polish.check.parsing import make_filename_safe
-    x = sanitize_file_name2(x)
+    x = sanitize_file_name_base(x)
     while '..' in x:
         x = x.replace('..', '.')
     return make_filename_safe(x)

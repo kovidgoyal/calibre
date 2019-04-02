@@ -12,7 +12,7 @@ from threading import Lock
 from polyglot.builtins import map
 from functools import partial
 
-from calibre import fit_image, sanitize_file_name_unicode
+from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
@@ -166,7 +166,7 @@ def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, ext)
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
-        fname = sanitize_file_name_unicode(fname).encode('utf-8')
+        fname = sanitize_file_name(fname).encode('utf-8')
         fname = quote(fname).decode('ascii')
     else:
         fname = ascii_filename(fname).replace('"', '_')

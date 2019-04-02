@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre import human_readable, plugins, sanitize_file_name_unicode
+from calibre import human_readable, plugins, sanitize_file_name
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
@@ -73,7 +73,7 @@ def name_is_ok(name, show_error):
     norm = name.replace('\\', '/')
     parts = name.split('/')
     for x in parts:
-        if sanitize_file_name_unicode(x) != x:
+        if sanitize_file_name(x) != x:
             return show_error(_('The file name contains invalid characters')) and False
     if current_container().has_name(norm):
         return show_error(_('This file name already exists in the book')) and False
@@ -81,7 +81,7 @@ def name_is_ok(name, show_error):
     return True
 
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode,
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name,
         leading_zeros=True, prefix=None, category='text', allow_spine_order=False):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))

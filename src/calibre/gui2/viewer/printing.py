@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QFormLayout, QLineEdit, QToolButton, QHBoxLayout, QLabel, QIcon, QPrinter,
     QPageSize, QComboBox, QDoubleSpinBox, QCheckBox, QProgressDialog, QTimer)
 
-from calibre import sanitize_file_name2
+from calibre import sanitize_file_name
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
 from calibre.gui2 import elided_text, error_dialog, choose_save_file, Application, open_local_file, dynamic
@@ -31,7 +31,7 @@ class PrintDialog(Dialog):
 
     def __init__(self, book_title, parent=None, prefs=vprefs):
         self.book_title = book_title
-        self.default_file_name = sanitize_file_name2(book_title[:75] + '.pdf')
+        self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
         self.paper_size_map = {a:getattr(QPageSize, a.capitalize()) for a in PAPER_SIZES}
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
@@ -91,7 +91,7 @@ class PrintDialog(Dialog):
     def data(self):
         fpath = self.file_name.text().strip()
         head, tail = os.path.split(fpath)
-        tail = sanitize_file_name2(tail)
+        tail = sanitize_file_name(tail)
         fpath = tail
         if head:
             fpath = os.path.join(head, tail)
