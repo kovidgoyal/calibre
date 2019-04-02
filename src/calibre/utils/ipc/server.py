@@ -19,7 +19,7 @@ from multiprocessing.connection import Listener, arbitrary_address
 from threading import RLock, Thread
 
 from calibre import detect_ncpus as cpu_count
-from calibre.constants import DEBUG, islinux, iswindows
+from calibre.constants import DEBUG, islinux, iswindows, ispy3
 from calibre.ptempfile import base_dir
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
@@ -136,7 +136,9 @@ if islinux:
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
         prefix = u'\0calibre-ipc-listener-%d-%%d' % os.getpid()
         while True:
-            address = (prefix % next(_name_counter)).encode('ascii')
+            address = (prefix % next(_name_counter))
+            if not ispy3 and not isinstance(address, bytes):
+                address = address.encode('ascii')
             try:
                 l = LinuxListener(address=address, authkey=authkey, backlog=backlog)
                 return address, l
@@ -159,7 +161,7 @@ else:
         while max_tries > 0:
             max_tries -= 1
             address = prefix % next(_name_counter)
-            if not isinstance(address, bytes):
+            if not ispy3 and not isinstance(address, bytes):
                 address = address.encode('utf-8')  # multiprocessing needs bytes in python 2
             try:
                 return address, Listener(address=address, authkey=authkey, backlog=backlog)
