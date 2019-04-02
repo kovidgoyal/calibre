@@ -58,7 +58,7 @@ class StorePlugin(object):  # {{{
         self.name = name
         self.base_plugin = base_plugin
         if config is None:
-            from calibre.gui2 import JSONConfig
+            from calibre.utils.config import JSONConfig
             config = JSONConfig('store/stores/' + ascii_filename(self.name))
         self.config = config
 
