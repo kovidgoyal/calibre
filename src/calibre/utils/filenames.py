@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 '''
 Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
@@ -30,11 +31,11 @@ def ascii_text(orig):
     return ascii
 
 
-def ascii_filename(orig, substitute=u'_'):
+def ascii_filename(orig, substitute='_'):
     if isinstance(substitute, bytes):
         substitute = substitute.decode(filesystem_encoding)
-    orig = ascii_text(orig).replace(u'?', u'_')
-    ans = u''.join(x if ord(x) >= 32 else substitute for x in orig)
+    orig = ascii_text(orig).replace('?', '_')
+    ans = ''.join(x if ord(x) >= 32 else substitute for x in orig)
     return sanitize_file_name(ans, substitute=substitute)
 
 
@@ -296,7 +297,7 @@ def windows_hardlink(src, dest):
     try:
         win32file.CreateHardLink(dest, src)
     except pywintypes.error as e:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % e)
     src_size = os.path.getsize(src)
     # We open and close dest, to ensure its directory entry is updated
@@ -313,7 +314,7 @@ def windows_hardlink(src, dest):
 
     sz = windows_get_size(dest)
     if sz != src_size:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size' % sz))
 
 
@@ -322,11 +323,11 @@ def windows_fast_hardlink(src, dest):
     try:
         win32file.CreateHardLink(dest, src)
     except pywintypes.error as e:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % e)
     ssz, dsz = windows_get_size(src), windows_get_size(dest)
     if ssz != dsz:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size: %s' % (dsz, ssz)))
 
 
@@ -424,10 +425,10 @@ class WindowsAtomicFolderMove(object):
                 break
         if handle is None:
             if os.path.exists(path):
-                raise ValueError(u'The file %r did not exist when this move'
+                raise ValueError('The file %r did not exist when this move'
                         ' operation was started'%path)
             else:
-                raise ValueError(u'The file %r does not exist'%path)
+                raise ValueError('The file %r does not exist'%path)
         try:
             windows_hardlink(path, dest)
             return
@@ -439,7 +440,7 @@ class WindowsAtomicFolderMove(object):
             while True:
                 hr, raw = win32file.ReadFile(handle, 1024*1024)
                 if hr != 0:
-                    raise IOError(hr, u'Error while reading from %r'%path)
+                    raise IOError(hr, 'Error while reading from %r'%path)
                 if not raw:
                     break
                 f.write(raw)
@@ -549,10 +550,10 @@ if iswindows:
     def expanduser(path):
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
-        if path[:1] != u'~':
+        if path[:1] != '~':
             return path
         i, n = 1, len(path)
-        while i < n and path[i] not in u'/\\':
+        while i < n and path[i] not in '/\\':
             i += 1
         from win32com.shell import shell, shellcon
         userhome = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
