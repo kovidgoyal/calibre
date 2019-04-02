@@ -13,7 +13,7 @@ from lxml import html, etree
 from calibre import (xml_entity_to_unicode, entity_to_unicode)
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.ebooks import DRMError, unit_convert
-from calibre.ebooks.chardet import ENCODING_PATS
+from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
@@ -175,8 +175,7 @@ class MobiReader(object):
         self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
                 self.processed_html)
 
-        for pat in ENCODING_PATS:
-            self.processed_html = pat.sub('', self.processed_html)
+        self.processed_html = strip_encoding_declarations(self.processed_html)
         self.processed_html = re.sub(r'&(\S+?);', xml_entity_to_unicode,
             self.processed_html)
         self.extract_images(processed_records, output_dir)

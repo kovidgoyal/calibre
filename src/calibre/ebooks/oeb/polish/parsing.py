@@ -12,7 +12,7 @@ from lxml.etree import XMLParser, fromstring, Element as LxmlElement
 import html5_parser
 
 from calibre import xml_replace_entities
-from calibre.ebooks.chardet import xml_to_unicode, ENCODING_PATS
+from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.utils.cleantext import clean_xml_chars
 
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -31,17 +31,6 @@ def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numb
         not discard_namespaces and (root.tag != '{%s}%s' % (XHTML_NS, 'html') or root.prefix)):
         raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
     return root
-
-
-def strip_encoding_declarations(raw):
-    # A custom encoding stripper that preserves line numbers
-    limit = 10*1024
-    for pat in ENCODING_PATS:
-        prefix = raw[:limit]
-        suffix = raw[limit:]
-        prefix = pat.sub(lambda m: '\n' * m.group().count('\n'), prefix)
-        raw = prefix + suffix
-    return raw
 
 
 def handle_private_entities(data):
@@ -84,7 +73,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
         raw = ('\n' * newlines) + raw[match.start():]
         break
 
-    raw = strip_encoding_declarations(raw)
+    raw = strip_encoding_declarations(raw, limit=10*1024, preserve_newlines=True)
     if force_html5_parse:
         return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
     try:

@@ -10,22 +10,52 @@ __docformat__ = 'restructuredtext en'
 import re, codecs
 from polyglot.builtins import unicode_type
 
-ENCODING_PATS = [
+_encoding_pats = (
     # XML declaration
-    re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
+    r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
     # HTML 5 charset
-    re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''',
     # HTML 4 Pragma directive
-    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
-]
+    r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''',
+)
+
+
+def compile_pats(binary):
+    for raw in _encoding_pats:
+        if binary:
+            raw = raw.encode('ascii')
+        yield re.compile(raw, flags=re.IGNORECASE)
+
+
+class LazyEncodingPats(object):
+
+    def __call__(self, binary=False):
+        attr = 'binary_pats' if binary else 'unicode_pats'
+        pats = getattr(self, attr, None)
+        if pats is None:
+            pats = tuple(compile_pats(binary))
+            setattr(self, attr, pats)
+        for pat in pats:
+            yield pat
+
+
+lazy_encoding_pats = LazyEncodingPats()
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
-def strip_encoding_declarations(raw, limit=50*1024):
+def strip_encoding_declarations(raw, limit=50*1024, preserve_newlines=False):
     prefix = raw[:limit]
     suffix = raw[limit:]
-    for pat in ENCODING_PATS:
-        prefix = pat.sub('', prefix)
+    is_binary = isinstance(raw, bytes)
+    if preserve_newlines:
+        if is_binary:
+            sub = lambda m: b'\n' * m.group().count(b'\n')
+        else:
+            sub = lambda m: '\n' * m.group().count('\n')
+    else:
+        sub = b'' if is_binary else u''
+    for pat in lazy_encoding_pats(is_binary):
+        prefix = pat.sub(sub, prefix)
     raw = prefix + suffix
     return raw
 
@@ -34,6 +64,13 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
     prefix = raw[:limit]
     suffix = raw[limit:]
     changed = [False]
+    is_binary = isinstance(raw, bytes)
+    if is_binary:
+        if not isinstance(enc, bytes):
+            enc = enc.encode('ascii')
+    else:
+        if isinstance(enc, bytes):
+            enc = enc.decode('ascii')
 
     def sub(m):
         ans = m.group()
@@ -43,7 +80,7 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
             ans = ans[:start] + enc + ans[end:]
         return ans
 
-    for pat in ENCODING_PATS:
+    for pat in lazy_encoding_pats(is_binary):
         prefix = pat.sub(sub, prefix)
     raw = prefix + suffix
     return raw, changed[0]
@@ -51,10 +88,14 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
 
 def find_declared_encoding(raw, limit=50*1024):
     prefix = raw[:limit]
-    for pat in ENCODING_PATS:
+    is_binary = isinstance(raw, bytes)
+    for pat in lazy_encoding_pats(is_binary):
         m = pat.search(prefix)
         if m is not None:
-            return m.group(1)
+            ans = m.group(1)
+            if is_binary:
+                ans = ans.decode('ascii', 'replace')
+                return ans
 
 
 def substitute_entites(raw):
@@ -102,10 +143,11 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
         if raw.startswith(bom):
             return raw[len(bom):], x
     encoding = None
-    for pat in ENCODING_PATS:
+    for pat in lazy_encoding_pats(True):
         match = pat.search(raw)
         if match:
             encoding = match.group(1)
+            encoding = encoding.decode('ascii', 'replace')
             break
     if encoding is None:
         encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
