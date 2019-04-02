@@ -130,7 +130,8 @@ def {name}(obj):
         try:
             return {collator}.{func}(obj)
         except AttributeError:
-            return {collator_func}().{func}(obj)
+            pass
+        return {collator_func}().{func}(obj)
     except TypeError:
         if isinstance(obj, bytes):
             try:
@@ -147,7 +148,8 @@ def {name}(a, b):
         try:
             return {collator}.{func}(a, b)
         except AttributeError:
-            return {collator_func}().{func}(a, b)
+            pass
+        return {collator_func}().{func}(a, b)
     except TypeError:
         if isinstance(a, bytes):
             try:
@@ -172,8 +174,9 @@ def {name}(x):
         try:
             return _icu.change_case(x, _icu.{which}, _locale)
         except NotImplementedError:
-            collator()  # sets _locale
-            return _icu.change_case(x, _icu.{which}, _locale)
+            pass
+        collator()  # sets _locale
+        return _icu.change_case(x, _icu.{which}, _locale)
     except TypeError:
         if isinstance(x, bytes):
             try:
