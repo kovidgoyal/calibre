@@ -70,12 +70,11 @@ def svg_path_to_painter_path(d):
     # x1/y1 and x2/y2 = bezier control points
     x = y = x1 = y1 = x2 = y2 = 0
 
-    data = d
-    if isinstance(data, unicode_type):
-        data = data.encode('ascii')
-    data = d.replace(b',', b' ').replace(b'\n', b' ')
-    end = len(data)
-    data = ReadOnlyFileBuffer(data)
+    if isinstance(d, unicode_type):
+        d = d.encode('ascii')
+    d = d.replace(b',', b' ').replace(b'\n', b' ')
+    end = len(d)
+    data = ReadOnlyFileBuffer(d)
 
     def parse_float():
         chars = []
