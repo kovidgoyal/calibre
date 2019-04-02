@@ -134,19 +134,18 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
 
 
     switch(PyUnicode_KIND(obj)) {
-    case PyUnicode_1BYTE_KIND:
-        ans = (UChar*) malloc((sz+1) * sizeof(UChar));
-        if (ans == NULL) {
-            PyErr_NoMemory();
-            return NULL;
-        }
-        u_strFromUTF8(
-            ans, sz + 1,
-            (int32_t*) osz,
-            (char*) PyUnicode_1BYTE_DATA(obj),
-            (int32_t) sz,
-            &status);
+    case PyUnicode_1BYTE_KIND: {
+        Py_ssize_t data_sz;
+        const char *utf8_data = PyUnicode_AsUTF8AndSize(obj, &data_sz);
+        if (!utf8_data) return NULL;
+        size_t buf_sz = (sz > data_sz ? sz : data_sz) + 1;
+        ans = (UChar*) malloc(buf_sz * sizeof(UChar));
+        if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+        u_strFromUTF8Lenient(ans, buf_sz, (int32_t*) osz, utf8_data, (int32_t)data_sz, &status);
+        // add null terminator
+        ans[buf_sz-1] = 0;
         break;
+    }
     case PyUnicode_2BYTE_KIND:
         ans = (UChar*) malloc((sz+1) * sizeof(UChar));
         data = PyUnicode_2BYTE_DATA(obj);
