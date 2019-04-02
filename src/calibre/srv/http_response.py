@@ -27,6 +27,7 @@ from calibre.srv.utils import (
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client, reprlib
+from polyglot.builtins import error_message
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex
@@ -489,7 +490,7 @@ class HTTPConnection(HTTPRequest):
                     eh['WWW-Authenticate'] = e.authenticate
                 if e.log:
                     self.log.warn(e.log)
-                return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
+                return self.simple_response(e.http_code, msg=error_message(e) or '', close_after_response=e.close_connection, extra_headers=eh)
             reraise(etype, e, tb)
 
         data, output = result

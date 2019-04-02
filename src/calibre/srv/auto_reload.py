@@ -17,7 +17,7 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, error_message
 from polyglot.queue import Queue, Empty
 
 MAX_RETRIES = 10
@@ -300,7 +300,7 @@ class Worker(object):
                 time.sleep(0.01)
             compile_srv()
         except CompileFailure as e:
-            self.log.error(e.message)
+            self.log.error(error_message(e))
             time.sleep(0.1 * self.retry_count)
             if self.retry_count < MAX_RETRIES and self.wakeup is not None:
                 self.wakeup()  # Force a restart

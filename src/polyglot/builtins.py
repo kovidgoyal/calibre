@@ -38,6 +38,12 @@ if is_py3:
     long_type = int
     raw_input = input
 
+    def error_message(exc):
+        args = getattr(exc, 'args', None)
+        if args and isinstance(args[0], unicode_type):
+            return args[0]
+        return unicode_type(exc)
+
     def iteritems(d):
         return iter(d.items())
 
@@ -82,6 +88,12 @@ else:
     raw_input = builtins.raw_input
     cmp = builtins.cmp
     int_to_byte = chr
+
+    def error_message(exc):
+        ans = exc.message
+        if isinstance(ans, bytes):
+            ans = ans.decode('utf-8', 'replace')
+        return ans
 
     def iteritems(d):
         return d.iteritems()

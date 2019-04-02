@@ -12,6 +12,7 @@ from PIL import Image
 from calibre import as_unicode
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
+from polyglot.builtins import error_message
 
 
 class InvalidImage(BaseError):
@@ -59,7 +60,7 @@ def check_raster_images(name, mt, raw):
     try:
         i = Image.open(BytesIO(raw))
     except Exception as e:
-        errors.append(InvalidImage(as_unicode(e.message), name))
+        errors.append(InvalidImage(as_unicode(error_message(e)), name))
     else:
         if i.mode == 'CMYK':
             errors.append(CMYKImage(_('Image is in the CMYK colorspace'), name))

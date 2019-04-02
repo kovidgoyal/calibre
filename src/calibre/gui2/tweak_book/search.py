@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, error_message
 
 
 # The search panel {{{
@@ -1279,7 +1279,7 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
 class InvalidRegex(regex.error):
 
     def __init__(self, raw, e):
-        regex.error.__init__(self, e.message)
+        regex.error.__init__(self, error_message(e))
         self.regex = raw
 
 
@@ -1399,10 +1399,10 @@ def run_search(
     except InvalidRegex as e:
         return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
             'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
-                prepare_string_for_xml(e.regex), e.message), show=True)
+                prepare_string_for_xml(e.regex), error_message(e)), show=True)
     except NoSuchFunction as e:
         return error_dialog(gui_parent, _('No such function'), '<p>' + _(
-            'No replace function with the name: %s exists') % prepare_string_for_xml(e.message), show=True)
+            'No replace function with the name: %s exists') % prepare_string_for_xml(error_message(e)), show=True)
 
     def no_match():
         QApplication.restoreOverrideCursor()

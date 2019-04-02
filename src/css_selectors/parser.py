@@ -375,8 +375,6 @@ def parse(css):
 #        message = "%s at %s -> %r" % (
 #            e, stream.used, stream.peek())
 #        e.msg = message
-#        if sys.version_info < (2,6):
-#            e.message = message
 #        e.args = tuple([message])
 #        raise
 

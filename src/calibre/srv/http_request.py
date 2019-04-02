@@ -16,6 +16,7 @@ from calibre.srv.loop import Connection, READ, WRITE
 from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
 from polyglot import http_client, reprlib
 from polyglot.urllib import unquote
+from polyglot.builtins import error_message
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
@@ -281,7 +282,7 @@ class HTTPRequest(Connection):
         try:
             self.scheme, self.path, self.query = parse_uri(uri)
         except HTTPSimpleResponse as e:
-            return self.simple_response(e.http_code, e.message, close_after_response=False)
+            return self.simple_response(e.http_code, error_message(e), close_after_response=False)
         self.header_line_too_long_error_code = http_client.REQUEST_ENTITY_TOO_LARGE
         self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), Accumulator())
     # }}}

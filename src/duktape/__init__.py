@@ -17,6 +17,7 @@ from polyglot.builtins import reraise
 
 from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
+from polyglot.builtins import error_message
 
 Context_, undefined = dukpy.Context, dukpy.undefined
 
@@ -122,7 +123,7 @@ def readfile(path, enc='utf-8'):
     except UnicodeDecodeError as e:
         return None, '', 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
     except EnvironmentError as e:
-        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
+        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, error_message(e) or e)]
 
 
 def atomic_write(name, raw):
@@ -143,7 +144,7 @@ def writefile(path, data, enc='utf-8'):
     except UnicodeEncodeError as e:
         return ['', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)]
     except EnvironmentError as e:
-        return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, e.message or e)]
+        return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, error_message(e) or e)]
     return [None, None]
 
 
@@ -217,7 +218,7 @@ class JSError(Exception):
     def as_dict(self):
         return {
             'name':self.name or undefined,
-            'message': self.js_message or self.message,
+            'message': self.js_message or error_message(self),
             'fileName': self.fileName or undefined,
             'lineNumber': self.lineNumber or undefined,
             'stack': self.stack or undefined

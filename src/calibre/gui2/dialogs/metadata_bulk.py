@@ -32,7 +32,7 @@ from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type, error_message
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -885,7 +885,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_set_colors(self):
         if self.s_r_error is not None:
             col = 'rgb(255, 0, 0, 20%)'
-            self.test_result.setText(self.s_r_error.message)
+            self.test_result.setText(error_message(self.s_r_error))
         else:
             col = 'rgb(0, 255, 0, 20%)'
         self.test_result.setStyleSheet('QLineEdit { color: black; '
@@ -1155,7 +1155,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
-                    _('Search/replace is invalid: %s')%self.s_r_error.message,
+                    _('Search/replace is invalid: %s')%error_message(self.s_r_error),
                     show=True)
             return False
         self.changed = bool(self.ids)

@@ -12,7 +12,7 @@ from calibre.constants import config_dir, iswindows
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, raw_input
+from polyglot.builtins import iteritems, raw_input, error_message
 from polyglot.binary import as_hex_unicode
 
 
@@ -439,7 +439,7 @@ def run_importer():
     try:
         importer = Importer(export_dir)
     except ValueError as err:
-        raise SystemExit(err.message)
+        raise SystemExit(error_message(err))
 
     import_dir = input_unicode('Enter path to an empty folder (all libraries will be created inside this folder): ').rstrip('\r')
     if not os.path.exists(import_dir):

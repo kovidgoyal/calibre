@@ -24,6 +24,7 @@ from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
+from polyglot.builtins import error_message
 
 
 def daemonize():  # {{{
@@ -213,7 +214,7 @@ def main(args=sys.argv):
             from calibre.utils.logging import default_log
             return auto_reload(default_log, listen_on=opts.listen_on)
         except NoAutoReload as e:
-            raise SystemExit(e.message)
+            raise SystemExit(error_message(e))
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     if opts.log and os.path.isdir(opts.log):

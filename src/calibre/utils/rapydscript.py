@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import itervalues, range, exec_path, raw_input
+from polyglot.builtins import itervalues, range, exec_path, raw_input, error_message
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -372,7 +372,7 @@ class Repl(Thread):
                     self.from_repl.put(val[0])
             except Exception as e:
                 if isinstance(e, JSError):
-                    print(e.stack or e.message, file=sys.stderr)
+                    print(e.stack or error_message(e), file=sys.stderr)
                 else:
                     import traceback
                     traceback.print_exc()
@@ -448,9 +448,9 @@ def main(args=sys.argv):
             data = compile_pyj(sys.stdin.read().decode(enc), libdir=libdir, private_scope=not args.no_private_scope, omit_baselib=args.omit_baselib)
             print(data.encode(enc))
         except JSError as e:
-            raise SystemExit(e.message)
+            raise SystemExit(error_message(e))
         except CompileFailure as e:
-            raise SystemExit(e.message)
+            raise SystemExit(error_message(e))
 
 
 def entry():

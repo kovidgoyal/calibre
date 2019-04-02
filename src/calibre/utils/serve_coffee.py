@@ -17,6 +17,7 @@ from threading import Lock, local
 
 from polyglot import socketserver
 from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
+from polyglot.builtins import error_message
 
 # Compiler {{{
 
@@ -39,7 +40,7 @@ def compile_coffeescript(raw, filename=None):
     try:
         ans = compiler().eval('CoffeeScript.compile(src)')
     except JSError as e:
-        return u'', (e.message,)
+        return u'', (error_message(e),)
     return ans, ()
 
 # }}}

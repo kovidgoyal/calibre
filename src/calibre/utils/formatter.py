@@ -13,7 +13,7 @@ import re, string, traceback, numbers
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, error_message
 
 
 class _Parser(object):
@@ -379,7 +379,7 @@ class TemplateFormatter(string.Formatter):
                 traceback.print_exc()
                 if column_name:
                     prints('Error evaluating column named:', column_name)
-            ans = error_value + ' ' + e.message
+            ans = error_value + ' ' + error_message(e)
         return ans
 
 

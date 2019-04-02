@@ -8,6 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.css21 import CSS21Parser
 from tinycss.parsing import remove_whitespace, split_on_comma, ParseError
+from polyglot.builtins import error_message
+
 
 class MediaQuery(object):
 
@@ -27,11 +29,13 @@ class MediaQuery(object):
             self.negated == getattr(other, 'negated', None) and \
             self.expressions == getattr(other, 'expressions', None)
 
+
 class MalformedExpression(Exception):
 
     def __init__(self, tok, msg):
         Exception.__init__(self, msg)
         self.tok = tok
+
 
 class CSSMedia3Parser(CSS21Parser):
 
@@ -96,9 +100,8 @@ class CSSMedia3Parser(CSS21Parser):
 
                     expressions.append((media_feature, expr))
             except MalformedExpression as err:
-                errors.extend(ParseError(err.tok, err.message))
+                errors.extend(ParseError(err.tok, error_message(err)))
                 media_type, negated, expressions = 'all', True, ()
             queries.append(MediaQuery(media_type or 'all', expressions=tuple(expressions), negated=negated))
 
         return queries
-

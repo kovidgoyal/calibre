@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE, XHTML
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, error_message
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -297,9 +297,9 @@ def check_xml_parsing(name, mt, raw):
             line, col = err.position
         except:
             line = col = None
-        return errors + [errcls(err.message, name, line, col)]
+        return errors + [errcls(error_message(err), name, line, col)]
     except Exception as err:
-        return errors + [errcls(err.message, name)]
+        return errors + [errcls(error_message(err), name)]
 
     if mt in OEB_DOCS:
         if root.nsmap.get(root.prefix, None) != XHTML_NS:

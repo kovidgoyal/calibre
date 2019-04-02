@@ -15,6 +15,7 @@ from binascii import crc32 as _crc32
 
 from calibre.ptempfile import SpooledTemporaryFile
 from lzma.errors import NotXZ, InvalidXZ, lzma
+from polyglot.builtins import error_message
 
 HEADER_MAGIC = b'\xfd7zXZ\0'
 FOOTER_MAGIC = b'YZ'
@@ -190,7 +191,7 @@ class LZMA2Filter(object):
             lzma.decompress2(f.read, f.seek, write, self.props, self.bufsize)
         except lzma.error as e:
             raise InvalidXZ(
-                'Failed to decode LZMA2 block with error code: %s' % e.message
+                'Failed to decode LZMA2 block with error code: %s' % error_message(e)
             )
         self.crc.finish()
 
