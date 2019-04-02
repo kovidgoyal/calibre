@@ -100,7 +100,7 @@ class CSSMedia3Parser(CSS21Parser):
 
                     expressions.append((media_feature, expr))
             except MalformedExpression as err:
-                errors.extend(ParseError(err.tok, error_message(err)))
+                errors.append(ParseError(err.tok, error_message(err)))
                 media_type, negated, expressions = 'all', True, ()
             queries.append(MediaQuery(media_type or 'all', expressions=tuple(expressions), negated=negated))
 
