@@ -201,7 +201,7 @@ def separate_hard_scene_breaks(txt):
             return '\n%s\n' % line
         else:
             return line
-    txt = re.sub(type(u'')(r'(?miu)^[ \t-=~\/_]+$'), lambda mo: sep_break(mo.group()), txt)
+    txt = re.sub(unicode_type(r'(?miu)^[ \t-=~\/_]+$'), lambda mo: sep_break(mo.group()), txt)
     return txt
 
 

@@ -219,7 +219,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 elif fm is not None and fm['datatype'] == 'series':
                     val = [orig_val]
                 elif fm is not None and fm['datatype'] == 'rating':
-                    val = [type(u'')(orig_val / 2.0)]
+                    val = [unicode_type(orig_val / 2.0)]
                 elif fm is not None and fm['datatype'] == 'text' and fm['is_multiple']:
                     if isinstance(orig_val, (list, tuple)):
                         val = orig_val
@@ -264,7 +264,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     if not category:
                         continue
 
-                    cat_name = type(u'')(category).strip(' ,')
+                    cat_name = unicode_type(category).strip(' ,')
 
                     if cat_name not in collections:
                         collections[cat_name] = {}
