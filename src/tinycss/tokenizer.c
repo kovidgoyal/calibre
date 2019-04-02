@@ -204,32 +204,37 @@ tokenize_init(PyObject *self, PyObject *args) {
 
 #define END_ITER_CODE_PTS }}
 
-static int
-contains_char(PyObject *haystack, const char c) {
-    ITER_CODE_PTS(haystack)
-        if (ch == c) return 1;
-    END_ITER_CODE_PTS
-    return 0;
-}
-
 static PyObject *unicode_to_number(PyObject *src) {
-    PyObject *raw = NULL, *ans = NULL;
-    raw = PyUnicode_AsASCIIString(src);
-    if (raw == NULL) { return NULL; }
-    if (contains_char(src, '.')) {
+    const char *utf8_data;
 #if PY_MAJOR_VERSION >= 3
-        ans = PyFloat_FromString(raw);
+    utf8_data = PyUnicode_AsUTF8(src);
 #else
-        ans = PyFloat_FromString(raw, NULL);
+    PyObject *utf_8_temp = PyUnicode_AsUTF8String(src);
+    if (utf_8_temp == NULL) return NULL;
+    utf8_data = PyString_AS_STRING(utf_8_temp);
 #endif
+    PyObject *ans = NULL;
+    char *end = NULL;
+    if (strchr(utf8_data, '.')) {
+        double d = 0;
+        errno = 0;
+        d = strtod(utf8_data, &end);
+        if (errno != 0 || (end == utf8_data)) PyErr_SetString(PyExc_ValueError, "Not a valid float");
+        else ans = PyFloat_FromDouble(d);
     } else {
+        long d = 0;
+        errno = 0;
+        d = strtol(utf8_data, &end, 10);
+        if (errno != 0 || (end == utf8_data)) PyErr_SetString(PyExc_ValueError, "Not a valid integer");
 #if PY_MAJOR_VERSION >= 3
-        ans = PyLong_FromUnicodeObject(raw, 10);
+        else ans = PyLong_FromLong(d);
 #else
-        ans = PyInt_FromString(PyString_AS_STRING(raw), NULL, 10);
+        else ans = PyInt_FromLong(d);
 #endif
     }
-    Py_DECREF(raw);
+#if PY_MAJOR_VERSION < 3
+    Py_DECREF(utf_8_temp);
+#endif
     return ans;
 }
 
@@ -258,7 +263,9 @@ clone_unicode(const PyObject* src, Py_ssize_t start_offset, Py_ssize_t end_offse
             data = PyUnicode_2BYTE_DATA(src) + start_offset; break;
         case PyUnicode_4BYTE_KIND:
             data = PyUnicode_4BYTE_DATA(src) + start_offset; break;
-
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid byte kind for unicode object");
+            return NULL;
     }
     return PyUnicode_FromKindAndData(kind, data, PyUnicode_GET_LENGTH(src) - start_offset - end_offset);
 #else
@@ -289,13 +296,13 @@ tokenize_flat(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "UO", &py_source, &ic)) return NULL;
     if (PyObject_IsTrue(ic)) ignore_comments = 1;
-    source_len = PyUnicode_GET_LENGTH(py_source);
 #if PY_VERSION_HEX >= 0x03030000
     if (PyUnicode_READY(py_source) != 0) return NULL;
     css_source = PyUnicode_DATA(py_source); css_kind = PyUnicode_KIND(py_source);
 #else
     css_source = PyUnicode_AS_UNICODE(py_source);
 #endif
+    source_len = PyUnicode_GET_LENGTH(py_source);
 
     tokens = PyList_New(0);
     if (tokens == NULL) return PyErr_NoMemory();
