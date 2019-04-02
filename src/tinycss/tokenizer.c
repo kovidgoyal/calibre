@@ -208,6 +208,7 @@ static PyObject *unicode_to_number(PyObject *src) {
     const char *utf8_data;
 #if PY_MAJOR_VERSION >= 3
     utf8_data = PyUnicode_AsUTF8(src);
+    if (!utf8_data) return NULL;
 #else
     PyObject *utf_8_temp = PyUnicode_AsUTF8String(src);
     if (utf_8_temp == NULL) return NULL;
