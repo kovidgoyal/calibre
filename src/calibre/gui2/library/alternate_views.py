@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
-    qBlue, QItemSelectionModel, QIcon, QFont)
+    qBlue, QItemSelectionModel, QIcon, QFont, QTableView, QTreeView)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir, islinux
@@ -85,6 +85,13 @@ def image_to_data(image):  # {{{
 # Drag 'n Drop {{{
 
 
+def qt_item_view_base_class(self):
+    for q in (QTableView, QListView, QTreeView):
+        if isinstance(self, q):
+            return q
+    return QAbstractItemView
+
+
 def dragMoveEvent(self, event):
     event.acceptProposedAction()
 
@@ -102,7 +109,7 @@ def mousePressEvent(self, event):
         self.drag_start_pos = ep
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
-    return super(self.__class__, self).mousePressEvent(event)
+    return qt_item_view_base_class(self).mousePressEvent(self, event)
 
 
 def drag_icon(self, cover, multiple):
@@ -182,7 +189,7 @@ def mouseMoveEvent(self, event):
     if not self.drag_allowed:
         return
     if self.drag_start_pos is None:
-        return super(self.__class__, self).mouseMoveEvent(event)
+        return qt_item_view_base_class(self).mouseMoveEvent(self, event)
 
     if self.event_has_mods():
         self.drag_start_pos = None
