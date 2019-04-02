@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 import os
-from polyglot.builtins import range
+from polyglot.builtins import range, unicode_type
 
 
 class ReadOnlyFileBuffer(object):
@@ -70,9 +70,10 @@ def svg_path_to_painter_path(d):
     # x1/y1 and x2/y2 = bezier control points
     x = y = x1 = y1 = x2 = y2 = 0
 
-    data = d.replace(b',', b' ').replace(b'\n', b' ')
-    if isinstance(data, type('')):
+    data = d
+    if isinstance(data, unicode_type):
         data = data.encode('ascii')
+    data = d.replace(b',', b' ').replace(b'\n', b' ')
     end = len(data)
     data = ReadOnlyFileBuffer(data)
 
