@@ -16,7 +16,7 @@ from polyglot.urllib import unquote
 
 class CoverManager(object):
 
-    SVG_TEMPLATE = textwrap.dedent('''\
+    SVG_TEMPLATE = textwrap.dedent(u'''\
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -40,7 +40,7 @@ class CoverManager(object):
         </html>
         ''')
 
-    NONSVG_TEMPLATE = textwrap.dedent('''\
+    NONSVG_TEMPLATE = textwrap.dedent(u'''\
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
