@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 
 is_py3 = sys.version_info.major >= 3
+native_string_type = str
 
 
 def iterkeys(d):
