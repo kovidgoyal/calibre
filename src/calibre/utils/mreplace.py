@@ -4,7 +4,10 @@ __copyright__ = '2010, sengian <sengian1 @ gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from UserDict import UserDict
+try:
+    from collections import UserDict
+except ImportError:
+    from UserDict import UserDict
 
 
 class MReplace(UserDict):
@@ -18,7 +21,7 @@ class MReplace(UserDict):
 
     def compile_regex(self):
         if len(self.data) > 0:
-            keys = sorted(self.data.keys(), key=len, reverse=True)
+            keys = sorted(self.data, key=len, reverse=True)
             tmp = "(%s)" % "|".join(map(re.escape, keys))
             if self.re != tmp:
                 self.re = tmp
@@ -35,4 +38,3 @@ class MReplace(UserDict):
         if len(self.data) < 1 or self.re is None:
             return text
         return self.regex.sub(self, text)
-
