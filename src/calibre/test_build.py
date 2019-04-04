@@ -114,7 +114,7 @@ class BuildTest(unittest.TestCase):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
-        self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), type(u''))
+        self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), unicode_type)
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 

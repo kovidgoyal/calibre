@@ -302,7 +302,7 @@ def _parse_pubdate(root, mi, ctx):
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
-        mi.pubdate = parse_only_date(type(u'')(int(year)))
+        mi.pubdate = parse_only_date(unicode_type(int(year)))
 
 
 def _parse_language(root, mi, ctx):

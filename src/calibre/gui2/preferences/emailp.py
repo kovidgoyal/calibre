@@ -65,7 +65,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return numeric_sort_key(self.subjects.get(account_key) or '')
         elif col == 3:
             def key(account_key):
-                return numeric_sort_key(type(u'')(self.accounts[account_key][0]) or '')
+                return numeric_sort_key(unicode_type(self.accounts[account_key][0]) or '')
         elif col == 4:
             def key(account_key):
                 return numeric_sort_key(self.aliases.get(account_key) or '')

@@ -558,8 +558,8 @@ class CreateCustomColumn(QDialog):
             else:
                 display_dict = {'number_format': None}
         elif col_type == 'comments':
-            display_dict['heading_position'] = type(u'')(self.comments_heading_position.currentData())
-            display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
+            display_dict['heading_position'] = unicode_type(self.comments_heading_position.currentData())
+            display_dict['interpret_as'] = unicode_type(self.comments_type.currentData())
         elif col_type == 'rating':
             display_dict['allow_half_stars'] = bool(self.allow_half_stars.isChecked())
 

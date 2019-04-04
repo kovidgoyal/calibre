@@ -17,7 +17,7 @@ from calibre.constants import numeric_version, DEBUG
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
 from polyglot.urllib import urlencode
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 class VersionMismatch(ValueError):
@@ -29,7 +29,7 @@ class VersionMismatch(ValueError):
 
 def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
-    data = {k:type(u'')(v) for k, v in iteritems(ver_map)}
+    data = {k:unicode_type(v) for k, v in iteritems(ver_map)}
     data['ver'] = '1'
     url = '%s/stores?%s'%(server, urlencode(data))
     # We use a timeout here to ensure the non-daemonic update thread does not

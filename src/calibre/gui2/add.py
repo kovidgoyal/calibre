@@ -144,7 +144,7 @@ class Adder(QObject):
                         self.file_groups[len(self.file_groups)] = files
         else:
             def find_files(root):
-                if isinstance(root, type(u'')):
+                if isinstance(root, unicode_type):
                     root = root.encode(filesystem_encoding)
                 for dirpath, dirnames, filenames in os.walk(root):
                     try:

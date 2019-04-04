@@ -114,7 +114,7 @@ class UDisks2(object):
         devs = self.bus.get_object('org.freedesktop.UDisks2',
                         '/org/freedesktop/UDisks2/block_devices')
         xml = devs.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable')
-        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', type(u'')(xml)):
+        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', unicode_type(xml)):
             bd = self.bus.get_object('org.freedesktop.UDisks2',
                 '/org/freedesktop/UDisks2/block_devices/%s2'%dev.group(1))
             try:

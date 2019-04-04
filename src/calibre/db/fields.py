@@ -19,7 +19,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.localization import calibre_langcode_to_name
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def bool_sort_key(bools_are_tristate):
@@ -79,7 +79,7 @@ class Field(object):
             self._sort_key = lambda x: sort_key(author_to_author_sort(x))
             self.sort_sort_key = False
         self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
-        self.category_formatter = type(u'')
+        self.category_formatter = unicode_type
         if dt == 'rating':
             if self.metadata['display'].get('allow_half_stars', False):
                 self.category_formatter = lambda x: rating_to_stars(x, True)

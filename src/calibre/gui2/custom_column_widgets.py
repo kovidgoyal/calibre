@@ -89,7 +89,7 @@ class SimpleText(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), QLineEdit(parent)]
 
     def setter(self, val):
-        self.widgets[1].setText(type(u'')(val or ''))
+        self.widgets[1].setText(unicode_type(val or ''))
 
     def getter(self):
         return self.widgets[1].text().strip()
@@ -112,7 +112,7 @@ class LongText(Base):
         self.widgets = [self._box]
 
     def setter(self, val):
-        self._tb.setPlainText(type(u'')(val or ''))
+        self._tb.setPlainText(unicode_type(val or ''))
 
     def getter(self):
         return self._tb.toPlainText()

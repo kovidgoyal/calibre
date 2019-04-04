@@ -13,7 +13,7 @@ from calibre.constants import islinux, isbsd, ispy3
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 entry_points = {
@@ -211,7 +211,7 @@ class ZshCompleter(object):  # {{{
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
                 ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
-            h = h.replace('%default', type(u'')(opt.default))
+            h = h.replace('%default', unicode_type(opt.default))
             arg = ''
             if opt.takes_value():
                 arg = ':"%s":'%h
@@ -369,7 +369,7 @@ class ZshCompleter(object):  # {{{
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
                 ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
-            h = h.replace('%default', type(u'')(opt.default))
+            h = h.replace('%default', unicode_type(opt.default))
             help_txt = u'"[%s]"'%h
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
@@ -479,9 +479,9 @@ _ebook_edit() {
                 self.do_ebook_edit(f)
                 f.write('case $service in\n')
                 for c, txt in iteritems(self.commands):
-                    if isinstance(txt, type(u'')):
+                    if isinstance(txt, unicode_type):
                         txt = txt.encode('utf-8')
-                    if isinstance(c, type(u'')):
+                    if isinstance(c, unicode_type):
                         c = c.encode('utf-8')
                     f.write(b'%s)\n%s\n;;\n'%(c, txt))
                 f.write('esac\n')
