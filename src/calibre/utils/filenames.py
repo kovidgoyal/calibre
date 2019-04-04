@@ -591,7 +591,8 @@ def copyfile(src, dest):
 def get_hardlink_function(src, dest):
     if iswindows:
         import win32file, win32api
-        root = dest[0] + b':'
+        colon = b':' if isinstance(dest, bytes) else ':'
+        root = dest[0] + colon
         try:
             is_suitable = win32file.GetDriveType(root) not in (win32file.DRIVE_REMOTE, win32file.DRIVE_CDROM)
             # See https://msdn.microsoft.com/en-us/library/windows/desktop/aa364993(v=vs.85).aspx
