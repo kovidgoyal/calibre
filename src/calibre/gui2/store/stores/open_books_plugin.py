@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -36,7 +39,7 @@ class OpenBooksStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://drmfree.calibre-ebook.com/search/?q=' + urllib.quote_plus(query)
+        url = 'https://drmfree.calibre-ebook.com/search/?q=' + quote_plus(query)
 
         br = browser()
 

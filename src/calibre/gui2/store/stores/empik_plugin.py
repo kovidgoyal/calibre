@@ -8,9 +8,12 @@ __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from base64 import b64encode
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -55,7 +58,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP=' + str(max_results) + '&q=' + urllib.quote(query)
+        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP=' + str(max_results) + '&q=' + quote(query)
 
         br = browser()
 

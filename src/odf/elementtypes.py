@@ -19,7 +19,7 @@
 # Contributor(s):
 #
 
-from namespaces import *
+from .namespaces import *
 
 # Inline element don't cause a box
 # They are analogous to the HTML elements SPAN, B, I etc.

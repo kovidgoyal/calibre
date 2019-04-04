@@ -9,8 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -25,7 +28,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'https://www.smashwords.com/books/search?query=' + urllib2.quote(query)
+    url = 'https://www.smashwords.com/books/search?query=' + quote(query)
 
     br = browser()
     try:

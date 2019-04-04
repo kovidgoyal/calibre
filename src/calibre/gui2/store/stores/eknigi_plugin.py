@@ -9,8 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import random
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -55,7 +58,7 @@ class eKnigiStore(BasicStoreConfig, StorePlugin):
             return
 
         base_url = 'http://e-knigi.net'
-        url = base_url + '/virtuemart?page=shop.browse&search_category=0&search_limiter=anywhere&keyword=' + urllib2.quote(query)
+        url = base_url + '/virtuemart?page=shop.browse&search_category=0&search_limiter=anywhere&keyword=' + quote(query)
 
         br = browser()
 

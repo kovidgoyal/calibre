@@ -20,15 +20,13 @@
 
 __doc__="""Use OpenDocument to generate your documents."""
 
-import zipfile, time, sys, mimetypes, copy
-from cStringIO import StringIO
-from namespaces import *
-import manifest, meta
-from office import *
-import element
-from attrconverters import make_NCName
+import zipfile, time, sys, mimetypes
+from .namespaces import *
+from . import manifest, meta, element
+from .office import *
+from .attrconverters import make_NCName
 from xml.sax.xmlreader import InputSource
-from odfmanifest import manifestlist
+from .odfmanifest import manifestlist
 from polyglot.io import PolyglotBytesIO
 
 __version__= TOOLSVERSION
@@ -177,7 +175,7 @@ class OpenDocument:
         """ Generates the content.xml file
             Always written as a bytestream in UTF-8 encoding
         """
-        xml=StringIO()
+        xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         x = DocumentContent()
         x.write_open_tag(0, xml)
@@ -202,7 +200,7 @@ class OpenDocument:
         """ Generates the manifest.xml file
             The self.manifest isn't avaible unless the document is being saved
         """
-        xml=StringIO()
+        xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         self.manifest.toXml(0,xml)
         return xml.getvalue()

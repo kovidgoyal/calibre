@@ -20,9 +20,9 @@
 # Contributor(s):
 #
 
-import sys, zipfile, xml.dom.minidom
-from namespaces import nsdict
-from elementtypes import *
+import zipfile, xml.dom.minidom
+from .namespaces import nsdict
+from .elementtypes import *
 
 IGNORED_TAGS = [
     'draw:a'

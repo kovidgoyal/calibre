@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2014, Rafael Vega <rafavega@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -35,7 +38,7 @@ class BubokPortugalStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.bubok.pt/resellers/calibre_search/' + urllib.quote_plus(query)
+        url = 'http://www.bubok.pt/resellers/calibre_search/' + quote_plus(query)
 
         br = browser()
 
@@ -72,4 +75,3 @@ class BubokPortugalStore(BasicStoreConfig, StorePlugin):
 
     def get_details(self, search_result, timeout):
         return True
-

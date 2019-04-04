@@ -23,7 +23,7 @@ Currently it contains the legal child elements of a given element.
 To be used for validation check in the API
 """
 
-from namespaces import *
+from .namespaces import *
 
 # The following code is generated from the RelaxNG schema with this notice:
 

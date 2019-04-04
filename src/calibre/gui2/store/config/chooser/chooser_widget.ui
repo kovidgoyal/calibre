@@ -127,7 +127,7 @@
   <customwidget>
    <class>ResultsView</class>
    <extends>QTreeView</extends>
-   <header>results_view.h</header>
+   <header>calibre/gui2/store/config/chooser/results_view.h</header>
   </customwidget>
   <customwidget>
    <class>HistoryLineEdit</class>

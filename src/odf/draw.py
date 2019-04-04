@@ -18,8 +18,8 @@
 # Contributor(s):
 #
 
-from namespaces import DRAWNS, STYLENS, PRESENTATIONNS
-from element import Element
+from .namespaces import DRAWNS, STYLENS, PRESENTATIONNS
+from .element import Element
 
 def StyleRefElement(stylename=None, classnames=None, **args):
     qattrs = {}

@@ -374,9 +374,9 @@ class LRFMetaFile(object):
                 return res
             return restore_pos
         locals_ = func()
-        if locals_.has_key("fget"):  # noqa
+        if 'fget' in locals_:
             locals_["fget"] = decorator(locals_["fget"])
-        if locals_.has_key("fset"):  # noqa
+        if 'fset' in locals_:
             locals_["fset"] = decorator(locals_["fset"])
         return property(**locals_)
 

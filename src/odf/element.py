@@ -24,9 +24,9 @@
 #
 import xml.dom
 from xml.dom.minicompat import *
-from namespaces import nsdict
-import grammar
-from attrconverters import AttrConverters
+from .namespaces import nsdict
+from . import grammar
+from .attrconverters import AttrConverters
 
 # The following code is pasted form xml.sax.saxutils
 # Tt makes it possible to run the code without the xml sax package installed
@@ -80,9 +80,9 @@ def _nsassign(namespace):
     return nsdict.setdefault(namespace,"ns" + str(len(nsdict)))
 
 # Exceptions
-class IllegalChild(StandardError):
+class IllegalChild(Exception):
     """ Complains if you add an element to a parent where it is not allowed """
-class IllegalText(StandardError):
+class IllegalText(Exception):
     """ Complains if you add text or cdata to an element where it is not allowed """
 
 class Node(xml.dom.Node):
@@ -255,7 +255,7 @@ class Text(Childless, Node):
         if self.data:
             f.write(_escape(type(u'')(self.data).encode('utf-8')))
 
-class CDATASection(Childless, Text):
+class CDATASection(Text, Childless):
     nodeType = Node.CDATA_SECTION_NODE
 
     def toXml(self,level,f):

@@ -18,8 +18,8 @@
 # Contributor(s):
 #
 
-from namespaces import XFORMSNS
-from element import Element
+from .namespaces import XFORMSNS
+from .element import Element
 
 # ODF 1.0 section 11.2
 # XForms is designed to be embedded in another XML format.

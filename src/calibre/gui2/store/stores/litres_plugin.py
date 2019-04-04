@@ -9,7 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from contextlib import closing
 from lxml import etree
@@ -37,7 +40,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         if detail_item:
             # http://www.litres.ru/pages/biblio_book/?art=157074
             detail_url = self.shop_url + u'/pages/biblio_book/' + aff_id +\
-                u'&art=' + urllib2.quote(detail_item)
+                u'&art=' + quote(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
@@ -50,7 +53,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
         'search=%s&limit=0,%s'
-        search_url = search_url % (urllib2.quote(query), max_results)
+        search_url = search_url % (quote(query), max_results)
 
         counter = max_results
         br = browser()

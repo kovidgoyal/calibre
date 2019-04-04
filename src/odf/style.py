@@ -18,8 +18,8 @@
 # Contributor(s):
 #
 
-from namespaces import STYLENS
-from element import Element
+from .namespaces import STYLENS
+from .element import Element
 
 def StyleElement(**args):
     e = Element(**args)

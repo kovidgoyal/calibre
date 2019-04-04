@@ -7,7 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2012-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 from base64 import b64encode
 from contextlib import closing
 
@@ -59,7 +62,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/e-booki,strona' + str(page) + '.html?q=' + urllib.quote(query), timeout=timeout)) as f:  # noqa
+            with closing(br.open('http://www.publio.pl/e-booki,strona' + str(page) + '.html?q=' + quote(query), timeout=timeout)) as f:  # noqa
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//div[@class="products-list"]//div[@class="product-tile"]'):
                     if counter <= 0:

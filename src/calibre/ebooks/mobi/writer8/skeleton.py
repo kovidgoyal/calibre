@@ -34,9 +34,9 @@ aid_able_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
 'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
 'video'}
 
-_self_closing_pat = re.compile(bytes(
+_self_closing_pat = re.compile(
     r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(aid_able_tags|{'script',
-        'style', 'title', 'head'}))),
+        'style', 'title', 'head'})).encode('ascii'),
     re.IGNORECASE)
 
 

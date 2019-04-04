@@ -26,8 +26,8 @@
 
 from __future__ import print_function
 from xml.sax import handler
-from element import Element
-from namespaces import OFFICENS
+from .element import Element
+from .namespaces import OFFICENS
 
 #
 # Parse the XML files

@@ -7,7 +7,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib2 import quote
 from contextlib import closing
 
 from lxml import html
@@ -42,7 +45,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.ebookshoppe.com/search.php?search_query=' + urllib2.quote(query)
+        url = 'http://www.ebookshoppe.com/search.php?search_query=' + quote(query)
         br = browser()
         br.addheaders = [("Referer", "http://www.ebookshoppe.com/")]
 

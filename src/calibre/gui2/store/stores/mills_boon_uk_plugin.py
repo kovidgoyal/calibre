@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -43,7 +46,7 @@ class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         base_url = 'https://www.millsandboon.co.uk'
-        url = base_url + '/search.aspx??format=ebook&searchText=' + urllib2.quote(query)
+        url = base_url + '/search.aspx??format=ebook&searchText=' + quote(query)
         br = browser()
 
         counter = max_results

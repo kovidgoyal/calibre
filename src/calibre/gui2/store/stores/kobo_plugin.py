@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html, etree
 
@@ -23,7 +26,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
-    url = 'https://www.kobobooks.com/search/search.html?q=' + urllib.quote_plus(query)
+    url = 'https://www.kobobooks.com/search/search.html?q=' + quote_plus(query)
 
     br = browser()
 
@@ -89,7 +92,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         murl = 'https://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
 
         if detail_item:
-            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, urllib.quote_plus(detail_item))
+            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, quote_plus(detail_item))
             url = purl
         else:
             purl = None

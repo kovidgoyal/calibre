@@ -204,7 +204,7 @@
   <customwidget>
    <class>BookView</class>
    <extends>QGraphicsView</extends>
-   <header>bookview.h</header>
+   <header>calibre/gui2/lrf_renderer/bookview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

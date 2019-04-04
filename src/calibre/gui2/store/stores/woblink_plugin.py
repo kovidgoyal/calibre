@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from base64 import b64encode
+try:
+    from urllib.parse import urlencode, quote_plus
+except ImportError:
+    from urllib import urlencode, quote_plus
 
 from lxml import html
 from mechanize import Request
@@ -33,7 +36,7 @@ def as_base64(data):
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'http://woblink.com/publication/ajax?mode=none&query=' + urllib.quote_plus(query.encode('utf-8'))
+    url = 'http://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query.encode('utf-8'))
     if max_results > 10:
         if max_results > 20:
             url += '&limit=30'
@@ -46,7 +49,7 @@ def search(query, max_results=10, timeout=60):
         'X-Requested-With': 'XMLHttpRequest',
         'Referrer':'http://woblink.com/ebooki-kategorie',
         'Cache-Control':'max-age=0',
-    }, data=urllib.urlencode({
+    }, data=urlencode({
         'nw_filtry_filtr_zakrescen_formularz[min]':'0',
         'nw_filtry_filtr_zakrescen_formularz[max]':'350',
     }))

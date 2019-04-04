@@ -42,7 +42,7 @@ from xml.sax.saxutils import escape
 from datetime import date
 from xml.etree.ElementTree import Element, SubElement, ElementTree
 
-from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
+from .pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
         STREAM_COMPRESSED, LrfTagStream, LrfStreamBase, IMAGE_TYPE_ENCODING,
         BINDING_DIRECTION_ENCODING, LINE_TYPE_ENCODING, LrfFileStream,
         STREAM_FORCE_COMPRESSED)
@@ -1153,7 +1153,7 @@ class TextStyle(LrsStyle):
                  "rubyadjust", "rubyalign", "rubyoverhang",
                  "empdotsposition", 'emplinetype', 'emplineposition']
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults) + alsoAllow
 
     defaults = baseDefaults.copy()
 
@@ -1214,7 +1214,7 @@ class PageStyle(LrsStyle):
     alsoAllow = ["header", "evenheader", "oddheader",
                  "footer", "evenfooter", "oddfooter"]
 
-    validSettings = baseDefaults.keys() + alsoAllow
+    validSettings = list(baseDefaults) + alsoAllow
     defaults = baseDefaults.copy()
 
     @classmethod

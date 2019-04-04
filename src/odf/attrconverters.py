@@ -17,7 +17,7 @@
 #
 # Contributor(s):
 #
-from namespaces import *
+from .namespaces import *
 import re, types
 
 pattern_color =  re.compile(r'#[0-9a-fA-F]{6}')

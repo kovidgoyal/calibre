@@ -7,8 +7,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import etree
 
@@ -39,7 +42,7 @@ class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
         function so this one is modified to remove parts that are used.
         '''
 
-        url = 'http://www.xinxii.com/catalog-search/query/?keywords=' + urllib.quote_plus(query)
+        url = 'http://www.xinxii.com/catalog-search/query/?keywords=' + quote_plus(query)
 
         counter = max_results
         br = browser()

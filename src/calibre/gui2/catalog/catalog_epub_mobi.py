@@ -18,7 +18,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import unicode_type
 
-from catalog_epub_mobi_ui import Ui_Form
+from .catalog_epub_mobi_ui import Ui_Form
 from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,

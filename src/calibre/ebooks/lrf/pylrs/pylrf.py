@@ -9,7 +9,7 @@ import io
 import codecs
 import os
 
-from pylrfopt import tagListOptimizer
+from .pylrfopt import tagListOptimizer
 from polyglot.builtins import iteritems, string_or_bytes
 
 PYLRF_VERSION = "1.0"
