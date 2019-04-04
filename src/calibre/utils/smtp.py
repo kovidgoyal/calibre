@@ -12,6 +12,7 @@ This module implements a simple commandline SMTP client that supports:
 
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
+from calibre.constants import ispy3
 
 
 def safe_localhost():
@@ -24,7 +25,7 @@ def safe_localhost():
         # https://bugs.launchpad.net/bugs/1256549
         try:
             local_hostname = idna.ToASCII(force_unicode(fqdn))
-        except:
+        except Exception:
             local_hostname = 'localhost.localdomain'
     else:
         # We can't find an fqdn hostname, so use a domain literal
@@ -104,7 +105,7 @@ def get_mx(host, verbose=0):
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
-    import calibre.utils.smtplib as smtplib
+    import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work
     kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
@@ -133,7 +134,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
-    import calibre.utils.smtplib as smtplib
+    import polyglot.smtplib as smtplib
     cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
     timeout = None  # Non-blocking sockets sometimes don't work
     port = int(port)
@@ -153,7 +154,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         s.starttls(context=context)
         s.ehlo()
     if username is not None and password is not None:
-        if encryption == 'SSL':
+        if encryption == 'SSL' and not ispy3:
             s.sock = s.file.sslobj
         s.login(username, password)
     ret = None

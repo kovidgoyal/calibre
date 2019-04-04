@@ -48,7 +48,7 @@ import re
 import email.utils
 import base64
 import hmac
-from email.base64mime import encode as encode_base64
+from email.base64mime import body_encode as encode_base64
 from sys import stderr
 from functools import partial
 
@@ -282,7 +282,7 @@ class SMTP:
             # if that can't be calculated, that we should use a domain literal
             # instead (essentially an encoded IP address like [A.B.C.D]).
             fqdn = socket.getfqdn()
-            if '.' in fqdn and fqdn != '.':  # Changed by Kovid
+            if '.' in fqdn:
                 self.local_hostname = fqdn
             else:
                 # We can't find an fqdn hostname, so use a domain literal
@@ -345,11 +345,6 @@ class SMTP:
         """Send `str' to the server."""
         if self.debuglevel > 0:
             raw = repr(str)
-            if self.debuglevel < 2:
-                if len(raw) > 100:
-                    raw = raw[:100] + '...'
-                if 'AUTH' in raw:
-                    raw = 'AUTH <censored>'
             self.debug('send:', raw)
         if hasattr(self, 'sock') and self.sock:
             try:
