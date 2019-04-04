@@ -606,7 +606,10 @@ class Smarts(NullSmarts):
         key = ev.key()
         is_xml = editor.syntax == 'xml'
 
-        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in ev_text):
+        if tprefs['replace_entities_as_typed'] and (
+                ';' in ev_text or
+                (key == Qt.Key_Semicolon and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier))
+        ):
             self.replace_possible_entity(editor)
             return True
 
