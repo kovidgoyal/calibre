@@ -13,7 +13,7 @@ try:
     from urllib.parse import quote
     from urllib.error import HTTPError
 except ImportError:
-    from urllib import quote, HTTPError
+    from urllib2 import quote, HTTPError
 
 from lxml import html
 
