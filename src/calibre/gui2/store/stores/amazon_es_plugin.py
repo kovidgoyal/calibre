@@ -10,7 +10,7 @@ from contextlib import closing
 try:
     from urllib.parse import urlencode
 except ImportError:
-    from urllib2 import urlencode
+    from urllib import urlencode
 
 from lxml import html
 

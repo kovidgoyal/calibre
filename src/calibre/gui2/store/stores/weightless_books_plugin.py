@@ -11,7 +11,7 @@ from contextlib import closing
 try:
     from urllib.parse import quote_plus
 except ImportError:
-    from urllib2 import quote_plus
+    from urllib import quote_plus
 
 from lxml import html
 
