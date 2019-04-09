@@ -1185,6 +1185,7 @@ class EbookViewer(MainWindow):
             self.iterator.__exit__(*args)
 
     def read_settings(self):
+        from calibre.gui2.viewer.config import config
         c = config().parse()
         if c.remember_window_size:
             wg = vprefs.get('viewer_window_geometry', None)
