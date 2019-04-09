@@ -52,5 +52,4 @@ recipes/debug
 .idea
 /*env*/
 cmake-build-*
-bypy/linux
-bypy/sources-cache
+bypy/b
