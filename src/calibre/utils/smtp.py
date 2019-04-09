@@ -169,11 +169,8 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
 
 
 def option_parser():
-    try:
-        from calibre.utils.config import OptionParser
-        OptionParser
-    except ImportError:
-        from optparse import OptionParser
+    from optparse import OptionGroup
+    from calibre.utils.config import OptionParser
     parser = OptionParser(_('''\
 %prog [options] [from to text]
 
@@ -188,18 +185,20 @@ from is the email address of the sender and to is the email address
 of the recipient. When a complete email is read from STDIN, from and to
 are only used in the SMTP negotiation, the message headers are not modified.
 '''))
-    c=parser.add_option_group('COMPOSE MAIL',
-        _('Options to compose an email. Ignored if text is not specified')).add_option
+    c_group = OptionGroup(parser, 'COMPOSE MAIL',
+        _('Options to compose an email. Ignored if text is not specified'))
+    c=parser.add_option_group(c_group).add_option
     c('-a', '--attachment', help=_('File to attach to the email'))
     c('-s', '--subject', help=_('Subject of the email'))
 
     parser.add_option('-l', '--localhost',
                       help=_('Host name of localhost. Used when connecting '
                             'to SMTP server.'))
-    r=parser.add_option_group('SMTP RELAY',
+    r_group = OptionGroup(parser, 'SMTP RELAY',
         _('Options to use an SMTP relay server to send mail. '
         'calibre will try to send the email directly unless --relay is '
-        'specified.')).add_option
+        'specified.'))
+    r=parser.add_option_group(r_group).add_option
     r('-r', '--relay', help=_('An SMTP relay server to use to send mail.'))
     r('-p', '--port', default=-1,
       help=_('Port to connect to on relay server. Default is to use 465 if '
