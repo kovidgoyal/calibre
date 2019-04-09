@@ -195,7 +195,6 @@ class MobiReader(object):
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from html5_parser import parse
-            from calibre.ebooks.chardet import strip_encoding_declarations
             self.log.warning('Malformed markup, parsing using html5-parser')
             self.processed_html = strip_encoding_declarations(self.processed_html)
             try:
