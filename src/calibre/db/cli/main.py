@@ -238,6 +238,9 @@ def main(args=sys.argv):
     if len(args) < 2:
         parser.print_help()
         return 1
+    if args[1] in ('-h', '--help'):
+        parser.print_help()
+        return 0
     if args[1] == '--version':
         parser.print_version()
         return 0
