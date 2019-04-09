@@ -414,13 +414,13 @@ _ebook_edit() {
                      not x.strip().startswith('%prog')]
             descs[command] = lines[0]
 
-        f.write('\n_calibredb_cmds() {\n  local commands; commands=(\n')
-        f.write('    {-h,--help}":Show help"\n')
-        f.write('    "--version:Show version"\n')
+        f.write(b'\n_calibredb_cmds() {\n  local commands; commands=(\n')
+        f.write(b'    {-h,--help}":Show help"\n')
+        f.write(b'    "--version:Show version"\n')
         for command, desc in iteritems(descs):
-            f.write('    "%s:%s"\n'%(
-                command, desc.replace(':', '\\:').replace('"', '\'')))
-        f.write('  )\n  _describe -t commands "calibredb command" commands \n}\n')
+            f.write(('    "%s:%s"\n'%(
+                command, desc.replace(':', '\\:').replace('"', '\''))).encode('utf-8'))
+        f.write(b'  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
         for command, parser in iteritems(parsers):
@@ -441,7 +441,7 @@ _ebook_edit() {
             subcommands.append(txt)
             subcommands.append(';;')
 
-        f.write('\n_calibredb() {')
+        f.write(b'\n_calibredb() {')
         f.write((
             r'''
     local state line state_descr context
@@ -466,25 +466,25 @@ _ebook_edit() {
 
     return ret
     '''%'\n    '.join(subcommands)).encode('utf-8'))
-        f.write('\n}\n\n')
+        f.write(b'\n}\n\n')
 
     def write(self):
         if self.dest:
             for c in ('calibredb', 'ebook-convert', 'ebook-edit'):
                 self.commands[c] = ' _%s "$@"' % c.replace('-', '_')
             with open(self.dest, 'wb') as f:
-                f.write('#compdef ' + ' '.join(self.commands)+'\n')
+                f.write(b'#compdef ' + ' '.join(self.commands).encode('utf-8')+b'\n')
                 self.do_ebook_convert(f)
                 self.do_calibredb(f)
                 self.do_ebook_edit(f)
-                f.write('case $service in\n')
+                f.write(b'case $service in\n')
                 for c, txt in iteritems(self.commands):
                     if isinstance(txt, unicode_type):
                         txt = txt.encode('utf-8')
                     if isinstance(c, unicode_type):
                         c = c.encode('utf-8')
                     f.write(b'%s)\n%s\n;;\n'%(c, txt))
-                f.write('esac\n')
+                f.write(b'esac\n')
 # }}}
 
 
@@ -525,9 +525,9 @@ def write_completion(bash_comp_dest, zsh):
     if bash_comp_dest and not os.path.exists(os.path.dirname(bash_comp_dest)):
         os.makedirs(os.path.dirname(bash_comp_dest))
 
-    complete = 'calibre-complete'
+    complete = b'calibre-complete'
     if getattr(sys, 'frozen_path', None):
-        complete = os.path.join(getattr(sys, 'frozen_path'), complete)
+        complete = os.path.join(getattr(sys, 'frozen_path'), complete).encode('utf-8')
 
     with open(bash_comp_dest or os.devnull, 'wb') as f:
         def o_and_e(*args, **kwargs):
@@ -538,7 +538,7 @@ def write_completion(bash_comp_dest, zsh):
             f.write(opts_and_words(*args, **kwargs))
             zsh.opts_and_words(*args, **kwargs)
 
-        f.write('# calibre Bash Shell Completion\n')
+        f.write(b'# calibre Bash Shell Completion\n')
         o_and_e('calibre', guiop, BOOK_EXTENSIONS)
         o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
         o_and_e('ebook-meta', metaop,
@@ -634,7 +634,7 @@ def write_completion(bash_comp_dest, zsh):
         complete -o nospace  -F _ebook_device ebook-device
 
         complete -o nospace -C %s ebook-convert
-        ''')%complete)
+        ''').encode('utf-8')%complete)
     zsh.write()
 # }}}
 
@@ -733,7 +733,7 @@ class PostInstall:
             appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
             with open(dest, 'wb') as f:
-                f.write(raw)
+                f.write(raw.encode('utf-8'))
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:
                 os.chown(dest, 0, 0)
@@ -823,7 +823,7 @@ class PostInstall:
                 mimetypes.discard('application/octet-stream')
 
                 def write_mimetypes(f):
-                    f.write('MimeType=%s;\n'%';'.join(mimetypes))
+                    f.write(b'MimeType=%s;\n'%';'.join(mimetypes).encode('utf-8'))
 
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
@@ -836,7 +836,7 @@ class PostInstall:
                 f = open('calibre-ebook-edit.desktop', 'wb')
                 f.write(ETWEAK)
                 mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
-                f.write('MimeType=%s;\n'%';'.join(mt))
+                f.write(b'MimeType=%s;\n'%';'.join(mt).encode('utf-8'))
                 f.close()
                 f = open('calibre-gui.desktop', 'wb')
                 f.write(GUI)
@@ -958,7 +958,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
 
-    return '_'+fname+'()'+\
+    return ('_'+fname+'()'+\
 '''
 {
     local cur prev opts
@@ -986,10 +986,10 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-VIEWER = '''\
+VIEWER = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1003,7 +1003,7 @@ MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
 '''
 
-EVIEWER = '''\
+EVIEWER = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1016,7 +1016,7 @@ Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
 
-ETWEAK = '''\
+ETWEAK = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1029,7 +1029,7 @@ Icon=calibre-ebook-edit
 Categories=Office;
 '''
 
-GUI = '''\
+GUI = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application

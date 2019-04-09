@@ -155,7 +155,7 @@ class Develop(Command):
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
-                f.write(HEADER.format(**self.template_args()))
+                f.write(HEADER.format(**self.template_args()).encode('utf-8'))
 
     def install_files(self):
         pass
@@ -189,7 +189,7 @@ class Develop(Command):
         args = self.template_args()
         args['module'] = mod
         args['func'] = func
-        script = template.format(**args)
+        script = template.format(**args).encode('utf-8')
         path = self.j(self.staging_bindir, name)
         if not os.path.exists(self.staging_bindir):
             os.makedirs(self.staging_bindir)
