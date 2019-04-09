@@ -29,7 +29,7 @@ from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.viewer.ui import Main as MainWindow
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ptempfile import reset_base_dir
-from calibre.utils.config import Config, JSONConfig, StringConfig
+from calibre.utils.config import JSONConfig, StringConfig
 from calibre.utils.ipc import RC, viewer_socket_address
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import BadZipfile
@@ -1202,10 +1202,7 @@ class EbookViewer(MainWindow):
 
 def config(defaults=None):
     desc = _('Options to control the e-book viewer')
-    if defaults is None:
-        c = Config('viewer', desc)
-    else:
-        c = StringConfig(defaults, desc)
+    c = StringConfig(defaults or '', desc)
 
     c.add_opt('raise_window', ['--raise-window'], default=False,
               help=_('If specified, viewer window will try to come to the '
