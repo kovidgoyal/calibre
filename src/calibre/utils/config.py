@@ -21,7 +21,7 @@ from calibre.utils.config_base import (
     tweaks, from_json, to_json
 )
 from calibre.utils.lock import ExclusiveFile
-from polyglot.builtins import unicode_type
+from polyglot.builtins import string_or_bytes, native_string_type
 
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
@@ -193,8 +193,9 @@ class OptionParser(optparse.OptionParser):
                 upper.__dict__[dest] = lower.__dict__[dest]
 
     def add_option_group(self, *args, **kwargs):
-        if isinstance(args[0], unicode_type):
-            args = [optparse.OptionGroup(self, *args, **kwargs)] + list(args[1:])
+        if isinstance(args[0], string_or_bytes):
+            args = list(args)
+            args[0] = native_string_type(args[0])
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 
