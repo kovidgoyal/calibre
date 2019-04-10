@@ -332,8 +332,10 @@ class KF8Book(object):
 
             # Write PalmDB Header
 
-            title = ascii_filename(self.full_title.decode('utf-8')).replace(
-                    ' ', '_')[:31]
+            title = ascii_filename(self.full_title.decode('utf-8')).replace(' ', '_')
+            if not isinstance(title, bytes):
+                title = title.encode('ascii')
+            title = title[:31]
             title += (b'\0' * (32 - len(title)))
             now = int(time.time())
             nrecords = len(records)

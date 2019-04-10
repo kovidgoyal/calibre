@@ -611,14 +611,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = _('Unknown')
         author = ascii_filename(authors.split(',')[0].replace('|', ',')
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+                    )[:self.PATH_LIMIT]
         title  = ascii_filename(self.title(id, index_is_id=True)
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+                    )[:self.PATH_LIMIT]
         while author[-1] in (' ', '.'):
             author = author[:-1]
         if not author:
-            author = ascii_filename(_('Unknown')).decode(
-                    'ascii', 'replace')
+            author = ascii_filename(_('Unknown'))
         path = author + '/' + title + ' (%d)'%id
         return path
 
@@ -630,9 +629,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = _('Unknown')
         author = ascii_filename(authors.split(',')[0].replace('|', ',')
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+                    )[:self.PATH_LIMIT]
         title  = ascii_filename(self.title(id, index_is_id=True)
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+                    )[:self.PATH_LIMIT]
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
