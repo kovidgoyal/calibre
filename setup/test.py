@@ -34,7 +34,7 @@ class TestImports(unittest.TestCase):
         import_base = os.path.dirname(base)
         count = 0
         for root, dirs, files in os.walk(base):
-            for d in dirs:
+            for d in tuple(dirs):
                 if not os.path.isfile(os.path.join(root, d, '__init__.py')):
                     dirs.remove(d)
             for fname in files:
