@@ -24,6 +24,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.kobo.books import KTCollectionsBookList
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
@@ -3080,8 +3081,11 @@ class KOBOTOUCH(KOBO):
                 update_values.append(newmi.isbn)
                 set_clause += ', ISBN = ? '
 
-            if not (newmi.language == kobo_metadata.language):
-                update_values.append(newmi.language)
+            
+            library_language = normalize_languages(kobo_metadata.languages, newmi.languages)
+            library_language = library_language[0] if library_language is not None and len(library_language) > 0 else None
+            if not (library_language == kobo_metadata.language):
+                update_values.append(library_language)
                 set_clause += ', Language = ? '
 
             if self.update_subtitle:

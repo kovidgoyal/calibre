@@ -112,6 +112,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['show_previews'] = self.show_previews
         p['show_archived_books'] = self.show_archived_books
 
+        p['update_device_metadata'] = self.update_device_metadata
         p['update_series'] = self.update_series
         p['update_core_metadata'] = self.update_core_metadata
         p['update_purchased_kepubs'] = self.update_purchased_kepubs
