@@ -57,6 +57,8 @@ class Page(QWebPage):  # {{{
             from calibre.utils.resources import compiled_coffeescript
             self.js = compiled_coffeescript('ebooks.oeb.display.utils')
             self.js += compiled_coffeescript('ebooks.oeb.polish.choose')
+            if isinstance(self.js, bytes):
+                self.js = self.js.decode('utf-8')
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         self.evaljs(self.js)
 # }}}

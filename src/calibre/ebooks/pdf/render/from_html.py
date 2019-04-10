@@ -390,10 +390,10 @@ class PDFWriter(QObject):
         if self.paged_js is None:
             import uuid
             from calibre.utils.resources import compiled_coffeescript as cc
-            self.paged_js =  cc('ebooks.oeb.display.utils')
-            self.paged_js += cc('ebooks.oeb.display.indexing')
-            self.paged_js += cc('ebooks.oeb.display.paged')
-            self.paged_js += cc('ebooks.oeb.display.mathjax')
+            self.paged_js =  cc('ebooks.oeb.display.utils').decode('utf-8')
+            self.paged_js += cc('ebooks.oeb.display.indexing').decode('utf-8')
+            self.paged_js += cc('ebooks.oeb.display.paged').decode('utf-8')
+            self.paged_js += cc('ebooks.oeb.display.mathjax').decode('utf-8')
             if self.opts.pdf_hyphenate:
                 self.paged_js += P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
                 hjs, self.hyphenate_lang = load_hyphenator_dicts({}, self.book_language)
