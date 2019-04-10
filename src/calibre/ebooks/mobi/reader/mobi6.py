@@ -79,17 +79,17 @@ class MobiReader(object):
             stream = open(filename_or_stream, 'rb')
 
         raw = stream.read()
-        if raw.startswith('TPZ'):
+        if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):
             raise KFXError()
 
         self.header   = raw[0:72]
-        self.name     = self.header[:32].replace('\x00', '')
+        self.name     = self.header[:32].replace(b'\x00', b'')
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
-        if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
+        if self.ident not in [b'BOOKMOBI', b'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
