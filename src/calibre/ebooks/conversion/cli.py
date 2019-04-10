@@ -308,7 +308,10 @@ def create_option_parser(args, log):
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
-        raise SystemExit(1)
+        if any(x in args for x in ('-h', '--help')):
+            raise SystemExit(0)
+        else:
+            raise SystemExit(1)
 
     input, output = check_command_line_options(parser, args, log)
 
