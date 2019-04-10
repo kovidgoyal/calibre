@@ -65,14 +65,14 @@ class HistoryMixin(object):
 
 class HistoryLineEdit2(LineEdit, HistoryMixin):
 
-    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:b''):
         LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
 
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
     def __init__(self, parent=None):
-        EditWithComplete.__init__(self, parent, sort_func=lambda x:None)
+        EditWithComplete.__init__(self, parent, sort_func=lambda x:b'')
 
 
 class ColorButton(QPushButton):
