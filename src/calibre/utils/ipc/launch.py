@@ -62,6 +62,8 @@ class Worker(object):
     def executable(self):
         if hasattr(sys, 'running_from_setup'):
             return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
+        if getattr(sys, 'run_local', False):
+            return [sys.executable, sys.run_local, self.exe_name]
         e = self.exe_name
         if iswindows:
             return os.path.join(os.path.dirname(sys.executable),
