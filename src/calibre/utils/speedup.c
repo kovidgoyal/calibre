@@ -504,6 +504,8 @@ extern int pthread_setname_np(const char *name);
 void pthread_set_name_np(pthread_t tid, const char *name);
 #elif defined(__NetBSD__)
 // pthread.h provides the symbol
+#elif defined(__HAIKU__)
+// Haiku doesn't support pthread_set_name_np yet
 #else
 // Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
 extern int pthread_setname_np(pthread_t, const char *name);
@@ -514,8 +516,8 @@ extern int pthread_setname_np(pthread_t, const char *name);
 static PyObject*
 set_thread_name(PyObject *self, PyObject *args) {
 	(void)(self); (void)(args);
-#if defined(_MSC_VER)
-	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on Windows");
+#if defined(_MSC_VER) || defined(__HAIKU__)
+	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on on this platform");
 	return NULL;
 #else
 	char *name;
