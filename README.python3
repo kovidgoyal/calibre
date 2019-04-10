@@ -18,7 +18,7 @@ Now build the calibre C extensions for python 3 with:
 
 You should now be able to run the calibre test suite using:
 
-    python3 setup.py test
+    CALIBRE_PY3_PORT=1 python3 setup.py test
 
 And run calibre itself (which may not work) with:
 
