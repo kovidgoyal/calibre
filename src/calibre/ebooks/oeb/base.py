@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter
-from polyglot.urllib import unquote, urldefrag, urljoin, urlparse, urlunparse
+from polyglot.urllib import unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse
 from calibre.utils.icu import numeric_sort_key
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
@@ -453,23 +453,6 @@ def urlquote(href):
             char = "%%%02x" % ord(char)
         result.append(char)
     return ''.join(result)
-
-
-def urlunquote(href, error_handling='strict'):
-    # unquote must run on a bytestring and will return a bytestring
-    # If it runs on a unicode object, it returns a double encoded unicode
-    # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
-    # and the latter is correct
-    want_unicode = isinstance(href, unicode_type)
-    if want_unicode:
-        href = href.encode('utf-8')
-    href = unquote(href)
-    if want_unicode:
-        # The quoted characters could have been in some encoding other than
-        # UTF-8, this often happens with old/broken web servers. There is no
-        # way to know what that encoding should be in this context.
-        href = href.decode('utf-8', error_handling)
-    return href
 
 
 def urlnormalize(href):
