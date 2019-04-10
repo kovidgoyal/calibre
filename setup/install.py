@@ -12,7 +12,7 @@ from setup import (Command, islinux, isbsd, ishaiku, basenames, modules, functio
         __appname__, __version__)
 
 HEADER = '''\
-#!/usr/bin/env python2
+#!/usr/bin/env python{py_major_version}
 
 """
 This is the standard runscript for all of calibre's tools.
@@ -177,6 +177,7 @@ class Develop(Command):
 
     def template_args(self):
         return {
+            'py_major_version': sys.version_info.major,
             'path':self.libdir,
             'resources':self.sharedir,
             'executables':self.bindir,
