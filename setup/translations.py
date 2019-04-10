@@ -746,14 +746,23 @@ class ISO639(Command):  # {{{
         m3bto3t = {}
         nm = {}
         codes2, codes3t, codes3b = set(), set(), set()
+        unicode_type = type(u'')
         for x in root.xpath('//iso_639_3_entry'):
             two = x.get('part1_code', None)
+            if two:
+                two = unicode_type(two)
             threet = x.get('id')
+            if threet:
+                threet = unicode_type(threet)
             threeb = x.get('part2_code', None)
+            if threeb:
+                threeb = unicode_type(threeb)
             if threeb is None:
                 # Only recognize languages in ISO-639-2
                 continue
             name = x.get('name')
+            if name:
+                name = unicode_type(name)
 
             if two is not None:
                 by_2[two] = name
@@ -769,9 +778,9 @@ class ISO639(Command):  # {{{
             base_name = name.lower()
             nm[base_name] = threet
 
-        x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
-                'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
-                '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
+        x = {u'by_2':by_2, u'by_3b':by_3b, u'by_3t':by_3t, u'codes2':codes2,
+                u'codes3b':codes3b, u'codes3t':codes3t, u'2to3':m2to3,
+                u'3to2':m3to2, u'3bto3t':m3bto3t, u'name_map':nm}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))
@@ -806,14 +815,19 @@ class ISO3166(ISO639):  # {{{
         codes = set()
         three_map = {}
         name_map = {}
+        unicode_type = type(u'')
         for x in root.xpath('//iso_3166_entry'):
             two = x.get('alpha_2_code')
-            three = x.get('alpha_3_code')
+            if two:
+                two = unicode_type(two)
             codes.add(two)
             name_map[two] = x.get('name')
+            if name_map[two]:
+                name_map[two] = unicode_type(name_map[two])
+            three = x.get('alpha_3_code')
             if three:
-                three_map[three] = two
-        x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
+                three_map[unicode_type(three)] = two
+        x = {u'names':name_map, u'codes':frozenset(codes), u'three_map':three_map}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))
