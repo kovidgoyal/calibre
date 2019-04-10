@@ -25,5 +25,5 @@ if flags == '1':  # A branch checkout
     for dirpath, dirnames, filenames in os.walk('.'):
         for f in filenames:
             fpath = os.path.join(dirpath, f)
-            if f.endswith('.pyc'):
+            if f.endswith('.pyc') and '/chroot/' not in fpath:
                 os.remove(fpath)
