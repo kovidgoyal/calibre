@@ -1,10 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, os, textwrap, subprocess, shutil, tempfile, atexit, glob
 
@@ -155,7 +153,7 @@ class Develop(Command):
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
-                f.write(HEADER.format(**self.template_args()))
+                f.write(HEADER.format(**self.template_args()).encode('utf-8'))
 
     def install_files(self):
         pass
@@ -196,7 +194,8 @@ class Develop(Command):
         self.info('Installing binary:', path)
         if os.path.lexists(path) and not os.path.exists(path):
             os.remove(path)
-        open(path, 'wb').write(script)
+        with open(path, 'wb') as f:
+            f.write(script.encode('utf-8'))
         os.chmod(path, self.MODE)
         self.manifest.append(path)
 
