@@ -158,9 +158,13 @@ def prints(*args, **kwargs):
     '''
     file = kwargs.get('file', sys.stdout)
     file = getattr(file, 'buffer', file)
-    sep  = bytes(kwargs.get('sep', ' '))
-    end  = bytes(kwargs.get('end', '\n'))
     enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding
+    sep  = kwargs.get('sep', ' ')
+    if not isinstance(sep, bytes):
+        sep = sep.encode(enc)
+    end  = kwargs.get('end', '\n')
+    if not isinstance(end, bytes):
+        end = end.encode(enc)
     safe_encode = kwargs.get('safe_encode', False)
     count = 0
     for i, arg in enumerate(args):
