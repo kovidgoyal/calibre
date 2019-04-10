@@ -321,7 +321,7 @@ class ZipInfo (object):
 
         # Terminate the file name at the first null byte.  Null bytes in file
         # names are used as tricks by viruses in archives.
-        null_byte = filename.find(chr(0))
+        null_byte = filename.find(b'\0' if isinstance(filename, bytes) else u'\0')
         if null_byte >= 0:
             filename = filename[0:null_byte]
         # This is used to ensure paths in generated ZIP files always use

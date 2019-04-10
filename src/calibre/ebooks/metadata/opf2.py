@@ -1322,8 +1322,8 @@ class OPF(object):  # {{{
         if pretty_print_opf:
             _pretty_print(self.root)
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
-        if not raw.lstrip().startswith('<?xml '):
-            raw = '<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()+raw
+        if not raw.lstrip().startswith(b'<?xml '):
+            raw = ('<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()).encode('ascii') + raw
         return raw
 
     def smart_update(self, mi, replace_metadata=False, apply_null=False):
