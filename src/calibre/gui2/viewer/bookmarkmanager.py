@@ -200,8 +200,11 @@ class BookmarkManager(QWidget):
             self, 'export-viewer-bookmarks', _('Export bookmarks'),
             filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, initial_filename='bookmarks.calibre-bookmarks')
         if filename:
+            data = json.dumps(self.get_bookmarks(), indent=True)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(filename, 'wb') as fileobj:
-                fileobj.write(json.dumps(self.get_bookmarks(), indent=True))
+                fileobj.write(data)
 
     def import_bookmarks(self):
         files = choose_files(self, 'export-viewer-bookmarks', _('Import bookmarks'),

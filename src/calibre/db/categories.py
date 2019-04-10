@@ -75,7 +75,7 @@ class Tag(object):
 
 
 def find_categories(field_metadata):
-    for category, cat in iteritems(field_metadata):
+    for category, cat in field_metadata.iter_items():
         if (cat['is_category'] and cat['kind'] not in {'user', 'search'}):
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
         elif (cat['datatype'] == 'composite' and

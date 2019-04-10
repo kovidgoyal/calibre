@@ -81,8 +81,11 @@ class DBPrefs(dict):
     def write_serialized(self, library_path):
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
+            data = json.dumps(self, indent=2, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with open(to_filename, "wb") as f:
-                f.write(json.dumps(self, indent=2, default=to_json))
+                f.write(data)
         except:
             import traceback
             traceback.print_exc()

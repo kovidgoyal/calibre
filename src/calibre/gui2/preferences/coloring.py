@@ -1090,8 +1090,11 @@ class EditRules(QWidget):  # {{{
                 'type': self.model.pref_name,
                 'rules': self.model.rules_as_list(for_export=True)
             }
+            data = json.dumps(rules, indent=2)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(path, 'wb') as f:
-                f.write(json.dumps(rules, indent=2))
+                f.write(data)
 
     def import_rules(self):
         files = choose_files(self, 'import-coloring-rules', _('Choose file to import from'),

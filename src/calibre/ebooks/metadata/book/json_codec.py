@@ -132,8 +132,10 @@ class JsonCodec(object):
         self.field_metadata = field_metadata or FieldMetadata()
 
     def encode_to_file(self, file_, booklist):
-        file_.write(json.dumps(self.encode_booklist_metadata(booklist),
-                              indent=2, encoding='utf-8'))
+        data = json.dumps(self.encode_booklist_metadata(booklist), indent=2, encoding='utf-8')
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        file_.write(data)
 
     def encode_booklist_metadata(self, booklist):
         result = []

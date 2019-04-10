@@ -230,8 +230,11 @@ class Container(ContainerBase):
         self.commit()
         for name in excluded_names:
             os.remove(self.name_path_map[name])
+        data = json.dumps(self.book_render_data, ensure_ascii=False)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with lopen(os.path.join(self.root, 'calibre-book-manifest.json'), 'wb') as f:
-            f.write(json.dumps(self.book_render_data, ensure_ascii=False).encode('utf-8'))
+            f.write(data)
 
     def create_cover_page(self, input_fmt):
         templ = '''

@@ -128,13 +128,19 @@ class USBMS(CLI, Device):
                     driveinfo = None
                 driveinfo = self._update_driveinfo_record(driveinfo, prefix,
                                                           location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         else:
             driveinfo = self._update_driveinfo_record({}, prefix, location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         return driveinfo
 

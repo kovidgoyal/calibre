@@ -632,7 +632,7 @@ class Parser(SearchQueryParser):  # {{{
         text_fields = set()
         field_metadata = {}
 
-        for x, fm in iteritems(self.field_metadata):
+        for x, fm in self.field_metadata.iter_items():
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x not in {'series_sort', 'id'}:

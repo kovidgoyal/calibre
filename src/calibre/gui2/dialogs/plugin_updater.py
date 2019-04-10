@@ -45,7 +45,7 @@ def get_plugin_updates_available(raise_error=False):
         return None
     display_plugins = read_available_plugins(raise_error=raise_error)
     if display_plugins:
-        update_plugins = filter(filter_upgradeable_plugins, display_plugins)
+        update_plugins = list(filter(filter_upgradeable_plugins, display_plugins))
         if len(update_plugins) > 0:
             return update_plugins
     return None
@@ -589,7 +589,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _finished(self, *args):
         if self.model:
-            update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
+            update_plugins = list(filter(filter_upgradeable_plugins, self.model.display_plugins))
             self.gui.recalc_update_label(len(update_plugins))
 
     def _plugin_current_changed(self, current, previous):
