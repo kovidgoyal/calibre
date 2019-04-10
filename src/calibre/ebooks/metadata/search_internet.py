@@ -51,7 +51,10 @@ all_author_searches = AUTHOR_SEARCHES.__iter__
 def qquote(val):
     if not isinstance(val, bytes):
         val = val.encode('utf-8')
-    return quote_plus(val).decode('utf-8')
+    ans = quote_plus(val)
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans
 
 
 def url_for(template, data):

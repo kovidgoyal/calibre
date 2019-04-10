@@ -74,7 +74,10 @@ def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60):
 
 
 def quote_term(x):
-    return quote_plus(x.encode('utf-8')).decode('utf-8')
+    ans = quote_plus(x.encode('utf-8'))
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans
 
 
 # DDG + Wayback machine {{{
