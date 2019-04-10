@@ -1030,6 +1030,6 @@ class FileListWidget(QWidget):
         return self.file_list.current_name
 
     def __getattr__(self, name):
-        if name in self.forwarded_signals:
+        if name in object.__getattribute__(self, 'forwarded_signals'):
             return getattr(self.file_list, name)
         return QWidget.__getattr__(self, name)

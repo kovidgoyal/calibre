@@ -46,7 +46,10 @@ def get_data(name):
 
 def parse_html(raw):
     root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
-    return serialize(root, 'text/html').encode('utf-8')
+    ans = serialize(root, 'text/html')
+    if not isinstance(ans, bytes):
+        ans = ans.encode('utf-8')
+    return ans
 
 
 class ParseItem(object):
