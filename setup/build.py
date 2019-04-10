@@ -217,8 +217,12 @@ def init_env():
 class Build(Command):
 
     short_description = 'Build calibre C/C++ extension modules'
-    DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
-    DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
+    if ispy3:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins', '3'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build', '3'))
+    else:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
