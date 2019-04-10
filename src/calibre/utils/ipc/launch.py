@@ -13,7 +13,7 @@ from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding, i
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, environ_item
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, environ_item, native_string_type
 from polyglot.binary import as_hex_unicode
 
 if iswindows:
@@ -111,9 +111,9 @@ class Worker(object):
                     env[key] = val
                 except:
                     pass
-        env[str('CALIBRE_WORKER')] = environ_item('1')
+        env[native_string_type('CALIBRE_WORKER')] = environ_item('1')
         td = as_hex_unicode(msgpack_dumps(base_dir()))
-        env[str('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
+        env[native_string_type('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
         env.update(self._env)
         return env
 
@@ -161,19 +161,22 @@ class Worker(object):
         self._env = {}
         self.gui = gui
         self.job_name = job_name
-        # Windows cannot handle unicode env vars
-        for k, v in iteritems(env):
-            try:
-                if isinstance(k, unicode_type):
-                    k = k.encode('ascii')
-                if isinstance(v, unicode_type):
-                    try:
-                        v = v.encode(filesystem_encoding)
-                    except:
-                        v = v.encode('utf-8')
-                self._env[k] = v
-            except:
-                pass
+        if ispy3:
+            self._env = env.copy()
+        else:
+            # Windows cannot handle unicode env vars
+            for k, v in iteritems(env):
+                try:
+                    if isinstance(k, unicode_type):
+                        k = k.encode('ascii')
+                    if isinstance(v, unicode_type):
+                        try:
+                            v = v.encode(filesystem_encoding)
+                        except:
+                            v = v.encode('utf-8')
+                    self._env[k] = v
+                except:
+                    pass
 
     def __call__(self, redirect_output=True, cwd=None, priority=None):
         '''
@@ -187,7 +190,7 @@ class Worker(object):
         except EnvironmentError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser(u'~')
-        env[str('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
+        env[native_string_type('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']

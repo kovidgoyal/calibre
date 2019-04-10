@@ -221,8 +221,7 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' : environ_item(as_hex_unicode(msgpack_dumps(
-                    self.listener.address))),
+                'CALIBRE_WORKER_ADDRESS' : environ_item(as_hex_unicode(msgpack_dumps(self.address))),
                 'CALIBRE_WORKER_KEY' : environ_item(as_hex_unicode(self.auth_key)),
                 'CALIBRE_WORKER_RESULT' : environ_item(as_hex_unicode(rfile)),
               }

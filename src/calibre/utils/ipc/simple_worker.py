@@ -131,7 +131,7 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 
     env = dict(env)
     env.update({
-        'CALIBRE_WORKER_ADDRESS': environ_item(as_hex_unicode(msgpack_dumps(listener.address))),
+        'CALIBRE_WORKER_ADDRESS': environ_item(as_hex_unicode(msgpack_dumps(address))),
         'CALIBRE_WORKER_KEY': environ_item(as_hex_unicode(auth_key)),
         'CALIBRE_SIMPLE_WORKER': environ_item('calibre.utils.ipc.simple_worker:%s' % func),
     })
