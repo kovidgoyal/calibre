@@ -35,7 +35,7 @@ from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jp
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
-from polyglot.builtins import iteritems, map, range, reraise
+from polyglot.builtins import iteritems, map, range, reraise, filter
 from polyglot import http_client
 from polyglot.queue import Queue, Empty
 

@@ -17,7 +17,7 @@ from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
 from calibre.utils.icu import ord_string
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 
 _patterns = None
 
@@ -86,7 +86,7 @@ def get_words(text, lang):
         ans = split_into_words(unicode_type(text), lang)
     except (TypeError, ValueError):
         return ()
-    return filter(filter_words, ans)
+    return list(filter(filter_words, ans))
 
 
 def add_words(text, node, words, file_name, locale, node_item):

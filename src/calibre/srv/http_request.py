@@ -16,7 +16,7 @@ from calibre.srv.loop import Connection, READ, WRITE
 from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
 from polyglot import http_client, reprlib
 from polyglot.urllib import unquote
-from polyglot.builtins import error_message
+from polyglot.builtins import error_message, filter
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')

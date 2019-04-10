@@ -31,7 +31,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
 from calibre.library.comments import merge_comments as merge_two_comments
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 
 BASE_TITLE = _('Edit Metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',

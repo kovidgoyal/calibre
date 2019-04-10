@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues, unicode_type, filter
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER

@@ -18,7 +18,7 @@ from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import get_lang, get_system_locale
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type, filter
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')

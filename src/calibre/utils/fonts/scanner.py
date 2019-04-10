@@ -16,7 +16,7 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues, unicode_type, filter
 
 
 class NoFonts(ValueError):
@@ -281,7 +281,7 @@ class FontScanner(Thread):
             return False
 
         for family in self.find_font_families():
-            faces = filter(filter_faces, self.fonts_for_family(family))
+            faces = list(filter(filter_faces, self.fonts_for_family(family)))
             if not faces:
                 continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])

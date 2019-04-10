@@ -15,7 +15,7 @@ from ctypes import (
 )
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
-from polyglot.builtins import iteritems, itervalues, map
+from polyglot.builtins import iteritems, itervalues, map, filter
 
 from calibre import prints, as_unicode
 
@@ -677,7 +677,7 @@ def get_volume_pathnames(volume_id, buf=None):
                 continue
             raise
     ans = wstring_at(buf, bufsize.value)
-    return buf, filter(None, ans.split('\0'))
+    return buf, list(filter(None, ans.split('\0')))
 
 # }}}
 
@@ -979,7 +979,7 @@ def get_device_languages(hub_handle, device_port, buf=None):
     if dtype != 0x03:
         raise WindowsError('Invalid datatype for string descriptor: 0x%x' % dtype)
     data = cast(data.String, POINTER(USHORT*(sz//2)))
-    return buf, filter(None, data.contents)
+    return buf, list(filter(None, data.contents))
 
 # }}}
 

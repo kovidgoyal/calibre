@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter
 from polyglot.urllib import unquote, urldefrag, urljoin, urlparse, urlunparse
 from calibre.utils.icu import numeric_sort_key
 
@@ -2008,7 +2008,7 @@ def rel_href(base_href, href):
         return href
     if '/' not in base_href:
         return href
-    base = filter(lambda x: x and x != '.', os.path.dirname(os.path.normpath(base_href)).replace(os.sep, '/').split('/'))
+    base = list(filter(lambda x: x and x != '.', os.path.dirname(os.path.normpath(base_href)).replace(os.sep, '/').split('/')))
     while True:
         try:
             idx = base.index('..')

@@ -15,7 +15,7 @@ from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import ParseException
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, filter
 
 
 class Context(object):

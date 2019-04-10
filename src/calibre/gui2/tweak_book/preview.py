@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, json
 from bisect import bisect_right
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import map, unicode_type, filter
 from threading import Thread
 from functools import partial
 
@@ -321,7 +321,7 @@ class WebPage(QWebPage):
                     ans = None
                 return ans
             val = self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.line_numbers()')
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, val))))
+            self._line_numbers = sorted(uniq(list(filter(lambda x:x is not None, map(atoi, val)))))
         return self._line_numbers
 
     def go_to_line(self, lnum):

@@ -9,7 +9,7 @@ from functools import partial
 
 from calibre import prints
 from calibre.constants import preferred_encoding
-from polyglot.builtins import iteritems, raw_input
+from polyglot.builtins import iteritems, raw_input, filter
 
 # Manage users CLI {{{
 
@@ -175,7 +175,7 @@ def manage_users_cli(path=None):
             pass
         else:
             names = get_input(_('Enter a comma separated list of library names:'))
-            names = filter(None, [x.strip() for x in names.split(',')])
+            names = list(filter(None, [x.strip() for x in names.split(',')]))
             w = 'allowed_library_names' if c == 1 else 'blocked_library_names'
             t = _('Allowing access only to libraries: {}') if c == 1 else _(
                 'Allowing access to all libraries, except: {}')

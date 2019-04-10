@@ -10,7 +10,7 @@ from lxml.html.builder import TABLE, TR, TD
 
 from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle, border_to_css
 from calibre.ebooks.docx.char_styles import RunStyle
-from polyglot.builtins import iteritems, itervalues, range
+from polyglot.builtins import iteritems, itervalues, range, filter
 
 # Read from XML {{{
 read_shd = rs

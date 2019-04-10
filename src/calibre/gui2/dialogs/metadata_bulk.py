@@ -32,7 +32,7 @@ from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
-from polyglot.builtins import iteritems, itervalues, unicode_type, error_message
+from polyglot.builtins import iteritems, itervalues, unicode_type, error_message, filter
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -186,7 +186,7 @@ class MyBlockingBusy(QDialog):  # {{{
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
-                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                paths = list(filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts]))
                 if paths:
                     ret = worker(
                         'calibre.ebooks.metadata.worker', 'read_metadata_bulk',

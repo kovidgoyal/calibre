@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type, filter
 
 
 def filter_used_rules(rules, log, select):
@@ -325,8 +325,7 @@ def remove_property_value(prop, predicate):
     values of the property would be removed, the property is removed from its
     parent instead. Note that this means the property must have a parent (a
     CSSStyleDeclaration). '''
-    removed_vals = []
-    removed_vals = filter(predicate, prop.propertyValue)
+    removed_vals = list(filter(predicate, prop.propertyValue))
     if len(removed_vals) == len(prop.propertyValue):
         prop.parent.removeProperty(prop.name)
     else:

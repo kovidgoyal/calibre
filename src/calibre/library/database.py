@@ -12,7 +12,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter
 
 
 class Concatenate(object):
@@ -1070,8 +1070,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.get('SELECT id, name FROM authors')]
 
     def all_author_names(self):
-        return filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
-            'SELECT name FROM authors')])
+        return list(filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
+            'SELECT name FROM authors')]))
 
     def all_publishers(self):
         return [(i[0], i[1]) for i in

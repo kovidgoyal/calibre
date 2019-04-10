@@ -14,6 +14,7 @@ from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.spell import parse_lang_code
 from calibre.utils.localization import lang_as_iso639_1
+from polyglot.builtins import filter
 
 PARSER = etree.XMLParser(recover=True, no_network=True)
 

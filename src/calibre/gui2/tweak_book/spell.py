@@ -37,7 +37,7 @@ from calibre.spell.import_from import import_from_oxt
 from calibre.spell.break_iterator import split_into_words
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, filter
 
 LANG = 0
 COUNTRY = 1
@@ -720,7 +720,7 @@ class WordsModel(QAbstractTableModel):
         return True
 
     def do_filter(self):
-        self.items = filter(self.filter_item, self.words)
+        self.items = list(filter(self.filter_item, self.words))
 
     def toggle_ignored(self, row):
         w = self.word_for_row(row)

@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp, filter
 from time import time
 
 from calibre import isbytestring, as_unicode

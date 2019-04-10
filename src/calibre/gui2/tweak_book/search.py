@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-from polyglot.builtins import iteritems, unicode_type, range, error_message
+from polyglot.builtins import iteritems, unicode_type, range, error_message, filter
 
 
 # The search panel {{{

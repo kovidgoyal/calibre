@@ -20,7 +20,7 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 from tinycss.media3 import CSSMedia3Parser
 
 css_parser_log.setLevel(logging.WARN)

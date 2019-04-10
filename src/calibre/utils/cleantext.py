@@ -3,7 +3,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from polyglot.builtins import codepoint_to_chr, map, range
+from polyglot.builtins import codepoint_to_chr, map, range, filter
 from polyglot.html_entities import name2codepoint
 from calibre.constants import plugins, preferred_encoding
 

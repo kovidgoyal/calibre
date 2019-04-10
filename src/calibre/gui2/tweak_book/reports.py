@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from polyglot.builtins import iteritems, map, range
+from polyglot.builtins import iteritems, map, range, filter
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -166,7 +166,7 @@ class FilesView(QTableView):
 
     @property
     def selected_locations(self):
-        return filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes()))
+        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes())))
 
     @property
     def current_location(self):

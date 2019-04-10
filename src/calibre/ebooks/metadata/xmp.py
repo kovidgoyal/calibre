@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes, filter
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 

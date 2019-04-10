@@ -10,6 +10,7 @@ import os
 from contextlib import closing
 
 from calibre.customize import FileTypePlugin
+from polyglot.builtins import filter
 
 
 def is_comic(list_of_names):

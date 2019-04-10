@@ -12,7 +12,7 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, zip, filter
 from polyglot import http_client
 from polyglot.urllib import quote as urlquote
 
@@ -114,7 +114,7 @@ class Route(object):
         del endpoint_
         if not self.endpoint.route.startswith('/'):
             raise RouteError('A route must start with /, %s does not' % self.endpoint.route)
-        parts = filter(None, self.endpoint.route.split('/'))
+        parts = list(filter(None, self.endpoint.route.split('/')))
         matchers = self.matchers = []
         self.defaults = {}
         found_optional_part = False

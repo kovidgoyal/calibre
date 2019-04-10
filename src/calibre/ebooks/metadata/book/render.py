@@ -20,7 +20,7 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter
 from polyglot.binary import as_hex_unicode
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')

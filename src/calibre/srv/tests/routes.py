@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from calibre.srv.tests.base import BaseTest
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, filter
 
 
 class TestRouter(BaseTest):
@@ -53,7 +53,7 @@ class TestRouter(BaseTest):
         router = Router()
 
         def find(path):
-            path = filter(None, path.split('/'))
+            path = list(filter(None, path.split('/')))
             ep, args = router.find_route(path)
             args = list(args)
             return ep, args

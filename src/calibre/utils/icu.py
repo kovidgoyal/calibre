@@ -8,6 +8,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
+from polyglot.builtins import filter
 
 is_narrow_build = sys.maxunicode < 0x10ffff
 

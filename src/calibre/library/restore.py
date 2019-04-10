@@ -16,7 +16,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, filter
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -174,7 +174,7 @@ class Restore(Thread):
 
     def process_dir(self, dirpath, filenames, book_id):
         book_id = int(book_id)
-        formats = filter(self.is_ebook_file, filenames)
+        formats = list(filter(self.is_ebook_file, filenames))
         fmts    = [os.path.splitext(x)[1][1:].upper() for x in formats]
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]

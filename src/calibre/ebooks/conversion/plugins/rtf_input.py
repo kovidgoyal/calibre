@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, filter
 
 border_style_map = {
         'single' : 'solid',

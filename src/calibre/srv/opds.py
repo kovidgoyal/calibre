@@ -26,7 +26,7 @@ from calibre import force_unicode
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 from polyglot.urllib import urlencode
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 

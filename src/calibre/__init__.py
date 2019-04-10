@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
 from polyglot.builtins import (builtins, codepoint_to_chr, iteritems,
-        itervalues, unicode_type, range)
+        itervalues, unicode_type, range, filter)
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
@@ -376,9 +376,9 @@ USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/
 def random_user_agent(choose=None, allow_ie=True):
     from calibre.utils.random_ua import common_user_agents
     ua_list = common_user_agents()
-    ua_list = filter(lambda x: 'Mobile/' not in x, ua_list)
+    ua_list = list(filter(lambda x: 'Mobile/' not in x, ua_list))
     if not allow_ie:
-        ua_list = filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list)
+        ua_list = list(filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list))
     return random.choice(ua_list) if choose is None else ua_list[choose]
 
 

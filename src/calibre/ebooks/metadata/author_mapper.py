@@ -8,6 +8,7 @@ import re
 from collections import deque
 
 from calibre.utils.icu import capitalize, lower, upper
+from polyglot.builtins import filter
 
 
 def cap_author_token(token):
@@ -142,7 +143,7 @@ def map_authors(authors, rules=()):
     ans = []
     for a in authors:
         ans.extend(apply_rules(a, rules))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def find_tests():

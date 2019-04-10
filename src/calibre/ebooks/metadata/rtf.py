@@ -11,7 +11,7 @@ import re
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
-from polyglot.builtins import codepoint_to_chr, string_or_bytes, unicode_type, int_to_byte
+from polyglot.builtins import codepoint_to_chr, string_or_bytes, unicode_type, int_to_byte, filter
 
 title_pat    = re.compile(br'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(br'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)

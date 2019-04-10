@@ -14,7 +14,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects

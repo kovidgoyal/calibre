@@ -16,6 +16,7 @@ import win32con, win32api, win32gui, pywintypes, winerror
 from calibre import prints
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
+from polyglot.builtins import filter
 
 ICON_SIZE = 64
 

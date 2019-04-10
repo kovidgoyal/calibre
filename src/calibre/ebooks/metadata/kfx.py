@@ -18,7 +18,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.imghdr import identify
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 
 

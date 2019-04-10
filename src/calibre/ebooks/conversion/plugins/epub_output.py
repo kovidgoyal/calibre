@@ -12,7 +12,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter
 
 block_level_tags = (
       'address',
@@ -432,7 +432,7 @@ class EPUBOutput(OutputFormatPlugin):
                     br.tag = XHTML('p')
                     br.text = u'\u00a0'
                     style = br.get('style', '').split(';')
-                    style = filter(None, map(lambda x: x.strip(), style))
+                    style = list(filter(None, map(lambda x: x.strip(), style)))
                     style.append('margin:0pt; border:0pt')
                     # If the prior tag is a block (including a <br> we replaced)
                     # then this <br> replacement should have a 1-line height.

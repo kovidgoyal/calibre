@@ -29,7 +29,7 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, filter
 
 
 NBSP = '\xa0'

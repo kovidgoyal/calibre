@@ -15,7 +15,7 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import codepoint_to_chr, range
+from polyglot.builtins import codepoint_to_chr, range, filter
 
 
 class Tokenize:
@@ -124,7 +124,7 @@ class Tokenize:
         # split
         tokens = re.split(self.__splitexp, input_file)
         # remove empty tokens and \n
-        return filter(lambda x: len(x) > 0 and x != '\n', tokens)
+        return list(filter(lambda x: len(x) > 0 and x != '\n', tokens))
 
     def __compile_expressions(self):
         SIMPLE_RPL = {
@@ -184,7 +184,7 @@ class Tokenize:
         # correct unicode
         tokens = map(self.__unicode_process, tokens)
         # remove empty items created by removing \uc
-        tokens = filter(lambda x: len(x) > 0, tokens)
+        tokens = list(filter(lambda x: len(x) > 0, tokens))
 
         # write
         with open(self.__write_to, 'wb') as write_obj:

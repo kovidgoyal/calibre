@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import deque
+from polyglot.builtins import filter
 
 
 def compile_pat(pat):
@@ -88,7 +89,7 @@ def apply_rules(tag, rules):
                     ans.append(icu_upper(tag))
                     break
                 if ac == 'split':
-                    stags = filter(None, [x.strip() for x in tag.split(rule['replace'])])
+                    stags = list(filter(None, (x.strip() for x in tag.split(rule['replace']))))
                     if stags:
                         if stags[0] == tag:
                             ans.append(tag)
@@ -121,7 +122,7 @@ def map_tags(tags, rules=()):
     ans = []
     for t in tags:
         ans.extend(apply_rules(t, rules))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def find_tests():
@@ -166,6 +167,7 @@ def find_tests():
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
             run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
+
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli

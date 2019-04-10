@@ -15,7 +15,7 @@ from PyQt5.Qt import (
 from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, question_dialog, error_dialog
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter
 
 
 class AddFromISBN(QDialog):

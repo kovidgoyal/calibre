@@ -8,7 +8,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from functools import wraps
-from polyglot.builtins import iteritems, map
+from polyglot.builtins import iteritems, map, filter
 
 from lxml import etree
 
@@ -411,7 +411,7 @@ def set_languages(root, prefixes, refines, languages):
         val = (lang.text or '').strip()
         if val:
             opf_languages.append(val)
-    languages = filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages))
+    languages = list(filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages)))
     if not languages:
         # EPUB spec says dc:language is required
         languages = ['und']
@@ -688,7 +688,7 @@ def read_tags(root, prefixes, refines):
     for dc in XPath('./opf:metadata/dc:subject')(root):
         if dc.text:
             ans.extend(map(normalize_whitespace, dc.text.split(',')))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def set_tags(root, prefixes, refines, val):
@@ -696,7 +696,7 @@ def set_tags(root, prefixes, refines, val):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
     if val:
-        val = uniq(filter(None, val))
+        val = uniq(list(filter(None, val)))
         for x in val:
             c = m.makeelement(DC('subject'))
             c.text = normalize_whitespace(x)

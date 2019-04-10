@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import itervalues, range, exec_path, raw_input, error_message
+from polyglot.builtins import itervalues, range, exec_path, raw_input, error_message, filter
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -395,8 +395,8 @@ class Repl(Thread):
         def completer(text, num):
             if self.completions is None:
                 self.to_repl.put(('complete', text))
-                self.completions = filter(None, self.get_from_repl())
-                if self.completions is None:
+                self.completions = list(filter(None, self.get_from_repl()))
+                if not self.completions:
                     return None
             try:
                 return self.completions[num]

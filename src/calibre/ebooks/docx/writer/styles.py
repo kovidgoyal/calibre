@@ -15,7 +15,7 @@ from lxml import etree
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.localization import lang_as_iso639_1
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, filter
 from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
@@ -702,7 +702,7 @@ class StylesManager(object):
             counts[s] += sum(1 for b in blocks if not b.is_empty())
         for i, heading_tag in enumerate(sorted(heading_styles)):
             styles = sorted((smap[k] for k in heading_styles[heading_tag]), key=counts.__getitem__)
-            styles = filter(lambda s:s.outline_level is None, styles)
+            styles = list(filter(lambda s:s.outline_level is None, styles))
             if styles:
                 heading_style = styles[-1]
                 heading_style.outline_level = i
