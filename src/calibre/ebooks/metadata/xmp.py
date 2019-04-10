@@ -126,7 +126,7 @@ def multiple_sequences(expr, root):
     ans = []
     for item in XPath(expr)(root):
         ans += list(read_sequence(item))
-    return filter(None, uniq(ans))
+    return list(filter(None, uniq(ans)))
 
 
 def first_alt(expr, root):
@@ -300,7 +300,7 @@ def metadata_from_xmp_packet(raw_bytes):
 
     languages = multiple_sequences('//dc:language', root)
     if languages:
-        languages = filter(None, map(canonicalize_lang, languages))
+        languages = list(filter(None, map(canonicalize_lang, languages)))
         if languages:
             mi.languages = languages
 
@@ -486,7 +486,7 @@ def metadata_to_xmp_packet(mi):
     if not mi.is_null('pubdate'):
         create_sequence_property(dc, 'dc:date', [isoformat(mi.pubdate, as_utc=False)])  # Adobe spec recommends local time
     if not mi.is_null('languages'):
-        langs = filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages))
+        langs = list(filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages)))
         if langs:
             create_sequence_property(dc, 'dc:language', langs, ordered=False)
 
