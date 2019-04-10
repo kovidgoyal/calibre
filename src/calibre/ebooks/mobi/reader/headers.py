@@ -309,7 +309,7 @@ class MetadataHeader(BookHeader):
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
-        if ident not in ['BOOKMOBI', 'TEXTREAD']:
+        if ident not in [b'BOOKMOBI', b'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % ident)
         return ident
 
