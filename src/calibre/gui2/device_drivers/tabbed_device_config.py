@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 def wrap_msg(msg):
@@ -164,7 +164,7 @@ class TabbedDeviceConfig(QTabWidget):
                     return getattr(atab, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
     @property
     def device(self):
