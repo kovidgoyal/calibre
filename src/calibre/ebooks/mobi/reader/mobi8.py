@@ -85,7 +85,7 @@ class Mobi8Reader(object):
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
-        self.aid_anchor_suffix = bytes(uuid4().hex)
+        self.aid_anchor_suffix = uuid4().hex.encode('utf-8')
         bh = self.mobi6_reader.book_header
         if self.mobi6_reader.kf8_type == 'joint':
             offset = self.mobi6_reader.kf8_boundary + 2
@@ -225,8 +225,7 @@ class Mobi8Reader(object):
             self.parts.append(skeleton)
             if divcnt < 1:
                 # Empty file
-                import uuid
-                aidtext = str(uuid.uuid4())
+                aidtext = str(uuid4())
                 filename = aidtext + '.html'
             self.partinfo.append(Part(skelnum, 'text', filename, skelpos,
                 baseptr, aidtext))
