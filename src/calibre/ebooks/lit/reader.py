@@ -1,8 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Support for reading LIT files.
 '''
-from __future__ import with_statement
-from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
@@ -18,8 +17,9 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
+from calibre.constants import ispy3
 from calibre import plugins
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
 
 lzx, lxzerror = plugins['lzx']
@@ -69,17 +69,18 @@ def int32(bytes):
     return struct.unpack('<l', bytes[:4])[0]
 
 
-def encint(bytes, remaining):
+def encint(byts, remaining):
     pos, val = 0, 0
+    ba = bytearray(byts)
     while remaining > 0:
-        b = ord(bytes[pos])
+        b = ba[pos]
         pos += 1
         remaining -= 1
         val <<= 7
         val |= (b & 0x7f)
         if b & 0x80 == 0:
             break
-    return val, bytes[pos:], remaining
+    return val, byts[pos:], remaining
 
 
 def msguid(bytes):
@@ -88,7 +89,7 @@ def msguid(bytes):
 
 
 def read_utf8_char(bytes, pos):
-    c = ord(bytes[pos])
+    c = ord(bytes[pos:pos+1])
     mask = 0x80
     if (c & mask):
         elsize = 0
@@ -104,7 +105,7 @@ def read_utf8_char(bytes, pos):
             raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
         c &= (mask - 1)
         for i in range(1, elsize):
-            b = ord(bytes[pos+i])
+            b = ord(bytes[pos+i:pos+i+1])
             if (b & 0xC0) != 0x80:
                 raise LitError(
                     'Invalid UTF8 character: %s' % repr(bytes[pos:pos+i]))
@@ -118,7 +119,7 @@ def consume_sized_utf8_string(bytes, zpad=False):
     for i in range(ord(slen)):
         char, pos = read_utf8_char(bytes, pos)
         result.append(char)
-    if zpad and bytes[pos] == '\000':
+    if zpad and bytes[pos:pos+1] == b'\0':
         pos += 1
     return u''.join(result), bytes[pos:]
 
@@ -129,10 +130,10 @@ def encode(string):
 
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
-        r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
-    OPEN_ANGLE_RE = re.compile(r'<<(?![!]--)')
-    CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>(?=>>|[^>])')
-    DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
+        br'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
+    OPEN_ANGLE_RE = re.compile(br'<<(?![!]--)')
+    CLOSE_ANGLE_RE = re.compile(br'(?<!--)>>(?=>>|[^>])')
+    DOUBLE_ANGLE_RE = re.compile(br'([<>])\1')
     EMPTY_ATOMS = ({},{})
 
     def __init__(self, bin, path, manifest={}, map=HTML_MAP, atoms=EMPTY_ATOMS):
@@ -149,10 +150,10 @@ class UnBinary(object):
 
     def escape_reserved(self):
         raw = self.raw
-        raw = self.AMPERSAND_RE.sub(r'&amp;', raw)
-        raw = self.OPEN_ANGLE_RE.sub(r'&lt;', raw)
-        raw = self.CLOSE_ANGLE_RE.sub(r'&gt;', raw)
-        raw = self.DOUBLE_ANGLE_RE.sub(r'\1', raw)
+        raw = self.AMPERSAND_RE.sub(br'&amp;', raw)
+        raw = self.OPEN_ANGLE_RE.sub(br'&lt;', raw)
+        raw = self.CLOSE_ANGLE_RE.sub(br'&gt;', raw)
+        raw = self.DOUBLE_ANGLE_RE.sub(br'\1', raw)
         self.raw = raw
 
     def item_path(self, internal_id):
@@ -172,11 +173,19 @@ class UnBinary(object):
         relpath = (['..'] * (len(base) - index)) + target[index:]
         return '/'.join(relpath)
 
-    def __unicode__(self):
+    @property
+    def binary_representation(self):
+        return self.raw
+
+    @property
+    def unicode_representation(self):
         return self.raw.decode('utf-8')
 
+    def __unicode__(self):
+        return self.unicode_representation
+
     def __str__(self):
-        return self.raw
+        return self.unicode_representation if ispy3 else self.binary_representation
 
     def binary_to_text(self, bin, buf):
         stack = [(0, None, None, 0, 0, False, False, 'text', 0)]
@@ -320,7 +329,9 @@ class UnBinary(object):
                             c = '&quot;'
                         elif c == '<':
                             c = '&lt;'
-                        buf.write(c.encode('ascii', 'xmlcharrefreplace'))
+                        if isinstance(c, unicode_type):
+                            c = c.encode('ascii', 'xmlcharrefreplace')
+                        buf.write(c)
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -449,7 +460,7 @@ class LitFile(object):
                 os.path.basename(self.stream.name))[0] + '.opf'
         except AttributeError:
             self.opf_path = 'content.opf'
-        if self.magic != 'ITOLITLS':
+        if self.magic != b'ITOLITLS':
             raise LitError('Not a valid LIT file')
         if self.version != 1:
             raise LitError('Unknown LIT version %d' % (self.version,))
@@ -535,30 +546,30 @@ class LitFile(object):
 
     def read_secondary_header(self):
         offset = self.hdr_len + (self.num_pieces * self.PIECE_SIZE)
-        bytes = self.read_raw(offset, self.sec_hdr_len)
-        offset = int32(bytes[4:])
-        while offset < len(bytes):
-            blocktype = bytes[offset:offset+4]
-            blockver  = u32(bytes[offset+4:])
-            if blocktype == 'CAOL':
+        byts = self.read_raw(offset, self.sec_hdr_len)
+        offset = int32(byts[4:])
+        while offset < len(byts):
+            blocktype = byts[offset:offset+4]
+            blockver  = u32(byts[offset+4:])
+            if blocktype == b'CAOL':
                 if blockver != 2:
                     raise LitError(
                         'Unknown CAOL block format %d' % blockver)
-                self.creator_id     = u32(bytes[offset+12:])
-                self.entry_chunklen = u32(bytes[offset+20:])
-                self.count_chunklen = u32(bytes[offset+24:])
-                self.entry_unknown  = u32(bytes[offset+28:])
-                self.count_unknown  = u32(bytes[offset+32:])
+                self.creator_id     = u32(byts[offset+12:])
+                self.entry_chunklen = u32(byts[offset+20:])
+                self.count_chunklen = u32(byts[offset+24:])
+                self.entry_unknown  = u32(byts[offset+28:])
+                self.count_unknown  = u32(byts[offset+32:])
                 offset += 48
-            elif blocktype == 'ITSF':
+            elif blocktype == b'ITSF':
                 if blockver != 4:
                     raise LitError(
                         'Unknown ITSF block format %d' % blockver)
-                if u32(bytes[offset+4+16:]):
+                if u32(byts[offset+4+16:]):
                     raise LitError('This file has a 64bit content offset')
-                self.content_offset = u32(bytes[offset+16:])
-                self.timestamp      = u32(bytes[offset+24:])
-                self.language_id    = u32(bytes[offset+28:])
+                self.content_offset = u32(byts[offset+16:])
+                self.timestamp      = u32(byts[offset+24:])
+                self.language_id    = u32(byts[offset+28:])
                 offset += 48
         if not hasattr(self, 'content_offset'):
             raise LitError('Could not figure out the content offset')
@@ -589,7 +600,7 @@ class LitFile(object):
                 self.piece4_guid = piece
 
     def read_directory(self, piece):
-        if not piece.startswith('IFCM'):
+        if not piece.startswith(b'IFCM'):
             raise LitError('Header piece #1 is not main directory.')
         chunk_size, num_chunks = int32(piece[8:12]), int32(piece[24:28])
         if (32 + (num_chunks * chunk_size)) != len(piece):
@@ -599,7 +610,7 @@ class LitFile(object):
             offset = 32 + (i * chunk_size)
             chunk = piece[offset:offset + chunk_size]
             tag, chunk = chunk[:4], chunk[4:]
-            if tag != 'AOLL':
+            if tag != b'AOLL':
                 continue
             remaining, chunk = int32(chunk[:4]), chunk[4:]
             if remaining >= chunk_size:
@@ -647,7 +658,7 @@ class LitFile(object):
             if pos + size > len(raw):
                 raise LitError('Invalid Namelist section')
             self.section_names[section] = \
-                raw[pos:pos+size].decode('utf-16-le').rstrip('\000')
+                raw[pos:pos+size].decode('utf-16-le').rstrip('\0')
             pos += size
 
     def read_manifest(self):
@@ -657,7 +668,7 @@ class LitFile(object):
         self.manifest = {}
         self.paths = {self.opf_path: None}
         while raw:
-            slen, raw = ord(raw[0]), raw[1:]
+            slen, raw = ord(raw[0:1]), raw[1:]
             if slen == 0:
                 break
             root, raw = raw[:slen].decode('utf8'), raw[slen:]
@@ -679,7 +690,7 @@ class LitFile(object):
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
-        mlist = self.manifest.values()
+        mlist = list(itervalues(self.manifest))
         # Remove any common path elements
         if len(mlist) > 1:
             shared = mlist[0].path
@@ -715,7 +726,7 @@ class LitFile(object):
         if self.drmlevel < 5:
             msdes.deskey(self.calculate_deskey(), msdes.DE1)
             bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
-            if bookkey[0] != '\000':
+            if bookkey[0:1] != b'\0':
                 raise LitError('Unable to decrypt title key!')
             self.bookkey = bookkey[1:9]
         else:
@@ -730,17 +741,20 @@ class LitFile(object):
         for name in hashfiles:
             data = self.get_file(name)
             if prepad > 0:
-                data = ("\000" * prepad) + data
+                data = (b"\000" * prepad) + data
                 prepad = 0
             postpad = 64 - (len(data) % 64)
             if postpad < 64:
-                data = data + ("\000" * postpad)
+                data = data + (b"\000" * postpad)
             hash.update(data)
         digest = hash.digest()
-        key = [0] * 8
-        for i in range(0, len(digest)):
-            key[i % 8] ^= ord(digest[i])
-        return ''.join(chr(x) for x in key)
+        if not isinstance(digest, bytes):
+            digest = digest.encode('ascii')
+        digest = bytearray(digest)
+        key = bytearray(8)
+        for i, d in enumerate(digest):
+            key[i % 8] ^= d
+        return bytes(key)
 
     def get_file(self, name):
         entry = self.entries[name]
@@ -786,12 +800,12 @@ class LitFile(object):
         extra = length & 0x7
         if extra > 0:
             self.warn("content length not a multiple of block size")
-            content += "\0" * (8 - extra)
+            content += b"\0" * (8 - extra)
         msdes.deskey(self.bookkey, msdes.DE1)
         return msdes.des(content)
 
     def decompress(self, content, control, reset_table):
-        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != "LZXC":
+        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != b"LZXC":
             raise LitError("Invalid ControlData tag value")
         if len(reset_table) < (RESET_INTERVAL + 8):
             raise LitError("Reset table is too short")
@@ -845,7 +859,7 @@ class LitFile(object):
             bytes_remaining = 0
         if bytes_remaining > 0:
             raise LitError("Failed to completely decompress section")
-        return ''.join(result)
+        return b''.join(result)
 
     def get_atoms(self, entry):
         name = '/'.join(('/data', entry.internal, 'atom'))
@@ -902,7 +916,7 @@ class LitContainer(object):
             manifest = self._litfile.manifest
             atoms = self._litfile.get_atoms(entry)
             unbin = UnBinary(raw, name, manifest, HTML_MAP, atoms)
-            content = HTML_DECL + str(unbin)
+            content = HTML_DECL + unbin.unicode_representation
             tags = ('personname', 'place', 'city', 'country-region')
             pat = r'(?i)</{0,1}st1:(%s)>'%('|'.join(tags))
             content = re.sub(pat, '', content)
@@ -918,13 +932,13 @@ class LitContainer(object):
         try:
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
         except LitError:
-            if 'PENGUIN group' not in raw:
+            if b'PENGUIN group' not in raw:
                 raise
             print("WARNING: attempting PENGUIN malformed OPF fix")
             raw = raw.replace(
-                'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
+                b'PENGUIN group', b'\x00\x01\x18\x00PENGUIN group', 1)
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
-        return str(unbin)
+        return unbin.unicode_representation
 
     def get_metadata(self):
         return self._read_meta()
