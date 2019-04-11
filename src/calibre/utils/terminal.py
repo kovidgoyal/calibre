@@ -185,6 +185,7 @@ class Detect(object):
 class ColoredStream(Detect):
 
     def __init__(self, stream=None, fg=None, bg=None, bold=False):
+        stream = getattr(stream, 'buffer', stream)
         Detect.__init__(self, stream)
         self.fg, self.bg, self.bold = fg, bg, bold
         if self.set_console is not None:
@@ -192,16 +193,21 @@ class ColoredStream(Detect):
             if not self.bg:
                 self.wval |= self.default_console_text_attributes & 0xF0
 
+    def cwrite(self, what):
+        if not isinstance(what, bytes):
+            what = what.encode('ascii')
+        self.stream.write(what)
+
     def __enter__(self):
         if not self.isatty:
             return self
         if self.isansi:
             if self.bold:
-                self.stream.write(ATTRIBUTES['bold'])
+                self.cwrite(ATTRIBUTES['bold'])
             if self.bg is not None:
-                self.stream.write(BACKGROUNDS[self.bg])
+                self.cwrite(BACKGROUNDS[self.bg])
             if self.fg is not None:
-                self.stream.write(COLORS[self.fg])
+                self.cwrite(COLORS[self.fg])
         elif self.set_console is not None:
             if self.wval != 0:
                 self.set_console(self.file_handle, self.wval)
@@ -213,7 +219,7 @@ class ColoredStream(Detect):
         if not self.fg and not self.bg and not self.bold:
             return
         if self.isansi:
-            self.stream.write(RESET)
+            self.cwrite(RESET)
             self.stream.flush()
         elif self.set_console is not None:
             self.set_console(self.file_handle, self.default_console_text_attributes)

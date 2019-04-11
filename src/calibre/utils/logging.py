@@ -23,7 +23,7 @@ class Stream(object):
     def __init__(self, stream=None):
         if stream is None:
             stream = io.BytesIO()
-        self.stream = stream
+        self.stream = getattr(stream, 'buffer', stream)
         self._prints = partial(prints, safe_encode=True, file=stream)
 
     def flush(self):
