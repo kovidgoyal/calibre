@@ -79,17 +79,17 @@ class MobiReader(object):
             stream = open(filename_or_stream, 'rb')
 
         raw = stream.read()
-        if raw.startswith('TPZ'):
+        if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):
             raise KFXError()
 
         self.header   = raw[0:72]
-        self.name     = self.header[:32].replace('\x00', '')
+        self.name     = self.header[:32].replace(b'\x00', b'')
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
-        if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
+        if self.ident not in [b'BOOKMOBI', b'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
@@ -750,7 +750,7 @@ class MobiReader(object):
         def sizeof_trailing_entry(ptr, psize):
             bitpos, result = 0, 0
             while True:
-                v = ord(ptr[psize-1])
+                v = ord(ptr[psize-1:psize])
                 result |= (v & 0x7F) << bitpos
                 bitpos += 7
                 psize -= 1
@@ -769,7 +769,8 @@ class MobiReader(object):
                     return 0
             flags >>= 1
         if self.book_header.extra_flags & 1:
-            num += (ord(data[size - num - 1]) & 0x3) + 1
+            off = size - num - 1
+            num += (ord(data[off:off+1]) & 0x3) + 1
         return num
 
     def warn_about_trailing_entry_corruption(self):
@@ -791,7 +792,7 @@ class MobiReader(object):
 
         self.mobi_html = b''
 
-        if self.book_header.compression_type == 'DH':
+        if self.book_header.compression_type == b'DH':
             huffs = [self.sections[i][0] for i in
                 range(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
@@ -800,23 +801,23 @@ class MobiReader(object):
             huff = HuffReader(huffs)
             unpack = huff.unpack
 
-        elif self.book_header.compression_type == '\x00\x02':
+        elif self.book_header.compression_type == b'\x00\x02':
             unpack = decompress_doc
 
-        elif self.book_header.compression_type == '\x00\x01':
+        elif self.book_header.compression_type == b'\x00\x01':
             unpack = lambda x: x
         else:
-            raise MobiError('Unknown compression algorithm: %s' % repr(self.book_header.compression_type))
+            raise MobiError('Unknown compression algorithm: %r' % self.book_header.compression_type)
         self.mobi_html = b''.join(map(unpack, text_sections))
         if self.mobi_html.endswith(b'#'):
             self.mobi_html = self.mobi_html[:-1]
 
-        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
-            self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
-        self.mobi_html = self.mobi_html.replace('\0', '')
+        if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
+            self.mobi_html = self.mobi_html.replace(b'\r ', b'\n\n ')
+        self.mobi_html = self.mobi_html.replace(b'\0', b'')
         if self.book_header.codec == 'cp1252':
-            self.mobi_html = self.mobi_html.replace('\x1e', '')  # record separator
-            self.mobi_html = self.mobi_html.replace('\x02', '')  # start of text
+            self.mobi_html = self.mobi_html.replace(b'\x1e', b'')  # record separator
+            self.mobi_html = self.mobi_html.replace(b'\x02', b'')  # start of text
         return processed_records
 
     def replace_page_breaks(self):
