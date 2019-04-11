@@ -1593,7 +1593,7 @@ class OPFCreator(Metadata):
         root.set('version', '2.0')
         raw = etree.tostring(root, pretty_print=True, xml_declaration=True,
                 encoding=encoding)
-        raw = raw.replace(DNS, OPF2_NS)
+        raw = raw.replace(DNS.encode('utf-8'), OPF2_NS.encode('utf-8'))
         opf_stream.write(raw)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:

@@ -50,7 +50,7 @@ def parse_indx_header(data):
     check_signature(data, b'INDX')
     words = INDEX_HEADER_FIELDS
     num = len(words)
-    values = struct.unpack(bytes('>%dL' % num), data[4:4*(num+1)])
+    values = struct.unpack('>%dL' % num, data[4:4*(num+1)])
     ans = dict(zip(words, values))
     ordt1, ordt2 = ans['ordt1'], ans['ordt2']
     ans['ordt1_raw'], ans['ordt2_raw'] = [], []

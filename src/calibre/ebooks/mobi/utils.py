@@ -21,12 +21,12 @@ IMAGE_MAX_SIZE = 10 * 1024 * 1024
 RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
 
-def decode_string(raw, codec='utf-8', ordt_map=''):
-    length, = struct.unpack(b'>B', raw[0])
+def decode_string(raw, codec='utf-8', ordt_map=None):
+    length, = struct.unpack(b'>B', raw[0:1])
     raw = raw[1:1+length]
     consumed = length+1
     if ordt_map:
-        return ''.join(ordt_map[ord(x)] for x in raw), consumed
+        return ''.join(ordt_map[x] for x in bytearray(raw)), consumed
     return raw.decode(codec), consumed
 
 
@@ -60,7 +60,7 @@ def encode_number_as_hex(num):
     The bytes that follow are simply the hexadecimal representation of the
     number.
     '''
-    num = bytes(hex(num)[2:].upper())
+    num = hex(num)[2:].upper().encode('ascii')
     nlen = len(num)
     if nlen % 2 != 0:
         num = b'0'+num

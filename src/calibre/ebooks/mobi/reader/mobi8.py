@@ -165,8 +165,9 @@ class Mobi8Reader(object):
                     fileno  = tag_map[3][0]
                 if 6 in list(tag_map.keys()):
                     fileno = tag_map[6]
-                self.guide.append(Item(ref_type.decode(self.header.codec),
-                    title, fileno))
+                if isinstance(ref_type, bytes):
+                    ref_type = ref_type.decode(self.header.codec)
+                self.guide.append(Item(ref_type, title, fileno))
 
     def build_parts(self):
         raw_ml = self.mobi6_reader.mobi_html
@@ -354,7 +355,9 @@ class Mobi8Reader(object):
                 continue  # thumbnailstandard record, ignore it
             linktgt, idtext = self.get_id_tag_by_pos_fid(*pos_fid)
             if idtext:
-                linktgt += b'#' + idtext
+                if isinstance(idtext, bytes):
+                    idtext = idtext.decode(self.header.codec)
+                linktgt += '#' + idtext
             g = Guide.Reference(linktgt, os.getcwdu())
             g.title, g.type = ref_title, ref_type
             if g.title == 'start' or g.type == 'text':
