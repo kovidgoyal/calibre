@@ -1095,6 +1095,10 @@ class Manifest(object):
                 return unicode_type(data.cssText, 'utf-8', 'replace')
             return unicode_type(data)
 
+        @property
+        def bytes_representation(self):
+            return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
+
         if ispy3:
             def __str__(self):
                 return self.unicode_representation
@@ -1103,13 +1107,16 @@ class Manifest(object):
                 return self.unicode_representation
 
             def __str__(self):
-                return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
+                return self.bytes_representation
 
         def __eq__(self, other):
             return self is other
 
         def __ne__(self, other):
             return self is not other
+
+        def __hash__(self):
+            return id(self)
 
         @property
         def sort_key(self):

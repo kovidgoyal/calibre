@@ -62,7 +62,7 @@ class OEBWriter(object):
             os.mkdir(path)
         output = DirContainer(path, oeb.log)
         for item in oeb.manifest.values():
-            output.write(item.href, str(item))
+            output.write(item.href, item.bytes_representation)
 
         if version == 1:
             metadata = oeb.to_opf1()

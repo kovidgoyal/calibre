@@ -9,6 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re, logging, copy, unicodedata, numbers
+from operator import itemgetter
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 from css_parser.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
@@ -215,7 +216,7 @@ class Stylizer(object):
                 else:
                     rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
                     index = index + 1
-        rules.sort()
+        rules.sort(key=itemgetter(0))  # sort by specificity
         self.rules = rules
         self._styles = {}
         pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)

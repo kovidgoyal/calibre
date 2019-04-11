@@ -151,7 +151,7 @@ class HTMLOutput(OutputFormatPlugin):
                         pass
                 else:
                     with open(path, 'wb') as f:
-                        f.write(str(item))
+                        f.write(item.bytes_representation)
                     item.unload_data_from_memory(memory=path)
 
             for item in oeb_book.spine:
