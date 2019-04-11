@@ -258,7 +258,7 @@ class KINDLE(USBMS):
                                     typ=user_notes[location]['type']))
 
             for annotation in annotations:
-                annot = BeautifulSoup('<span>' + annotations + '</span>').find('span')
+                annot = BeautifulSoup('<span>' + annotation + '</span>').find('span')
                 divTag.insert(dtc, annot)
                 dtc += 1
 
