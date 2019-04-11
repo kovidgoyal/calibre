@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -15,7 +15,7 @@ from functools import partial
 from threading import Lock
 
 from calibre import isbytestring, force_unicode, as_unicode, prints
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 
 class Stream(object):
@@ -38,11 +38,11 @@ class ANSIStream(Stream):
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
         self.color = {
-                      DEBUG: u'green',
-                      INFO: None,
-                      WARN: u'yellow',
-                      ERROR: u'red',
-                      }
+            DEBUG: u'green',
+            INFO: None,
+            WARN: u'yellow',
+            ERROR: u'red',
+        }
 
     def prints(self, level, *args, **kwargs):
         from calibre.utils.terminal import ColoredStream
@@ -65,12 +65,12 @@ class FileStream(Stream):
 class HTMLStream(Stream):
 
     color = {
-            DEBUG: '<span style="color:green">',
-            INFO:'<span>',
-            WARN: '<span style="color:blue">',
-            ERROR: '<span style="color:red">'
-            }
-    normal = '</span>'
+        DEBUG: b'<span style="color:green">',
+        INFO: b'<span>',
+        WARN: b'<span style="color:blue">',
+        ERROR: b'<span style="color:red">'
+    }
+    normal = b'</span>'
 
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
@@ -86,6 +86,9 @@ class HTMLStream(Stream):
 
 
 class UnicodeHTMLStream(HTMLStream):
+
+    color = {k: v.decode('ascii') for k, v in iteritems(HTMLStream.color)}
+    normal = HTMLStream.normal.decode('ascii')
 
     def __init__(self):
         self.clear()
