@@ -1360,7 +1360,7 @@ class EpubContainer(Container):
         else:
             from calibre.ebooks.tweak import zip_rebuilder
             with lopen(join(self.root, 'mimetype'), 'wb') as f:
-                f.write(guess_type('a.epub'))
+                f.write(guess_type('a.epub').encode('utf-8'))
             zip_rebuilder(self.root, outpath)
             for name, data in iteritems(restore_fonts):
                 with self.open(name, 'wb') as f:
