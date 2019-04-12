@@ -163,7 +163,7 @@ def find_tests():
                         '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
 
                     ('a <b>b&c</b>\nf',
-                        '<p class="description">a <b>b&amp;c</b><br></br>f</p>'),
+                        '<p class="description">a <b>b&amp;c</b><br>f</p>'),
 
                     ('a <?xml asd> b\n\ncd',
                         '<p class="description">a  b</p><p class="description">cd</p>'),
