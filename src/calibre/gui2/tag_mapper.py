@@ -47,6 +47,7 @@ class RuleEdit(QWidget):
                 ('replace', _('Replace')),
                 ('keep', _('Keep')),
                 ('capitalize', _('Capitalize')),
+                ('titlecase', _('Title-case')),
                 ('lower', _('Lower-case')),
                 ('upper', _('Upper-case')),
                 ('split', _('Split')),

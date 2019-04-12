@@ -82,6 +82,10 @@ def apply_rules(tag, rules):
                 if ac == 'capitalize':
                     ans.append(tag.capitalize())
                     break
+                if ac == 'titlecase':
+                    from calibre.utils.titlecase import titlecase
+                    ans.append(titlecase(tag))
+                    break
                 if ac == 'lower':
                     ans.append(icu_lower(tag))
                     break
@@ -149,6 +153,7 @@ def find_tests():
                 self.assertEqual(ans, expected)
 
             run(rule('capitalize', 't1,t2'), 't1,x1', 'T1,x1')
+            run(rule('titlecase', 'some tag'), 'some tag,x1', 'Some Tag,x1')
             run(rule('upper', 'ta,t2'), 'ta,x1', 'TA,x1')
             run(rule('lower', 'ta,x1'), 'TA,X1', 'ta,x1')
             run(rule('replace', 't1', 't2'), 't1,x1', 't2,x1')
