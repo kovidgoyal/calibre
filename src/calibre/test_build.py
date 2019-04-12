@@ -73,6 +73,10 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
+    def test_soupsieve(self):
+        import soupsieve
+        del soupsieve
+
     def test_plugins(self):
         exclusions = set()
         if is_ci:
