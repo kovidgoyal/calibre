@@ -35,7 +35,7 @@ class DBRestore(QDialog):
         self.msg.setWordWrap(True)
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         self.l.addWidget(self.bb)
-        self.bb.rejected.connect(self.reject)
+        self.bb.rejected.connect(self.confirm_cancel)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.rejected = False
@@ -57,6 +57,12 @@ class DBRestore(QDialog):
         self.rejected = True
         self.restorer.progress_callback = lambda x, y: x
         QDialog.reject(self)
+
+    def confirm_cancel(self):
+        if question_dialog(self, _('Are you sure?'), _(
+            'The restore has not completed, are you sure you want to cancel?'),
+            default_yes=False, override_icon='dialog_warning.png'):
+            self.reject()
 
     def update(self):
         if self.restorer.is_alive():
@@ -136,4 +142,8 @@ def repair_library_at(library_path, parent=None, wait_time=2):
     return True
 
 
-
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    repair_library_at('/t')
+    del app
