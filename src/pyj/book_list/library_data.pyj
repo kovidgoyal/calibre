@@ -147,6 +147,7 @@ def fetch_init_data():
     load_status.loading = True
     load_status.ok = False
     load_status.error_html = None
+    load_status.http_error_code = 0
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
 
