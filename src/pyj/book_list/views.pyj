@@ -9,17 +9,18 @@ from gettext import gettext as _
 from ajax import ajax_send
 from book_list.add import add_books_panel
 from book_list.cover_grid import (
-    description as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
-    cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid
+    append_item as cover_grid_append_item, cover_grid_css,
+    create_item as create_cover_grid_item, description as COVER_GRID_DESCRIPTION,
+    init as init_cover_grid
 )
 from book_list.custom_list import (
-    description as CUSTOM_LIST_DESCRIPTION, append_item as custom_list_append_item,
-    create_item as create_custom_list_item, custom_list_css,
+    append_item as custom_list_append_item, create_item as create_custom_list_item,
+    custom_list_css, description as CUSTOM_LIST_DESCRIPTION,
     init as init_custom_list
 )
 from book_list.details_list import (
-    description as DETAILS_LIST_DESCRIPTION, append_item as details_list_append_item,
-    create_item as create_details_list_item, details_list_css,
+    append_item as details_list_append_item, create_item as create_details_list_item,
+    description as DETAILS_LIST_DESCRIPTION, details_list_css,
     init as init_details_list
 )
 from book_list.globals import get_session_data
@@ -283,12 +284,20 @@ def create_books_list(container):
 
 def check_for_books_loaded():
     container = this
+    container_id = container.id
     if load_status.loading:
-        conditional_timeout(container.id, 5, check_for_books_loaded)
+        conditional_timeout(container_id, 5, check_for_books_loaded)
         return
     container = container.lastChild
     clear(container)
     if not load_status.ok:
+        if load_status.http_error_code is 401:
+            # Unauthorized, keep retrying until the user provides a
+            # username/password
+            container.appendChild(E.div(_('Username/password required, retrying...')))
+            ensure_current_library_data()
+            conditional_timeout(container_id, 100, check_for_books_loaded)
+            return
         err = E.div()
         safe_set_inner_html(err, load_status.error_html)
         container.appendChild(E.div(
