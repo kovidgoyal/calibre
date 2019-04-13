@@ -130,8 +130,8 @@ class MainWindow(QMainWindow):
     def set_exception_handler(self):
         sys.excepthook = ExceptionHandler(self)
 
-    def unhandled_exception(self, type, value, tb):
-        if type is KeyboardInterrupt:
+    def unhandled_exception(self, exc_type, value, tb):
+        if exc_type is KeyboardInterrupt:
             return
         import traceback
         try:
@@ -141,13 +141,13 @@ class MainWindow(QMainWindow):
                 print_basic_debug_info(out=sio)
             except:
                 pass
-            traceback.print_exception(type, value, tb, file=sio)
+            traceback.print_exception(exc_type, value, tb, file=sio)
             if getattr(value, 'locking_debug_msg', None):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
             fe = force_unicode(fe)
-            msg = '<b>%s</b>:'%type.__name__ + as_unicode(value)
+            msg = '<b>%s</b>:'%exc_type.__name__ + as_unicode(value)
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:
