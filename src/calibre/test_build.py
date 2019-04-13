@@ -74,9 +74,8 @@ class BuildTest(unittest.TestCase):
         parse('<p>xxx')
 
     def test_soupsieve(self):
-        import calibre.startup as s
         import soupsieve
-        del soupsieve, s
+        del soupsieve
 
     def test_plugins(self):
         exclusions = set()

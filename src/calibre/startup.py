@@ -56,14 +56,12 @@ if not _run_once:
         else:
 
             def find_module(self, fullname, path=None):
-                if fullname in ('calibre.web.feeds.feedparser', 'backports.functools_lru_cache') or fullname.startswith('calibre.ebooks.markdown'):
+                if fullname == 'calibre.web.feeds.feedparser' or fullname.startswith('calibre.ebooks.markdown'):
                     return self
 
             def load_module(self, fullname):
                 if fullname == 'calibre.web.feeds.feedparser':
                     return import_module('feedparser')
-                if fullname == 'backports.functools_lru_cache':
-                    return import_module('polyglot.functools')
                 return import_module(fullname[len('calibre.ebooks.'):])
 
     sys.meta_path.insert(0, DeVendor())
