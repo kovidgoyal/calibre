@@ -5,14 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import traceback, sys, gc, weakref
+import sys, gc, weakref
 from io import BytesIO
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
-from calibre import prints, force_unicode
+from calibre import prints, force_unicode, as_unicode
 
 
 def option_parser(usage='''\
@@ -133,6 +133,7 @@ class MainWindow(QMainWindow):
     def unhandled_exception(self, type, value, tb):
         if type is KeyboardInterrupt:
             return
+        import traceback
         try:
             sio = BytesIO()
             try:
@@ -146,7 +147,7 @@ class MainWindow(QMainWindow):
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
             fe = force_unicode(fe)
-            msg = '<b>%s</b>:'%type.__name__ + force_unicode(value)
+            msg = '<b>%s</b>:'%type.__name__ + as_unicode(value)
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:
