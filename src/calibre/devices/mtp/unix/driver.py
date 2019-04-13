@@ -196,8 +196,8 @@ class MTP_DEVICE(MTPDeviceBase):
         p = plugins['libmtp']
         self.libmtp = p[0]
         if self.libmtp is None:
-            print ('Failed to load libmtp, MTP device detection disabled')
-            print (p[1])
+            print('Failed to load libmtp, MTP device detection disabled')
+            print(p[1])
         else:
             self.known_devices = frozenset(self.libmtp.known_devices())
 

@@ -23,6 +23,7 @@ class ConversionUserFeedBack(Exception):
         self.title, self.msg, self.det_msg = title, msg, det_msg
         self.level = level
 
+
 # Ensure exception uses fully qualified name as this is used to detect it in
 # the GUI.
 ConversionUserFeedBack.__name__ = str('calibre.ebooks.conversion.ConversionUserFeedBack')

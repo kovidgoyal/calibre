@@ -126,7 +126,7 @@ class Ambito_Financiero(BasicNewsRecipe):
                 cfind = smallsoup.find('div', id="contenido_data")
                 if cfind:
                     p.append(cfind)
-                return unicode(soup)
+                return type(u'')(soup)
         return raw_html
 
     def cleanup(self):

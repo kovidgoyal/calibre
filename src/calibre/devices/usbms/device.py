@@ -701,7 +701,7 @@ class Device(DeviceConfig, DevicePlugin):
                         except dbus.exceptions.DBusException as e:
                             print(e)
                             continue
-            except dbus.exceptions.DBusException as e:
+            except dbus.exceptions.DBusException:
                 continue
 
         vols.sort(key=lambda x: x['node'])

@@ -367,7 +367,7 @@ class RtfTokenizer():
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        print ("Usage %prog rtfFileToConvert")
+        print("Usage %prog rtfFileToConvert")
         sys.exit()
     f = open(sys.argv[1], 'rb')
     data = f.read()
@@ -381,5 +381,3 @@ if __name__ == "__main__":
     f = open(sys.argv[1], 'w')
     f.write(data)
     f.close()
-
-

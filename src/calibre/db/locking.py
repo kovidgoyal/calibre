@@ -237,20 +237,20 @@ class DebugRWLockWrapper(RWLockWrapper):
         RWLockWrapper.__init__(self, *args, **kwargs)
 
     def acquire(self):
-        print ('#' * 120, file=sys.stderr)
-        print ('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        print('#' * 120, file=sys.stderr)
+        print('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
         traceback.print_stack()
         RWLockWrapper.acquire(self)
-        print ('acquire done: thread id:', current_thread(), file=sys.stderr)
-        print ('_' * 120, file=sys.stderr)
+        print('acquire done: thread id:', current_thread(), file=sys.stderr)
+        print('_' * 120, file=sys.stderr)
 
     def release(self, *args):
-        print ('*' * 120, file=sys.stderr)
-        print ('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        print('*' * 120, file=sys.stderr)
+        print('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
         traceback.print_stack()
         RWLockWrapper.release(self)
-        print ('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
-        print ('_' * 120, file=sys.stderr)
+        print('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
+        print('_' * 120, file=sys.stderr)
 
     __enter__ = acquire
     __exit__ = release

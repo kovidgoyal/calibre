@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 class PDBError(Exception):
     pass
 
+
 FORMAT_READERS = None
 
 
@@ -31,6 +32,7 @@ def _import_readers():
         'BOOKMTIU': haodoo_reader,
     }
 
+
 ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
 FORMAT_WRITERS = None
 
@@ -46,6 +48,7 @@ def _import_writers():
         'ztxt': ztxt_writer,
         'ereader': ereader_writer,
     }
+
 
 IDENTITY_TO_NAME = {
     'PNPdPPrs': 'eReader',
@@ -100,4 +103,3 @@ def get_writer(extension):
     if FORMAT_WRITERS is None:
         _import_writers()
     return FORMAT_WRITERS.get(extension, None)
-

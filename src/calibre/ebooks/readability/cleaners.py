@@ -28,6 +28,7 @@ def normalize_spaces(s):
     characters with a single space"""
     return ' '.join(s.split())
 
+
 html_cleaner = Cleaner(scripts=True, javascript=True, comments=True,
                   style=True, links=True, meta=False, add_nofollow=False,
                   page_structure=False, processing_instructions=True, embedded=False,

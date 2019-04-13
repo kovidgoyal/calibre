@@ -31,7 +31,7 @@ class AListApart (BasicNewsRecipe):
     ]
 
     def image_url_processor(self, baseurl, url):
-        if re.findall('alistapart\.com', url):
+        if re.findall(r'alistapart\.com', url):
             return 'http:' + url
         else:
             return url

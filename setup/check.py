@@ -77,12 +77,14 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p = subprocess.Popen(['flake8-python2', '--filename', '*.py,*.recipe', f])
-            return p.wait() != 0
-        elif ext == '.pyj':
+            p1 = subprocess.Popen(['flake8-python2', '--filename', '*.py,*.recipe', f])
+            p2 = subprocess.Popen(['flake8', '--filename', '*.py,*.recipe', f])
+            codes = p1.wait(), p2.wait()
+            return codes != (0, 0)
+        if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
             return p.wait() != 0
-        elif ext == '.yaml':
+        if ext == '.yaml':
             sys.path.insert(0, self.wn_path)
             import whats_new
             whats_new.render_changelog(self.j(self.d(self.SRC), 'Changelog.yaml'))

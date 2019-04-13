@@ -71,7 +71,7 @@ def collator():
         try:
             _collator = _icu.Collator(_locale)
         except Exception as e:
-            print ('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            print('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
             _collator = _icu.Collator('en')
     return _collator
 

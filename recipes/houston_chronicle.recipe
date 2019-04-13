@@ -160,7 +160,7 @@ class HoustonChronicle(BasicNewsRecipe):
                         result = []
                         for descendant in el.contents:
                             if isinstance(descendant, NavigableString):
-                                result.append(unicode(descendant).strip())
+                                result.append(type(u'')(descendant).strip())
                         all_text = u' '.join(result).encode('utf-8')
                         if len(all_text) > 1:
                             sentences = re.findall(sentence_regex, all_text)

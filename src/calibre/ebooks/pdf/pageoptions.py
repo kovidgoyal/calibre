@@ -19,6 +19,7 @@ UNITS = {
 def unit(unit):
     return UNITS.get(unit, QPrinter.Inch)
 
+
 PAPER_SIZES = {
                 'a0' : QPrinter.A0,  # 841 x 1189 mm
                 'a1' : QPrinter.A1,  # 594 x 841 mm
@@ -56,6 +57,7 @@ PAPER_SIZES = {
 
 def paper_size(size):
     return PAPER_SIZES.get(size, QPrinter.Letter)
+
 
 ORIENTATIONS = {
                 'portrait' : QPrinter.Portrait,

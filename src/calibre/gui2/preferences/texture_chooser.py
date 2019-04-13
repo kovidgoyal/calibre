@@ -153,4 +153,4 @@ if __name__ == '__main__':
     app = QApplication([])  # noqa
     d = TextureChooser()
     d.exec_()
-    print (d.texture)
+    print(d.texture)

@@ -154,7 +154,7 @@ class Economist(BasicNewsRecipe):
                     p.remove(noscript[0])
         for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
             x.getparent().remove(x)
-        raw = etree.tostring(root, encoding=unicode)
+        raw = etree.tostring(root, encoding='unicode')
         return raw
 
     def populate_article_metadata(self, article, soup, first):
@@ -165,7 +165,7 @@ class Economist(BasicNewsRecipe):
             if el is not None and el.contents:
                 for descendant in el.contents:
                     if isinstance(descendant, NavigableString):
-                        result.append(unicode(descendant))
+                        result.append(type(u'')(descendant))
         article.summary = u'. '.join(result) + u'.'
         article.text_summary = clean_ascii_chars(article.summary)
 

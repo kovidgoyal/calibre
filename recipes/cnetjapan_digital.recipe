@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -14,11 +15,11 @@ class CNetJapanDigital(BasicNewsRecipe):
     remove_javascript = True
 
     preprocess_regexps = [
-        (re.compile(unicode(r'<!--\u25B2contents_left END\u25B2-->.*</body>'), re.DOTALL | re.IGNORECASE | re.UNICODE),
+        (re.compile((r'<!--\u25B2contents_left END\u25B2-->.*</body>'), re.DOTALL | re.IGNORECASE | re.UNICODE),
          lambda match: '</body>'),
         (re.compile(r'<!--AD_ELU_HEADER-->.*</body>', re.DOTALL | re.IGNORECASE),
             lambda match: '</body>'),
-        (re.compile(unicode(r'<!-- \u25B2\u95A2\u9023\u30BF\u30B0\u25B2 -->.*<!-- \u25B2ZDNet\u25B2 -->'), re.UNICODE),
+        (re.compile((r'<!-- \u25B2\u95A2\u9023\u30BF\u30B0\u25B2 -->.*<!-- \u25B2ZDNet\u25B2 -->'), re.UNICODE),
             lambda match: '<!-- removed -->'),
     ]
 

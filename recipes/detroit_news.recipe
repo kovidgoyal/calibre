@@ -69,6 +69,6 @@ class AdvancedUserRecipe1297291961(BasicNewsRecipe):
     ]
 
     def print_version(self, url):
-        p = re.compile('(/\d{4}|/-1)/(rss|ENT|LIFESTYLE|OPINION|METRO)\d*')
+        p = re.compile(r'(/\d{4}|/-1)/(rss|ENT|LIFESTYLE|OPINION|METRO)\d*')
         m = p.search(url)
         return url.replace(m.group(), '&template=printart')

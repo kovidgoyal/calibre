@@ -85,7 +85,7 @@ def create_server_cert(
 if __name__ == '__main__':
     cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['1.test.me', '*.all.test.me'])
     print("CA Certificate")
-    print (cert_info(cacert).encode('utf-8'))
+    print(cert_info(cacert).encode('utf-8'))
     print(), print(), print()
     print('Server Certificate')
-    print (cert_info(cert).encode('utf-8'))
+    print(cert_info(cert).encode('utf-8'))

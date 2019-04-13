@@ -178,7 +178,7 @@ def main():
         return
     if '--pipe-worker' in sys.argv:
         try:
-            exec (sys.argv[-1])
+            exec(sys.argv[-1])
         except Exception:
             print('Failed to run pipe worker with command:', sys.argv[-1])
             raise

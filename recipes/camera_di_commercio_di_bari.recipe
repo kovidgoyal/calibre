@@ -13,6 +13,7 @@ class AdvancedUserRecipe1331729727(BasicNewsRecipe):
     feeds = [(u'Camera di Commercio di Bari',
               u'http://feed43.com/4715147488845101.xml')]
 
+
 __license__ = 'GPL v3'
 __copyright__ = '2012, faber1971'
 __version__ = 'v1.00'

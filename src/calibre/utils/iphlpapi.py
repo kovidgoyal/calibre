@@ -43,6 +43,7 @@ class SOCKADDR(ctypes.Structure):
         ('sa_data', ctypes.c_char * 14),
     ]
 
+
 ERROR_SUCCESS = 0
 ERROR_INSUFFICIENT_BUFFER = 122
 ERROR_BUFFER_OVERFLOW = 111
@@ -332,6 +333,7 @@ def _get_adapters():
             HeapFree(heap, 0, addresses)
             addresses = None
 
+
 Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
 
 
@@ -389,8 +391,8 @@ def routes():
 
     return ans
 
+
 if __name__ == '__main__':
     from pprint import pprint
     pprint(adapters())
     pprint(routes())
-

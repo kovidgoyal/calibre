@@ -353,7 +353,7 @@ class Worker(Thread):  # Get details {{{
             with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4())) + '_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw)
-            print ('Downloaded html for', asin, 'saved in', f.name)
+            print('Downloaded html for', asin, 'saved in', f.name)
 
         try:
             title = self.parse_title(root)
@@ -1256,7 +1256,7 @@ class Amazon(Source):
             with tempfile.NamedTemporaryFile(prefix='amazon_results_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw.encode('utf-8'))
-            print ('Downloaded html for results page saved in', f.name)
+            print('Downloaded html for results page saved in', f.name)
 
         matches = []
         found = '<title>404 - ' not in raw

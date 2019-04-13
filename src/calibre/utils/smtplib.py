@@ -892,14 +892,14 @@ if __name__ == '__main__':
 
     fromaddr = prompt("From")
     toaddrs = prompt("To").split(',')
-    print ("Enter message, end with ^D:")
+    print("Enter message, end with ^D:")
     msg = ''
     while 1:
         line = sys.stdin.readline()
         if not line:
             break
         msg = msg + line
-    print ("Message length is %d" % len(msg))
+    print("Message length is %d" % len(msg))
 
     server = SMTP('localhost')
     server.set_debuglevel(1)

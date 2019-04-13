@@ -33,7 +33,7 @@ class FirstThings(BasicNewsRecipe):
         '''
 
     def preprocess_raw_html(self, raw, url):
-        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding=unicode)
+        return html.tostring(html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False), method='html', encoding='unicode')
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)

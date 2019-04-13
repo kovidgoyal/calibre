@@ -47,6 +47,7 @@ def prepare_masthead_image(path_to_image, out_path, mi_width, mi_height):
     with lopen(out_path, 'wb') as f:
         f.write(image_to_data(img))
 
+
 if __name__ == '__main__':
     import sys
     data = sys.stdin.read()

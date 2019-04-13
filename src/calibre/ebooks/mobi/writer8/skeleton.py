@@ -15,9 +15,8 @@ from xml.sax.saxutils import escape
 from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML_NS, extract
-from calibre.constants import ispy3
 from calibre.ebooks.mobi.utils import to_base
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr as mychr
 
 CHUNK_SIZE = 8192
 
@@ -59,9 +58,6 @@ def node_from_path(root, path):
     for idx in path:
         parent = parent[idx]
     return parent
-
-
-mychr = chr if ispy3 else unichr
 
 
 def tostring(raw, **kwargs):

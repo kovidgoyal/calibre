@@ -54,6 +54,7 @@ class ShortUUID(object):
     def decode(self, encoded):
         return _uuid.UUID(int=string_to_num(encoded, self.alphabet_map, self.alphabet_len))
 
+
 _global_instance = ShortUUID()
 uuid4 = _global_instance.uuid4
 uuid5 = _global_instance.uuid5

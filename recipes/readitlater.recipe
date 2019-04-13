@@ -205,7 +205,7 @@ class Pocket(BasicNewsRecipe):
         """
         try:
             from calibre.ebooks.covers import calibre_cover2
-            title = self.title if isinstance(self.title, unicode) else \
+            title = self.title if isinstance(self.title, type(u'')) else \
                 self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')

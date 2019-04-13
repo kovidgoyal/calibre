@@ -17,7 +17,7 @@ from polyglot.builtins import (iteritems, itervalues,
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
-        preferred_encoding)
+        preferred_encoding, ispy3)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
@@ -209,9 +209,14 @@ def Concatenate(sep=','):
             ctxt.append(value)
 
     def finalize(ctxt):
-        if not ctxt:
-            return None
-        return sep.join(ctxt)
+        try:
+            if not ctxt:
+                return None
+            return sep.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
 
@@ -224,9 +229,14 @@ def SortedConcatenate(sep=','):
             ctxt[ndx] = value
 
     def finalize(ctxt):
-        if len(ctxt) == 0:
-            return None
-        return sep.join(map(ctxt.get, sorted(ctxt)))
+        try:
+            if len(ctxt) == 0:
+                return None
+            return sep.join(map(ctxt.get, sorted(ctxt)))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
 
@@ -238,7 +248,12 @@ def IdentifiersConcat():
         ctxt.append(u'%s:%s'%(key, val))
 
     def finalize(ctxt):
-        return ','.join(ctxt)
+        try:
+            return ','.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
 
@@ -251,13 +266,18 @@ def AumSortedConcatenate():
             ctxt[ndx] = ':::'.join((author, sort, link))
 
     def finalize(ctxt):
-        keys = list(ctxt)
-        l = len(keys)
-        if l == 0:
-            return None
-        if l == 1:
-            return ctxt[keys[0]]
-        return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        try:
+            keys = list(ctxt)
+            l = len(keys)
+            if l == 0:
+                return None
+            if l == 1:
+                return ctxt[keys[0]]
+            return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
 
@@ -1724,8 +1744,13 @@ class DB(object):
             [(book_id, fmt.upper()) for book_id in book_ids])
 
     def set_conversion_options(self, options, fmt):
-        options = [(book_id, fmt.upper(), buffer(pickle_binary_string(data.encode('utf-8') if isinstance(data, unicode_type) else data)))
-                for book_id, data in iteritems(options)]
+        def map_data(x):
+            x = x.encode('utf-8') if isinstance(x, unicode_type) else x
+            x = pickle_binary_string(x)
+            if not ispy3:
+                x = buffer(x)  # noqa
+            return x
+        options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
     def get_top_level_move_items(self, all_paths):

@@ -14,6 +14,7 @@ def find_tests():
     base = os.path.dirname(os.path.abspath(__file__))
     return find_tests_in_dir(base)
 
+
 if __name__ == '__main__':
     try:
         import init_calibre  # noqa

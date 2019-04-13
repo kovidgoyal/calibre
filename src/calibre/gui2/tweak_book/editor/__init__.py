@@ -30,6 +30,7 @@ def syntax_from_mime(name, mime):
     if mime.endswith('+xml'):
         return 'xml'
 
+
 all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
 
 
@@ -69,4 +70,6 @@ class StoreLocale(object):
 
     def __exit__(self, *args):
         self.enabled = False
+
+
 store_locale = StoreLocale()

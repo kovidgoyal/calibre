@@ -77,7 +77,8 @@ def set_metadata(stream, mi):
     stream.seek(0)
     safe_replace(stream, dp_name, BytesIO(xml2str(cp)), extra_replacements=replacements)
 
+
 if __name__ == '__main__':
     import sys
     with open(sys.argv[-1], 'rb') as stream:
-        print (get_metadata(stream))
+        print(get_metadata(stream))

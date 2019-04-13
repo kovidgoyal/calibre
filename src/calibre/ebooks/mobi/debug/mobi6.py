@@ -276,7 +276,7 @@ class Tag(object):  # {{{
         if tag_type in self.TAG_MAP:
             self.attr, self.desc = self.TAG_MAP[tag_type]
         else:
-            print ('Unknown tag value: %%s'%tag_type)
+            print('Unknown tag value: %%s'%tag_type)
             self.desc = '??Unknown (tag value: %d)'%tag_type
             self.attr = 'unknown'
 
@@ -461,7 +461,7 @@ class CNCX(object):  # {{{
                     except:
                         byts = raw[pos:]
                         r = format_bytes(byts)
-                        print ('CNCX entry at offset %d has unknown format %s'%(
+                        print('CNCX entry at offset %d has unknown format %s'%(
                             pos+record_offset, r))
                         self.records[pos+record_offset] = r
                         pos = len(raw)
@@ -629,7 +629,7 @@ class TBSIndexing(object):  # {{{
                     import traceback
                     traceback.print_exc()
                     a = []
-                    print ('Failed to decode TBS bytes for record: %d'%r.idx)
+                    print('Failed to decode TBS bytes for record: %d'%r.idx)
                 ans += a
             if byts:
                 sbyts = tuple(hex(b)[2:] for b in byts)
@@ -789,14 +789,14 @@ class MOBIFile(object):  # {{{
                     self.index_record.indices, self.mobi_header.type_raw)
 
     def print_header(self, f=sys.stdout):
-        print (str(self.palmdb).encode('utf-8'), file=f)
-        print (file=f)
-        print ('Record headers:', file=f)
+        print(str(self.palmdb).encode('utf-8'), file=f)
+        print(file=f)
+        print('Record headers:', file=f)
         for i, r in enumerate(self.records):
-            print ('%6d. %s'%(i, r.header), file=f)
+            print('%6d. %s'%(i, r.header), file=f)
 
-        print (file=f)
-        print (str(self.mobi_header).encode('utf-8'), file=f)
+        print(file=f)
+        print(str(self.mobi_header).encode('utf-8'), file=f)
 # }}}
 
 

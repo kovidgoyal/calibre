@@ -202,4 +202,4 @@ if __name__ == '__main__':
     app = QApplication([])
     d = AuthorsEdit(['kovid goyal', 'divok layog', 'other author'], ['kovid goyal', 'other author'])
     d.exec_()
-    print (d.authors)
+    print(d.authors)

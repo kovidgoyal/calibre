@@ -287,7 +287,7 @@ class FontFamilyDialog(QDialog):
             self.families = list(self.font_scanner.find_font_families())
         except:
             self.families = []
-            print ('WARNING: Could not load fonts')
+            print('WARNING: Could not load fonts')
             import traceback
             traceback.print_exc()
         self.families.insert(0, _('None'))

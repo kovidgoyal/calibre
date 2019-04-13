@@ -46,10 +46,10 @@ class DjvuChunk(object):
             # self.headersize += 4
         self.datastart = pos
         if verbose > 0:
-            print ('found', self.type, self.subtype, pos, self.size)
+            print('found', self.type, self.subtype, pos, self.size)
         if self.type in b'FORM'.split():
             if verbose > 0:
-                print ('processing substuff %d %d (%x)' % (pos, self.dataend,
+                print('processing substuff %d %d (%x)' % (pos, self.dataend,
                     self.dataend))
             numchunks = 0
             while pos < self.dataend:
@@ -58,11 +58,11 @@ class DjvuChunk(object):
                 self._subchunks.append(x)
                 newpos = pos + x.size + x.headersize + (1 if (x.size % 2) else 0)
                 if verbose > 0:
-                    print ('newpos %d %d (%x, %x) %d' % (newpos, self.dataend,
+                    print('newpos %d %d (%x, %x) %d' % (newpos, self.dataend,
                         newpos, self.dataend, x.headersize))
                 pos = newpos
             if verbose > 0:
-                print ('                  end of chunk %d (%x)' % (pos, pos))
+                print('                  end of chunk %d (%x)' % (pos, pos))
 
     def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100):
         if out:
@@ -89,7 +89,7 @@ class DjvuChunk(object):
                     l <<= 8
                     l += ord(x)
                 if verbose > 0 and out:
-                    print (l, file=out)
+                    print(l, file=out)
                 txtout.write(res[3:3+l])
             txtout.write(b'\037')
         if txtout and self.type == b'TXTa':
@@ -99,7 +99,7 @@ class DjvuChunk(object):
                 l <<= 8
                 l += ord(x)
             if verbose > 0 and out:
-                print (l, file=out)
+                print(l, file=out)
             txtout.write(res[3:3+l])
             txtout.write(b'\037')
         if indent >= maxlevel:
@@ -126,7 +126,8 @@ class DJVUFile(object):
 
 def main():
     f = DJVUFile(open(sys.argv[-1], 'rb'))
-    print (f.get_text(sys.stdout))
+    print(f.get_text(sys.stdout))
+
 
 if __name__ == '__main__':
     main()

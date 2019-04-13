@@ -31,7 +31,7 @@ def unpickle_binary_string(data):
     PROTO, SHORT_BINSTRING, BINSTRING = b'\x80', b'U', b'T'
     if data.startswith(PROTO + b'\x02'):
         offset = 2
-        which = data[offset]
+        which = data[offset:offset+1]
         offset += 1
         if which == BINSTRING:
             sz, = struct.unpack_from(b'<i', data, offset)

@@ -219,9 +219,9 @@ def wmf_unwrap(wmf_data, verbose=0):
         raise ValueError('No raster image found in the WMF')
     return w.to_png()
 
+
 if __name__ == '__main__':
     wmf = WMF(verbose=4)
     wmf(open(sys.argv[-1], 'rb'))
     open('/t/test.bmp', 'wb').write(wmf.bitmaps[0])
     open('/t/test.png', 'wb').write(wmf.to_png())
-

@@ -75,6 +75,7 @@ class PlainTextDialog(Dialog):
     def sizeHint(self):
         return QSize(600, 400)
 
+
 if __name__ == '__main__':
     app = Application([])
     d = CommentsDialog(None, 'testing', 'Comments')

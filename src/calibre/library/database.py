@@ -27,11 +27,16 @@ class Concatenate(object):
             self.ans += value + self.sep
 
     def finalize(self):
-        if not self.ans:
-            return None
-        if self.sep:
-            return self.ans[:-len(self.sep)]
-        return self.ans
+        try:
+            if not self.ans:
+                return None
+            if self.sep:
+                return self.ans[:-len(self.sep)]
+            return self.ans
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
 
 class Connection(sqlite.Connection):

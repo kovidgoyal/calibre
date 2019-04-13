@@ -150,4 +150,4 @@ class AmazonKindleStore(StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_amazon(' '.join(sys.argv[1:]), write_html_to='/t/amazon.html'):
-        print (result)
+        print(result)

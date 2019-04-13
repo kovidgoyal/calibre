@@ -65,6 +65,7 @@ class DebugDevice(QDialog):
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.log.toPlainText())
 
+
 if __name__ == '__main__':
     app = QApplication([])
     d = DebugDevice()

@@ -58,7 +58,7 @@ class Pagina12(BasicNewsRecipe):
         seen_titles = set([])
         for section in soup.findAll('div', 'seccionx'):
             numero += 1
-            print (numero)
+            print(numero)
             section_title = self.tag_to_string(section.find(
                 'div', 'desplegable_titulo on_principal right'))
             self.log('Found section:', section_title)

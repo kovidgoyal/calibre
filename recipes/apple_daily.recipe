@@ -161,7 +161,7 @@ class AppleDaily(BasicNewsRecipe):
                     article_titles.append(force_unicode(a.title, 'utf-8'))
 
         mi.comments = self.description
-        if not isinstance(mi.comments, unicode):
+        if not isinstance(mi.comments, type(u'')):
             mi.comments = mi.comments.decode('utf-8', 'replace')
         mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
                         '\n\n'.join(article_titles))
@@ -272,7 +272,7 @@ class AppleDaily(BasicNewsRecipe):
                             elem = BeautifulSoup(translatedTempl).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
+                                fi.write(type(u'')(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 

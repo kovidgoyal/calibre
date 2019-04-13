@@ -18,5 +18,6 @@ class AdvancedUserRecipe1336289226(BasicNewsRecipe):
     __author__ = 'faber1971'
     language = 'it'
 
+
 __version__ = 'v1.0'
 __date__ = '6, May 2012'

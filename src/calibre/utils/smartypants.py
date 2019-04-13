@@ -499,16 +499,16 @@ def smartyPants(text, attr='1'):
                 # Note: backticks need to be processed before quotes.
                 t = backticks_func(t)
 
-                if do_quotes is not 0:
+                if do_quotes != 0:
                     if t == "'":
                         # Special case: single-character ' token
-                        if re.match("\S", prev_token_last_char):
+                        if re.match(r"\S", prev_token_last_char):
                             t = "&#8217;"
                         else:
                             t = "&#8216;"
                     elif t == '"':
                         # Special case: single-character " token
-                        if re.match("\S", prev_token_last_char):
+                        if re.match(r"\S", prev_token_last_char):
                             t = "&#8221;"
                         else:
                             t = "&#8220;"

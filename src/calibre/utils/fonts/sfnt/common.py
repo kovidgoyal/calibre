@@ -80,10 +80,10 @@ class ListTable(OrderedDict):
         pass
 
     def dump(self, prefix=''):
-        print (prefix, self.__class__.__name__, sep='')
+        print(prefix, self.__class__.__name__, sep='')
         prefix += '  '
         for tag, child in iteritems(self):
-            print (prefix, tag, sep='')
+            print(prefix, tag, sep='')
             child.dump(prefix=prefix+'  ')
 
 

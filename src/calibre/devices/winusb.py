@@ -773,7 +773,7 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
             if debug:
                 try:
                     devid = get_device_id(devinfo.DevInst)[0]
-                except Exception as err:
+                except Exception:
                     devid = 'Unknown'
             try:
                 storage_number = get_storage_number(devpath)

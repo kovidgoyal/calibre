@@ -2268,7 +2268,7 @@ class ImageStream(LrsObject, LrsContainer):
         self.encoding = encoding
 
     def toLrf(self, lrfWriter):
-        imageFile = file(self.filename, "rb")
+        imageFile = open(self.filename, "rb")
         imageData = imageFile.read()
         imageFile.close()
 

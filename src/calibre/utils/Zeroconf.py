@@ -88,6 +88,7 @@ import threading
 import select
 import traceback
 import numbers
+from functools import reduce
 
 __all__ = ["Zeroconf", "ServiceInfo", "ServiceBrowser"]
 

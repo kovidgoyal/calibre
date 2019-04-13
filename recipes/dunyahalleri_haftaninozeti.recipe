@@ -92,7 +92,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         if raw:
             return _raw
 
-        if not isinstance(_raw, unicode) and self.encoding:
+        if not isinstance(_raw, type(u'')) and self.encoding:
             if callable(self.encoding):
                 _raw = self.encoding(_raw)
             else:
@@ -101,7 +101,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
         from calibre.utils.cleantext import clean_xml_chars
 
-        if isinstance(_raw, unicode):
+        if isinstance(_raw, type(u'')):
             _raw = strip_encoding_declarations(_raw)
         else:
             _raw = xml_to_unicode(

@@ -75,7 +75,8 @@ def test():
     set_socket_inherit(s, orig ^ True)
     if orig == get_socket_inherit(s):
         raise RuntimeError('Failed to change socket inheritance status')
-    print ('OK!')
+    print('OK!')
+
 
 if __name__ == '__main__':
     test()

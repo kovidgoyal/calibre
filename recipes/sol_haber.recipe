@@ -59,9 +59,9 @@ class SolHaberRecipe(BasicNewsRecipe):
 
     cover_margins = (20, 20, '#ffffff')
 
-    storybody_reg_exp = '^\s*(haber|kose)\s*$'
+    storybody_reg_exp = r'^\s*(haber|kose)\s*$'
 
-    comments_reg_exp = '^\s*makale-elestiri\s*$'
+    comments_reg_exp = r'^\s*makale-elestiri\s*$'
 
     remove_tags = [
         dict(name='div', attrs={'class': re.compile(comments_reg_exp, re.IGNORECASE)})]

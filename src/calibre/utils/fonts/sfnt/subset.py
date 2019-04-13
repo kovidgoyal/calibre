@@ -158,7 +158,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
             extra_glyphs = gsub.all_substitutions(itervalues(character_map))
         except UnsupportedFont as e:
             warn('Usupported GSUB table: %s'%e)
-        except Exception as e:
+        except Exception:
             warn('Failed to decompile GSUB table:', traceback.format_exc())
 
     if b'loca' in sfnt and b'glyf' in sfnt:
@@ -179,7 +179,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
             sfnt[b'kern'].restrict_to_glyphs(frozenset(itervalues(character_map)))
         except UnsupportedFont as e:
             warn('kern table unsupported, ignoring: %s'%e)
-        except Exception as e:
+        except Exception:
             warn('Subsetting of kern table failed, ignoring:',
                     traceback.format_exc())
 
@@ -312,7 +312,7 @@ def test_mem():
     del raw
     for i in range(3):
         gc.collect()
-    print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
+    print('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
 
 
 def test():
@@ -332,7 +332,7 @@ def all():
     for family in font_scanner.find_font_families():
         for font in font_scanner.fonts_for_family(family):
             raw = font_scanner.get_font_data(font)
-            print ('Subsetting', font['full_name'], end='\t')
+            print('Subsetting', font['full_name'], end='\t')
             total += 1
             try:
                 w = []
@@ -345,32 +345,32 @@ def all():
                 continue
             except UnsupportedFont as e:
                 unsupported.append((font['full_name'], font['path'], unicode_type(e)))
-                print ('Unsupported!')
+                print('Unsupported!')
                 continue
             except Exception as e:
-                print ('Failed!')
+                print('Failed!')
                 failed.append((font['full_name'], font['path'], unicode_type(e)))
             else:
                 averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
-                print ('Reduced to:', '%.1f'%averages[-1] , '%')
+                print('Reduced to:', '%.1f'%averages[-1] , '%')
     if unsupported:
-        print ('\n\nUnsupported:')
+        print('\n\nUnsupported:')
         for name, path, err in unsupported:
-            print (name, path, err)
+            print(name, path, err)
             print()
     if warnings:
-        print ('\n\nWarnings:')
+        print('\n\nWarnings:')
     for name, w in iteritems(warnings):
         if w:
-            print (name)
+            print(name)
             print('', '\n\t'.join(w), sep='\t')
     if failed:
-        print ('\n\nFailures:')
+        print('\n\nFailures:')
         for name, path, err in failed:
-            print (name, path, err)
+            print(name, path, err)
             print()
 
-    print ('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
+    print('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
 

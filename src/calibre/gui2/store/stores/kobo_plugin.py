@@ -128,4 +128,4 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_kobo(' '.join(sys.argv[1:]), write_html_to='/t/kobo.html'):
-        print (result)
+        print(result)

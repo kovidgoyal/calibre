@@ -69,6 +69,10 @@ if is_py3:
     def int_to_byte(x):
         return bytes((x,))
 
+    def reload(module):
+        import importlib
+        return importlib.reload(module)
+
 else:
     exec("""def reraise(tp, value, tb=None):
     try:
@@ -106,3 +110,6 @@ else:
         if isinstance(x, unicode_type):
             x = x.encode('utf-8')
         return x
+
+    def reload(module):
+        return builtins.reload(module)

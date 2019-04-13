@@ -133,4 +133,4 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 if __name__ == '__main__':
     import sys
     for result in search(' '.join(sys.argv[1:]), write_raw_to='/t/gutenberg.html'):
-        print (result)
+        print(result)

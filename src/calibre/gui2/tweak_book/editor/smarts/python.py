@@ -70,6 +70,7 @@ class Smarts(NullSmarts):
         if key == Qt.Key_Home and smart_home(editor, ev):
             return True
 
+
 if __name__ == '__main__':
     import os
     from calibre.gui2.tweak_book.editor.widget import launch_editor

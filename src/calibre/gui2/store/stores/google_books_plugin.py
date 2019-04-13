@@ -117,4 +117,4 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_google(' '.join(sys.argv[1:]), write_html_to='/t/google.html'):
-        print (result)
+        print(result)

@@ -3081,7 +3081,6 @@ class KOBOTOUCH(KOBO):
                 update_values.append(newmi.isbn)
                 set_clause += ', ISBN = ? '
 
-            
             library_language = normalize_languages(kobo_metadata.languages, newmi.languages)
             library_language = library_language[0] if library_language is not None and len(library_language) > 0 else None
             if not (library_language == kobo_metadata.language):

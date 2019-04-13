@@ -31,6 +31,7 @@ class URLMap(object):
                 raise KeyError('The mapping %s is not available' % key)
             return ans
 
+
 _url_map = URLMap()
 
 
@@ -130,6 +131,7 @@ def write_tag_help():
 
     with open(P(base % 'opf3'), 'wb') as f:
         f.write(dump(get_opf3_tag_index()))
+
 
 if __name__ == '__main__':
     write_tag_help()

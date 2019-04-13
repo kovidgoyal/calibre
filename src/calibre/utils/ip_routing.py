@@ -26,6 +26,7 @@ def get_addresses_for_interface(name, family='AF_INET'):
                     addr = addr.decode('ascii')
                 yield addr
 
+
 if iswindows:
 
     def get_default_route_src_address_external():

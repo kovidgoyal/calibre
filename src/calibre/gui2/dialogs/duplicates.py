@@ -161,4 +161,4 @@ if __name__ == '__main__':
     db = db()
     d = DuplicatesQuestion(db, [(M('Life of Pi', ['Yann Martel']), None, None),
                             (M('Heirs of the blade', ['Adrian Tchaikovsky']), None, None)])
-    print (tuple(d.duplicates))
+    print(tuple(d.duplicates))

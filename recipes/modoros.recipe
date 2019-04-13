@@ -70,7 +70,7 @@ class ModorosBlogHu(BasicNewsRecipe):
 
             past_items = set()
             if os.path.exists(feed_fn):
-                with file(feed_fn) as f:
+                with open(feed_fn) as f:
                     for h in f:
                         past_items.add(h.strip())
 
@@ -87,7 +87,7 @@ class ModorosBlogHu(BasicNewsRecipe):
                 cur_items.add(item_hash)
                 if item_hash in past_items:
                     feed.articles.remove(article)
-            with file(feed_fn, 'w') as f:
+            with open(feed_fn, 'w') as f:
                 for h in cur_items:
                     f.write(h + '\n')
 

@@ -712,3 +712,14 @@ class ReadingTest(BaseTest):
         cache.set_last_read_position(1, 'EPUB', 'user', 'device')
         self.assertFalse(cache.get_last_read_positions(1, 'ePuB', 'user'))
     # }}}
+
+    def test_storing_conversion_options(self):  # {{{
+        cache = self.init_cache(self.library_path)
+        opts = {1: b'binary', 2: 'unicode'}
+        cache.set_conversion_options(opts, 'PIPE')
+        for book_id, val in iteritems(opts):
+            got = cache.conversion_options(book_id, 'PIPE')
+            if not isinstance(val, bytes):
+                val = val.encode('utf-8')
+            self.assertEqual(got, val)
+    # }}}

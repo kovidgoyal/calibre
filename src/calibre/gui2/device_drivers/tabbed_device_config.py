@@ -245,7 +245,7 @@ class DeviceConfigTab(QWidget):  # {{{
                     return getattr(awidget, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{

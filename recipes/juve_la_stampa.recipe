@@ -15,5 +15,6 @@ class AdvancedUserRecipe1336504510(BasicNewsRecipe):
     description = 'News about Juventus from La Stampa'
     __author__ = 'faber1971'
 
+
 __version__ = 'v1.0'
 __date__ = '8, May 2012'

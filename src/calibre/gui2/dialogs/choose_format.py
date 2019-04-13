@@ -105,5 +105,5 @@ if __name__ == '__main__':
     app = Application([])
     d = ChooseFormatDialog(None, 'Testing choose format', ['epub', 'mobi', 'docx'], show_open_with=True)
     d.exec_()
-    print (d._format)
+    print(d._format)
     del app

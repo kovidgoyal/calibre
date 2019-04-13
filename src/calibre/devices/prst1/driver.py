@@ -143,7 +143,7 @@ class PRST1(USBMS):
             main, carda, cardb = self.find_device_nodes(detected_device=dev)
             if main is None and carda is None and cardb is None:
                 if debug:
-                    print ('\tPRS-T1: Appears to be in non data mode'
+                    print('\tPRS-T1: Appears to be in non data mode'
                             ' or was ejected, ignoring')
                 return False
         return True

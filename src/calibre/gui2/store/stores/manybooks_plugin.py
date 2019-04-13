@@ -116,4 +116,4 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
 if __name__ == '__main__':
     import sys
     for result in search_manybooks(' '.join(sys.argv[1:])):
-        print (result)
+        print(result)

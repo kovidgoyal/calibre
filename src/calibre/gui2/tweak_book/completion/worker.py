@@ -215,5 +215,5 @@ def test():
     w = CompletionWorker(worker_entry_point='test_main')
     w.wait_for_connection()
     w.send('Hello World!')
-    print (w.recv())
+    print(w.recv())
     w.shutdown(), w.join()

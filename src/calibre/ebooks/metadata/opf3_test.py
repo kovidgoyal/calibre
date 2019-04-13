@@ -376,7 +376,7 @@ class TestOPF3(unittest.TestCase):
         &quot;value&quot;, &quot;#value#&quot;:
         &quot;&lt;div&gt;&lt;b&gt;&lt;i&gt;Testing&lt;/i&gt;&lt;/b&gt; extra
         &lt;font
-        color=\&quot;#aa0000\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
+        color=\\&quot;#aa0000\\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
         &quot;is_custom&quot;: true, &quot;label&quot;: &quot;commetns&quot;,
         &quot;table&quot;: &quot;custom_column_13&quot;,
         &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>

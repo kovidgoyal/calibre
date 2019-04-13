@@ -45,11 +45,11 @@ class HANLINV3(USBMS):
         card = names.get('carda', None)
 
         try:
-            main_num = int(re.findall('\d+', main)[0]) if main else None
+            main_num = int(re.findall(r'\d+', main)[0]) if main else None
         except:
             main_num = None
         try:
-            card_num = int(re.findall('\d+', card)[0]) if card else None
+            card_num = int(re.findall(r'\d+', card)[0]) if card else None
         except:
             card_num = None
 

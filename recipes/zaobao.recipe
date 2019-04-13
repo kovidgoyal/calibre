@@ -137,7 +137,7 @@ class ZAOBAO(BasicNewsRecipe):
             # workaorund a strange problem: Somethimes the xml encoding is not
             # apllied correctly by parse()
             weired_encoding_detected = False
-            if not isinstance(feed.description, unicode) and self.encoding and feed.description:
+            if not isinstance(feed.description, type(u'')) and self.encoding and feed.description:
                 self.log(
                     _('Feed %s is not encoded correctly, manually replace it') % (feed.title))
                 feed.description = feed.description.decode(
@@ -150,14 +150,14 @@ class ZAOBAO(BasicNewsRecipe):
                 weired_encoding_detected = True
 
             for a, article in enumerate(feed):
-                if not isinstance(article.title, unicode) and self.encoding:
+                if not isinstance(article.title, type(u'')) and self.encoding:
                     article.title = article.title.decode(
                         self.encoding, 'replace')
-                if not isinstance(article.summary, unicode) and self.encoding and article.summary:
+                if not isinstance(article.summary, type(u'')) and self.encoding and article.summary:
                     article.summary = article.summary.decode(
                         self.encoding, 'replace')
                     article.text_summary = article.summary
-                if not isinstance(article.text_summary, unicode) and self.encoding and article.text_summary:
+                if not isinstance(article.text_summary, type(u'')) and self.encoding and article.text_summary:
                     article.text_summary = article.text_summary.decode(
                         self.encoding, 'replace')
                     article.summary = article.text_summary

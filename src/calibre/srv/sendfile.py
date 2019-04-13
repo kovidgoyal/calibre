@@ -43,6 +43,7 @@ class CannotSendfile(Exception):
 class SendfileInterrupted(Exception):
     pass
 
+
 sendfile_to_socket = sendfile_to_socket_async = None
 
 if isosx:

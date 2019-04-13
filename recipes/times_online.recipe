@@ -108,7 +108,7 @@ class TimesOnline(BasicNewsRecipe):
         return html.tostring(
             html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False),
             method='html',
-            encoding=unicode)
+            encoding='unicode')
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

@@ -490,7 +490,7 @@ class LrfFileStream(LrfStreamBase):
 
     def __init__(self, streamFlags, filename):
         LrfStreamBase.__init__(self, streamFlags)
-        f = file(filename, "rb")
+        f = open(filename, "rb")
         self.streamData = f.read()
         f.close()
 
@@ -686,7 +686,7 @@ class LrfWriter(object):
         self.tocObjId = obj.objId
 
     def setThumbnailFile(self, filename, encoding=None):
-        f = file(filename, "rb")
+        f = open(filename, "rb")
         self.thumbnailData = f.read()
         f.close()
 

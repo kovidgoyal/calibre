@@ -1353,7 +1353,7 @@ class DeviceMixin(object):  # {{{
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f)[1]))
+                    os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
             dynamic.set('catalogs_to_be_synced', set([]))
             if files:
@@ -1424,7 +1424,7 @@ class DeviceMixin(object):  # {{{
                         self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             if not files:
-                self.news_to_be_synced = set([])
+                self.news_to_be_synced = set()
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
@@ -1434,7 +1434,7 @@ class DeviceMixin(object):  # {{{
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f)[1]))
+                    os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
             self.news_to_be_synced = set([])
             if config['upload_news_to_device'] and files:

@@ -16,7 +16,7 @@ from calibre.constants import ispy3
 from calibre.customize import (Plugin, numeric_version, platform,
         InvalidPlugin, PluginNotFound)
 from polyglot.builtins import (itervalues, map, string_or_bytes,
-        unicode_type)
+        unicode_type, reload)
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths
