@@ -23,7 +23,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False
@@ -712,16 +712,16 @@ class OPF(object):  # {{{
         return self.manifest_path(self.root)
 
     def create_manifest_item(self, href, media_type, append=False):
-        ids = [i.get('id', None) for i in self.itermanifest()]
-        id = None
-        for c in range(1, sys.maxsize):
-            id = 'id%d'%c
-            if id not in ids:
-                break
+        ids = {i.get('id', None) for i in self.itermanifest()}
+        manifest_id = 'id1'
+        c = 1
+        while manifest_id not in ids:
+            c += 1
+            manifest_id = 'id%d'%c
         if not media_type:
             media_type = 'application/xhtml+xml'
         ans = etree.Element('{%s}item'%self.NAMESPACES['opf'],
-                             attrib={'id':id, 'href':href, 'media-type':media_type})
+                             attrib={'id':manifest_id, 'href':href, 'media-type':media_type})
         ans.tail = '\n\t\t'
         if append:
             manifest = self.manifest_ppath(self.root)[0]
