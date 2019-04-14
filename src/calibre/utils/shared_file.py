@@ -10,7 +10,7 @@ import os, sys
 
 from polyglot.builtins import reraise
 
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows, plugins, ispy3
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -178,9 +178,13 @@ if iswindows:
         return speedup.fdopen(os_open(path, flags), path, mode, buffering)
 
 else:
-    def share_open(path, mode='r', buffering=-1):
-        flags = flags_from_mode(mode) | speedup.O_CLOEXEC
-        return speedup.fdopen(os.open(path, flags), path, mode, buffering)
+    if ispy3:
+        # See PEP 446
+        share_open = open
+    else:
+        def share_open(path, mode='r', buffering=-1):
+            flags = flags_from_mode(mode) | speedup.O_CLOEXEC
+            return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
     def raise_winerror(x):
         reraise(NotImplementedError, None, sys.exc_info()[2])
