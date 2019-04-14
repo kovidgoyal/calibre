@@ -164,7 +164,7 @@ class ThumbnailCache(object):
         invalidate = set()
         try:
             with open(os.path.join(self.location, 'invalidate'), 'rb') as f:
-                raw = f.read()
+                raw = f.read().decode('utf-8')
         except EnvironmentError as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
                 self.log('Failed to read thumbnail invalidate data:', as_unicode(err))
@@ -208,7 +208,7 @@ class ThumbnailCache(object):
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
+            remove = tuple(key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
