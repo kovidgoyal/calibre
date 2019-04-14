@@ -100,7 +100,7 @@ class TestAuth(BaseTest):
             conn.request('GET', '/closed')
             r = conn.getresponse()
             self.ae(r.status, http_client.UNAUTHORIZED)
-            self.ae(r.getheader('WWW-Authenticate'), b'Basic realm="%s"' % bytes(REALM))
+            self.ae(r.getheader('WWW-Authenticate'), 'Basic realm="%s"' % REALM)
             self.assertFalse(r.read())
             conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(b'testuser:testpw')})
             r = conn.getresponse()
@@ -180,11 +180,13 @@ class TestAuth(BaseTest):
                 return {normalize_header_name(k):v for k, v in r.getheaders()}
             conn = server.connect()
             test(conn, '/open', body=b'open')
-            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             nonce = auth['nonce']
-            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             self.assertNotEqual(nonce, auth['nonce'], 'nonce was re-used')
-            self.ae(auth[b'realm'], bytes(REALM)), self.ae(auth[b'algorithm'], b'MD5'), self.ae(auth[b'qop'], b'auth')
+            self.ae(auth['realm'], REALM)
+            self.ae(auth['algorithm'], 'MD5')
+            self.ae(auth['qop'], 'auth')
             self.assertNotIn('stale', auth)
             args = auth.copy()
             args['un'], args['pw'], args['uri'] = 'testuser', 'testpw', '/closed'
@@ -202,7 +204,7 @@ class TestAuth(BaseTest):
             # Check stale nonces
             orig, r.auth_controller.max_age_seconds = r.auth_controller.max_age_seconds, -1
             auth = parse_http_dict(test(conn, '/closed', headers={
-                'Authorization':digest(**args)},status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(b' ')[2])
+                'Authorization':digest(**args)},status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             self.assertIn('stale', auth)
             r.auth_controller.max_age_seconds = orig
             ok_test(conn, digest(**args))
