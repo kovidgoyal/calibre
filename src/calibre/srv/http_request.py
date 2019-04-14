@@ -266,6 +266,7 @@ class HTTPRequest(Connection):
 
         try:
             method, uri, req_protocol = line.strip().split(b' ', 2)
+            req_protocol = req_protocol.decode('ascii')
             rp = int(req_protocol[5]), int(req_protocol[7])
             self.method = method.decode('ascii').upper()
         except Exception:

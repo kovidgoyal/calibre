@@ -13,7 +13,7 @@ from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
 
-from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3
+from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3, unicode_type, string_or_bytes
 
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__, plugins, ispy3
@@ -247,8 +247,7 @@ class RequestData(object):  # {{{
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):
         etag = hashlib.sha1()
-        string = type('')
-        tuple(map(lambda x:etag.update(string(x)), etag_parts))
+        tuple(map(lambda x:etag.update(unicode_type(x).encode('utf-8')), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
     def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):
@@ -312,7 +311,10 @@ class ReadableOutput(object):
 def filesystem_file_output(output, outheaders, stat_result):
     etag = getattr(output, 'etag', None)
     if etag is None:
-        etag = hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+        oname = output.name or ''
+        if not isinstance(oname, string_or_bytes):
+            oname = unicode_type(oname)
+        etag = hashlib.sha1((unicode_type(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
         output = output.output
     etag = '"%s"' % etag
@@ -356,7 +358,7 @@ class GeneratedOutput(object):
 class StaticOutput(object):
 
     def __init__(self, data):
-        if isinstance(data, type('')):
+        if isinstance(data, unicode_type):
             data = data.encode('utf-8')
         self.data = data
         self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
@@ -649,12 +651,17 @@ class HTTPConnection(HTTPRequest):
         if stat_result is not None:
             output = filesystem_file_output(output, outheaders, stat_result)
             if 'Content-Type' not in outheaders:
-                mt = guess_type(output.name)[0]
+                output_name = output.name
+                if not isinstance(output_name, string_or_bytes):
+                    output_name = unicode_type(output_name)
+                mt = guess_type(output_name)[0]
                 if mt:
                     if mt in {'text/plain', 'text/html', 'application/javascript', 'text/css'}:
                         mt += '; charset=UTF-8'
                     outheaders['Content-Type'] = mt
-        elif isinstance(output, (bytes, type(''))):
+                else:
+                    outheaders['Content-Type'] = 'application/octet-stream'
+        elif isinstance(output, string_or_bytes):
             output = dynamic_output(output, outheaders)
         elif hasattr(output, 'read'):
             output = ReadableOutput(output)

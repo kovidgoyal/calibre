@@ -68,12 +68,18 @@ def as_bytestring(x):
     return x
 
 
+def as_unicodestring(x):
+    if isinstance(x, bytes):
+        x = x.decode('utf-8')
+    return x
+
+
 def md5_hex(s):
-    return md5(as_bytestring(s)).hexdigest().decode('ascii')
+    return as_unicodestring(md5(as_bytestring(s)).hexdigest())
 
 
 def sha256_hex(s):
-    return sha256(as_bytestring(s)).hexdigest().decode('ascii')
+    return as_unicodestring(sha256(as_bytestring(s)).hexdigest())
 
 
 def base64_decode(s):

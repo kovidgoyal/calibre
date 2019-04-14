@@ -175,7 +175,7 @@ class TestHTTP(BaseTest):
             self.ae(r.getheader('Content-Length'), str(len(body)))
             self.ae(r.getheader('Content-Type'), 'text/plain; charset=UTF-8')
             self.ae(len(r.getheaders()), 3)
-            self.ae(r.read(), '')
+            self.ae(r.read(), b'')
             conn.request('GET', '/choose')
             r = conn.getresponse()
             self.ae(r.status, http_client.NOT_FOUND)
@@ -200,7 +200,7 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, http_client.MOVED_PERMANENTLY)
             self.ae(r.getheader('Location'), '/somewhere-else')
-            self.ae('', r.read())
+            self.ae(b'', r.read())
 
             server.change_handler(lambda data:data.path[0] + data.read().decode('ascii'))
             conn = server.connect(timeout=base_timeout * 5)
@@ -277,7 +277,10 @@ class TestHTTP(BaseTest):
             for i in range(10):
                 conn._HTTPConnection__state = http_client._CS_IDLE
                 conn.request('GET', '/%d'%i)
-                responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
+                if ispy3:
+                    responses.append(conn.response_class(conn.sock, method=conn._method))
+                else:
+                    responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
             for i in range(10):
                 r = responses[i]
                 r.begin()
@@ -288,7 +291,7 @@ class TestHTTP(BaseTest):
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
             conn.request('GET', '/close', headers={'Connection':'close'})
             r = conn.getresponse()
-            self.ae(r.status, 200), self.ae(r.read(), 'close')
+            self.ae(r.status, 200), self.ae(r.read(), b'close')
             server.loop.wakeup()
             num = 10
             while num and server.loop.num_active_connections != 0:
@@ -302,8 +305,8 @@ class TestHTTP(BaseTest):
             conn = server.connect(timeout=1)
             conn.request('GET', '/something')
             r = conn.getresponse()
-            self.ae(r.status, 200), self.ae(r.read(), 'something')
-            self.assertIn('Request Timeout', eintr_retry_call(conn.sock.recv, 500))
+            self.ae(r.status, 200), self.ae(r.read(), b'something')
+            self.assertIn(b'Request Timeout', eintr_retry_call(conn.sock.recv, 500))
     # }}}
 
     def test_http_response(self):  # {{{

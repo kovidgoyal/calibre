@@ -295,7 +295,7 @@ class WebSocketConnection(HTTPConnection):
         if self.method != 'GET':
             return self.simple_response(http_client.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
 
-        response = HANDSHAKE_STR % as_base64_unicode(sha1(key + GUID_STR).digest())
+        response = HANDSHAKE_STR % as_base64_unicode(sha1((key + GUID_STR).encode('utf-8')).digest())
         self.optimize_for_sending_packet()
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.set_state(WRITE, self.upgrade_connection_to_ws, ReadOnlyFileBuffer(response.encode('ascii')), inheaders)

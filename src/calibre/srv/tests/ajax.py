@@ -168,7 +168,7 @@ class ContentTest(LibraryBaseTest):
             ae = self.assertEqual
 
             def a(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
-                r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8')).decode('ascii')),
+                r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8'))),
                                        username=username, password='test', prefix='', method=method, data=data)
                 ae(status, r.status)
                 return data

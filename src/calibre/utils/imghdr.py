@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from struct import unpack, error
 import os
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from calibre.constants import ispy3
 from polyglot.builtins import string_or_bytes
 
 """ Recognize image file formats and sizes based on their first few bytes."""
@@ -125,16 +126,23 @@ def jpeg_dimensions(stream):
             raise ValueError('Truncated JPEG data')
         return ans
 
-    x = b''
+    if ispy3:
+        def read_byte():
+            return read(1)[0]
+    else:
+        def read_byte():
+            return ord(read(1)[0])
+
+    x = None
     while True:
         # Find next marker
-        while x != b'\xff':
-            x = read(1)
+        while x != 0xff:
+            x = read_byte()
         # Soak up padding
-        marker = b'\xff'
-        while marker == b'\xff':
-            marker = read(1)
-        q = ord(marker[0])  # [0] needed for memoryview
+        marker = 0xff
+        while marker == 0xff:
+            marker = read_byte()
+        q = marker
         if 0xc0 <= q <= 0xcf and q != 0xc4 and q != 0xcc:
             # SOFn marker
             stream.seek(3, os.SEEK_CUR)

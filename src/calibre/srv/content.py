@@ -9,7 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno
 from io import BytesIO
 from threading import Lock
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 from functools import partial
 
 from calibre import fit_image, sanitize_file_name
@@ -167,7 +167,7 @@ def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
         fname = sanitize_file_name(fname).encode('utf-8')
-        fname = quote(fname).decode('ascii')
+        fname = unicode_type(quote(fname))
     else:
         fname = ascii_filename(fname).replace('"', '_')
     return fname

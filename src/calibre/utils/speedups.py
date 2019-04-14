@@ -100,6 +100,8 @@ def svg_path_to_painter_path(d):
     while data.tell() < end:
         last_cmd = cmd
         cmd = data.read(1) if repeated_command is None else repeated_command
+        if isinstance(cmd, memoryview):
+            cmd = cmd.tobytes()
         repeated_command = None
 
         if cmd == b' ':
@@ -176,7 +178,7 @@ def svg_path_to_painter_path(d):
                 x1, y1 = x, y
             x, y = parse_floats(2, x, y)
             path.quadTo(x1, y1, x, y)
-        elif cmd[0] in b'-.' or b'0' <= cmd[0] <= b'9':
+        elif cmd[0:1] in b'-.0123456789':
             # A new number begins
             # In this case, multiple parameters tuples are specified for the last command
             # We rewind to reparse data correctly
