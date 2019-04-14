@@ -70,9 +70,11 @@ class LibraryDatabase(object):
 
     def __init__(self, library_path,
             default_prefs=None, read_only=False, is_second_db=False,
-            progress_callback=lambda x, y:True, restore_all_prefs=False):
+            progress_callback=None, restore_all_prefs=False, row_factory=False):
 
         self.is_second_db = is_second_db
+        if progress_callback is None:
+            progress_callback = lambda x, y:True
         self.listeners = set()
 
         backend = self.backend = create_backend(library_path, default_prefs=default_prefs,
