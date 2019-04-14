@@ -35,7 +35,7 @@ class MarkedVirtualField(object):
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         g = self.marked_ids.get
-        return lambda book_id:g(book_id, None)
+        return lambda book_id:g(book_id, '')
 
 
 class TableRow(object):
