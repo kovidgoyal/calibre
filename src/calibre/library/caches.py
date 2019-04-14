@@ -158,9 +158,14 @@ def force_to_bool(val):
 
 class CacheRow(list):  # {{{
 
-    def __init__(self, db, composites, val, series_col, series_sort_col):
+    def __init__(self, db, composites, datetimes, val, series_col, series_sort_col):
+        from calibre.db.tables import c_parse
         self.db = db
         self._composites = composites
+        for num in datetimes:
+            val[num] = c_parse(val[num])
+            if val[num] is UNDEFINED_DATE:
+                val[num] = None
         list.__init__(self, val)
         self._must_do = len(composites) > 0
         self._series_col = series_col
@@ -216,10 +221,14 @@ class ResultCache(SearchQueryParser):  # {{{
         self.FIELD_MAP = FIELD_MAP
         self.db_prefs = db_prefs
         self.composites = {}
+        self.datetimes = set()
         self.udc = get_udc()
         for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'composite':
+            dt = field_metadata[key]['datatype']
+            if dt == 'composite':
                 self.composites[field_metadata[key]['rec_index']] = key
+            elif dt == 'datetime':
+                self.datetimes.add(field_metadata[key]['rec_index'])
         self.series_col = field_metadata['series']['rec_index']
         self.series_sort_col = field_metadata['series_sort']['rec_index']
         self._data = []
@@ -991,7 +1000,7 @@ class ResultCache(SearchQueryParser):  # {{{
         '''
         for id in ids:
             try:
-                self._data[id] = CacheRow(db, self.composites,
+                self._data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
                 self._data[id].append(db.book_on_device_string(id))
@@ -1011,7 +1020,7 @@ class ResultCache(SearchQueryParser):  # {{{
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = CacheRow(db, self.composites,
+            self._data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
             self._data[id].append(db.book_on_device_string(id))
@@ -1042,7 +1051,7 @@ class ResultCache(SearchQueryParser):  # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = CacheRow(db, self.composites, r,
+            self._data[r[0]] = CacheRow(db, self.composites, self.datetimes, r,
                                         self.series_col, self.series_sort_col)
             self._uuid_map[self._data[r[0]][self._uuid_column_index]] = r[0]
 

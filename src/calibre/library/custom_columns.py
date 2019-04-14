@@ -14,7 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class CustomColumns(object):
@@ -71,11 +71,11 @@ class CustomColumns(object):
                     'label':record[0],
                     'name':record[1],
                     'datatype':record[2],
-                    'editable':record[3],
+                    'editable':bool(record[3]),
                     'display':json.loads(record[4]),
-                    'normalized':record[5],
+                    'normalized':bool(record[5]),
                     'num':record[6],
-                    'is_multiple':record[7],
+                    'is_multiple':bool(record[7]),
                     }
             if data['display'] is None:
                 data['display'] = {}
@@ -217,6 +217,11 @@ class CustomColumns(object):
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x:x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -244,6 +249,11 @@ class CustomColumns(object):
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x: x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         if data['datatype'] != 'series':
             return (ans, None)
         ign,lt = self.custom_table_names(data['num'])
