@@ -69,6 +69,8 @@ class Field(object):
                 elif self.metadata['is_custom']:
                     fmt = self.metadata.get('display', {}).get('date_format', None)
                 self._sort_key = partial(clean_date_for_sort, fmt=fmt)
+        elif dt == 'comments' or name == 'identifiers':
+            self._default_sort_key = ''
 
         if self.name == 'languages':
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
