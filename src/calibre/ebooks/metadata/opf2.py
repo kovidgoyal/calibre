@@ -715,7 +715,7 @@ class OPF(object):  # {{{
         ids = {i.get('id', None) for i in self.itermanifest()}
         manifest_id = 'id1'
         c = 1
-        while manifest_id not in ids:
+        while manifest_id in ids:
             c += 1
             manifest_id = 'id%d'%c
         if not media_type:
