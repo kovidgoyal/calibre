@@ -13,7 +13,7 @@ from functools import partial
 
 import apsw
 from polyglot.builtins import (iteritems, itervalues,
-        unicode_type, reraise, string_or_bytes, cmp)
+        unicode_type, reraise, string_or_bytes, cmp, native_string_type)
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
@@ -1745,6 +1745,8 @@ class DB(object):
 
     def set_conversion_options(self, options, fmt):
         def map_data(x):
+            if not isinstance(x, string_or_bytes):
+                x = native_string_type(x)
             x = x.encode('utf-8') if isinstance(x, unicode_type) else x
             x = pickle_binary_string(x)
             if not ispy3:

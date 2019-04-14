@@ -298,9 +298,15 @@ class LegacyTest(BaseTest):
     def test_legacy_conversion_options(self):  # {{{
         'Test conversion options API'
         ndb = self.init_legacy()
-        db = self.init_old()
+        db  = self.init_old()
         all_ids = ndb.new_api.all_book_ids()
-        op1 = {'xx':'yy'}
+        op1 = {'xx': 'yy'}
+
+        def decode(x):
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            return x
+
         for x in (
             ('has_conversion_options', all_ids),
             ('conversion_options', 1, 'PIPE'),
@@ -311,8 +317,10 @@ class LegacyTest(BaseTest):
             ('has_conversion_options', all_ids),
         ):
             meth, args = x[0], x[1:]
-            self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
-                                 'The method: %s() returned different results for argument %s' % (meth, args))
+            self.assertEqual(
+                decode(getattr(db, meth)(*args)), decode(getattr(ndb, meth)(*args)),
+                'The method: %s() returned different results for argument %s' % (meth, args)
+            )
         db.close()
     # }}}
 
