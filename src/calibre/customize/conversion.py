@@ -237,7 +237,7 @@ class InputFormatPlugin(Plugin):
             # In case stdout is broken
             pass
 
-        with CurrentDir(output_dir, workaround_temp_folder_permissions=True):
+        with CurrentDir(output_dir):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 

@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -9,7 +9,7 @@ import tempfile, os, atexit
 from polyglot.builtins import map
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
+        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx, ispy3)
 
 
 def cleanup(path):
@@ -57,20 +57,6 @@ def app_prefix(prefix):
     if iswindows:
         return '%s_'%__appname__
     return '%s_%s_%s'%(__appname__, __version__, prefix)
-
-
-def reset_temp_folder_permissions():
-    # There are some broken windows installs where the permissions for the temp
-    # folder are set to not be executable, which means chdir() into temp
-    # folders fails. Try to fix that by resetting the permissions on the temp
-    # folder.
-    global _base_dir
-    if iswindows and _base_dir:
-        import subprocess
-        from calibre import prints
-        parent = os.path.dirname(_base_dir)
-        retcode = subprocess.Popen(['icacls.exe', parent, '/reset', '/Q', '/T']).wait()
-        prints('Trying to reset permissions of temp folder', parent, 'return code:', retcode)
 
 
 _osx_cache_dir = None
@@ -279,9 +265,13 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
             suffix = ''
         if dir is None:
             dir = base_dir()
-        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
-                suffix=suffix, prefix=prefix, dir=dir, mode=mode,
-                bufsize=bufsize)
+        if ispy3:
+            tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
+                    suffix=suffix, prefix=prefix, dir=dir, mode=mode)
+        else:
+            tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
+                    suffix=suffix, prefix=prefix, dir=dir, mode=mode,
+                    bufsize=bufsize)
 
     def truncate(self, *args):
         # The stdlib SpooledTemporaryFile implementation of truncate() doesn't
