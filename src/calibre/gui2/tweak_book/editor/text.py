@@ -696,8 +696,8 @@ class TextEdit(PlainTextEdit):
 
     def override_shortcut(self, ev):
         # Let the global cut/copy/paste/undo/redo shortcuts work, this avoids the nbsp
-        # problem as well, since they use the overridden copy() method
-        # instead of the one from Qt, and allows proper customization
+        # problem as well, since they use the overridden createMimeDataFromSelection() method
+        # instead of the one from Qt (which makes copy() work), and allows proper customization
         # of the shortcuts
         if ev in (QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo):
             ev.ignore()
