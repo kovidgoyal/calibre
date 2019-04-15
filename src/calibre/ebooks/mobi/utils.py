@@ -21,6 +21,24 @@ IMAGE_MAX_SIZE = 10 * 1024 * 1024
 RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
 
+class PolyglotDict(dict):
+
+    def __setitem__(self, key, val):
+        if isinstance(key, unicode_type):
+            key = key.encode('utf-8')
+        dict.__setitem__(self, key, val)
+
+    def __getitem__(self, key):
+        if isinstance(key, unicode_type):
+            key = key.encode('utf-8')
+        return dict.__getitem__(self, key)
+
+    def __contains__(self, key):
+        if isinstance(key, unicode_type):
+            key = key.encode('utf-8')
+        return dict.__contains__(self, key)
+
+
 def decode_string(raw, codec='utf-8', ordt_map=None):
     length, = struct.unpack(b'>B', raw[0:1])
     raw = raw[1:1+length]
