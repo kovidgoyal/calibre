@@ -11,7 +11,7 @@ import os, sys, re
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -337,26 +337,26 @@ def MetaInformation(title, authors=(_('Unknown'),)):
 
 def check_isbn10(isbn):
     try:
-        digits = map(int, isbn[:9])
+        digits = tuple(map(int, isbn[:9]))
         products = [(i+1)*digits[i] for i in range(9)]
         check = sum(products)%11
         if (check == 10 and isbn[9] == 'X') or check == int(isbn[9]):
             return isbn
-    except:
+    except Exception:
         pass
     return None
 
 
 def check_isbn13(isbn):
     try:
-        digits = map(int, isbn[:12])
+        digits = tuple(map(int, isbn[:12]))
         products = [(1 if i%2 ==0 else 3)*digits[i] for i in range(12)]
         check = 10 - (sum(products)%10)
         if check == 10:
             check = 0
         if str(check) == isbn[12]:
             return isbn
-    except:
+    except Exception:
         pass
     return None
 
@@ -380,7 +380,7 @@ def check_issn(issn):
         return None
     issn = re.sub(r'[^0-9X]', '', issn.upper())
     try:
-        digits = map(int, issn[:7])
+        digits = tuple(map(int, issn[:7]))
         products = [(8 - i) * d for i, d in enumerate(digits)]
         check = 11 - sum(products) % 11
         if (check == 10 and issn[7] == 'X') or check == int(issn[7]):
