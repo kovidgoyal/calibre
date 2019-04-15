@@ -22,6 +22,7 @@ from calibre.utils.shared_file import share_open, raise_winerror
 from polyglot.builtins import iteritems, map, range
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
+from polyglot.builtins import unicode_type
 from polyglot.urllib import parse_qs, quote as urlquote
 from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
@@ -336,9 +337,12 @@ class RotatingStream(object):
         kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
-        if iswindows:
+        if iswindows or ispy3:
             # For some reason line buffering does not work on windows
+            # and in python 3 it only works with text mode streams
             end = kwargs.get('end', b'\n')
+            if isinstance(end, unicode_type):
+                end = end.encode('utf-8')
             if b'\n' in end:
                 self.flush()
         self.rollover()
