@@ -29,7 +29,7 @@ def nonvoid_cdata_elements(test, parse_function):
             root = parse_function(markup.format(x))
             test.assertEqual(
                 len(XPath('//h:body[@id="test"]')(root)), 1,
-                'Incorrect parsing for <%s/>, parsed markup:\n' % x + etree.tostring(root))
+                'Incorrect parsing for <%s/>, parsed markup:\n' % x + etree.tostring(root, encoding='unicode'))
 
 
 def namespaces(test, parse_function):
@@ -44,7 +44,7 @@ def namespaces(test, parse_function):
     root = parse_function(markup)
     ae(
         len(XPath('//h:body[@id="test"]')(root)), 1,
-        'Incorrect parsing, parsed markup:\n' + etree.tostring(root))
+        'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode'))
     match_and_prefix(root, '//h:body[@id="test"]', None)
 
     markup = '''
@@ -52,7 +52,7 @@ def namespaces(test, parse_function):
     <svg:svg xmlns:svg="{svg}"><svg:image xmlns:xlink="{xlink}" xlink:href="xxx"/></svg:svg>
     '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
     root = parse_function(markup)
-    err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root)
+    err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//h:body[@id="test"]', None, err)
     match_and_prefix(root, '//svg:svg', 'svg', err)
     match_and_prefix(root, '//svg:image[@xl:href]', 'svg', err)
@@ -62,14 +62,14 @@ def namespaces(test, parse_function):
     <svg xmlns="{svg}" xmlns:xlink="{xlink}" ><image xlink:href="xxx"/></svg>
     '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
     root = parse_function(markup)
-    err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root)
+    err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//h:body[@id="test"]', None, err)
     match_and_prefix(root, '//svg:svg', None, err)
     match_and_prefix(root, '//svg:image[@xl:href]', None, err)
 
     markup = '<html><body><svg><image xlink:href="xxx"></svg>'
     root = parse_function(markup)
-    err = 'Namespaces not created, parsed markup:\n' + etree.tostring(root)
+    err = 'Namespaces not created, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//svg:svg', None, err)
     match_and_prefix(root, '//svg:image[@xl:href]', None, err)
     if parse_function is parse:
@@ -77,7 +77,7 @@ def namespaces(test, parse_function):
         ae(image.nsmap, {'xlink':XLINK_NS, None:SVG_NS})
 
     root = parse_function('<html id="a"><p><html xmlns:x="y" lang="en"><p>')
-    err = 'Multiple HTML tags not handled, parsed markup:\n' + etree.tostring(root)
+    err = 'Multiple HTML tags not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//h:html', None, err)
     match_and_prefix(root, '//h:html[@lang]', None, err)
     match_and_prefix(root, '//h:html[@id]', None, err)
@@ -85,12 +85,12 @@ def namespaces(test, parse_function):
     # if parse_function is not html5_parse:
     #     markup = '<html:html xmlns:html="{html}" id="a"><html:body><html:p></html:p></html:body></html>'.format(html=XHTML_NS)
     #     root = parse_function(markup)
-    #     err = 'HTML namespace prefixed, parsed markup:\n' + etree.tostring(root)
+    #     err = 'HTML namespace prefixed, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     #     match_and_prefix(root, '//h:html', None, err)
 
     markup = '<html><body><ns1:tag1 xmlns:ns1="NS"><ns2:tag2 xmlns:ns2="NS" ns1:id="test"/><ns1:tag3 xmlns:ns1="NS2" ns1:id="test"/></ns1:tag1>'
     root = parse_function(markup)
-    err = 'Arbitrary namespaces not preserved, parsed markup:\n' + etree.tostring(root)
+    err = 'Arbitrary namespaces not preserved, parsed markup:\n' + etree.tostring(root, encoding='unicode')
 
     def xpath(expr):
         return etree.XPath(expr, namespaces={'ns1':'NS', 'ns2':'NS2'})(root)
@@ -105,7 +105,7 @@ def namespaces(test, parse_function):
 
     markup = '<html xml:lang="en"><body><p lang="de"><p xml:lang="es"><p lang="en" xml:lang="de">'
     root = parse_function(markup)
-    err = 'xml:lang not converted to lang, parsed markup:\n' + etree.tostring(root)
+    err = 'xml:lang not converted to lang, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     ae(len(root.xpath('//*[@lang="en"]')), 2, err)
     ae(len(root.xpath('//*[@lang="de"]')), 1, err)
     ae(len(root.xpath('//*[@lang="es"]')), 1, err)
@@ -115,7 +115,7 @@ def namespaces(test, parse_function):
 def space_characters(test, parse_function):
     markup = '<html><p>\u000cX</p>'
     root = parse_function(markup)
-    err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root)
+    err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
     markup = '<html><p>a\u000b\u000c</p>'
     root = parse_function(markup)  # Should strip non XML safe control code \u000b
@@ -126,21 +126,21 @@ def space_characters(test, parse_function):
 def case_insensitive_element_names(test, parse_function):
     markup = '<HTML><P> </p>'
     root = parse_function(markup)
-    err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root)
+    err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//h:p')(root)), 1, err)
 
 
 def entities(test, parse_function):
     markup = '<html><p>&nbsp;&apos;</p>'
     root = parse_function(markup)
-    err = 'Entities not handled, parsed markup:\n' + etree.tostring(root)
+    err = 'Entities not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual('\xa0\'', root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
 def multiple_html_and_body(test, parse_function):
     markup = '<html id="1"><body id="2"><p><html lang="en"><body lang="de"></p>'
     root = parse_function(markup)
-    err = 'multiple html and body not handled, parsed markup:\n' + etree.tostring(root)
+    err = 'multiple html and body not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//h:html')(root)), 1, err)
     test.assertEqual(len(XPath('//h:body')(root)), 1, err)
     test.assertEqual(len(XPath('//h:html[@id and @lang]')(root)), 1, err)
@@ -150,7 +150,7 @@ def multiple_html_and_body(test, parse_function):
 def attribute_replacement(test, parse_function):
     markup = '<html><body><svg viewbox="0"></svg><svg xmlns="%s" viewbox="1">' % SVG_NS
     root = parse_function(markup)
-    err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root)
+    err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
 
 
