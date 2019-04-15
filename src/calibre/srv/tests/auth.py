@@ -294,8 +294,8 @@ class TestAuth(BaseTest):
             cookies = tuple(cj)
             self.ae(len(cookies), 1)
             cookie = cookies[0]
-            self.assertIn(b':', cookie.value)
-            self.ae(cookie.path, b'/android')
+            self.assertIn(':', cookie.value)
+            self.ae(cookie.path, '/android')
             r = build_opener(cookie_handler).open(url)
             self.ae(r.getcode(), http_client.OK)
             self.ae(r.read(), b'android')
