@@ -495,7 +495,11 @@ class Ornamental(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         if not self.PATH_CACHE:
             from calibre.utils.speedups import svg_path_to_painter_path
-            self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            try:
+                self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         p = painter
         painter.setRenderHint(QPainter.Antialiasing)
         g = QRadialGradient(QPointF(rect.center()), rect.width())
@@ -503,7 +507,10 @@ class Ornamental(Style):
         painter.fillRect(rect, QBrush(g))
         painter.save()
         painter.setWindow(0, 0, *self.VIEWPORT)
-        path = self.PATH_CACHE['corner']
+        try:
+            path = self.PATH_CACHE['corner']
+        except KeyError:
+            path = QPainterPath()
         pen = p.pen()
         pen.setColor(self.ccolor1)
         p.setPen(pen)
