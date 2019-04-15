@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest, time
 
-from calibre.constants import plugins, iswindows, islinux, isosx
+from calibre.constants import plugins, iswindows, islinux, isosx, ispy3
 from polyglot.builtins import iteritems, map, unicode_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -76,6 +76,15 @@ class BuildTest(unittest.TestCase):
     def test_bs4(self):
         import soupsieve, bs4
         del soupsieve, bs4
+
+    def test_zeroconf(self):
+        if ispy3:
+            import zeroconf as z, ifaddr
+        else:
+            import calibre.utils.Zeroconf as z
+            ifaddr = None
+        del z
+        del ifaddr
 
     def test_plugins(self):
         exclusions = set()

@@ -1384,6 +1384,7 @@ class Zeroconf(object):
         if info.request(self, timeout):
             return info
         return None
+    get_service_info = getServiceInfo
 
     def addServiceListener(self, type, listener):
         """Adds a listener for a particular service type.  This object
@@ -1424,6 +1425,7 @@ class Zeroconf(object):
             self.send(out)
             i += 1
             nextTime += _REGISTER_TIME
+    register_service = registerService
 
     def unregisterService(self, info):
         """Unregister a service."""
@@ -1452,6 +1454,7 @@ class Zeroconf(object):
             self.send(out)
             i += 1
             nextTime += _UNREGISTER_TIME
+    unregister_service = unregisterService
 
     def unregisterAllServices(self):
         """Unregister all registered services."""

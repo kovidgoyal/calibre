@@ -27,14 +27,8 @@ class BonJour(object):  # {{{
         ip_address, port = loop.bound_address[:2]
         self.zeroconf_ip_address = zipa = verify_ipV4_address(ip_address) or get_external_ip()
         prefix = loop.opts.url_prefix or ''
-        # The Zeroconf module requires everything to be bytestrings
-
-        def enc(x):
-            if not isinstance(x, bytes):
-                x = x.encode('ascii')
-            return x
         mdns_services = (
-            (enc(self.service_name), enc(self.service_type), port, {b'path':enc(prefix + self.path)}),
+            (self.service_name, self.service_type, port, {'path':prefix + self.path}),
         )
         if self.shutdown.is_set():
             return
