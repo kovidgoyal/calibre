@@ -129,7 +129,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
         for (i = 0; i < PySequence_Length(alt_names); i++) {
             t = PySequence_ITEM(alt_names, i);
             memset(buf, 0, 1024);
-            snprintf(buf, 1023, "DNS:%s", PyBytes_AS_STRING(t));
+            snprintf(buf, 1023, "%s", PyBytes_AS_STRING(t));
             Py_XDECREF(t);
             if(!add_ext(exts, NID_subject_alt_name, buf)) goto error;
         }

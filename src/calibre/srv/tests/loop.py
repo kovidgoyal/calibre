@@ -207,8 +207,10 @@ class LoopTest(BaseTest):
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
             ctx = ssl.create_default_context(cafile=ca_file)
-            with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
-                conn = http_client.HTTPSConnection(address, server.address[1], strict=True, context=ctx)
+            with TestServer(
+                    lambda data:(data.path[0] + data.read().decode('utf-8')),
+                    ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
+                conn = http_client.HTTPSConnection(address, server.address[1], context=ctx)
                 conn.request('GET', '/test', 'body')
                 r = conn.getresponse()
                 self.ae(r.status, http_client.OK)
