@@ -396,12 +396,8 @@ def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
     return ans
 
 
-def xml2unicode(root, pretty_print=False):
-    return etree.tostring(root, pretty_print=pretty_print)
-
-
-def xml2text(elem):
-    return etree.tostring(elem, method='text', encoding=unicode_type, with_tail=False)
+def xml2text(elem, pretty_print=False):
+    return etree.tostring(elem, method='text', encoding=unicode_type, with_tail=False, pretty_print=pretty_print)
 
 
 def escape_cdata(root):
@@ -1088,7 +1084,7 @@ class Manifest(object):
         def unicode_representation(self):
             data = self.data
             if isinstance(data, etree._Element):
-                return xml2unicode(data, pretty_print=self.oeb.pretty_print)
+                return xml2text(data, pretty_print=self.oeb.pretty_print)
             if isinstance(data, unicode_type):
                 return data
             if hasattr(data, 'cssText'):
