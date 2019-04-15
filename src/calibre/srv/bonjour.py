@@ -11,8 +11,9 @@ from threading import Event
 
 class BonJour(object):  # {{{
 
-    def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True):
+    def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True, wait_for_stop=True):
         self.service_name = name
+        self.wait_for_stop = wait_for_stop
         self.service_type = service_type
         self.add_hostname = add_hostname
         self.path = path
@@ -42,6 +43,6 @@ class BonJour(object):  # {{{
 
         self.shutdown.wait()
         for s in mdns_services:
-            unpublish(*s, add_hostname=self.add_hostname)
+            unpublish(*s, add_hostname=self.add_hostname, wait_for_stop=self.wait_for_stop)
         self.stopped.set()
 # }}}

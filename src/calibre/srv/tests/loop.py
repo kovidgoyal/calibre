@@ -119,7 +119,7 @@ class LoopTest(BaseTest):
             from zeroconf import Zeroconf
         else:
             from calibre.utils.Zeroconf import Zeroconf
-        b = BonJour()
+        b = BonJour(wait_for_stop=False)
         with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:
             self.assertTrue(b.started.wait(5), 'BonJour not started')
             self.ae(b.advertised_port, server.address[1])

@@ -75,7 +75,7 @@ class Server(object):
                 self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
-            plugins.append(BonJour())
+            plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
         self.loop = ServerLoop(
             create_http_handler(self.handler.dispatch),
             opts=opts,

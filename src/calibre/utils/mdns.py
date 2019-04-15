@@ -191,7 +191,7 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
     return service
 
 
-def unpublish(desc, service_type, port, properties=None, add_hostname=True):
+def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait_for_stop=True):
     '''
     Unpublish a service.
 
@@ -201,13 +201,19 @@ def unpublish(desc, service_type, port, properties=None, add_hostname=True):
     service = create_service(desc, service_type, port, properties, add_hostname)
     server.unregister_service(service)
     if len(server.services) == 0:
-        stop_server()
+        stop_server(wait_for_stop=wait_for_stop)
 
 
-def stop_server():
+def stop_server(wait_for_stop=True):
     global _server
-    if _server is not None:
-        try:
-            _server.close()
-        finally:
-            _server = None
+    srv = _server
+    _server = None
+    if srv is not None:
+        t = Thread(target=srv.close)
+        t.daemon = True
+        t.start()
+        if wait_for_stop:
+            if wait_for_stop is True:
+                t.join()
+            else:
+                t.join(wait_for_stop)
