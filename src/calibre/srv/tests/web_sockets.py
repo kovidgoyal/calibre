@@ -64,9 +64,10 @@ class WSClient(object):
         if rl != b'HTTP/1.1 101 Switching Protocols\r\n':
             raise ValueError('Server did not respond with correct switching protocols line')
         headers = read_headers(partial(next, lines))
-        key = as_base64_unicode(sha1(self.key + GUID_STR).digest())
+        key = as_base64_unicode(sha1(self.key + GUID_STR.encode('ascii')).digest())
         if headers.get('Sec-WebSocket-Accept') != key:
-            raise ValueError('Server did not respond with correct key in Sec-WebSocket-Accept')
+            raise ValueError('Server did not respond with correct key in Sec-WebSocket-Accept: {} != {}'.format(
+                key, headers.get('Sec-WebSocket-Accept')))
 
     def recv(self, max_amt):
         if self.read_buf:

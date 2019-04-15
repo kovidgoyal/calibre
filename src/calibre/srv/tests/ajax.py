@@ -111,8 +111,8 @@ class ContentTest(LibraryBaseTest):
                 r, data = make_request(conn, path, username='12', password='test', prefix='', method=method)
                 ae(status, r.status)
                 if status == NOT_FOUND:
-                    p = data.partition(':')[0]
-                    ae(p, 'No book with id')
+                    p = data.partition(b':')[0]
+                    ae(p, b'No book with id')
                 return data
             ok = r
             nf = partial(r, status=NOT_FOUND)

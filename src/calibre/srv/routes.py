@@ -89,7 +89,7 @@ def endpoint(route,
         f.ok_code = ok_code
         f.is_endpoint = True
         f.needs_db_write = needs_db_write
-        argspec = inspect.getargspec(f)
+        argspec = inspect.getfullargspec(f) if ispy3 else inspect.getargspec(f)
         if len(argspec.args) < 2:
             raise TypeError('The endpoint %r must take at least two arguments' % f.route)
         f.__annotations__ = {

@@ -134,7 +134,7 @@ class LoopTest(BaseTest):
 
     def test_dual_stack(self):
         from calibre.srv.loop import IPPROTO_IPV6
-        with TestServer(lambda data:(data.path[0] + data.read()), listen_on='::') as server:
+        with TestServer(lambda data:(data.path[0] + data.read().decode('utf-8')), listen_on='::') as server:
             self.ae(server.address[0], '::')
             self.ae(server.loop.socket.getsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY), 0)
             conn = server.connect(interface='127.0.0.1')

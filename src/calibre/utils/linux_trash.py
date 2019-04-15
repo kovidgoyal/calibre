@@ -42,7 +42,7 @@ TOPDIR_FALLBACK = '.Trash-%s'%uid
 def uniquote(raw):
     if isinstance(raw, unicode_type):
         raw = raw.encode('utf-8')
-    return quote(raw).decode('utf-8')
+    return unicode_type(quote(raw))
 
 
 def is_parent(parent, path):

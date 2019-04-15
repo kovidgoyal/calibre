@@ -291,7 +291,7 @@ class HTMLInput(InputFormatPlugin):
             # file, therefore we quote it here.
             if isinstance(bhref, unicode_type):
                 bhref = bhref.encode('utf-8')
-            item.html_input_href = quote(bhref).decode('utf-8')
+            item.html_input_href = unicode_type(quote(bhref))
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))
