@@ -216,7 +216,7 @@ def prints(*args, **kwargs):
             file.write(sep)
             count += len(sep)
     file.write(end)
-    count += len(sep)
+    count += len(end)
     return count
 
 
