@@ -38,6 +38,13 @@ def to_json(obj):
     raise TypeError(repr(obj) + ' is not JSON serializable')
 
 
+def safe_to_json(obj):
+    try:
+        return to_json(obj)
+    except Exception:
+        pass
+
+
 def from_json(obj):
     custom = obj.get('__class__')
     if custom is not None:
@@ -52,9 +59,9 @@ def from_json(obj):
     return obj
 
 
-def json_dumps(obj):
+def json_dumps(obj, ignore_unserializable=False):
     import json
-    ans = json.dumps(obj, indent=2, default=to_json, sort_keys=True, ensure_ascii=False)
+    ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
     if not isinstance(ans, bytes):
         ans = ans.encode('utf-8')
     return ans
@@ -288,9 +295,9 @@ class OptionSet(object):
 
         return opts
 
-    def serialize(self, opts):
+    def serialize(self, opts, ignore_unserializable=False):
         data = {pref.name: getattr(opts, pref.name, pref.default) for pref in self.preferences}
-        return json_dumps(data)
+        return json_dumps(data, ignore_unserializable=ignore_unserializable)
 
 
 class ConfigInterface(object):
@@ -351,7 +358,7 @@ class Config(ConfigInterface):
                 migrate = bool(src)
         ans = self.option_set.parse_string(src)
         if migrate:
-            new_src = self.option_set.serialize(ans)
+            new_src = self.option_set.serialize(ans, ignore_unserializable=True)
             with ExclusiveFile(self.config_file_path) as f:
                 f.seek(0), f.truncate()
                 f.write(new_src)

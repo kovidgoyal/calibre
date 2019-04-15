@@ -7,10 +7,12 @@ from PyQt5.Qt import (
     QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon, Qt, QCoreApplication, QThread, QScrollBar)
 
 from calibre import __appname__, setup_cli_handlers, islinux, isbsd, as_unicode
+from calibre.gui2 import gprefs
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
-from calibre.gui2 import error_dialog, \
-                         config, choose_files, Application
+from calibre.gui2 import (
+        error_dialog, choose_files, Application
+        )
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
@@ -107,15 +109,12 @@ class Main(MainWindow, Ui_MainWindow):
         self.closed = False
 
     def configure(self, triggered):
-        opts = config['LRF_ebook_viewer_options']
-        if not opts:
-            opts = self.opts
+        opts = self.opts
         d = Config(self, opts)
         d.exec_()
         if d.result() == QDialog.Accepted:
-            opts.white_background = bool(d.white_background.isChecked())
-            opts.hyphenate = bool(d.hyphenate.isChecked())
-            config['LRF_ebook_viewer_options'] = opts
+            gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
+            gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
 
     def set_ebook(self, stream):
         self.progress_bar.setMinimum(0)
@@ -289,15 +288,13 @@ Read the LRF e-book book.lrf
 
 
 def normalize_settings(parser, opts):
-    saved_opts = config['LRF_ebook_viewer_options']
-    if not saved_opts:
-        saved_opts = opts
-    for opt in parser.option_list:
-        if not opt.dest:
-            continue
-        if getattr(opts, opt.dest) == opt.default and hasattr(saved_opts, opt.dest):
-            continue
-        setattr(saved_opts, opt.dest, getattr(opts, opt.dest))
+    saved_opts = opts
+    dh = gprefs.get('lrf_viewer_hyphenate', None)
+    if dh is not None:
+        opts.hyphenate = bool(dh)
+    wb = gprefs.get('lrf_viewer_white_background', None)
+    if wb is not None:
+        opts.white_background = bool(wb)
     return saved_opts
 
 
