@@ -27,7 +27,7 @@ def get_cover(docx):
         if rid in rid_map:
             try:
                 raw = docx.read(rid_map[rid])
-                fmt, width, height = identify(bytes(raw))
+                fmt, width, height = identify(raw)
             except Exception:
                 continue
             if width < 0 or height < 0:

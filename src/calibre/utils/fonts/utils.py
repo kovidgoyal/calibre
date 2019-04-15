@@ -11,7 +11,7 @@ import struct
 from io import BytesIO
 from collections import defaultdict
 
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, as_bytes
 
 
 class UnsupportedFont(ValueError):
@@ -42,7 +42,7 @@ def get_tables(raw):
 
 def get_table(raw, name):
     ''' Get the raw table bytes for the specified table in the font '''
-    name = bytes(name.lower())
+    name = as_bytes(name.lower())
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
         if table_tag.lower() == name:
             return table, table_index, table_offset, table_checksum

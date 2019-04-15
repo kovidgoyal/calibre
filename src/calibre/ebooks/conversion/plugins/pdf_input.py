@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import as_bytes
 
 
 class PDFInput(InputFormatPlugin):
@@ -73,7 +74,7 @@ class PDFInput(InputFormatPlugin):
             ncxid = opf.manifest.id_for_path('toc.ncx')
             if ncxid:
                 with open(u'metadata.opf', 'r+b') as f:
-                    raw = f.read().replace(b'<spine', b'<spine toc="%s"' % bytes(ncxid))
+                    raw = f.read().replace(b'<spine', b'<spine toc="%s"' % as_bytes(ncxid))
                     f.seek(0)
                     f.write(raw)
 

@@ -19,7 +19,7 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
-from polyglot.builtins import iteritems, string_or_bytes, filter
+from polyglot.builtins import iteritems, string_or_bytes, filter, as_bytes
 from polyglot.urllib import urlencode
 
 # /mobile {{{
@@ -245,7 +245,7 @@ def mobile(ctx, rd):
         books = [db.get_metadata(book_id) for book_id in book_ids[(start-1):(start-1)+num]]
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
     order = 'ascending' if ascending else 'descending'
-    q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num), 'library_id':library_id}
+    q = {b'search':search.encode('utf-8'), b'order':order.encode('ascii'), b'sort':sort_by.encode('utf-8'), b'num':as_bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
     lm = {k:v for k, v in iteritems(library_map) if k != library_id}
     return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)

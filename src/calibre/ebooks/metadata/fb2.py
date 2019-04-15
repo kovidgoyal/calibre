@@ -237,7 +237,7 @@ def _parse_cover_data(root, imgid, mi, ctx):
             pic_data = elm_binary[0].text
             if pic_data:
                 cdata = base64_decode(pic_data.strip())
-                fmt = identify(bytes(cdata))[0]
+                fmt = identify(cdata)[0]
                 mi.cover_data = (fmt, cdata)
         else:
             prints("WARNING: Unsupported coverpage mime-type '%s' (id=#%s)" % (mimetype, imgid))

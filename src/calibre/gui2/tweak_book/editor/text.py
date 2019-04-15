@@ -8,7 +8,7 @@ import os
 import re
 import textwrap
 import unicodedata
-from polyglot.builtins import unicode_type, map, range
+from polyglot.builtins import unicode_type, map, range, as_unicode
 
 from PyQt5.Qt import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
@@ -131,7 +131,7 @@ class TextEdit(PlainTextEdit):
             )
 
         if md.hasFormat(CONTAINER_DND_MIMETYPE):
-            for line in bytes(md.data(CONTAINER_DND_MIMETYPE)).decode('utf-8').splitlines():
+            for line in as_unicode(bytes(md.data(CONTAINER_DND_MIMETYPE))).splitlines():
                 mt = current_container().mime_map.get(line, 'application/octet-stream')
                 if is_mt_ok(mt):
                     yield line, mt, True

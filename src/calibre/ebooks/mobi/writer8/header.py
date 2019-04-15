@@ -13,7 +13,7 @@ from collections import OrderedDict
 from struct import pack
 
 from calibre.ebooks.mobi.utils import align_block
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, as_bytes
 
 NULL = 0xffffffff
 zeroes = lambda x: b'\0'*x
@@ -62,7 +62,7 @@ class Header(OrderedDict):
             self[name] = val
 
         buf = BytesIO()
-        buf.write(bytes(self.HEADER_NAME))
+        buf.write(as_bytes(self.HEADER_NAME))
         for name, val in iteritems(self):
             val = self.format_value(name, val)
             positions[name] = buf.tell()

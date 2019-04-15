@@ -8,6 +8,7 @@ Miscelleaneous utilities.
 '''
 
 from time import time
+from polyglot.builtins import as_bytes
 
 
 def join_with_timeout(q, timeout=2):
@@ -48,5 +49,5 @@ def pickle_binary_string(data):
     # Maintains compatibility with python's pickle module protocol version 2
     import struct
     PROTO, STOP, BINSTRING = b'\x80', b'.', b'T'
-    data = bytes(data)
+    data = as_bytes(data)
     return PROTO + b'\x02' + BINSTRING + struct.pack(b'<i', len(data)) + data + STOP

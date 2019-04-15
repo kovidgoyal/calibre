@@ -11,7 +11,7 @@ import re
 from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from polyglot.builtins import iteritems, map, zip
+from polyglot.builtins import iteritems, map, zip, unicode_type
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
@@ -62,7 +62,10 @@ class FontStream(Stream):
 
 
 def to_hex_string(c):
-    return bytes(hex(int(c))[2:]).rjust(4, b'0').decode('ascii')
+    ans = hex(int(c))[2:].rjust(4, '0')
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans
 
 
 class CMap(Stream):
@@ -120,8 +123,9 @@ class Font(object):
     def __init__(self, metrics, num, objects, compress):
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
-        self.subset_tag = bytes(re.sub('.', lambda m: chr(int(m.group())+ord('A')),
-                                  oct(num))).rjust(6, b'A').decode('ascii')
+        self.subset_tag = unicode_type(
+            re.sub('.', lambda m: chr(int(m.group())+ord('A')), oct(num).replace('o', '')
+        )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
         try:
             psname = metrics.postscript_name

@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type, range, iteritems
+from polyglot.builtins import unicode_type, range, iteritems, as_bytes
 
 
 class TagX(object):  # {{{
@@ -606,7 +606,7 @@ class TBSIndexing(object):  # {{{
 
         def bin4(num):
             ans = bin(num)[2:]
-            return bytes('0'*(4-len(ans)) + ans)
+            return as_bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
             return str({bin4(k):v for k, v in iteritems(extra)})

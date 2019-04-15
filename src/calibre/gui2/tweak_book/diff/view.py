@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import iteritems, unicode_type, zip, range
+from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes
 
 import regex
 from PyQt5.Qt import (
@@ -589,7 +589,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_image_diff(self, left_data, right_data):
         def load(data):
             p = QPixmap()
-            p.loadFromData(bytes(data))
+            p.loadFromData(as_bytes(data))
             try:
                 dpr = self.devicePixelRatioF()
             except AttributeError:

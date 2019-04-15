@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, as_bytes
 from polyglot.binary import as_base64_unicode, from_base64_bytes
 
 # Translate datetimes to and from strings. The string form is the datetime in
@@ -51,7 +51,7 @@ def encode_thumbnail(thumbnail):
         return None
     if not isinstance(thumbnail, (tuple, list)):
         try:
-            width, height = identify(bytes(thumbnail))[1:]
+            width, height = identify(as_bytes(thumbnail))[1:]
             if width < 0 or height < 0:
                 return None
             thumbnail = (width, height, thumbnail)

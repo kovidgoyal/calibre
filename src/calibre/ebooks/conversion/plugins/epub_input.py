@@ -7,7 +7,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -55,8 +55,8 @@ class EPUBInput(InputFormatPlugin):
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = bytes(item.text).rpartition(':')[-1]
-                    key = uuid.UUID(key).bytes
+                    key = item.text.rpartition(':')[-1]
+                    key = uuid.UUID(as_bytes(key)).bytes
                 except:
                     import traceback
                     traceback.print_exc()

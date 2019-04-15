@@ -14,7 +14,7 @@ import time
 import unicodedata
 import uuid
 from collections import defaultdict
-from polyglot.builtins import iteritems, unicode_type, zip
+from polyglot.builtins import iteritems, unicode_type, zip, as_bytes
 from io import BytesIO
 from itertools import count
 
@@ -1289,9 +1289,9 @@ class EpubContainer(Container):
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = bytes(item.text).rpartition(':')[-1]
-                    key = uuid.UUID(key).bytes
-                except:
+                    key = item.text.rpartition(':')[-1]
+                    key = uuid.UUID(as_bytes(key)).bytes
+                except Exception:
                     self.log.exception('Failed to parse obfuscation key')
                     key = None
 

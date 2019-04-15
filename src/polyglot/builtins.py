@@ -14,6 +14,27 @@ def iterkeys(d):
     return iter(d)
 
 
+def as_bytes(x, encoding='utf-8'):
+    if isinstance(x, unicode_type):
+        return x.encode(encoding)
+    if isinstance(x, bytes):
+        return x
+    if isinstance(x, bytearray):
+        return bytes(x)
+    if isinstance(x, memoryview):
+        return x.tobytes()
+    ans = unicode_type(x)
+    if isinstance(ans, unicode_type):
+        ans = ans.encode(encoding)
+    return ans
+
+
+def as_unicode(x, encoding='utf-8', errors='strict'):
+    if isinstance(x, bytes):
+        return x.decode(encoding, errors)
+    return unicode_type(x)
+
+
 if is_py3:
     def reraise(tp, value, tb=None):
         try:

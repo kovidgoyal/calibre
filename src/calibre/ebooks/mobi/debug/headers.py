@@ -14,7 +14,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.utils import get_trailing_data
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems, range, as_bytes
 
 # PalmDB {{{
 
@@ -208,7 +208,7 @@ class EXTHRecord(object):
             else:
                 self.data, = struct.unpack(b'>L', self.data)
         elif self.type in {209, 300}:
-            self.data = bytes(self.data.encode('hex'))
+            self.data = as_bytes(self.data.encode('hex'))
 
     def __str__(self):
         return '%s (%d): %r'%(self.name, self.type, self.data)

@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import subprocess, sys, os, pprint, signal, time, glob, io
 pprint, io
+from polyglot.builtins import environ_item
 
 
 def build(mod='wpd'):
@@ -42,9 +43,9 @@ def build(mod='wpd'):
 
 def main():
     fp, d = os.path.abspath(__file__), os.path.dirname
-    if b'CALIBRE_DEVELOP_FROM' not in os.environ:
+    if 'CALIBRE_DEVELOP_FROM' not in os.environ:
         env = os.environ.copy()
-        env[b'CALIBRE_DEVELOP_FROM'] = bytes(d(d(d(d(d(fp))))))
+        env['CALIBRE_DEVELOP_FROM'] = environ_item(d(d(d(d(d(fp))))))
         subprocess.call(['calibre-debug', '-e', fp], env=env)
         return
 

@@ -18,14 +18,14 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre import browser, as_unicode, prints
 from calibre.gui2 import error_dialog
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_unicode as as_unicode_polyglot
 from polyglot.urllib import unquote, urlparse
 from polyglot.queue import Queue, Empty
 
 
 def image_extensions():
     if not hasattr(image_extensions, 'ans'):
-        image_extensions.ans = [bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()]
+        image_extensions.ans = [as_unicode_polyglot(x) for x in QImageReader.supportedImageFormats()]
     return image_extensions.ans
 
 
@@ -162,7 +162,7 @@ def path_from_qurl(qurl):
     raw = bytes(qurl.toEncoded(
         QUrl.PreferLocalFile | QUrl.RemoveScheme | QUrl.RemovePassword | QUrl.RemoveUserInfo |
         QUrl.RemovePort | QUrl.RemoveAuthority | QUrl.RemoveQuery | QUrl.RemoveFragment))
-    ans = unquote(raw).decode('utf-8', 'replace')
+    ans = as_unicode_polyglot(unquote(raw), errors='replace')
     if iswindows and ans.startswith('/'):
         ans = ans[1:]
     return ans
@@ -172,7 +172,7 @@ def remote_urls_from_qurl(qurls, allowed_exts):
     for qurl in qurls:
         if qurl.scheme() in {'http', 'https', 'ftp'} and posixpath.splitext(
                 qurl.path())[1][1:].lower() in allowed_exts:
-            yield bytes(qurl.toEncoded()), posixpath.basename(qurl.path())
+            yield bytes(qurl.toEncoded()).decode('utf-8'), posixpath.basename(qurl.path())
 
 
 def dnd_has_extension(md, extensions, allow_all_extensions=False):
@@ -189,7 +189,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
     paths = [path_from_qurl(u) for u in urls]
     exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in paths if u])
     if DEBUG:
-        repr_urls = [bytes(u.toEncoded()) for u in urls]
+        repr_urls = [bytes(u.toEncoded()).decode('utf-8') for u in urls]
         prints('URLS:', repr(repr_urls))
         prints('Paths:', paths)
         prints('Extensions:', exts)

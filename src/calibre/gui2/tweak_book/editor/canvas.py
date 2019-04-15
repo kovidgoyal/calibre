@@ -25,6 +25,7 @@ from calibre.utils.img import (
     remove_borders_from_image, gaussian_sharpen_image, gaussian_blur_image, image_to_data, despeckle_image,
     normalize_image, oil_paint_image
 )
+from polyglot.builtins import as_unicode
 
 
 def painter(func):
@@ -325,7 +326,7 @@ class Canvas(QWidget):
         if not self.is_modified:
             return self.original_image_data
         fmt = self.original_image_format or 'JPEG'
-        if fmt.lower() not in set(map(lambda x:bytes(x).decode('ascii'), QImageWriter.supportedImageFormats())):
+        if fmt.lower() not in set(map(as_unicode, QImageWriter.supportedImageFormats())):
             if fmt.lower() == 'gif':
                 data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)
                 from PIL import Image
