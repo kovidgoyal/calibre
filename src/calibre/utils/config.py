@@ -203,8 +203,7 @@ class DynamicConfig(dict):
     '''
     A replacement for QSettings that supports dynamic config keys.
     Returns `None` if a config key is not found. Note that the config
-    data is stored in a non human readable pickle file, so only use this
-    class for preferences that you don't intend to have the users edit directly.
+    data is stored in a JSON file.
     '''
 
     def __init__(self, name='dynamic'):
@@ -257,7 +256,7 @@ class DynamicConfig(dict):
             d = self.read_old_serialized_representation()
             migrate = bool(d)
         if migrate and d:
-            raw = json_dumps(d)
+            raw = json_dumps(d, ignore_unserializable=True)
             with ExclusiveFile(self.file_path) as f:
                 f.seek(0), f.truncate()
                 f.write(raw)
