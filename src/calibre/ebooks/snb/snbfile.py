@@ -8,17 +8,13 @@ __docformat__ = 'restructuredtext en'
 import sys, struct, zlib, bz2, os
 
 from calibre import guess_type
-from polyglot.builtins import unicode_type, cmp
+from polyglot.builtins import unicode_type
 
 
 class FileStream:
 
     def IsBinary(self):
         return self.attr & 0x41000000 != 0x41000000
-
-
-def compareFileStream(file1, file2):
-    return cmp(file1.fileName, file2.fileName)
 
 
 class BlockData:
@@ -200,7 +196,7 @@ class SNBFile:
 
         # Sort the files in file buffer,
         # requried by the SNB file format
-        self.files.sort(compareFileStream)
+        self.files.sort(key=lambda x: x.fileName)
 
         outputFile = open(outputFile, 'wb')
         # File header part 1
