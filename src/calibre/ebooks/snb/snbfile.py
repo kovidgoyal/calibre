@@ -89,8 +89,9 @@ class SNBFile:
                                 uncompressedData += bzdc.decompress(data)
                             else:
                                 uncompressedData += data
-                        except Exception as e:
-                            print(e)
+                        except Exception:
+                            import traceback
+                            print(traceback.print_exc())
                 if len(uncompressedData) != self.plainStreamSizeUncompressed:
                     raise Exception()
                 f.fileBody = uncompressedData[plainPos:plainPos+f.fileSize]
