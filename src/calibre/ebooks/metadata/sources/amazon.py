@@ -897,6 +897,14 @@ class Amazon(Source):
                    ' calibre can fetch the Amazon data from many different'
                    ' places where it is cached. Choose the source you prefer.'
                ), choices=SERVERS),
+        Option('use_mobi_asin', 'bool', False, _('Use the MOBI-ASIN for metadata search'),
+               _(
+                   'Enable this option to search for metadata with an'
+                   ' ASIN identifier from the MOBI file at the current country website,'
+                   ' unless any other amazon id is available. Note that if the'
+                   ' MOBI file came from a different Amazon country store, you could get'
+                   ' incorrect results.'
+               )),
     )
 
     def __init__(self, *args, **kwargs):
@@ -958,14 +966,18 @@ class Amazon(Source):
         self.touched_fields = frozenset(tf)
 
     def get_domain_and_asin(self, identifiers, extra_domains=()):
+        identifiers = {k.lower(): v for k, v in identifiers.items()}
         for key, val in identifiers.items():
-            key = key.lower()
             if key in ('amazon', 'asin'):
                 return 'com', val
             if key.startswith('amazon_'):
                 domain = key.partition('_')[-1]
                 if domain and (domain in self.AMAZON_DOMAINS or domain in extra_domains):
                     return domain, val
+        if self.prefs['use_mobi_asin']:
+            val = identifiers.get('mobi-asin')
+            if val is not None:
+                return self.domain, val
         return None, None
 
     def referrer_for_domain(self, domain=None):
