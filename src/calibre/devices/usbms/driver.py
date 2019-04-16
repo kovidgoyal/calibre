@@ -287,7 +287,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True):
+        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: -1 if x is None else x):
             if idx is not None:
                 need_sync = True
                 del bl[idx]

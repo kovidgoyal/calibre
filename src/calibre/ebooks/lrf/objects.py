@@ -176,7 +176,7 @@ class LRFStream(LRFObject):
             self.stream = zlib.decompress(self.stream[4:])
             if len(self.stream) != decomp_size:
                 raise LRFParseError("Stream decompressed size is wrong!")
-        if stream.read(2) != '\x06\xF5':
+        if stream.read(2) != b'\x06\xF5':
             print("Warning: corrupted end-of-stream tag at %08X; skipping it"%(stream.tell()-2))
         self.end_stream(None, None)
 
@@ -850,7 +850,7 @@ class Text(LRFStream):
 
             # Is there some text before a tag?
             def find_first_tag(start):
-                pos = self.stream.find('\xf5', start)
+                pos = self.stream.find(b'\xf5', start)
                 if pos == -1:
                     return -1
                 try:

@@ -12,6 +12,7 @@ from copy import deepcopy, copy
 from lxml import etree
 
 from calibre import guess_type
+from polyglot.builtins import as_bytes
 
 
 class Canvas(etree.XSLTExtension):
@@ -21,7 +22,7 @@ class Canvas(etree.XSLTExtension):
         self.styles = styles
         self.text_block = text_block
         self.log = log
-        self.processed = set([])
+        self.processed = set()
 
     def execute(self, context, self_node, input_node, output_parent):
         cid = input_node.get('objid', None)
@@ -298,7 +299,7 @@ class Styles(etree.XSLTExtension):
             return '\n\t'.join(ans)
 
         with open(name, 'wb') as f:
-            f.write(self.CSS)
+            f.write(as_bytes(self.CSS))
             for (w, sel) in [(self.text_styles, 'ts'), (self.block_styles,
                 'bs')]:
                 for i, s in enumerate(w):
@@ -306,7 +307,7 @@ class Styles(etree.XSLTExtension):
                         continue
                     rsel = '.%s%d'%(sel, i)
                     s = join(s)
-                    f.write(rsel + ' {\n\t' + s + '\n}\n\n')
+                    f.write(as_bytes(rsel + ' {\n\t' + s + '\n}\n\n'))
 
     def execute(self, context, self_node, input_node, output_parent):
         if input_node.tag == 'TextStyle':
@@ -400,7 +401,3 @@ class Styles(etree.XSLTExtension):
         if ans not in self.text_styles:
             self.text_styles.append(ans)
         return self.text_styles.index(ans)
-
-
-
-

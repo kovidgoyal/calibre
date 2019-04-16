@@ -47,11 +47,7 @@ class field(object):
         obj.pack(val, start=self._start, fmt=self._fmt)
 
     def __repr__(self):
-        typ = ""
-        if self._fmt == DWORD:
-            typ  = "unsigned int"
-        if self._fmt == QWORD:
-            typ = "unsigned long long"
+        typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
         return "An " + typ + " stored in " + \
         str(struct.calcsize(self._fmt)) + \
         " bytes starting at byte " + str(self._start)
@@ -63,17 +59,17 @@ class versioned_field(field):
         field.__init__(self, start=start, fmt=fmt)
         self.vfield, self.version = vfield, version
 
-    def enabled(self):
-        return self.vfield > self.version
+    def enabled(self, obj):
+        return self.vfield.__get__(obj) > self.version
 
     def __get__(self, obj, typ=None):
-        if self.enabled():
+        if self.enabled(obj):
             return field.__get__(self, obj, typ=typ)
         else:
             return None
 
     def __set__(self, obj, val):
-        if not self.enabled():
+        if not self.enabled(obj):
             raise LRFException("Trying to set disabled field")
         else:
             field.__set__(self, obj, val)

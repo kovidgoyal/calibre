@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
 import sys, array, os, re, codecs, logging
+from itertools import chain
 
 from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
@@ -10,7 +11,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, itervalues
 
 
 class LRFDocument(LRFMetaFile):
@@ -45,7 +46,7 @@ class LRFDocument(LRFMetaFile):
         self.objects = {}
         self._file.seek(self.object_index_offset)
         obj_array = array.array("I", self._file.read(4*4*self.number_of_objects))
-        if ord(array.array("i",[1]).tostring()[0])==0:  # big-endian
+        if ord(array.array("i",[1]).tostring()[0:1])==0:  # big-endian
             obj_array.byteswap()
         for i in range(self.number_of_objects):
             if not self.keep_parsing:
@@ -77,7 +78,7 @@ class LRFDocument(LRFMetaFile):
             yield pt
 
     def write_files(self):
-        for obj in self.image_map.values() + self.font_map.values():
+        for obj in chain(itervalues(self.image_map), itervalues(self.font_map)):
             open(obj.file, 'wb').write(obj.stream)
 
     def to_xml(self, write_files=True):

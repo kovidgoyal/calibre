@@ -554,7 +554,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             else:
                 res[k] = v
         from calibre.utils.config import to_json
-        return json.dumps([op, res], encoding='utf-8', default=to_json)
+        return json.dumps([op, res], default=to_json)
 
     # Network functions
 
