@@ -17,7 +17,19 @@ else:
             x = x.decode(preferred_encoding)
         return _ncxc(x)
 
-_ascii_pat = None
+
+def ascii_pat(for_binary=False):
+    attr = 'binary' if for_binary else 'text'
+    ans = getattr(ascii_pat, attr, None)
+    if ans is None:
+        chars = set(range(32)) - {9, 10, 13}
+        chars.add(127)
+        pat = u'|'.join(map(codepoint_to_chr, chars))
+        if for_binary:
+            pat = pat.encode('ascii')
+        ans = re.compile(pat)
+        setattr(ascii_pat, attr, ans)
+    return ans
 
 
 def clean_ascii_chars(txt, charlist=None):
@@ -25,21 +37,18 @@ def clean_ascii_chars(txt, charlist=None):
     Remove ASCII control chars.
     This is all control chars except \t, \n and \r
     '''
+    is_binary = isinstance(txt, bytes)
+    empty = b'' if is_binary else u''
     if not txt:
-        return ''
-    global _ascii_pat
-    if _ascii_pat is None:
-        chars = set(range(32))
-        chars.add(127)
-        for x in (9, 10, 13):
-            chars.remove(x)
-        _ascii_pat = re.compile(u'|'.join(map(codepoint_to_chr, chars)))
+        return empty
 
     if charlist is None:
-        pat = _ascii_pat
+        pat = ascii_pat(is_binary)
     else:
-        pat = re.compile(u'|'.join(map(codepoint_to_chr, charlist)))
-    return pat.sub('', txt)
+        pat = u'|'.join(map(codepoint_to_chr, charlist))
+        if is_binary:
+            pat = pat.encode('utf-8')
+    return pat.sub(empty, txt)
 
 
 def allowed(x):
