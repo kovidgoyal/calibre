@@ -792,7 +792,7 @@ class Text(LRFStream):
         oldpos = stream.tell()
         try:
             t = Tag(stream)
-            if t.id not in [0xF579, 0xF57A]:
+            if t.id not in (0xF579, 0xF57A):
                 raise LRFParseError
         except LRFParseError:
             invalid(oldpos)
@@ -803,7 +803,7 @@ class Text(LRFStream):
         oldpos = stream.tell()
         try:
             t = Tag(stream)
-            if t.id not in [0xF579, 0xF57A]:
+            if t.id not in (0xF579, 0xF57A):
                 raise LRFParseError
             h = TextAttr.tag_map[t.id]
             attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
