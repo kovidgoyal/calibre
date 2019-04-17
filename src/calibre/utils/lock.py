@@ -13,7 +13,7 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins
+    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins, ispy3
 )
 from calibre.utils.monotonic import monotonic
 
@@ -148,8 +148,10 @@ elif islinux:
         name = '%s-singleinstance-%s-%s' % (
             __appname__, (os.geteuid() if per_user else ''), name
         )
-        name = name.encode('utf-8')
-        address = b'\0' + name.replace(b' ', b'_')
+        name = name
+        address = '\0' + name.replace(' ', '_')
+        if not ispy3:
+            address = address.encode('utf-8')
         sock = socket.socket(family=socket.AF_UNIX)
         try:
             eintr_retry_call(sock.bind, address)
