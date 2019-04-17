@@ -68,7 +68,9 @@ def console_print(ctx, rd):
         raise HTTPForbidden('console printing is not allowed')
     with print_lock:
         print(rd.remote_addr, end=' ')
-        shutil.copyfileobj(rd.request_body_file, sys.stdout)
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        shutil.copyfileobj(rd.request_body_file, stdout)
+        stdout.flush()
     return ''
 
 
