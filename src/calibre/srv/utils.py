@@ -322,7 +322,14 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
+        if ispy3:
+            if iswindows:
+                self.stream = share_open(self.filename, 'ab')
+            else:
+                # see https://bugs.python.org/issue27805
+                self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
+        else:
+            self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
