@@ -185,7 +185,7 @@ class BookHeader(object):
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])
-        if ident == 'TEXTREAD':
+        if ident == b'TEXTREAD':
             self.codepage = 1252
         if len(raw) <= 16:
             self.codec = 'cp1252'
@@ -216,14 +216,14 @@ class BookHeader(object):
             # 2.9?). See https://bugs.launchpad.net/bugs/1179144
             max_header_length = 500  # We choose 500 for future versions of kindlegen
 
-            if (ident == 'TEXTREAD' or self.length < 0xE4 or
+            if (ident == b'TEXTREAD' or self.length < 0xE4 or
                     self.length > max_header_length or
                     (try_extra_data_fix and self.length == 0xE4)):
                 self.extra_flags = 0
             else:
                 self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
 
-            if self.compression_type == 'DH':
+            if self.compression_type == b'DH':
                 self.huff_offset, self.huff_number = struct.unpack('>LL',
                         raw[0x70:0x78])
 
