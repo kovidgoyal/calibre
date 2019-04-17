@@ -151,6 +151,7 @@ def basic_interface_data(ctx, rd):
         'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
         'search_the_net_urls': getattr(ctx, 'search_the_net_urls', None) or [],
         'num_per_page': rd.opts.num_per_page,
+        'default_book_list_mode': rd.opts.book_list_mode,
         'donate_link': localize_website_link('https://calibre-ebook.com/donate')
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)

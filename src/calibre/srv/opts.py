@@ -187,7 +187,10 @@ raw_options = (
       ' option, any fields not in this list will not be displayed. For example: {}').format(
       'my_rating,my_tags'),
 
-
+    _('Choose the default book list mode'),
+    'book_list_mode', Choices('cover_grid', 'details_list', 'custom_list'),
+    _('Set the default book list mode that will be used for new users. Individual users'
+      ' can override the default in their own settings. The default is to use a cover grid.'),
 )
 assert len(raw_options) % 4 == 0
 

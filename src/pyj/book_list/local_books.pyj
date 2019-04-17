@@ -5,11 +5,11 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.globals import get_db, get_session_data
+from book_list.globals import get_db
 from book_list.router import home, open_book
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
-from book_list.views import DEFAULT_MODE, setup_view_mode
+from book_list.views import DEFAULT_MODE, setup_view_mode, get_view_mode
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout
@@ -127,7 +127,7 @@ def create_books_list(container, books):
     book_list_data.mode = None
     book_list_data.thumbnail_cache = {}
     container.appendChild(E.div(data_component='book_list'))
-    apply_view_mode(get_session_data().get('view_mode'))
+    apply_view_mode(get_view_mode())
 
 def show_recent_stage2(books):
     container = document.getElementById(this)
