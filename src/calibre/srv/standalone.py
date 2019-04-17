@@ -184,6 +184,17 @@ def ensure_single_instance():
 
 def main(args=sys.argv):
     opts, args = create_option_parser().parse_args(args)
+    if opts.auto_reload:
+        if getattr(opts, 'daemonize', False):
+            raise SystemExit(
+                'Cannot specify --auto-reload and --daemonize at the same time')
+        from calibre.srv.auto_reload import auto_reload, NoAutoReload
+        try:
+            from calibre.utils.logging import default_log
+            return auto_reload(default_log, listen_on=opts.listen_on)
+        except NoAutoReload as e:
+            raise SystemExit(error_message(e))
+
     ensure_single_instance()
     if opts.userdb:
         opts.userdb = os.path.abspath(os.path.expandvars(os.path.expanduser(opts.userdb)))
@@ -205,16 +216,6 @@ def main(args=sys.argv):
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries = [prefs['library_path']]
 
-    if opts.auto_reload:
-        if getattr(opts, 'daemonize', False):
-            raise SystemExit(
-                'Cannot specify --auto-reload and --daemonize at the same time')
-        from calibre.srv.auto_reload import auto_reload, NoAutoReload
-        try:
-            from calibre.utils.logging import default_log
-            return auto_reload(default_log, listen_on=opts.listen_on)
-        except NoAutoReload as e:
-            raise SystemExit(error_message(e))
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     if opts.log and os.path.isdir(opts.log):
