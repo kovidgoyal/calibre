@@ -198,7 +198,7 @@ def sanitize_path():
         sw
     ).split() + needed_paths
     os.environ['PATH'] = os.pathsep.join(paths)
-    print('PATH:', os.environ[b'PATH'])
+    print('PATH:', os.environ['PATH'])
 
 
 def vcenv():

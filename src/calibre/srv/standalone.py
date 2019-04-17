@@ -172,7 +172,7 @@ option_parser = create_option_parser
 
 
 def ensure_single_instance():
-    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
+    if 'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
         raise SystemExit(
             _(
