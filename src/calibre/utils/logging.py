@@ -152,10 +152,10 @@ class Log(object):
         default_output = ANSIStream()
         self.outputs = [default_output]
 
-        self.debug = partial(self.prints, DEBUG)
-        self.info  = partial(self.prints, INFO)
-        self.warn  = self.warning = partial(self.prints, WARN)
-        self.error = partial(self.prints, ERROR)
+        self.debug = partial(self.print_with_flush, DEBUG)
+        self.info  = partial(self.print_with_flush, INFO)
+        self.warn  = self.warning = partial(self.print_with_flush, WARN)
+        self.error = partial(self.print_with_flush, ERROR)
 
     def prints(self, level, *args, **kwargs):
         if level < self.filter_level:
@@ -163,13 +163,20 @@ class Log(object):
         for output in self.outputs:
             output.prints(level, *args, **kwargs)
 
+    def print_with_flush(self, level, *args, **kwargs):
+        if level < self.filter_level:
+            return
+        for output in self.outputs:
+            output.prints(level, *args, **kwargs)
+        self.flush()
+
     def exception(self, *args, **kwargs):
         limit = kwargs.pop('limit', None)
-        self.prints(ERROR, *args, **kwargs)
-        self.prints(DEBUG, traceback.format_exc(limit))
+        self.print_with_flush(ERROR, *args, **kwargs)
+        self.print_with_flush(DEBUG, traceback.format_exc(limit))
 
     def __call__(self, *args, **kwargs):
-        self.prints(INFO, *args, **kwargs)
+        self.info(*args, **kwargs)
 
     def __enter__(self):
         self.orig_filter_level = self.filter_level
@@ -207,11 +214,15 @@ class ThreadSafeLog(Log):
         with self._lock:
             Log.prints(self, *args, **kwargs)
 
+    def print_with_flush(self, *args, **kwargs):
+        with self._lock:
+            Log.print_with_flush(self, *args, **kwargs)
+
     def exception(self, *args, **kwargs):
         limit = kwargs.pop('limit', None)
         with self._lock:
-            Log.prints(self, ERROR, *args, **kwargs)
-            Log.prints(self, self.exception_traceback_level, traceback.format_exc(limit))
+            Log.print_with_flush(self, ERROR, *args, **kwargs)
+            Log.print_with_flush(self, self.exception_traceback_level, traceback.format_exc(limit))
 
 
 class ThreadSafeWrapper(Log):
@@ -224,6 +235,10 @@ class ThreadSafeWrapper(Log):
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
+    def print_with_flush(self, *args, **kwargs):
+        with self._lock:
+            Log.print_with_flush(self, *args, **kwargs)
 
 
 class GUILog(ThreadSafeLog):
