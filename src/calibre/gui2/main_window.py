@@ -6,13 +6,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 import sys, gc, weakref
-from io import BytesIO
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
 from calibre import prints, force_unicode, as_unicode
+from polyglot.io import PolyglotBytesIO
 
 
 def option_parser(usage='''\
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
             return
         import traceback
         try:
-            sio = BytesIO()
+            sio = PolyglotBytesIO(errors='replace')
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)
