@@ -135,7 +135,7 @@ class View:
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked),
-                            E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2', allowfullscreen='true'),
+                            E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts allow-popups-to-escape-sandbox', style='flex-grow: 2', allowfullscreen='true'),
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin'),
                         ),
                         right_margin,

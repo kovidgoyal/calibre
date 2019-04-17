@@ -132,7 +132,7 @@ def adjusting_sandboxed_html(html):
     css =  'html, body {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
     # allow-same-origin is needed for resizing and allow-popups is needed for
     # target="_blank"
-    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups')
+    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups allow-popups-to-escape-sandbox')
     ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
