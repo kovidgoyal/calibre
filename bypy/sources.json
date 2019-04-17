@@ -493,6 +493,26 @@
     },
 
     {
+        "name": "ifaddr",
+		"python": 3,
+        "unix": {
+            "filename": "ifaddr-0.1.6.tar.gz",
+            "hash": "sha256:c19c64882a7ad51a394451dabcbbed72e98b5625ec1e79789924d5ea3e3ecb93",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "zeroconf",
+		"python": 3,
+        "unix": {
+            "filename": "zeroconf-0.21.3.tar.gz",
+            "hash": "sha256:5b52dfdf4e665d98a17bf9aa50dea7a8c98e25f972d9c1d7660e2b978a1f5713",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "libgpg-error",
         "os": "linux",
         "unix": {
