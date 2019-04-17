@@ -15,6 +15,7 @@ and igorsk.
 import struct
 
 from calibre.ebooks.mobi import MobiError
+from polyglot.builtins import map
 
 
 class Reader(object):
@@ -34,7 +35,7 @@ class Reader(object):
                 assert term
             maxcode = ((maxcode + 1) << (32 - codelen)) - 1
             return (codelen, term, maxcode)
-        self.dict1 = map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1))
+        self.dict1 = tuple(map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1)))
 
         dict2 = struct.unpack_from(b'>64L', huff, off2)
         self.mincode, self.maxcode = (), ()
@@ -106,5 +107,3 @@ class HuffReader(object):
 
     def unpack(self, section):
         return self.reader.unpack(section)
-
-
