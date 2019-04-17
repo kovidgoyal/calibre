@@ -254,11 +254,11 @@ def extract_metadata(container_data):
 
     # locate book metadata within the container data structures
 
+    metadata_entity = {}
+
     for entity_type, entity_id, entity_value in container_data:
         if entity_type == PROP_METADATA:
-            for key, value in entity_value.items():
-                if key in METADATA_PROPERTIES:
-                    metadata[METADATA_PROPERTIES[key]].append(value)
+            metadata_entity = entity_value
 
         elif entity_type == PROP_METADATA2:
             if entity_value is not None:
@@ -269,6 +269,10 @@ def extract_metadata(container_data):
         elif entity_type == PROP_IMAGE and COVER_KEY not in metadata:
             # assume first image is the cover
             metadata[COVER_KEY] = entity_value
+
+    for key, value in metadata_entity.items():
+        if key in METADATA_PROPERTIES:
+            metadata[METADATA_PROPERTIES[key]].append(value)
 
     return metadata
 
