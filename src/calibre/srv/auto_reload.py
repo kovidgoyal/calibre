@@ -402,6 +402,8 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_o
     if cmd is None:
         cmd = list(sys.argv)
         cmd.remove('--auto-reload')
+    if os.path.basename(cmd[0]) == 'run-local':
+        cmd.insert(1, 'calibre-server')
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))
