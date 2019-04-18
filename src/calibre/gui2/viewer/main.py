@@ -1083,13 +1083,22 @@ class EbookViewer(MainWindow):
                             self.pending_goto_page = open_at
                         else:
                             self.goto_page(open_at, loaded_check=False)
-                    elif open_at.startswith('toc:'):
-                        index = self.toc_model.search(open_at[4:])
-                        if index.isValid():
+                    else:
+                        target_index = None
+                        if open_at.startswith('toc:'):
+                            index = self.toc_model.search(open_at[4:])
+                            if index.isValid():
+                                target_index = index
+                        elif open_at.startswith('toc-href:'):
+                            for index in self.toc_model.find_indices_by_href(open_at[len('toc-href:'):]):
+                                if index.isValid():
+                                    target_index = index
+                                    break
+                        if target_index is not None:
                             if self.resize_in_progress:
-                                self.pending_toc_click = index
+                                self.pending_toc_click = target_index
                             else:
-                                self.toc_clicked(index, force=True)
+                                self.toc_clicked(target_index, force=True)
 
     def set_vscrollbar_value(self, pagenum):
         self.vertical_scrollbar.blockSignals(True)
@@ -1306,7 +1315,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     open_at = None
     if opts.open_at is not None:
-        if opts.open_at.startswith('toc:'):
+        if ':' in opts.open_at:
             open_at = opts.open_at
         else:
             open_at = float(opts.open_at.replace(',', '.'))
