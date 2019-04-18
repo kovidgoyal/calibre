@@ -1228,7 +1228,9 @@ def config(defaults=None):
         help=_('The position at which to open the specified book. The position is '
                'a location as displayed in the top left corner of the viewer. '
                'Alternately, you can use the form toc:something and it will open '
-               'at the location of the first Table of Contents entry that contains the string "something".'))
+               'at the location of the first Table of Contents entry that contains '
+               'the string "something". You can also use toc-href:something '
+               'to go to a location matching an internal file/id of the book.'))
     c.add_opt('continue_reading', ['--continue'], default=False,
         help=_('Continue reading at the previously opened book'))
 
