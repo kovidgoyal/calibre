@@ -94,7 +94,7 @@ class Name(unicode_type):
         sharp = ord(b'#')
         buf = (
             codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
-            b'#'+hex(x).encode('ascii') for x in raw)
+            '#{:x}'.format(x).encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
 
