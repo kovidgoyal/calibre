@@ -11,8 +11,29 @@ from collections import OrderedDict
 from polyglot.builtins import iteritems
 
 
-class Inherit:
-    pass
+class Inherit(object):
+
+    def __eq__(self, other):
+        return other is self
+
+    def __hash__(self):
+        return id(self)
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return other is not self
+
+    def __ge__(self, other):
+        if self is other:
+            return True
+        return True
+
+    def __le__(self, other):
+        if self is other:
+            return True
+        return False
 
 
 inherit = Inherit()
