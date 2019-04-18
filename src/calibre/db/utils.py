@@ -256,9 +256,13 @@ class ThumbnailCache(object):
             self.group_id = group_id
 
     def set_thumbnail_size(self, width, height):
+        new_size = (width, height)
         with self.lock:
-            self.thumbnail_size = (width, height)
-            self.size_changed = True
+            if new_size != self.thumbnail_size:
+                self.thumbnail_size = new_size
+                self.size_changed = True
+                return True
+        return False
 
     def insert(self, book_id, timestamp, data):
         if self.max_size < len(data):

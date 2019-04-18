@@ -826,13 +826,16 @@ class GridView(QListView):
             self.delegate.calculate_spacing()
             self.setSpacing(self.delegate.spacing)
         self.set_color()
-        if size_changed:
-            dpr = self.device_pixel_ratio
-            self.thumbnail_cache.set_thumbnail_size(int(dpr * self.delegate.cover_size.width()), int(dpr*self.delegate.cover_size.height()))
+        self.set_thumbnail_cache_image_size()
         cs = gprefs['cover_grid_disk_cache_size']
         if (cs*(1024**2)) != self.thumbnail_cache.max_size:
             self.thumbnail_cache.set_size(cs)
         self.update_memory_cover_cache_size()
+
+    def set_thumbnail_cache_image_size(self):
+        dpr = self.device_pixel_ratio
+        self.thumbnail_cache.set_thumbnail_size(
+            int(dpr * self.delegate.cover_size.width()), int(dpr*self.delegate.cover_size.height()))
 
     def resizeEvent(self, ev):
         self._ncols = None
@@ -878,6 +881,9 @@ class GridView(QListView):
     def render_cover(self, book_id):
         if self.ignore_render_requests.is_set():
             return
+        dpr = self.device_pixel_ratio
+        page_width = int(dpr * self.delegate.cover_size.width())
+        page_height = int(dpr * self.delegate.cover_size.height())
         tcdata, timestamp = self.thumbnail_cache[book_id]
         use_cache = False
         if timestamp is None:
@@ -893,7 +899,6 @@ class GridView(QListView):
         if has_cover:
             p = QImage()
             p.loadFromData(cdata, CACHE_FORMAT if cdata is tcdata else 'JPEG')
-            dpr = self.device_pixel_ratio
             p.setDevicePixelRatio(dpr)
             if p.isNull() and cdata is tcdata:
                 # Invalid image in cache
@@ -905,7 +910,7 @@ class GridView(QListView):
                 if cdata is not None:
                     width, height = p.width(), p.height()
                     scaled, nwidth, nheight = fit_image(
-                        width, height, int(dpr * self.delegate.cover_size.width()), int(dpr * self.delegate.cover_size.height()))
+                        width, height, page_width, page_height)
                     if scaled:
                         if self.ignore_render_requests.is_set():
                             return
@@ -1146,5 +1151,15 @@ class GridView(QListView):
             dy = number_of_pixels.y()
         if abs(dy) > 0:
             b.setValue(b.value() - dy)
+
+    def paintEvent(self, ev):
+        dpr = self.device_pixel_ratio
+        page_width = int(dpr * self.delegate.cover_size.width())
+        page_height = int(dpr * self.delegate.cover_size.height())
+        size_changed = self.thumbnail_cache.set_thumbnail_size(page_width, page_height)
+        if size_changed:
+            self.delegate.cover_cache.clear()
+
+        return super(GridView, self).paintEvent(ev)
 
 # }}}
