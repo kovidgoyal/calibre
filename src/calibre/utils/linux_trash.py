@@ -66,7 +66,7 @@ def info_for(src, topdir):
     info  = "[Trash Info]\n"
     info += "Path=" + uniquote(src) + "\n"
     info += "DeletionDate=" + format_date(datetime.now()) + "\n"
-    return info
+    return info.encode('utf-8')
 
 
 def check_create(dir):
