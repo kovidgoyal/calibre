@@ -530,7 +530,7 @@ class BasicNewsRecipe(Recipe):
 
     @property
     def cloned_browser(self):
-        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+        if hasattr(self.get_browser, 'is_base_class_implementation'):
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
