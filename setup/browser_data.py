@@ -62,7 +62,7 @@ def firefox_versions():
     raw = download_securely(
         'https://www.mozilla.org/en-US/firefox/releases/').decode('utf-8')
     root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
-    ol = root.xpath('//div[@id="main-content"]/ol')[0]
+    ol = root.xpath('//main[@id="main-content"]/ol')[0]
     ol.xpath('descendant::li/strong/a[@href]')
     ans = filter_ans(ol.xpath('descendant::li/strong/a[@href]/text()'))
     if not ans:
