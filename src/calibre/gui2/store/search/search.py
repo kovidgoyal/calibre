@@ -207,7 +207,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
-        store_names = self.store_checks.keys()
+        store_names = list(self.store_checks)
         if not store_names:
             return
         # Remove all of our internal filtering logic from the query.
