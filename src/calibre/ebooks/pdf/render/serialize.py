@@ -19,6 +19,7 @@ from calibre.ebooks.pdf.render.common import (
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
+from polyglot.builtins import as_unicode
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
@@ -520,7 +521,7 @@ class PDFStream(object):
         self.objects.pdf_serialize(self.stream)
         self.write_line()
         startxref = self.objects.write_xref(self.stream)
-        file_id = String(self.stream.hashobj.hexdigest().decode('ascii'))
+        file_id = String(as_unicode(self.stream.hashobj.hexdigest()))
         self.write_line('trailer')
         trailer = Dictionary({'Root':self.catalog, 'Size':len(self.objects)+1,
                               'ID':Array([file_id, file_id]), 'Info':inforef})

@@ -12,6 +12,12 @@
 #include "private/qtextengine_p.h"
 #include "private/qfontengine_p.h"
 
+#if PY_MAJOR_VERSION > 2
+#define BYTES_FMT "y#"
+#else
+#define BYTES_FMT "s#"
+#endif
+
 PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
     const quint32 *tag = reinterpret_cast<const quint32 *>("name");
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
@@ -57,14 +63,14 @@ PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
         PyTuple_SET_ITEM(indices, i, temp); temp = NULL;
     }
     const QByteArray table(fe->getSfntTable(qToBigEndian(*tag)));
-    return Py_BuildValue("s#ffOO", table.constData(), table.size(), size, stretch, points, indices);
+    return Py_BuildValue(BYTES_FMT "ffOO", table.constData(), table.size(), size, stretch, points, indices);
 }
 
 PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
     const quint32 *tag = reinterpret_cast<const quint32 *>(tag_name);
     const QByteArray table(ti.fontEngine->getSfntTable(qToBigEndian(*tag)));
-    return Py_BuildValue("s#", table.constData(), table.size());
+    return Py_BuildValue(BYTES_FMT, table.constData(), table.size());
 }
 
 PyObject* get_glyph_map(const QTextItem &text_item) {

@@ -13,7 +13,7 @@ from datetime import datetime
 
 from calibre.constants import plugins, ispy3
 from calibre.utils.logging import default_log
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr
 from polyglot.binary import as_hex_bytes
 
 pdf_float = plugins['speedup'][0].pdf_float
@@ -90,8 +90,11 @@ class Name(unicode_type):
         raw = self.encode('ascii')
         if len(raw) > 126:
             raise ValueError('Name too long: %r'%self)
-        buf = [x if 33 < ord(x) < 126 and x != b'#' else b'#'+hex(ord(x)) for x
-               in raw]
+        raw = bytearray(raw)
+        sharp = ord(b'#')
+        buf = (
+            codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
+            b'#'+hex(x).encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
 
