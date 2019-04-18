@@ -291,9 +291,9 @@ class Matches(QAbstractItemModel):
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder
-        self.all_matches.sort(None,
-            lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
-            descending)
+        self.all_matches.sort(
+            key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
+            reverse=descending)
         self.reorder_matches()
         if reset:
             self.beginResetModel(), self.endResetModel()

@@ -49,7 +49,7 @@ def search_amazon(query, max_results=10, timeout=60,
             x = x.encode('utf-8')
         return x
     uquery = {asbytes(k):asbytes(v) for k, v in uquery.items()}
-    url = base_url + '?' + urlencode(uquery).decode('ascii')
+    url = base_url + '?' + urlencode(uquery)
     br = browser(user_agent=get_user_agent())
 
     counter = max_results

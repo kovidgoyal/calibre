@@ -44,7 +44,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://wolnelektury.pl/szukaj?q=' + quote_plus(query.encode('utf-8'))
+        url = 'http://wolnelektury.pl/szukaj?q=' + quote_plus(query)
 
         br = browser()
 
