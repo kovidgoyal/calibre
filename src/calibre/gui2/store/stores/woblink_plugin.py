@@ -36,7 +36,7 @@ def as_base64(data):
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'http://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query.encode('utf-8'))
+    url = 'http://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query)
     if max_results > 10:
         if max_results > 20:
             url += '&limit=30'
