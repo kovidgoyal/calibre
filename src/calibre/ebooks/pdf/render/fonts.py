@@ -62,10 +62,10 @@ class FontStream(Stream):
 
 
 def to_hex_string(c):
-    ans = hex(int(c))[2:].rjust(4, '0')
+    ans = hex(int(c))[2:]
     if isinstance(ans, bytes):
         ans = ans.decode('ascii')
-    return ans
+    return ans.rjust(4, '0')
 
 
 class CMap(Stream):
