@@ -12,7 +12,7 @@ from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngin
 from calibre import prints
 from calibre.utils.monotonic import monotonic
 from calibre.utils.rapydscript import special_title
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):
@@ -42,6 +42,8 @@ def insert_scripts(profile, *scripts):
 
 def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_point=QWebEngineScript.DocumentReady, on_subframes=True):
     script = QWebEngineScript()
+    if isinstance(src, bytes):
+        src = src.decode('utf-8')
     script.setSourceCode(src)
     script.setName(name)
     script.setWorldId(world)
@@ -53,7 +55,7 @@ def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_
 from_js = pyqtSignal
 
 
-class to_js(type('')):
+class to_js(unicode_type):
 
     def __call__(self, *a):
         prints('WARNING: Calling {}() before the javascript bridge is ready'.format(self.name))
