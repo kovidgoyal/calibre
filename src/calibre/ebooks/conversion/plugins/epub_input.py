@@ -237,7 +237,7 @@ class EPUBInput(InputFormatPlugin):
                 if k.endswith(attr):
                     return v
         try:
-            with open('META-INF/container.xml') as f:
+            with open('META-INF/container.xml', 'rb') as f:
                 root = etree.fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
                     if attr(r, 'media-type') != "application/oebps-package+xml":
@@ -248,7 +248,7 @@ class EPUBInput(InputFormatPlugin):
                     path = os.path.join(os.getcwdu(), *path.split('/'))
                     if os.path.exists(path):
                         return path
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
