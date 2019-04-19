@@ -569,7 +569,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             raise
 
     def _read_string_from_net(self):
-        data = b'\0'
+        data = b'0'
         while True:
             dex = data.find(b'[')
             if dex >= 0:
