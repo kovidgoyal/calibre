@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.41.0
+- version: 3.41.1
   date: 2019-04-19
 
   new features:
@@ -43,7 +43,7 @@
     - title: "Manage authors dialog: Add an entry to the right click menu to show books by the current author in the main book list."
       tickets: [1821992]
 
-    - title: "Lots of internal changes to calibre's codebase to prepare it for python 3 support."
+    - title: "Lots of internal changes to calibre's codebase to prepare it for Python 3 support."
 
   bug fixes:
     - title: "Content server: Fix links to external resources in book details and the viewer not working"
@@ -81,6 +81,9 @@
 
     - title: "Adding books: When adding with auto-merge and auto-convert enabled, also run conversions for books into which the added files are merged."
       tickets: [1822018]
+
+    - title: "version 3.41.1 fixes a regresion in the previous release that broke connecting to Calibre Companion and similar apps wirelessly"
+      tickets: [1825472]
 
   improved recipes:
     - Il Post
