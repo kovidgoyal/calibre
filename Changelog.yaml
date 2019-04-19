@@ -20,6 +20,81 @@
 #   new recipes:
 #     - title:
 
+- version: 3.41.0
+  date: 2019-04-19
+
+  new features:
+    - title: "Kobo driver: Support for new firmware"
+
+    - title: "Content server: Add an option to control which book list mode is used by default for new users (Preferences->Sharing over the net->Choose book list mode)"
+
+    - title: "Content server: Allow clicking on book cover in details page to read the book."
+      tickets: [1819058]
+
+    - title: "Amazon metadata plugin: Add a option to use the mobi-asin to find books."
+      tickets: [1823520]
+
+    - title: "E-book viewer: Allow specifying ToC hrefs via the --open-at command line parameter."
+      tickets: [1656573]
+
+    - title: "Tag Mapper: Allow Title-casing of tags."
+      tickets: [1823097]
+
+    - title: "Manage authors dialog: Add an entry to the right click menu to show books by the current author in the main book list."
+      tickets: [1821992]
+
+    - title: "Lots of internal changes to calibre's codebase to prepare it for python 3 support."
+
+  bug fixes:
+    - title: "Content server: Fix links to external resources in book details and the viewer not working"
+
+    - title: "Content server: Fix using a bookmark to load the book list not working if server is password protected."
+      tickets: [1819025]
+
+    - title: "Content server: Book details page: Fix close button not going back to book list after using Next/previous buttons."
+      tickets: [1819060]
+
+    - title: "Kobo driver: Fix update device metadata setting not being saved. Also fix book language not being set correctly on newer firmware."
+
+    - title: "PDF Output: Fix 'stroke-dasharray' lines in SVG images in the input document not being rendered correctly."
+      tickets: [1821923]
+
+    - title: "Fix searching for authors on amazon not working because of a change in the amazon URL structure."
+      tickets: [1822532]
+
+    - title: "Cover grid: Check for cover size change due to screen scale change on every paint event and invalidate cache if there is a change."
+      tickets: [1723972]
+
+    - title: "Edit book: Fix Option key + ; not working in the editor."
+      tickets: [1823040]
+
+    - title: "Edit book: Fix pasting images into a book with no Images folder not working correctly."
+      tickets: [1817405]
+
+    - title: "Confirm cancel on library restore dialog"
+      tickets: [1823204]
+
+    - title: "EPUB/MOBI Catalogs: Fix presets not being applied for some options."
+      tickets: [1821968]
+
+    - title: "Fix using --insert-metadata with ebook-convert not inserting the title and author metadata from the source document"
+
+    - title: "Adding books: When adding with auto-merge and auto-convert enabled, also run conversions for books into which the added files are merged."
+      tickets: [1822018]
+
+  improved recipes:
+    - Il Post
+    - Le Monde Edition Abonnes Papier
+    - Le Temps
+    - NASA
+    - "1843"
+    - derStandard
+    - LA Times
+
+  new recipes:
+    - title: The New Criterion
+      author: Darko Miletic
+
 - version: 3.40.1
   date: 2019-03-08
 
