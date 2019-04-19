@@ -578,7 +578,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Things get trashed if we don't make a copy of the data.
             v = self._read_binary_from_net(2)
             if len(v) == 0:
-                return ''  # documentation says the socket is broken permanently.
+                return b''  # documentation says the socket is broken permanently.
             data += v
         total_len = int(data[:dex])
         data = data[dex:]
@@ -586,7 +586,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         while pos < total_len:
             v = self._read_binary_from_net(total_len - pos)
             if len(v) == 0:
-                return ''  # documentation says the socket is broken permanently.
+                return b''  # documentation says the socket is broken permanently.
             data += v
             pos += len(v)
         return data
