@@ -27,7 +27,8 @@ from .office import *
 from .attrconverters import make_NCName
 from xml.sax.xmlreader import InputSource
 from .odfmanifest import manifestlist
-from polyglot.io import PolyglotBytesIO
+from io import BytesIO
+from polyglot.io import PolyglotBytesIO, PolyglotStringIO
 
 __version__= TOOLSVERSION
 
@@ -210,7 +211,7 @@ class OpenDocument:
         self.__replaceGenerator()
         x = DocumentMeta()
         x.addElement(self.meta)
-        xml=StringIO()
+        xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
         x.toXml(0,xml)
         return xml.getvalue()
@@ -219,7 +220,7 @@ class OpenDocument:
         """ Generates the settings.xml file """
         x = DocumentSettings()
         x.addElement(self.settings)
-        xml=StringIO()
+        xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
         x.toXml(0,xml)
         return xml.getvalue()
@@ -266,7 +267,7 @@ class OpenDocument:
 
     def stylesxml(self):
         """ Generates the styles.xml file """
-        xml=StringIO()
+        xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
         x = DocumentStyles()
         x.write_open_tag(0, xml)
@@ -579,12 +580,13 @@ def OpenDocumentTextMaster():
     doc.body.addElement(doc.text)
     return doc
 
+
 def __loadxmlparts(z, manifest, doc, objectpath):
     from load import LoadParser
     from xml.sax import make_parser, handler
 
     for xmlfile in (objectpath+'settings.xml', objectpath+'meta.xml', objectpath+'content.xml', objectpath+'styles.xml'):
-        if not manifest.has_key(xmlfile):
+        if xmlfile not in manifest:
             continue
         try:
             xmlpart = z.read(xmlfile)
@@ -596,11 +598,12 @@ def __loadxmlparts(z, manifest, doc, objectpath):
             parser.setErrorHandler(handler.ErrorHandler())
 
             inpsrc = InputSource()
-            inpsrc.setByteStream(StringIO(xmlpart))
+            inpsrc.setByteStream(BytesIO(xmlpart))
             parser.setFeature(handler.feature_external_ges, False)  # Changed by Kovid to ignore external DTDs
             parser.parse(inpsrc)
             del doc._parsing
-        except KeyError as v: pass
+        except KeyError:
+            pass
 
 def load(odffile):
     """ Load an ODF file into memory
