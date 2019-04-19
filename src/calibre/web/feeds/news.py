@@ -571,7 +571,7 @@ class BasicNewsRecipe(Recipe):
         an ad page, return the HTML of the real page. Otherwise return
         None.
 
-        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return None
@@ -613,7 +613,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return soup
@@ -625,7 +625,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_  instance containing the downloaded :term:`HTML`.
+        :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
 
         '''
