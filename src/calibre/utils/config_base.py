@@ -12,7 +12,7 @@ from collections import defaultdict
 from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
-from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3, preferred_encoding
+from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3, preferred_encoding, filesystem_encoding, iswindows
 from polyglot.builtins import unicode_type, iteritems, map
 
 plugin_dir = os.path.join(config_dir, 'plugins')
@@ -59,9 +59,33 @@ def from_json(obj):
     return obj
 
 
+def force_unicode(x):
+    try:
+        return x.decode('mbcs' if iswindows else preferred_encoding)
+    except UnicodeDecodeError:
+        try:
+            return x.decode(filesystem_encoding)
+        except UnicodeDecodeError:
+            return x.decode('utf-8', 'replace')
+
+
+def force_unicode_recursive(obj):
+    if isinstance(obj, bytes):
+        return force_unicode(obj)
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(map(force_unicode_recursive, obj))
+    if isinstance(obj, dict):
+        return {force_unicode_recursive(k): force_unicode_recursive(v) for k, v in iteritems(obj)}
+    return obj
+
+
 def json_dumps(obj, ignore_unserializable=False):
     import json
-    ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
+    try:
+        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
+    except UnicodeDecodeError:
+        obj = force_unicode_recursive(obj)
+        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
     if not isinstance(ans, bytes):
         ans = ans.encode('utf-8')
     return ans
