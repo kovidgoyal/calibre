@@ -167,7 +167,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def create_device(self, connected_device):
         d = connected_device
-        man, prod = d.manufacturer, d.prod
+        man, prod = d.manufacturer, d.product
         if ispy3:
             man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
             prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
