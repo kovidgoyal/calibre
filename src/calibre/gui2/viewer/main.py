@@ -1094,7 +1094,9 @@ class EbookViewer(MainWindow):
                                 if index.isValid():
                                     target_index = index
                                     break
-                        if target_index is not None:
+                        if target_index is None:
+                            self.next_document()
+                        else:
                             if self.resize_in_progress:
                                 self.pending_toc_click = target_index
                             else:
