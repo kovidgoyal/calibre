@@ -82,8 +82,8 @@
     - title: "Adding books: When adding with auto-merge and auto-convert enabled, also run conversions for books into which the added files are merged."
       tickets: [1822018]
 
-    - title: "version 3.41.1 and 3.41.2 fix various regressions in the previous release that affect a few people."
-      tickets: [1825472, 1825494]
+    - title: "version 3.41.1, 3.41.2, 3.41.3 fix various regressions in the previous release that affect a few people."
+      tickets: [1825472, 1825494, 1825542]
 
   improved recipes:
     - Il Post
