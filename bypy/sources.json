@@ -1,5 +1,35 @@
 [
     {
+        "name": "nasm",
+        "os": "macos",
+        "unix": {
+            "filename": "nasm-2.12.02.tar.xz",
+            "hash": "sha1:a0e6e655d04009178d4b7c15d935a46a691a617c",
+            "urls": ["http://www.nasm.us/pub/nasm/releasebuilds/2.12.02/{filename}"]
+        }
+    },
+
+    {
+        "name": "cmake",
+        "os": "macos",
+        "unix": {
+            "filename": "cmake-3.6.0.tar.gz",
+            "hash": "sha1:6b0d2d7d93c2e74f8890c4b8b824deb3b36d24b6",
+            "urls": ["https://cmake.org/files/v3.6/{filename}"]
+        }
+    },
+
+    {
+        "name": "easylzma",
+        "os": "windows",
+        "windows": {
+            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.bz2",
+            "hash": "git:1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
+            "urls": ["https://github.com/lloyd/easylzma.git"]
+        }
+    },
+
+    {
         "name": "zlib",
         "unix": {
             "filename": "zlib-1.2.11.tar.xz",
@@ -24,15 +54,6 @@
             "filename": "unrarsrc-5.7.3.tar.gz",
             "hash": "sha1:992d414d89a930f87d44bf49b909ad29dc5db808",
             "urls": ["http://www.rarlab.com/rar/{filename}"]
-        }
-    },
-
-    {
-        "name": "unrardll",
-        "unix": {
-            "filename": "unrardll-0.1.3.tar.gz",
-            "hash": "md5:8830d810f637eefbe829e10488496b6d",
-            "urls": ["pypi"]
         }
     },
 
@@ -120,6 +141,248 @@
     },
 
     {
+        "name": "icu",
+        "unix": {
+            "filename": "icu4c-57_1-src.tgz",
+            "hash": "md5:976734806026a4ef8bdd17937c8898b9",
+            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
+        },
+        "windows": {
+            "filename": "icu4c-57_1-src.zip",
+            "hash": "sha1:aaa014177845c16deba888450c0c34e8bd57e736",
+            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
+        }
+    },
+
+    {
+        "name": "libjpeg",
+        "unix": {
+            "filename": "libjpeg-turbo-1.5.0.tar.gz",
+            "hash": "sha1:9adc21b927e48e4c6889e77079f6c1f3eecf98ab",
+            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/1.5.0/{filename}"]
+        }
+    },
+
+    {
+        "name": "libpng",
+        "unix": {
+            "filename": "libpng-1.6.23.tar.xz",
+            "hash": "md5:9b320a05ed4db1f3f0865c8a951fd9aa",
+            "urls": ["http://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
+        }
+    },
+
+    {
+        "name": "libwebp",
+        "unix": {
+            "filename": "libwebp-0.5.0.tar.gz",
+            "hash": "sha256:5cd3bb7b623aff1f4e70bd611dc8dbabbf7688fd5eb225b32e02e09e37dfb274",
+            "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
+        }
+    },
+
+    {
+        "name": "jxrlib",
+        "unix": {
+            "filename": "jxrlib-0.2.1.tar.gz",
+            "hash": "sha256:5ae964ae61f301f38a62b8e18eb8d2eee27eaf2b942477b033435ebf38fa4a19",
+            "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v0.2.1.tar.gz"]
+        }
+    },
+
+    {
+        "name": "freetype",
+        "unix": {
+            "filename": "freetype-2.6.3.tar.bz2",
+            "hash": "sha1:6c98bd5d0be313207c37ca23d25faf983486aee5",
+            "urls": ["http://download.savannah.gnu.org/releases/freetype/{filename}"]
+        }
+    },
+
+    {
+        "name": "fontconfig",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "fontconfig-2.12.0.tar.bz2",
+            "hash": "sha256:b433e4efff1f68fdd8aac221ed1df3ff1e580ffedbada020a703fe64017d8224",
+            "urls": ["http://www.fontconfig.org/release/{filename}"]
+        }
+    },
+
+
+    {
+        "name": "iconv",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "libiconv-1.14.tar.gz",
+            "hash": "sha1:be7d67e50d72ff067b2c0291311bc283add36965",
+            "urls": ["http://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
+        }
+    },
+
+    {
+        "name": "libxml2",
+        "unix": {
+            "filename": "libxml2-2.9.5.tar.gz",
+            "hash": "sha1:6ab515fa4d087a3973e880d46bf6bdad48114d20",
+            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+        }
+    },
+
+    {
+        "name": "libxslt",
+        "unix": {
+            "filename": "libxslt-1.1.30.tar.gz",
+            "hash": "sha1:3cb6eb8e7d410a1d21e6d7a76003220140cb2dbe",
+            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+        }
+    },
+
+    {
+        "name": "chmlib",
+        "unix": {
+            "filename": "chmlib-0.40.tar.bz2",
+            "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
+            "urls": ["http://www.jedrea.com/chmlib/{filename}"]
+        }
+    },
+
+    {
+        "name": "optipng",
+        "unix": {
+            "filename": "optipng-0.7.6.tar.gz",
+            "hash": "md5:568e0738358450eca69ecf578d48f26c",
+            "urls": ["http://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
+        }
+    },
+
+    {
+        "name": "mozjpeg",
+        "unix": {
+            "filename": "mozjpeg-3.1-release-source.tar.gz",
+            "hash": "sha1:2af1cd3a700117adcb3d6832e555b35ca43fbd0d",
+            "urls": ["https://github.com/mozilla/mozjpeg/releases/download/v3.1/{filename}"]
+        }
+    },
+
+    {
+        "name": "libusb",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "libusb-1.0.20.tar.bz2",
+            "hash": "md5:1d4eb194eaaa2bcfbba28102768c7dbf",
+            "urls": ["http://downloads.sourceforge.net/libusb/{filename}"]
+        }
+    },
+
+    {
+        "name": "libmtp",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "libmtp-1.1.11.tar.gz",
+            "hash": "md5:eea14dd30ddd08bbe39cfcb57564a4b8",
+            "urls": ["http://downloads.sourceforge.net/libmtp/{filename}"]
+        }
+    },
+
+    {
+        "name": "poppler",
+        "unix": {
+            "comment": "versions of poppler > 0.52 require a c++11 compiler which we dont have in linux (Ubuntu precise has gcc 4.6)",
+            "filename": "poppler-0.52.0.tar.xz",
+            "hash": "sha1:82ca0263a0c22ec2efe3f8b3be5e4071b197807f",
+            "urls": ["https://poppler.freedesktop.org/{filename}"]
+        }
+    },
+
+    {
+        "name": "podofo",
+        "unix": {
+            "filename": "podofo-0.9.6.tar.gz",
+            "hash": "md5:46336fc4c4ce4be814bb5fbb4d918334",
+            "urls": ["http://downloads.sourceforge.net/podofo/{filename}"]
+        }
+    },
+
+    {
+        "name": "libgpg-error",
+        "os": "linux",
+        "unix": {
+            "filename": "libgpg-error-1.22.tar.bz2",
+            "hash": "sha1:c40015ed88bf5f50fa58d02252d75cf20b858951",
+            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgpg-error/{filename}"]
+        }
+    },
+
+    {
+        "name": "libgcrypt",
+        "os": "linux",
+        "unix": {
+            "filename": "libgcrypt-1.7.1.tar.bz2",
+            "hash": "sha1:b688add52b622bb96bbd823ba21aa05a116d442f",
+            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgcrypt/{filename}"]
+        }
+    },
+
+    {
+        "name": "glib",
+        "os": "linux",
+        "unix": {
+            "filename": "glib-2.48.1.tar.xz",
+            "hash": "sha256:74411bff489cb2a3527bac743a51018841a56a4d896cc1e0d0d54f8166a14612",
+            "urls": ["http://ftp.gnome.org/pub/GNOME/sources/glib/2.48/{filename}"]
+        }
+    },
+
+    {
+        "name": "dbus",
+        "os": "linux",
+        "unix": {
+            "filename": "dbus-1.10.8.tar.gz",
+            "hash": "md5:e912e930f249454752512aa7ac864d43",
+            "urls": ["http://dbus.freedesktop.org/releases/dbus/{filename}"]
+        }
+    },
+
+    {
+        "name": "dbusglib",
+        "os": "linux",
+        "unix": {
+            "filename": "dbusglib-0.106.tar.gz",
+            "hash": "md5:2eea0b7f52b49f600a07abfd8535d4e4",
+            "urls": ["http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.106.tar.gz"]
+        }
+    },
+
+    {
+        "name": "qt",
+        "unix": {
+            "filename": "qt-everywhere-opensource-src-5.6.2.tar.xz",
+            "hash": "md5:5175fba2f221fd4c91e94771a57a5557",
+            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
+        },
+        "windows": {
+            "filename": "qt-everywhere-opensource-src-5.6.2.zip",
+            "hash": "md5:b684a2f37b1beebd421b3b7d1eca15dc",
+            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
+        }
+    },
+
+    {
+        "name": "webkit",
+        "unix": {
+            "filename":"qtwebkit-opensource-src-5.6.2.tar.xz",
+            "hash": "md5:5196f47b75e2d6cc9663c89cf9902ef0",
+            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
+        },
+        "windows": {
+            "filename":"qtwebkit-opensource-src-5.6.2.zip",
+            "hash": "md5:4689efa0b53a58469b191031da8295d6",
+            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
+        }
+    },
+
+    {
         "name": "setuptools",
         "unix": {
             "filename": "setuptools-23.1.0.tar.gz",
@@ -138,6 +401,34 @@
     },
 
     {
+        "name": "unrardll",
+        "unix": {
+            "filename": "unrardll-0.1.3.tar.gz",
+            "hash": "md5:8830d810f637eefbe829e10488496b6d",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "lxml",
+        "unix": {
+            "filename": "lxml-3.8.0.tar.gz",
+            "hash": "md5:e54e2fae44d684d6b9c636fe189e93ff",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "html5-parser",
+        "unix": {
+            "filename": "html5-parser-0.4.3.tar.gz",
+            "hash": "md5:b0d7897985227f4bf2a9e7cdb0770f6a",
+            "urls": ["pypi"]
+        }
+    },
+
+
+    {
         "name": "css-parser",
         "unix": {
             "filename": "css-parser-1.0.4.tar.gz",
@@ -152,6 +443,17 @@
             "filename": "python-dateutil-2.5.3.tar.gz",
             "hash": "md5:05ffc6d2cc85a7fd93bb245807f715ef",
             "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "dbuspython",
+        "python": 2,
+        "os": "linux",
+        "unix": {
+            "filename": "dbuspython-1.2.4.tar.gz",
+            "hash": "md5:7372a588c83a7232b4e08159bfd48fe5",
+            "urls": ["http://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.4.tar.gz"]
         }
     },
 
@@ -285,141 +587,6 @@
     },
 
     {
-        "name": "icu",
-        "unix": {
-            "filename": "icu4c-57_1-src.tgz",
-            "hash": "md5:976734806026a4ef8bdd17937c8898b9",
-            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
-        },
-        "windows": {
-            "filename": "icu4c-57_1-src.zip",
-            "hash": "sha1:aaa014177845c16deba888450c0c34e8bd57e736",
-            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
-        }
-    },
-
-    {
-        "name": "nasm",
-        "os": "macos",
-        "unix": {
-            "filename": "nasm-2.12.02.tar.xz",
-            "hash": "sha1:a0e6e655d04009178d4b7c15d935a46a691a617c",
-            "urls": ["http://www.nasm.us/pub/nasm/releasebuilds/2.12.02/{filename}"]
-        }
-    },
-
-    {
-        "name": "cmake",
-        "os": "macos",
-        "unix": {
-            "filename": "cmake-3.6.0.tar.gz",
-            "hash": "sha1:6b0d2d7d93c2e74f8890c4b8b824deb3b36d24b6",
-            "urls": ["https://cmake.org/files/v3.6/{filename}"]
-        }
-    },
-
-    {
-        "name": "libjpeg",
-        "unix": {
-            "filename": "libjpeg-turbo-1.5.0.tar.gz",
-            "hash": "sha1:9adc21b927e48e4c6889e77079f6c1f3eecf98ab",
-            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/1.5.0/{filename}"]
-        }
-    },
-
-    {
-        "name": "libpng",
-        "unix": {
-            "filename": "libpng-1.6.23.tar.xz",
-            "hash": "md5:9b320a05ed4db1f3f0865c8a951fd9aa",
-            "urls": ["http://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
-        }
-    },
-
-    {
-        "name": "libwebp",
-        "unix": {
-            "filename": "libwebp-0.5.0.tar.gz",
-            "hash": "sha256:5cd3bb7b623aff1f4e70bd611dc8dbabbf7688fd5eb225b32e02e09e37dfb274",
-            "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
-        }
-    },
-
-    {
-        "name": "jxrlib",
-        "unix": {
-            "filename": "jxrlib-0.2.1.tar.gz",
-            "hash": "sha256:5ae964ae61f301f38a62b8e18eb8d2eee27eaf2b942477b033435ebf38fa4a19",
-            "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v0.2.1.tar.gz"]
-        }
-    },
-
-    {
-        "name": "freetype",
-        "unix": {
-            "filename": "freetype-2.6.3.tar.bz2",
-            "hash": "sha1:6c98bd5d0be313207c37ca23d25faf983486aee5",
-            "urls": ["http://download.savannah.gnu.org/releases/freetype/{filename}"]
-        }
-    },
-
-    {
-        "name": "fontconfig",
-        "os": "macos, linux",
-        "unix": {
-            "filename": "fontconfig-2.12.0.tar.bz2",
-            "hash": "sha256:b433e4efff1f68fdd8aac221ed1df3ff1e580ffedbada020a703fe64017d8224",
-            "urls": ["http://www.fontconfig.org/release/{filename}"]
-        }
-    },
-
-    {
-        "name": "iconv",
-        "os": "macos, linux",
-        "unix": {
-            "filename": "libiconv-1.14.tar.gz",
-            "hash": "sha1:be7d67e50d72ff067b2c0291311bc283add36965",
-            "urls": ["http://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
-        }
-    },
-
-    {
-        "name": "libxml2",
-        "unix": {
-            "filename": "libxml2-2.9.5.tar.gz",
-            "hash": "sha1:6ab515fa4d087a3973e880d46bf6bdad48114d20",
-            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
-        }
-    },
-
-    {
-        "name": "libxslt",
-        "unix": {
-            "filename": "libxslt-1.1.30.tar.gz",
-            "hash": "sha1:3cb6eb8e7d410a1d21e6d7a76003220140cb2dbe",
-            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
-        }
-    },
-
-    {
-        "name": "lxml",
-        "unix": {
-            "filename": "lxml-3.8.0.tar.gz",
-            "hash": "md5:e54e2fae44d684d6b9c636fe189e93ff",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "html5-parser",
-        "unix": {
-            "filename": "html5-parser-0.4.3.tar.gz",
-            "hash": "md5:b0d7897985227f4bf2a9e7cdb0770f6a",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
         "name": "webencodings",
         "unix": {
             "filename": "webencodings-0.5.1.tar.gz",
@@ -465,34 +632,6 @@
     },
 
     {
-        "name": "chmlib",
-        "unix": {
-            "filename": "chmlib-0.40.tar.bz2",
-            "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
-            "urls": ["http://www.jedrea.com/chmlib/{filename}"]
-        }
-    },
-
-    {
-        "name": "poppler",
-        "unix": {
-            "comment": "versions of poppler > 0.52 require a c++11 compiler which we dont have in linux (Ubuntu precise has gcc 4.6)",
-            "filename": "poppler-0.52.0.tar.xz",
-            "hash": "sha1:82ca0263a0c22ec2efe3f8b3be5e4071b197807f",
-            "urls": ["https://poppler.freedesktop.org/{filename}"]
-        }
-    },
-
-    {
-        "name": "podofo",
-        "unix": {
-            "filename": "podofo-0.9.6.tar.gz",
-            "hash": "md5:46336fc4c4ce4be814bb5fbb4d918334",
-            "urls": ["http://downloads.sourceforge.net/podofo/{filename}"]
-        }
-    },
-
-    {
         "name": "ifaddr",
 		"python": 3,
         "unix": {
@@ -509,95 +648,6 @@
             "filename": "zeroconf-0.21.3.tar.gz",
             "hash": "sha256:5b52dfdf4e665d98a17bf9aa50dea7a8c98e25f972d9c1d7660e2b978a1f5713",
             "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "libgpg-error",
-        "os": "linux",
-        "unix": {
-            "filename": "libgpg-error-1.22.tar.bz2",
-            "hash": "sha1:c40015ed88bf5f50fa58d02252d75cf20b858951",
-            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgpg-error/{filename}"]
-        }
-    },
-
-    {
-        "name": "libgcrypt",
-        "os": "linux",
-        "unix": {
-            "filename": "libgcrypt-1.7.1.tar.bz2",
-            "hash": "sha1:b688add52b622bb96bbd823ba21aa05a116d442f",
-            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgcrypt/{filename}"]
-        }
-    },
-
-    {
-        "name": "glib",
-        "os": "linux",
-        "unix": {
-            "filename": "glib-2.48.1.tar.xz",
-            "hash": "sha256:74411bff489cb2a3527bac743a51018841a56a4d896cc1e0d0d54f8166a14612",
-            "urls": ["http://ftp.gnome.org/pub/GNOME/sources/glib/2.48/{filename}"]
-        }
-    },
-
-    {
-        "name": "dbusglib",
-        "os": "linux",
-        "unix": {
-            "filename": "dbusglib-0.106.tar.gz",
-            "hash": "md5:2eea0b7f52b49f600a07abfd8535d4e4",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.106.tar.gz"]
-        }
-    },
-
-    {
-        "name": "dbuspython",
-        "python": 2,
-        "os": "linux",
-        "unix": {
-            "filename": "dbuspython-1.2.4.tar.gz",
-            "hash": "md5:7372a588c83a7232b4e08159bfd48fe5",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.4.tar.gz"]
-        }
-    },
-
-    {
-        "name": "dbus",
-        "os": "linux",
-        "unix": {
-            "filename": "dbus-1.10.8.tar.gz",
-            "hash": "md5:e912e930f249454752512aa7ac864d43",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus/{filename}"]
-        }
-    },
-
-    {
-        "name": "qt",
-        "unix": {
-            "filename": "qt-everywhere-opensource-src-5.6.2.tar.xz",
-            "hash": "md5:5175fba2f221fd4c91e94771a57a5557",
-            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
-        },
-        "windows": {
-            "filename": "qt-everywhere-opensource-src-5.6.2.zip",
-            "hash": "md5:b684a2f37b1beebd421b3b7d1eca15dc",
-            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
-        }
-    },
-
-    {
-        "name": "webkit",
-        "unix": {
-            "filename":"qtwebkit-opensource-src-5.6.2.tar.xz",
-            "hash": "md5:5196f47b75e2d6cc9663c89cf9902ef0",
-            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
-        },
-        "windows": {
-            "filename":"qtwebkit-opensource-src-5.6.2.zip",
-            "hash": "md5:4689efa0b53a58469b191031da8295d6",
-            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
         }
     },
 
@@ -630,60 +680,12 @@
     },
 
     {
-        "name": "optipng",
-        "unix": {
-            "filename": "optipng-0.7.6.tar.gz",
-            "hash": "md5:568e0738358450eca69ecf578d48f26c",
-            "urls": ["http://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
-        }
-    },
-
-    {
-        "name": "mozjpeg",
-        "unix": {
-            "filename": "mozjpeg-3.1-release-source.tar.gz",
-            "hash": "sha1:2af1cd3a700117adcb3d6832e555b35ca43fbd0d",
-            "urls": ["https://github.com/mozilla/mozjpeg/releases/download/v3.1/{filename}"]
-        }
-    },
-
-    {
-        "name": "libusb",
-        "os": "macos, linux",
-        "unix": {
-            "filename": "libusb-1.0.20.tar.bz2",
-            "hash": "md5:1d4eb194eaaa2bcfbba28102768c7dbf",
-            "urls": ["http://downloads.sourceforge.net/libusb/{filename}"]
-        }
-    },
-
-    {
-        "name": "libmtp",
-        "os": "macos, linux",
-        "unix": {
-            "filename": "libmtp-1.1.11.tar.gz",
-            "hash": "md5:eea14dd30ddd08bbe39cfcb57564a4b8",
-            "urls": ["http://downloads.sourceforge.net/libmtp/{filename}"]
-        }
-    },
-
-    {
         "name": "macfsevents",
         "os": "macos",
         "unix": {
             "filename": "MacFSEvents-0.7.tar.gz",
             "hash": "md5:089d52d40a088651302967b1d13c3825",
             "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "easylzma",
-        "os": "windows",
-        "windows": {
-            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.bz2",
-            "hash": "git:1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
-            "urls": ["https://github.com/lloyd/easylzma.git"]
         }
     }
 ]
