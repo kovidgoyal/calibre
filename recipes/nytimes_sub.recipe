@@ -177,7 +177,7 @@ class NewYorkTimes(BasicNewsRecipe):
         soup = self.read_nyt_metadata()
         script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
         script = type(u'')(script)
-        data = json.loads(script[script.find('{'):].strip().rstrip(';'))['initialState']
+        data = json.loads(script[script.find('{'):script.rfind(';')].strip().rstrip(';'))['initialState']
         containers, sections = {}, {}
         article_map = {}
         gc_pat = re.compile(r'groupings.(\d+).containers.(\d+)')
