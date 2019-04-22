@@ -145,6 +145,9 @@ class HTMLFile(object):
     def __eq__(self, other):
         return self.path == getattr(other, 'path', other)
 
+    def __hash__(self):
+        return hash(self.path)
+
     def __str__(self):
         return u'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
 

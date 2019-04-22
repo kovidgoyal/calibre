@@ -1062,7 +1062,7 @@ OptionRecommendation(name='search_replace',
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
             open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
-                    'w').write(DEBUG_README.encode('utf-8'))
+                    'wb').write(DEBUG_README.encode('utf-8'))
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
                 if os.path.exists(x):
