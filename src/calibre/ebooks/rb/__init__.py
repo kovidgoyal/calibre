@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-HEADER = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
+HEADER = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 
 class RocketBookError(Exception):
