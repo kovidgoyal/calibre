@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -116,7 +117,6 @@ class TXTMLizer(object):
     def cleanup_text(self, text):
         self.log.debug('\tClean up text...')
         # Replace bad characters.
-        text = text.replace(u'\xc2', '')
         text = text.replace(u'\xa0', ' ')
 
         # Replace tabs, vertical tags and form feeds with single space.
