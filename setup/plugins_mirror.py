@@ -380,7 +380,7 @@ def log(*args, **kwargs):
 
 
 def atomic_write(raw, name):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    with tempfile.NamedTemporaryFile(dir=os.getcwd(), delete=False) as f:
         f.write(raw)
         os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)
