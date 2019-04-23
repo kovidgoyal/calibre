@@ -982,7 +982,6 @@ class BasicNewsRecipe(Recipe):
             script.extract()
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
-                print(1111111111, x)
                 del x[attr]
         for base in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
             'command', 'datalist', 'video', 'audio'])):
