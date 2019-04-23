@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
-from polyglot.builtins import itervalues, unicode_type, filter
+from polyglot.builtins import itervalues, map, unicode_type, filter
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
@@ -205,7 +205,7 @@ class DisplayPlugin(object):
         self.donation_link = plugin['donate']
         self.available_version = tuple(plugin['version'])
         self.release_date = datetime.datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).date()
-        self.calibre_required_version = plugin['minimum_calibre_version']
+        self.calibre_required_version = tuple(plugin['minimum_calibre_version'])
         self.author = plugin['author']
         self.platforms = plugin['supported_platforms']
         self.uninstall_plugins = plugin['uninstall'] or []
@@ -277,8 +277,8 @@ class DisplayPluginModel(QAbstractTableModel):
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
-        self.headers = map(unicode_type, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
-                                      _('Available'), _('Released'), _('calibre'), _('Author')])
+        self.headers = list(map(unicode_type, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
+                                      _('Available'), _('Released'), _('calibre'), _('Author')]))
 
     def rowCount(self, *args):
         return len(self.display_plugins)
@@ -412,13 +412,12 @@ class DisplayPluginModel(QAbstractTableModel):
             return (_('You must upgrade to at least calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
+        if display_plugin.installed_version is None:
+            return (_('You can install this plugin')+'\n\n'+
+                            _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
-            if display_plugin.installed_version is None:
-                return (_('You can install this plugin')+'\n\n'+
-                                _('Right-click to see more options'))
-            else:
-                return (_('A new version of this plugin is available')+'\n\n'+
-                                _('Right-click to see more options'))
+            return (_('A new version of this plugin is available')+'\n\n'+
+                            _('Right-click to see more options'))
         return (_('This plugin is installed and up-to-date')+'\n\n'+
                         _('Right-click to see more options'))
 
