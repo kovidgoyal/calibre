@@ -412,13 +412,12 @@ class DisplayPluginModel(QAbstractTableModel):
             return (_('You must upgrade to at least calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
+        if display_plugin.installed_version is None:
+            return (_('You can install this plugin')+'\n\n'+
+                            _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
-            if display_plugin.installed_version is None:
-                return (_('You can install this plugin')+'\n\n'+
-                                _('Right-click to see more options'))
-            else:
-                return (_('A new version of this plugin is available')+'\n\n'+
-                                _('Right-click to see more options'))
+            return (_('A new version of this plugin is available')+'\n\n'+
+                            _('Right-click to see more options'))
         return (_('This plugin is installed and up-to-date')+'\n\n'+
                         _('Right-click to see more options'))
 
