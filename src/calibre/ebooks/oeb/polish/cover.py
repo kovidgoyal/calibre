@@ -393,7 +393,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     titlepage_item = container.generate_item(tname, id_prefix='titlepage')
     titlepage = container.href_to_name(titlepage_item.get('href'),
                                           container.opf_name)
-    raw = templ%container.name_to_href(raster_cover, titlepage).encode('utf-8')
+    raw = (templ%container.name_to_href(raster_cover, titlepage)).encode('utf-8')
     with container.open(titlepage, 'wb') as f:
         f.write(raw)
 
