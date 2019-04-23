@@ -982,6 +982,7 @@ class BasicNewsRecipe(Recipe):
             script.extract()
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
+                print(1111111111, x)
                 del x[attr]
         for base in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
             'command', 'datalist', 'video', 'audio'])):
@@ -1117,7 +1118,7 @@ class BasicNewsRecipe(Recipe):
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds):
         br = self.browser
-        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+        if self.get_browser.__func__ is BasicNewsRecipe.get_browser.__func__:
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)

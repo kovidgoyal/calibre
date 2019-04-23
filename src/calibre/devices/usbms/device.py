@@ -212,7 +212,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def can_handle_windows(self, usbdevice, debug=False):
         from calibre.devices.interface import DevicePlugin
-        if self.can_handle.im_func is DevicePlugin.can_handle.im_func:
+        if self.can_handle.__func__ is DevicePlugin.can_handle.__func__:
             # No custom can_handle implementation
             return True
         # Delegate to the unix can_handle function, creating a unix like
