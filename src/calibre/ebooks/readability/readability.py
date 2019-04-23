@@ -8,7 +8,6 @@ from collections import defaultdict
 
 from polyglot.builtins import reraise, unicode_type
 
-from lxml.etree import tostring
 from lxml.html import (fragment_fromstring, document_fromstring,
         tostring as htostring)
 
@@ -315,7 +314,7 @@ class Document:
     def transform_misused_divs_into_paragraphs(self):
         for elem in self.tags(self.html, 'div'):
             # transform <div>s that do not contain other block elements into <p>s
-            if not REGEXES['divToPElementsRe'].search(unicode_type(''.join(map(tostring, list(elem))))):
+            if not REGEXES['divToPElementsRe'].search(unicode_type(''.join(map(tounicode, list(elem))))):
                 # self.debug("Altering %s to p" % (describe(elem)))
                 elem.tag = "p"
                 # print "Fixed element "+describe(elem)
