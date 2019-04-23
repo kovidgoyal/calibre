@@ -1187,12 +1187,16 @@ class BasicNewsRecipe(Recipe):
 
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
+        feeds = None
         try:
             feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
                                      max_articles_per_feed=self.max_articles_per_feed,
                                      log=self.log)
             self.report_progress(0, _('Got feeds from index page'))
         except NotImplementedError:
+            pass
+
+        if feeds is None:
             feeds = self.parse_feeds()
 
         if not feeds:
