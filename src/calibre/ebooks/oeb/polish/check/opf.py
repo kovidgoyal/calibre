@@ -370,7 +370,7 @@ def check_opf(container):
                 errors.append(IncorrectCover(container.opf_name, cover.sourceline, cover.get('content', '')))
             raw = etree.tostring(cover)
             try:
-                n, c = raw.index('name="'), raw.index('content="')
+                n, c = raw.index(b'name="'), raw.index(b'content="')
             except ValueError:
                 n = c = -1
             if n > -1 and c > -1 and n > c:
