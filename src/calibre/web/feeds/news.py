@@ -972,6 +972,9 @@ class BasicNewsRecipe(Recipe):
                                              extra_css=self.get_extra_css() or '')
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
+                # This is needed because otherwise inserting elements into
+                # the soup breaks find()
+                soup = BeautifulSoup(soup.decode_contents())
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
