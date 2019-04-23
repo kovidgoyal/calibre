@@ -251,6 +251,7 @@ class DevicePlugin(Plugin):
         '''
 
         return True
+    can_handle.is_base_class_implementation = True
 
     def open(self, connected_device, library_uuid):
         '''

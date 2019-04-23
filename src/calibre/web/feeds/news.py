@@ -1117,7 +1117,7 @@ class BasicNewsRecipe(Recipe):
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds):
         br = self.browser
-        if self.get_browser.__func__ is BasicNewsRecipe.get_browser.__func__:
+        if hasattr(self.get_browser, 'is_base_class_implementation'):
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
@@ -1787,6 +1787,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                     ' the calibre Periodicals service.'))
 
         return br
+    get_browser.is_base_class_implementation = True
 
     def download(self):
         self.log('Fetching downloaded recipe')
