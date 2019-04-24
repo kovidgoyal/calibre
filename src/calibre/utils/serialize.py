@@ -50,9 +50,9 @@ def create_encoder(for_json=False):
     return encoder
 
 
-def msgpack_dumps(obj):
+def msgpack_dumps(obj, **kw):
     import msgpack
-    return msgpack.packb(obj, default=create_encoder(), use_bin_type=True)
+    return msgpack.packb(obj, default=create_encoder(), use_bin_type=True, **kw)
 
 
 def json_dumps(data, **kw):
@@ -107,9 +107,9 @@ def msgpack_decoder(code, data):
     return decoders[code](msgpack_loads(data), False)
 
 
-def msgpack_loads(dump):
+def msgpack_loads(dump, **kw):
     import msgpack
-    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False)
+    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, **kw)
 
 
 def json_loads(data):
