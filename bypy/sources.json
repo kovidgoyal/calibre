@@ -99,8 +99,8 @@
         "name": "ncurses",
         "os": "linux",
         "unix": {
-            "filename": "ncurses-6.0.tar.gz",
-            "hash": "md5:ee13d052e1ead260d7c28071f46eefb1",
+            "filename": "ncurses-6.1.tar.gz",
+            "hash": "sha256:aa057eeeb4a14d470101eff4597d5833dcef5965331be3528c08d99cebaa0d17",
             "urls": ["ftp://ftp.gnu.org/gnu/ncurses/{filename}"]
         }
     },
@@ -109,8 +109,8 @@
         "name": "readline",
         "os": "linux",
         "unix": {
-            "filename": "readline-6.3.tar.gz",
-            "hash": "sha1:017b92dc7fd4e636a2b5c9265a77ccc05798c9e1",
+            "filename": "readline-8.0.tar.gz",
+            "hash": "sha256:e339f51971478d369f8a053a330a190781acb9864cf4c541060f12078948e461",
             "urls": ["http://ftp.gnu.org/gnu/readline/{filename}"]
         }
     },
@@ -118,9 +118,9 @@
     {
         "name": "python",
         "unix": {
-            "filename": "Python-2.7.15.tar.xz",
-            "hash": "sha1:f99348a095ec4a6411c84c0d15343d11920c9724",
-            "urls": ["https://www.python.org/ftp/python/2.7.15/{filename}"]
+            "filename": "Python-2.7.16.tar.xz",
+            "hash": "sha256:f222ef602647eecb6853681156d32de4450a2c39f4de93bd5b20235f2e660ed7",
+            "urls": ["https://www.python.org/ftp/python/2.7.16/{filename}"]
         },
         "windows": {
             "filename":"python-1948b35e654e0b69ac93e31e3c3405172a6a1b91.tar.bz2",
@@ -143,31 +143,31 @@
     {
         "name": "icu",
         "unix": {
-            "filename": "icu4c-57_1-src.tgz",
-            "hash": "md5:976734806026a4ef8bdd17937c8898b9",
-            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
+            "filename": "icu4c-64_1-src.tgz",
+            "hash": "sha256:92f1b7b9d51b396679c17f35a2112423361b8da3c1b9de00aa94fd768ae296e6",
+            "urls": ["http://download.icu-project.org/files/icu4c/64.1/{filename}"]
         },
         "windows": {
-            "filename": "icu4c-57_1-src.zip",
+            "filename": "icu4c-64_1-src.zip",
             "hash": "sha1:aaa014177845c16deba888450c0c34e8bd57e736",
-            "urls": ["http://download.icu-project.org/files/icu4c/57.1/{filename}"]
+            "urls": ["http://download.icu-project.org/files/icu4c/64.1/{filename}"]
         }
     },
 
     {
         "name": "libjpeg",
         "unix": {
-            "filename": "libjpeg-turbo-1.5.0.tar.gz",
-            "hash": "sha1:9adc21b927e48e4c6889e77079f6c1f3eecf98ab",
-            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/1.5.0/{filename}"]
+            "filename": "libjpeg-turbo-2.0.2.tar.gz",
+            "hash": "sha256:acb8599fe5399af114287ee5907aea4456f8f2c1cc96d26c28aebfdf5ee82fed",
+            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/2.0.2/{filename}"]
         }
     },
 
     {
         "name": "libpng",
         "unix": {
-            "filename": "libpng-1.6.23.tar.xz",
-            "hash": "md5:9b320a05ed4db1f3f0865c8a951fd9aa",
+            "filename": "libpng-1.6.37.tar.xz",
+            "hash": "sha256:505e70834d35383537b6491e7ae8641f1a4bed1876dbfe361201fc80868d88ca",
             "urls": ["http://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
         }
     },
@@ -175,8 +175,8 @@
     {
         "name": "libwebp",
         "unix": {
-            "filename": "libwebp-0.5.0.tar.gz",
-            "hash": "sha256:5cd3bb7b623aff1f4e70bd611dc8dbabbf7688fd5eb225b32e02e09e37dfb274",
+            "filename": "libwebp-1.0.2.tar.gz",
+            "hash": "sha256:3d47b48c40ed6476e8047b2ddb81d93835e0ca1b8d3e8c679afbb3004dd564b1",
             "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
         }
     },
