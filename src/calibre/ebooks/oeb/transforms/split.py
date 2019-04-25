@@ -76,7 +76,7 @@ class Split(object):
         if splitter.was_split:
             am = splitter.anchor_map
             self.map[item.href] = collections.defaultdict(
-                    am.default_factory, **am)
+                    am.default_factory, am)
 
     def find_page_breaks(self, item):
         if self.page_break_selectors is None:
