@@ -34,7 +34,7 @@
         "unix": {
             "filename": "zlib-1.2.11.tar.xz",
             "hash": "sha256:4ff941449631ace0d4d203e3483be9dbc9da454084111f97ea0a2114e19bf066",
-            "urls": ["http://zlib.net/{filename}"]
+            "urls": ["https://zlib.net/{filename}"]
         }
     },
 
@@ -51,26 +51,26 @@
     {
         "name": "unrar",
         "unix": {
-            "filename": "unrarsrc-5.7.3.tar.gz",
-            "hash": "sha1:992d414d89a930f87d44bf49b909ad29dc5db808",
-            "urls": ["http://www.rarlab.com/rar/{filename}"]
+            "filename": "unrarsrc-5.7.4.tar.gz",
+            "hash": "sha1:71ef4c898cd777f1c244c455826c5cdaeb85dfd0",
+            "urls": ["https://www.rarlab.com/rar/{filename}"]
         }
     },
 
     {
         "name": "expat",
         "unix": {
-            "filename": "expat-2.2.4.tar.bz2",
-            "hash": "sha1:3394d6390c041a8f5dec1d5fe7c4af0a23ae4504",
-            "urls": ["http://downloads.sourceforge.net/sourceforge/expat/{filename}"]
+            "filename": "expat-2.2.6.tar.bz2",
+            "hash": "sha256:17b43c2716d521369f82fc2dc70f359860e90fa440bea65b3b85f0b246ea81f2",
+            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_2_2_6/{filename}"]
         }
     },
 
     {
         "name": "sqlite",
         "unix": {
-            "filename": "sqlite-autoconf-3270200.tar.gz",
-            "hash": "sha1:5f5750e3f39b7b60394a2fb6ddb2371f848670e6",
+            "filename": "sqlite-autoconf-3280000.tar.gz",
+            "hash": "sha256:d61b5286f062adfce5125eaf544d495300656908e61fca143517afcc0a89b7c3",
             "urls": ["https://www.sqlite.org/2019/{filename}"]
         }
     },
@@ -89,8 +89,8 @@
     {
         "name": "openssl",
         "unix": {
-            "filename": "openssl-1.0.2j.tar.gz",
-            "hash": "sha256:e7aff292be21c259c6af26469c7a9b3ba26e9abaaffd325e3dccc9785256c431",
+            "filename": "openssl-1.0.2r.tar.gz",
+            "hash": "sha256:ae51d08bba8a83958e894946f15303ff894d75c2b8bbd44a852b64e3fe11d0d6",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
