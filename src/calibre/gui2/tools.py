@@ -60,7 +60,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                             index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
-                out_file.write(d.output_format)
+                out_file.write(d.output_format.encode('utf-8'))
                 out_file.close()
                 temp_files = [in_file]
 
