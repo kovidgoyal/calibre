@@ -18,14 +18,25 @@ class GlobalTimes(BasicNewsRecipe):
     no_stylesheets = True
     keep_only_tags = [classes('article-title article-source row-content')]
 
+    preprocess_regexps = [(
+        re.compile(
+            r'(?:<(?:br(?:\s*/)?|/br\s*)>(?:\s|'
+            '\xA0'
+            r'|&nbsp;)*){2,9}', re.U | re.I
+        ), lambda match: '<p>'
+    )]
+
     extra_css = '''
+        :root {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         .article-title {
-            font-family:Arial,Helvetica,sans-serif;
-            font-weight:bold;font-size:large;
+            font-weight: bold;
+            font-size: large;
         }
 
         .article-source, .row-content {
-            font-family:Arial,Helvetica,sans-serif;
             font-size:small;
         }
         '''
@@ -51,8 +62,8 @@ class GlobalTimes(BasicNewsRecipe):
                     )
                 }
             ):
-                url = a['href'].strip(
-                )  # Typical url http://www.globaltimes.cn/content/5555555.shtml
+                # Typical url http://www.globaltimes.cn/content/5555555.shtml
+                url = a['href'].strip()
                 title = self.tag_to_string(a).strip()
                 if not title:
                     continue
@@ -68,3 +79,8 @@ class GlobalTimes(BasicNewsRecipe):
             if articles:
                 feeds.append((catnames[cat], articles))
         return feeds
+
+    def postprocess_html(self, soup, first_fetch):
+        for p in [p for p in soup('p') if len(p) == 0]:
+            p.extract()
+        return soup
