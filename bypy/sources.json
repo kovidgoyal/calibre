@@ -193,9 +193,9 @@
     {
         "name": "freetype",
         "unix": {
-            "filename": "freetype-2.6.3.tar.bz2",
-            "hash": "sha1:6c98bd5d0be313207c37ca23d25faf983486aee5",
-            "urls": ["http://download.savannah.gnu.org/releases/freetype/{filename}"]
+            "filename": "freetype-2.10.0.tar.bz2",
+            "hash": "sha256:fccc62928c65192fff6c98847233b28eb7ce05f12d2fea3f6cc90e8b4e5fbe06",
+            "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
     },
 
@@ -203,9 +203,9 @@
         "name": "fontconfig",
         "os": "macos, linux",
         "unix": {
-            "filename": "fontconfig-2.12.0.tar.bz2",
-            "hash": "sha256:b433e4efff1f68fdd8aac221ed1df3ff1e580ffedbada020a703fe64017d8224",
-            "urls": ["http://www.fontconfig.org/release/{filename}"]
+            "filename": "fontconfig-2.13.1.tar.bz2",
+            "hash": "sha256:f655dd2a986d7aa97e052261b36aa67b0a64989496361eca8d604e6414006741",
+            "urls": ["https://www.fontconfig.org/release/{filename}"]
         }
     },
 
@@ -214,17 +214,17 @@
         "name": "iconv",
         "os": "macos, linux",
         "unix": {
-            "filename": "libiconv-1.14.tar.gz",
-            "hash": "sha1:be7d67e50d72ff067b2c0291311bc283add36965",
-            "urls": ["http://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
+            "filename": "libiconv-1.15.tar.gz",
+            "hash": "sha256:ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178",
+            "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
         }
     },
 
     {
         "name": "libxml2",
         "unix": {
-            "filename": "libxml2-2.9.5.tar.gz",
-            "hash": "sha1:6ab515fa4d087a3973e880d46bf6bdad48114d20",
+            "filename": "libxml2-2.9.9.tar.gz",
+            "hash": "sha256:94fb70890143e3c6549f265cee93ec064c80a84c42ad0f23e85ee1fd6540a871",
             "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
         }
     },
@@ -232,8 +232,8 @@
     {
         "name": "libxslt",
         "unix": {
-            "filename": "libxslt-1.1.30.tar.gz",
-            "hash": "sha1:3cb6eb8e7d410a1d21e6d7a76003220140cb2dbe",
+            "filename": "libxslt-1.1.33.tar.gz",
+            "hash": "sha256:8e36605144409df979cab43d835002f63988f3dc94d5d3537c12796db90e38c8",
             "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
         }
     },
@@ -250,18 +250,18 @@
     {
         "name": "optipng",
         "unix": {
-            "filename": "optipng-0.7.6.tar.gz",
-            "hash": "md5:568e0738358450eca69ecf578d48f26c",
-            "urls": ["http://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
+            "filename": "optipng-0.7.7.tar.gz",
+            "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
+            "urls": ["https://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
         }
     },
 
     {
         "name": "mozjpeg",
         "unix": {
-            "filename": "mozjpeg-3.1-release-source.tar.gz",
-            "hash": "sha1:2af1cd3a700117adcb3d6832e555b35ca43fbd0d",
-            "urls": ["https://github.com/mozilla/mozjpeg/releases/download/v3.1/{filename}"]
+            "filename": "mozjpeg-3.3.1.tar.gz",
+            "hash": "sha256:aebbea60ea038a84a2d1ed3de38fdbca34027e2e54ee2b7d08a97578be72599d",
+            "urls": ["https://github.com/mozilla/mozjpeg/archive/v3.3.1.tar.gz"]
         }
     },
 
@@ -269,9 +269,9 @@
         "name": "libusb",
         "os": "macos, linux",
         "unix": {
-            "filename": "libusb-1.0.20.tar.bz2",
-            "hash": "md5:1d4eb194eaaa2bcfbba28102768c7dbf",
-            "urls": ["http://downloads.sourceforge.net/libusb/{filename}"]
+            "filename": "libusb-1.0.22.tar.bz2",
+            "hash": "sha256:75aeb9d59a4fdb800d329a545c2e6799f732362193b465ea198f2aa275518157",
+            "urls": ["https://downloads.sourceforge.net/libusb/{filename}"]
         }
     },
 
@@ -279,9 +279,9 @@
         "name": "libmtp",
         "os": "macos, linux",
         "unix": {
-            "filename": "libmtp-1.1.11.tar.gz",
-            "hash": "md5:eea14dd30ddd08bbe39cfcb57564a4b8",
-            "urls": ["http://downloads.sourceforge.net/libmtp/{filename}"]
+            "filename": "libmtp-1.1.16.tar.gz",
+            "hash": "sha256:5b68f9dd1ed38de558de687f40e255a39e4d5e32ef3de601f0ac19dd5682bba0",
+            "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
         }
     },
 
