@@ -288,9 +288,8 @@
     {
         "name": "poppler",
         "unix": {
-            "comment": "versions of poppler > 0.52 require a c++11 compiler which we dont have in linux (Ubuntu precise has gcc 4.6)",
-            "filename": "poppler-0.52.0.tar.xz",
-            "hash": "sha1:82ca0263a0c22ec2efe3f8b3be5e4071b197807f",
+            "filename": "poppler-0.75.0.tar.xz",
+            "hash": "sha256:3bbaedb0fa2797cac933a0659d144303e4d09eec6892c65600da987d8707199a",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
@@ -300,7 +299,7 @@
         "unix": {
             "filename": "podofo-0.9.6.tar.gz",
             "hash": "md5:46336fc4c4ce4be814bb5fbb4d918334",
-            "urls": ["http://downloads.sourceforge.net/podofo/{filename}"]
+            "urls": ["https://downloads.sourceforge.net/podofo/{filename}"]
         }
     },
 
@@ -308,8 +307,8 @@
         "name": "libgpg-error",
         "os": "linux",
         "unix": {
-            "filename": "libgpg-error-1.22.tar.bz2",
-            "hash": "sha1:c40015ed88bf5f50fa58d02252d75cf20b858951",
+            "filename": "libgpg-error-1.36.tar.bz2",
+            "hash": "sha256:babd98437208c163175c29453f8681094bcaf92968a15cafb1a276076b33c97c",
             "urls": ["ftp://ftp.gnupg.org/gcrypt/libgpg-error/{filename}"]
         }
     },
@@ -318,8 +317,8 @@
         "name": "libgcrypt",
         "os": "linux",
         "unix": {
-            "filename": "libgcrypt-1.7.1.tar.bz2",
-            "hash": "sha1:b688add52b622bb96bbd823ba21aa05a116d442f",
+            "filename": "libgcrypt-1.8.4.tar.bz2",
+            "hash": "sha256:f638143a0672628fde0cad745e9b14deb85dffb175709cacc1f4fe24b93f2227",
             "urls": ["ftp://ftp.gnupg.org/gcrypt/libgcrypt/{filename}"]
         }
     },
@@ -328,9 +327,9 @@
         "name": "glib",
         "os": "linux",
         "unix": {
-            "filename": "glib-2.48.1.tar.xz",
-            "hash": "sha256:74411bff489cb2a3527bac743a51018841a56a4d896cc1e0d0d54f8166a14612",
-            "urls": ["http://ftp.gnome.org/pub/GNOME/sources/glib/2.48/{filename}"]
+            "filename": "glib-2.60.1.tar.xz",
+            "hash": "sha256:89f884f5d5c6126140ec868cef184c42ce72902c13cd08f36e660371779b5560",
+            "urls": ["http://ftp.gnome.org/pub/GNOME/sources/glib/2.60/{filename}"]
         }
     },
 
@@ -338,9 +337,9 @@
         "name": "dbus",
         "os": "linux",
         "unix": {
-            "filename": "dbus-1.10.8.tar.gz",
-            "hash": "md5:e912e930f249454752512aa7ac864d43",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus/{filename}"]
+            "filename": "dbus-1.12.12.tar.gz",
+            "hash": "sha256:9546f226011a1e5d9d77245fe5549ef25af4694053189d624d0d6ac127ecf5f8",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus/{filename}"]
         }
     },
 
@@ -349,8 +348,8 @@
         "os": "linux",
         "unix": {
             "filename": "dbusglib-0.106.tar.gz",
-            "hash": "md5:2eea0b7f52b49f600a07abfd8535d4e4",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.106.tar.gz"]
+            "hash": "sha256:7ce4760cf66c69148f6bd6c92feaabb8812dee30846b24cd0f7395c436d7e825",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.110.tar.gz"]
         }
     },
 
