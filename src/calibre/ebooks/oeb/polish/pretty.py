@@ -92,11 +92,11 @@ def pretty_opf(root):
 
 SVG_TAG = SVG('svg')
 BLOCK_TAGS = frozenset(map(XHTML, (
-    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'dd',
+    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'col', 'colgroup', 'dd',
     'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li',
     'noscript', 'ol', 'output', 'p', 'pre', 'script', 'section', 'style', 'table', 'tbody', 'td',
-    'tfoot', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
+    'tfoot', 'th', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
 
 
 def isblock(x):
