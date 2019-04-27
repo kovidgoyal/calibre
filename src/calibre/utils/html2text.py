@@ -5,22 +5,8 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 
-def rudimentary_html2text(html):
-    from lxml import html as h
-    root = h.fromstring(html)
-    return h.tostring(root, method='text', encoding='unicode')
-
-
 def html2text(html):
-    try:
-        from html2text import HTML2Text
-    except ImportError:
-        # for people running from source
-        from calibre.constants import numeric_version
-        if numeric_version <= (3, 40, 1):
-            return rudimentary_html2text(html)
-        raise
-
+    from html2text import HTML2Text
     import re
     if isinstance(html, bytes):
         from calibre.ebooks.chardet import xml_to_unicode
