@@ -288,8 +288,8 @@
     {
         "name": "poppler",
         "unix": {
-            "filename": "poppler-0.75.0.tar.xz",
-            "hash": "sha256:3bbaedb0fa2797cac933a0659d144303e4d09eec6892c65600da987d8707199a",
+            "filename": "poppler-0.76.0.tar.xz",
+            "hash": "sha256:370f5fcfe2bbf0c76fc394d338cd72ed7f2044b67f4eb4b115eb074ccfc70d63",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
@@ -347,9 +347,9 @@
         "name": "dbusglib",
         "os": "linux",
         "unix": {
-            "filename": "dbusglib-0.106.tar.gz",
+            "filename": "dbus-glib-0.110.tar.gz",
             "hash": "sha256:7ce4760cf66c69148f6bd6c92feaabb8812dee30846b24cd0f7395c436d7e825",
-            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-0.110.tar.gz"]
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/{filename}"]
         }
     },
 
