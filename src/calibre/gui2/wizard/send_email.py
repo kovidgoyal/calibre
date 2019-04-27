@@ -223,7 +223,9 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmx.com',
                     'url': 'www.gmx.com',
-                    'extra': '',
+                    'extra': _('Before using this account to send mail, you must enable the'
+                        ' "Enable access to this account via POP3 and IMAP" option in GMX'
+                        ' under More > E-mail Settings > POP3 & IMAP.'),
                     'at_in_username': True,
                 },
                 'gmail': {
