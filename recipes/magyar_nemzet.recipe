@@ -1,0 +1,17 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+
+class BasicUserRecipe1556388146(AutomaticNewsRecipe):
+    title = 'Magyar Nemzet'
+    __author__ = 'pofa'
+    language = 'hu'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds = [
+        ('Magyar Nemzet', 'https://magyarnemzet.hu/feed/?'),
+    ]
