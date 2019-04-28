@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 
 import regex
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, css_text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import (
@@ -445,7 +445,7 @@ class TextEdit(PlainTextEdit):
             c.movePosition(c.Start), c.movePosition(c.End, c.KeepAnchor)
             text = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
-            text = sort_sheet(current_container(), text).cssText
+            text = css_text(sort_sheet(current_container(), text))
             c.insertText(text)
             c.movePosition(c.Start)
             c.endEditBlock()

@@ -15,6 +15,7 @@ from PyQt5.Qt import QTextEdit, Qt, QTextCursor
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
+from calibre.ebooks.oeb.base import css_text
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.gui2.tweak_book import tprefs, current_container
@@ -280,7 +281,7 @@ def set_style_property(tag, property_name, value, editor):
     c = editor.textCursor()
 
     def css(d):
-        return d.cssText.replace('\n', ' ')
+        return css_text(d).replace('\n', ' ')
     if block is None or offset is None:
         d = parseStyle('')
         d.setProperty(property_name, value)

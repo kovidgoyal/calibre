@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.base import (
     XHTML, XHTML_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, as_bytes
 from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
@@ -135,7 +135,7 @@ class OEB2HTML(object):
         css = b''
         for item in oeb_book.manifest:
             if item.media_type == 'text/css':
-                css += item.data.cssText + b'\n\n'
+                css += as_bytes(item.data.cssText) + b'\n\n'
         return css
 
     def prepare_string_for_html(self, raw):

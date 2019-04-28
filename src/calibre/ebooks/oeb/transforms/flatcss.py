@@ -17,7 +17,7 @@ from css_parser.css import Property
 from calibre import guess_type
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
-        namespace, barename, XPath)
+        namespace, barename, XPath, css_text)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
@@ -138,7 +138,7 @@ class EmbedFontsCSSRules(object):
             return None
         if not self.href:
             iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
-            rules = [x.cssText for x in self.rules]
+            rules = [css_text(x) for x in self.rules]
             rules = u'\n\n'.join(rules)
             sheet = css_parser.parseString(rules, validate=False)
             self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
@@ -637,7 +637,7 @@ class CSSFlattener(object):
             items = sorted(stylizer.page_rule.items())
             css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
-            rules = [r.cssText for r in stylizer.font_face_rules + self.embed_font_rules]
+            rules = [css_text(r) for r in stylizer.font_face_rules + self.embed_font_rules]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
             global_css[css].append(item)

@@ -13,7 +13,7 @@ from functools import partial
 from lxml.etree import tostring
 import regex
 
-from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML, css_text
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdeclaration
 from calibre.utils.icu import ord_string, safe_chr
 from polyglot.builtins import unicode_type
@@ -204,7 +204,7 @@ class StatsCollector(object):
                 cssdict = {}
                 for prop in iterdeclaration(rule.style):
                     if prop.name == 'font-family':
-                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(prop.propertyValue.cssText)]
+                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(css_text(prop.propertyValue))]
                     elif prop.name.startswith('font-'):
                         cssdict[prop.name] = prop.propertyValue[0].value
                     elif prop.name == 'src':
@@ -215,7 +215,7 @@ class StatsCollector(object):
                                 cssdict['src'] = fname
                                 break
                         else:
-                            container.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % prop.propertyValue.cssText)
+                            container.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % css_text(prop.propertyValue))
                 if 'src' not in cssdict:
                     continue
                 ff = cssdict.get('font-family')

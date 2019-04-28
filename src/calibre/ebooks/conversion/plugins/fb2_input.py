@@ -83,7 +83,10 @@ class FB2Input(InputFormatPlugin):
             log.debug('Parsing stylesheet...')
             stylesheet = parser.parseString(text)
             stylesheet.namespaces['h'] = XHTML_NS
-            css = unicode_type(stylesheet.cssText).replace('h|style', 'h|span')
+            css = stylesheet.cssText
+            if isinstance(css, bytes):
+                css = css.decode('utf-8', 'replace')
+            css = css.replace('h|style', 'h|span')
             css = re.sub(r'name\s*=\s*', 'class=', css)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')

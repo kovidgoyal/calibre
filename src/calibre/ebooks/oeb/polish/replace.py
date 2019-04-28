@@ -14,6 +14,7 @@ from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
+from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
 from polyglot.urllib import urlparse, urlunparse
@@ -371,7 +372,7 @@ def remove_links_to(container, predicate):
                 if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':
                     sheet = container.parse_css(tag.text)
                     if remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate):
-                        tag.text = sheet.cssText
+                        tag.text = css_text(sheet)
                         removed = True
             for tag in styleattrpath(root):
                 style = tag.get('style')
@@ -379,7 +380,7 @@ def remove_links_to(container, predicate):
                     style = container.parse_css(style, is_declaration=True)
                     if remove_links_in_declaration(partial(container.href_to_name, base=name), style, predicate):
                         removed = True
-                        tag.set('style', style.cssText)
+                        tag.set('style', css_text(style))
         elif mt in OEB_STYLES:
             removed = remove_links_in_sheet(partial(container.href_to_name, base=name), container.parsed(name), predicate)
         if removed:

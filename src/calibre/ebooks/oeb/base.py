@@ -110,6 +110,13 @@ self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b
 'video', 'title', 'script', 'style'}
 
 
+def css_text(x):
+    ans = x.cssText
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8', 'replace')
+    return ans
+
+
 def as_string_type(pat, for_unicode):
     if for_unicode:
         if isinstance(pat, bytes):
@@ -284,9 +291,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                         el.text):
             stylesheet = parser.parseString(el.text, validate=False)
             replaceUrls(stylesheet, link_repl_func)
-            repl = stylesheet.cssText
-            if isbytestring(repl):
-                repl = repl.decode('utf-8')
+            repl = css_text(stylesheet)
             el.text = '\n'+ clean_xml_chars(repl) + '\n'
 
         text = el.get('style')
@@ -297,10 +302,8 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 # Parsing errors are raised by css_parser
                 continue
             replaceUrls(stext, link_repl_func)
-            repl = stext.cssText.replace('\n', ' ').replace('\r',
+            repl = css_text(stext).replace('\n', ' ').replace('\r',
                     ' ')
-            if isbytestring(repl):
-                repl = repl.decode('utf-8')
             el.set('style', repl)
 
 
@@ -1088,7 +1091,7 @@ class Manifest(object):
             if isinstance(data, unicode_type):
                 return data
             if hasattr(data, 'cssText'):
-                return unicode_type(data.cssText, 'utf-8', 'replace')
+                return css_text(data)
             return unicode_type(data)
 
         @property

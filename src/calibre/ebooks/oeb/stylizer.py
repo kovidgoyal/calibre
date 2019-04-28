@@ -297,6 +297,8 @@ class Stylizer(object):
             self.logger.warn('CSS import of non-CSS file %r' % path)
             return (None, None)
         data = item.data.cssText
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         return ('utf-8', data)
 
     def flatten_rule(self, rule, href, index, is_user_agent_sheet=False):
@@ -491,6 +493,8 @@ class Style(object):
                             val = [val]
                         for c in val:
                             c = c.cssText
+                            if isinstance(c, bytes):
+                                c = c.decode('utf-8', 'replace')
                             if validate_color(c):
                                 col = c
                                 break

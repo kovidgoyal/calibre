@@ -13,6 +13,7 @@ from functools import wraps
 from css_parser.css import PropertyValue
 from css_parser import profile as cssprofiles, CSSParser
 from tinycss.fonts3 import parse_font, serialize_font_family
+from calibre.ebooks.oeb.base import css_text
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -62,9 +63,9 @@ BORDER_PROPS = ('color', 'style', 'width')
 def normalize_edge(name, cssvalue):
     style = {}
     if isinstance(cssvalue, PropertyValue):
-        primitives = [v.cssText for v in cssvalue]
+        primitives = [css_text(v) for v in cssvalue]
     else:
-        primitives = [cssvalue.cssText]
+        primitives = [css_text(cssvalue)]
     if len(primitives) == 1:
         value, = primitives
         values = (value, value, value, value)
@@ -96,14 +97,14 @@ def simple_normalizer(prefix, names, check_inherit=True):
 
 
 def normalize_simple_composition(name, cssvalue, composition, check_inherit=True):
-    if check_inherit and cssvalue.cssText == 'inherit':
+    if check_inherit and css_text(cssvalue) == 'inherit':
         style = {k:'inherit' for k in composition}
     else:
         style = {k:DEFAULTS[k] for k in composition}
         try:
-            primitives = [v.cssText for v in cssvalue]
+            primitives = [css_text(v) for v in cssvalue]
         except TypeError:
-            primitives = [cssvalue.cssText]
+            primitives = [css_text(cssvalue)]
         while primitives:
             value = primitives.pop()
             for key in composition:
@@ -119,7 +120,7 @@ font_composition = ('font-style', 'font-variant', 'font-weight', 'font-size', 'l
 def normalize_font(cssvalue, font_family_as_list=False):
     # See https://developer.mozilla.org/en-US/docs/Web/CSS/font
     composition = font_composition
-    val = cssvalue.cssText
+    val = css_text(cssvalue)
     if val == 'inherit':
         ans = {k:'inherit' for k in composition}
     elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
@@ -416,7 +417,7 @@ def test_normalization(return_tests=False):  # {{{
             css = '; '.join('border-%s-%s: %s' % (edge, p, v) for edge in ('top',) for p, v in zip(BORDER_PROPS, vals.split()))
             style = parseStyle(css)
             condense_rule(style)
-            self.assertEqual(style.cssText, 'border-top: %s' % vals)
+            self.assertEqual(css_text(style), 'border-top: %s' % vals)
             css += ';' + '; '.join('border-%s-%s: %s' % (edge, p, v) for edge in ('right', 'left', 'bottom') for p, v in
                              zip(BORDER_PROPS, vals.replace('red', 'green').split()))
             style = parseStyle(css)

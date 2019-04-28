@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from lxml import etree
 
 from calibre.ebooks.oeb.base import (urlnormalize, XPath, XHTML_NS, XHTML,
-        XHTML_MIME)
+        XHTML_MIME, css_text)
 
 DEFAULT_TITLE = __('Table of Contents')
 
@@ -85,7 +85,7 @@ class TOCAdder(object):
         embed_css = ''
         s = getattr(oeb, 'store_embed_font_rules', None)
         if getattr(s, 'body_font_family', None):
-            css = [x.cssText for x in s.rules] + [
+            css = [css_text(x) for x in s.rules] + [
                     'body { font-family: %s }'%s.body_font_family]
             embed_css = '\n\n'.join(css)
 
@@ -139,5 +139,3 @@ class TOCAdder(object):
         if self.added_toc_guide_entry:
             self.oeb.guide.remove('toc')
             self.added_toc_guide_entry = False
-
-

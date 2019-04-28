@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import defaultdict
 
-from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.oeb.base import urlnormalize, css_text
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
 from tinycss.fonts3 import parse_font_family
@@ -30,7 +30,7 @@ def get_font_properties(rule, default=None):
             val = s.getProperty(q).propertyValue[0]
             val = getattr(val, g)
             if q == 'font-family':
-                val = parse_font_family(s.getProperty(q).propertyValue.cssText)
+                val = parse_font_family(css_text(s.getProperty(q).propertyValue))
                 if val and val[0] == 'inherit':
                     val = None
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):
