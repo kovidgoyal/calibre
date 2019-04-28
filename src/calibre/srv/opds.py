@@ -26,7 +26,7 @@ from calibre import force_unicode
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date, Offsets
-from polyglot.builtins import iteritems, unicode_type, filter
+from polyglot.builtins import iteritems, unicode_type, filter, as_bytes
 from polyglot.urllib import urlencode
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
@@ -97,7 +97,7 @@ SUBTITLE = E.subtitle
 
 def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
     href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
-    id_ = 'calibre-navcatalog:'+str(hashlib.sha1(href).hexdigest())
+    id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
     return E.entry(
         TITLE(title),
         ID(id_),
