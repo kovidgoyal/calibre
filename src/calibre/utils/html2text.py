@@ -17,6 +17,9 @@ def html2text(html):
             r'<\g<solidus>span\g<rest>>', html)
     h2t = HTML2Text()
     h2t.default_image_alt = _('Unnamed image')
+    h2t.body_width = 0
+    h2t.single_line_break = True
+    h2t.emphasis_mark = '*'
     return h2t.handle(html)
 
 
@@ -27,12 +30,13 @@ def find_tests():
 
         def test_html2text_behavior(self):
             for src, expected in {
-                '<u>test</U>': 'test\n\n',
-                '<i>test</i>': '_test_\n\n',
-                '<a href="http://else.where/other">other</a>': '[other](http://else.where/other)\n\n',
-                '<img src="test.jpeg">': '![Unnamed image](test.jpeg)\n\n',
-                '<a href="#t">test</a> <span id="t">dest</span>': 'test dest\n\n',
-                '<>a': '<>a\n\n',
+                '<u>test</U>': 'test\n',
+                '<i>test</i>': '*test*\n',
+                '<a href="http://else.where/other">other</a>': '[other](http://else.where/other)\n',
+                '<img src="test.jpeg">': '![Unnamed image](test.jpeg)\n',
+                '<a href="#t">test</a> <span id="t">dest</span>': 'test dest\n',
+                '<>a': '<>a\n',
+                '<p>a<p>b': 'a\nb\n',
             }.items():
                 self.assertEqual(html2text(src), expected)
 
