@@ -15,7 +15,7 @@ from calibre.constants import DEBUG
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 '''
 Notes on collections:
@@ -433,7 +433,7 @@ class KINDLE2(KINDLE):
         if path_map:
             for book in bl:
                 path = '/mnt/us/'+book.lpath
-                h = hashlib.sha1(path).hexdigest()
+                h = hashlib.sha1(as_bytes(path)).hexdigest()
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
 

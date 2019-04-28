@@ -1027,7 +1027,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             password = self.settings().extra_customization[self.OPT_PASSWORD]
             if password:
                 challenge = isoformat(now())
-                hasher = hashlib.new('sha1')
+                hasher = hashlib.sha1()
                 hasher.update(password.encode('UTF-8'))
                 hasher.update(challenge.encode('UTF-8'))
                 hash_digest = hasher.hexdigest()
