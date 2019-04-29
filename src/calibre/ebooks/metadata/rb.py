@@ -8,7 +8,7 @@ import sys, struct
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import unicode_type
 
-MAGIC = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
+MAGIC = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 
 def get_metadata(stream):
@@ -37,7 +37,7 @@ def get_metadata(stream):
             return mi
 
         stream.seek(offset)
-        info = stream.read(length).splitlines()
+        info = stream.read(length).decode().splitlines()
         for line in info:
             if '=' not in line:
                 continue
