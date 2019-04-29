@@ -12,7 +12,7 @@ from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely, dump_json
-from polyglot.builtins import codepoint_to_chr, itervalues, iteritems
+from polyglot.builtins import codepoint_to_chr, itervalues, iteritems, as_unicode_recursive
 
 
 def get_opts_from_parser(parser):
@@ -358,7 +358,7 @@ class Resources(Command):  # {{{
                             get_opts_from_parser(p)]
 
             with open(dest, 'wb') as f:
-                f.write(msgpack_dumps(complete))
+                f.write(msgpack_dumps(as_unicode_recursive(complete)))
 
         self.info('\tCreating template-functions.json')
         dest = self.j(self.RESOURCES, 'template-functions.json')
