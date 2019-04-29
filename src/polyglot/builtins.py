@@ -8,10 +8,7 @@ import sys
 
 is_py3 = sys.version_info.major >= 3
 native_string_type = str
-
-
-def iterkeys(d):
-    return iter(d)
+iterkeys = iter
 
 
 def as_bytes(x, encoding='utf-8'):
