@@ -47,7 +47,7 @@
     - title: "TXT Output: Fix Vietnamese Â character being stripped from output."
       tickets: [1825770]
 
-    - title: "E-book viewer: Fix specifying a non-existen location via --open-at causing viewer to hang"
+    - title: "E-book viewer: Fix specifying a non-existent location via --open-at causing viewer to hang"
 
   improved recipes:
     - Global Times
