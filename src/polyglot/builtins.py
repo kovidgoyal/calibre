@@ -37,7 +37,7 @@ def as_unicode(x, encoding='utf-8', errors='strict'):
 
 def as_unicode_recursive(x, encoding='utf-8', errors='strict'):
     if isinstance(x, bytes):
-        return x.decode(x, errors)
+        return x.decode(encoding, errors)
     if isinstance(x, unicode_type):
         return x
     if isinstance(x, (list, tuple)):
