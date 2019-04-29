@@ -6,7 +6,7 @@ from polyglot.builtins import map, unicode_type
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = u'calibre'
-numeric_version = (3, 41, 3)
+numeric_version = (3, 42, 0)
 __version__   = u'.'.join(map(unicode_type, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 

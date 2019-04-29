@@ -20,6 +20,43 @@
 #   new recipes:
 #     - title:
 
+- version: 3.42.0
+  date: 2019-04-30
+
+  bug fixes:
+    - title: "Conversion: Transform styles: When using regular expressions fix substitution groups not working."
+      tickets: [1825764]
+
+    - title: "Fix a regression in the previous release that caused the conversion of HTML to text in comments when output to catalogs or converting downloaded metadata to behave slightly differently."
+      tickets: [1826654]
+
+    - title: "Edit book: Fix beautify not handling <colgroup> and <th> tags correctly."
+      tickets: [1826631]
+
+    - title: "DOCX Input: Fix cross-references using the 'fldSimple' markup not being recognized by calibre."
+
+    - title: "EPUB/MOBI Catalogs: Fix a regression in the previous release that caused ampersands and middle-dots to appear as HTML entities in the output."
+      tickets: [1826127]
+
+    - title: "Prevent a malformed tweaks.json file from stopping calibre startup"
+
+    - title: "Fix a regression that broke completion for ebook-convert"
+
+    - title: "News fetching: Fix a regression that broke removal of attributes/javascript/srcset because of bugs in the new BeautifulSoup"
+
+    - title: "TXT Output: Fix Vietnamese Â character being stripped from output."
+      tickets: [1825770]
+
+    - title: "E-book viewer: Fix specifying a non-existen location via --open-at causing viewer to hang"
+
+  improved recipes:
+    - Global Times
+    - Corriere della Serra
+
+  new recipes:
+    - title: Magyar Nemzet
+      author: pofa
+
 - version: 3.41.3
   date: 2019-04-19
 
