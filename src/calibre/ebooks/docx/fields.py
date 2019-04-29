@@ -23,7 +23,9 @@ class Field(object):
         self.name = None
 
     def add_instr(self, elem):
-        raw = elem.text
+        self.add_raw(elem.text)
+
+    def add_raw(self, raw):
         if not raw:
             return
         if self.name is None:
@@ -113,7 +115,10 @@ class Fields(object):
             self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', '%d-' % c)
         stack = []
         for elem in self.namespace.XPath(
-            '//*[name()="w:p" or name()="w:r" or name()="w:instrText" or (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end"))]')(doc):
+            '//*[name()="w:p" or name()="w:r" or'
+            ' name()="w:instrText" or'
+            ' (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end") or'
+            ' name()="w:fldSimple")]')(doc):
             if elem.tag.endswith('}fldChar'):
                 typ = self.namespace.get(elem, 'w:fldCharType')
                 if typ == 'begin':
@@ -127,6 +132,14 @@ class Fields(object):
             elif elem.tag.endswith('}instrText'):
                 if stack:
                     stack[-1].add_instr(elem)
+            elif elem.tag.endswith('}fldSimple'):
+                field = Field(elem)
+                instr = self.namespace.get(elem, 'w:instr')
+                if instr:
+                    field.add_raw(instr)
+                    self.fields.append(field)
+                    for r in self.namespace.XPath('descendant::w:r')(elem):
+                        field.contents.append(r)
             else:
                 if stack:
                     stack[-1].contents.append(elem)
