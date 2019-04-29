@@ -5,10 +5,11 @@ __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 
 import sys, struct
 
+from calibre import prints
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import unicode_type
 
-MAGIC = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
+MAGIC = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 
 def get_metadata(stream):
@@ -37,7 +38,7 @@ def get_metadata(stream):
             return mi
 
         stream.seek(offset)
-        info = stream.read(length).splitlines()
+        info = stream.read(length).decode('utf-8', 'replace').splitlines()
         for line in info:
             if '=' not in line:
                 continue
@@ -45,10 +46,9 @@ def get_metadata(stream):
             if key.strip() == 'TITLE':
                 mi.title = value.strip()
             elif key.strip() == 'AUTHOR':
-                mi.author = value
                 mi.authors = string_to_authors(value)
     except Exception as err:
         msg = u'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode_type(err))
-        print(msg.encode('utf8'), file=sys.stderr)
+        prints(msg, file=sys.stderr)
         raise
     return mi
