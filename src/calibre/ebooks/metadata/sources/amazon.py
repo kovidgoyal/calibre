@@ -22,7 +22,11 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.random_ua import accept_header_for_ua, all_user_agents
+from calibre.utils.random_ua import accept_header_for_ua
+
+
+def user_agent_is_ok(ua):
+    return 'Mobile/' not in ua and 'Mobile ' not in ua
 
 
 class CaptchaError(Exception):
@@ -31,9 +35,6 @@ class CaptchaError(Exception):
 
 class SearchFailed(ValueError):
     pass
-
-
-ua_index = -1
 
 
 def parse_html(raw):
@@ -490,7 +491,7 @@ class Worker(Thread):  # Get details {{{
             return sanitize_title(self.totext(h1))
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')
         if not tdiv:
-            span = root.xpath('//*[id="ebooksTitle"]')
+            span = root.xpath('//*[@id="ebooksTitle"]')
             if span:
                 return sanitize_title(self.totext(span[0]))
             raise ValueError('No title block found')
@@ -509,7 +510,7 @@ class Worker(Thread):  # Get details {{{
                 '#byline .author .contributorNameID',
                 '#byline .author a.a-link-normal',
                 '#bylineInfo .author .contributorNameID',
-                '#bylineInfo .author a.a-link-normal'
+                '#bylineInfo .author a.a-link-normal',
         ):
             matches = tuple(self.selector(sel))
             if matches:
@@ -861,7 +862,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 7)
+    version = (1, 2, 8)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -939,28 +940,25 @@ class Amazon(Source):
 
     @property
     def browser(self):
-        global ua_index
-        if self.use_search_engine:
-            if self._browser is None:
+        br = self._browser
+        if br is None:
+            ua = 'Mobile '
+            while not user_agent_is_ok(ua):
                 ua = random_user_agent(allow_ie=False)
-                self._browser = br = browser(user_agent=ua)
-                br.set_handle_gzip(True)
+            # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
+            self._browser = br = browser(user_agent=ua)
+            br.set_handle_gzip(True)
+            if self.use_search_engine:
                 br.addheaders += [
                     ('Accept', accept_header_for_ua(ua)),
                     ('Upgrade-insecure-requests', '1'),
                 ]
-            br = self._browser
-        else:
-            all_uas = all_user_agents()
-            ua_index = (ua_index + 1) % len(all_uas)
-            ua = all_uas[ua_index]
-            self._browser = br = browser(user_agent=ua)
-            br.set_handle_gzip(True)
-            br.addheaders += [
-                ('Accept', accept_header_for_ua(ua)),
-                ('Upgrade-insecure-requests', '1'),
-                ('Referer', self.referrer_for_domain()),
-            ]
+            else:
+                br.addheaders += [
+                    ('Accept', accept_header_for_ua(ua)),
+                    ('Upgrade-insecure-requests', '1'),
+                    ('Referer', self.referrer_for_domain()),
+                ]
         return br
 
     def save_settings(self, *args, **kwargs):
