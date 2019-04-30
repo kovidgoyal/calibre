@@ -138,8 +138,8 @@ def books_in_folder(folder, one_per_folder,  # {{{
                 continue
 
             key = os.path.splitext(path)[0]
-            if not books.has_key(key):  # noqa
-                books[key] = set([])
+            if key not in books:
+                books[key] = set()
             books[key].add(path)
 
         return [FormatCollection(folder, x) for x in books.values() if x]

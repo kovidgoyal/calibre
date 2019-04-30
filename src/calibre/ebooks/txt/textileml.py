@@ -199,7 +199,7 @@ class TextileMLizer(OEB2HTML):
 
     def check_id_tag(self, attribs):
         txt = ''
-        if attribs.has_key('id'):  # noqa
+        if 'id' in attribs:
             txt = '(#'+attribs['id']+ ')'
             self.our_ids.append('#'+attribs['id'])
             self.id_no_text = u'\xa0'
@@ -336,12 +336,12 @@ class TextileMLizer(OEB2HTML):
             tags.append('pre\n')
         elif tag == 'a':
             if self.opts.keep_links:
-                if attribs.has_key('href'):  # noqa
+                if 'href' in attribs:
                     text.append('"')
                     tags.append('a')
                     tags.append('":' + attribs['href'])
                     self.our_links.append(attribs['href'])
-                    if attribs.has_key('title'):  # noqa
+                    if 'title' in attribs:
                         tags.append('(' + attribs['title'] + ')')
                     self.in_a_link = True
                 else:
@@ -353,7 +353,7 @@ class TextileMLizer(OEB2HTML):
                 txt += self.check_valign(style)
                 txt += attribs['src']
                 text.append(txt)
-                if attribs.has_key('alt'):  # noqa
+                if 'alt' in attribs:
                     txt = attribs['alt']
                     if txt != '':
                         text.append('(' + txt + ')')
@@ -405,9 +405,9 @@ class TextileMLizer(OEB2HTML):
             txt = ''
             txt += self.check_halign(style)
             txt += self.check_valign(style)
-            if attribs.has_key('colspan'):  # noqa
+            if 'colspan' in attribs:
                 txt += '\\' + attribs['colspan']
-            if attribs.has_key('rowspan'):  # noqa
+            if 'rowspan' in attribs:
                 txt += '/' + attribs['rowspan']
             txt += self.check_styles(style)
             if txt != '':
@@ -432,7 +432,7 @@ class TextileMLizer(OEB2HTML):
                         text.append(txt)
                         tags.append('%')
 
-        if self.opts.keep_links and attribs.has_key('id'):  # noqa
+        if self.opts.keep_links and 'id' in attribs:
             if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'table'):
                 text.append(self.check_id_tag(attribs))
 

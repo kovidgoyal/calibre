@@ -166,16 +166,16 @@ class LrsParser(object):
                     if label and \
                         (label in self._style_labels or label in self.parsed_objects):
                         _obj = (self.parsed_objects[label] if
-                            self.parsed_objects.has_key(label) else  # noqa
+                            label in self.parsed_objects else
                             self._style_labels[label])
                         settings[attrmap[a]] = _obj
                 for a in ('evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid'):
-                    if tag.has_key(a):  # noqa
+                    if a in tag:
                         settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 args = []
-                if tag.has_key('refstream'):  # noqa
+                if 'refstream' in tag:
                     args.append(self.parsed_objects[tag.get('refstream')])
-                if tag.has_key('canvaswidth'):  # noqa
+                if 'canvaswidth' in tag:
                     args += [tag.get('canvaswidth'), tag.get('canvasheight')]
                 self.parsed_objects[id] = map[tag.name][0](*args, **settings)
 
@@ -193,7 +193,7 @@ class LrsParser(object):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
-                        if tag.has_key(a):  # noqa
+                        if a in tag:
                             settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 settings.pop('autoindex', '')
                 self.parsed_objects[id] = map[tag.name][0](**settings)
@@ -231,7 +231,7 @@ class LrsParser(object):
             tag = base.find(tagname.lower())
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_key('reading') else '')  # noqa
+            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')  # noqa
             return tag
 
         title          = me(bookinfo, 'Title')
