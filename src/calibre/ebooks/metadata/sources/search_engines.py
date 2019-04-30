@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 2)
+current_version = (1, 0, 3)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -34,6 +34,7 @@ def tostring(elem):
 
 def browser():
     ua = random_user_agent(allow_ie=False)
+    # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
     br = _browser(user_agent=ua)
     br.set_handle_gzip(True)
     br.addheaders += [
@@ -180,7 +181,8 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     root = query(br, url, 'bing', dump_raw, timeout=timeout)
     ans = []
     for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
-        a = li.xpath('descendant::h2/a[@href]')[0]
+        a = li.xpath('descendant::h2/a[@href]') or li.xpath('descendant::div[@class="b_algoheader"]/a[@href]')
+        a = a[0]
         title = tostring(a)
         try:
             div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
