@@ -373,10 +373,14 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
 
+def is_mobile_ua(ua):
+    return 'Mobile/' in ua or 'Mobile ' in ua
+
+
 def random_user_agent(choose=None, allow_ie=True):
     from calibre.utils.random_ua import common_user_agents
     ua_list = common_user_agents()
-    ua_list = list(filter(lambda x: 'Mobile/' not in x, ua_list))
+    ua_list = list(filter(lambda x: not is_mobile_ua(x), ua_list))
     if not allow_ie:
         ua_list = list(filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list))
     return random.choice(ua_list) if choose is None else ua_list[choose]
