@@ -11,6 +11,8 @@ import os, re, sys, copy, glob, tempfile
 from collections import deque
 from math import ceil, floor
 from functools import partial
+from polyglot.builtins import string_or_bytes, itervalues
+from itertools import chain
 
 try:
     from PIL import Image as PILImage
@@ -258,6 +260,8 @@ class HTMLConverter(object):
                 src = open(self._override_css, 'rb').read()
             else:
                 src = self._override_css
+            if isinstance(src, bytes):
+                src = src.decode('utf-8', 'replace')
             match = self.PAGE_BREAK_PAT.search(src)
             if match and not re.match('avoid', match.group(1), re.IGNORECASE):
                 self.page_break_found = True
@@ -1112,6 +1116,8 @@ class HTMLConverter(object):
             ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth']))/2.)
 
         for prop in ('topskip', 'footskip', 'sidemargin'):
+            if isinstance(ans[prop], string_or_bytes):
+                ans[prop] = int(ans[prop])
             if ans[prop] < 0:
                 ans[prop] = 0
 
@@ -1520,9 +1526,8 @@ class HTMLConverter(object):
                 elif (tag.has_attr('type') and tag['type'] in ("text/css", "text/x-oeb1-css") and tag.has_attr('href')):
                     path = munge_paths(self.target_prefix, tag['href'])[0]
                     try:
-                        f = open(path, 'rb')
-                        src = f.read()
-                        f.close()
+                        with open(path, 'rb') as f:
+                            src = f.read().decode('utf-8', 'replace')
                         match = self.PAGE_BREAK_PAT.search(src)
                         if match and not re.match('avoid', match.group(1), re.IGNORECASE):
                             self.page_break_found = True
@@ -1792,7 +1797,7 @@ class HTMLConverter(object):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
     def cleanup(self):
-        for _file in self.scaled_images.values() + self.rotated_images.values():
+        for _file in chain(itervalues(self.scaled_images), itervalues(self.rotated_images)):
             _file.__del__()
 
 

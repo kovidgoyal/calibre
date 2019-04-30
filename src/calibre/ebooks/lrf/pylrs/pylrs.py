@@ -53,7 +53,7 @@ DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__
 from calibre import entity_to_unicode
-from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes, unicode_type, iteritems
 
 
 class LrsError(Exception):
@@ -421,7 +421,7 @@ class Book(Delegator):
         LrsObject.nextObjId += 1
 
         styledefault = StyleDefault()
-        if settings.has_key('setdefault'):  # noqa
+        if 'setdefault' in settings:
             styledefault = settings.pop('setdefault')
         Delegator.__init__(self, [BookInformation(), Main(),
             Template(), Style(styledefault), Solos(), Objects()])
@@ -569,12 +569,12 @@ class Book(Delegator):
 
         text_blocks = list(main.get_all(lambda x: isinstance(x, TextBlock)))
         for tb in text_blocks:
-            if tb.textSettings.has_key('fontsize'):  # noqa
+            if 'fontsize' in tb.textSettings:
                 tb.textSettings['fontsize'] = rescale(tb.textSettings['fontsize'])
             for span in tb.get_all(lambda x: isinstance(x, Span)):
-                if span.attrs.has_key('fontsize'):  # noqa
+                if 'fontsize' in span.attrs:
                     span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
-                if span.attrs.has_key('baselineskip'):  # noqa
+                if 'baselineskip' in span.attrs:
                     span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
 
         text_styles = set(tb.textStyle for tb in text_blocks)
@@ -1835,7 +1835,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         oldTextStyle = self.findCurrentTextStyle()
 
         # set the attributes we want changed
-        for (name, value) in self.attrs.items():
+        for (name, value) in tuple(iteritems(self.attrs)):
             if name in oldTextStyle.attrs and oldTextStyle.attrs[name] == self.attrs[name]:
                 self.attrs.pop(name)
             else:
