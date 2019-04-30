@@ -18,6 +18,7 @@ from shutil import copyfileobj
 import xml.dom.minidom as dom
 from functools import wraps
 
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import unicode_type
 
@@ -394,14 +395,9 @@ class LRFMetaFile(object):
                 if len(src) != self.uncompressed_info_size:
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")
-                try:
-                    return dom.parseString(src)
-                except:
-                    try:
-                        return dom.parseString(src.replace('\x00', '').strip())
-                    except:
-                        src = src.replace('\x00', '').strip().decode('latin1')
-                        return dom.parseString(src.encode('utf-8'))
+
+                src = xml_to_unicode(src, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
+                return dom.parseString(src)
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
 
