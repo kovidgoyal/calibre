@@ -729,7 +729,7 @@ class LrfWriter(object):
         writeZeros(lrf, 20)  # 0x30 unknown
         writeDWord(lrf, self.tocObjId)
         writeDWord(lrf, 0)  # 0x48 tocObjectOffset -- will be updated
-        docInfoXml = codecs.BOM_LE + self.docInfoXml.encode("utf-16-le")
+        docInfoXml = codecs.BOM_UTF8 + self.docInfoXml.encode("utf-8")
         compDocInfo = zlib.compress(docInfoXml)
         writeWord(lrf, len(compDocInfo) + 4)
         writeWord(lrf, IMAGE_TYPE_ENCODING[self.thumbnailEncoding])
