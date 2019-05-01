@@ -17,7 +17,7 @@ try:
 except ImportError:
     from urlparse import urlparse
 
-from calibre import as_unicode, browser, random_user_agent
+from calibre import as_unicode, browser, random_user_agent, xml_replace_entities
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
@@ -577,6 +577,7 @@ class Worker(Thread):  # Get details {{{
             del a.attrib['href']
             a.tag = 'span'
         desc = self.tostring(desc, method='html', encoding='unicode').strip()
+        desc = xml_replace_entities(desc, 'utf-8')
 
         # Encoding bug in Amazon data U+fffd (replacement char)
         # in some examples it is present in place of '
@@ -862,7 +863,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 8)
+    version = (1, 2, 9)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
