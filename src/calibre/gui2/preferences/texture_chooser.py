@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import glob, os, string, shutil
+import glob, os, shutil
 from functools import partial
 from PyQt5.Qt import (
     QDialog, QVBoxLayout, QListWidget, QListWidgetItem, Qt, QIcon,
@@ -72,7 +72,7 @@ class TextureChooser(QDialog):
         images = [{
             'fname': ':'+os.path.basename(x),
             'path': x,
-            'name': ' '.join(map(string.capitalize, os.path.splitext(os.path.basename(x))[0].split('_')))
+            'name': ' '.join(map(lambda s: s.capitalize(), os.path.splitext(os.path.basename(x))[0].split('_')))
         } for x in glob.glob(I('textures/*.png'))] + [{
             'fname': os.path.basename(x),
             'path': x,
@@ -81,7 +81,8 @@ class TextureChooser(QDialog):
 
         images.sort(key=lambda x:sort_key(x['name']))
 
-        map(self.create_item, images)
+        for i in images:
+            self.create_item(i)
         self.update_remove_state()
 
         if initial:
