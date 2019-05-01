@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
@@ -35,10 +34,10 @@ class TCRCompressor(object):
         The intent is to create more unused codes.
         '''
         possible_codes = []
-        a_code = set(re.findall(b'(?msu).', self.coded_txt))
+        a_code = set(re.findall(b'(?ms).', self.coded_txt))
 
         for code in a_code:
-            single_code = set(re.findall(b'(?msu)%s.' % re.escape(code), self.coded_txt))
+            single_code = set(re.findall(b'(?ms)%s.' % re.escape(code), self.coded_txt))
             if len(single_code) == 1:
                 possible_codes.append(single_code.pop())
 
@@ -60,7 +59,7 @@ class TCRCompressor(object):
         '''
         Create new codes from codes that occur in pairs often.
         '''
-        possible_new_codes = list(set(re.findall(b'(?msu)..', self.coded_txt)))
+        possible_new_codes = list(set(re.findall(b'(?ms)..', self.coded_txt)))
         new_codes_count = []
 
         for c in possible_new_codes:
@@ -77,7 +76,7 @@ class TCRCompressor(object):
     def compress(self, txt):
         self._reset()
 
-        self.codes = list(set(re.findall(b'(?msu).', txt)))
+        self.codes = list(set(re.findall(b'(?ms).', txt)))
 
         # Replace the text with their corresponding code
         for c in txt:
