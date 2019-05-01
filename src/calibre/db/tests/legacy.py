@@ -130,18 +130,18 @@ class LegacyTest(BaseTest):
                     ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
                 if label == 'series_sort':
                     # The old db code did not take book language into account
-                    # when generating series_sort values (the first book has
-                    # lang=deu)
-                    ans[label] = ans[label][1:]
+                    # when generating series_sort values
+                    ans[label] = None
             return ans
+
+        db = self.init_legacy()
+        new_vals = get_values(db)
+        db.close()
 
         old = self.init_old()
         old_vals = get_values(old)
         old.close()
         old = None
-        db = self.init_legacy()
-        new_vals = get_values(db)
-        db.close()
         self.assertEqual(old_vals, new_vals)
 
     # }}}

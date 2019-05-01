@@ -11,7 +11,7 @@ from collections import namedtuple
 from functools import partial
 from io import BytesIO
 
-from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
 from polyglot.builtins import iteritems, itervalues
@@ -237,7 +237,7 @@ class WritingTest(BaseTest):
         for name in ('authors', '#authors'):
             f = cache.fields[name]
             ae(len(f.table.id_map), 3)
-            af(cache.set_field(name, {3:None if name == 'authors' else 'Unknown'}))
+            af(cache.set_field(name, {3:'Unknown'}))
             ae(cache.set_field(name, {3:'Kovid Goyal & Divok Layog'}), {3})
             ae(cache.set_field(name, {1:'', 2:'An, Author'}), {1,2})
             cache2 = self.init_cache(cl)
@@ -245,9 +245,9 @@ class WritingTest(BaseTest):
                 ae(len(c.fields[name].table.id_map), 4 if name =='authors' else 3)
                 ae(c.field_for(name, 3), ('Kovid Goyal', 'Divok Layog'))
                 ae(c.field_for(name, 2), ('An, Author',))
-                ae(c.field_for(name, 1), ('Unknown',) if name=='authors' else ())
+                ae(c.field_for(name, 1), (_('Unknown'),) if name=='authors' else ())
                 if name == 'authors':
-                    ae(c.field_for('author_sort', 1), author_to_author_sort('Unknown'))
+                    ae(c.field_for('author_sort', 1), author_to_author_sort(_('Unknown')))
                     ae(c.field_for('author_sort', 2), author_to_author_sort('An, Author'))
                     ae(c.field_for('author_sort', 3), author_to_author_sort('Kovid Goyal') + ' & ' + author_to_author_sort('Divok Layog'))
             del cache2
@@ -292,8 +292,8 @@ class WritingTest(BaseTest):
         ae(sf('title', {1:'The Moose', 2:'Cat'}), {1, 2})
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
-            ae(c.field_for('sort', 1), 'Moose, The')
-            ae(c.field_for('sort', 2), 'Cat')
+            ae(c.field_for('sort', 1), title_sort('The Moose'))
+            ae(c.field_for('sort', 2), title_sort('Cat'))
 
         # Test setting with the same value repeated
         ae(sf('tags', {3: ('a', 'b', 'a')}), {3})

@@ -346,7 +346,7 @@ class ResultCache(SearchQueryParser):  # {{{
     untrans_daysago_len = len('_daysago')
 
     def get_dates_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if len(query) < 2:
             return matches
 
@@ -395,7 +395,7 @@ class ResultCache(SearchQueryParser):  # {{{
             qd = now()
             field_count = 2
         elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
-            num = query[0:-(self.local_daysago_len if query.endswith(self.local_daysago) else self.untrans_daysago_len)]
+            num = query[0:-(self.untrans_daysago_len if query.endswith(self.untrans_daysago) else self.local_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))
             except:

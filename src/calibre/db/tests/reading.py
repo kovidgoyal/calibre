@@ -12,8 +12,13 @@ from io import BytesIO
 from time import time
 
 from calibre.utils.date import utc_tz
+from calibre.utils.localization import calibre_langcode_to_name
 from calibre.db.tests.base import BaseTest
 from polyglot.builtins import iteritems, itervalues, range
+
+
+def p(x):
+    return datetime.datetime.strptime(x, '%Y-%m-%d').replace(tzinfo=utc_tz)
 
 
 class ReadingTest(BaseTest):
@@ -130,6 +135,9 @@ class ReadingTest(BaseTest):
         'Test sorting'
         cache = self.init_cache()
         ae = self.assertEqual
+
+        lmap = {x:cache.field_for('languages', x) for x in (1, 2, 3)}
+        lq = sorted(lmap, key=lambda x: calibre_langcode_to_name((lmap[x] or ('',))[0]))
         for field, order in iteritems({
             'title'  : [2, 1, 3],
             'authors': [2, 1, 3],
@@ -143,7 +151,7 @@ class ReadingTest(BaseTest):
             'timestamp': [2, 1, 3],
             'pubdate'  : [1, 2, 3],
             'publisher': [3, 2, 1],
-            'languages': [3, 2, 1],
+            'languages': lq,
             'comments': [3, 2, 1],
             '#enum' : [3, 2, 1],
             '#authors' : [3, 2, 1],
@@ -182,7 +190,6 @@ class ReadingTest(BaseTest):
             ae([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
 
         # Test tweak to sort dates by visible format
-        from calibre.utils.date import parse_only_date as p
         from calibre.utils.config_base import Tweak
         ae(cache.set_field('pubdate', {1:p('2001-3-3'), 2:p('2002-2-3'), 3:p('2003-1-3')}), {1, 2, 3})
         ae([1, 2, 3], cache.multisort([('pubdate', True)]))
@@ -285,7 +292,7 @@ class ReadingTest(BaseTest):
         oldvals = {query:set(old.search_getting_ids(query, '')) for query in (
             # Date tests
             'date:9/6/2011', 'date:true', 'date:false', 'pubdate:1/9/2011',
-            '#date:true', 'date:<100daysago', 'date:>9/6/2011',
+            '#date:true', 'date:<100_daysago', 'date:>9/6/2011',
             '#date:>9/1/2011', '#date:=2011',
 
             # Number tests
@@ -296,8 +303,8 @@ class ReadingTest(BaseTest):
             'series_index:<3',
 
             # Bool tests
-            '#yesno:true', '#yesno:false', '#yesno:yes', '#yesno:no',
-            '#yesno:empty',
+            '#yesno:true', '#yesno:false', '#yesno:_yes', '#yesno:_no',
+            '#yesno:_empty',
 
             # Keypair tests
             'identifiers:true', 'identifiers:false', 'identifiers:test',
@@ -632,14 +639,13 @@ class ReadingTest(BaseTest):
 
     def test_composites(self):  # {{{
         ' Test sorting and searching in composite columns '
-        from calibre.utils.date import parse_only_date as p
         cache = self.init_cache()
         cache.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
         cache.create_custom_column('single', 'CC2', 'composite', False, display={'composite_template': 'b,a,c'})
         cache.create_custom_column('number', 'CC3', 'composite', False, display={'composite_template': '{#float}', 'composite_sort':'number'})
         cache.create_custom_column('size', 'CC4', 'composite', False, display={'composite_template': '{#float:human_readable()}', 'composite_sort':'number'})
         cache.create_custom_column('ccdate', 'CC5', 'composite', False,
-                                   display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
+                display={'composite_template': "{:'format_date(raw_field('pubdate'), 'dd-MM-yy')'}", 'composite_sort':'date'})
         cache.create_custom_column('bool', 'CC6', 'composite', False, display={'composite_template': '{#yesno}', 'composite_sort':'bool'})
         cache.create_custom_column('ccm', 'CC7', 'composite', True, display={'composite_template': '{#tags}'})
         cache.create_custom_column('ccp', 'CC8', 'composite', True, display={'composite_template': '{publisher}'})
@@ -659,7 +665,7 @@ class ReadingTest(BaseTest):
         self.assertEqual([1, 2, 3], cache.multisort([('#size', True)]))
 
         # Test date sorting
-        cache.set_field('pubdate', {1:p('2001-2-6'), 2:p('2001-10-6'), 3:p('2001-6-6')})
+        cache.set_field('pubdate', {1:p('2001-02-06'), 2:p('2001-10-06'), 3:p('2001-06-06')})
         self.assertEqual([1, 3, 2], cache.multisort([('#ccdate', True)]))
 
         # Test bool sorting
@@ -692,7 +698,7 @@ class ReadingTest(BaseTest):
         lm2.languages = ['eng']
         for mi, books in (
                 (Metadata('title one', ['author one']), {2}),
-                (Metadata(_('Unknown')), {3}),
+                (Metadata('Unknown', ['Unknown']), {3}),
                 (Metadata('title two', ['author one']), {1}),
                 (lm, {1}),
                 (lm2, set()),

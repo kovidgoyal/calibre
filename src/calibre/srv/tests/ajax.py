@@ -69,9 +69,9 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, OK)
             self.ae(data, xdata)
             names = {x['name']:x['url'] for x in data}
-            for q in ('Newest', 'All books', 'Tags', 'Series', 'Authors', 'Enum', 'Composite Tags'):
+            for q in (_('Newest'), _('All books'), _('Tags'), _('Authors'), _('Enum'), _('Composite Tags')):
                 self.assertIn(q, names)
-            r, data = request(names['Tags'], prefix='')
+            r, data = request(names[_('Tags')], prefix='')
             self.ae(r.status, OK)
             names = {x['name']:x['url'] for x in data['items']}
             self.ae(set(names), set('Tag One,Tag Two,News'.split(',')))
@@ -128,7 +128,7 @@ class ContentTest(LibraryBaseTest):
             ae(set(r(url_for('/ajax/search?query=id:2'))['book_ids']), {2})
             ae(set(r(url_for('/ajax/search?vl=1'))['book_ids']), {1})
             data = make_request(conn, '/ajax/search', username='inv', password='test', prefix='', method='GET')[1]
-            ae(data['bad_restriction'], 'Invalid syntax. Expected a lookup name or a word')
+            ae(data['bad_restriction'], _('Invalid syntax. Expected a lookup name or a word'))
 
             # books.py
             nf(url_for('/book-manifest', book_id=3, fmt='TXT'))
