@@ -203,7 +203,6 @@ tokenize_init(PyObject *self, PyObject *args) {
 #endif
 
 #define END_ITER_CODE_PTS }}
-static PyObject *dot = NULL;
 
 static PyObject *unicode_to_number(PyObject *src) {
 #if PY_MAJOR_VERSION >= 3
@@ -498,9 +497,6 @@ CALIBRE_MODINIT_FUNC inittokenizer(void) {
     if (mod == NULL) INITERROR;
     Py_INCREF(&tokenizer_TokenType);
     PyModule_AddObject(mod, "Token", (PyObject *) &tokenizer_TokenType);
-
-    dot = PyUnicode_FromString(".");
-    if (dot == NULL) INITERROR;
 
 #if PY_MAJOR_VERSION >= 3
     return mod;
