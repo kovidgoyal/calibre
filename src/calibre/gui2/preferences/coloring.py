@@ -429,7 +429,7 @@ class RuleEditor(QDialog):  # {{{
                 b.setMinimumContentsLength(15)
 
         for key in sorted(displayable_columns(fm),
-                          key=lambda k: sort_key(fm[k]['name']) if k != color_row_key else 0):
+                          key=lambda k: sort_key(fm[k]['name']) if k != color_row_key else b''):
             if key == color_row_key and self.rule_kind != 'color':
                 continue
             name = all_columns_string if key == color_row_key else fm[key]['name']
