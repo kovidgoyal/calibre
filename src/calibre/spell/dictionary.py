@@ -8,7 +8,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, shutil, re, sys
 from collections import namedtuple, defaultdict
-from operator import attrgetter
 from itertools import chain
 from functools import partial
 
@@ -159,7 +158,7 @@ def get_dictionary(locale, exact_match=False):
     # Now just return any dictionary that matches the language, preferring user
     # installed ones to builtin ones
     for collection in (custom_dictionaries(), builtin_dictionaries()):
-        for d in sorted(collection, key=attrgetter('name')):
+        for d in sorted(collection, key=lambda d: d.name or ''):
             if d.primary_locale.langcode == locale.langcode:
                 return d
 
