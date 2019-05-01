@@ -203,40 +203,23 @@ tokenize_init(PyObject *self, PyObject *args) {
 #endif
 
 #define END_ITER_CODE_PTS }}
+static PyObject *dot = NULL;
 
 static PyObject *unicode_to_number(PyObject *src) {
-    const char *utf8_data;
 #if PY_MAJOR_VERSION >= 3
-    utf8_data = PyUnicode_AsUTF8(src);
-    if (!utf8_data) return NULL;
+    PyObject* ans = PyFloat_FromString(src);
 #else
-    PyObject *utf_8_temp = PyUnicode_AsUTF8String(src);
-    if (utf_8_temp == NULL) return NULL;
-    utf8_data = PyString_AS_STRING(utf_8_temp);
+    PyObject* ans = PyFloat_FromString(src, NULL);
 #endif
-    PyObject *ans = NULL;
-    char *end = NULL;
-    if (strchr(utf8_data, '.')) {
-        double d = 0;
-        errno = 0;
-        d = strtod(utf8_data, &end);
-        if (errno != 0 || (end == utf8_data)) PyErr_SetString(PyExc_ValueError, "Not a valid float");
-        else ans = PyFloat_FromDouble(d);
-    } else {
-        long d = 0;
-        errno = 0;
-        d = strtol(utf8_data, &end, 10);
-        if (errno != 0 || (end == utf8_data)) PyErr_SetString(PyExc_ValueError, "Not a valid integer");
+    double val = PyFloat_AsDouble(ans);
+    long lval = (long)val;
+    if (val - lval != 0) return ans;
+    Py_DECREF(ans);
 #if PY_MAJOR_VERSION >= 3
-        else ans = PyLong_FromLong(d);
+    return PyLong_FromLong(lval);
 #else
-        else ans = PyInt_FromLong(d);
+    return PyInt_FromLong(lval);
 #endif
-    }
-#if PY_MAJOR_VERSION < 3
-    Py_DECREF(utf_8_temp);
-#endif
-    return ans;
 }
 
 
@@ -516,6 +499,8 @@ CALIBRE_MODINIT_FUNC inittokenizer(void) {
     Py_INCREF(&tokenizer_TokenType);
     PyModule_AddObject(mod, "Token", (PyObject *) &tokenizer_TokenType);
 
+    dot = PyUnicode_FromString(".");
+    if (dot == NULL) INITERROR;
 
 #if PY_MAJOR_VERSION >= 3
     return mod;

@@ -9,6 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from tinycss.color3 import parse_color_string, hsl_to_rgb
 from tinycss.tests import BaseTest
 
+
 class TestColor3(BaseTest):
 
     def test_color_parsing(self):
