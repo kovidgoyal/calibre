@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, math, errno, uuid
+import sys, os, re, math, errno, uuid, numbers
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -788,7 +788,10 @@ class Convert(object):
                 style = self.styles.resolve_paragraph(p)
                 if has_visible_border is None:
                     has_visible_border = style.has_visible_border()
-                max_left, max_right = max(style.margin_left, max_left), max(style.margin_right, max_right)
+                if isinstance(style.margin_left, numbers.Number):
+                    max_left = max(style.margin_left, max_left)
+                if isinstance(style.margin_right, numbers.Number):
+                    max_right = max(style.margin_right, max_right)
                 if has_visible_border:
                     style.margin_left = style.margin_right = inherit
                 if p is not run[0]:
