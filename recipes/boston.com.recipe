@@ -28,12 +28,19 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
     keep_only_tags = [
+        dict(attrs={'class': lambda x: x and (
+            x.startswith('headline |') or x.startswith('subheader |') or
+            x.startswith('byline |') or x.startswith('image |') or
+            x.startswith('lead |') or x.startswith('body |')
+        )}),
         classes('comic article__title methode__story article-header__headline lead-media figure article-header__byline article-content'),
     ]
     remove_tags = [
-        classes('inline-newsletter ad skip-nav article-footer'),
+        classes('inline-newsletter ad skip-nav article-footer sharebar'),
+        dict(id='continue_button'),
         dict(name=['meta', 'link'])
     ]
+    remove_tags_after = dict(attrs={'class': lambda x:x and x.startswith('body |')})
     remove_attributes = ['style']
     no_stylesheets = True
     # simultaneous_downloads = 1
