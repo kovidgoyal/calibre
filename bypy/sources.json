@@ -356,28 +356,23 @@
     {
         "name": "qt",
         "unix": {
-            "filename": "qt-everywhere-opensource-src-5.6.2.tar.xz",
-            "hash": "md5:5175fba2f221fd4c91e94771a57a5557",
-            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
+            "filename": "qt-everywhere-src-5.12.3.tar.xz",
+            "hash": "sha256:6462ac74c00ff466487d8ef8d0922971aa5b1d5b33c0753308ec9d57711f5a42",
+            "urls": ["https://download.qt.io/official_releases/qt/5.12/5.12.3/single/{filename}"]
         },
         "windows": {
-            "filename": "qt-everywhere-opensource-src-5.6.2.zip",
+            "filename": "qt-everywhere-src-5.12.3.zip",
             "hash": "md5:b684a2f37b1beebd421b3b7d1eca15dc",
-            "urls": ["https://download.qt.io/archive/qt/5.6/5.6.2/single/{filename}"]
+            "urls": ["https://download.qt.io/official_releases/qt/5.12/5.12.3/single/{filename}"]
         }
     },
 
     {
         "name": "webkit",
         "unix": {
-            "filename":"qtwebkit-opensource-src-5.6.2.tar.xz",
-            "hash": "md5:5196f47b75e2d6cc9663c89cf9902ef0",
-            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
-        },
-        "windows": {
-            "filename":"qtwebkit-opensource-src-5.6.2.zip",
-            "hash": "md5:4689efa0b53a58469b191031da8295d6",
-            "urls":["https://download.qt.io/community_releases/5.6/5.6.2/{filename}"]
+            "filename":"qtwebkit-5.212.0-alpha2.tar.xz",
+            "hash": "sha256:f8f901de567e11fc5659402b6b827eac75505ff9c5072d8e919aa306003f8f8a",
+            "urls":["https://github.com/annulen/webkit/releases/download/qtwebkit-5.212.0-alpha2/{filename}"]
         }
     },
 
