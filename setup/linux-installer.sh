@@ -68,19 +68,19 @@ enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
 if enc.lower() == 'ascii':
     enc = 'utf-8'
 calibre_version = signature = None
-urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
 if py3:
     unicode = str
     raw_input = input
     from urllib.parse import urlparse
-    from urllib.request import BaseHandler, build_opener, Request
+    from urllib.request import BaseHandler, build_opener, Request, urlopen, getproxies, addinfourl
     import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
     from future_builtins import map
     from urlparse import urlparse
+    from urllib import urlopen, getproxies, addinfourl
     from urllib2 import BaseHandler, build_opener, Request
     import httplib
 
@@ -321,7 +321,7 @@ class RangeHandler(BaseHandler):
 
     def http_error_206(self, req, fp, code, msg, hdrs):
         # 206 Partial Content Response
-        r = urllib.addinfourl(fp, hdrs, req.get_full_url())
+        r = addinfourl(fp, hdrs, req.get_full_url())
         r.code = code
         r.msg = msg
         return r
@@ -336,7 +336,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urllib.urlopen(DLURL)
+    rq = urlopen(DLURL)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
@@ -408,7 +408,7 @@ def download_tarball():
 # Get tarball signature securely {{{
 
 def get_proxies(debug=True):
-    proxies = urllib.getproxies()
+    proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy:
             del proxies[key]
@@ -713,7 +713,7 @@ def download_and_extract(destdir):
 def check_version():
     global calibre_version
     if calibre_version == '%version':
-        calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
+        calibre_version = urlopen('http://code.calibre-ebook.com/latest').read()
 
 
 def run_installer(install_dir, isolated, bin_dir, share_dir):
