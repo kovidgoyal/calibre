@@ -75,11 +75,13 @@ if py3:
     unicode = str
     raw_input = input
     from urllib.parse import urlparse
+    from urllib.request import BaseHandler, build_opener, Request
     import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
     from future_builtins import map
     from urlparse import urlparse
+    from urllib2 import BaseHandler, build_opener, Request
     import httplib
 
     def encode_for_subprocess(x):
@@ -315,18 +317,21 @@ def check_signature(dest, signature):
         return raw
 
 
-class URLOpener(urllib.FancyURLopener):
+class RangeHandler(BaseHandler):
 
-    def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
-        ''' 206 means partial content, ignore it '''
-        pass
+    def http_error_206(self, req, fp, code, msg, hdrs):
+        # 206 Partial Content Response
+        r = urllib.addinfourl(fp, hdrs, req.get_full_url())
+        r.code = code
+        r.msg = msg
+        return r
+    https_error_206 = http_error_206
 
 
 def do_download(dest):
     prints('Will download and install', os.path.basename(dest))
     reporter = Reporter(os.path.basename(dest))
     offset = 0
-    urlopener = URLOpener()
     if os.path.exists(dest):
         offset = os.path.getsize(dest)
 
@@ -337,11 +342,13 @@ def do_download(dest):
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
     mode = 'wb'
     if accepts_ranges and offset > 0:
-        rurl = rq.geturl()
+        req = Request(rq.geturl())
+        req.add_header('Range', 'bytes=%s-'%offset)
         mode = 'ab'
         rq.close()
-        urlopener.addheader('Range', 'bytes=%s-'%offset)
-        rq = urlopener.open(rurl)
+        handler = RangeHandler()
+        opener = build_opener(handler)
+        rq = opener.open(req)
     with open(dest, mode) as f:
         while f.tell() < size:
             raw = rq.read(8192)
@@ -368,7 +375,7 @@ def download_tarball():
     dest = os.path.join(cache, fname)
     raw = check_signature(dest, signature)
     if raw is not None:
-        print ('Using previously downloaded', fname)
+        print('Using previously downloaded', fname)
         return raw
     cached_sigf = dest +'.signature'
     cached_sig = None
@@ -720,7 +727,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         if not os.path.isdir(destdir):
             prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
             return 1
-    print ('Installing to', destdir)
+    print('Installing to', destdir)
 
     download_and_extract(destdir)
 
