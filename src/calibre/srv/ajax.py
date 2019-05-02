@@ -135,7 +135,7 @@ def book_to_json(ctx, rd, db, book_id,
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:
                     template = device_class.save_template()
-                    data['_filename_'] = create_upload_path(mi, book_id,
+                    data['_filename_'] = create_upload_path(mi, unicode(book_id),
                             template, sanitize, path_type=posixpath)
                     break
 
