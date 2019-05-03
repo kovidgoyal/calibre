@@ -23,7 +23,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     __author__ = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
     language = 'en'
-    INDEX = 'https://www.bostonglobe.com/todayspaper/%Y/%m/%d'
+    INDEX = 'https://www3.bostonglobe.com/todayspaper/%Y/%m/%d?arc404=true'
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
