@@ -288,8 +288,8 @@
     {
         "name": "poppler",
         "unix": {
-            "filename": "poppler-0.76.0.tar.xz",
-            "hash": "sha256:370f5fcfe2bbf0c76fc394d338cd72ed7f2044b67f4eb4b115eb074ccfc70d63",
+            "filename": "poppler-0.76.1.tar.xz",
+            "hash": "sha256:e62cd4053f851eecc4a6aa2b81d739fbab1d67b3c60b31ebac7049483cc617b1",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
@@ -379,8 +379,8 @@
     {
         "name": "setuptools",
         "unix": {
-            "filename": "setuptools-23.1.0.tar.gz",
-            "hash": "md5:f7f447663f7d5e17c84be10dc6b195fd",
+            "filename": "setuptools-41.0.1.zip",
+            "hash": "sha256:a222d126f5471598053c9a77f4b5d4f26eaa1f150ad6e01dcf1a42e185d05613",
             "urls": ["pypi"]
         }
     },
@@ -388,8 +388,8 @@
     {
         "name": "six",
         "unix": {
-            "filename": "six-1.10.0.tar.gz",
-            "hash": "md5:34eed507548117b2ab523ab14b2f8b55",
+            "filename": "six-1.12.0.tar.gz",
+            "hash": "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73",
             "urls": ["pypi"]
         }
     },
@@ -398,7 +398,7 @@
         "name": "unrardll",
         "unix": {
             "filename": "unrardll-0.1.3.tar.gz",
-            "hash": "md5:8830d810f637eefbe829e10488496b6d",
+            "hash": "sha256:5f214ab1ec24208c6ee353f2d836e536968d5379b7140129f04aa3a52bc56a5e",
             "urls": ["pypi"]
         }
     },
@@ -406,8 +406,8 @@
     {
         "name": "lxml",
         "unix": {
-            "filename": "lxml-3.8.0.tar.gz",
-            "hash": "md5:e54e2fae44d684d6b9c636fe189e93ff",
+            "filename": "lxml-4.3.3.tar.gz",
+            "hash": "sha256:4a03dd682f8e35a10234904e0b9508d705ff98cf962c5851ed052e9340df3d90",
             "urls": ["pypi"]
         }
     },
@@ -415,8 +415,8 @@
     {
         "name": "html5-parser",
         "unix": {
-            "filename": "html5-parser-0.4.3.tar.gz",
-            "hash": "md5:b0d7897985227f4bf2a9e7cdb0770f6a",
+            "filename": "html5-parser-0.4.5.tar.gz",
+            "hash": "sha256:a903ef8b93b51788a6d1604b3833303e9f2f8db488306ee4241436d2f518bd06",
             "urls": ["pypi"]
         }
     },
@@ -434,8 +434,8 @@
     {
         "name": "dateutil",
         "unix": {
-            "filename": "python-dateutil-2.5.3.tar.gz",
-            "hash": "md5:05ffc6d2cc85a7fd93bb245807f715ef",
+            "filename": "python-dateutil-2.8.0.tar.gz",
+            "hash": "sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e",
             "urls": ["pypi"]
         }
     },
@@ -445,17 +445,17 @@
         "python": 2,
         "os": "linux",
         "unix": {
-            "filename": "dbuspython-1.2.4.tar.gz",
-            "hash": "md5:7372a588c83a7232b4e08159bfd48fe5",
-            "urls": ["http://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.4.tar.gz"]
+            "filename": "dbus-python-1.2.8.tar.gz",
+            "hash": "sha256:abf12bbb765e300bf8e2a1b2f32f85949eab06998dbda127952c31cb63957b6f",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-python/{filename}"]
         }
     },
 
     {
         "name": "dnspython",
         "unix": {
-            "filename": "dnspython-1.14.0.zip",
-            "hash": "md5:577f6b60b185d1ac90d76e9364a543d4",
+            "filename": "dnspython-1.16.0.zip",
+            "hash": "sha256:36c5e8e38d4369a08b6780b7f27d790a292b2b08eea01607865bf0936c558e01",
             "urls": ["pypi"]
         }
     },
@@ -463,8 +463,8 @@
     {
         "name": "mechanize",
         "unix": {
-            "filename": "mechanize-0.3.5.tar.gz",
-            "hash": "md5:9fe17e21372eb00ee9e0664bdf3b7dd2",
+            "filename": "mechanize-0.4.2.tar.gz",
+            "hash": "sha256:b680ca1b4fabe5ef52024d120f40b8e2ed7d175ed4d67225d2c477dac7c7a58b",
             "urls": ["pypi"]
         }
     },
@@ -481,8 +481,8 @@
     {
         "name": "markdown",
         "unix": {
-            "filename": "Markdown-3.0.1.tar.gz",
-            "hash": "sha256:d02e0f9b04c500cde6637c11ad7c72671f359b87b9fe924b2383649d8841db7c",
+            "filename": "Markdown-3.1.tar.gz",
+            "hash": "sha256:fc4a6f69a656b8d858d7503bda633f4dd63c2d70cf80abdc6eafa64c4ae8c250",
             "urls": ["pypi"]
         }
     },
@@ -499,8 +499,8 @@
     {
         "name": "soupsieve",
         "unix": {
-            "filename": "soupsieve-1.8.tar.gz",
-            "hash": "sha256:eaed742b48b1f3e2d45ba6f79401b2ed5dc33b2123dfe216adb90d4bfa0ade26",
+            "filename": "soupsieve-1.9.1.tar.gz",
+            "hash": "sha256:b20eff5e564529711544066d7dc0f7661df41232ae263619dede5059799cdfca",
             "urls": ["pypi"]
         }
     },
@@ -517,8 +517,8 @@
     {
         "name": "regex",
         "unix": {
-            "filename": "regex-2018.07.11.tar.gz",
-            "hash": "sha256:9308dbce8e5ff4ee06b172a777f6c7f650a5835a5ad41a6080eb501639c27a2f",
+            "filename": "regex-2019.04.14.tar.gz",
+            "hash": "sha256:d56ce4c7b1a189094b9bee3b81c4aeb3f1ba3e375e91627ec8561b6ab483d0a8",
             "urls": ["pypi"]
         }
     },
@@ -537,8 +537,8 @@
     {
         "name": "chardet",
         "unix": {
-            "filename": "chardet-3.0.3.tar.gz",
-            "hash": "md5:d92908d1b0b61dbbd63fb18d33c6493a",
+            "filename": "chardet-3.0.4.tar.gz",
+            "hash": "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae",
             "urls": ["pypi"]
         }
     },
@@ -546,8 +546,8 @@
     {
         "name": "msgpack",
         "unix": {
-            "filename": "msgpack-0.5.6.tar.gz",
-            "hash": "sha256:0ee8c8c85aa651be3aa0cd005b5931769eaa658c948ce79428766f1bd46ae2c3",
+            "filename": "msgpack-0.6.1.tar.gz",
+            "hash": "sha256:4008c72f5ef2b7936447dcb83db41d97e9791c83221be13d5e19db0796df1972",
             "urls": ["pypi"]
         }
     },
@@ -565,7 +565,7 @@
         "name": "pycrypto",
         "unix": {
             "filename": "pycrypto-2.6.1.tar.gz",
-            "hash": "md5:55a61a054aa66812daf5161a0d5d7eda",
+            "hash": "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c",
             "urls": ["pypi"]
         }
     },
@@ -584,7 +584,7 @@
         "name": "webencodings",
         "unix": {
             "filename": "webencodings-0.5.1.tar.gz",
-            "hash": "md5:32f6e261d52e57bf7e1c4d41546d15b8",
+            "hash": "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923",
             "urls": ["pypi"]
         }
     },
@@ -592,8 +592,8 @@
     {
         "name": "html5lib",
         "unix": {
-            "filename": "html5lib-0.999999999.tar.gz",
-            "hash": "md5:8578e4e3a341436cb9743a9e4a299239",
+            "filename": "html5lib-1.0.1.tar.gz",
+            "hash": "sha256:66cb0dcfdbbc4f9c3ba1a63fdb511ffdbd4f513b2b6d81b80cd26ce6b3fb3736",
             "urls": ["pypi"]
         }
     },
@@ -601,8 +601,8 @@
     {
         "name": "pillow",
         "unix": {
-            "filename": "Pillow-3.2.0.tar.gz",
-            "hash": "md5:7cfd093c11205d9e2ebe3c51dfcad510",
+            "filename": "Pillow-6.0.0.tar.gz",
+            "hash": "sha256:809c0a2ce9032cbcd7b5313f71af4bdc5c8c771cb86eb7559afd954cab82ebb5",
             "urls": ["pypi"]
         }
     },
@@ -610,8 +610,8 @@
     {
         "name": "netifaces",
         "unix": {
-            "filename": "netifaces-0.10.5.tar.gz",
-            "hash": "md5:5b4d1f1310ed279e6df27ef3a9b71519",
+            "filename": "netifaces-0.10.9.tar.gz",
+            "hash": "sha256:2dee9ffdd16292878336a58d04a20f0ffe95555465fee7c9bd23b3490ef2abf3",
             "urls": ["pypi"]
         }
     },
@@ -619,8 +619,8 @@
     {
         "name": "psutil",
         "unix": {
-            "filename": "psutil-4.3.0.tar.gz",
-            "hash": "md5:ca97cf5f09c07b075a12a68b9d44a67d",
+            "filename": "psutil-5.6.2.tar.gz",
+            "hash": "sha256:828e1c3ca6756c54ac00f1427fdac8b12e21b8a068c3bb9b631a1734cada25ed",
             "urls": ["pypi"]
         }
     },
@@ -646,30 +646,40 @@
     },
 
     {
+        "name": "enum34",
+		"python": "<3",
+        "unix": {
+            "filename": "enum34-1.1.6.tar.gz",
+            "hash": "sha256:8ad8c4783bf61ded74527bffb48ed9b54166685e4230386a9ed9b1279e2df5b1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "sip",
         "unix": {
-            "filename": "sip-4.19.1.tar.gz",
-            "hash": "sha1:bfd95714ace97e9c79c6131784a0cf6300a71b82",
-            "urls": ["https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.1/{filename}"]
+            "filename": "sip-4.19.16.tar.gz",
+            "hash": "sha256:184c790d58e9527fc6bdac2bbf8638f3d1b41dea922cad8eb83172b4ba70c620",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.16/{filename}"]
         },
         "windows": {
-            "filename": "sip-4.19.1.zip",
+            "filename": "sip-4.19.16.zip",
             "hash": "sha1:2c0844ea0304d11343168ee25a9ff11df1646c76",
-            "urls": ["http://sourceforge.net/projects/pyqt/files/sip/sip-4.19.1/{filename}"]
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.16/{filename}"]
         }
     },
 
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt5_gpl-5.8.tar.gz",
-            "hash": "sha1:104c4bfc451b2ed26e34e646ddf69cfc8c437226",
-            "urls": ["https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.8/{filename}"]
+            "filename": "PyQt5_gpl-5.12.1.tar.gz",
+            "hash": "sha256:3718ce847d824090fd5f95ff3f13847ee75c2507368d4cbaeb48338f506e59bf",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.12.1/{filename}"]
         },
         "windows": {
-            "filename": "PyQt5_gpl-5.8.zip",
+            "filename": "PyQt5_gpl-5.12.1.zip",
             "hash": "sha1:adc7cd647b23c438788f62e1e804ca2ee0ad1529",
-            "urls": ["http://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.8/{filename}"]
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.12.1/{filename}"]
         }
     },
 
