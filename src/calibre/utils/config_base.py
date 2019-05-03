@@ -637,7 +637,11 @@ def default_tweaks_raw():
 
 def read_tweaks():
     default_tweaks = exec_tweaks(default_tweaks_raw())
-    default_tweaks.update(read_custom_tweaks())
+    try:
+        custom_tweaks = read_custom_tweaks()
+    except Exception:
+        custom_tweaks = {}
+    default_tweaks.update(custom_tweaks)
     return default_tweaks
 
 
