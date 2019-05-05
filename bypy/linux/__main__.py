@@ -40,21 +40,21 @@ def binary_includes():
         j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'optipng', 'JxrDecApp')] + [
 
         j(PREFIX, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
-        j(PREFIX, 'lib', 'lib' + x) for x in (
-            'unrar.so', 'ssl.so.1.0.0', 'crypto.so.1.0.0', 'python{}.so.1.0'.format(py_ver))
         ] + list(map(
             get_dll_path,
-            ('usb-1.0 mtp expat sqlite3 ffi podofo z bz2 poppler dbus-1 iconv xml2 xslt jpeg png16'
+            ('usb-1.0 mtp expat sqlite3 ffi z poppler dbus-1 iconv xml2 xslt jpeg png16'
              ' webp exslt ncursesw readline chm icudata icui18n icuuc icuio gcrypt gpg-error'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1').split()
         )) + [
-        # We dont include libstdc++.so as the OpenGL dlls on the target
-        # computer fail to load in the QPA xcb plugin if they were compiled
-        # with a newer version of gcc than the one on the build computer.
-        # libstdc++, like glibc is forward compatible and I dont think any
-        # distros do not have libstdc++.so.6, so it should be safe to leave it out.
-        # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
-        # debian stable libstdc++ is  libstdc++.so.6.0.17)
+            get_dll_path('podofo', 3), get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
+            get_dll_path('ssl', 3), get_dll_path('crypto', 3), get_dll_path('python' + py_ver, 2),
+            # We dont include libstdc++.so as the OpenGL dlls on the target
+            # computer fail to load in the QPA xcb plugin if they were compiled
+            # with a newer version of gcc than the one on the build computer.
+            # libstdc++, like glibc is forward compatible and I dont think any
+            # distros do not have libstdc++.so.6, so it should be safe to leave it out.
+            # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
+            # debian stable libstdc++ is  libstdc++.so.6.0.17)
     ] + list(map(qt_get_dll_path, QT_DLLS))
 
 
@@ -111,6 +111,9 @@ def copy_libs(env):
     for x in binary_includes():
         dest = env.bin_dir if '/bin/' in x else env.lib_dir
         shutil.copy2(x, dest)
+        os.chmod(j(
+            dest, os.path.basename(x)),
+            stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
     base = j(QT_PREFIX, 'plugins')
     dest = j(env.lib_dir, 'qt_plugins')
@@ -138,7 +141,7 @@ def copy_python(env, ext_dir):
     import_site_packages(srcdir, dest)
     shutil.rmtree(j(dest, 'PyQt5/uic/port_v3'))
 
-    filter_pyqt = {x + '.so' for x in PYQT_MODULES}
+    filter_pyqt = {x + '.so' for x in PYQT_MODULES} | {'sip.so'}
     pyqt = j(dest, 'PyQt5')
     for x in os.listdir(pyqt):
         if x.endswith('.so') and x not in filter_pyqt:
@@ -280,8 +283,6 @@ def create_tarfile(env, compression_level='9'):
 
 
 def run_tests(path_to_calibre_debug, cwd_on_failure):
-    env = os.environ.copy()
-    env['LD_LIBRARY_PATH'] = LIBDIR
     p = subprocess.Popen([path_to_calibre_debug, '--test-build'])
     if p.wait() != 0:
         os.chdir(cwd_on_failure)
@@ -296,6 +297,7 @@ def build_extensions(env, ext_dir):
     wenv['LD_LIBRARY_PATH'] = LIBDIR
     wenv['QMAKE'] = os.path.join(QT_PREFIX, 'bin', 'qmake')
     wenv['SW'] = PREFIX
+    wenv['SIP_BIN'] = os.path.join(PREFIX, 'bin', 'sip')
     p = subprocess.Popen([PYTHON, 'setup.py', 'build', '--build-dir=' + build_dir(), '--output-dir=' + ext_dir], env=wenv, cwd=CALIBRE_DIR)
     if p.wait() != 0:
         os.chdir(CALIBRE_DIR)
@@ -308,8 +310,8 @@ def main():
     args = globals()['args']
     ext_dir = globals()['ext_dir']
     env = Env()
-    build_extensions(env, ext_dir)
     copy_libs(env)
+    build_extensions(env, ext_dir)
     copy_python(env, ext_dir)
     build_launchers(env)
     if not args.skip_tests:
