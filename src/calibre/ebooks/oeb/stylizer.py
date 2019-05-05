@@ -167,6 +167,19 @@ class StylizerRules(object):
             text = self.opts.change_justification
         return text
 
+    def same_rules(self, opts, profile, stylesheets):
+        if self.opts != opts:
+            # it's unlikely to happen, but better safe than sorry
+            return False
+        if self.profile != profile:
+            return False
+        if len(self.stylesheets) != len(stylesheets):
+            return False
+        for index, stylesheet in enumerate(self.stylesheets):
+            if stylesheet != stylesheets[index]:
+                return False
+        return True
+
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
@@ -271,13 +284,11 @@ class Stylizer(object):
                     self.logger.debug('Bad css: ')
                     self.logger.debug(x)
 
-        # using the profile to store the rules, page rule and font face rules
-        # and generating them again if stylesheets are different
-        # they should depend on opts too, but opts shouldn't change during
-        # a conversion process, so it should be safe...
-        if (not hasattr(self.profile, 'stylizer_rules')) \
-            or set(self.profile.stylizer_rules.stylesheets) != set(stylesheets):
-            self.profile.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
+        # using oeb to store the rules, page rule and font face rules
+        # and generating them again if opts, profile or stylesheets are different
+        if (not hasattr(self.oeb, 'stylizer_rules')) \
+            or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
+            self.oeb.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
 
         self._styles = {}
         pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
@@ -350,18 +361,18 @@ class Stylizer(object):
 
     @property
     def rules(self):
-        return self.profile.stylizer_rules.rules
+        return self.oeb.stylizer_rules.rules
 
     @property
     def page_rule(self):
-        return self.profile.stylizer_rules.page_rule
+        return self.oeb.stylizer_rules.page_rule
 
     @property
     def font_face_rules(self):
-        return self.profile.stylizer_rules.font_face_rules
+        return self.oeb.stylizer_rules.font_face_rules
 
     def flatten_style(self, cssstyle):
-        return self.profile.stylizer_rules.flatten_style(cssstyle)
+        return self.oeb.stylizer_rules.flatten_style(cssstyle)
 
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
