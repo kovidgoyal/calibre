@@ -97,13 +97,15 @@ def require_clean_git():
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
-    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read().decode('utf-8')
+    with open(os.path.join(SRC, 'calibre/constants.py'), 'rb') as f:
+        src = f.read().decode('utf-8')
     nv = eval(re.search(r'numeric_version = (\(.*?\))', src).group(1))
     __version__   = u'.'.join(map(str if ispy3 else unicode, nv))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
-    epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
-            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read().decode('utf-8')).group(1)
+    with open(os.path.join(SRC, 'calibre/linux.py'), 'rb') as f:
+        epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
+            search(f.read().decode('utf-8')).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})
 
     def e2b(ep):
