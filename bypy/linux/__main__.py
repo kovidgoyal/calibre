@@ -2,18 +2,22 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import print_function
+
 import errno
 import glob
 import os
 import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import time
 from functools import partial
 
 from bypy.constants import (
-    PREFIX, SRC as CALIBRE_DIR, SW, is64bit, python_major_minor_version
+    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
+    python_major_minor_version, worker_env
 )
 from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import (
@@ -28,6 +32,7 @@ arch = 'x86_64' if is64bit else 'i686'
 py_ver = '.'.join(map(str, python_major_minor_version()))
 QT_PREFIX = os.path.join(PREFIX, 'qt')
 calibre_constants = globals()['init_env']['calibre_constants']
+qt_get_dll_path = partial(get_dll_path, loc=os.path.join(QT_PREFIX, 'lib'))
 
 
 def binary_includes():
@@ -50,8 +55,7 @@ def binary_includes():
         # distros do not have libstdc++.so.6, so it should be safe to leave it out.
         # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
         # debian stable libstdc++ is  libstdc++.so.6.0.17)
-    ] + [
-        j(QT_PREFIX, 'lib', 'lib%s.so.5' % x) for x in QT_DLLS]
+    ] + list(map(qt_get_dll_path, QT_DLLS))
 
 
 class Env(object):
@@ -276,17 +280,35 @@ def create_tarfile(env, compression_level='9'):
 
 
 def run_tests(path_to_calibre_debug, cwd_on_failure):
+    env = os.environ.copy()
+    env['LD_LIBRARY_PATH'] = LIBDIR
     p = subprocess.Popen([path_to_calibre_debug, '--test-build'])
     if p.wait() != 0:
         os.chdir(cwd_on_failure)
+        print('running calibre build tests failed', file=sys.stderr)
         run_shell()
         raise SystemExit(p.wait())
+
+
+def build_extensions(env, ext_dir):
+    wenv = os.environ.copy()
+    wenv.update(worker_env)
+    wenv['LD_LIBRARY_PATH'] = LIBDIR
+    wenv['QMAKE'] = os.path.join(QT_PREFIX, 'bin', 'qmake')
+    wenv['SW'] = PREFIX
+    p = subprocess.Popen([PYTHON, 'setup.py', 'build', '--build-dir=' + build_dir(), '--output-dir=' + ext_dir], env=wenv, cwd=CALIBRE_DIR)
+    if p.wait() != 0:
+        os.chdir(CALIBRE_DIR)
+        print('building calibre extensions failed', file=sys.stderr)
+        run_shell()
+        raise SystemExit(p.returncode)
 
 
 def main():
     args = globals()['args']
     ext_dir = globals()['ext_dir']
     env = Env()
+    build_extensions(env, ext_dir)
     copy_libs(env)
     copy_python(env, ext_dir)
     build_launchers(env)
