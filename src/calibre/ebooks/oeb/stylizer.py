@@ -289,6 +289,10 @@ class Stylizer(object):
         if (not hasattr(self.oeb, 'stylizer_rules')) \
             or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
             self.oeb.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
+        self.rules = self.oeb.stylizer_rules.rules
+        self.page_rule = self.oeb.stylizer_rules.page_rule
+        self.font_face_rules = self.oeb.stylizer_rules.font_face_rules
+        self.flatten_style = self.oeb.stylizer_rules.flatten_style
 
         self._styles = {}
         pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
@@ -358,21 +362,6 @@ class Stylizer(object):
                         upd[prop] = val
                 if upd:
                     style._update_cssdict(upd)
-
-    @property
-    def rules(self):
-        return self.oeb.stylizer_rules.rules
-
-    @property
-    def page_rule(self):
-        return self.oeb.stylizer_rules.page_rule
-
-    @property
-    def font_face_rules(self):
-        return self.oeb.stylizer_rules.font_face_rules
-
-    def flatten_style(self, cssstyle):
-        return self.oeb.stylizer_rules.flatten_style(cssstyle)
 
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
