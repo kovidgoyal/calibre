@@ -11,7 +11,7 @@ import os, sys, re
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -159,10 +159,10 @@ def title_sort(title, order=None, lang=None):
     return title.strip()
 
 
-coding = zip(
+coding = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
 ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
-)
+))
 
 
 def roman(num):
