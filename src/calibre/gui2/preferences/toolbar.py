@@ -8,11 +8,21 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
         QItemSelectionModel
 
+from calibre import force_unicode
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
 from calibre.gui2 import gprefs, warning_dialog, error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import unicode_type
+
+
+def sort_key_for_action(ac):
+    q = getattr(ac, 'action_spec', None)
+    if q is None:
+        q = q.name
+    else:
+        q = q[0]
+    return primary_sort_key(force_unicode(q))
 
 
 class FakeAction(object):
@@ -105,12 +115,7 @@ class AllModel(BaseModel):
         all = [self.name_to_action(x, self.gui) for x in all]
         all = [x for x in all if self.key not in x.dont_add_to]
 
-        def sk(ac):
-            try:
-                return primary_sort_key(ac.action_spec[0])
-            except Exception:
-                pass
-        all.sort(key=sk)
+        all.sort(key=sort_key_for_action)
         return all
 
     def add(self, names):
@@ -121,7 +126,7 @@ class AllModel(BaseModel):
             actions.append(self.name_to_action(name, self.gui))
         self.beginResetModel()
         self._data.extend(actions)
-        self._data.sort()
+        self._data.sort(key=sort_key_for_action)
         self.endResetModel()
 
     def remove(self, indices, allowed):
