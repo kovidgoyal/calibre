@@ -10,6 +10,7 @@ __all__ = [
         'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
         'build', 'mathjax', 'man_pages',
         'gui',
+        'git_version',
         'develop', 'install',
         'kakasi', 'coffee', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
         'check', 'test',
@@ -39,6 +40,9 @@ build = Build()
 
 from setup.mathjax import MathJax
 mathjax = MathJax()
+
+from setup.git_version import GitVersion
+git_version = GitVersion()
 
 from setup.install import Develop, Install, Sdist, Bootstrap
 develop = Develop()
