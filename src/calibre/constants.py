@@ -8,6 +8,7 @@ import sys, locale, codecs, os, importlib, collections
 __appname__   = u'calibre'
 numeric_version = (3, 42, 0)
 __version__   = u'.'.join(map(unicode_type, numeric_version))
+git_version   = None
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
 '''
@@ -285,9 +286,12 @@ del dv
 
 def get_version():
     '''Return version string for display to user '''
-    v = __version__
-    if numeric_version[-1] == 0:
-        v = v[:-2]
+    if git_version is not None:
+        v = git_version
+    else:
+        v = __version__
+        if numeric_version[-1] == 0:
+            v = v[:-2]
     if is_running_from_develop:
         v += '*'
     if iswindows and is64bit:
