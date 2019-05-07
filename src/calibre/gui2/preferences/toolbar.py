@@ -121,7 +121,7 @@ class AllModel(BaseModel):
             actions.append(self.name_to_action(name, self.gui))
         self.beginResetModel()
         self._data.extend(actions)
-        self._data.sort()
+        self._data.sort(key=lambda x: x.action_spec[0] if hasattr(x, 'action_spec') else x.name)
         self.endResetModel()
 
     def remove(self, indices, allowed):
