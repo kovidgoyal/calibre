@@ -18,11 +18,11 @@ from polyglot.builtins import unicode_type
 
 def sort_key_for_action(ac):
     q = getattr(ac, 'action_spec', None)
-    if q is None:
-        q = q.name
-    else:
-        q = q[0]
-    return primary_sort_key(force_unicode(q))
+    try:
+        q = ac.name if q is None else q[0]
+        return primary_sort_key(force_unicode(q))
+    except Exception:
+        return primary_sort_key(u'')
 
 
 class FakeAction(object):
