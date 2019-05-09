@@ -688,6 +688,12 @@ class PostInstall:
         self.opts.staging_etc = '/etc' if self.opts.staging_root == '/usr' else \
                 os.path.join(self.opts.staging_root, 'etc')
 
+        prefix = getattr(self.opts, 'prefix', None)
+        if prefix and prefix != self.opts.staging_root:
+            self.opts.staged_install = True
+            os.environ['XDG_DATA_DIRS'] = os.path.join(self.opts.staging_root, 'share')
+            os.environ['XDG_UTILS_INSTALL_MODE'] = 'system'
+
         from calibre.utils.serialize import msgpack_loads
         scripts = msgpack_loads(P('scripts.calibre_msgpack', data=True))
         self.manifest = manifest or []
@@ -799,6 +805,14 @@ class PostInstall:
                 env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
                 cc = partial(check_call, env=env)
 
+            if getattr(self.opts, 'staged_install', False):
+                for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
+                    try:
+                        os.makedirs(os.path.join(self.opts.staging_root, 'share', d))
+                    except OSError:
+                        # python2 does not have exist_ok=True, failure will be reported by xdg-utils
+                        pass
+
             with TemporaryDirectory() as tdir, CurrentDir(tdir), PreserveMIMEDefaults():
 
                 def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
@@ -876,10 +890,14 @@ class PostInstall:
                     ak = x.partition('.')[0]
                     if ak in APPDATA and os.access(appdata, os.W_OK):
                         self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
-                cc(['xdg-desktop-menu', 'forceupdate'])
                 MIME = P('calibre-mimetypes.xml')
                 self.mime_resources.append(MIME)
-                cc(['xdg-mime', 'install', MIME])
+                if not getattr(self.opts, 'staged_install', False):
+                    cc(['xdg-mime', 'install', MIME])
+                    cc(['xdg-desktop-menu', 'forceupdate'])
+                else:
+                    from shutil import copyfile
+                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', os.path.basename(MIME)))
         except Exception:
             if self.opts.fatal_errors:
                 raise
