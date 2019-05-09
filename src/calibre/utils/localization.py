@@ -155,7 +155,7 @@ def get_translator(bcp_47_code):
     lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(lang, lang)
     available = available_translations()
     found = True
-    if lang == 'en':
+    if lang == 'en' or lang.startswith('en_'):
         return found, lang, NullTranslations()
     if lang not in available:
         lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
@@ -164,6 +164,8 @@ def get_translator(bcp_47_code):
             if lang not in available:
                 lang = 'en'
             found = False
+    if lang == 'en':
+        return True, lang, NullTranslations()
     return found, lang, get_single_translator(lang)
 
 
