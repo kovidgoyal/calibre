@@ -967,7 +967,7 @@ class CustomList(QWidget):  # {{{
         if path:
             raw = self.serialize(self.current_template)
             with lopen(path, 'wb') as f:
-                f.write(raw)
+                f.write(raw.encode('utf-8'))
 
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
@@ -1020,7 +1020,7 @@ class CustomList(QWidget):  # {{{
         else:
             raw = self.serialize(template)
             with lopen(custom_list_template.path, 'wb') as f:
-                f.write(raw)
+                f.write(raw.encode('utf-8'))
         return True
 
 # }}}
