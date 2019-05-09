@@ -50,7 +50,7 @@ def books_cache_dir():
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
     raw = json_dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
-    return sha1(raw).hexdigest().decode('ascii')
+    return sha1(raw).hexdigest()
 
 
 staging_cleaned = False
