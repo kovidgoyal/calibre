@@ -127,11 +127,12 @@ if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 
     frozen_path = None
 
 for f in {mime_resources!r}:
-    cmd = ['xdg-mime', 'uninstall', f]
-    print ('Removing mime resource:', os.path.basename(f))
-    ret = subprocess.call(cmd, shell=False)
-    if ret != 0:
-        print ('WARNING: Failed to remove mime resource', f)
+    if os.path.exists(f):
+        cmd = ['xdg-mime', 'uninstall', f]
+        print ('Removing mime resource:', os.path.basename(f))
+        ret = subprocess.call(cmd, shell=False)
+        if ret != 0:
+            print ('WARNING: Failed to remove mime resource', f)
 
 for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path):
     if not x or not os.path.exists(x):
@@ -890,14 +891,16 @@ class PostInstall:
                     ak = x.partition('.')[0]
                     if ak in APPDATA and os.access(appdata, os.W_OK):
                         self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
-                MIME = P('calibre-mimetypes.xml')
+                MIME_BASE = 'calibre-mimetypes.xml'
+                MIME = P(MIME_BASE)
                 self.mime_resources.append(MIME)
+                self.mime_resources.append(os.path.join(self.opts.staging_sharedir, MIME_BASE))
                 if not getattr(self.opts, 'staged_install', False):
                     cc(['xdg-mime', 'install', MIME])
                     cc(['xdg-desktop-menu', 'forceupdate'])
                 else:
                     from shutil import copyfile
-                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', os.path.basename(MIME)))
+                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
         except Exception:
             if self.opts.fatal_errors:
                 raise
