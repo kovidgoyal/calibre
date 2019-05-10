@@ -723,7 +723,8 @@ class PostInstall:
             self.setup_completion()
         if islinux or isbsd:
             self.setup_desktop_integration()
-        self.create_uninstaller()
+        if not getattr(self.opts, 'staged_install', False):
+            self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
