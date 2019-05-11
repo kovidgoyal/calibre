@@ -354,6 +354,7 @@ class USBMS(CLI, Device):
         debug_print('USBMS: adding metadata for %d books'%(len(metadata)))
 
         metadata = iter(metadata)
+        locations = tuple(locations)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             info = next(metadata)

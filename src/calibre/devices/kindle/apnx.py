@@ -17,7 +17,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
 from calibre import prints, fsync
 from calibre.constants import DEBUG
-from polyglot.builtins import range
+from polyglot.builtins import range, as_unicode, as_bytes
 
 
 class APNXBuilder(object):
@@ -37,10 +37,10 @@ class APNXBuilder(object):
 
         with lopen(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
-            if ident != 'BOOKMOBI':
+            if ident != b'BOOKMOBI':
                 # Check that this is really a MOBI file.
                 raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
-            apnx_meta['acr'] = str(PdbHeaderReader(mf).name())
+            apnx_meta['acr'] = as_unicode(PdbHeaderReader(mf).name(), errors='replace')
 
         # We'll need the PDB name, the MOBI version, and some metadata to make FW 3.4 happy with KF8 files...
         with lopen(mobi_file_path, 'rb') as mf:
@@ -92,7 +92,7 @@ class APNXBuilder(object):
             fsync(apnxf)
 
     def generate_apnx(self, pages, apnx_meta):
-        apnx = ''
+        apnx = b''
 
         if DEBUG:
             prints('APNX META: guid:', apnx_meta['guid'])
@@ -117,12 +117,12 @@ class APNXBuilder(object):
         apnx += struct.pack('>I', 65537)
         apnx += struct.pack('>I', 12 + len(content_header))
         apnx += struct.pack('>I', len(content_header))
-        apnx += content_header
+        apnx += as_bytes(content_header)
         apnx += struct.pack('>H', 1)
         apnx += struct.pack('>H', len(page_header))
         apnx += struct.pack('>H', len(pages))
         apnx += struct.pack('>H', 32)
-        apnx += page_header
+        apnx += as_bytes(page_header)
 
         # Write page values to APNX.
         for page in pages:
