@@ -22,7 +22,7 @@ from calibre.utils.shared_file import share_open, raise_winerror
 from polyglot.builtins import iteritems, map, range
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
-from polyglot.builtins import unicode_type
+from polyglot.builtins import is_py3, unicode_type, as_bytes, as_unicode
 from polyglot.urllib import parse_qs, quote as urlquote
 from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
@@ -530,10 +530,10 @@ def get_use_roman():
     return _use_roman
 
 
-if iswindows:
+if iswindows and not is_py3:
     def fast_now_strftime(fmt):
-        fmt = fmt.encode('mbcs')
+        fmt = as_bytes(fmt, encoding='mbcs')
         return time.strftime(fmt).decode('mbcs', 'replace')
 else:
     def fast_now_strftime(fmt):
-        return time.strftime(fmt).decode('utf-8', 'replace')
+        return as_unicode(time.strftime(fmt), errors='replace')

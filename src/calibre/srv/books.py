@@ -2,21 +2,27 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from hashlib import sha1
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import errno
+import json as jsonlib
+import os
+import shutil
+import tempfile
+import time
 from functools import partial
-from threading import RLock, Lock
-import errno, os, tempfile, shutil, time, json as jsonlib
+from hashlib import sha1
+from threading import Lock, RLock
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
-from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_library_data, get_db
+from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.serialize import json_dumps
+from polyglot.builtins import as_unicode
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -50,7 +56,7 @@ def books_cache_dir():
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
     raw = json_dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
-    return sha1(raw).hexdigest().decode('ascii')
+    return as_unicode(sha1(raw).hexdigest())
 
 
 staging_cleaned = False

@@ -32,7 +32,7 @@ from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
 from calibre.utils.icu import primary_sort_key
-from polyglot.binary import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 try:
     from PyQt5 import sip
@@ -967,7 +967,7 @@ class CustomList(QWidget):  # {{{
         if path:
             raw = self.serialize(self.current_template)
             with lopen(path, 'wb') as f:
-                f.write(raw)
+                f.write(as_bytes(raw))
 
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
@@ -1020,7 +1020,7 @@ class CustomList(QWidget):  # {{{
         else:
             raw = self.serialize(template)
             with lopen(custom_list_template.path, 'wb') as f:
-                f.write(raw)
+                f.write(as_bytes(raw))
         return True
 
 # }}}

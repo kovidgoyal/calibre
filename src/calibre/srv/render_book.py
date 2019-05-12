@@ -31,7 +31,7 @@ from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_base64_unicode as encode_component, from_base64_unicode as decode_component
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, map, is_py3, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -501,7 +501,10 @@ def html_as_dict(root):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
     root.text = root.tail = None
-    nsmap = defaultdict(count().next)
+    if is_py3:
+        nsmap = defaultdict(count().__next__)
+    else:
+        nsmap = defaultdict(count().next)
     nsmap[XHTML_NS]
     tags = [serialize_elem(root, nsmap)]
     tree = [0]
