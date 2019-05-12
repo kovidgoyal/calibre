@@ -110,7 +110,7 @@ UNINSTALL = '''\
 from __future__ import print_function, unicode_literals
 euid = {euid}
 
-import os, subprocess, shutil
+import os, subprocess, shutil, tempfile
 
 try:
     raw_input
@@ -126,15 +126,18 @@ frozen_path = {frozen_path!r}
 if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 'calibre-mimetypes.xml')):
     frozen_path = None
 
+dummy_mime_path = tempfile.mkdtemp(prefix='mime-hack.')
 for f in {mime_resources!r}:
-    if os.path.exists(f):
-        cmd = ['xdg-mime', 'uninstall', f]
-        print ('Removing mime resource:', os.path.basename(f))
-        ret = subprocess.call(cmd, shell=False)
-        if ret != 0:
-            print ('WARNING: Failed to remove mime resource', f)
+    # dummyfile
+    file = os.path.join(dummy_mime_path, f)
+    open(file, 'w').close()
+    cmd = ['xdg-mime', 'uninstall', file]
+    print ('Removing mime resource:', f)
+    ret = subprocess.call(cmd, shell=False)
+    if ret != 0:
+        print ('WARNING: Failed to remove mime resource', f)
 
-for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path):
+for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path, dummy_mime_path):
     if not x or not os.path.exists(x):
         continue
     print ('Removing', x)
@@ -894,8 +897,7 @@ class PostInstall:
                         self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
                 MIME_BASE = 'calibre-mimetypes.xml'
                 MIME = P(MIME_BASE)
-                self.mime_resources.append(MIME)
-                self.mime_resources.append(os.path.join(self.opts.staging_sharedir, MIME_BASE))
+                self.mime_resources.append(MIME_BASE)
                 if not getattr(self.opts, 'staged_install', False):
                     cc(['xdg-mime', 'install', MIME])
                     cc(['xdg-desktop-menu', 'forceupdate'])
