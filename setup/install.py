@@ -135,8 +135,8 @@ class Develop(Command):
         self.opts = opts
         self.regain_privileges()
         self.consolidate_paths()
-        self.write_templates()
         self.install_files()
+        self.write_templates()
         self.run_postinstall()
         self.install_env_module()
         self.success()
