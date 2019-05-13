@@ -415,8 +415,8 @@
     {
         "name": "html5-parser",
         "unix": {
-            "filename": "html5-parser-0.4.5.tar.gz",
-            "hash": "sha256:a903ef8b93b51788a6d1604b3833303e9f2f8db488306ee4241436d2f518bd06",
+            "filename": "html5-parser-0.4.6.tar.gz",
+            "hash": "sha256:45551d9668e230555090ee52917e08b2f78017c8dce37e0e8d922246cbe4ac5f",
             "urls": ["pypi"]
         }
     },
