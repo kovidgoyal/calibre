@@ -110,7 +110,7 @@ UNINSTALL = '''\
 from __future__ import print_function, unicode_literals
 euid = {euid}
 
-import os, subprocess, shutil
+import os, subprocess, shutil, tempfile
 
 try:
     raw_input
@@ -126,14 +126,19 @@ frozen_path = {frozen_path!r}
 if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 'calibre-mimetypes.xml')):
     frozen_path = None
 
+dummy_mime_path = tempfile.mkdtemp(prefix='mime-hack.')
 for f in {mime_resources!r}:
-    cmd = ['xdg-mime', 'uninstall', f]
-    print ('Removing mime resource:', os.path.basename(f))
+    # dummyfile
+    f = os.path.basename(f)
+    file = os.path.join(dummy_mime_path, f)
+    open(file, 'w').close()
+    cmd = ['xdg-mime', 'uninstall', file]
+    print ('Removing mime resource:', f)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
         print ('WARNING: Failed to remove mime resource', f)
 
-for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path):
+for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path, dummy_mime_path):
     if not x or not os.path.exists(x):
         continue
     print ('Removing', x)
@@ -688,6 +693,12 @@ class PostInstall:
         self.opts.staging_etc = '/etc' if self.opts.staging_root == '/usr' else \
                 os.path.join(self.opts.staging_root, 'etc')
 
+        prefix = getattr(self.opts, 'prefix', None)
+        if prefix and prefix != self.opts.staging_root:
+            self.opts.staged_install = True
+            os.environ['XDG_DATA_DIRS'] = os.path.join(self.opts.staging_root, 'share')
+            os.environ['XDG_UTILS_INSTALL_MODE'] = 'system'
+
         from calibre.utils.serialize import msgpack_loads
         scripts = msgpack_loads(P('scripts.calibre_msgpack', data=True))
         self.manifest = manifest or []
@@ -716,7 +727,8 @@ class PostInstall:
             self.setup_completion()
         if islinux or isbsd:
             self.setup_desktop_integration()
-        self.create_uninstaller()
+        if not getattr(self.opts, 'staged_install', False):
+            self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
@@ -799,6 +811,14 @@ class PostInstall:
                 env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
                 cc = partial(check_call, env=env)
 
+            if getattr(self.opts, 'staged_install', False):
+                for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
+                    try:
+                        os.makedirs(os.path.join(self.opts.staging_root, 'share', d))
+                    except OSError:
+                        # python2 does not have exist_ok=True, failure will be reported by xdg-utils
+                        pass
+
             with TemporaryDirectory() as tdir, CurrentDir(tdir), PreserveMIMEDefaults():
 
                 def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
@@ -876,10 +896,15 @@ class PostInstall:
                     ak = x.partition('.')[0]
                     if ak in APPDATA and os.access(appdata, os.W_OK):
                         self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
-                cc(['xdg-desktop-menu', 'forceupdate'])
-                MIME = P('calibre-mimetypes.xml')
-                self.mime_resources.append(MIME)
-                cc(['xdg-mime', 'install', MIME])
+                MIME_BASE = 'calibre-mimetypes.xml'
+                MIME = P(MIME_BASE)
+                self.mime_resources.append(MIME_BASE)
+                if not getattr(self.opts, 'staged_install', False):
+                    cc(['xdg-mime', 'install', MIME])
+                    cc(['xdg-desktop-menu', 'forceupdate'])
+                else:
+                    from shutil import copyfile
+                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
         except Exception:
             if self.opts.fatal_errors:
                 raise

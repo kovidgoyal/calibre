@@ -135,8 +135,8 @@ class Develop(Command):
         self.opts = opts
         self.regain_privileges()
         self.consolidate_paths()
-        self.write_templates()
         self.install_files()
+        self.write_templates()
         self.run_postinstall()
         self.install_env_module()
         self.success()
@@ -214,6 +214,8 @@ class Install(Develop):
             the environment variables:
             XDG_DATA_DIRS=/usr/share equivalent
             XDG_UTILS_INSTALL_MODE=system
+            For staged installs this will be automatically set to:
+            <staging_root>/share
     ''')
     short_description = 'Install calibre from source'
 
