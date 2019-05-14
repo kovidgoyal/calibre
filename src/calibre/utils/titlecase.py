@@ -56,9 +56,14 @@ def titlecase(text):
 
     all_caps = upper(text) == text
 
-    words = re.split('\\s+', text)
+    pat = re.compile(r'(\s+)')
     line = []
-    for word in words:
+    for word in pat.split(text):
+        if not word:
+            continue
+        if pat.match(word) is not None:
+            line.append(word)
+            continue
         if all_caps:
             if UC_INITIALS.match(word):
                 line.append(word)
@@ -83,7 +88,7 @@ def titlecase(text):
             hyphenated.append(CAPFIRST.sub(lambda m: icu_upper(m.group(0)), item))
         line.append("-".join(hyphenated))
 
-    result = " ".join(line)
+    result = "".join(line)
 
     result = SMALL_FIRST.sub(lambda m: '%s%s' % (
         m.group(1),
