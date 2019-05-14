@@ -114,6 +114,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             pass
 
         # initialization
+        self.to_rename = {}
+        self.to_delete = set([])
+        self.all_tags = {}
+        self.original_names = {}
+
         self.ordered_tags = []
         self.sorter = sorter
         self.get_book_ids = get_book_ids
@@ -172,14 +177,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.fill_in_table(None, None)
 
     def fill_in_table(self, tags, tag_to_match):
-        self.to_rename = {}
-        self.to_delete = set([])
-        self.all_tags = {}
-        self.original_names = {}
-
         data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
+        self.all_tags = {}
         for k,v,count in data:
-            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v, 'is_deleted': False}
+            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
+                                'is_deleted': k in self.to_delete}
             self.original_names[k] = v
         self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
         if tags is None:
@@ -204,9 +206,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for row,tag in enumerate(tags):
             item = NameTableWidgetItem()
             item.set_is_deleted(self.all_tags[tag]['is_deleted'])
-            item.setText(self.all_tags[tag]['cur_name'])
+            _id = self.all_tags[tag]['key']
+            item.setData(Qt.UserRole, _id)
             item.set_initial_text(tag)
-            item.setData(Qt.UserRole, self.all_tags[tag]['key'])
+            if _id in self.to_rename:
+                item.setText(self.to_rename[_id])
+            else:
+                item.setText(tag)
             item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
             self.table.setItem(row, 0, item)
             if tag == tag_to_match:
@@ -219,7 +225,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
             item = QTableWidgetItem()
             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
-            if tag != self.all_tags[tag]['cur_name'] or self.all_tags[tag]['is_deleted']:
+            if _id in self.to_rename or _id in self.to_delete:
                 item.setData(Qt.DisplayRole, tag)
             self.table.setItem(row, 2, item)
         self.table.blockSignals(False)
