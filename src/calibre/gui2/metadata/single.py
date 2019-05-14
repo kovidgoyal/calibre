@@ -872,6 +872,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
         self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
         gb.setLayout(l)
         l.addWidget(self.comments)
         self.splitter.addWidget(gb)
