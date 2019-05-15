@@ -72,14 +72,13 @@ class BasicMetadataWidget(object):
     def commit(self, db, id_):
         return True
 
-    @dynamic_property
+    @property
     def current_val(self):
-        # Present in most but not all basic metadata widgets
-        def fget(self):
-            return None
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
+        return None
+
+    @current_val.setter
+    def current_val(self, val):
+        pass
 '''
 
 
@@ -225,24 +224,22 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
             # to work even if some of the book files are opened in windows.
             getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            title = clean_text(unicode_type(self.text()))
-            if not title:
-                title = self.get_default()
-            return title.strip()
+        title = clean_text(unicode_type(self.text()))
+        if not title:
+            title = self.get_default()
+        return title.strip()
 
-        def fset(self, val):
-            if hasattr(val, 'strip'):
-                val = val.strip()
-            if not val:
-                val = self.get_default()
-            self.set_text(val)
-            self.setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if hasattr(val, 'strip'):
+            val = val.strip()
+        if not val:
+            val = self.get_default()
+        self.set_text(val)
+        self.setCursorPosition(0)
 
     def break_cycles(self):
         self.dialog = None
@@ -416,22 +413,20 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                 allow_case_change=True)
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            au = clean_text(unicode_type(self.text()))
-            if not au:
-                au = self.get_default()
-            return string_to_authors(au)
+        au = clean_text(unicode_type(self.text()))
+        if not au:
+            au = self.get_default()
+        return string_to_authors(au)
 
-        def fset(self, val):
-            if not val:
-                val = [self.get_default()]
-            self.set_edit_text(' & '.join([x.strip() for x in val]))
-            self.lineEdit().setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = [self.get_default()]
+        self.set_edit_text(' & '.join([x.strip() for x in val]))
+        self.lineEdit().setCursorPosition(0)
 
     def break_cycles(self):
         self.db = self.dialog = None
@@ -485,19 +480,17 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         self.first_time = True
         self.update_state()
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            return clean_text(unicode_type(self.text()))
+        return clean_text(unicode_type(self.text()))
 
-        def fset(self, val):
-            if not val:
-                val = ''
-            self.set_text(val.strip())
-            self.setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = ''
+        self.set_text(val.strip())
+        self.setCursorPosition(0)
 
     def update_state_and_val(self):
         # Handle case change if the authors box changed
@@ -613,19 +606,17 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.books_to_refresh = set([])
         self.lineEdit().textChanged.connect(self.data_changed)
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            return clean_text(unicode_type(self.currentText()))
+        return clean_text(unicode_type(self.currentText()))
 
-        def fset(self, val):
-            if not val:
-                val = ''
-            self.set_edit_text(val.strip())
-            self.lineEdit().setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = ''
+        self.set_edit_text(val.strip())
+        self.lineEdit().setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
@@ -672,19 +663,17 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
     def enable(self, *args):
         self.setEnabled(bool(self.series_edit.current_val))
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            return self.value()
+        return self.value()
 
-        def fset(self, val):
-            if val is None:
-                val = 1.0
-            val = float(val)
-            self.set_spinbox_value(val)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if val is None:
+            val = 1.0
+        val = float(val)
+        self.set_spinbox_value(val)
 
     def initialize(self, db, id_):
         self.db = db
@@ -1255,31 +1244,29 @@ class Cover(ImageView):  # {{{
     def changed(self):
         return self.current_val != self.original_val
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self._cdata
+        return self._cdata
 
-        def fset(self, cdata):
-            self._cdata = None
-            self.cdata_before_trim = None
-            pm = QPixmap()
-            if cdata:
-                pm.loadFromData(cdata)
-            if pm.isNull():
-                pm = QPixmap(I('default_cover.png'))
-            else:
-                self._cdata = cdata
-            pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
-            self.setPixmap(pm)
-            tt = _('This book has no cover')
-            if self._cdata:
-                tt = _('Cover size: %(width)d x %(height)d pixels') % \
-                dict(width=pm.width(), height=pm.height())
-            self.setToolTip(tt)
-            self.data_changed.emit()
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, cdata):
+        self._cdata = None
+        self.cdata_before_trim = None
+        pm = QPixmap()
+        if cdata:
+            pm.loadFromData(cdata)
+        if pm.isNull():
+            pm = QPixmap(I('default_cover.png'))
+        else:
+            self._cdata = cdata
+        pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+        self.setPixmap(pm)
+        tt = _('This book has no cover')
+        if self._cdata:
+            tt = _('Cover size: %(width)d x %(height)d pixels') % \
+            dict(width=pm.width(), height=pm.height())
+        self.setToolTip(tt)
+        self.data_changed.emit()
 
     def commit(self, db, id_):
         if self.changed:
@@ -1309,20 +1296,19 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
     FIELD_NAME = 'comments'
     toolbar_prefs_name = 'metadata-comments-editor-widget-hidden-toolbars'
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.html
+        return self.html
 
-        def fset(self, val):
-            if not val or not val.strip():
-                val = ''
-            else:
-                val = comments_to_html(val)
-            self.set_html(val, self.allow_undo)
-            self.wyswyg_dirtied()
-            self.data_changed.emit()
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val or not val.strip():
+            val = ''
+        else:
+            val = comments_to_html(val)
+        self.set_html(val, self.allow_undo)
+        self.wyswyg_dirtied()
+        self.data_changed.emit()
 
     def initialize(self, db, id_):
         path = db.abspath(id_, index_is_id=True)
@@ -1350,14 +1336,13 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
         self.setWhatsThis(self.TOOLTIP)
         self.currentTextChanged.connect(self.data_changed)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.rating_value
+        return self.rating_value
 
-        def fset(self, val):
-            self.rating_value = val
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.rating_value = val
 
     def initialize(self, db, id_):
         val = db.rating(id_, index_is_id=True)
@@ -1390,17 +1375,16 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return [clean_text(x) for x in unicode_type(self.text()).split(',')]
+        return [clean_text(x) for x in unicode_type(self.text()).split(',')]
 
-        def fset(self, val):
-            if not val:
-                val = []
-            self.set_edit_text(', '.join([x.strip() for x in val]))
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = []
+        self.set_edit_text(', '.join([x.strip() for x in val]))
+        self.setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
@@ -1454,14 +1438,13 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
         self.textChanged.connect(self.data_changed)
         self.setToolTip(self.TOOLTIP)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.lang_codes
+        return self.lang_codes
 
-        def fset(self, val):
-            self.set_lang_codes(val, self.allow_undo)
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.set_lang_codes(val, self.allow_undo)
 
     def initialize(self, db, id_):
         self.init_langs(db)
@@ -1562,44 +1545,43 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         if d.exec_() == d.Accepted:
             self.current_val = d.get_identifiers()
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            raw = unicode_type(self.text()).strip()
-            parts = [clean_text(x) for x in raw.split(',')]
-            ans = {}
-            for x in parts:
-                c = x.split(':')
-                if len(c) > 1:
-                    itype = c[0].lower()
-                    c = ':'.join(c[1:])
-                    if itype == 'isbn':
-                        v = check_isbn(c)
-                        if v is not None:
-                            c = v
-                    ans[itype] = c
-            return ans
-
-        def fset(self, val):
-            if not val:
-                val = {}
-
-            def keygen(x):
-                x = x[0]
-                if x == 'isbn':
-                    x = '00isbn'
-                return x
-            for k in list(val):
-                if k == 'isbn':
-                    v = check_isbn(k)
+        raw = unicode_type(self.text()).strip()
+        parts = [clean_text(x) for x in raw.split(',')]
+        ans = {}
+        for x in parts:
+            c = x.split(':')
+            if len(c) > 1:
+                itype = c[0].lower()
+                c = ':'.join(c[1:])
+                if itype == 'isbn':
+                    v = check_isbn(c)
                     if v is not None:
-                        val[k] = v
-            ids = sorted(iteritems(val), key=keygen)
-            txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
-            # Use selectAll + insert instead of setText so that undo works
-            self.selectAll(), self.insert(txt.strip())
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+                        c = v
+                ans[itype] = c
+        return ans
+
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = {}
+
+        def keygen(x):
+            x = x[0]
+            if x == 'isbn':
+                x = '00isbn'
+            return x
+        for k in list(val):
+            if k == 'isbn':
+                v = check_isbn(k)
+                if v is not None:
+                    val[k] = v
+        ids = sorted(iteritems(val), key=keygen)
+        txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
+        # Use selectAll + insert instead of setText so that undo works
+        self.selectAll(), self.insert(txt.strip())
+        self.setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.original_val = db.get_identifiers(id_, index_is_id=True)
@@ -1778,19 +1760,17 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.clear_button.setToolTip(_('Clear publisher'))
         self.clear_button.clicked.connect(self.clearEditText)
 
-    @dynamic_property
+    @property
     def current_val(self):
 
-        def fget(self):
-            return clean_text(unicode_type(self.currentText()))
+        return clean_text(unicode_type(self.currentText()))
 
-        def fset(self, val):
-            if not val:
-                val = ''
-            self.set_edit_text(val.strip())
-            self.lineEdit().setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if not val:
+            val = ''
+        self.set_edit_text(val.strip())
+        self.lineEdit().setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
@@ -1857,18 +1837,17 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
     def reset_date(self, *args):
         self.current_val = None
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return qt_to_dt(self.dateTime(), as_utc=False)
+        return qt_to_dt(self.dateTime(), as_utc=False)
 
-        def fset(self, val):
-            if val is None or is_date_undefined(val):
-                val = UNDEFINED_DATE
-            else:
-                val = as_local_time(val)
-            self.set_spinbox_value(val)
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        if val is None or is_date_undefined(val):
+            val = UNDEFINED_DATE
+        else:
+            val = as_local_time(val)
+        self.set_spinbox_value(val)
 
     def initialize(self, db, id_):
         self.current_val = getattr(db, self.ATTR)(id_, index_is_id=True)

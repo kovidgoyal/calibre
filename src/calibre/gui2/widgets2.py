@@ -86,28 +86,27 @@ class ColorButton(QPushButton):
         self.color = initial_color
         self.clicked.connect(self.choose_color)
 
-    @dynamic_property
+    @property
     def color(self):
-        def fget(self):
-            return self._color
+        return self._color
 
-        def fset(self, val):
-            val = unicode_type(val or '')
-            col = QColor(val)
-            orig = self._color
-            if col.isValid():
-                self._color = val
-                self.setText(val)
-                p = QPixmap(self.iconSize())
-                p.fill(col)
-                self.setIcon(QIcon(p))
-            else:
-                self._color = None
-                self.setText(self.choose_text)
-                self.setIcon(QIcon())
-            if orig != col:
-                self.color_changed.emit(self._color)
-        return property(fget=fget, fset=fset)
+    @color.setter
+    def color(self, val):
+        val = unicode_type(val or '')
+        col = QColor(val)
+        orig = self._color
+        if col.isValid():
+            self._color = val
+            self.setText(val)
+            p = QPixmap(self.iconSize())
+            p.fill(col)
+            self.setIcon(QIcon(p))
+        else:
+            self._color = None
+            self.setText(self.choose_text)
+            self.setIcon(QIcon())
+        if orig != col:
+            self.color_changed.emit(self._color)
 
     def choose_color(self):
         col = QColorDialog.getColor(QColor(self._color or Qt.white), self, _('Choose a color'))

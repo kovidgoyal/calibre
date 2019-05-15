@@ -46,26 +46,21 @@ class Book(Metadata):
         # use lpath because the prefix can change, changing path
         return self.lpath == getattr(other, 'lpath', None)
 
-    @dynamic_property
+    @property
     def db_id(self):
-        doc = '''The database id in the application database that this file corresponds to'''
+        '''The database id in the application database that this file corresponds to'''
 
-        def fget(self):
-            match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
-            if match:
-                return int(match.group(1))
-            return None
-        return property(fget=fget, doc=doc)
+        match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
+        if match:
+            return int(match.group(1))
+        return None
 
-    @dynamic_property
+    @property
     def title_sorter(self):
-        doc = '''String to sort the title. If absent, title is returned'''
+        '''String to sort the title. If absent, title is returned'''
+        return title_sort(self.title)
 
-        def fget(self):
-            return title_sort(self.title)
-        return property(doc=doc, fget=fget)
-
-    @dynamic_property
+    @property
     def thumbnail(self):
         return None
 

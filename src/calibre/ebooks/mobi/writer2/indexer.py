@@ -131,14 +131,13 @@ class IndexEntry(object):
                 ' parent_index=%r)')%(self.offset, self.depth, self.length,
                         self.index, self.parent_index)
 
-    @dynamic_property
+    @property
     def size(self):
-        def fget(self):
-            return self.length
+        return self.length
 
-        def fset(self, val):
-            self.length = val
-        return property(fget=fget, fset=fset, doc='Alias for length')
+    @size.setter
+    def size(self, val):
+        self.length = val
 
     @property
     def next_offset(self):

@@ -221,26 +221,25 @@ class EditorTabStop(object):
                 with m:
                     m.text = text
 
-    @dynamic_property
+    @property
     def text(self):
-        def fget(self):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return ''
-            c = editor.textCursor()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            return editor.selected_text_from_cursor(c)
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return ''
+        c = editor.textCursor()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        return editor.selected_text_from_cursor(c)
 
-        def fset(self, text):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return
-            c = editor.textCursor()
-            c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            c.insertText(text)
-            c.endEditBlock()
-        return property(fget=fget, fset=fset)
+    @text.setter
+    def text(self, text):
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return
+        c = editor.textCursor()
+        c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        c.insertText(text)
+        c.endEditBlock()
 
     def set_editor_cursor(self, editor):
         if not self.is_deleted:
@@ -537,20 +536,18 @@ class EditSnippet(QWidget):
             self.types.item(0).setCheckState(Qt.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
 
-    @dynamic_property
+    @property
     def snip(self):
-        def fset(self, snip):
-            self.apply_snip(snip)
+        ftypes = []
+        for i in range(self.types.count()):
+            i = self.types.item(i)
+            if i.checkState() == Qt.Checked:
+                ftypes.append(i.data(Qt.UserRole))
+        return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
 
-        def fget(self):
-            ftypes = []
-            for i in range(self.types.count()):
-                i = self.types.item(i)
-                if i.checkState() == Qt.Checked:
-                    ftypes.append(i.data(Qt.UserRole))
-            return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
-
-        return property(fget=fget, fset=fset)
+    @snip.setter
+    def snip(self, snip):
+        self.apply_snip(snip)
 
     def validate(self):
         snip = self.snip

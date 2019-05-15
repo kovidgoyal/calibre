@@ -60,23 +60,20 @@ class LanguagesEdit(EditWithComplete):
         parts = [x.strip() for x in raw.split(',')]
         return [self.comma_rmap.get(x, x) for x in parts]
 
-    @dynamic_property
+    @property
     def lang_codes(self):
+        vals = self.vals
+        ans = []
+        for name in vals:
+            if name:
+                code = self._rmap.get(lower(name), None)
+                if code is not None:
+                    ans.append(code)
+        return ans
 
-        def fget(self):
-            vals = self.vals
-            ans = []
-            for name in vals:
-                if name:
-                    code = self._rmap.get(lower(name), None)
-                    if code is not None:
-                        ans.append(code)
-            return ans
-
-        def fset(self, lang_codes):
-            self.set_lang_codes(lang_codes, allow_undo=False)
-
-        return property(fget=fget, fset=fset)
+    @lang_codes.setter
+    def lang_codes(self, lang_codes):
+        self.set_lang_codes(lang_codes, allow_undo=False)
 
     def set_lang_codes(self, lang_codes, allow_undo=True):
         ans = []

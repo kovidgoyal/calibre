@@ -430,46 +430,43 @@ class Document(QWebPage):  # {{{
     def xpos(self):
         return self.mainFrame().scrollPosition().x()
 
-    @dynamic_property
+    @property
     def scroll_fraction(self):
-        def fget(self):
-            if self.in_paged_mode:
-                return self.javascript('''
-                ans = 0.0;
-                if (window.paged_display) {
-                    ans = window.paged_display.current_pos();
-                }
-                ans;''',  typ='float')
-            else:
-                try:
-                    return abs(float(self.ypos)/(self.height-self.window_height))
-                except ZeroDivisionError:
-                    return 0.
+        if self.in_paged_mode:
+            return self.javascript('''
+            ans = 0.0;
+            if (window.paged_display) {
+                ans = window.paged_display.current_pos();
+            }
+            ans;''',  typ='float')
+        else:
+            try:
+                return abs(float(self.ypos)/(self.height-self.window_height))
+            except ZeroDivisionError:
+                return 0.
 
-        def fset(self, val):
-            if self.in_paged_mode and self.loaded_javascript:
-                self.javascript('paged_display.scroll_to_pos(%f)'%val)
-            else:
-                npos = val * (self.height - self.window_height)
-                if npos < 0:
-                    npos = 0
-                self.scroll_to(x=self.xpos, y=npos)
-        return property(fget=fget, fset=fset)
+    @scroll_fraction.setter
+    def scroll_fraction(self, val):
+        if self.in_paged_mode and self.loaded_javascript:
+            self.javascript('paged_display.scroll_to_pos(%f)'%val)
+        else:
+            npos = val * (self.height - self.window_height)
+            if npos < 0:
+                npos = 0
+            self.scroll_to(x=self.xpos, y=npos)
 
-    @dynamic_property
+    @property
     def page_number(self):
         ' The page number is the number of the page at the left most edge of the screen (starting from 0) '
+        if self.in_paged_mode:
+            return self.javascript(
+                'ans = 0; if (window.paged_display) ans = window.paged_display.column_boundaries()[0]; ans;', typ='int')
 
-        def fget(self):
-            if self.in_paged_mode:
-                return self.javascript(
-                    'ans = 0; if (window.paged_display) ans = window.paged_display.column_boundaries()[0]; ans;', typ='int')
-
-        def fset(self, val):
-            if self.in_paged_mode and self.loaded_javascript:
-                self.javascript('if (window.paged_display) window.paged_display.scroll_to_column(%d)' % int(val))
-                return True
-        return property(fget=fget, fset=fset)
+    @page_number.setter
+    def page_number(self, val):
+        if self.in_paged_mode and self.loaded_javascript:
+            self.javascript('if (window.paged_display) window.paged_display.scroll_to_column(%d)' % int(val))
+            return True
 
     @property
     def page_dimensions(self):
@@ -862,14 +859,13 @@ class DocumentView(QWebView):  # {{{
     def sizeHint(self):
         return self._size_hint
 
-    @dynamic_property
+    @property
     def scroll_fraction(self):
-        def fget(self):
-            return self.document.scroll_fraction
+        return self.document.scroll_fraction
 
-        def fset(self, val):
-            self.document.scroll_fraction = float(val)
-        return property(fget=fget, fset=fset)
+    @scroll_fraction.setter
+    def scroll_fraction(self, val):
+        self.document.scroll_fraction = float(val)
 
     @property
     def hscroll_fraction(self):
@@ -879,14 +875,13 @@ class DocumentView(QWebView):  # {{{
     def content_size(self):
         return self.document.width, self.document.height
 
-    @dynamic_property
+    @property
     def current_language(self):
-        def fget(self):
-            return self.document.current_language
+        return self.document.current_language
 
-        def fset(self, val):
-            self.document.current_language = val
-        return property(fget=fget, fset=fset)
+    @current_language.setter
+    def current_language(self, val):
+        self.document.current_language = val
 
     def search(self, text, backwards=False):
         flags = self.document.FindBackward if backwards else self.document.FindFlags(0)
@@ -1189,19 +1184,18 @@ class DocumentView(QWebView):  # {{{
         if notify and self.manager is not None and new_pos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
 
-    @dynamic_property
+    @property
     def multiplier(self):
-        def fget(self):
-            return self.zoomFactor()
+        return self.zoomFactor()
 
-        def fset(self, val):
-            oval = self.zoomFactor()
-            self.setZoomFactor(val)
-            if val != oval:
-                if self.document.in_paged_mode:
-                    self.document.update_contents_size_for_paged_mode()
-                self.magnification_changed.emit(val)
-        return property(fget=fget, fset=fset)
+    @multiplier.setter
+    def multiplier(self, val):
+        oval = self.zoomFactor()
+        self.setZoomFactor(val)
+        if val != oval:
+            if self.document.in_paged_mode:
+                self.document.update_contents_size_for_paged_mode()
+            self.magnification_changed.emit(val)
 
     def magnify_fonts(self, amount=None):
         if amount is None:

@@ -193,14 +193,13 @@ class ManifestItem(Resource):  # {{{
                 res.mime_type = mt
             return res
 
-    @dynamic_property
+    @property
     def media_type(self):
-        def fget(self):
-            return self.mime_type
+        return self.mime_type
 
-        def fset(self, val):
-            self.mime_type = val
-        return property(fget=fget, fset=fset)
+    @media_type.setter
+    def media_type(self, val):
+        self.mime_type = val
 
     def __unicode__representation__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
@@ -804,172 +803,155 @@ class OPF(object):  # {{{
         for item in self.iterguide():
             item.set('href', get_href(item))
 
-    @dynamic_property
+    @property
     def title(self):
         # TODO: Add support for EPUB 3 refinements
 
-        def fget(self):
-            for elem in self.title_path(self.metadata):
-                title = self.get_text(elem)
-                if title and title.strip():
-                    return re.sub(r'\s+', ' ', title.strip())
+        for elem in self.title_path(self.metadata):
+            title = self.get_text(elem)
+            if title and title.strip():
+                return re.sub(r'\s+', ' ', title.strip())
 
-        def fset(self, val):
-            val = (val or '').strip()
-            titles = self.title_path(self.metadata)
-            if self.package_version < 3:
-                # EPUB 3 allows multiple title elements containing sub-titles,
-                # series and other things. We all loooove EPUB 3.
-                for title in titles:
-                    title.getparent().remove(title)
-                titles = ()
-            if val:
-                title = titles[0] if titles else self.create_metadata_element('title')
-                title.text = re.sub(r'\s+', ' ', unicode_type(val))
+    @title.setter
+    def title(self, val):
+        val = (val or '').strip()
+        titles = self.title_path(self.metadata)
+        if self.package_version < 3:
+            # EPUB 3 allows multiple title elements containing sub-titles,
+            # series and other things. We all loooove EPUB 3.
+            for title in titles:
+                title.getparent().remove(title)
+            titles = ()
+        if val:
+            title = titles[0] if titles else self.create_metadata_element('title')
+            title.text = re.sub(r'\s+', ' ', unicode_type(val))
 
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def authors(self):
+        ans = []
+        for elem in self.authors_path(self.metadata):
+            ans.extend(string_to_authors(self.get_text(elem)))
+        return ans
 
-        def fget(self):
-            ans = []
-            for elem in self.authors_path(self.metadata):
-                ans.extend(string_to_authors(self.get_text(elem)))
-            return ans
+    @authors.setter
+    def authors(self, val):
+        remove = list(self.authors_path(self.metadata))
+        for elem in remove:
+            elem.getparent().remove(elem)
+        # Ensure new author element is at the top of the list
+        # for broken implementations that always use the first
+        # <dc:creator> element with no attention to the role
+        for author in reversed(val):
+            elem = self.metadata.makeelement('{%s}creator'%
+                    self.NAMESPACES['dc'], nsmap=self.NAMESPACES)
+            elem.tail = '\n'
+            self.metadata.insert(0, elem)
+            elem.set('{%s}role'%self.NAMESPACES['opf'], 'aut')
+            self.set_text(elem, author.strip())
 
-        def fset(self, val):
-            remove = list(self.authors_path(self.metadata))
-            for elem in remove:
-                elem.getparent().remove(elem)
-            # Ensure new author element is at the top of the list
-            # for broken implementations that always use the first
-            # <dc:creator> element with no attention to the role
-            for author in reversed(val):
-                elem = self.metadata.makeelement('{%s}creator'%
-                        self.NAMESPACES['dc'], nsmap=self.NAMESPACES)
-                elem.tail = '\n'
-                self.metadata.insert(0, elem)
-                elem.set('{%s}role'%self.NAMESPACES['opf'], 'aut')
-                self.set_text(elem, author.strip())
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def author_sort(self):
+        matches = self.authors_path(self.metadata)
+        if matches:
+            for match in matches:
+                ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                if not ans:
+                    ans = match.get('file-as', None)
+                if ans:
+                    return ans
 
-        def fget(self):
-            matches = self.authors_path(self.metadata)
-            if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
+    @author_sort.setter
+    def author_sort(self, val):
+        matches = self.authors_path(self.metadata)
+        if matches:
+            for key in matches[0].attrib:
+                if key.endswith('file-as'):
+                    matches[0].attrib.pop(key)
+            matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode_type(val))
 
-        def fset(self, val):
-            matches = self.authors_path(self.metadata)
-            if matches:
-                for key in matches[0].attrib:
-                    if key.endswith('file-as'):
-                        matches[0].attrib.pop(key)
-                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode_type(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def tags(self):
+        ans = []
+        for tag in self.tags_path(self.metadata):
+            text = self.get_text(tag)
+            if text and text.strip():
+                ans.extend([x.strip() for x in text.split(',')])
+        return ans
 
-        def fget(self):
-            ans = []
-            for tag in self.tags_path(self.metadata):
-                text = self.get_text(tag)
-                if text and text.strip():
-                    ans.extend([x.strip() for x in text.split(',')])
-            return ans
+    @tags.setter
+    def tags(self, val):
+        for tag in list(self.tags_path(self.metadata)):
+            tag.getparent().remove(tag)
+        for tag in val:
+            elem = self.create_metadata_element('subject')
+            self.set_text(elem, unicode_type(tag))
 
-        def fset(self, val):
-            for tag in list(self.tags_path(self.metadata)):
-                tag.getparent().remove(tag)
-            for tag in val:
-                elem = self.create_metadata_element('subject')
-                self.set_text(elem, unicode_type(tag))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def pubdate(self):
+        ans = None
+        for match in self.pubdate_path(self.metadata):
+            try:
+                val = parse_date(etree.tostring(match, encoding=unicode_type,
+                    method='text', with_tail=False).strip())
+            except:
+                continue
+            if ans is None or val < ans:
+                ans = val
+        return ans
 
-        def fget(self):
-            ans = None
-            for match in self.pubdate_path(self.metadata):
-                try:
-                    val = parse_date(etree.tostring(match, encoding=unicode_type,
-                        method='text', with_tail=False).strip())
-                except:
-                    continue
-                if ans is None or val < ans:
-                    ans = val
-            return ans
-
-        def fset(self, val):
-            least_val = least_elem = None
-            for match in self.pubdate_path(self.metadata):
-                try:
-                    cval = parse_date(etree.tostring(match, encoding=unicode_type,
-                        method='text', with_tail=False).strip())
-                except:
+    @pubdate.setter
+    def pubdate(self, val):
+        least_val = least_elem = None
+        for match in self.pubdate_path(self.metadata):
+            try:
+                cval = parse_date(etree.tostring(match, encoding=unicode_type,
+                    method='text', with_tail=False).strip())
+            except:
+                match.getparent().remove(match)
+            else:
+                if not val:
                     match.getparent().remove(match)
-                else:
-                    if not val:
-                        match.getparent().remove(match)
-                    if least_val is None or cval < least_val:
-                        least_val, least_elem = cval, match
+                if least_val is None or cval < least_val:
+                    least_val, least_elem = cval, match
 
-            if val:
-                if least_val is None:
-                    least_elem = self.create_metadata_element('date')
+        if val:
+            if least_val is None:
+                least_elem = self.create_metadata_element('date')
 
-                least_elem.attrib.clear()
-                least_elem.text = isoformat(val)
+            least_elem.attrib.clear()
+            least_elem.text = isoformat(val)
 
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def isbn(self):
+        for match in self.isbn_path(self.metadata):
+            return self.get_text(match) or None
 
-        def fget(self):
-            for match in self.isbn_path(self.metadata):
-                return self.get_text(match) or None
+    @isbn.setter
+    def isbn(self, val):
+        uuid_id = None
+        for attr in self.root.attrib:
+            if attr.endswith('unique-identifier'):
+                uuid_id = self.root.attrib[attr]
+                break
 
-        def fset(self, val):
-            uuid_id = None
-            for attr in self.root.attrib:
-                if attr.endswith('unique-identifier'):
-                    uuid_id = self.root.attrib[attr]
-                    break
-
-            matches = self.isbn_path(self.metadata)
-            if not val:
-                for x in matches:
-                    xid = x.get('id', None)
-                    is_package_identifier = uuid_id is not None and uuid_id == xid
-                    if is_package_identifier:
-                        self.set_text(x, str(uuid.uuid4()))
-                        for attr in x.attrib:
-                            if attr.endswith('scheme'):
-                                x.attrib[attr] = 'uuid'
-                    else:
-                        x.getparent().remove(x)
-                return
-            if not matches:
-                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
-                matches = [self.create_metadata_element('identifier',
-                                                        attrib=attrib)]
-            self.set_text(matches[0], unicode_type(val))
-
-        return property(fget=fget, fset=fset)
+        matches = self.isbn_path(self.metadata)
+        if not val:
+            for x in matches:
+                xid = x.get('id', None)
+                is_package_identifier = uuid_id is not None and uuid_id == xid
+                if is_package_identifier:
+                    self.set_text(x, str(uuid.uuid4()))
+                    for attr in x.attrib:
+                        if attr.endswith('scheme'):
+                            x.attrib[attr] = 'uuid'
+                else:
+                    x.getparent().remove(x)
+            return
+        if not matches:
+            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
+            matches = [self.create_metadata_element('identifier',
+                                                    attrib=attrib)]
+        self.set_text(matches[0], unicode_type(val))
 
     def get_identifiers(self):
         identifiers = {}
@@ -1024,85 +1006,73 @@ class OPF(object):  # {{{
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), unicode_type(val))
 
-    @dynamic_property
+    @property
     def application_id(self):
+        for match in self.application_id_path(self.metadata):
+            return self.get_text(match) or None
 
-        def fget(self):
-            for match in self.application_id_path(self.metadata):
-                return self.get_text(match) or None
+    @application_id.setter
+    def application_id(self, val):
+        removed_ids = set()
+        for x in tuple(self.application_id_path(self.metadata)):
+            removed_ids.add(x.get('id', None))
+            x.getparent().remove(x)
 
-        def fset(self, val):
-            removed_ids = set()
-            for x in tuple(self.application_id_path(self.metadata)):
-                removed_ids.add(x.get('id', None))
-                x.getparent().remove(x)
+        uuid_id = None
+        for attr in self.root.attrib:
+            if attr.endswith('unique-identifier'):
+                uuid_id = self.root.attrib[attr]
+                break
+        attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
+        if uuid_id and uuid_id in removed_ids:
+            attrib['id'] = uuid_id
+        self.set_text(self.create_metadata_element(
+            'identifier', attrib=attrib), unicode_type(val))
 
-            uuid_id = None
-            for attr in self.root.attrib:
-                if attr.endswith('unique-identifier'):
-                    uuid_id = self.root.attrib[attr]
-                    break
-            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
-            if uuid_id and uuid_id in removed_ids:
-                attrib['id'] = uuid_id
-            self.set_text(self.create_metadata_element(
-                'identifier', attrib=attrib), unicode_type(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def uuid(self):
+        for match in self.uuid_id_path(self.metadata):
+            return self.get_text(match) or None
 
-        def fget(self):
-            for match in self.uuid_id_path(self.metadata):
-                return self.get_text(match) or None
+    @uuid.setter
+    def uuid(self, val):
+        matches = self.uuid_id_path(self.metadata)
+        if not matches:
+            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
+            matches = [self.create_metadata_element('identifier',
+                                                    attrib=attrib)]
+        self.set_text(matches[0], unicode_type(val))
 
-        def fset(self, val):
-            matches = self.uuid_id_path(self.metadata)
-            if not matches:
-                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
-                matches = [self.create_metadata_element('identifier',
-                                                        attrib=attrib)]
-            self.set_text(matches[0], unicode_type(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def language(self):
+        ans = self.languages
+        if ans:
+            return ans[0]
 
-        def fget(self):
-            ans = self.languages
-            if ans:
-                return ans[0]
+    @language.setter
+    def language(self, val):
+        self.languages = [val]
 
-        def fset(self, val):
-            self.languages = [val]
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def languages(self):
+        ans = []
+        for match in self.languages_path(self.metadata):
+            t = self.get_text(match)
+            if t and t.strip():
+                l = canonicalize_lang(t.strip())
+                if l:
+                    ans.append(l)
+        return ans
 
-        def fget(self):
-            ans = []
-            for match in self.languages_path(self.metadata):
-                t = self.get_text(match)
-                if t and t.strip():
-                    l = canonicalize_lang(t.strip())
-                    if l:
-                        ans.append(l)
-            return ans
+    @languages.setter
+    def languages(self, val):
+        matches = self.languages_path(self.metadata)
+        for x in matches:
+            x.getparent().remove(x)
 
-        def fset(self, val):
-            matches = self.languages_path(self.metadata)
-            for x in matches:
-                x.getparent().remove(x)
-
-            for lang in val:
-                l = self.create_metadata_element('language')
-                self.set_text(l, unicode_type(lang))
-
-        return property(fget=fget, fset=fset)
+        for lang in val:
+            l = self.create_metadata_element('language')
+            self.set_text(l, unicode_type(lang))
 
     @property
     def raw_languages(self):
@@ -1111,20 +1081,18 @@ class OPF(object):  # {{{
             if t and t.strip():
                 yield t.strip()
 
-    @dynamic_property
+    @property
     def book_producer(self):
+        for match in self.bkp_path(self.metadata):
+            return self.get_text(match) or None
 
-        def fget(self):
-            for match in self.bkp_path(self.metadata):
-                return self.get_text(match) or None
-
-        def fset(self, val):
-            matches = self.bkp_path(self.metadata)
-            if not matches:
-                matches = [self.create_metadata_element('contributor')]
-                matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
-            self.set_text(matches[0], unicode_type(val))
-        return property(fget=fget, fset=fset)
+    @book_producer.setter
+    def book_producer(self, val):
+        matches = self.bkp_path(self.metadata)
+        if not matches:
+            matches = [self.create_metadata_element('contributor')]
+            matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
+        self.set_text(matches[0], unicode_type(val))
 
     def identifier_iter(self):
         for item in self.identifier_path(self.metadata):
@@ -1238,42 +1206,39 @@ class OPF(object):  # {{{
                             if path and os.path.exists(path):
                                 return path
 
-    @dynamic_property
+    @property
     def cover(self):
+        if self.guide is not None:
+            for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+                for item in self.guide:
+                    if item.type and item.type.lower() == t:
+                        return item.path
+        try:
+            if self.try_to_guess_cover:
+                return self.guess_cover()
+        except:
+            pass
 
-        def fget(self):
-            if self.guide is not None:
-                for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
-                    for item in self.guide:
-                        if item.type and item.type.lower() == t:
-                            return item.path
-            try:
-                if self.try_to_guess_cover:
-                    return self.guess_cover()
-            except:
-                pass
+    @cover.setter
+    def cover(self, path):
+        if self.guide is not None:
+            self.guide.set_cover(path)
+            for item in list(self.iterguide()):
+                if 'cover' in item.get('type', ''):
+                    item.getparent().remove(item)
 
-        def fset(self, path):
-            if self.guide is not None:
-                self.guide.set_cover(path)
-                for item in list(self.iterguide()):
-                    if 'cover' in item.get('type', ''):
-                        item.getparent().remove(item)
-
-            else:
-                g = self.create_guide_element()
-                self.guide = Guide()
-                self.guide.set_cover(path)
-                etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES,
-                                 attrib={'type':'cover', 'href':self.guide[-1].href()})
-            id = self.manifest.id_for_path(self.cover)
-            if id is None:
-                for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
-                    for item in self.guide:
-                        if item.type.lower() == t:
-                            self.create_manifest_item(item.href(), guess_type(path)[0])
-
-        return property(fget=fget, fset=fset)
+        else:
+            g = self.create_guide_element()
+            self.guide = Guide()
+            self.guide.set_cover(path)
+            etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES,
+                                attrib={'type':'cover', 'href':self.guide[-1].href()})
+        id = self.manifest.id_for_path(self.cover)
+        if id is None:
+            for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+                for item in self.guide:
+                    if item.type.lower() == t:
+                        self.create_manifest_item(item.href(), guess_type(path)[0])
 
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)

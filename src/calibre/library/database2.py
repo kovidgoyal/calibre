@@ -75,43 +75,36 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
+        'The user version of this database'
+        return self.conn.get('pragma user_version;', all=False)
 
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
+    @user_version.setter
+    def user_version(self, val):
+        self.conn.execute('pragma user_version=%d'%int(val))
+        self.conn.commit()
 
-        def fset(self, val):
-            self.conn.execute('pragma user_version=%d'%int(val))
-            self.conn.commit()
-
-        return property(doc=doc, fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def library_id(self):
-        doc = ('The UUID for this library. As long as the user only operates'
-                ' on libraries with calibre, it will be unique')
+        '''The UUID for this library. As long as the user only operates on libraries with calibre, it will be unique'''
+        if self._library_id_ is None:
+            ans = self.conn.get('SELECT uuid FROM library_id', all=False)
+            if ans is None:
+                ans = str(uuid.uuid4())
+                self.library_id = ans
+            else:
+                self._library_id_ = ans
+        return self._library_id_
 
-        def fget(self):
-            if self._library_id_ is None:
-                ans = self.conn.get('SELECT uuid FROM library_id', all=False)
-                if ans is None:
-                    ans = str(uuid.uuid4())
-                    self.library_id = ans
-                else:
-                    self._library_id_ = ans
-            return self._library_id_
-
-        def fset(self, val):
-            self._library_id_ = unicode_type(val)
-            self.conn.executescript('''
-                    DELETE FROM library_id;
-                    INSERT INTO library_id (uuid) VALUES ("%s");
-                    '''%self._library_id_)
-            self.conn.commit()
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @library_id.setter
+    def library_id(self, val):
+        self._library_id_ = unicode_type(val)
+        self.conn.executescript('''
+                DELETE FROM library_id;
+                INSERT INTO library_id (uuid) VALUES ("%s");
+                '''%self._library_id_)
+        self.conn.commit()
 
     def connect(self):
         if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:

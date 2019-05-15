@@ -122,19 +122,16 @@ class TOC(list):
             for i in obj.flat():
                 yield i
 
-    @dynamic_property
+    @property
     def abspath(self):
-        doc='Return the file this toc entry points to as a absolute path to a file on the system.'
+        'Return the file this toc entry points to as a absolute path to a file on the system.'
 
-        def fget(self):
-            if self.href is None:
-                return None
-            path = self.href.replace('/', os.sep)
-            if not os.path.isabs(path):
-                path = os.path.join(self.base_path, path)
-            return path
-
-        return property(fget=fget, doc=doc)
+        if self.href is None:
+            return None
+        path = self.href.replace('/', os.sep)
+        if not os.path.isabs(path):
+            path = os.path.join(self.base_path, path)
+        return path
 
     def read_from_opf(self, opfreader):
         toc = opfreader.soup.find('spine', toc=True)

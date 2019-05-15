@@ -336,55 +336,53 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
     def remove_format_cleanup(self):
         self.html = self.html
 
-    @dynamic_property
+    @property
     def html(self):
+        ans = u''
+        try:
+            if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
+                # Bypass cleanup if special meta tag exists
+                return unicode_type(self.page().mainFrame().toHtml())
+            check = unicode_type(self.page().mainFrame().toPlainText()).strip()
+            raw = unicode_type(self.page().mainFrame().toHtml())
+            raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                                resolve_entities=True)[0]
+            raw = self.comments_pat.sub('', raw)
+            if not check and '<img' not in raw.lower():
+                return ans
 
-        def fget(self):
-            ans = u''
             try:
-                if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
-                    # Bypass cleanup if special meta tag exists
-                    return unicode_type(self.page().mainFrame().toHtml())
-                check = unicode_type(self.page().mainFrame().toPlainText()).strip()
-                raw = unicode_type(self.page().mainFrame().toHtml())
-                raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                                    resolve_entities=True)[0]
-                raw = self.comments_pat.sub('', raw)
-                if not check and '<img' not in raw.lower():
-                    return ans
+                root = html.fromstring(raw)
+            except Exception:
+                root = parse(raw, maybe_xhtml=False, sanitize_names=True)
 
-                try:
-                    root = html.fromstring(raw)
-                except Exception:
-                    root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+            elems = []
+            for body in root.xpath('//body'):
+                if body.text:
+                    elems.append(body.text)
+                elems += [html.tostring(x, encoding=unicode_type) for x in body if
+                    x.tag not in ('script', 'style')]
 
-                elems = []
-                for body in root.xpath('//body'):
-                    if body.text:
-                        elems.append(body.text)
-                    elems += [html.tostring(x, encoding=unicode_type) for x in body if
-                        x.tag not in ('script', 'style')]
-
-                if len(elems) > 1:
-                    ans = u'<div>%s</div>'%(u''.join(elems))
-                else:
-                    ans = u''.join(elems)
-                    if not ans.startswith('<'):
-                        ans = '<p>%s</p>'%ans
-                ans = xml_replace_entities(ans)
-            except:
-                import traceback
-                traceback.print_exc()
-
-            return ans
-
-        def fset(self, val):
-            if self.base_url is None:
-                self.setHtml(val)
+            if len(elems) > 1:
+                ans = u'<div>%s</div>'%(u''.join(elems))
             else:
-                self.setHtml(val, self.base_url)
-            self.set_font_style()
-        return property(fget=fget, fset=fset)
+                ans = u''.join(elems)
+                if not ans.startswith('<'):
+                    ans = '<p>%s</p>'%ans
+            ans = xml_replace_entities(ans)
+        except:
+            import traceback
+            traceback.print_exc()
+
+        return ans
+
+    @html.setter
+    def html(self, val):
+        if self.base_url is None:
+            self.setHtml(val)
+        else:
+            self.setHtml(val, self.base_url)
+        self.set_font_style()
 
     def set_base_url(self, qurl):
         self.base_url = qurl
@@ -763,15 +761,14 @@ class Editor(QWidget):  # {{{
     def set_minimum_height_for_editor(self, val):
         self.editor.setMinimumHeight(val)
 
-    @dynamic_property
+    @property
     def html(self):
-        def fset(self, v):
-            self.editor.html = v
+        self.tabs.setCurrentIndex(0)
+        return self.editor.html
 
-        def fget(self):
-            self.tabs.setCurrentIndex(0)
-            return self.editor.html
-        return property(fget=fget, fset=fset)
+    @html.setter
+    def html(self, v):
+        self.editor.html = v
 
     def change_tab(self, index):
         # print 'reloading:', (index and self.wyswyg_dirty) or (not index and
@@ -785,14 +782,13 @@ class Editor(QWidget):  # {{{
                 self.editor.html = unicode_type(self.code_edit.toPlainText())
                 self.source_dirty = False
 
-    @dynamic_property
+    @property
     def tab(self):
-        def fget(self):
-            return 'code' if self.tabs.currentWidget() is self.code_edit else 'wyswyg'
+        return 'code' if self.tabs.currentWidget() is self.code_edit else 'wyswyg'
 
-        def fset(self, val):
-            self.tabs.setCurrentWidget(self.code_edit if val == 'code' else self.wyswyg)
-        return property(fget=fget, fset=fset)
+    @tab.setter
+    def tab(self, val):
+        self.tabs.setCurrentWidget(self.code_edit if val == 'code' else self.wyswyg)
 
     def wyswyg_dirtied(self, *args):
         self.wyswyg_dirty = True
@@ -816,14 +812,13 @@ class Editor(QWidget):  # {{{
         if self.toolbar_prefs_name is not None:
             gprefs.set(self.toolbar_prefs_name, visible)
 
-    @dynamic_property
+    @property
     def toolbars_visible(self):
-        def fget(self):
-            return self.toolbar1.isVisible() or self.toolbar2.isVisible() or self.toolbar3.isVisible()
+        return self.toolbar1.isVisible() or self.toolbar2.isVisible() or self.toolbar3.isVisible()
 
-        def fset(self, val):
-            getattr(self, ('show' if val else 'hide') + '_toolbars')()
-        return property(fget=fget, fset=fset)
+    @toolbars_visible.setter
+    def toolbars_visible(self, val):
+        getattr(self, ('show' if val else 'hide') + '_toolbars')()
 
     def set_readonly(self, what):
         self.editor.set_readonly(what)

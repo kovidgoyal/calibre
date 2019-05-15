@@ -1022,19 +1022,19 @@ class Application(QApplication):
         else:
             return QApplication.event(self, e)
 
-    @dynamic_property
+    @property
     def current_custom_colors(self):
-        from PyQt5.Qt import QColorDialog, QColor
+        from PyQt5.Qt import QColorDialog
 
-        def fget(self):
-            return [col.getRgb() for col in
+        return [col.getRgb() for col in
                     (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
-        def fset(self, colors):
-            num = min(len(colors), QColorDialog.customCount())
-            for i in range(num):
-                QColorDialog.setCustomColor(i, QColor(*colors[i]))
-        return property(fget=fget, fset=fset)
+    @current_custom_colors.setter
+    def current_custom_colors(self, colors):
+        from PyQt5.Qt import QColorDialog, QColor
+        num = min(len(colors), QColorDialog.customCount())
+        for i in range(num):
+            QColorDialog.setCustomColor(i, QColor(*colors[i]))
 
     def read_custom_colors(self):
         colors = self.color_prefs.get('custom_colors_for_color_dialog', None)

@@ -186,18 +186,17 @@ class PreserveViewState(object):  # {{{
                         view.horizontalScrollBar().setValue(self.hscroll)
         self.init_vals()
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            self.__enter__()
-            return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
-                'vscroll', 'hscroll')}
+        self.__enter__()
+        return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
+            'vscroll', 'hscroll')}
 
-        def fset(self, state):
-            for k, v in iteritems(state):
-                setattr(self, k, v)
-            self.__exit__()
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, state):
+        for k, v in iteritems(state):
+            setattr(self, k, v)
+        self.__exit__()
 
 # }}}
 
@@ -1161,24 +1160,23 @@ class BooksView(QTableView):  # {{{
                 ans.append(i)
         return ans
 
-    @dynamic_property
+    @property
     def current_id(self):
-        def fget(self):
-            try:
-                return self.model().id(self.currentIndex())
-            except:
-                pass
-            return None
+        try:
+            return self.model().id(self.currentIndex())
+        except:
+            pass
+        return None
 
-        def fset(self, val):
-            if val is None:
-                return
-            m = self.model()
-            for row in range(m.rowCount(QModelIndex())):
-                if m.id(row) == val:
-                    self.set_current_row(row, select=False)
-                    break
-        return property(fget=fget, fset=fset)
+    @current_id.setter
+    def current_id(self, val):
+        if val is None:
+            return
+        m = self.model()
+        for row in range(m.rowCount(QModelIndex())):
+            if m.id(row) == val:
+                self.set_current_row(row, select=False)
+                break
 
     @property
     def next_id(self):

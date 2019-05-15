@@ -206,17 +206,15 @@ class TextEdit(PlainTextEdit):
             insert_text(md.html())
             return
 
-    @dynamic_property
+    @property
     def is_modified(self):
         ''' True if the document has been modified since it was loaded or since
         the last time is_modified was set to False. '''
+        return self.document().isModified()
 
-        def fget(self):
-            return self.document().isModified()
-
-        def fset(self, val):
-            self.document().setModified(bool(val))
-        return property(fget=fget, fset=fset)
+    @is_modified.setter
+    def is_modified(self, val):
+        self.document().setModified(bool(val))
 
     def sizeHint(self):
         return self.size_hint

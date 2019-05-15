@@ -1131,30 +1131,28 @@ class Splitter(QSplitter):
             print(self.save_name, 'side:', self.side_index_size, 'other:', end=' ')
             print(list(self.sizes())[self.other_index])
 
-    @dynamic_property
+    @property
     def side_index_size(self):
-        def fget(self):
-            if self.count() < 2:
-                return 0
-            return self.sizes()[self.side_index]
+        if self.count() < 2:
+            return 0
+        return self.sizes()[self.side_index]
 
-        def fset(self, val):
-            if self.count() < 2:
-                return
-            if val == 0 and not self.is_side_index_hidden:
-                self.save_state()
-            sizes = list(self.sizes())
-            for i in range(len(sizes)):
-                sizes[i] = val if i == self.side_index else 10
-            self.setSizes(sizes)
-            total = sum(self.sizes())
-            sizes = list(self.sizes())
-            for i in range(len(sizes)):
-                sizes[i] = val if i == self.side_index else total-val
-            self.setSizes(sizes)
-            self.initialize()
-
-        return property(fget=fget, fset=fset)
+    @side_index_size.setter
+    def side_index_size(self, val):
+        if self.count() < 2:
+            return
+        if val == 0 and not self.is_side_index_hidden:
+            self.save_state()
+        sizes = list(self.sizes())
+        for i in range(len(sizes)):
+            sizes[i] = val if i == self.side_index else 10
+        self.setSizes(sizes)
+        total = sum(self.sizes())
+        sizes = list(self.sizes())
+        for i in range(len(sizes)):
+            sizes[i] = val if i == self.side_index else total-val
+        self.setSizes(sizes)
+        self.initialize()
 
     def do_resize(self, *args):
         orig = self.desired_side_size

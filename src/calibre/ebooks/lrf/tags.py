@@ -209,37 +209,29 @@ class Tag(object):
         s += " at %08X, contents: %s" % (self.offset, repr(self.contents))
         return s
 
-    @dynamic_property
+    @property
     def byte(self):
-        def fget(self):
-            if len(self.contents) != 1:
-                raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-            return struct.unpack("<B", self.contents)[0]
-        return property(fget=fget)
+        if len(self.contents) != 1:
+            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
+        return struct.unpack("<B", self.contents)[0]
 
-    @dynamic_property
+    @property
     def word(self):
-        def fget(self):
-            if len(self.contents) != 2:
-                raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-            return struct.unpack("<H", self.contents)[0]
-        return property(fget=fget)
+        if len(self.contents) != 2:
+            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
+        return struct.unpack("<H", self.contents)[0]
 
-    @dynamic_property
+    @property
     def sword(self):
-        def fget(self):
-            if len(self.contents) != 2:
-                raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-            return struct.unpack("<h", self.contents)[0]
-        return property(fget=fget)
+        if len(self.contents) != 2:
+            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
+        return struct.unpack("<h", self.contents)[0]
 
-    @dynamic_property
+    @property
     def dword(self):
-        def fget(self):
-            if len(self.contents) != 4:
-                raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-            return struct.unpack("<I", self.contents)[0]
-        return property(fget=fget)
+        if len(self.contents) != 4:
+            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
+        return struct.unpack("<I", self.contents)[0]
 
     def dummy_parser(self, stream):
         raise LRFParseError("Unknown tag at %08X" % stream.tell())

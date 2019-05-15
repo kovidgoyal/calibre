@@ -1367,29 +1367,26 @@ class DeviceMixin(object):  # {{{
                         memory=[files, remove])
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
-    @dynamic_property
+    @property
     def news_to_be_synced(self):
-        doc = 'Set of ids to be sent to device'
+        'Set of ids to be sent to device'
+        ans = []
+        try:
+            ans = self.library_view.model().db.prefs.get('news_to_be_synced',
+                    [])
+        except:
+            import traceback
+            traceback.print_exc()
+        return set(ans)
 
-        def fget(self):
-            ans = []
-            try:
-                ans = self.library_view.model().db.prefs.get('news_to_be_synced',
-                        [])
-            except:
-                import traceback
-                traceback.print_exc()
-            return set(ans)
-
-        def fset(self, ids):
-            try:
-                self.library_view.model().db.new_api.set_pref('news_to_be_synced',
-                        list(ids))
-            except:
-                import traceback
-                traceback.print_exc()
-
-        return property(fget=fget, fset=fset, doc=doc)
+    @news_to_be_synced.setter
+    def news_to_be_synced(self, ids):
+        try:
+            self.library_view.model().db.new_api.set_pref('news_to_be_synced',
+                    list(ids))
+        except:
+            import traceback
+            traceback.print_exc()
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:

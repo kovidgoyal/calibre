@@ -43,14 +43,13 @@ class ColorButton(QToolButton):
         self.setIcon(QIcon(self.pix))
         self.clicked.connect(self.choose_color)
 
-    @dynamic_property
+    @property
     def color(self):
-        def fget(self):
-            return self._color.name(QColor.HexRgb)[1:]
+        return self._color.name(QColor.HexRgb)[1:]
 
-        def fset(self, val):
-            self._color = QColor('#' + val)
-        return property(fget=fget, fset=fset)
+    @color.setter
+    def color(self, val):
+        self._color = QColor('#' + val)
 
     def update_display(self):
         self.pix.fill(self._color)

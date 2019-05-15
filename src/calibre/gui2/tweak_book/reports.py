@@ -1061,14 +1061,13 @@ class CSSWidget(QWidget):
         self.summary = la = QLabel('\xa0')
         h.addWidget(la)
 
-    @dynamic_property
+    @property
     def sort_order(self):
-        def fget(self):
-            return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+        return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
 
-        def fset(self, val):
-            self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
-        return property(fget=fget, fset=fset)
+    @sort_order.setter
+    def sort_order(self, val):
+        self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
 
     def update_summary(self):
         self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))

@@ -152,16 +152,15 @@ class WhereBox(QComboBox):
             f.setBold(True), f.setItalic(True)
             self.setFont(f)
 
-    @dynamic_property
+    @property
     def where(self):
         wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+        return wm[self.currentIndex()]
 
-        def fget(self):
-            return wm[self.currentIndex()]
-
-        def fset(self, val):
-            self.setCurrentIndex({v:k for k, v in iteritems(wm)}[val])
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+        self.setCurrentIndex({v:k for k, v in iteritems(wm)}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -190,14 +189,13 @@ class DirectionBox(QComboBox):
             <dd>Search for the previous match from your current position</dd>
             </dl>'''))
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return 'down' if self.currentIndex() == 0 else 'up'
+        return 'down' if self.currentIndex() == 0 else 'up'
 
-        def fset(self, val):
-            self.setCurrentIndex(1 if val == 'up' else 0)
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.setCurrentIndex(1 if val == 'up' else 0)
 
 
 class ModeBox(QComboBox):
@@ -216,14 +214,13 @@ class ModeBox(QComboBox):
             <dd>The search expression is interpreted as a regular expression. The replace expression is an arbitrarily powerful Python function.</dd>
             </dl>'''))
 
-    @dynamic_property
+    @property
     def mode(self):
-        def fget(self):
-            return ('normal', 'regex', 'function')[self.currentIndex()]
+        return ('normal', 'regex', 'function')[self.currentIndex()]
 
-        def fset(self, val):
-            self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
-        return property(fget=fget, fset=fset)
+    @mode.setter
+    def mode(self, val):
+        self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
 
 
 class SearchWidget(QWidget):
@@ -353,91 +350,82 @@ class SearchWidget(QWidget):
         self.replace_text.setVisible(not function_mode)
         self.functions_container.setVisible(function_mode)
 
-    @dynamic_property
+    @property
     def mode(self):
-        def fget(self):
-            return self.mode_box.mode
+        return self.mode_box.mode
 
-        def fset(self, val):
-            self.mode_box.mode = val
-            self.da.setVisible(self.mode in ('regex', 'function'))
-        return property(fget=fget, fset=fset)
+    @mode.setter
+    def mode(self, val):
+        self.mode_box.mode = val
+        self.da.setVisible(self.mode in ('regex', 'function'))
 
-    @dynamic_property
+    @property
     def find(self):
-        def fget(self):
-            return unicode_type(self.find_text.text())
+        return unicode_type(self.find_text.text())
 
-        def fset(self, val):
-            self.find_text.setText(val)
-        return property(fget=fget, fset=fset)
+    @find.setter
+    def find(self, val):
+        self.find_text.setText(val)
 
-    @dynamic_property
+    @property
     def replace(self):
-        def fget(self):
-            if self.mode == 'function':
-                return self.functions.text()
-            return unicode_type(self.replace_text.text())
+        if self.mode == 'function':
+            return self.functions.text()
+        return unicode_type(self.replace_text.text())
 
-        def fset(self, val):
-            self.replace_text.setText(val)
-        return property(fget=fget, fset=fset)
+    @replace.setter
+    def replace(self, val):
+        self.replace_text.setText(val)
 
-    @dynamic_property
+    @property
     def where(self):
-        def fget(self):
-            return self.where_box.where
+        return self.where_box.where
 
-        def fset(self, val):
-            self.where_box.where = val
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        self.where_box.where = val
 
-    @dynamic_property
+    @property
     def case_sensitive(self):
-        def fget(self):
-            return self.cs.isChecked()
+        return self.cs.isChecked()
 
-        def fset(self, val):
-            self.cs.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @case_sensitive.setter
+    def case_sensitive(self, val):
+        self.cs.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return self.direction_box.direction
+        return self.direction_box.direction
 
-        def fset(self, val):
-            self.direction_box.direction = val
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.direction_box.direction = val
 
-    @dynamic_property
+    @property
     def wrap(self):
-        def fget(self):
-            return self.wr.isChecked()
+        return self.wr.isChecked()
 
-        def fset(self, val):
-            self.wr.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @wrap.setter
+    def wrap(self, val):
+        self.wr.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def dot_all(self):
-        def fget(self):
-            return self.da.isChecked()
+        return self.da.isChecked()
 
-        def fset(self, val):
-            self.da.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @dot_all.setter
+    def dot_all(self, val):
+        self.da.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            return {x:getattr(self, x) for x in self.DEFAULT_STATE}
+        return {x:getattr(self, x) for x in self.DEFAULT_STATE}
 
-        def fset(self, val):
-            for x in self.DEFAULT_STATE:
-                if x in val:
-                    setattr(self, x, val[x])
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, val):
+        for x in self.DEFAULT_STATE:
+            if x in val:
+                setattr(self, x, val[x])
 
     def restore_state(self):
         self.state = tprefs.get('find-widget-state', self.DEFAULT_STATE)
@@ -1008,14 +996,13 @@ class SavedSearches(QWidget):
 
         self.searches.setFocus(Qt.OtherFocusReason)
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
+        return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
 
-        def fset(self, val):
-            self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, val):
+        self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
 
     def save_state(self):
         tprefs['saved_seaches_state'] = self.state
@@ -1042,32 +1029,29 @@ class SavedSearches(QWidget):
         for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'cft', 'd3', 'ib', 'eb2'):
             getattr(self, x).setVisible(visible)
 
-    @dynamic_property
+    @property
     def where(self):
-        def fget(self):
-            return self.where_box.where
+        return self.where_box.where
 
-        def fset(self, val):
-            self.where_box.where = val
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        self.where_box.where = val
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return self.direction_box.direction
+        return self.direction_box.direction
 
-        def fset(self, val):
-            self.direction_box.direction = val
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.direction_box.direction = val
 
-    @dynamic_property
+    @property
     def wrap(self):
-        def fget(self):
-            return self.wr.isChecked()
+        return self.wr.isChecked()
 
-        def fset(self, val):
-            self.wr.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @wrap.setter
+    def wrap(self, val):
+        self.wr.setChecked(bool(val))
 
     def do_filter(self, text):
         self.model.do_filter(text)

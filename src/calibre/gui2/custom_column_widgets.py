@@ -377,14 +377,13 @@ class Comments(Base):
             val = None
         return val
 
-    @dynamic_property
+    @property
     def tab(self):
-        def fget(self):
-            return self._tb.tab
+        return self._tb.tab
 
-        def fset(self, val):
-            self._tb.tab = val
-        return property(fget=fget, fset=fset)
+    @tab.setter
+    def tab(self, val):
+        self._tb.tab = val
 
     def connect_data_changed(self, slot):
         self._tb.data_changed.connect(slot)

@@ -704,20 +704,17 @@ class Metadata(object):
                 if attr != nsattr:
                     attrib[nsattr] = attrib.pop(attr)
 
-        @dynamic_property
+        @property
         def name(self):
-            def fget(self):
-                return self.term
-            return property(fget=fget)
+            return self.term
 
-        @dynamic_property
+        @property
         def content(self):
-            def fget(self):
-                return self.value
+            return self.value
 
-            def fset(self, value):
-                self.value = value
-            return property(fget=fget, fset=fset)
+        @content.setter
+        def content(self, value):
+            self.value = value
 
         scheme  = Attribute(lambda term: 'scheme' if
                             term == OPF('meta') else OPF('scheme'),
@@ -830,33 +827,27 @@ class Metadata(object):
     def __getattr__(self, term):
         return self.items[term]
 
-    @dynamic_property
+    @property
     def _nsmap(self):
-        def fget(self):
-            nsmap = {}
-            for term in self.items:
-                for item in self.items[term]:
-                    nsmap.update(item.nsmap)
-            return nsmap
-        return property(fget=fget)
+        nsmap = {}
+        for term in self.items:
+            for item in self.items[term]:
+                nsmap.update(item.nsmap)
+        return nsmap
 
-    @dynamic_property
+    @property
     def _opf1_nsmap(self):
-        def fget(self):
-            nsmap = self._nsmap
-            for key, value in nsmap.items():
-                if value in OPF_NSES or value in DC_NSES:
-                    del nsmap[key]
-            return nsmap
-        return property(fget=fget)
+        nsmap = self._nsmap
+        for key, value in nsmap.items():
+            if value in OPF_NSES or value in DC_NSES:
+                del nsmap[key]
+        return nsmap
 
-    @dynamic_property
+    @property
     def _opf2_nsmap(self):
-        def fget(self):
-            nsmap = self._nsmap
-            nsmap.update(OPF2_NSMAP)
-            return nsmap
-        return property(fget=fget)
+        nsmap = self._nsmap
+        nsmap.update(OPF2_NSMAP)
+        return nsmap
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
@@ -1011,9 +1002,9 @@ class Manifest(object):
 
         # }}}
 
-        @dynamic_property
+        @property
         def data(self):
-            doc = """Provides MIME type sensitive access to the manifest
+            """Provides MIME type sensitive access to the manifest
             entry's associated content.
 
             - XHTML, HTML, and variant content is parsed as necessary to
@@ -1025,40 +1016,39 @@ class Manifest(object):
             - All other content is returned as a :class:`str` object with no
               special parsing.
             """
+            data = self._data
+            if data is None:
+                if self._loader is None:
+                    return None
+                data = self._loader(getattr(self, 'html_input_href',
+                    self.href))
+            try:
+                mt = self.media_type.lower()
+            except Exception:
+                mt = 'application/octet-stream'
+            if not isinstance(data, string_or_bytes):
+                pass  # already parsed
+            elif mt in OEB_DOCS:
+                data = self._parse_xhtml(data)
+            elif mt[-4:] in ('+xml', '/xml'):
+                data = self._parse_xml(data)
+            elif mt in OEB_STYLES:
+                data = self._parse_css(data)
+            elif mt == 'text/plain':
+                self.oeb.log.warn('%s contains data in TXT format'%self.href,
+                        'converting to HTML')
+                data = self._parse_txt(data)
+                self.media_type = XHTML_MIME
+            self._data = data
+            return data
 
-            def fget(self):
-                data = self._data
-                if data is None:
-                    if self._loader is None:
-                        return None
-                    data = self._loader(getattr(self, 'html_input_href',
-                        self.href))
-                try:
-                    mt = self.media_type.lower()
-                except Exception:
-                    mt = 'application/octet-stream'
-                if not isinstance(data, string_or_bytes):
-                    pass  # already parsed
-                elif mt in OEB_DOCS:
-                    data = self._parse_xhtml(data)
-                elif mt[-4:] in ('+xml', '/xml'):
-                    data = self._parse_xml(data)
-                elif mt in OEB_STYLES:
-                    data = self._parse_css(data)
-                elif mt == 'text/plain':
-                    self.oeb.log.warn('%s contains data in TXT format'%self.href,
-                            'converting to HTML')
-                    data = self._parse_txt(data)
-                    self.media_type = XHTML_MIME
-                self._data = data
-                return data
+        @data.setter
+        def data(self, value):
+            self._data = value
 
-            def fset(self, value):
-                self._data = value
-
-            def fdel(self):
-                self._data = None
-            return property(fget, fset, fdel, doc=doc)
+        @data.deleter
+        def data(self):
+            self._data = None
 
         def unload_data_from_memory(self, memory=None):
             if isinstance(self._data, bytes):
@@ -1266,20 +1256,19 @@ class Manifest(object):
             element(elem, OPF('item'), attrib=attrib)
         return elem
 
-    @dynamic_property
+    @property
     def main_stylesheet(self):
-        def fget(self):
-            ans = getattr(self, '_main_stylesheet', None)
-            if ans is None:
-                for item in self:
-                    if item.media_type.lower() in OEB_STYLES:
-                        ans = item
-                        break
-            return ans
+        ans = getattr(self, '_main_stylesheet', None)
+        if ans is None:
+            for item in self:
+                if item.media_type.lower() in OEB_STYLES:
+                    ans = item
+                    break
+        return ans
 
-        def fset(self, item):
-            self._main_stylesheet = item
-        return property(fget=fget, fset=fset)
+    @main_stylesheet.setter
+    def main_stylesheet(self, item):
+        self._main_stylesheet = item
 
 
 class Spine(object):
@@ -1422,15 +1411,12 @@ class Guide(object):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
 
-        @dynamic_property
+        @property
         def item(self):
-            doc = """The manifest item associated with this reference."""
-
-            def fget(self):
-                path = urldefrag(self.href)[0]
-                hrefs = self.oeb.manifest.hrefs
-                return hrefs.get(path, None)
-            return property(fget=fget, doc=doc)
+            """The manifest item associated with this reference."""
+            path = urldefrag(self.href)[0]
+            hrefs = self.oeb.manifest.hrefs
+            return hrefs.get(path, None)
 
     def __init__(self, oeb):
         self.oeb = oeb

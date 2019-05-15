@@ -353,18 +353,17 @@ class FontFamilyChooser(QWidget):
     def clear_family(self):
         self.font_family = None
 
-    @dynamic_property
+    @property
     def font_family(self):
-        def fget(self):
-            return self._current_family
+        return self._current_family
 
-        def fset(self, val):
-            if not val:
-                val = None
-            self._current_family = val
-            self.button.setText(val or self.default_text)
-            self.family_changed.emit(val)
-        return property(fget=fget, fset=fset)
+    @font_family.setter
+    def font_family(self, val):
+        if not val:
+            val = None
+        self._current_family = val
+        self.button.setText(val or self.default_text)
+        self.family_changed.emit(val)
 
     def show_chooser(self):
         d = FontFamilyDialog(self.font_family, self)

@@ -1369,14 +1369,13 @@ class EpubContainer(Container):
                 with self.open(name, 'wb') as f:
                     f.write(data)
 
-    @dynamic_property
+    @property
     def path_to_ebook(self):
-        def fget(self):
-            return self.pathtoepub
+        return self.pathtoepub
 
-        def fset(self, val):
-            self.pathtoepub = val
-        return property(fget=fget, fset=fset)
+    @path_to_ebook.setter
+    def path_to_ebook(self, val):
+        self.pathtoepub = val
 
 # }}}
 
@@ -1496,14 +1495,13 @@ class AZW3Container(Container):
             outpath = self.pathtoazw3
         opf_to_azw3(self.name_path_map[self.opf_name], outpath, self)
 
-    @dynamic_property
+    @property
     def path_to_ebook(self):
-        def fget(self):
-            return self.pathtoazw3
+        return self.pathtoazw3
 
-        def fset(self, val):
-            self.pathtoazw3 = val
-        return property(fget=fget, fset=fset)
+    @path_to_ebook.setter
+    def path_to_ebook(self, val):
+        self.pathtoazw3 = val
 
     @property
     def names_that_must_not_be_changed(self):

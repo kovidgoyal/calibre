@@ -1145,17 +1145,14 @@ class DB(object):
     def vacuum(self):
         self.execute('VACUUM')
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
+        '''The user version of this database'''
+        return self.conn.get('pragma user_version;', all=False)
 
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
-
-        def fset(self, val):
-            self.execute('pragma user_version=%d'%int(val))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @user_version.setter
+    def user_version(self, val):
+        self.execute('pragma user_version=%d'%int(val))
 
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
@@ -1252,29 +1249,26 @@ class DB(object):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    @dynamic_property
+    @property
     def library_id(self):
-        doc = ('The UUID for this library. As long as the user only operates'
-                ' on libraries with calibre, it will be unique')
+        '''The UUID for this library. As long as the user only operates  on libraries with calibre, it will be unique'''
 
-        def fget(self):
-            if getattr(self, '_library_id_', None) is None:
-                ans = self.conn.get('SELECT uuid FROM library_id', all=False)
-                if ans is None:
-                    ans = str(uuid.uuid4())
-                    self.library_id = ans
-                else:
-                    self._library_id_ = ans
-            return self._library_id_
+        if getattr(self, '_library_id_', None) is None:
+            ans = self.conn.get('SELECT uuid FROM library_id', all=False)
+            if ans is None:
+                ans = str(uuid.uuid4())
+                self.library_id = ans
+            else:
+                self._library_id_ = ans
+        return self._library_id_
 
-        def fset(self, val):
-            self._library_id_ = unicode_type(val)
-            self.execute('''
-                    DELETE FROM library_id;
-                    INSERT INTO library_id (uuid) VALUES (?);
-                    ''', (self._library_id_,))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @library_id.setter
+    def library_id(self, val):
+        self._library_id_ = unicode_type(val)
+        self.execute('''
+                DELETE FROM library_id;
+                INSERT INTO library_id (uuid) VALUES (?);
+                ''', (self._library_id_,))
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object '''

@@ -4,9 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import (builtins, codepoint_to_chr, iteritems,
+from polyglot.builtins import (codepoint_to_chr, iteritems,
         itervalues, unicode_type, range, filter, hasenv)
-builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
 

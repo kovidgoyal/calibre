@@ -57,32 +57,29 @@ class Article(object):
         self.localtime = self.utctime.astimezone(local_tz)
         self._formatted_date = None
 
-    @dynamic_property
+    @property
     def formatted_date(self):
 
-        def fget(self):
-            if self._formatted_date is None:
-                self._formatted_date = strftime(" [%a, %d %b %H:%M]",
-                        t=self.localtime.timetuple())
-            return self._formatted_date
+        if self._formatted_date is None:
+            self._formatted_date = strftime(" [%a, %d %b %H:%M]",
+                    t=self.localtime.timetuple())
+        return self._formatted_date
 
-        def fset(self, val):
-            if isinstance(val, unicode_type):
-                self._formatted_date = val
+    @formatted_date.setter
+    def formatted_date(self, val):
+        if isinstance(val, unicode_type):
+            self._formatted_date = val
 
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def title(self):
-        def fget(self):
-            t = self._title
-            if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
-                t = t.decode('utf-8', 'replace')
-            return t
+        t = self._title
+        if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
+            t = t.decode('utf-8', 'replace')
+        return t
 
-        def fset(self, val):
-            self._title = clean_ascii_chars(val)
-        return property(fget=fget, fset=fset)
+    @title.setter
+    def title(self, val):
+        self._title = clean_ascii_chars(val)
 
     def __repr__(self):
         return \

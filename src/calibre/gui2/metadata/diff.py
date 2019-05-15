@@ -49,29 +49,28 @@ class LineEdit(EditWithComplete):
             self.set_separator(sep)
         self.textChanged.connect(self.changed)
 
-    @dynamic_property
+    @property
     def value(self):
-        def fget(self):
-            val = unicode_type(self.text()).strip()
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = []
-                else:
-                    val = val.strip(ism['list_to_ui'].strip())
-                    val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
-            return val
+        val = unicode_type(self.text()).strip()
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = []
+            else:
+                val = val.strip(ism['list_to_ui'].strip())
+                val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
+        return val
 
-        def fset(self, val):
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = ''
-                else:
-                    val = ism['list_to_ui'].join(val)
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @value.setter
+    def value(self, val):
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = ''
+            else:
+                val = ism['list_to_ui'].join(val)
+        self.setText(val)
+        self.setCursorPosition(0)
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='') or ''
@@ -85,15 +84,14 @@ class LineEdit(EditWithComplete):
         elif self.field == 'authors':
             mi.set('author_sort', authors_to_sort_string(val))
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return unicode_type(self.text())
+        return unicode_type(self.text())
 
-        def fset(self, val):
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.setText(val)
+        self.setCursorPosition(0)
 
     @property
     def is_blank(self):
@@ -119,14 +117,13 @@ class LanguagesEdit(LE):
         if not is_new:
             self.lineEdit().setReadOnly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.lang_codes
+        return self.lang_codes
 
-        def fset(self, val):
-            self.lang_codes = val
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.lang_codes = val
 
     def from_mi(self, mi):
         self.lang_codes = mi.languages
@@ -241,17 +238,16 @@ class IdentifiersEdit(LineEdit):
     def to_mi(self, mi):
         mi.set_identifiers(self.as_dict)
 
-    @dynamic_property
+    @property
     def as_dict(self):
-        def fget(self):
-            parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-            return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
+        parts = (x.strip() for x in self.current_val.split(',') if x.strip())
+        return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
 
-        def fset(self, val):
-            val = ('%s:%s' % (k, v) for k, v in iteritems(val))
-            self.setText(', '.join(val))
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @as_dict.setter
+    def as_dict(self, val):
+        val = ('%s:%s' % (k, v) for k, v in iteritems(val))
+        self.setText(', '.join(val))
+        self.setCursorPosition(0)
 
 
 class CommentsEdit(Editor):
@@ -269,15 +265,14 @@ class CommentsEdit(Editor):
             self.hide_toolbars()
             self.set_readonly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.html
+        return self.html
 
-        def fset(self, val):
-            self.html = val or ''
-            self.changed.emit()
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.html = val or ''
+        self.changed.emit()
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='')
@@ -315,16 +310,15 @@ class CoverView(QWidget):
     def is_blank(self):
         return self.pixmap is None
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.pixmap
+        return self.pixmap
 
-        def fset(self, val):
-            self.pixmap = val
-            self.changed.emit()
-            self.update()
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.pixmap = val
+        self.changed.emit()
+        self.update()
 
     def from_mi(self, mi):
         p = getattr(mi, 'cover', None)

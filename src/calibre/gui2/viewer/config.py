@@ -236,17 +236,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
         from calibre.gui2.viewer.main import dprefs
         self.word_lookups = dprefs['word_lookups']
 
-    @dynamic_property
+    @property
     def word_lookups(self):
-        def fget(self):
-            return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
+        return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
 
-        def fset(self, wl):
-            self.dictionary_list.clear()
-            for langcode, url in sorted(iteritems(wl), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
-                i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
-                i.setData(Qt.UserRole, (langcode, url))
-        return property(fget=fget, fset=fset)
+    @word_lookups.setter
+    def word_lookups(self, wl):
+        self.dictionary_list.clear()
+        for langcode, url in sorted(iteritems(wl), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
+            i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
+            i.setData(Qt.UserRole, (langcode, url))
 
     def add_dictionary_website(self):
         class AD(QDialog):

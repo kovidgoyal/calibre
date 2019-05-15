@@ -138,35 +138,33 @@ class ConditionEditor(QWidget):  # {{{
             b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
             b.setMinimumContentsLength(20)
 
-    @dynamic_property
+    @property
     def current_col(self):
-        def fget(self):
-            idx = self.column_box.currentIndex()
-            return unicode_type(self.column_box.itemData(idx) or '')
+        idx = self.column_box.currentIndex()
+        return unicode_type(self.column_box.itemData(idx) or '')
 
-        def fset(self, val):
-            for idx in range(self.column_box.count()):
-                c = unicode_type(self.column_box.itemData(idx) or '')
-                if c == val:
-                    self.column_box.setCurrentIndex(idx)
-                    return
-            raise ValueError('Column %r not found'%val)
-        return property(fget=fget, fset=fset)
+    @current_col.setter
+    def current_col(self, val):
+        for idx in range(self.column_box.count()):
+            c = unicode_type(self.column_box.itemData(idx) or '')
+            if c == val:
+                self.column_box.setCurrentIndex(idx)
+                return
+        raise ValueError('Column %r not found'%val)
 
-    @dynamic_property
+    @property
     def current_action(self):
-        def fget(self):
-            idx = self.action_box.currentIndex()
-            return unicode_type(self.action_box.itemData(idx) or '')
+        idx = self.action_box.currentIndex()
+        return unicode_type(self.action_box.itemData(idx) or '')
 
-        def fset(self, val):
-            for idx in range(self.action_box.count()):
-                c = unicode_type(self.action_box.itemData(idx) or '')
-                if c == val:
-                    self.action_box.setCurrentIndex(idx)
-                    return
-            raise ValueError('Action %r not valid for current column'%val)
-        return property(fget=fget, fset=fset)
+    @current_action.setter
+    def current_action(self, val):
+        for idx in range(self.action_box.count()):
+            c = unicode_type(self.action_box.itemData(idx) or '')
+            if c == val:
+                self.action_box.setCurrentIndex(idx)
+                return
+        raise ValueError('Action %r not valid for current column'%val)
 
     @property
     def current_val(self):
@@ -176,26 +174,24 @@ class ConditionEditor(QWidget):  # {{{
             ans = rmap.get(lower(ans), ans)
         return ans
 
-    @dynamic_property
+    @property
     def condition(self):
 
-        def fget(self):
-            c, a, v = (self.current_col, self.current_action,
-                    self.current_val)
-            if not c or not a:
-                return None
-            return (c, a, v)
+        c, a, v = (self.current_col, self.current_action,
+                self.current_val)
+        if not c or not a:
+            return None
+        return (c, a, v)
 
-        def fset(self, condition):
-            c, a, v = condition
-            if not v:
-                v = ''
-            v = v.strip()
-            self.current_col = c
-            self.current_action = a
-            self.value_box.setText(v)
-
-        return property(fget=fget, fset=fset)
+    @condition.setter
+    def condition(self, condition):
+        c, a, v = condition
+        if not v:
+            v = ''
+        v = v.strip()
+        self.current_col = c
+        self.current_action = a
+        self.value_box.setText(v)
 
     def init_action_box(self):
         self.action_box.blockSignals(True)

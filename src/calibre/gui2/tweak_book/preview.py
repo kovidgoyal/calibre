@@ -370,17 +370,16 @@ class WebView(QWebView):
     def refresh(self):
         self.pageAction(self.page().Reload).trigger()
 
-    @dynamic_property
+    @property
     def scroll_pos(self):
-        def fget(self):
-            mf = self.page().mainFrame()
-            return (mf.scrollBarValue(Qt.Horizontal), mf.scrollBarValue(Qt.Vertical))
+        mf = self.page().mainFrame()
+        return (mf.scrollBarValue(Qt.Horizontal), mf.scrollBarValue(Qt.Vertical))
 
-        def fset(self, val):
-            mf = self.page().mainFrame()
-            mf.setScrollBarValue(Qt.Horizontal, val[0])
-            mf.setScrollBarValue(Qt.Vertical, val[1])
-        return property(fget=fget, fset=fset)
+    @scroll_pos.setter
+    def scroll_pos(self, val):
+        mf = self.page().mainFrame()
+        mf.setScrollBarValue(Qt.Horizontal, val[0])
+        mf.setScrollBarValue(Qt.Vertical, val[1])
 
     def clear(self):
         self.setHtml(_(

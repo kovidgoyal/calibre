@@ -51,18 +51,17 @@ class ChooseFormat(QDialog):  # {{{
             b.setChecked(True)
         self.accept()
 
-    @dynamic_property
+    @property
     def formats(self):
-        def fget(self):
-            for b in self.buttons:
-                if b.isChecked():
-                    yield unicode_type(b.text())[1:]
+        for b in self.buttons:
+            if b.isChecked():
+                yield unicode_type(b.text())[1:]
 
-        def fset(self, formats):
-            formats = {x.upper() for x in formats}
-            for b in self.buttons:
-                b.setChecked(b.text()[1:] in formats)
-        return property(fget=fget, fset=fset)
+    @formats.setter
+    def formats(self, formats):
+        formats = {x.upper() for x in formats}
+        for b in self.buttons:
+            b.setChecked(b.text()[1:] in formats)
 
 # }}}
 

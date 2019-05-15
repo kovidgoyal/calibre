@@ -159,28 +159,26 @@ class Editor(QMainWindow):
         self.editor.link_clicked.connect(self.link_clicked)
         self.editor.smart_highlighting_updated.connect(self.smart_highlighting_updated)
 
-    @dynamic_property
+    @property
     def current_line(self):
-        def fget(self):
-            return self.editor.textCursor().blockNumber()
+        return self.editor.textCursor().blockNumber()
 
-        def fset(self, val):
-            self.editor.go_to_line(val)
-        return property(fget=fget, fset=fset)
+    @current_line.setter
+    def current_line(self, val):
+        self.editor.go_to_line(val)
 
-    @dynamic_property
+    @property
     def current_editing_state(self):
-        def fget(self):
-            c = self.editor.textCursor()
-            return {'cursor':(c.anchor(), c.position())}
+        c = self.editor.textCursor()
+        return {'cursor':(c.anchor(), c.position())}
 
-        def fset(self, val):
-            anchor, position = val.get('cursor', (None, None))
-            if anchor is not None and position is not None:
-                c = self.editor.textCursor()
-                c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
-                self.editor.setTextCursor(c)
-        return property(fget=fget, fset=fset)
+    @current_editing_state.setter
+    def current_editing_state(self, val):
+        anchor, position = val.get('cursor', (None, None))
+        if anchor is not None and position is not None:
+            c = self.editor.textCursor()
+            c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
+            self.editor.setTextCursor(c)
 
     def current_tag(self, for_position_sync=True):
         return self.editor.current_tag(for_position_sync=for_position_sync)
@@ -189,18 +187,17 @@ class Editor(QMainWindow):
     def number_of_lines(self):
         return self.editor.blockCount()
 
-    @dynamic_property
+    @property
     def data(self):
-        def fget(self):
-            ans = self.get_raw_data()
-            ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
-            if changed:
-                self.data = ans
-            return ans.encode('utf-8')
+        ans = self.get_raw_data()
+        ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
+        if changed:
+            self.data = ans
+        return ans.encode('utf-8')
 
-        def fset(self, val):
-            self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
-        return property(fget=fget, fset=fset)
+    @data.setter
+    def data(self, val):
+        self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
 
     def init_from_template(self, template):
         self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
@@ -317,14 +314,13 @@ class Editor(QMainWindow):
     def has_marked_text(self):
         return self.editor.current_search_mark is not None
 
-    @dynamic_property
+    @property
     def is_modified(self):
-        def fget(self):
-            return self.editor.is_modified
+        return self.editor.is_modified
 
-        def fset(self, val):
-            self.editor.is_modified = val
-        return property(fget=fget, fset=fset)
+    @is_modified.setter
+    def is_modified(self, val):
+        self.editor.is_modified = val
 
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))

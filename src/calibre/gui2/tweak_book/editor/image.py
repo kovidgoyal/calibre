@@ -62,23 +62,21 @@ class ResizeDialog(QDialog):  # {{{
             other.setValue(oval)
             other.blockSignals(False)
 
-    @dynamic_property
+    @property
     def width(self):
-        def fget(self):
-            return self._width.value()
+        return self._width.value()
 
-        def fset(self, val):
-            self._width.setValue(val)
-        return property(fget=fget, fset=fset)
+    @width.setter
+    def width(self, val):
+        self._width.setValue(val)
 
-    @dynamic_property
+    @property
     def height(self):
-        def fget(self):
-            return self._height.value()
+        return self._height.value()
 
-        def fset(self, val):
-            self._height.setValue(val)
-        return property(fget=fget, fset=fset)
+    @height.setter
+    def height(self, val):
+        self._height.setValue(val)
 # }}}
 
 
@@ -111,24 +109,22 @@ class Editor(QMainWindow):
         self.canvas.undo_redo_state_changed.connect(self.undo_redo_state_changed)
         self.canvas.selection_state_changed.connect(self.update_clipboard_actions)
 
-    @dynamic_property
+    @property
     def is_modified(self):
-        def fget(self):
-            return self._is_modified
+        return self._is_modified
 
-        def fset(self, val):
-            self._is_modified = val
-            self.modification_state_changed.emit(val)
-        return property(fget=fget, fset=fset)
+    @is_modified.setter
+    def is_modified(self, val):
+        self._is_modified = val
+        self.modification_state_changed.emit(val)
 
-    @dynamic_property
+    @property
     def current_editing_state(self):
-        def fget(self):
-            return {}
+        return {}
 
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
+    @current_editing_state.setter
+    def current_editing_state(self, val):
+        pass
 
     @property
     def undo_available(self):
@@ -138,14 +134,13 @@ class Editor(QMainWindow):
     def redo_available(self):
         return self.canvas.redo_action.isEnabled()
 
-    @dynamic_property
+    @property
     def current_line(self):
-        def fget(self):
-            return 0
+        return 0
 
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
+    @current_line.setter
+    def current_line(self, val):
+        pass
 
     @property
     def number_of_lines(self):
@@ -160,15 +155,14 @@ class Editor(QMainWindow):
     def get_raw_data(self):
         return self.canvas.get_image_data(quality=self.quality)
 
-    @dynamic_property
+    @property
     def data(self):
-        def fget(self):
-            return self.get_raw_data()
+        return self.get_raw_data()
 
-        def fset(self, val):
-            self.canvas.load_image(val)
-            self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
-        return property(fget=fget, fset=fset)
+    @data.setter
+    def data(self, val):
+        self.canvas.load_image(val)
+        self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
 
     def replace_data(self, raw, only_if_different=True):
         # We ignore only_if_different as it is useless in our case, and

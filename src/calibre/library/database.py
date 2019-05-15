@@ -827,13 +827,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         #        _lock_file = None
         self.conn.close()
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
-
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
-        return property(doc=doc, fget=fget)
+        'The user version of this database'
+        return self.conn.get('pragma user_version;', all=False)
 
     def is_empty(self):
         return not self.conn.get('SELECT id FROM books LIMIT 1', all=False)
