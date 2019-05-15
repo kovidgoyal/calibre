@@ -4,11 +4,16 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import os
 import sys
 
 is_py3 = sys.version_info.major >= 3
 native_string_type = str
 iterkeys = iter
+
+
+def hasenv(x):
+    return getenv(x) is not None
 
 
 def as_bytes(x, encoding='utf-8'):
@@ -87,6 +92,9 @@ if is_py3:
             x = x.decode('utf-8')
         return x
 
+    def getenv(x, default=None):
+        return os.environ.get(environ_item(x), default)
+
     def exec_path(path, ctx=None):
         ctx = ctx or {}
         with open(path, 'rb') as f:
@@ -141,6 +149,22 @@ else:
         if isinstance(x, unicode_type):
             x = x.encode('utf-8')
         return x
+
+    if hasattr(sys, 'getwindowsversion'):
+        def getenv(x, default=None):
+            from calibre.constants import get_unicode_windows_env_var
+            if isinstance(x, bytes):
+                x = x.decode('mbcs', 'replace')
+            ans = get_unicode_windows_env_var(x)
+            if ans is None:
+                ans = default
+            return ans
+    else:
+        def getenv(x, default=None):
+            ans = os.environ.get(environ_item(x), default)
+            if isinstance(ans, bytes):
+                ans = ans.decode('utf-8', 'replace')
+            return ans
 
     def reload(module):
         return builtins.reload(module)

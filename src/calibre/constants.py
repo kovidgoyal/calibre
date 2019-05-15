@@ -1,15 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
-from polyglot.builtins import map, unicode_type
+from __future__ import print_function, unicode_literals
+from polyglot.builtins import map, unicode_type, hasenv, getenv, environ_item
 import sys, locale, codecs, os, importlib, collections
 
-__appname__   = u'calibre'
+__appname__   = 'calibre'
 numeric_version = (3, 42, 0)
-__version__   = u'.'.join(map(unicode_type, numeric_version))
+__version__   = '.'.join(map(unicode_type, numeric_version))
 git_version   = None
-__author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
+__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 '''
 Various run time constants.
@@ -28,7 +28,7 @@ ishaiku = 'haiku1' in _plat
 islinux   = not(iswindows or isosx or isbsd or ishaiku)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux or ishaiku
-isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
+isportable = hasenv('CALIBRE_PORTABLE_BUILD')
 ispy3 = sys.version_info.major > 2
 isxp = isoldvista = False
 if iswindows:
@@ -36,13 +36,13 @@ if iswindows:
     isxp = wver.major < 6
     isoldvista = wver.build < 6002
 is64bit = sys.maxsize > (1 << 32)
-isworker = 'CALIBRE_WORKER' in os.environ or 'CALIBRE_SIMPLE_WORKER' in os.environ
+isworker = hasenv('CALIBRE_WORKER') or hasenv('CALIBRE_SIMPLE_WORKER')
 if isworker:
-    os.environ.pop('CALIBRE_FORCE_ANSI', None)
+    os.environ.pop(environ_item('CALIBRE_FORCE_ANSI'), None)
 FAKE_PROTOCOL, FAKE_HOST = 'https', 'calibre-internal.invalid'
-VIEWER_APP_UID = u'com.calibre-ebook.viewer'
-EDITOR_APP_UID = u'com.calibre-ebook.edit-book'
-MAIN_APP_UID = u'com.calibre-ebook.main-gui'
+VIEWER_APP_UID = 'com.calibre-ebook.viewer'
+EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
+MAIN_APP_UID = 'com.calibre-ebook.main-gui'
 try:
     preferred_encoding = locale.getpreferredencoding()
     codecs.lookup(preferred_encoding)
@@ -84,11 +84,11 @@ else:
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
             # just plain dumb. This is fixed by the icu.py module which, when
             # imported changes ascii to utf-8
-    except:
+    except Exception:
         filesystem_encoding = 'utf-8'
 
 
-DEBUG = 'CALIBRE_DEBUG' in os.environ
+DEBUG = hasenv('CALIBRE_DEBUG')
 
 
 def debug():
@@ -98,7 +98,7 @@ def debug():
 
 def _get_cache_dir():
     import errno
-    confcache = os.path.join(config_dir, u'caches')
+    confcache = os.path.join(config_dir, 'caches')
     try:
         os.makedirs(confcache)
     except EnvironmentError as err:
@@ -106,13 +106,9 @@ def _get_cache_dir():
             raise
     if isportable:
         return confcache
-    if 'CALIBRE_CACHE_DIRECTORY' in os.environ:
-        if iswindows:
-            ans = get_unicode_windows_env_var(u'CALIBRE_CACHE_DIRECTORY')
-        else:
-            ans = os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
-            if isinstance(ans, bytes):
-                ans = ans.decode(filesystem_encoding)
+    ccd = getenv('CALIBRE_CACHE_DIRECTORY')
+    if ccd is not None:
+        ans = os.path.abspath(ccd)
         try:
             os.makedirs(ans)
             return ans
@@ -123,13 +119,13 @@ def _get_cache_dir():
     if iswindows:
         w = plugins['winutil'][0]
         try:
-            candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), u'%s-cache'%__appname__)
+            candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), '%s-cache'%__appname__)
         except ValueError:
             return confcache
     elif isosx:
-        candidate = os.path.join(os.path.expanduser(u'~/Library/Caches'), __appname__)
+        candidate = os.path.join(os.path.expanduser('~/Library/Caches'), __appname__)
     else:
-        candidate = os.environ.get('XDG_CACHE_HOME', u'~/.cache')
+        candidate = getenv('XDG_CACHE_HOME', '~/.cache')
         candidate = os.path.join(os.path.expanduser(candidate),
                                     __appname__)
         if isinstance(candidate, bytes):
@@ -207,7 +203,7 @@ class Plugins(collections.Mapping):
             del sys.modules[name]
         except KeyError:
             pass
-        plugin_err = u''
+        plugin_err = ''
         try:
             p = importlib.import_module(name)
         except Exception as err:
@@ -241,8 +237,9 @@ if plugins is None:
 
 CONFIG_DIR_MODE = 0o700
 
-if 'CALIBRE_CONFIG_DIRECTORY' in os.environ:
-    config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
+cconfd = getenv('CALIBRE_CONFIG_DIRECTORY')
+if cconfd is not None:
+    config_dir = os.path.abspath(cconfd)
 elif iswindows:
     if plugins['winutil'][0] is None:
         raise Exception(plugins['winutil'][1])
@@ -256,7 +253,7 @@ elif iswindows:
 elif isosx:
     config_dir = os.path.expanduser('~/Library/Preferences/calibre')
 else:
-    bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
+    bdir = os.path.abspath(os.path.expanduser(getenv('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
     try:
         os.makedirs(config_dir, mode=CONFIG_DIR_MODE)
@@ -279,7 +276,7 @@ else:
 # }}}
 
 
-dv = os.environ.get('CALIBRE_DEVELOP_FROM')
+dv = getenv('CALIBRE_DEVELOP_FROM')
 is_running_from_develop = bool(getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path)
 del dv
 
@@ -303,7 +300,7 @@ def get_version():
 def get_portable_base():
     'Return path to the directory that contains calibre-portable.exe or None'
     if isportable:
-        return os.path.dirname(os.path.dirname(get_unicode_windows_env_var(u'CALIBRE_PORTABLE_BUILD')))
+        return os.path.dirname(os.path.dirname(get_unicode_windows_env_var('CALIBRE_PORTABLE_BUILD')))
 
 
 def get_unicode_windows_env_var(name):
