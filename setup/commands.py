@@ -13,7 +13,7 @@ __all__ = [
         'git_version',
         'develop', 'install',
         'kakasi', 'coffee', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
-        'check', 'test',
+        'check', 'to3', 'test',
         'sdist', 'bootstrap',
         'manual', 'tag_release',
         'upload_to_server',
@@ -55,6 +55,8 @@ gui = GUI()
 
 from setup.check import Check
 check = Check()
+from setup.port import To3
+to3 = To3()
 
 from setup.test import Test
 test = Test()

@@ -127,7 +127,7 @@ class BuildTest(unittest.TestCase):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
-        self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), unicode_type)
+        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), unicode_type)
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 
@@ -153,14 +153,14 @@ class BuildTest(unittest.TestCase):
         au(d['decimal_point'], 'localeconv')
         for k, v in iteritems(d):
             au(v, k)
-        for k in os.environ.keys():
+        for k in os.environ:
             au(winutil.getenv(unicode_type(k)), 'getenv-' + k)
         os.environ['XXXTEST'] = 'YYY'
-        self.assertEqual(winutil.getenv(u'XXXTEST'), u'YYY')
+        self.assertEqual(winutil.getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
-        self.assertIsNone(winutil.getenv(u'XXXTEST'))
+        self.assertIsNone(winutil.getenv('XXXTEST'))
         t = time.localtime()
-        fmt = u'%Y%a%b%e%H%M'
+        fmt = '%Y%a%b%e%H%M'
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
@@ -189,7 +189,7 @@ class BuildTest(unittest.TestCase):
         # it should just work because the hard-coded paths of the Qt
         # installation should work. If they do not, then it is a distro
         # problem.
-        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))
+        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))  # no2to3
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = P('images/blank.png', allow_user_override=False, data=True)
@@ -309,7 +309,7 @@ class BuildTest(unittest.TestCase):
         if isosx:
             cafile = ssl.get_default_verify_paths().cafile
             if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
-                self.assert_('Mozilla CA certs not loaded')
+                raise AssertionError('Mozilla CA certs not loaded')
 
 
 def find_tests():

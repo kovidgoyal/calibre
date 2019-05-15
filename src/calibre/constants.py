@@ -67,8 +67,8 @@ def get_osx_version():
             ver = platform.mac_ver()[0].split('.')
             if len(ver) == 2:
                 ver.append(0)
-            _osx_ver = OSX(*(map(int, ver)))
-        except:
+            _osx_ver = OSX(*map(int, ver))  # no2to3
+        except Exception:
             _osx_ver = OSX(0, 0, 0)
     return _osx_ver
 
