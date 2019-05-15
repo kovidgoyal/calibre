@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import as_bytes
+from polyglot.builtins import as_bytes, getcwd
 
 
 class PDFInput(InputFormatPlugin):
@@ -34,11 +34,11 @@ class PDFInput(InputFormatPlugin):
         from calibre.utils.cleantext import clean_ascii_chars
         from calibre.ebooks.pdf.reflow import PDFDocument
 
-        pdftohtml(os.getcwdu(), stream.name, self.opts.no_images, as_xml=True)
+        pdftohtml(getcwd(), stream.name, self.opts.no_images, as_xml=True)
         with open(u'index.xml', 'rb') as f:
             xml = clean_ascii_chars(f.read())
         PDFDocument(xml, self.opts, self.log)
-        return os.path.join(os.getcwdu(), u'metadata.opf')
+        return os.path.join(getcwd(), u'metadata.opf')
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -50,16 +50,16 @@ class PDFInput(InputFormatPlugin):
         self.opts, self.log = options, log
         if options.new_pdf_engine:
             return self.convert_new(stream, accelerators)
-        pdftohtml(os.getcwdu(), stream.name, options.no_images)
+        pdftohtml(getcwd(), stream.name, options.no_images)
 
         from calibre.ebooks.metadata.meta import get_metadata
         log.debug('Retrieving document metadata...')
         mi = get_metadata(stream, 'pdf')
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
 
         manifest = [(u'index.html', None)]
 
-        images = os.listdir(os.getcwdu())
+        images = os.listdir(getcwd())
         images.remove('index.html')
         for i in images:
             manifest.append((i, None))
@@ -78,4 +78,4 @@ class PDFInput(InputFormatPlugin):
                     f.seek(0)
                     f.write(raw)
 
-        return os.path.join(os.getcwdu(), u'metadata.opf')
+        return os.path.join(getcwd(), u'metadata.opf')

@@ -10,6 +10,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import getcwd
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
@@ -202,7 +203,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwdu())
+        opfpath = getattr(f, 'name', getcwd())
     else:
         f = open(opfpath, 'rb')
     try:

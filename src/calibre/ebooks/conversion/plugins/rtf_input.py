@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems, filter, getcwd
 
 border_style_map = {
         'single' : 'solid',
@@ -303,7 +303,7 @@ class RTFInput(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         opf.create_manifest([(u'index.xhtml', None)])
         opf.create_spine([u'index.xhtml'])
         opf.render(open(u'metadata.opf', 'wb'))

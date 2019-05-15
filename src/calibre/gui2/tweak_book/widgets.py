@@ -27,7 +27,7 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import iteritems, unicode_type, zip
+from polyglot.builtins import iteritems, unicode_type, zip, getcwd
 
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -470,9 +470,8 @@ class QuickOpen(Dialog):
 
     @classmethod
     def test(cls):
-        import os
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(getcwd(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
         print(d.selected_result)

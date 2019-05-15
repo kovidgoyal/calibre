@@ -10,6 +10,7 @@ import shutil
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
+from polyglot.builtins import getcwd
 
 
 class PMLInput(InputFormatPlugin):
@@ -72,10 +73,10 @@ class PMLInput(InputFormatPlugin):
         if not imgs:
             imgs = glob.glob(os.path.join(os.path.join(tdir, u'images'), u'*.png'))
         if imgs:
-            os.makedirs(os.path.join(os.getcwdu(), u'images'))
+            os.makedirs(os.path.join(getcwd(), u'images'))
         for img in imgs:
             pimg_name = os.path.basename(img)
-            pimg_path = os.path.join(os.getcwdu(), 'images', pimg_name)
+            pimg_path = os.path.join(getcwd(), 'images', pimg_name)
 
             images.append('images/' + pimg_name)
 
@@ -103,7 +104,7 @@ class PMLInput(InputFormatPlugin):
                 pmls = glob.glob(os.path.join(tdir, u'*.pml'))
                 for pml in pmls:
                     html_name = os.path.splitext(os.path.basename(pml))[0]+'.html'
-                    html_path = os.path.join(os.getcwdu(), html_name)
+                    html_path = os.path.join(getcwd(), html_name)
 
                     pages.append(html_name)
                     log.debug('Processing PML item %s...' % pml)
@@ -129,7 +130,7 @@ class PMLInput(InputFormatPlugin):
         mi = get_metadata(stream, 'pml')
         if 'images/cover.png' in images:
             mi.cover = u'images/cover.png'
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         log.debug('Generating manifest...')
         opf.create_manifest(manifest_items)
         opf.create_spine(pages)
@@ -138,4 +139,4 @@ class PMLInput(InputFormatPlugin):
             with open(u'toc.ncx', 'wb') as tocfile:
                 opf.render(opffile, tocfile, u'toc.ncx')
 
-        return os.path.join(os.getcwdu(), u'metadata.opf')
+        return os.path.join(getcwd(), u'metadata.opf')

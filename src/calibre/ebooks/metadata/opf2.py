@@ -23,7 +23,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, getcwd
 from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False
@@ -56,7 +56,7 @@ class Resource(object):  # {{{
     :method:`href`
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
+    def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
         self.orig = href_or_path
         self._href = None
         self._basedir = basedir
@@ -100,7 +100,7 @@ class Resource(object):  # {{{
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwdu()
+                basedir = getcwd()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
@@ -392,7 +392,7 @@ class Guide(ResourceCollection):  # {{{
             return ans + '/>'
 
     @staticmethod
-    def from_opf_guide(references, base_dir=os.getcwdu()):
+    def from_opf_guide(references, base_dir=getcwd()):
         coll = Guide()
         for ref in references:
             try:
@@ -579,7 +579,7 @@ class OPF(object):  # {{{
     author_link_map = MetadataField('author_link_map', is_dc=False,
                                 formatter=json.loads, renderer=dump_dict)
 
-    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
+    def __init__(self, stream, basedir=getcwd(), unquote_urls=True,
             populate_spine=True, try_to_guess_cover=True, preparsed_opf=None, read_toc=True):
         self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
@@ -1780,7 +1780,7 @@ b'''\
 </package>
 '''
         )
-        self.opf = OPF(self.stream, os.getcwdu())
+        self.opf = OPF(self.stream, getcwd())
 
     def testReading(self, opf=None):
         if opf is None:
@@ -1811,11 +1811,11 @@ b'''\
         self.opf.render()
 
     def testCreator(self):
-        opf = OPFCreator(os.getcwdu(), self.opf)
+        opf = OPFCreator(getcwd(), self.opf)
         buf = io.BytesIO()
         opf.render(buf)
         raw = buf.getvalue()
-        self.testReading(opf=OPF(io.BytesIO(raw), os.getcwdu()))
+        self.testReading(opf=OPF(io.BytesIO(raw), getcwd()))
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
@@ -1842,7 +1842,7 @@ def test_user_metadata():
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
-    opfc = OPFCreator(os.getcwdu(), other=mi)
+    opfc = OPFCreator(getcwd(), other=mi)
     out = io.BytesIO()
     opfc.render(out)
     raw2 = out.getvalue()

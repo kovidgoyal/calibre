@@ -11,7 +11,7 @@ import os, re, sys, copy, glob, tempfile
 from collections import deque
 from math import ceil, floor
 from functools import partial
-from polyglot.builtins import string_or_bytes, itervalues
+from polyglot.builtins import string_or_bytes, itervalues, getcwd
 from itertools import chain
 
 try:
@@ -1911,7 +1911,7 @@ def process_file(path, options, logger):
     if not oname:
         suffix = '.lrs' if options.lrs else '.lrf'
         name = os.path.splitext(os.path.basename(path))[0] + suffix
-        oname = os.path.join(os.getcwdu(), name)
+        oname = os.path.join(getcwd(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     conv.cleanup()

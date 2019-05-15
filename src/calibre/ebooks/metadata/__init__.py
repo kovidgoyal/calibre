@@ -11,7 +11,7 @@ import os, sys, re
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -202,7 +202,7 @@ class Resource(object):
 
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
+    def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -244,7 +244,7 @@ class Resource(object):
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwdu()
+                basedir = getcwd()
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment

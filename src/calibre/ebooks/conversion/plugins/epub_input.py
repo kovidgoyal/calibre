@@ -7,7 +7,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import unicode_type, as_bytes
+from polyglot.builtins import unicode_type, as_bytes, getcwd
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -245,7 +245,7 @@ class EPUBInput(InputFormatPlugin):
                     path = attr(r, 'full-path')
                     if not path:
                         continue
-                    path = os.path.join(os.getcwdu(), *path.split('/'))
+                    path = os.path.join(getcwd(), *path.split('/'))
                     if os.path.exists(path):
                         return path
         except Exception:
@@ -259,7 +259,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.metadata.opf2 import OPF
         try:
             zf = ZipFile(stream)
-            zf.extractall(os.getcwdu())
+            zf.extractall(getcwd())
         except:
             log.exception('EPUB appears to be invalid ZIP file, trying a'
                     ' more forgiving ZIP parser')
@@ -279,7 +279,7 @@ class EPUBInput(InputFormatPlugin):
         if opf is None:
             raise ValueError('%s is not a valid EPUB file (could not find opf)'%path)
 
-        opf = os.path.relpath(opf, os.getcwdu())
+        opf = os.path.relpath(opf, getcwd())
         parts = os.path.split(opf)
         opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
 
@@ -403,7 +403,7 @@ class EPUBInput(InputFormatPlugin):
 
         with NamedTemporaryFile(suffix='.ncx', dir=os.path.dirname(nav_path), delete=False) as f:
             f.write(etree.tostring(ncx, encoding='utf-8'))
-        ncx_href = os.path.relpath(f.name, os.getcwdu()).replace(os.sep, '/')
+        ncx_href = os.path.relpath(f.name, getcwd()).replace(os.sep, '/')
         ncx_id = opf.create_manifest_item(ncx_href, NCX_MIME, append=True).get('id')
         for spine in opf.root.xpath('//*[local-name()="spine"]'):
             spine.set('toc', ncx_id)

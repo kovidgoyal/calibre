@@ -19,7 +19,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
-from polyglot.builtins import unicode_type, string_or_bytes, filter
+from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd
 
 
 class Extract(ODF2XHTML):
@@ -295,9 +295,9 @@ class Extract(ODF2XHTML):
                 f.write(html.encode('utf-8'))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
-            opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
+            opf = OPFCreator(os.path.abspath(getcwd()), mi)
             opf.create_manifest([(os.path.abspath(f2), None) for f2 in
-                walk(os.getcwdu())])
+                walk(getcwd())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)
