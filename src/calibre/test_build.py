@@ -165,6 +165,12 @@ class BuildTest(unittest.TestCase):
             x = strftime(fmt, t)
             au(x, 'strftime')
             self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
+        from polyglot.builtins import getenv
+        q = 'value'
+        os.environ['test_unicode_getenv'] = q
+        val = getenv('test_unicode_getenv')
+        self.assertEqual(val, q)
+        self.assertTrue(isinstance(val, type('')))
 
     def test_sqlite(self):
         import sqlite3
