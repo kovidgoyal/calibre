@@ -900,7 +900,7 @@ class MPRecipe(BasicNewsRecipe):
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
             ref = Guide.Reference(os.path.basename(
-                self.masthead_path), os.getcwdu())
+                self.masthead_path), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)

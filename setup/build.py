@@ -502,7 +502,7 @@ class Build(Command):
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]

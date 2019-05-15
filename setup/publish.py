@@ -220,7 +220,7 @@ class Manual(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         try:
             os.chdir(self.j(tdir, 'en', 'html'))
             for x in os.listdir(tdir):
@@ -311,7 +311,7 @@ class ManPages(Command):
         subprocess.check_call(jobs[0][0])
         if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         os.chdir(dest)
         try:
             for x in tuple(os.listdir('.')):

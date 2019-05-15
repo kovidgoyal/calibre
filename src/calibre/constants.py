@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import print_function, unicode_literals
-from polyglot.builtins import map, unicode_type, hasenv, getenv, environ_item
+from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = 'calibre'
@@ -300,12 +300,7 @@ def get_version():
 def get_portable_base():
     'Return path to the directory that contains calibre-portable.exe or None'
     if isportable:
-        return os.path.dirname(os.path.dirname(get_unicode_windows_env_var('CALIBRE_PORTABLE_BUILD')))
-
-
-def get_unicode_windows_env_var(name):
-    getenv = plugins['winutil'][0].getenv
-    return getenv(unicode_type(name))
+        return os.path.dirname(os.path.dirname(getenv('CALIBRE_PORTABLE_BUILD')))
 
 
 def get_windows_username():

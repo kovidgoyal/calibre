@@ -29,7 +29,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to_data
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, getcwd
 from polyglot.urllib import urlparse, urlsplit
 
 
@@ -870,7 +870,7 @@ class BasicNewsRecipe(Recipe):
             self.title = unicode_type(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(os.getcwdu())
+        self.output_dir = os.path.abspath(getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -1457,7 +1457,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)

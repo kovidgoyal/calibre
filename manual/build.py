@@ -45,7 +45,7 @@ def build_manual(language, base):
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
     latexdir = sb('mylatex', 'latex')
-    pwd = os.getcwdu()
+    pwd = os.getcwd()
     os.chdir(latexdir)
 
     def run_cmd(cmd):

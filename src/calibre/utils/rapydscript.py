@@ -22,7 +22,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.terminal import ANSIStream
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from polyglot.builtins import itervalues, range, exec_path, raw_input, error_message, filter
+from polyglot.builtins import itervalues, range, exec_path, raw_input, error_message, filter, getcwd
 from polyglot.queue import Empty, Queue
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -107,7 +107,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         'private_scope':private_scope,
         'omit_baselib': omit_baselib,
         'libdir': libdir or default_lib_dir(),
-        'basedir': os.getcwdu() if not filename or filename == '<stdin>' else os.path.dirname(filename),
+        'basedir': getcwd() if not filename or filename == '<stdin>' else os.path.dirname(filename),
         'filename': filename,
     }
     c.g.rs_source_code = data

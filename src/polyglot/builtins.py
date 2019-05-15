@@ -74,6 +74,8 @@ if is_py3:
     string_or_bytes = str, bytes
     long_type = int
     raw_input = input
+    getcwd = os.getcwd
+    getenv = os.getenv
 
     def error_message(exc):
         args = getattr(exc, 'args', None)
@@ -91,9 +93,6 @@ if is_py3:
         if isinstance(x, bytes):
             x = x.decode('utf-8')
         return x
-
-    def getenv(x, default=None):
-        return os.environ.get(environ_item(x), default)
 
     def exec_path(path, ctx=None):
         ctx = ctx or {}
@@ -132,6 +131,7 @@ else:
     raw_input = builtins.raw_input
     cmp = builtins.cmp
     int_to_byte = chr
+    getcwd = os.getcwdu
 
     def error_message(exc):
         ans = exc.message
@@ -152,16 +152,16 @@ else:
 
     if hasattr(sys, 'getwindowsversion'):
         def getenv(x, default=None):
-            from calibre.constants import get_unicode_windows_env_var
+            from win32api import GetEnvironmentVariableW
             if isinstance(x, bytes):
                 x = x.decode('mbcs', 'replace')
-            ans = get_unicode_windows_env_var(x)
+            ans = GetEnvironmentVariableW(x)
             if ans is None:
                 ans = default
             return ans
     else:
         def getenv(x, default=None):
-            ans = os.environ.get(environ_item(x), default)
+            ans = os.getenv(x, default)
             if isinstance(ans, bytes):
                 ans = ans.decode('utf-8', 'replace')
             return ans

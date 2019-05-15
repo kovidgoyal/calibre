@@ -17,7 +17,7 @@ from threading import Lock, local
 
 from polyglot import socketserver
 from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
-from polyglot.builtins import error_message
+from polyglot.builtins import error_message, getcwd
 
 # Compiler {{{
 
@@ -272,7 +272,7 @@ def serve(resources={}, port=8000, host='0.0.0.0'):
     Handler.special_resources = resources
     Handler.compiler = compile_coffeescript
     httpd = Server((host, port), Handler)
-    print('serving %s at %s:%d with PID=%d'%(os.getcwdu(), host, port, os.getpid()))
+    print('serving %s at %s:%d with PID=%d'%(getcwd(), host, port, os.getpid()))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

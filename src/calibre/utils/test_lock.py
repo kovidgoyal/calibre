@@ -19,7 +19,7 @@ from calibre.utils.tdir_in_cache import (
     clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
     unlock_file
 )
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, getcwd
 
 
 def FastFailEF(name):
@@ -177,13 +177,13 @@ def other3():
 
 
 def other4():
-    cache_dir.ans = os.getcwdu()
+    cache_dir.ans = getcwd()
     tdir_in_cache('t')
     time.sleep(30)
 
 
 def other5():
-    cache_dir.ans = os.getcwdu()
+    cache_dir.ans = getcwd()
     if not os.path.isdir(tdir_in_cache('t')):
         raise SystemExit(1)
 

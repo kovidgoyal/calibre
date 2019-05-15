@@ -19,7 +19,7 @@ from struct import calcsize, unpack, pack
 from collections import namedtuple, OrderedDict
 from tempfile import SpooledTemporaryFile
 
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, getcwd
 
 HEADER_SIG = 0x04034b50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
@@ -227,7 +227,7 @@ def extractall(path_or_stream, path=None):
         f = open(f, 'rb')
         close_at_end = True
     if path is None:
-        path = os.getcwdu()
+        path = getcwd()
     pos = f.tell()
     try:
         _extractall(f, path)
@@ -275,7 +275,7 @@ class LocalZipFile(object):
 
     def extractall(self, path=None):
         self.stream.seek(0)
-        _extractall(self.stream, path=(path or os.getcwdu()))
+        _extractall(self.stream, path=(path or getcwd()))
 
     def close(self):
         pass

@@ -5,21 +5,15 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
 from polyglot.builtins import (builtins, codepoint_to_chr, iteritems,
-        itervalues, unicode_type, range, filter)
+        itervalues, unicode_type, range, filter, hasenv)
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
 
-if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
+if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
-    os.getcwdu()
-except AttributeError:
-    os.getcwdu = os.getcwd
-    try:
-        os.getcwd()
-    except EnvironmentError:
-        os.chdir(os.path.expanduser('~'))
+    os.getcwd()
 except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
@@ -446,7 +440,7 @@ class CurrentDir(object):
         self.cwd = None
 
     def __enter__(self, *args):
-        self.cwd = os.getcwdu()
+        self.cwd = os.getcwd()
         os.chdir(self.path)
         return self.cwd
 
