@@ -86,9 +86,11 @@ class To3(Command):
         oo, oe = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf = PolyglotStringIO()
         try:
-            run_2to3(f)
+            ret = run_2to3(f)
         finally:
             sys.stdout, sys.stderr = oo, oe
+        if ret:
+            raise SystemExit('Could not parse: ' + f)
         output = buf.getvalue()
         return re.search(r'^RefactoringTool: No changes to ' + f, output, flags=re.M) is None
 
