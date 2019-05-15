@@ -334,6 +334,10 @@ def abspath(x):
     return os.path.abspath(os.path.expanduser(x))
 
 
+def escape_sr_pattern(exp):
+    return exp.replace('\n', '\ue123')
+
+
 def read_sr_patterns(path, log=None):
     import json, re
     pats = []
@@ -344,6 +348,7 @@ def read_sr_patterns(path, log=None):
         if pat is None:
             if not line.strip():
                 continue
+            line = line.replace('\ue123', '\n')
             try:
                 re.compile(line)
             except:

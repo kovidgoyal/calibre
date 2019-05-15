@@ -122,6 +122,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                         show=True)
 
     def sr_save_clicked(self):
+        from calibre.ebooks.conversion.cli import escape_sr_pattern as escape
         filename = choose_save_file(self, 'sr_saved_patterns',
                 _('Save calibre search-replace definitions file'),
                 filters=[
@@ -130,7 +131,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if filename:
             with codecs.open(filename, 'w', 'utf-8') as f:
                 for search, replace in self.get_definitions():
-                    f.write(search + u'\n' + replace + u'\n\n')
+                    f.write(escape(search) + u'\n' + escape(replace) + u'\n\n')
 
     def sr_up_clicked(self):
         self.cell_rearrange(-1)
