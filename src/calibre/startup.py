@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -229,7 +229,7 @@ if not _run_once:
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
-    n = u'f\xe4llen'
+    n = 'f\xe4llen'
     print('testing lopen()')
 
     if iswindows:
