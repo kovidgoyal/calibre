@@ -14,7 +14,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time
 
 from calibre.constants import plugins, iswindows, islinux, isosx, ispy3
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, map, unicode_type, getenv
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -154,23 +154,17 @@ class BuildTest(unittest.TestCase):
         for k, v in iteritems(d):
             au(v, k)
         for k in os.environ:
-            au(winutil.getenv(unicode_type(k)), 'getenv-' + k)
+            au(getenv(k), 'getenv-' + k)
         os.environ['XXXTEST'] = 'YYY'
-        self.assertEqual(winutil.getenv('XXXTEST'), 'YYY')
+        self.assertEqual(getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
-        self.assertIsNone(winutil.getenv('XXXTEST'))
+        self.assertIsNone(getenv('XXXTEST'))
         t = time.localtime()
         fmt = '%Y%a%b%e%H%M'
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
             self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
-        from polyglot.builtins import getenv
-        q = 'value'
-        os.environ['test_unicode_getenv'] = q
-        val = getenv('test_unicode_getenv')
-        self.assertEqual(val, q)
-        self.assertTrue(isinstance(val, type('')))
 
     def test_sqlite(self):
         import sqlite3

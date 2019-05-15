@@ -230,19 +230,6 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
-static PyObject *
-winutil_getenv(PyObject *self, PyObject *args) {
-    const Py_UNICODE *q;
-    if (!PyArg_ParseTuple(args, "u", &q)) return NULL;
-    wchar_t *buf = NULL;
-    size_t sz = 0;
-    PyObject *ans = NULL;
-    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL || sz == 0) { ans = Py_None; Py_INCREF(ans); }
-    else ans = PyUnicode_FromWideChar(buf, sz - 1);
-    if (buf) free(buf);
-    return ans;
-}
-
 static PyObject*
 winutil_move_file(PyObject *self, PyObject *args) {
     Py_UNICODE *a, *b;
@@ -433,10 +420,6 @@ be a unicode string. Returns unicode strings."
 
     {"setmaxstdio", winutil_set_max_stdio, METH_VARARGS,
         "setmaxstdio(num)\n\nSet the maximum number of open file handles."
-    },
-
-    {"getenv", (PyCFunction)winutil_getenv, METH_VARARGS,
-        "getenv(name)\n\nGet the value of the specified env var as a unicode string."
     },
 
     {"username", (PyCFunction)winutil_username, METH_NOARGS,
