@@ -9,9 +9,9 @@ Provides abstraction for metadata reading.writing from a variety of ebook format
 """
 import os, sys, re
 
-from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
+from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, itervalues
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -37,6 +37,26 @@ def authors_to_string(authors):
         return ' & '.join([a.replace('&', '&&') for a in authors if a])
     else:
         return ''
+
+
+def remove_bracketed_text(src, brackets=None):
+    if brackets is None:
+        brackets = {u'(': u')', u'[': u']', u'{': u'}'}
+    from collections import Counter
+    counts = Counter()
+    buf = []
+    src = force_unicode(src)
+    rmap = {v: k for k, v in iteritems(brackets)}
+    for char in src:
+        if char in brackets:
+            counts[char] += 1
+        elif char in rmap:
+            idx = rmap[char]
+            if counts[idx] > 0:
+                counts[idx] -= 1
+        elif sum(itervalues(counts)) < 1:
+            buf.append(char)
+    return u''.join(buf)
 
 
 def author_to_author_sort(author, method=None):

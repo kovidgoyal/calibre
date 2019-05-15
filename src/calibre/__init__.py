@@ -1,11 +1,11 @@
+from __future__ import unicode_literals, print_function
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import (codepoint_to_chr, iteritems,
-        itervalues, unicode_type, range, filter, hasenv)
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, hasenv
 from math import floor
 from functools import partial
 
@@ -105,11 +105,11 @@ def confirm_config_name(name):
     return name + '_again'
 
 
-_filename_sanitize_unicode = frozenset((u'\\', u'|', u'?', u'*', u'<',
-    u'"', u':', u'>', u'+', u'/') + tuple(map(codepoint_to_chr, range(32))))
+_filename_sanitize_unicode = frozenset(('\\', '|', '?', '*', '<',        # no2to3
+    '"', ':', '>', '+', '/') + tuple(map(codepoint_to_chr, range(32))))  # no2to3
 
 
-def sanitize_file_name(name, substitute=u'_'):
+def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
@@ -122,11 +122,11 @@ def sanitize_file_name(name, substitute=u'_'):
     if isbytestring(substitute):
         substitute = substitute.decode(filesystem_encoding, 'replace')
     chars = (substitute if c in _filename_sanitize_unicode else c for c in name)
-    one = u''.join(chars)
-    one = re.sub(r'\s', u' ', one).strip()
+    one = ''.join(chars)
+    one = re.sub(r'\s', ' ', one).strip()
     bname, ext = os.path.splitext(one)
-    one = re.sub(r'^\.+$', u'_', bname)
-    one = one.replace(u'..', substitute)
+    one = re.sub(r'^\.+$', '_', bname)
+    one = one.replace('..', substitute)
     one += ext
     # Windows doesn't like path components that end with a period or space
     if one and one[-1] in ('.', ' '):
@@ -151,7 +151,7 @@ def prints(*args, **kwargs):
     '''
     file = kwargs.get('file', sys.stdout)
     file = getattr(file, 'buffer', file)
-    enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding
+    enc = 'utf-8' if hasenv('CALIBRE_WORKER') else preferred_encoding
     sep  = kwargs.get('sep', ' ')
     if not isinstance(sep, bytes):
         sep = sep.encode(enc)
@@ -219,7 +219,7 @@ class CommandLineError(Exception):
 
 def setup_cli_handlers(logger, level):
     import logging
-    if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
+    if hasenv('CALIBRE_WORKER') and logger.handlers:
         return
     logger.setLevel(level)
     if level == logging.WARNING:
@@ -347,16 +347,16 @@ def get_proxy_info(proxy_scheme, proxy_string):
     '''
     from polyglot.urllib import urlparse
     try:
-        proxy_url = u'%s://%s'%(proxy_scheme, proxy_string)
+        proxy_url = '%s://%s'%(proxy_scheme, proxy_string)
         urlinfo = urlparse(proxy_url)
         ans = {
-            u'scheme': urlinfo.scheme,
-            u'hostname': urlinfo.hostname,
-            u'port': urlinfo.port,
-            u'username': urlinfo.username,
-            u'password': urlinfo.password,
+            'scheme': urlinfo.scheme,
+            'hostname': urlinfo.hostname,
+            'port': urlinfo.port,
+            'username': urlinfo.username,
+            'password': urlinfo.password,
         }
-    except:
+    except Exception:
         return None
     return ans
 
@@ -373,9 +373,9 @@ def is_mobile_ua(ua):
 def random_user_agent(choose=None, allow_ie=True):
     from calibre.utils.random_ua import common_user_agents
     ua_list = common_user_agents()
-    ua_list = list(filter(lambda x: not is_mobile_ua(x), ua_list))
+    ua_list = [x for x in ua_list if not is_mobile_ua(x)]
     if not allow_ie:
-        ua_list = list(filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list))
+        ua_list = [x for x in ua_list if 'Trident/' not in x and 'Edge/' not in x]
     return random.choice(ua_list) if choose is None else ua_list[choose]
 
 
@@ -420,13 +420,13 @@ def fit_image(width, height, pwidth, pheight):
     '''
     scaled = height > pheight or width > pwidth
     if height > pheight:
-        corrf = pheight/float(height)
+        corrf = pheight / float(height)
         width, height = floor(corrf*width), pheight
     if width > pwidth:
-        corrf = pwidth/float(width)
+        corrf = pwidth / float(width)
         width, height = pwidth, floor(corrf*height)
     if height > pheight:
-        corrf = pheight/float(height)
+        corrf = pheight / float(height)
         width, height = floor(corrf*width), pheight
 
     return scaled, int(width), int(height)
@@ -474,7 +474,6 @@ def detect_ncpus():
 
 
 relpath = os.path.relpath
-_spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 
 
 def walk(dir):
@@ -488,7 +487,7 @@ def strftime(fmt, t=None):
     ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
     if not fmt:
-        return u''
+        return ''
     if t is None:
         t = time.localtime()
     if hasattr(t, 'timetuple'):
@@ -504,14 +503,14 @@ def strftime(fmt, t=None):
     if iswindows:
         if isinstance(fmt, bytes):
             fmt = fmt.decode('mbcs', 'replace')
-        fmt = fmt.replace(u'%e', u'%#d')
+        fmt = fmt.replace('%e', '%#d')
         ans = plugins['winutil'][0].strftime(fmt, t)
     else:
         ans = time.strftime(fmt, t)
         if isinstance(ans, bytes):
             ans = ans.decode(preferred_encoding, 'replace')
     if early_year:
-        ans = ans.replace(u'_early year hack##', unicode_type(orig_year))
+        ans = ans.replace('_early year hack##', unicode_type(orig_year))
     return ans
 
 
@@ -519,7 +518,7 @@ def my_unichr(num):
     try:
         return safe_chr(num)
     except (ValueError, OverflowError):
-        return u'?'
+        return '?'
 
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',
@@ -652,25 +651,6 @@ def human_readable(size, sep=' '):
     if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix
-
-
-def remove_bracketed_text(src,
-        brackets={u'(':u')', u'[':u']', u'{':u'}'}):
-    from collections import Counter
-    counts = Counter()
-    buf = []
-    src = force_unicode(src)
-    rmap = dict([(v, k) for k, v in iteritems(brackets)])
-    for char in src:
-        if char in brackets:
-            counts[char] += 1
-        elif char in rmap:
-            idx = rmap[char]
-            if counts[idx] > 0:
-                counts[idx] -= 1
-        elif sum(itervalues(counts)) < 1:
-            buf.append(char)
-    return u''.join(buf)
 
 
 def ipython(user_ns=None):
