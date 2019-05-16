@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from contextlib import contextmanager
 
@@ -53,10 +54,7 @@ def run_2to3(path, show_diffs=False):
     return ret
 
 
-class To3(Command):
-
-    description = 'Run 2to3 and fix anything it reports'
-    CACHE = 'check2to3.json'
+class Base(Command):
 
     @property
     def cache_file(self):
@@ -81,6 +79,44 @@ class To3(Command):
             self.fhash_cache[f] = ans = hashlib.sha1(open(f, 'rb').read()).hexdigest()
             return ans
 
+    def run(self, opts):
+        self.fhash_cache = {}
+        cache = {}
+        try:
+            cache = json.load(open(self.cache_file, 'rb'))
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+        dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+        try:
+            for i, f in enumerate(dirty_files):
+                num_left = len(dirty_files) - i - 1
+                self.info('\tChecking', f)
+                if self.file_has_errors(f):
+                    self.report_file_error(f, num_left)
+                    self.fhash_cache.pop(f, None)
+                cache[f] = self.file_hash(f)
+        finally:
+            self.save_cache(cache)
+
+    def clean(self):
+        try:
+            os.remove(self.cache_file)
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+
+
+class To3(Base):
+
+    description = 'Run 2to3 and fix anything it reports'
+    CACHE = 'check2to3.json'
+
+    def report_file_error(self, f, num_left):
+        run_2to3(f, show_diffs=True)
+        self.info('%d files left to check' % num_left)
+        raise SystemExit(1)
+
     def file_has_errors(self, f):
         from polyglot.io import PolyglotStringIO
         oo, oe = sys.stdout, sys.stderr
@@ -94,29 +130,42 @@ class To3(Command):
         output = buf.getvalue()
         return re.search(r'^RefactoringTool: No changes to ' + f, output, flags=re.M) is None
 
-    def run(self, opts):
-        self.fhash_cache = {}
-        cache = {}
-        try:
-            cache = json.load(open(self.cache_file, 'rb'))
-        except EnvironmentError as err:
-            if err.errno != errno.ENOENT:
-                raise
-        dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
-        try:
-            for i, f in enumerate(dirty_files):
-                self.info('\tChecking', f)
-                if self.file_has_errors(f):
-                    run_2to3(f, show_diffs=True)
-                    self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    raise SystemExit(1)
-                cache[f] = self.file_hash(f)
-        finally:
-            self.save_cache(cache)
 
-    def clean(self):
-        try:
-            os.remove(self.cache_file)
-        except EnvironmentError as err:
-            if err.errno != errno.ENOENT:
-                raise
+class UnicodeCheck(Base):
+
+    description = 'Check for unicode porting status'
+    CACHE = 'check_unicode.json'
+
+    def get_error_statement(self, f):
+        uni_pat = re.compile(r'from __future__ import .*\bunicode_literals\b')
+        str_pat = re.compile(r'\bstr\(')
+        has_unicode_literals = False
+        has_str_calls = False
+        for i, line in enumerate(open(f, 'rb')):
+            line = line.decode('utf-8')
+            if not has_unicode_literals and uni_pat.match(line) is not None:
+                has_unicode_literals = True
+            if not has_str_calls and str_pat.search(line) is not None:
+                has_str_calls = True
+            if has_unicode_literals and has_str_calls:
+                break
+        ans = None
+        if not has_unicode_literals:
+            if has_str_calls:
+                ans = 'The file %s does not use unicode literals and has str() calls'
+            else:
+                ans = 'The file %s does not use unicode literals'
+        elif has_str_calls:
+            ans = 'The file %s has str() calls'
+        return ans % f if ans else None
+
+    def file_has_errors(self, f):
+        return self.get_error_statement(f) is not None
+
+    def report_file_error(self, f, num_left):
+        subprocess.Popen([
+            'vim', '-S', os.path.join(self.SRC, '../session.vim'), '-f', f
+        ]).wait()
+        if self.file_has_errors(f):
+            raise SystemExit(self.get_error_statement(f))
+        self.info('%d files left to check' % num_left)
