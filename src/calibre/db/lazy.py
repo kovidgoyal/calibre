@@ -15,7 +15,7 @@ from copy import deepcopy
 from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, native_string_type
 
 # Lazy format metadata retrieval {{{
 '''
@@ -39,7 +39,7 @@ class MutableBase(object):
 
     @resolved
     def __str__(self):
-        return str(self._values)
+        return native_string_type(self._values)
 
     @resolved
     def __repr__(self):

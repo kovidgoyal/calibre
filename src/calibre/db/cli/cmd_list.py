@@ -13,7 +13,7 @@ from calibre import prints
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -309,7 +309,7 @@ List the books available in the calibre database.
 def main(opts, args, dbctx):
     afields = set(FIELDS) | {'id'}
     if opts.fields.strip():
-        fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
+        fields = [unicode_type(f.strip().lower()) for f in opts.fields.split(',')]
     else:
         fields = []
 

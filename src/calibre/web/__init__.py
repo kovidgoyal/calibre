@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -13,6 +15,8 @@ def get_download_filename_from_response(response):
         purl = urlparse(response.geturl())
         last_part_name = unquote(purl.path.split('/')[-1])
         disposition = response.info().get('Content-disposition', '')
+        if isinstance(disposition, bytes):
+            disposition = disposition.decode('utf-8', 'replace')
         for p in disposition.split(';'):
             if 'filename' in p:
                 if '*=' in disposition:

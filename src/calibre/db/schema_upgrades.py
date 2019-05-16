@@ -599,7 +599,7 @@ class SchemaUpgrade(object):
                 existing = frozenset(map(int, custom_recipes))
                 if id_ in existing:
                     id_ = max(existing) + 1000
-                id_ = str(id_)
+                id_ = unicode_type(id_)
                 fname = custom_recipe_filename(id_, title)
                 custom_recipes[id_] = (title, fname)
                 if isinstance(script, unicode_type):

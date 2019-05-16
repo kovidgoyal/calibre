@@ -302,7 +302,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: unicode_type(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -517,11 +517,11 @@ class DB(object):
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
             for i in range(1, 6):
-                col = self.prefs.get('column_color_name_'+str(i), None)
-                templ = self.prefs.get('column_color_template_'+str(i), None)
+                col = self.prefs.get('column_color_name_%d' % i, None)
+                templ = self.prefs.get('column_color_template_%d' % i, None)
                 if col and templ:
                     try:
-                        del self.prefs['column_color_name_'+str(i)]
+                        del self.prefs['column_color_name_%d' % i]
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
@@ -827,7 +827,7 @@ class DB(object):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
+                self.FIELD_MAP[unicode_type(data['num'])+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(label_+'_index', base,
                             prefer_custom=True)
 
@@ -1256,7 +1256,7 @@ class DB(object):
         if getattr(self, '_library_id_', None) is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
             if ans is None:
-                ans = str(uuid.uuid4())
+                ans = unicode_type(uuid.uuid4())
                 self.library_id = ans
             else:
                 self._library_id_ = ans

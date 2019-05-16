@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 from functools import partial
-from polyglot.builtins import iteritems, unicode_type, map
+from polyglot.builtins import iteritems, unicode_type, map, native_string_type
 
 from calibre.constants import ispy3
 from calibre.ebooks.metadata import author_to_author_sort
@@ -59,7 +59,7 @@ class Tag(object):
             return self.string_representation
 
     def __repr__(self):
-        return str(self)
+        return native_string_type(self)
 
     __calibre_serializable__ = True
 

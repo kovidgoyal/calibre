@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-from __future__ import print_function, with_statement
+from __future__ import print_function, with_statement, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -293,7 +293,7 @@ class RecursiveFetcher(object):
         return data
 
     def start_fetch(self, url):
-        soup = BeautifulSoup(u'<a href="'+url+'" />')
+        soup = BeautifulSoup('<a href="'+url+'" />')
         res = self.process_links(soup, url, 0, into_dir='')
         self.log.debug(url, 'saved to', res)
         return res
@@ -346,7 +346,7 @@ class RecursiveFetcher(object):
                 except Exception:
                     self.log.exception('Could not fetch stylesheet ', iurl)
                     continue
-                stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
+                stylepath = os.path.join(diskpath, 'style'+unicode_type(c)+'.css')
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
                 with open(stylepath, 'wb') as x:
@@ -354,7 +354,7 @@ class RecursiveFetcher(object):
                 tag['href'] = stylepath
             else:
                 for ns in tag.findAll(text=True):
-                    src = str(ns)
+                    src = unicode_type(ns)
                     m = self.__class__.CSS_IMPORT_PATTERN.search(src)
                     if m:
                         iurl = m.group(1)
@@ -370,7 +370,7 @@ class RecursiveFetcher(object):
                             self.log.exception('Could not fetch stylesheet ', iurl)
                             continue
                         c += 1
-                        stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
+                        stylepath = os.path.join(diskpath, 'style'+unicode_type(c)+'.css')
                         with self.stylemap_lock:
                             self.stylemap[iurl] = stylepath
                         with open(stylepath, 'wb') as x:
@@ -404,14 +404,14 @@ class RecursiveFetcher(object):
                         continue
                 try:
                     data = self.fetch_url(iurl)
-                    if data == 'GIF89a\x01':
+                    if data == b'GIF89a\x01':
                         # Skip empty GIF files as PIL errors on them anyway
                         continue
                 except Exception:
                     self.log.exception('Could not fetch image ', iurl)
                     continue
             c += 1
-            fname = ascii_filename('img'+str(c))
+            fname = ascii_filename('img'+unicode_type(c))
             data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
             if data is None:
                 continue
@@ -507,7 +507,7 @@ class RecursiveFetcher(object):
                     continue
                 if self.files > self.max_files:
                     return res
-                linkdir = 'link'+str(c) if into_dir else ''
+                linkdir = 'link'+unicode_type(c) if into_dir else ''
                 linkdiskpath = os.path.join(diskpath, linkdir)
                 if not os.path.exists(linkdiskpath):
                     os.mkdir(linkdiskpath)
