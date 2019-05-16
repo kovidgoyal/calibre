@@ -782,7 +782,7 @@ class PostInstall:
                 self.manifest.append(bash_comp_dest)
             write_completion(bash_comp_dest, zsh)
         except TypeError as err:
-            if 'resolve_entities' in str(err):
+            if 'resolve_entities' in unicode_type(err):
                 print('You need python-lxml >= 2.0.5 for calibre')
                 sys.exit(1)
             raise
@@ -824,11 +824,11 @@ class PostInstall:
                 def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
                     filename = '%s-%s.png' % (basename, size)
                     render_img(iconsrc, filename, width=int(size), height=int(size))
-                    cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', str(size), filename, basename]
+                    cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
                     if is_last_icon:
                         del cmd[2]
                     cc(cmd)
-                    self.icon_resources.append((context, basename, str(size)))
+                    self.icon_resources.append((context, basename, unicode_type(size)))
 
                 def install_icons(iconsrc, basename, context, is_last_icon=False):
                     sizes = (16, 32, 48, 64, 128, 256)
@@ -1133,7 +1133,7 @@ def write_appdata(key, entry, base, translators):
     fpath = os.path.join(base, '%s.appdata.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
-        s = E.screenshot(E.image(url, width=str(w), height=str(h)))
+        s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
         screenshots.append(s)
     screenshots[0].set('type', 'default')
     description = E.description()

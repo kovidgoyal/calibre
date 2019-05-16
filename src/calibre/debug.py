@@ -165,8 +165,8 @@ def reinit_db(dbpath):
 def debug_device_driver():
     from calibre.devices import debug
     debug(ioreg_to_tmp=True, buf=sys.stdout)
-    if iswindows:
-        raw_input('Press Enter to continue...')
+    if iswindows:  # no2to3
+        raw_input('Press Enter to continue...')  # no2to3
 
 
 def add_simple_plugin(path_to_plugin):

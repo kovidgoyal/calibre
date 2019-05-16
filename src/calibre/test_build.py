@@ -14,7 +14,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time
 
 from calibre.constants import plugins, iswindows, islinux, isosx, ispy3
-from polyglot.builtins import iteritems, map, unicode_type, getenv
+from polyglot.builtins import iteritems, map, unicode_type, getenv, native_string_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -28,7 +28,7 @@ class BuildTest(unittest.TestCase):
         for x in os.listdir(base):
             if x.lower().endswith('.dll'):
                 try:
-                    ctypes.WinDLL(str(os.path.join(base, x)))
+                    ctypes.WinDLL(native_string_type(os.path.join(base, x)))
                 except Exception as err:
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
 

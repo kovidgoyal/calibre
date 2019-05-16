@@ -11,7 +11,7 @@ import pdb, socket, inspect, sys, select, os, atexit, time
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 from calibre.constants import cache_dir
-from polyglot.builtins import range, raw_input
+from polyglot.builtins import range, raw_input as rinput
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -141,7 +141,7 @@ def cli(port=4444):
                 stdout.write(recvd)
                 raw = b''
                 try:
-                    raw = raw_input(PROMPT.decode('utf-8'))
+                    raw = rinput(PROMPT.decode('utf-8'))
                 except (EOFError, KeyboardInterrupt):
                     pass
                 else:

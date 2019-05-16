@@ -11,7 +11,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp, filter
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -186,7 +186,7 @@ class Cache(object):
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
                 try:
-                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                    self.field_metadata.add_user_category(label='@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
         self._ensure_has_search_category()
@@ -1513,7 +1513,7 @@ class Cache(object):
         for aut in authors:
             aid = rmap.get(key_func(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
-        return ' & '.join(filter(None, result))
+        return ' & '.join(_f for _f in result if _f)
 
     @read_api
     def data_for_has_book(self):
@@ -1975,7 +1975,7 @@ class Cache(object):
         title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
         from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
-        langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
+        langq = tuple(x for x in map(canonicalize_lang, mi.languages or ()) if x and x != 'und')
         if mi.authors:
             try:
                 quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail

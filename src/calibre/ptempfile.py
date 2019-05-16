@@ -74,7 +74,7 @@ def osx_cache_dir():
         l = libc.confstr(65538, ctypes.byref(buf), len(buf))  # _CS_DARWIN_USER_CACHE_DIR = 65538
         if 0 < l < len(buf):
             try:
-                q = buf.value.decode('utf-8').rstrip(u'\0')
+                q = buf.value.decode('utf-8').rstrip('\0')
             except ValueError:
                 pass
             if q and os.path.isdir(q) and os.access(q, os.R_OK | os.W_OK | os.X_OK):
@@ -103,7 +103,7 @@ def base_dir():
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
             if base is not None and iswindows:
                 base = getenv('CALIBRE_TEMP_DIR')
-            prefix = app_prefix(u'tmp_')
+            prefix = app_prefix('tmp_')
             if base is None:
                 if iswindows:
                     # On windows, if the TMP env var points to a path that
@@ -148,12 +148,12 @@ def force_unicode(x):
 
 
 def _make_file(suffix, prefix, base):
-    suffix, prefix = map(force_unicode, (suffix, prefix))
+    suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkstemp(suffix, prefix, dir=base)
 
 
 def _make_dir(suffix, prefix, base):
-    suffix, prefix = map(force_unicode, (suffix, prefix))
+    suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkdtemp(suffix, prefix, base)
 
 
