@@ -24,6 +24,7 @@ from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.resources import load_hyphenator_dicts
+from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, itervalues, map, unicode_type
 
 
@@ -164,6 +165,12 @@ class PDFWriter(QObject):
         self.view.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)
         self.view.loadFinished.connect(self.render_html,
                 type=Qt.QueuedConnection)
+        self.view.loadProgress.connect(self.load_progress)
+        self.ignore_failure = None
+        self.hang_check_timer = t = QTimer(self)
+        t.timeout.connect(self.hang_check)
+        t.setInterval(1000)
+
         for x in (Qt.Horizontal, Qt.Vertical):
             self.view.page().mainFrame().setScrollBarPolicy(x,
                     Qt.ScrollBarAlwaysOff)
@@ -285,8 +292,23 @@ class PDFWriter(QObject):
         self.logger.debug('Processing %s...' % item)
         self.current_item = item
         load_html(item, self.view)
+        self.last_load_progress_at = monotonic()
+        self.hang_check_timer.start()
+
+    def load_progress(self, progress):
+        self.last_load_progress_at = monotonic()
+
+    def hang_check(self):
+        if monotonic() - self.last_load_progress_at > 60:
+            self.log.warn('Timed out waiting for %s to render' % self.current_item)
+            self.ignore_failure = self.current_item
+            self.view.stop()
 
     def render_html(self, ok):
+        self.hang_check_timer.stop()
+        if self.ignore_failure == self.current_item:
+            ok = True
+        self.ignore_failure = None
         if ok:
             try:
                 self.do_paged_render()
@@ -296,7 +318,7 @@ class PDFWriter(QObject):
                 return
         else:
             # The document is so corrupt that we can't render the page.
-            self.logger.error('Document cannot be rendered.')
+            self.logger.error('Document %s cannot be rendered.' % self.current_item)
             self.loop.exit(1)
             return
         done = self.total_items - len(self.render_queue)
