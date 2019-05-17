@@ -38,12 +38,12 @@ def as_unicode(x, encoding='utf-8', errors='strict'):
 
 
 def only_unicode_recursive(x, encoding='utf-8', errors='strict'):
-    # Convert any bytestrings in lists/tuples/dicts to unicode
+    # Convert any bytestrings in sets/lists/tuples/dicts to unicode
     if isinstance(x, bytes):
         return x.decode(encoding, errors)
     if isinstance(x, unicode_type):
         return x
-    if isinstance(x, (list, tuple)):
+    if isinstance(x, (set, list, tuple)):
         return type(x)(only_unicode_recursive(i, encoding, errors) for i in x)
     if isinstance(x, dict):
         return {only_unicode_recursive(k, encoding, errors): only_unicode_recursive(v, encoding, errors) for k, v in iteritems(x)}
