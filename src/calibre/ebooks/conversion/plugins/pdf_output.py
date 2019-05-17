@@ -270,6 +270,18 @@ class PDFOutput(OutputFormatPlugin):
                     if hasattr(root, 'xpath') and margins:
                         root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
 
+        # Remove javascript
+        for item in self.oeb.spine:
+            root = item.data
+            if hasattr(root, 'xpath'):
+                for script in root.xpath('//*[local-name()="script"]'):
+                    script.text = None
+                    script.attrib.clear()
+                for elem in root.iter('*'):
+                    for attr in tuple(elem.attrib):
+                        if attr.startswith('on'):
+                            elem.set(attr, '')
+
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
