@@ -33,7 +33,7 @@ class LeTemps(BasicNewsRecipe):
         br['name'] = self.username
         br['pass'] = self.password
         raw = br.submit().read()
-        if 'href="/subscribe"' in raw:
+        if b'href="/subscribe"' in raw:
             raise ValueError(
                 'Failed to login to letemps.ch. Check '
                 'your username and password'

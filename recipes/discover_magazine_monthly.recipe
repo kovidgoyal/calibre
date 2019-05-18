@@ -68,7 +68,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         res = br.open('http://discovermagazine.com')
         br.set_debug_http(False)
         raw = res.read()
-        if '>Logout<' not in raw:
+        if b'>Logout<' not in raw:
             raise ValueError('Failed to login')
         return br
 

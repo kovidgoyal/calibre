@@ -42,7 +42,7 @@ class JASN(BasicNewsRecipe):
         br['code'] = self.password
         response = br.submit()
         raw = response.read()
-        if 'Sign Out' not in raw:
+        if b'Sign Out' not in raw:
             raise ValueError('Failed to log in, is your account expired?')
         return br
 
