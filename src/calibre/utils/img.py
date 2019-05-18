@@ -82,9 +82,10 @@ def image_from_data(data):
         return data
     i = QImage()
     if not i.loadFromData(data):
-        if what(None, data) == 'jxr':
+        q = what(None, data)
+        if q == 'jxr':
             return load_jxr_data(data)
-        raise NotImage('Not a valid image')
+        raise NotImage('Not a valid image (detected type: {})'.format(q))
     return i
 
 
