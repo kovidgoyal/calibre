@@ -14,16 +14,16 @@ ${head_content}$
   ${for title in meta.titles():}$
     ${if pos1:}$
     <h1>
-      <a href="${tocUrl}$">${print title}$</a>
+      <a href="${tocUrl}$">${print(title)}$</a>
     </h1>
     ${:else:}$
-    <div class="calibreMetaSubtitle">${print title}$</div>
+    <div class="calibreMetaSubtitle">${print(title)}$</div>
     ${:endif}$
     ${pos1=0}$
   ${:endfor}$
   </div>
   <div class="calibreMetaAuthor">
-    ${print ', '.join(meta.creators())}$
+    ${print(', '.join(meta.creators()))}$
   </div>
 </div>
 
@@ -33,13 +33,13 @@ ${head_content}$
     ${if prevLink or nextLink:}$
       <div class="calibreEbNavTop">
         ${if prevLink:}$
-          <a href="${prevLink}$" class="calibreAPrev">${print _('previous page'),}$</a>
+          <a href="${prevLink}$" class="calibreAPrev">${print(_('previous page'))}$</a>
         ${:else:}$
-          <a href="${tocUrl}$" class="calibreAPrev">${print _('previous page'),}$</a>
+          <a href="${tocUrl}$" class="calibreAPrev">${print(_('previous page'))}$</a>
         ${:endif}$
 
         ${if nextLink:}$
-          <a href="${nextLink}$" class="calibreANext">${print _('next page'),}$</a>
+          <a href="${nextLink}$" class="calibreANext">${print(_('next page'))}$</a>
         ${:endif}$
       </div>
     ${:endif}$
@@ -49,22 +49,22 @@ ${head_content}$
 
   ${if has_toc:}$
   <div class="calibreToc">
-    <h2><a href="${tocUrl}$">${print _('Table of contents'),}$</a></h2>
-    ${print toc()}$
+    <h2><a href="${tocUrl}$">${print( _('Table of contents'))}$</a></h2>
+    ${print(toc())}$
   </div>
   ${:endif}$
 
   <div class="calibreEbNav">
     ${if prevLink:}$
-      <a href="${prevLink}$" class="calibreAPrev">${print _('previous page'),}$</a>
+      <a href="${prevLink}$" class="calibreAPrev">${print(_('previous page'))}$</a>
     ${:else:}$
-      <a href="${tocUrl}$" class="calibreAPrev">${print _('previous page'),}$</a>
+      <a href="${tocUrl}$" class="calibreAPrev">${print(_('previous page'))}$</a>
     ${:endif}$
 
-    <a href="${tocUrl}$" class="calibreAHome">${print _('start'),}$</a>
+    <a href="${tocUrl}$" class="calibreAHome">${print(_('start'))}$</a>
 
     ${if nextLink:}$
-      <a href="${nextLink}$" class="calibreANext">${print _('next page'),}$</a>
+      <a href="${nextLink}$" class="calibreANext">${print(_('next page'))}$</a>
     ${:endif}$
   </div>
 
