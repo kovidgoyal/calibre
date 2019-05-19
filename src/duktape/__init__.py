@@ -17,7 +17,7 @@ from polyglot.builtins import reraise
 
 from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import error_message
+from polyglot.builtins import error_message, getcwd
 
 Context_, undefined = dukpy.Context, dukpy.undefined
 
@@ -256,12 +256,12 @@ class Context(object):
     def __init__(self, base_dirs=(), builtin_modules=None):
         self._ctx = Context_()
         self.g = self._ctx.g
-        self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
+        self.g.Duktape.load_file = partial(load_file, base_dirs or (getcwd(),), builtin_modules or {})
         self.g.Duktape.pyreadfile = readfile
         self.g.Duktape.pywritefile = writefile
         self.g.Duktape.create_context = partial(create_context, base_dirs)
         self.g.Duktape.run_in_context = run_in_context
-        self.g.Duktape.cwd = os.getcwdu
+        self.g.Duktape.cwd = getcwd
         self.g.Duktape.sha1sum = sha1sum
         self.g.Duktape.dirname = os.path.dirname
         self.g.Duktape.errprint = lambda *args: print(*args, file=sys.stderr)
