@@ -24,7 +24,7 @@ class PdbHeaderReader(object):
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8)
-        return ident
+        return ident.decode('utf-8')
 
     def section_count(self):
         self.stream.seek(76)
