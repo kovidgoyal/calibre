@@ -79,7 +79,7 @@ class HTMLOutput(OutputFormatPlugin):
         from lxml import etree
 
         root = self.generate_toc(oeb_book, ref_url, output_dir)
-        return etree.tostring(root, pretty_print=True, encoding='utf-8',
+        return etree.tostring(root, pretty_print=True, encoding='unicode',
                 xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -161,14 +161,14 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # get & clean HTML <HEAD>-data
                 head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
+                head_content = etree.tostring(head, pretty_print=True, encoding='unicode')
                 head_content = re.sub(r'\<\/?head.*\>', '', head_content)
                 head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
                 head_content = re.sub(r'<(title)([^>]*)/>', r'<\1\2></\1>', head_content)
 
                 # get & clean HTML <BODY>-data
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
+                ebook_content = etree.tostring(body, pretty_print=True, encoding='unicode')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
                 ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
@@ -202,7 +202,7 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # write html to file
                 with open(path, 'wb') as f:
-                    f.write(t)
+                    f.write(t.encode('utf-8'))
                 item.unload_data_from_memory(memory=path)
 
         zfile = zipfile.ZipFile(output_path, "w")
