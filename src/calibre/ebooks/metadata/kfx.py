@@ -271,7 +271,7 @@ def extract_metadata(container_data):
             metadata[COVER_KEY] = entity_value
 
     for key, value in metadata_entity.items():
-        if key in METADATA_PROPERTIES:
+        if key in METADATA_PROPERTIES and METADATA_PROPERTIES[key] not in metadata:
             metadata[METADATA_PROPERTIES[key]].append(value)
 
     return metadata
