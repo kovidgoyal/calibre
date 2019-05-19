@@ -41,7 +41,9 @@ class PMLInput(InputFormatPlugin):
         else:
             html_stream = html_path
 
-        ienc = pml_stream.encoding if pml_stream.encoding else 'cp1252'
+        ienc = getattr(pml_stream, 'encoding', None)
+        if ienc is None:
+            ienc = 'cp1252'
         if self.options.input_encoding:
             ienc = self.options.input_encoding
 
