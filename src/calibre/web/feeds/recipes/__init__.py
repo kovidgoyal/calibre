@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+from __future__ import unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -36,7 +37,7 @@ def compile_recipe(src):
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     # Python complains if there is a coding declaration in a unicode string
-    src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src.lstrip(u'\ufeff'), flags=re.MULTILINE)
+    src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src.lstrip('\ufeff'), flags=re.MULTILINE)
     # Translate newlines to \n
     src = io.StringIO(src, newline=None).getvalue()
 

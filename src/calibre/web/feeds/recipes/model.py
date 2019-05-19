@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -125,7 +125,7 @@ class NewsItem(NewsTreeItem):
                     try:
                         with zipfile.ZipFile(self.zf, 'r') as zf:
                             p.loadFromData(zf.read(self.favicons[icon]))
-                    except:
+                    except Exception:
                         pass
                 if not p.isNull():
                     self.icon = (QIcon(p))
@@ -215,7 +215,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
             remove_custom_recipe(id_)
         self.custom_recipe_collection = get_custom_recipe_collection()
 
-    def do_refresh(self, restrict_to_urns=set([])):
+    def do_refresh(self, restrict_to_urns=frozenset()):
         self.custom_recipe_collection = get_custom_recipe_collection()
         zf = P('builtin_recipes.zip', allow_user_override=False)
 
@@ -238,7 +238,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         scheduled = factory(NewsCategory, new_root, _('Scheduled'))
         custom = factory(NewsCategory, new_root, _('Custom'))
         lang_map = {}
-        self.all_urns = set([])
+        self.all_urns = set()
         self.showing_count = 0
         self.builtin_count = 0
         for x in self.custom_recipe_collection:
