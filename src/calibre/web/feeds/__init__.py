@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -48,7 +48,7 @@ class Article(object):
                 print('Failed to process article summary, deleting:')
                 print(summary.encode('utf-8'))
                 traceback.print_exc()
-                summary = u''
+                summary = ''
         self.text_summary = clean_ascii_chars(summary)
         self.author = author
         self.content = content
@@ -83,7 +83,7 @@ class Article(object):
 
     def __repr__(self):
         return \
-(u'''\
+('''\
 Title       : %s
 URL         : %s
 Author      : %s
@@ -93,7 +93,7 @@ TOC thumb   : %s
 Has content : %s
 '''%(self.title, self.url, self.author, self.summary[:20]+'...',
      self.localtime.strftime('%a, %d %b, %Y %H:%M'), self.toc_thumbnail,
-     bool(self.content))).encode('utf-8')
+     bool(self.content)))
 
     def __str__(self):
         return repr(self)
@@ -208,7 +208,7 @@ class Feed(object):
         content = [i.value for i in item.get('content', []) if i.value]
         content = [i if isinstance(i, unicode_type) else i.decode('utf-8', 'replace')
                 for i in content]
-        content = u'\n'.join(content)
+        content = '\n'.join(content)
         if not content.strip():
             content = None
         if not link and not content:
@@ -286,8 +286,8 @@ class FeedCollection(list):
 
     def __init__(self, feeds):
         list.__init__(self, [f for f in feeds if len(f.articles) > 0])
-        found_articles = set([])
-        duplicates = set([])
+        found_articles = set()
+        duplicates = set()
 
         def in_set(s, a):
             for x in s:

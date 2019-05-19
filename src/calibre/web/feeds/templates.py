@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+from __future__ import unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -36,13 +37,13 @@ class Template(object):
             if isbytestring(kwargs[key]):
                 kwargs[key] = kwargs[key].decode('utf-8', 'replace')
             if kwargs[key] is None:
-                kwargs[key] = u''
+                kwargs[key] = ''
         args = list(args)
         for i in range(len(args)):
             if isbytestring(args[i]):
                 args[i] = args[i].decode('utf-8', 'replace')
             if args[i] is None:
-                args[i] = u''
+                args[i] = ''
 
         self._generate(*args, **kwargs)
 
