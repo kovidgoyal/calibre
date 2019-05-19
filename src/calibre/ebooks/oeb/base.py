@@ -605,7 +605,7 @@ class DirContainer(object):
         for root, dirs, files in os.walk(base):
             for fname in files:
                 fname = os.path.join(root, fname)
-                fname = fname.replace('\\', '/')
+                fname = fname.replace(b'\\', b'/')
                 if not isinstance(fname, unicode_type):
                     try:
                         fname = fname.decode(filesystem_encoding)
