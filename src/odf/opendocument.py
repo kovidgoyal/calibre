@@ -606,7 +606,7 @@ def OpenDocumentTextMaster():
 
 
 def __loadxmlparts(z, manifest, doc, objectpath):
-    from load import LoadParser
+    from .load import LoadParser
     from xml.sax import make_parser, handler
 
     for xmlfile in (objectpath+'settings.xml', objectpath+'meta.xml', objectpath+'content.xml', objectpath+'styles.xml'):
