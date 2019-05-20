@@ -207,7 +207,7 @@ class PMLMLizer(object):
         text = re.sub('[ ]{2,}', ' ', text)
 
         # Condense excessive \c empty line sequences.
-        text = re.sub(r'(\\c\\s*\\c\\s*){2,}', r'\\c \n\\c\n', text)
+        text = re.sub(r'(\\c\s*\\c\s*){2,}', r'\\c \n\\c\n', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)

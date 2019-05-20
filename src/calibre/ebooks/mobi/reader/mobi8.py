@@ -24,7 +24,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import range, zip, unicode_type, getcwd
+from polyglot.builtins import range, zip, unicode_type, getcwd, as_unicode
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
@@ -403,7 +403,7 @@ class Mobi8Reader(object):
                     continue
 
             entry['href'] = href
-            entry['idtag'] = idtag.decode(self.header.codec)
+            entry['idtag'] = as_unicode(idtag, self.header.codec or 'utf-8')
 
         for e in remove:
             index_entries.remove(e)

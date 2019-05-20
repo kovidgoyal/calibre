@@ -600,17 +600,18 @@ class DirContainer(object):
     def namelist(self):
         names = []
         base = self.rootdir
-        if isinstance(base, unicode_type):
-            base = base.encode(filesystem_encoding)
         for root, dirs, files in os.walk(base):
             for fname in files:
                 fname = os.path.join(root, fname)
-                fname = fname.replace(b'\\', b'/')
-                if not isinstance(fname, unicode_type):
+                if isinstance(fname, bytes):
                     try:
                         fname = fname.decode(filesystem_encoding)
-                    except:
-                        continue
+                    except Exception:
+                        try:
+                            fname = fname.decode('utf-8')
+                        except Exception:
+                            continue
+                fname = fname.replace('\\', '/')
                 names.append(fname)
         return names
 
