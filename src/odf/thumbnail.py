@@ -416,9 +416,11 @@ CGeAjdwhVVv/GQb3GhacACCAWIbY1bGwCKEL0NTU/A+1jxGaABiRIvs/NEcP6du0AAIMANtMxR3x
 N38FAAAAAElFTkSuQmCC\
 """
 
+
 def thumbnail():
     icon = base64.decodestring(iconstr)
     return icon
+
 
 if __name__ == "__main__":
     icon = thumbnail()

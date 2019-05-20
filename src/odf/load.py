@@ -32,13 +32,15 @@ from .namespaces import OFFICENS
 #
 # Parse the XML files
 #
+
+
 class LoadParser(handler.ContentHandler):
     """ Extract headings from content.xml of an ODT file """
     triggers = (
        (OFFICENS, 'automatic-styles'), (OFFICENS, 'body'),
        (OFFICENS, 'font-face-decls'), (OFFICENS, 'master-styles'),
        (OFFICENS, 'meta'), (OFFICENS, 'scripts'),
-       (OFFICENS, 'settings'), (OFFICENS, 'styles') )
+       (OFFICENS, 'settings'), (OFFICENS, 'styles'))
 
     def __init__(self, document):
         self.doc = document
@@ -70,7 +72,7 @@ class LoadParser(handler.ContentHandler):
         for (att,value) in attrs.items():
             attrdict[att] = value
         try:
-            e = Element(qname = tag, qattributes=attrdict, check_grammar=False)
+            e = Element(qname=tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
         except AttributeError as v:
             print("Error: %s" % v)
@@ -94,7 +96,6 @@ class LoadParser(handler.ContentHandler):
         elif hasattr(self,'parent'):
             self.parent.addElement(e, check_grammar=False)
         self.parent = e
-
 
     def endElementNS(self, tag, qname):
         if self.parse == False:

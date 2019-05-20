@@ -32,9 +32,9 @@ IGNORED_TAGS = [
     'office:annotation',
     'presentation:notes',
     'svg:desc',
-] + [ nsdict[item[0]]+":"+item[1] for item in empty_elements]
+] + [nsdict[item[0]]+":"+item[1] for item in empty_elements]
 
-INLINE_TAGS = [ nsdict[item[0]]+":"+item[1] for item in inline_elements]
+INLINE_TAGS = [nsdict[item[0]]+":"+item[1] for item in inline_elements]
 
 
 class TextProps:
@@ -100,6 +100,7 @@ class TextProps:
                                           str(self.bold),
                                           str(self.fixed))
 
+
 class ParagraphProps:
     """ Holds properties of a paragraph style. """
 
@@ -123,7 +124,6 @@ class ParagraphProps:
     def setCode(self, value):
         self.code = value
 
-
     def __str__(self):
 
         return "[bq=%s, h=%d, code=%s]" % (str(self.blockquote),
@@ -141,9 +141,7 @@ class ListProperties:
         self.ordered = value
 
 
-
 class ODF2MoinMoin(object):
-
 
     def __init__(self, filepath):
         self.footnotes = []
@@ -183,8 +181,6 @@ class ODF2MoinMoin(object):
             if fontFace.getAttribute("style:font-pitch") == "fixed":
                 self.fixedFonts.append(fontFace.getAttribute("style:name"))
 
-
-
     def extractTextProperties(self, style, parent=None):
         """ Extracts text properties from a style element. """
 
@@ -196,7 +192,8 @@ class ODF2MoinMoin(object):
                 textProp = parentProp
 
         textPropEl = style.getElementsByTagName("style:text-properties")
-        if not textPropEl: return textProps
+        if not textPropEl:
+            return textProps
 
         textPropEl = textPropEl[0]
 
@@ -247,7 +244,6 @@ class ODF2MoinMoin(object):
 
         return paraProps
 
-
     def processStyles(self, styleElements):
         """ Runs through "style" elements extracting necessary information.
         """
@@ -256,7 +252,8 @@ class ODF2MoinMoin(object):
 
             name = style.getAttribute("style:name")
 
-            if name == "Standard": continue
+            if name == "Standard":
+                continue
 
             family = style.getAttribute("style:family")
             parent = style.getAttribute("style:parent-style-name")
@@ -283,7 +280,6 @@ class ODF2MoinMoin(object):
                     prop.setOrdered(True)
 
             self.listStyles[name] = prop
-
 
     def load(self, filepath):
         """ Loads an ODT file. """
@@ -314,14 +310,14 @@ class ODF2MoinMoin(object):
         numLines = len(lines)
         for i in range(numLines):
 
-            if (lines[i].strip() or i == numLines-1  or i == 0 or
-                not ( lines[i-1].startswith("    ")
-                      and lines[i+1].startswith("    ") ) ):
+            if (lines[i].strip() or i == numLines-1 or i == 0 or
+                not (lines[i-1].startswith("    ")
+                      and lines[i+1].startswith("    "))):
                 buffer.append("\n" + lines[i])
 
         return ''.join(buffer)
 
-#-----------------------------------
+# -----------------------------------
     def do_nothing(self, node):
         return ''
 
@@ -330,7 +326,7 @@ class ODF2MoinMoin(object):
         """
 
         link = node.getAttribute("xlink:href")
-        if link and link[:2] == './': # Indicates a sub-object, which isn't supported
+        if link and link[:2] == './':  # Indicates a sub-object, which isn't supported
             return "%s\n" % link
         if link and link[:9] == 'Pictures/':
             link = link[9:]
@@ -343,7 +339,6 @@ class ODF2MoinMoin(object):
             return "[%s] " % link.strip()
         else:
             return "[%s %s] " % (link.strip(), text.strip())
-
 
     def text_line_break(self, node):
         return "[[BR]]"
@@ -396,8 +391,8 @@ class ODF2MoinMoin(object):
         revmark.reverse()
         return "%s%s%s" % (''.join(mark), text, ''.join(revmark))
 
-#-----------------------------------
-    def listToString(self, listElement, indent = 0):
+# -----------------------------------
+    def listToString(self, listElement, indent=0):
 
         self.lastsegment = listElement.tagName
         buffer = []
@@ -448,7 +443,6 @@ class ODF2MoinMoin(object):
                     self.lastsegment = cell.tagName
         return ''.join(buffer)
 
-
     def toString(self):
         """ Converts the document to a string.
             FIXME: Result from second call differs from first call
@@ -480,10 +474,8 @@ class ODF2MoinMoin(object):
             for cite, body in self.footnotes:
                 buffer.append("%s: %s" % (cite, body))
 
-
         buffer.append("")
         return self.compressCodeBlocks('\n'.join(buffer))
-
 
     def textToString(self, element):
 
@@ -515,7 +507,7 @@ class ODF2MoinMoin(object):
 
         return ''.join(buffer)
 
-    def paragraphToString(self, paragraph, indent = 0):
+    def paragraphToString(self, paragraph, indent=0):
 
         dummyParaProps = ParagraphProps()
 
@@ -539,7 +531,8 @@ class ODF2MoinMoin(object):
         if outlinelevel:
 
             level = int(outlinelevel)
-            if self.hasTitle: level += 1
+            if self.hasTitle:
+                level += 1
 
             if level >= 1:
                 return "=" * level + " " + text + " " + "=" * level + "\n"
@@ -548,13 +541,12 @@ class ODF2MoinMoin(object):
             return "{{{\n" + text + "\n}}}\n"
 
         if paraProps.indented:
-            return self.wrapParagraph(text, indent = indent, blockquote = True)
+            return self.wrapParagraph(text, indent=indent, blockquote=True)
 
         else:
-            return self.wrapParagraph(text, indent = indent)
+            return self.wrapParagraph(text, indent=indent)
 
-
-    def wrapParagraph(self, text, indent = 0, blockquote=False):
+    def wrapParagraph(self, text, indent=0, blockquote=False):
 
         counter = 0
         buffer = []

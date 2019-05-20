@@ -41,11 +41,13 @@ _MAX_LIST_LEVEL = 10
 SHOW_ALL_LEVELS = True
 SHOW_ONE_LEVEL = False
 
+
 def styleFromString(name, specifiers, delim, spacing, showAllLevels):
     specArray = specifiers.split(delim)
-    return styleFromList( name, specArray, spacing, showAllLevels )
+    return styleFromList(name, specArray, spacing, showAllLevels)
 
-def styleFromList( styleName, specArray, spacing, showAllLevels):
+
+def styleFromList(styleName, specArray, spacing, showAllLevels):
     bullet = ""
     numPrefix = ""
     numSuffix = ""
@@ -57,7 +59,7 @@ def styleFromList( styleName, specArray, spacing, showAllLevels):
     listStyle = ListStyle(name=styleName)
     numFormatPattern = re.compile("([1IiAa])")
     cssLengthPattern = re.compile("([^a-z]+)\\s*([a-z]+)?")
-    m = cssLengthPattern.search( spacing )
+    m = cssLengthPattern.search(spacing)
     if (m != None):
         cssLengthNum = float(m.group(1))
         if (m.lastindex == 2):
@@ -95,7 +97,7 @@ def styleFromList( styleName, specArray, spacing, showAllLevels):
         llp = ListLevelProperties()
         llp.setAttribute('spacebefore', str(cssLengthNum * (i+1)) + cssLengthUnits)
         llp.setAttribute('minlabelwidth', str(cssLengthNum) + cssLengthUnits)
-        lls.addElement( llp )
+        lls.addElement(llp)
         listStyle.addElement(lls)
         i += 1
     return listStyle
