@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -70,7 +71,7 @@ Examples
         \widctlpar\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0
         \f4\lang1033\cgrid }}\pard\plain
         \widctlpar\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0
-        \f4\lang1033\cgrid {\fs28 \u214\'85 \par }{\fs36 {\field{\*\fldinst
+        \f4\lang1033\cgrid {\fs28 \\u214\'85 \par }{\fs36 {\field{\*\fldinst
         SYMBOL 67 \\f "Symbol" \\s 18}{\fldrslt\f3\fs36}}}
     Becomes:
         <field-block type="table-of-contents">

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -66,7 +67,7 @@ class Tokenize:
             self.__reini_utf8_counters()
             return token
         # add a uc control
-        elif token[:3] == r'\uc':
+        elif token[:3] == '\\uc':
             self.__uc_value[-1] = int(token[3:])
             self.__reini_utf8_counters()
             return token
