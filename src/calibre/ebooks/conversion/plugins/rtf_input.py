@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import with_statement, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -118,20 +118,21 @@ class RTFInput(InputFormatPlugin):
 
     def extract_images(self, picts):
         from calibre.utils.imghdr import what
+        from binascii import unhexlify
         self.log('Extracting images...')
 
         with open(picts, 'rb') as f:
             raw = f.read()
-        picts = filter(len, re.findall(r'\{\\pict([^}]+)\}', raw))
-        hex = re.compile(r'[^a-fA-F0-9]')
-        encs = [hex.sub('', pict) for pict in picts]
+        picts = filter(len, re.findall(br'\{\\pict([^}]+)\}', raw))
+        hex_pat = re.compile(br'[^a-fA-F0-9]')
+        encs = [hex_pat.sub(b'', pict) for pict in picts]
 
         count = 0
         imap = {}
         for enc in encs:
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
-            data = enc.decode('hex')
+            data = unhexlify(enc)
             fmt = what(None, data)
             if fmt is None:
                 fmt = 'wmf'
@@ -158,7 +159,7 @@ class RTFInput(InputFormatPlugin):
             return name
         try:
             return self.rasterize_wmf(name)
-        except:
+        except Exception:
             self.log.exception('Failed to convert WMF image %r'%name)
         return self.replace_wmf(name)
 
@@ -168,7 +169,7 @@ class RTFInput(InputFormatPlugin):
             return '__REMOVE_ME__'
         from calibre.ebooks.covers import message_image
         if self.default_img is None:
-            self.default_img = message_image('Conversion of WMF images is not supported.',
+            self.default_img = message_image('Conversion of WMF images is not supported.'
             ' Use Microsoft Word or OpenOffice to save this RTF file'
             ' as HTML and convert that in calibre.')
         name = name.replace('.wmf', '.jpg')
@@ -287,15 +288,15 @@ class RTFInput(InputFormatPlugin):
         result = transform(doc)
         html = u'index.xhtml'
         with open(html, 'wb') as f:
-            res = transform.tostring(result)
+            res = as_bytes(transform.tostring(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # clean multiple \n
-            res = re.sub('\n+', '\n', res)
+            res = re.sub(b'\n+', b'\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
             # res = re.sub('\s*<body>', '<body>', res)
             # res = re.sub('(?<=\n)\n{2}',
             # u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            f.write(as_bytes(res))
+            f.write(res)
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
         mi = get_metadata(stream, 'rtf')

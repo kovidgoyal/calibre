@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -145,7 +146,7 @@ class WMF(object):
             size, func = struct.unpack_from('<IH', data, offset)
             size *= 2  # Convert to bytes
             offset += hsize
-            params = ''
+            params = b''
             delta = size - hsize
             if delta > 0:
                 params = data[offset:offset+delta]
@@ -158,6 +159,8 @@ class WMF(object):
             self.records.append((func, params))
 
         for rec in self.records:
+            if not hasattr(rec[0], 'split'):
+                continue
             f = getattr(self, rec[0], None)
             if callable(f):
                 f(rec[1])
