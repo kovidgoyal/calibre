@@ -24,7 +24,7 @@ from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
-from polyglot.builtins import error_message
+from polyglot.builtins import error_message, unicode_type
 
 
 def daemonize():  # {{{
@@ -231,7 +231,7 @@ def main(args=sys.argv):
         daemonize()
     if opts.pidfile:
         with lopen(opts.pidfile, 'wb') as f:
-            f.write(str(os.getpid()))
+            f.write(unicode_type(os.getpid()).encode('ascii'))
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:
         signal.signal(signal.SIGHUP, lambda s, f: server.stop())

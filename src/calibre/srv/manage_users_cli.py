@@ -9,7 +9,7 @@ from functools import partial
 
 from calibre import prints
 from calibre.constants import preferred_encoding
-from polyglot.builtins import iteritems, raw_input, filter
+from polyglot.builtins import iteritems, raw_input, filter, unicode_type
 
 # Manage users CLI {{{
 
@@ -39,7 +39,7 @@ def manage_users_cli(path=None):
                     len(choices), _('default'), default + 1)
             reply = get_input(prompt)
             if not reply and default is not None:
-                reply = str(default + 1)
+                reply = unicode_type(default + 1)
             if not reply:
                 prints(_('No choice selected, exiting...'))
                 raise SystemExit(0)

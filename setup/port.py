@@ -141,14 +141,20 @@ class UnicodeCheck(Base):
         str_pat = re.compile(r'\bstr\(')
         has_unicode_literals = False
         has_str_calls = False
+        num_lines = 0
         for i, line in enumerate(open(f, 'rb')):
             line = line.decode('utf-8')
+            if not line.strip():
+                continue
+            num_lines += 1
             if not has_unicode_literals and uni_pat.match(line) is not None:
                 has_unicode_literals = True
             if not has_str_calls and str_pat.search(line) is not None:
                 has_str_calls = True
             if has_unicode_literals and has_str_calls:
                 break
+        if num_lines < 1:
+            return
         ans = None
         if not has_unicode_literals:
             if has_str_calls:

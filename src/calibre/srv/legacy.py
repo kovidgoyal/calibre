@@ -63,10 +63,10 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 
     num_select = E.select(name='num')
     for option in (5, 10, 25, 100):
-        kwargs = {'value':str(option)}
+        kwargs = {'value':unicode_type(option)}
         if option == num:
             kwargs['SELECTED'] = 'SELECTED'
-        num_select.append(E.option(str(option), **kwargs))
+        num_select.append(E.option(unicode_type(option), **kwargs))
     num_select.tail = ' books matching '
     form.append(num_select)
 

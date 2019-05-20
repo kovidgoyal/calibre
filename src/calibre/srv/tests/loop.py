@@ -18,7 +18,7 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import range
+from polyglot.builtins import range, unicode_type
 from polyglot import http_client
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -94,7 +94,7 @@ class LoopTest(BaseTest):
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
                 res = conn.getresponse()
-                if str(res.status) == str(http_client.REQUEST_TIMEOUT):
+                if unicode_type(res.status) == unicode_type(http_client.REQUEST_TIMEOUT):
                     raise socket.timeout('Timeout')
                 raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
                     res.status, res.reason, res.getheaders(), res.read()))
@@ -227,7 +227,7 @@ class LoopTest(BaseTest):
         s.bind(('localhost', 0))
         port = s.getsockname()[1]
         self.ae(s.fileno(), 3)
-        os.environ['LISTEN_PID'] = str(os.getpid())
+        os.environ['LISTEN_PID'] = unicode_type(os.getpid())
         os.environ['LISTEN_FDS'] = '1'
         with TestServer(lambda data:(data.path[0] + data.read()), allow_socket_preallocation=True) as server:
             conn = server.connect()

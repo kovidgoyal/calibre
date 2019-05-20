@@ -81,7 +81,7 @@ def transform_declaration(decl):
             if unit in absolute_units:
                 changed = True
                 l = convert_fontsize(l, unit)
-                decl.change_property(prop, parent_prop, str(l) + 'rem')
+                decl.change_property(prop, parent_prop, unicode_type(l) + 'rem')
     return changed
 
 
