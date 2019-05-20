@@ -142,7 +142,7 @@ class SNBOutput(OutputFormatPlugin):
 
             for tocitem in oeb_book.toc:
                 if tocitem.href.find('#') != -1:
-                    item = string.split(tocitem.href, '#')
+                    item = tocitem.href.split('#')
                     if len(item) != 2:
                         log.error('Error in TOC item: %s' % tocitem)
                     else:

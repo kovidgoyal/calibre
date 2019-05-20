@@ -138,7 +138,7 @@ class TXTInput(InputFormatPlugin):
                 block_to_single_line, separate_hard_scene_breaks)
 
         self.log = log
-        txt = ''
+        txt = b''
         log.debug('Reading text from file...')
         length = 0
         base_dir = getcwd()
@@ -151,7 +151,7 @@ class TXTInput(InputFormatPlugin):
             for x in walk('.'):
                 if os.path.splitext(x)[1].lower() in ('.txt', '.text'):
                     with open(x, 'rb') as tf:
-                        txt += tf.read() + '\n\n'
+                        txt += tf.read() + b'\n\n'
         else:
             if getattr(stream, 'name', None):
                 base_dir = os.path.dirname(stream.name)

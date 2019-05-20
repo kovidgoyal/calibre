@@ -94,7 +94,7 @@ class Tokenize:
             uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
-            uni_char = codepoint_to_chr(uni_char).encode('ascii', 'xmlcharrefreplace')
+            uni_char = codepoint_to_chr(uni_char).encode('ascii', 'xmlcharrefreplace').decode('ascii')
             self.__uc_char = self.__uc_value[-1]
             # there is only an unicode char
             if len(token)<= uni_len:
@@ -113,11 +113,11 @@ class Tokenize:
     def __sub_reg_split(self,input_file):
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
-        input_file = self.__par_exp.sub('\n\\par \n', input_file)
-        input_file = self.__cwdigit_exp.sub("\\g<1>\n\\g<2>", input_file)
+        input_file = self.__par_exp.sub(r'\n\\par \n', input_file)
+        input_file = self.__cwdigit_exp.sub(r"\g<1>\n\g<2>", input_file)
         input_file = self.__cs_ast.sub(r"\g<1>", input_file)
-        input_file = self.__ms_hex_exp.sub("\\mshex0\\g<1> ", input_file)
-        input_file = self.__utf_ud.sub("\\{\\uc0 \\g<1>\\}", input_file)
+        input_file = self.__ms_hex_exp.sub(r"\\mshex0\g<1> ", input_file)
+        input_file = self.__utf_ud.sub(r"\\{\\uc0 \g<1>\\}", input_file)
         # remove \n in bin data
         input_file = self.__bin_exp.sub(lambda x:
                                         x.group().replace('\n', '') + '\n', input_file)
@@ -188,7 +188,7 @@ class Tokenize:
 
         # write
         with open(self.__write_to, 'wb') as write_obj:
-            write_obj.write('\n'.join(tokens))
+            write_obj.write('\n'.join(tokens).encode('utf-8'))
         # Move and copy
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:

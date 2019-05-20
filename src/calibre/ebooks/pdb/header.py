@@ -24,7 +24,7 @@ class PdbHeaderReader(object):
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8)
-        return ident
+        return ident.decode('utf-8')
 
     def section_count(self):
         self.stream.seek(76)
@@ -67,8 +67,8 @@ class PdbHeaderReader(object):
 class PdbHeaderBuilder(object):
 
     def __init__(self, identity, title):
-        self.identity = identity.ljust(3, '\x00')[:8]
-        self.title = '%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
+        self.identity = identity.ljust(3, '\x00')[:8].encode('utf-8')
+        self.title = b'%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
 
     def build_header(self, section_lengths, out_stream):
         '''
@@ -85,4 +85,4 @@ class PdbHeaderBuilder(object):
         for id, record in enumerate(section_lengths):
             out_stream.write(struct.pack('>LBBBB', long_type(offset), 0, 0, 0, 0))
             offset += record
-        out_stream.write('\x00\x00')
+        out_stream.write(b'\x00\x00')

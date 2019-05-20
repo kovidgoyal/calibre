@@ -391,7 +391,7 @@ class Mobi8Reader(object):
                 fi = self.get_file_info(pos)
                 if fi.filename is None:
                     raise ValueError('Index entry has invalid pos: %d'%pos)
-                idtag = self.get_id_tag(pos).decode(self.header.codec)
+                idtag = self.get_id_tag(pos)
                 href = '%s/%s'%(fi.type, fi.filename)
             else:
                 try:
@@ -403,7 +403,7 @@ class Mobi8Reader(object):
                     continue
 
             entry['href'] = href
-            entry['idtag'] = idtag
+            entry['idtag'] = idtag.decode(self.header.codec)
 
         for e in remove:
             index_entries.remove(e)

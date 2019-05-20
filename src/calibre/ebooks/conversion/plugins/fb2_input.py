@@ -90,7 +90,8 @@ class FB2Input(InputFormatPlugin):
             css = re.sub(r'name\s*=\s*', 'class=', css)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
-        ss = open(P('templates/fb2.xsl'), 'rb').read()
+        with open(P('templates/fb2.xsl'), 'rb') as f:
+            ss = f.read().decode('utf-8')
         ss = ss.replace("__FB_NS__", fb_ns)
         if options.no_inline_fb2_toc:
             log('Disabling generation of inline FB2 TOC')
@@ -124,8 +125,10 @@ class FB2Input(InputFormatPlugin):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))
         index = transform.tostring(result)
-        open(u'index.xhtml', 'wb').write(index)
-        open(u'inline-styles.css', 'wb').write(css)
+        with open(u'index.xhtml', 'wb') as f:
+            f.write(index.encode('utf-8'))
+        with open(u'inline-styles.css', 'wb') as f:
+            f.write(css.encode('utf-8'))
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
         if not mi.title:
