@@ -24,7 +24,7 @@ from .element import Element
 def StyleElement(**args):
     e = Element(**args)
     if args.get('check_grammar', True) == True:
-        if not args.has_key('displayname'):
+        if 'displayname' not in args:
             e.setAttrNS(STYLENS,'display-name', args.get('name'))
     return e
 
@@ -145,4 +145,3 @@ def TableRowProperties(**args):
 
 def TextProperties(**args):
     return Element(qname = (STYLENS,'text-properties'), **args)
-

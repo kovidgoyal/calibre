@@ -341,7 +341,7 @@ class Element(Node):
         """
         if namespace is None: namespace = ""
         prefix = _nsassign(namespace)
-        if not self.namespaces.has_key(namespace):
+        if namespace not in self.namespaces:
             self.namespaces[namespace] = prefix
         return prefix
 

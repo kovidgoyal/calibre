@@ -124,13 +124,13 @@ class OpenDocument:
     def build_caches(self, element):
         """ Called from element.py
         """
-        if not self.element_dict.has_key(element.qname):
+        if element.qname not in self.element_dict:
             self.element_dict[element.qname] = []
         self.element_dict[element.qname].append(element)
         if element.qname == (STYLENS, u'style'):
             self.__register_stylename(element) # Add to style dictionary
         styleref = element.getAttrNS(TEXTNS,u'style-name')
-        if styleref is not None and self._styles_ooo_fix.has_key(styleref):
+        if styleref is not None and styleref in self._styles_ooo_fix:
             element.setAttrNS(TEXTNS,u'style-name', self._styles_ooo_fix[styleref])
 
     def __register_stylename(self, element):
@@ -142,7 +142,7 @@ class OpenDocument:
         if name is None:
             return
         if element.parentNode.qname in ((OFFICENS,u'styles'), (OFFICENS,u'automatic-styles')):
-            if self._styles_dict.has_key(name):
+            if name in self._styles_dict:
                 newname = 'M'+name # Rename style
                 self._styles_ooo_fix[name] = newname
                 # From here on all references to the old name will refer to the new one
