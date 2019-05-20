@@ -14,6 +14,7 @@ import os, re
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class ProcessTokens:
@@ -43,8 +44,8 @@ class ProcessTokens:
         self.__bug_handler = bug_handler
 
     def compile_expressions(self):
-        self.__num_exp = re.compile(br"([a-zA-Z]+)(.*)")
-        self.__utf_exp = re.compile(br'(&.*?;)')
+        self.__num_exp = re.compile(r"([a-zA-Z]+)(.*)")
+        self.__utf_exp = re.compile(r'(&.*?;)')
 
     def initiate_token_dict(self):
         self.__return_code = 0
@@ -762,10 +763,10 @@ class ProcessTokens:
     def process_cw(self, token):
         """Change the value of the control word by determining what dictionary
         it belongs to"""
-        special = [b'*', b':', b'}', b'{', b'~', b'_', b'-', b';']
+        special = ['*', ':', '}', '{', '~', '_', '-', ';']
         # if token != "{" or token != "}":
         token = token[1:]  # strip off leading \
-        token = token.replace(b" ", b"")
+        token = token.replace(" ", "")
         # if not token: return
         only_alpha = token.isalpha()
         num = None
@@ -784,30 +785,24 @@ class ProcessTokens:
     def process_tokens(self):
         """Main method for handling other methods. """
         line_count = 0
-        with open(self.__file, 'rb') as read_obj:
-            with open(self.__write_to, 'wb') as write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:
-                    token = line.replace(b"\n",b"")
+                    token = line.replace("\n", "")
                     line_count += 1
-                    if line_count == 1 and token != b'\\{':
+                    if line_count == 1 and token != '\\{':
                         msg = '\nInvalid RTF: document doesn\'t start with {\n'
                         raise self.__exception_handler(msg)
-                    elif line_count == 2 and token[0:4] != b'\\rtf':
+                    elif line_count == 2 and token[0:4] != '\\rtf':
                         msg = '\nInvalid RTF: document doesn\'t start with \\rtf \n'
                         raise self.__exception_handler(msg)
 
-                    the_index = token.find(b'\\ ')
+                    the_index = token.find('\\ ')
                     if token is not None and the_index > -1:
                         msg = '\nInvalid RTF: token "\\ " not valid.\nError at line %d'\
                             % line_count
                         raise self.__exception_handler(msg)
-                    elif token[:1] == b"\\":
-                        try:
-                            token.decode('us-ascii')
-                        except UnicodeError as msg:
-                            msg = '\nInvalid RTF: Tokens not ascii encoded.\n%s\nError at line %d'\
-                                % (str(msg), line_count)
-                            raise self.__exception_handler(msg)
+                    elif token[:1] == "\\":
                         line = self.process_cw(token)
                         if line is not None:
                             write_obj.write(line)
@@ -816,10 +811,10 @@ class ProcessTokens:
                         for field in fields:
                             if not field:
                                 continue
-                            if field[0:1] == b'&':
-                                write_obj.write(b'tx<ut<__________<%s\n' % field)
+                            if field[0:1] == '&':
+                                write_obj.write('tx<ut<__________<%s\n' % field)
                             else:
-                                write_obj.write(b'tx<nu<__________<%s\n' % field)
+                                write_obj.write('tx<nu<__________<%s\n' % field)
 
         if not line_count:
             msg = '\nInvalid RTF: file appears to be empty.\n'

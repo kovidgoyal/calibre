@@ -12,6 +12,9 @@
 #########################################################################
 
 
+from . import open_for_read
+
+
 class CheckBrackets:
     """Check that brackets match up"""
 
@@ -41,7 +44,7 @@ class CheckBrackets:
 
     def check_brackets(self):
         line_count = 0
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             for line in read_obj:
                 line_count += 1
                 self.__token_info = line[:16]

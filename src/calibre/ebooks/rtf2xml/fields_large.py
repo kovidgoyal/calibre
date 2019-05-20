@@ -13,6 +13,7 @@
 import sys, os
 from calibre.ebooks.rtf2xml import field_strings, copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class FieldsLarge:
@@ -351,8 +352,8 @@ Examples
             If the state is body, send the line to the body method.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

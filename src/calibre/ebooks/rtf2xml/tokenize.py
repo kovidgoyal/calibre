@@ -16,6 +16,7 @@ from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
 from polyglot.builtins import codepoint_to_chr, range, filter
+from . import open_for_read, open_for_write
 
 
 class Tokenize:
@@ -175,7 +176,7 @@ class Tokenize:
         , uses method self.sub_reg to make basic substitutions,\
         and process tokens by itself"""
         # read
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             input_file = read_obj.read()
 
         # process simple replacements and split giving us a correct list
@@ -187,8 +188,8 @@ class Tokenize:
         tokens = list(filter(lambda x: len(x) > 0, tokens))
 
         # write
-        with open(self.__write_to, 'wb') as write_obj:
-            write_obj.write('\n'.join(tokens).encode('utf-8'))
+        with open_for_write(self.__write_to) as write_obj:
+            write_obj.write('\n'.join(tokens))
         # Move and copy
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:

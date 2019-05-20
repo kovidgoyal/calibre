@@ -11,6 +11,7 @@
 #                                                                       #
 #########################################################################
 import sys
+from . import open_for_read
 
 
 class OldRtf:
@@ -106,7 +107,7 @@ class OldRtf:
         """
         self.__initiate_values()
         line_num = 0
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             for line in read_obj:
                 line_num += 1
                 self.__token_info = line[:16]

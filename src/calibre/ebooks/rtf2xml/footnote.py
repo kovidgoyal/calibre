@@ -14,6 +14,7 @@ import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Footnote:
@@ -118,9 +119,9 @@ class Footnote:
         """
         self.__initiate_sep_values()
         self.__footnote_holder = better_mktemp()
-        with open(self.__file) as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
-                with open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
+                with open_for_write(self.__footnote_holder) as self.__write_to_foot_obj:
                     for line in read_obj:
                         self.__token_info = line[:16]
                         # keep track of opening and closing brackets
@@ -134,8 +135,8 @@ class Footnote:
                         # not in the middle of footnote text
                         else:
                             self.__default_sep(line)
-        with open(self.__footnote_holder, 'r') as read_obj:
-            with open(self.__write_to, 'a') as write_obj:
+        with open_for_read(self.__footnote_holder) as read_obj:
+            with open_for_write(self.__write_to, append=True) as write_obj:
                 write_obj.write(
                     'mi<mk<sect-close\n'
                     'mi<mk<body-close\n'
@@ -188,9 +189,9 @@ class Footnote:
         These two functions do the work of separating the footnotes form the
         body.
         """
-        with open(self.__file) as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
-                with open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
+                with open_for_write(self.__footnote_holder) as self.__write_to_foot_obj:
                     for line in read_obj:
                         self.__token_info = line[:16]
                         if self.__state == 'body':
@@ -226,9 +227,9 @@ class Footnote:
         print out to the third file.
         If no footnote marker is found, simply print out the token (line).
         """
-        with open(self.__footnote_holder, 'r') as self.__read_from_foot_obj:
-            with open(self.__write_to, 'r') as read_obj:
-                with open(self.__write_to2, 'w') as self.__write_obj:
+        with open_for_read(self.__footnote_holder) as self.__read_from_foot_obj:
+            with open_for_read(self.__write_to) as read_obj:
+                with open_for_write(self.__write_to2) as self.__write_obj:
                     for line in read_obj:
                         if line[:16] == 'mi<mk<footnt-ind':
                             line = self.__get_foot_from_temp(line[17:-1])

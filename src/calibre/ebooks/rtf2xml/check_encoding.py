@@ -13,17 +13,17 @@ class CheckEncoding:
             char_position +=1
             try:
                 char.decode(encoding)
-            except UnicodeError as msg:
+            except ValueError as msg:
                 sys.stderr.write('line: %s char: %s\n%s\n' %  (line_num, char_position, str(msg)))
 
     def check_encoding(self, path, encoding='us-ascii', verbose=True):
         line_num = 0
-        with open(path, 'r') as read_obj:
+        with open(path, 'rb') as read_obj:
             for line in read_obj:
                 line_num += 1
                 try:
                     line.decode(encoding)
-                except UnicodeError:
+                except ValueError:
                     if verbose:
                         if len(line) < 1000:
                             self.__get_position_error(line, encoding, line_num)
