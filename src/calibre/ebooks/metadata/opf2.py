@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -23,7 +23,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
-from polyglot.builtins import iteritems, unicode_type, getcwd
+from polyglot.builtins import iteritems, unicode_type, getcwd, map
 from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False
@@ -73,7 +73,7 @@ class Resource(object):  # {{{
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
             if isinstance(path, bytes):
-                path = path.decode(sys.getfilesystemencoding())
+                path = path.decode(filesystem_encoding)
             self.path = path
         else:
             href_or_path = href_or_path
@@ -103,10 +103,9 @@ class Resource(object):  # {{{
                 basedir = getcwd()
         if self.path is None:
             return self._href
-        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
-        frag = '#'+f if self.fragment else ''
+        frag = ('#' + self.fragment) if self.fragment else ''
         if self.path == basedir:
-            return ''+frag
+            return frag
         try:
             rpath = os.path.relpath(self.path, basedir)
         except ValueError:  # On windows path and basedir could be on different drives
@@ -148,9 +147,10 @@ class ResourceCollection(object):  # {{{
     def __str__(self):
         resources = map(repr, self)
         return '[%s]'%', '.join(resources)
+    __unicode__ = __str__
 
     def __repr__(self):
-        return str(self)
+        return unicode_type(self)
 
     def append(self, resource):
         if not isinstance(resource, Resource):
@@ -402,10 +402,12 @@ class Guide(ResourceCollection):  # {{{
         return coll
 
     def set_cover(self, path):
-        map(self.remove, [i for i in self if 'cover' in i.type.lower()])
-        for type in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+        for i in tuple(self):
+            if 'cover' in i.type.lower():
+                self.remove(i)
+        for typ in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
             self.append(Guide.Reference(path, is_path=True))
-            self[-1].type = type
+            self[-1].type = typ
             self[-1].title = ''
 
 # }}}
@@ -699,7 +701,7 @@ class OPF(object):  # {{{
             pass
 
     def get_text(self, elem):
-        return u''.join(self.CONTENT(elem) or self.TEXT(elem))
+        return ''.join(self.CONTENT(elem) or self.TEXT(elem))
 
     def set_text(self, elem, content):
         if elem.tag == self.META:
@@ -940,7 +942,7 @@ class OPF(object):  # {{{
                 xid = x.get('id', None)
                 is_package_identifier = uuid_id is not None and uuid_id == xid
                 if is_package_identifier:
-                    self.set_text(x, str(uuid.uuid4()))
+                    self.set_text(x, unicode_type(uuid.uuid4()))
                     for attr in x.attrib:
                         if attr.endswith('scheme'):
                             x.attrib[attr] = 'uuid'
@@ -1352,7 +1354,7 @@ class OPFCreator(Metadata):
         self.page_progression_direction = None
         self.primary_writing_mode = None
         if self.application_id is None:
-            self.application_id = str(uuid.uuid4())
+            self.application_id = unicode_type(uuid.uuid4())
         if not isinstance(self.toc, TOC):
             self.toc = None
         if not self.authors:
@@ -1368,9 +1370,9 @@ class OPFCreator(Metadata):
 
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
         '''
-        entries = map(lambda x: x if os.path.isabs(x[0]) else
+        entries = list(map(lambda x: x if os.path.isabs(x[0]) else
                       (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
-                      entries)
+                      entries))
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
@@ -1400,8 +1402,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of paths
         '''
-        entries = map(lambda x: x if os.path.isabs(x) else
-                      os.path.abspath(os.path.join(self.base_path, x)), entries)
+        entries = list(map(lambda x: x if os.path.isabs(x) else
+                      os.path.abspath(os.path.join(self.base_path, x)), entries))
         self.spine = Spine.from_paths(entries, self.manifest)
 
     def set_toc(self, toc):
@@ -1476,7 +1478,7 @@ class OPFCreator(Metadata):
         a(DC_ELEM('contributor', '%s (%s) [%s]'%(__appname__, __version__,
             'https://calibre-ebook.com'), opf_attrs={'role':'bkp',
                 'file-as':__appname__}))
-        a(DC_ELEM('identifier', str(self.application_id),
+        a(DC_ELEM('identifier', unicode_type(self.application_id),
             opf_attrs={'scheme':__appname__},
             dc_attrs={'id':__appname__+'_id'}))
         if getattr(self, 'pubdate', None) is not None:
@@ -1504,7 +1506,7 @@ class OPFCreator(Metadata):
         if self.title_sort:
             a(CAL_ELEM('calibre:title_sort', self.title_sort))
         if self.rating is not None:
-            a(CAL_ELEM('calibre:rating', str(self.rating)))
+            a(CAL_ELEM('calibre:rating', unicode_type(self.rating)))
         if self.timestamp is not None:
             a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
         if self.publication_type is not None:
@@ -1521,7 +1523,7 @@ class OPFCreator(Metadata):
                 href = ref.href()
                 if isinstance(href, bytes):
                     href = href.decode('utf-8')
-                item = E.item(id=str(ref.id), href=href)
+                item = E.item(id=unicode_type(ref.id), href=href)
                 item.set('media-type', ref.mime_type)
                 manifest.append(item)
         spine = E.spine()
@@ -1572,10 +1574,10 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     from calibre.ebooks.oeb.base import OPF, DC
 
     if not mi.application_id:
-        mi.application_id = str(uuid.uuid4())
+        mi.application_id = unicode_type(uuid.uuid4())
 
     if not mi.uuid:
-        mi.uuid = str(uuid.uuid4())
+        mi.uuid = unicode_type(uuid.uuid4())
 
     if not mi.book_producer:
         mi.book_producer = __appname__ + ' (%s) '%__version__ + \
@@ -1656,7 +1658,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     if mi.series_index is not None:
         meta('series_index', mi.format_series_index())
     if mi.rating is not None:
-        meta('rating', str(mi.rating))
+        meta('rating', unicode_type(mi.rating))
     if hasattr(mi.timestamp, 'isoformat'):
         meta('timestamp', isoformat(mi.timestamp))
     if mi.publication_type:
