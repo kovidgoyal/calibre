@@ -19,7 +19,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
-from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd
+from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd, as_bytes
 
 
 class Extract(ODF2XHTML):
@@ -292,7 +292,7 @@ class Extract(ODF2XHTML):
             except:
                 log.exception('Failed to filter CSS, conversion may be slow')
             with open('index.xhtml', 'wb') as f:
-                f.write(html.encode('utf-8'))
+                f.write(as_bytes(html))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
             opf = OPFCreator(os.path.abspath(getcwd()), mi)

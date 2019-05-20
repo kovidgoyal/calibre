@@ -18,6 +18,7 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 from .namespaces import METANS
 from .element import Element
 
@@ -78,4 +79,3 @@ def Template(**args):
 
 def UserDefined(**args):
     return Element(qname=(METANS,'user-defined'), **args)
-

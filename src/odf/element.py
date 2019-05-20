@@ -22,11 +22,14 @@
 # Note: This script has copied a lot of text from xml.dom.minidom.
 # Whatever license applies to that file also applies to this file.
 #
+from __future__ import print_function, unicode_literals, absolute_import, division
 import xml.dom
 from xml.dom.minicompat import defproperty, EmptyNodeList
 from .namespaces import nsdict
 from . import grammar
 from .attrconverters import AttrConverters
+
+from polyglot.builtins import unicode_type
 
 # The following code is pasted form xml.sax.saxutils
 # Tt makes it possible to run the code without the xml sax package installed
@@ -82,7 +85,7 @@ def _nssplit(qualifiedName):
 
 
 def _nsassign(namespace):
-    return nsdict.setdefault(namespace,"ns" + str(len(nsdict)))
+    return nsdict.setdefault(namespace,"ns" + unicode_type(len(nsdict)))
 
 # Exceptions
 
@@ -183,17 +186,12 @@ class Node(xml.dom.Node):
         oldChild.parentNode = None
         return oldChild
 
-    def __str__(self):
-        val = []
-        for c in self.childNodes:
-            val.append(str(c))
-        return ''.join(val)
-
     def __unicode__(self):
         val = []
         for c in self.childNodes:
             val.append(type(u'')(c))
         return u''.join(val)
+    __str__ = __unicode__
 
 
 defproperty(Node, "firstChild", doc="First child node, or None.")
@@ -259,10 +257,8 @@ class Text(Childless, Node):
         self.data = data
 
     def __str__(self):
-        return self.data.encode()
-
-    def __unicode__(self):
         return self.data
+    __unicode__ = __str__
 
     def toXml(self,level,f):
         """ Write XML in UTF-8 """
@@ -477,10 +473,10 @@ class Element(Node):
         f.write('<'+self.tagName)
         if level == 0:
             for namespace, prefix in self.namespaces.items():
-                f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
+                f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
         f.write('>')
 
     def write_close_tag(self, level, f):
@@ -491,10 +487,10 @@ class Element(Node):
         f.write('<'+self.tagName)
         if level == 0:
             for namespace, prefix in self.namespaces.items():
-                f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
+                f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(type(u'')(self.attributes[qname]).encode('utf-8')))
         if self.childNodes:
             f.write('>')
             for element in self.childNodes:

@@ -18,6 +18,7 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 from .namespaces import FORMNS
 from .element import Element
 
@@ -141,4 +142,3 @@ def Time(**args):
 
 def ValueRange(**args):
     return Element(qname=(FORMNS,'value-range'), **args)
-

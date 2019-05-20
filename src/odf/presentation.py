@@ -18,6 +18,7 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 from .namespaces import PRESENTATIONNS
 from .element import Element
 
@@ -103,4 +104,3 @@ def ShowText(**args):
 
 def Sound(**args):
     return Element(qname=(PRESENTATIONNS,'sound'), **args)
-

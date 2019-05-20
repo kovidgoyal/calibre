@@ -20,9 +20,11 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 import zipfile, xml.dom.minidom
 from .namespaces import nsdict
 from .elementtypes import empty_elements, inline_elements
+from polyglot.builtins import unicode_type
 
 IGNORED_TAGS = [
     'draw:a'
@@ -94,11 +96,12 @@ class TextProps:
                 self.superscript = True
                 self.subscript = False
 
-    def __str__(self):
+    def __unicode__(self):
 
-        return "[italic=%s, bold=i%s, fixed=%s]" % (str(self.italic),
-                                          str(self.bold),
-                                          str(self.fixed))
+        return "[italic=%s, bold=i%s, fixed=%s]" % (unicode_type(self.italic),
+                                          unicode_type(self.bold),
+                                          unicode_type(self.fixed))
+    __str__ = __unicode__
 
 
 class ParagraphProps:
@@ -124,11 +127,12 @@ class ParagraphProps:
     def setCode(self, value):
         self.code = value
 
-    def __str__(self):
+    def __unicode__(self):
 
-        return "[bq=%s, h=%d, code=%s]" % (str(self.blockquote),
+        return "[bq=%s, h=%d, code=%s]" % (unicode_type(self.blockquote),
                                            self.headingLevel,
-                                           str(self.code))
+                                           unicode_type(self.code))
+    __str__ = __unicode__
 
 
 class ListProperties:
@@ -398,7 +402,7 @@ class ODF2MoinMoin(object):
             buffer.append(" "*indent)
             i += 1
             if props.ordered:
-                number = str(i)
+                number = unicode_type(i)
                 number = " " + number + ". "
                 buffer.append(" 1. ")
             else:

@@ -18,6 +18,7 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 from .namespaces import TABLENS
 from .element import Element
 
@@ -397,4 +398,3 @@ def TargetRangeAddress(**args):
 
 def TrackedChanges(**args):
     return Element(qname=(TABLENS,'tracked-changes'), **args)
-

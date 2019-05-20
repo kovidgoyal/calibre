@@ -19,9 +19,11 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 from .style import ListLevelProperties
 from .text import ListStyle,ListLevelStyleNumber,ListLevelStyleBullet
+from polyglot.builtins import unicode_type
 
 """
 Create a <text:list-style> element from a string or array.
@@ -92,8 +94,8 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
         else:
             lls = ListLevelStyleBullet(level=(i+1),bulletchar=bullet[0])
         llp = ListLevelProperties()
-        llp.setAttribute('spacebefore', str(cssLengthNum * (i+1)) + cssLengthUnits)
-        llp.setAttribute('minlabelwidth', str(cssLengthNum) + cssLengthUnits)
+        llp.setAttribute('spacebefore', unicode_type(cssLengthNum * (i+1)) + cssLengthUnits)
+        llp.setAttribute('minlabelwidth', unicode_type(cssLengthNum) + cssLengthUnits)
         lls.addElement(llp)
         listStyle.addElement(lls)
         i += 1

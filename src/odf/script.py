@@ -18,6 +18,7 @@
 # Contributor(s):
 #
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 from .namespaces import SCRIPTNS
 from .element import Element
 
@@ -29,4 +30,3 @@ from .element import Element
 
 def EventListener(**args):
     return Element(qname=(SCRIPTNS,'event-listener'), **args)
-

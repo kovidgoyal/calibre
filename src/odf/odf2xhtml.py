@@ -20,6 +20,7 @@
 #
 # import pdb
 # pdb.set_trace()
+from __future__ import print_function, unicode_literals, absolute_import, division
 from collections import defaultdict
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
@@ -30,6 +31,7 @@ from .opendocument import load
 from .namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
   FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
   SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+from polyglot.builtins import unicode_type
 
 if False:  # Added by Kovid
     DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
@@ -1331,7 +1333,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:
-            attrs = {'start': str(self.list_number_map[number_class])}
+            attrs = {'start': unicode_type(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
         self.opentag('%s' % tag_name, attrs)
