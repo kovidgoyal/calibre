@@ -24,7 +24,7 @@ from .element import Element
 
 def StyleElement(**args):
     e = Element(**args)
-    if args.get('check_grammar', True) == True:
+    if args.get('check_grammar', True) is True:
         if 'displayname' not in args:
             e.setAttrNS(STYLENS,'display-name', args.get('name'))
     return e

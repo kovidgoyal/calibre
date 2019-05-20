@@ -17,8 +17,14 @@
 #
 # Contributor(s):
 #
-from .namespaces import *
-import re, types
+import re
+import types
+
+from .namespaces import (
+    ANIMNS, CHARTNS, CONFIGNS, DR3DNS, DRAWNS, FONS, FORMNS, MANIFESTNS, METANS,
+    NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, SMILNS, STYLENS, SVGNS, TABLENS,
+    TEXTNS, XFORMSNS, XLINKNS
+)
 
 pattern_color =  re.compile(r'#[0-9a-fA-F]{6}')
 pattern_vector3D = re.compile(r'\([ ]*-?([0-9]+(\.[0-9]*)?|\.[0-9]+)([ ]+-?([0-9]+(\.[0-9]*)?|\.[0-9]+)){2}[ ]*\)')
@@ -102,9 +108,8 @@ def __save_prefix(attribute, arg, element):
         return type(u'')(arg)
     namespace = element.get_knownns(prefix)
     if namespace is None:
-        #raise ValueError, "'%s' is an unknown prefix" % str(prefix)
+        # raise ValueError, "'%s' is an unknown prefix" % str(prefix)
         return type(u'')(arg)
-    p = element.get_nsprefix(namespace)
     return type(u'')(arg)
 
 
@@ -241,7 +246,7 @@ def cnv_percent(attribute, arg, element):
 
 # Real one doesn't allow floating point values
 pattern_points = re.compile(r'-?[0-9]+,-?[0-9]+([ ]+-?[0-9]+,-?[0-9]+)*')
-#pattern_points = re.compile(r'-?[0-9.]+,-?[0-9.]+([ ]+-?[0-9.]+,-?[0-9.]+)*')
+# pattern_points = re.compile(r'-?[0-9.]+,-?[0-9.]+([ ]+-?[0-9.]+,-?[0-9.]+)*')
 
 
 def cnv_points(attribute, arg, element):
@@ -310,7 +315,7 @@ attrconverters = {
         ((ANIMNS,u'name'), None): cnv_string,
         ((ANIMNS,u'sub-item'), None): cnv_string,
         ((ANIMNS,u'value'), None): cnv_string,
-#	((DBNS,u'type'), None): cnv_namespacedToken,
+        # ((DBNS,u'type'), None): cnv_namespacedToken,
         ((CHARTNS,u'attached-axis'), None): cnv_string,
         ((CHARTNS,u'class'), (CHARTNS,u'grid')): cnv_major_minor,
         ((CHARTNS,u'class'), None): cnv_namespacedToken,
@@ -532,8 +537,8 @@ attrconverters = {
         ((DRAWNS,u'handle-range-y-maximum'), None): cnv_string,
         ((DRAWNS,u'handle-range-y-minimum'), None): cnv_string,
         ((DRAWNS,u'handle-switched'), None): cnv_boolean,
-#	((DRAWNS,u'id'), None): cnv_ID,
-#	((DRAWNS,u'id'), None): cnv_nonNegativeInteger,   # ?? line 6581 in RNG
+        # ((DRAWNS,u'id'), None): cnv_ID,
+        # ((DRAWNS,u'id'), None): cnv_nonNegativeInteger,   # ?? line 6581 in RNG
         ((DRAWNS,u'id'), None): cnv_string,
         ((DRAWNS,u'image-opacity'), None): cnv_string,
         ((DRAWNS,u'kind'), None): cnv_string,
@@ -556,7 +561,7 @@ attrconverters = {
         ((DRAWNS,u'mirror-vertical'), None): cnv_boolean,
         ((DRAWNS,u'modifiers'), None): cnv_string,
         ((DRAWNS,u'name'), None): cnv_NCName,
-#	((DRAWNS,u'name'), None): cnv_string,
+        # ((DRAWNS,u'name'), None): cnv_string,
         ((DRAWNS,u'nav-order'), None): cnv_IDREF,
         ((DRAWNS,u'nohref'), None): cnv_string,
         ((DRAWNS,u'notify-on-update-of-ranges'), None): cnv_string,
@@ -693,10 +698,10 @@ attrconverters = {
         ((FORMNS,u'convert-empty-to-null'), None): cnv_boolean,
         ((FORMNS,u'current-selected'), None): cnv_boolean,
         ((FORMNS,u'current-state'), None): cnv_string,
-#	((FORMNS,u'current-value'), None): cnv_date,
-#	((FORMNS,u'current-value'), None): cnv_double,
+        # ((FORMNS,u'current-value'), None): cnv_date,
+        # ((FORMNS,u'current-value'), None): cnv_double,
         ((FORMNS,u'current-value'), None): cnv_string,
-#	((FORMNS,u'current-value'), None): cnv_time,
+        # ((FORMNS,u'current-value'), None): cnv_time,
         ((FORMNS,u'data-field'), None): cnv_string,
         ((FORMNS,u'datasource'), None): cnv_string,
         ((FORMNS,u'default-button'), None): cnv_boolean,
@@ -721,15 +726,15 @@ attrconverters = {
         ((FORMNS,u'list-source-type'), None): cnv_string,
         ((FORMNS,u'master-fields'), None): cnv_string,
         ((FORMNS,u'max-length'), None): cnv_nonNegativeInteger,
-#	((FORMNS,u'max-value'), None): cnv_date,
-#	((FORMNS,u'max-value'), None): cnv_double,
+        # ((FORMNS,u'max-value'), None): cnv_date,
+        # ((FORMNS,u'max-value'), None): cnv_double,
         ((FORMNS,u'max-value'), None): cnv_string,
-#	((FORMNS,u'max-value'), None): cnv_time,
+        # ((FORMNS,u'max-value'), None): cnv_time,
         ((FORMNS,u'method'), None): cnv_string,
-#	((FORMNS,u'min-value'), None): cnv_date,
-#	((FORMNS,u'min-value'), None): cnv_double,
+        # ((FORMNS,u'min-value'), None): cnv_date,
+        # ((FORMNS,u'min-value'), None): cnv_double,
         ((FORMNS,u'min-value'), None): cnv_string,
-#	((FORMNS,u'min-value'), None): cnv_time,
+        # ((FORMNS,u'min-value'), None): cnv_time,
         ((FORMNS,u'multi-line'), None): cnv_boolean,
         ((FORMNS,u'multiple'), None): cnv_boolean,
         ((FORMNS,u'name'), None): cnv_string,
@@ -751,10 +756,10 @@ attrconverters = {
         ((FORMNS,u'title'), None): cnv_string,
         ((FORMNS,u'toggle'), None): cnv_boolean,
         ((FORMNS,u'validation'), None): cnv_boolean,
-#	((FORMNS,u'value'), None): cnv_date,
-#	((FORMNS,u'value'), None): cnv_double,
+        # ((FORMNS,u'value'), None): cnv_date,
+        # ((FORMNS,u'value'), None): cnv_double,
         ((FORMNS,u'value'), None): cnv_string,
-#	((FORMNS,u'value'), None): cnv_time,
+        # ((FORMNS,u'value'), None): cnv_time,
         ((FORMNS,u'visual-effect'), None): cnv_string,
         ((FORMNS,u'xforms-list-source'), None): cnv_string,
         ((FORMNS,u'xforms-submission'), None): cnv_string,
@@ -1183,7 +1188,7 @@ attrconverters = {
         ((TABLENS,u'border-model'), None): cnv_string,
         ((TABLENS,u'buttons'), None): cnv_string,
         ((TABLENS,u'buttons'), None): cnv_string,
-        ((TABLENS,u'case-sensitive'), None): cnv_boolean,
+        # ((TABLENS,u'case-sensitive'), None): cnv_boolean,
         ((TABLENS,u'case-sensitive'), None): cnv_string,
         ((TABLENS,u'cell-address'), None): cnv_string,
         ((TABLENS,u'cell-range-address'), None): cnv_string,
@@ -1231,7 +1236,7 @@ attrconverters = {
         ((TABLENS,u'execute'), None): cnv_boolean,
         ((TABLENS,u'expression'), None): cnv_formula,
         ((TABLENS,u'field-name'), None): cnv_string,
-        ((TABLENS,u'field-number'), None): cnv_nonNegativeInteger,
+        # ((TABLENS,u'field-number'), None): cnv_nonNegativeInteger,
         ((TABLENS,u'field-number'), None): cnv_string,
         ((TABLENS,u'filter-name'), None): cnv_string,
         ((TABLENS,u'filter-options'), None): cnv_string,
@@ -1295,7 +1300,7 @@ attrconverters = {
         ((TABLENS,u'protection-key'), None): cnv_string,
         ((TABLENS,u'query-name'), None): cnv_string,
         ((TABLENS,u'range-usable-as'), None): cnv_string,
-        ((TABLENS,u'refresh-delay'), None): cnv_boolean,
+        # ((TABLENS,u'refresh-delay'), None): cnv_boolean,
         ((TABLENS,u'refresh-delay'), None): cnv_duration,
         ((TABLENS,u'rejecting-change-id'), None): cnv_string,
         ((TABLENS,u'row'), None): cnv_integer,
@@ -1303,7 +1308,7 @@ attrconverters = {
         ((TABLENS,u'search-criteria-must-apply-to-whole-cell'), None): cnv_boolean,
         ((TABLENS,u'selected-page'), None): cnv_string,
         ((TABLENS,u'show-details'), None): cnv_boolean,
-        ((TABLENS,u'show-empty'), None): cnv_boolean,
+        # ((TABLENS,u'show-empty'), None): cnv_boolean,
         ((TABLENS,u'show-empty'), None): cnv_string,
         ((TABLENS,u'show-filter-button'), None): cnv_boolean,
         ((TABLENS,u'sort-mode'), None): cnv_string,
@@ -1391,7 +1396,7 @@ attrconverters = {
         ((TEXTNS,u'database-name'), None): cnv_string,
         ((TEXTNS,u'date-adjust'), None): cnv_duration,
         ((TEXTNS,u'date-value'), None): cnv_date,
-#	((TEXTNS,u'date-value'), None): cnv_dateTime,
+        # ((TEXTNS,u'date-value'), None): cnv_dateTime,
         ((TEXTNS,u'default-style-name'), None): cnv_StyleNameRef,
         ((TEXTNS,u'description'), None): cnv_string,
         ((TEXTNS,u'display'), None): cnv_string,
@@ -1410,7 +1415,7 @@ attrconverters = {
         ((TEXTNS,u'global'), None): cnv_boolean,
         ((TEXTNS,u'howpublished'), None): cnv_string,
         ((TEXTNS,u'id'), None): cnv_ID,
-#	((TEXTNS,u'id'), None): cnv_string,
+        # ((TEXTNS,u'id'), None): cnv_string,
         ((TEXTNS,u'identifier'), None): cnv_string,
         ((TEXTNS,u'ignore-case'), None): cnv_boolean,
         ((TEXTNS,u'increment'), None): cnv_nonNegativeInteger,
@@ -1476,7 +1481,7 @@ attrconverters = {
         ((TEXTNS,u'sort-by-position'), None): cnv_boolean,
         ((TEXTNS,u'space-before'), None): cnv_string,
         ((TEXTNS,u'start-numbering-at'), None): cnv_string,
-        ((TEXTNS,u'start-value'), None): cnv_nonNegativeInteger,
+        # ((TEXTNS,u'start-value'), None): cnv_nonNegativeInteger,
         ((TEXTNS,u'start-value'), None): cnv_positiveInteger,
         ((TEXTNS,u'string-value'), None): cnv_string,
         ((TEXTNS,u'string-value-if-false'), None): cnv_string,
@@ -1488,7 +1493,7 @@ attrconverters = {
         ((TEXTNS,u'table-name'), None): cnv_string,
         ((TEXTNS,u'table-type'), None): cnv_string,
         ((TEXTNS,u'time-adjust'), None): cnv_duration,
-        ((TEXTNS,u'time-value'), None): cnv_dateTime,
+        # ((TEXTNS,u'time-value'), None): cnv_dateTime,
         ((TEXTNS,u'time-value'), None): cnv_time,
         ((TEXTNS,u'title'), None): cnv_string,
         ((TEXTNS,u'track-changes'), None): cnv_boolean,

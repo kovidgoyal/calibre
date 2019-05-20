@@ -1638,7 +1638,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         else:
             if addsuffix:
                 outputfile = outputfile + ".html"
-            outputfp = file(outputfile, "w")
+            outputfp = open(outputfile, "wb")
         outputfp.write(self.xhtml().encode('us-ascii','xmlcharrefreplace'))
         outputfp.close()
 

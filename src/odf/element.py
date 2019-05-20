@@ -23,7 +23,7 @@
 # Whatever license applies to that file also applies to this file.
 #
 import xml.dom
-from xml.dom.minicompat import *
+from xml.dom.minicompat import defproperty, EmptyNodeList
 from .namespaces import nsdict
 from . import grammar
 from .attrconverters import AttrConverters
@@ -315,8 +315,6 @@ class Element(Node):
             self.addCDATA(cdata)
 
         allowed_attrs = self.allowed_attributes()
-        if allowed_attrs is not None:
-            allowed_args = [a[1].lower().replace('-','') for a in allowed_attrs]
         self.attributes={}
         # Load the attributes from the 'attributes' argument
         if attributes:
@@ -407,7 +405,7 @@ class Element(Node):
         """ Removes an attribute by name. """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
-            if type(attr) == type(()):
+            if isinstance(attr, tuple):
                 prefix, localname = attr
                 self.removeAttrNS(prefix, localname)
             else:
@@ -430,7 +428,7 @@ class Element(Node):
         """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
-            if type(attr) == type(()):
+            if isinstance(attr, tuple):
                 prefix, localname = attr
                 self.setAttrNS(prefix, localname, value)
             else:
@@ -450,15 +448,10 @@ class Element(Node):
             It will not check that the attribute is legal according to the schema.
             Must overwrite, If attribute already exists.
         """
-        allowed_attrs = self.allowed_attributes()
-        prefix = self.get_nsprefix(namespace)
-#       if allowed_attrs and (namespace, localpart) not in allowed_attrs:
-#           raise AttributeError, "Attribute %s:%s is not allowed in element <%s>" % ( prefix, localpart, self.tagName)
         c = AttrConverters()
         self.attributes[(namespace, localpart)] = c.convert((namespace, localpart), value, self)
 
     def getAttrNS(self, namespace, localpart):
-        prefix = self.get_nsprefix(namespace)
         return self.attributes.get((namespace, localpart))
 
     def removeAttrNS(self, namespace, localpart):
@@ -469,7 +462,7 @@ class Element(Node):
         """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
-            if type(attr) == type(()):
+            if isinstance(attr, tuple):
                 prefix, localname = attr
                 return self.getAttrNS(prefix, localname)
             else:

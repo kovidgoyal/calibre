@@ -27,9 +27,8 @@ the appropriate <text:s>, <text:tab>, or <text:line-break>
 elements.  This module takes care of that problem.
 """
 
-from odf.element import Node
-import odf.opendocument
-from odf.text import S,LineBreak,Tab
+from .element import Node
+from .text import S,LineBreak,Tab
 
 
 class WhitespaceText(object):

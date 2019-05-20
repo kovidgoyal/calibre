@@ -20,15 +20,27 @@
 
 __doc__="""Use OpenDocument to generate your documents."""
 
-import zipfile, time, sys, mimetypes
-from .namespaces import *
-from . import manifest, meta, element
-from .office import *
-from .attrconverters import make_NCName
-from xml.sax.xmlreader import InputSource
-from .odfmanifest import manifestlist
+import mimetypes
+import sys
+import time
+import zipfile
 from io import BytesIO
+from xml.sax.xmlreader import InputSource
+
 from polyglot.io import PolyglotBytesIO, PolyglotStringIO
+
+from . import element, manifest, meta
+from .attrconverters import make_NCName
+from .namespaces import (
+    CHARTNS, DRAWNS, METANS, OFFICENS, PRESENTATIONNS, STYLENS, TABLENS, TEXTNS,
+    TOOLSVERSION
+)
+from .odfmanifest import manifestlist
+from .office import (
+    AutomaticStyles, Body, Chart, Document, DocumentContent, DocumentMeta,
+    DocumentSettings, DocumentStyles, Drawing, FontFaceDecls, Image, MasterStyles,
+    Meta, Presentation, Scripts, Settings, Spreadsheet, Styles, Text
+)
 
 __version__= TOOLSVERSION
 
@@ -160,7 +172,7 @@ class OpenDocument:
         if not filename:
             return xml.getvalue()
         else:
-            f=file(filename,'wb')
+            f=open(filename,'wb')
             f.write(xml.getvalue())
             f.close()
 
@@ -365,11 +377,9 @@ class OpenDocument:
         return ".%s" % document.folder
 
     def _savePictures(self, object, folder):
-        hasPictures = False
         for arcname, picturerec in object.Pictures.items():
             what_it_is, fileobj, mediatype = picturerec
             self.manifest.addElement(manifest.FileEntry(fullpath="%s%s" % (folder ,arcname), mediatype=mediatype))
-            hasPictures = True
             if what_it_is == IS_FILENAME:
                 self._z.write(fileobj, arcname, zipfile.ZIP_STORED)
             else:
@@ -516,7 +526,7 @@ class OpenDocument:
 
     def createCDATASection(self, data):
         """ Method to create a CDATA section """
-        return element.CDATASection(cdata)
+        return element.CDATASection(data)
 
     def getMediaType(self):
         """ Returns the media type """

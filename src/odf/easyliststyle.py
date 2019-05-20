@@ -20,8 +20,8 @@
 #
 
 import re
-from style import Style, TextProperties, ListLevelProperties
-from text import ListStyle,ListLevelStyleNumber,ListLevelStyleBullet
+from .style import ListLevelProperties
+from .text import ListStyle,ListLevelStyleNumber,ListLevelStyleBullet
 
 """
 Create a <text:list-style> element from a string or array.
@@ -51,7 +51,6 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
     bullet = ""
     numPrefix = ""
     numSuffix = ""
-    numberFormat = ""
     cssLengthNum = 0
     cssLengthUnits = ""
     numbered = False
@@ -60,7 +59,7 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
     numFormatPattern = re.compile("([1IiAa])")
     cssLengthPattern = re.compile("([^a-z]+)\\s*([a-z]+)?")
     m = cssLengthPattern.search(spacing)
-    if (m != None):
+    if (m is not None):
         cssLengthNum = float(m.group(1))
         if (m.lastindex == 2):
             cssLengthUnits = m.group(2)
@@ -68,8 +67,7 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
     while i < len(specArray):
         specification = specArray[i]
         m = numFormatPattern.search(specification)
-        if (m != None):
-            numberFormat = m.group(1)
+        if (m is not None):
             numPrefix = specification[0:m.start(1)]
             numSuffix = specification[m.end(1):]
             bullet = ""
@@ -82,7 +80,6 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
             bullet = specification
             numPrefix = ""
             numSuffix = ""
-            numberFormat = ""
             displayLevels = 1
             numbered = False
         if (numbered):

@@ -22,7 +22,7 @@
 
 import zipfile, xml.dom.minidom
 from .namespaces import nsdict
-from .elementtypes import *
+from .elementtypes import empty_elements, inline_elements
 
 IGNORED_TAGS = [
     'draw:a'
@@ -186,11 +186,6 @@ class ODF2MoinMoin(object):
 
         textProps = TextProps()
 
-        if parent:
-            parentProp = self.textStyles.get(parent, None)
-            if parentProp:
-                textProp = parentProp
-
         textPropEl = style.getElementsByTagName("style:text-properties")
         if not textPropEl:
             return textProps
@@ -274,8 +269,7 @@ class ODF2MoinMoin(object):
             prop = ListProperties()
             if style.hasChildNodes():
                 subitems = [el for el in style.childNodes
-                     if el.nodeType == xml.dom.Node.ELEMENT_NODE
-                     and el.tagName == "text:list-level-style-number"]
+                     if el.nodeType == xml.dom.Node.ELEMENT_NODE and el.tagName == "text:list-level-style-number"]
                 if len(subitems) > 0:
                     prop.setOrdered(True)
 
@@ -311,8 +305,7 @@ class ODF2MoinMoin(object):
         for i in range(numLines):
 
             if (lines[i].strip() or i == numLines-1 or i == 0 or
-                not (lines[i-1].startswith("    ")
-                      and lines[i+1].startswith("    "))):
+                not (lines[i-1].startswith("    ") and lines[i+1].startswith("    "))):
                 buffer.append("\n" + lines[i])
 
         return ''.join(buffer)

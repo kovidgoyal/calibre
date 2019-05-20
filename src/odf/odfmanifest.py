@@ -24,7 +24,6 @@ from __future__ import print_function
 import zipfile
 from xml.sax import make_parser,handler
 from xml.sax.xmlreader import InputSource
-import xml.sax.saxutils
 import io
 
 MANIFESTNS="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"

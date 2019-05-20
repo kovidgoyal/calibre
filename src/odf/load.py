@@ -49,7 +49,7 @@ class LoadParser(handler.ContentHandler):
         self.parse = False
 
     def characters(self, data):
-        if self.parse == False:
+        if self.parse is False:
             return
         self.data.append(data)
 
@@ -58,7 +58,7 @@ class LoadParser(handler.ContentHandler):
             self.parse = True
         if self.doc._parsing != "styles.xml" and tag == (OFFICENS, 'font-face-decls'):
             self.parse = False
-        if self.parse == False:
+        if self.parse is False:
             return
 
         self.level = self.level + 1
@@ -98,7 +98,7 @@ class LoadParser(handler.ContentHandler):
         self.parent = e
 
     def endElementNS(self, tag, qname):
-        if self.parse == False:
+        if self.parse is False:
             return
         self.level = self.level - 1
         # Changed by Kovid to deal with <span> tags with only whitespace

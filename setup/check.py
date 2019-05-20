@@ -26,18 +26,19 @@ class Check(Command):
     CACHE = 'check.json'
 
     def get_files(self):
-        for x in os.walk(self.j(self.SRC, 'calibre')):
-            for f in x[-1]:
-                y = self.j(x[0], f)
-                if x[0].endswith('calibre/ebooks/markdown'):
-                    continue
-                if (f.endswith('.py') and f not in (
-                        'feedparser.py', 'markdown.py', 'BeautifulSoup.py', 'dict_data.py',
-                        'unicodepoints.py', 'krcodepoints.py', 'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
-                        'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
-                    yield y
-                if f.endswith('.coffee'):
-                    yield y
+        for dname in ('odf', 'calibre'):
+            for x in os.walk(self.j(self.SRC, dname)):
+                for f in x[-1]:
+                    y = self.j(x[0], f)
+                    if x[0].endswith('calibre/ebooks/markdown'):
+                        continue
+                    if (f.endswith('.py') and f not in (
+                            'feedparser.py', 'markdown.py', 'BeautifulSoup.py', 'dict_data.py',
+                            'unicodepoints.py', 'krcodepoints.py', 'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
+                            'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
+                        yield y
+                    if f.endswith('.coffee'):
+                        yield y
 
         for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
             for f in x[-1]:

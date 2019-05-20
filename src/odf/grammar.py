@@ -23,7 +23,11 @@ Currently it contains the legal child elements of a given element.
 To be used for validation check in the API
 """
 
-from .namespaces import *
+from .namespaces import (
+    ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FORMNS, MANIFESTNS, MATHNS,
+    METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, STYLENS, SVGNS, TABLENS,
+    TEXTNS, XFORMSNS, XLINKNS, SMILNS, FONS
+)
 
 # The following code is generated from the RelaxNG schema with this notice:
 
@@ -64,24 +68,24 @@ allowed_children = {
         (DCNS,u'title') : (
         ),
 # Completes Dublin Core start
-#	(DCNS,'contributor') : (
-#	),
-#	(DCNS,'coverage') : (
-#	),
-#	(DCNS,'format') : (
-#	),
-#	(DCNS,'identifier') : (
-#	),
-#	(DCNS,'publisher') : (
-#	),
-#	(DCNS,'relation') : (
-#	),
-#	(DCNS,'rights') : (
-#	),
-#	(DCNS,'source') : (
-#	),
-#	(DCNS,'type') : (
-#	),
+        # (DCNS,'contributor') : (
+        # ),
+        # (DCNS,'coverage') : (
+        # ),
+        # (DCNS,'format') : (
+        # ),
+        # (DCNS,'identifier') : (
+        # ),
+        # (DCNS,'publisher') : (
+        # ),
+        # (DCNS,'relation') : (
+        # ),
+        # (DCNS,'rights') : (
+        # ),
+        # (DCNS,'source') : (
+        # ),
+        # (DCNS,'type') : (
+        # ),
 # Completes Dublin Core end
         (MATHNS,u'math') : None,
 
@@ -981,15 +985,15 @@ allowed_children = {
                 (DCNS,u'subject'),
                 (DCNS,u'title'),
 # Completes Dublin Core start
-#		(DCNS,'contributor'),
-#		(DCNS,'coverage'),
-#		(DCNS,'format'),
-#		(DCNS,'identifier'),
-#		(DCNS,'publisher'),
-#		(DCNS,'relation'),
-#		(DCNS,'rights'),
-#		(DCNS,'source'),
-#		(DCNS,'type'),
+#               (DCNS,'contributor'),
+#               (DCNS,'coverage'),
+#               (DCNS,'format'),
+#               (DCNS,'identifier'),
+#               (DCNS,'publisher'),
+#               (DCNS,'relation'),
+#               (DCNS,'rights'),
+#               (DCNS,'source'),
+#               (DCNS,'type'),
 # Completes Dublin Core end
                 (METANS,u'auto-reload'),
                 (METANS,u'creation-date'),
@@ -3245,15 +3249,15 @@ allows_text = (
         (DCNS,u'subject'),
         (DCNS,u'title'),
 # Completes Dublin Core start
-#	(DCNS,'contributor'),
-#	(DCNS,'coverage'),
-#	(DCNS,'format'),
-#	(DCNS,'identifier'),
-#	(DCNS,'publisher'),
-#	(DCNS,'relation'),
-#	(DCNS,'rights'),
-#	(DCNS,'source'),
-#	(DCNS,'type'),
+#       (DCNS,'contributor'),
+#       (DCNS,'coverage'),
+#       (DCNS,'format'),
+#       (DCNS,'identifier'),
+#       (DCNS,'publisher'),
+#       (DCNS,'relation'),
+#       (DCNS,'rights'),
+#       (DCNS,'source'),
+#       (DCNS,'type'),
 # Completes Dublin Core end
         (FORMNS,u'item'),
         (FORMNS,u'option'),
@@ -4239,24 +4243,24 @@ allowed_attributes = {
         (DCNS,u'title'):(
         ),
 # Completes Dublin Core start
-#	(DCNS,'contributor') : (
-#	),
-#	(DCNS,'coverage') : (
-#	),
-#	(DCNS,'format') : (
-#	),
-#	(DCNS,'identifier') : (
-#	),
-#	(DCNS,'publisher') : (
-#	),
-#	(DCNS,'relation') : (
-#	),
-#	(DCNS,'rights') : (
-#	),
-#	(DCNS,'source') : (
-#	),
-#	(DCNS,'type') : (
-#	),
+#       (DCNS,'contributor') : (
+#       ),
+#       (DCNS,'coverage') : (
+#       ),
+#       (DCNS,'format') : (
+#       ),
+#       (DCNS,'identifier') : (
+#       ),
+#       (DCNS,'publisher') : (
+#       ),
+#       (DCNS,'relation') : (
+#       ),
+#       (DCNS,'rights') : (
+#       ),
+#       (DCNS,'source') : (
+#       ),
+#       (DCNS,'type') : (
+#       ),
 # Completes Dublin Core end
         (MATHNS,u'math'): None,
         (XFORMSNS,u'model'): None,
