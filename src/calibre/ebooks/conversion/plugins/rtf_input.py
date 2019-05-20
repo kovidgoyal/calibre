@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems, filter, getcwd
+from polyglot.builtins import iteritems, filter, getcwd, as_bytes
 
 border_style_map = {
         'single' : 'solid',
@@ -215,7 +215,7 @@ class RTFInput(InputFormatPlugin):
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
         with open(u'styles.css', 'ab') as f:
-            f.write(css)
+            f.write(css.encode('utf-8'))
 
     def convert_borders(self, doc):
         border_styles = []
@@ -295,7 +295,7 @@ class RTFInput(InputFormatPlugin):
             # res = re.sub('\s*<body>', '<body>', res)
             # res = re.sub('(?<=\n)\n{2}',
             # u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            f.write(res)
+            f.write(as_bytes(res))
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
         mi = get_metadata(stream, 'rtf')
