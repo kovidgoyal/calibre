@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 from __future__ import print_function
 
 __license__   = 'GPL v3'
@@ -16,7 +15,7 @@ from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, zip, range
 
 from .catalog_epub_mobi_ui import Ui_Form
 from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
@@ -74,36 +73,36 @@ class PluginWidget(QWidget,Ui_Form):
             elif type(self.__dict__[item]) is QTextEdit:
                 TextEditControls.append(self.__dict__[item].objectName())
 
-        option_fields = zip(CheckBoxControls,
+        option_fields = list(zip(CheckBoxControls,
                             [True for i in CheckBoxControls],
-                            ['check_box' for i in CheckBoxControls])
-        option_fields += zip(ComboBoxControls,
+                            ['check_box' for i in CheckBoxControls]))
+        option_fields += list(zip(ComboBoxControls,
                             [None for i in ComboBoxControls],
-                            ['combo_box' for i in ComboBoxControls])
-        option_fields += zip(RadioButtonControls,
+                            ['combo_box' for i in ComboBoxControls]))
+        option_fields += list(zip(RadioButtonControls,
                             [None for i in RadioButtonControls],
-                            ['radio_button' for i in RadioButtonControls])
+                            ['radio_button' for i in RadioButtonControls]))
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit'])
+        option_fields += list(zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit']))
 
         # TextEditControls
-        # option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
+        # option_fields += list(zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit']))
 
         # SpinBoxControls
-        option_fields += zip(['thumb_width'],[1.00],['spin_box'])
+        option_fields += list(zip(['thumb_width'],[1.00],['spin_box']))
 
         # Exclusion rules
-        option_fields += zip(['exclusion_rules_tw'],
+        option_fields += list(zip(['exclusion_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Catalogs'),
                                'field':_('Tags'),
                                'pattern':'Catalog'},],
-                             ['table_widget'])
+                             ['table_widget']))
 
         # Prefix rules
-        option_fields += zip(['prefix_rules_tw','prefix_rules_tw'],
+        option_fields += list(zip(['prefix_rules_tw','prefix_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Read book'),
@@ -116,7 +115,7 @@ class PluginWidget(QWidget,Ui_Form):
                                'field':_('Tags'),
                                'pattern':'Wishlist',
                                'prefix':u'\u00d7'},],
-                             ['table_widget','table_widget'])
+                             ['table_widget','table_widget']))
 
         self.OPTION_FIELDS = option_fields
 
