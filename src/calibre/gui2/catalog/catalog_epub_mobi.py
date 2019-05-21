@@ -33,6 +33,7 @@ class PluginWidget(QWidget,Ui_Form):
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
     DEBUG = False
+    handles_scrolling = True
 
     # Output synced to the connected device?
     sync_enabled = True
