@@ -552,8 +552,8 @@ class ParseRtf:
                 pass
                 # sys.stderr.write( msg + ' in ' + file_name + "\n")
             else:
-                msg = '%s in file %s\n' % (msg, file_name)
-                raise RtfInvalidCodeException(msg)
+                msg = '%s in file %s' % (msg, file_name)
+                print(msg, file=sys.stderr)
 
     def __return_code(self, num):
         if num is None:
