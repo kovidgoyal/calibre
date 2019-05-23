@@ -26,7 +26,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.library.comments import merge_comments
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 
 class EditMetadataAction(InterfaceAction):
@@ -614,7 +614,7 @@ class EditMetadataAction(InterfaceAction):
 
     def formats_for_books(self, rows):
         m = self.gui.library_view.model()
-        return self.formats_for_ids(map(m.id, rows))
+        return self.formats_for_ids(list(map(m.id, rows)))
 
     def books_to_merge(self, rows):
         src_ids = []

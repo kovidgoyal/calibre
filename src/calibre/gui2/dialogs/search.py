@@ -19,7 +19,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, map
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH

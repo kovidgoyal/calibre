@@ -13,7 +13,7 @@ from PyQt5.Qt import (QDialog, QDialogButtonBox)
 from calibre.gui2.store.config.chooser.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map
 
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):

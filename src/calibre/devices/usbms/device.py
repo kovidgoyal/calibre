@@ -23,7 +23,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes, map
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -355,7 +355,7 @@ class Device(DeviceConfig, DevicePlugin):
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
-            return map(int, (g.get('m'), g.get('p')))
+            return list(map(int, (g.get('m'), g.get('p'))))
 
         def cmp_key(x):
             '''

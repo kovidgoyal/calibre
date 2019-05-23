@@ -12,7 +12,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
-from polyglot.builtins import unicode_type, filter
+from polyglot.builtins import unicode_type, filter, map
 
 
 class Concatenate(object):
@@ -868,7 +868,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def refresh_ids(self, ids):
-        indices = map(self.index, ids)
+        indices = list(map(self.index, ids))
         for id, idx in zip(ids, indices):
             row = self.conn.get('SELECT * from meta WHERE id=?', (id,), all=False)
             self.data[idx] = row

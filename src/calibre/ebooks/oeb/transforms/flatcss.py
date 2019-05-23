@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, map
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')

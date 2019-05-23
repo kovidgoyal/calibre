@@ -26,7 +26,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre import force_unicode
 from calibre.utils.localization import get_lang, canonicalize_lang
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 
 def convert_day_time_schedule(val):

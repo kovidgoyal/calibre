@@ -29,7 +29,7 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues, filter, getcwd
+from polyglot.builtins import iteritems, itervalues, filter, getcwd, map
 
 
 NBSP = '\xa0'
@@ -183,7 +183,7 @@ class Convert(object):
                         indent = float(style.text_indent[:-2]) + indent
                     style.text_indent = '%.3gpt' % indent
                     parent.text = tabs[-1].tail or ''
-                    map(parent.remove, tabs)
+                    list(map(parent.remove, tabs))
 
         self.images.rid_map = orig_rid_map
 

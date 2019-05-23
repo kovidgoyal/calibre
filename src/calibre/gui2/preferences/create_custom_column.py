@@ -16,7 +16,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 
 class CreateCustomColumn(QDialog):

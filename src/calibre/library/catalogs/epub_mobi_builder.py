@@ -42,7 +42,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import unicode_type, iteritems
+from polyglot.builtins import unicode_type, iteritems, map, zip
 
 NBSP = u'\u00a0'
 
@@ -602,7 +602,7 @@ class CatalogBuilder(object):
         for rule in self.prefix_rules:
             # Literal comparison for Tags field
             if rule['field'].lower() == 'tags' or rule['field'] == _('Tags'):
-                if rule['pattern'].lower() in map(unicode_type.lower, record['tags']):
+                if rule['pattern'].lower() in tuple(map(unicode_type.lower, record['tags'])):
                     if self.DEBUG and self.opts.verbose:
                         self.opts.log.info("  %s '%s' by %s (%s: Tags includes '%s')" %
                                (rule['prefix'], record['title'],

@@ -18,7 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class OutputFormatSetting(Setting):

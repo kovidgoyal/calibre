@@ -11,7 +11,7 @@ from itertools import count
 
 from lxml import etree
 
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, map
 
 
 class Font(object):

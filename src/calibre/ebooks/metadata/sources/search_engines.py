@@ -128,8 +128,7 @@ def wayback_url_processor(url):
 
 def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
-    terms = map(ddg_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(ddg_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -170,8 +169,7 @@ def bing_url_processor(url):
 
 def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
-    terms = map(bing_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -226,8 +224,7 @@ def google_url_processor(url):
 
 
 def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
-    terms = map(google_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)

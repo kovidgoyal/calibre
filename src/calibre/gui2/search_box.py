@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, map, range
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 

@@ -14,7 +14,7 @@ from lxml import etree, html
 from calibre import xml_replace_entities, force_unicode
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
-from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, map
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -65,7 +65,7 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
     for b in bodies:
         for x in b:
             body.append(x)
-    map(root.append, (head, body))
+    tuple(map(root.append, (head, body)))
     if log is not None:
         log.warn('Merging multiple <head> and <body> sections')
     return root

@@ -16,7 +16,7 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
-from polyglot.builtins import codepoint_to_chr, range, filter
+from polyglot.builtins import codepoint_to_chr, range, filter, map
 from . import open_for_read, open_for_write
 
 

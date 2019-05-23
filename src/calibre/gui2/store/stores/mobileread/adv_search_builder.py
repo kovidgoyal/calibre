@@ -67,9 +67,9 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             self.mc = '='
         else:
             self.mc = '~'
-        all, any, phrase, none = map(lambda x: type(u'')(x.text()),
-                (self.all, self.any, self.phrase, self.none))
-        all, any, none = map(self.tokens, (all, any, none))
+        all, any, phrase, none = list(map(lambda x: type(u'')(x.text()),
+                (self.all, self.any, self.phrase, self.none)))
+        all, any, none = list(map(self.tokens, (all, any, none)))
         phrase = phrase.strip()
         all = ' and '.join(all)
         any = ' or '.join(any)

@@ -19,7 +19,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, map
 
 
 def xml2str(root, pretty_print=False, with_tail=False):

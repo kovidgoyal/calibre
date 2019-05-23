@@ -15,7 +15,7 @@ from functools import partial
 from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
-from polyglot.builtins import unicode_type, range, iteritems, itervalues
+from polyglot.builtins import unicode_type, range, iteritems, itervalues, map
 
 # TrueType outlines {{{
 
@@ -265,7 +265,7 @@ def main(args):
                 raise SystemExit(1)
             if opts.codes:
                 parts = tuple(map(conv_code, parts))
-            map(not_single, parts)
+            tuple(map(not_single, parts))
             ranges.add(tuple(parts))
         else:
             if opts.codes:

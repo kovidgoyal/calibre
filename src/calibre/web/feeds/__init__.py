@@ -12,7 +12,7 @@ from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, map
 
 
 class Article(object):
@@ -296,7 +296,7 @@ class FeedCollection(list):
             return None
 
         print('#feeds', len(self))
-        print(map(len, self))
+        print(list(map(len, self)))
         for f in self:
             dups = []
             for a in f:
@@ -311,7 +311,7 @@ class FeedCollection(list):
 
         self.duplicates = duplicates
         print(len(duplicates))
-        print(map(len, self))
+        print(list(map(len, self)))
         # raise
 
     def find_article(self, article):

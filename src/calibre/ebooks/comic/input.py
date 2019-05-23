@@ -15,7 +15,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map
 from polyglot.queue import Empty
 
 # If the specified screen has either dimension larger than this value, no image

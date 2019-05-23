@@ -69,7 +69,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, map
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -378,7 +378,7 @@ class Boss(QObject):
             if ef:
                 if isinstance(ef, type('')):
                     ef = [ef]
-                map(self.gui.file_list.request_edit, ef)
+                tuple(map(self.gui.file_list.request_edit, ef))
             else:
                 if tprefs['restore_book_state']:
                     self.restore_book_edit_state()

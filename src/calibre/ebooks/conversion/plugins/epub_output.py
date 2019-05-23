@@ -12,7 +12,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import unicode_type, filter
+from polyglot.builtins import unicode_type, filter, map, zip
 
 block_level_tags = (
       'address',

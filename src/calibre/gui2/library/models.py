@@ -30,7 +30,7 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
-from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range, map
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -407,7 +407,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.beginResetModel(), self.endResetModel()
 
     def delete_books(self, indices, permanent=False):
-        ids = map(self.id, indices)
+        ids = list(map(self.id, indices))
         self.delete_books_by_id(ids, permanent=permanent)
         return ids
 

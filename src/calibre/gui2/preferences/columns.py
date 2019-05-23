@@ -14,7 +14,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range, map
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

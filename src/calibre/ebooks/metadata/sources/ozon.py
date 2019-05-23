@@ -207,8 +207,9 @@ class Ozon(Source):
         title = type(u'')(title).upper() if title else ''
         if reRemoveFromTitle:
             title = reRemoveFromTitle.sub('', title)
-        authors = map(_normalizeAuthorNameWithInitials,
-                      map(type(u'').upper, map(type(u''), authors))) if authors else None
+        authors = [
+            _normalizeAuthorNameWithInitials(type(u'')(a).upper()) for a in authors
+        ] if authors else None
 
         ozon_id = identifiers.get('ozon', None)
         # log.debug(u'ozonid: ', ozon_id)
@@ -246,7 +247,7 @@ class Ozon(Source):
                 relevance += 1
 
             if authors:
-                miauthors = map(type(u'').upper, map(type(u''), mi.authors)) if mi.authors else []
+                miauthors = [type(u'')(a).upper() for a in mi.authors or ()]
                 # log.debug('Authors %s vs miauthors %s'%(','.join(authors), ','.join(miauthors)))
 
                 if (in_authors(authors, miauthors)):
@@ -332,7 +333,7 @@ class Ozon(Source):
         author = type(u'')(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
         # log.debug(u'Author: -----> %s' % author)
 
-        norm_authors = map(_normalizeAuthorNameWithInitials, map(type(u'').strip, type(u'')(author).split(u',')))
+        norm_authors = [_normalizeAuthorNameWithInitials(a.strip()) for a in type(u'')(author).split(u',')]
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.get('data-href').split('/')[-2]

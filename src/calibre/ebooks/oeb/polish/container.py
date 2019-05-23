@@ -14,7 +14,7 @@ import time
 import unicodedata
 import uuid
 from collections import defaultdict
-from polyglot.builtins import iteritems, unicode_type, zip, as_bytes
+from polyglot.builtins import iteritems, unicode_type, zip, as_bytes, map
 from io import BytesIO
 from itertools import count
 
@@ -801,7 +801,7 @@ class Container(ContainerBase):  # {{{
         imap = {name:item_id for item_id, name in iteritems(imap)}
         items = [item for item, name, linear in self.spine_iter]
         tail, last_tail = (items[0].tail, items[-1].tail) if items else ('\n    ', '\n  ')
-        map(self.remove_from_xml, items)
+        tuple(map(self.remove_from_xml, items))
         spine = self.opf_xpath('//opf:spine')[0]
         spine.text = tail
         for name, linear in spine_items:

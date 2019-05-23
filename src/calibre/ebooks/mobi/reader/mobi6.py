@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 
 class TopazError(ValueError):

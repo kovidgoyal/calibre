@@ -17,7 +17,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, map
 from polyglot import http_client
 from polyglot.http_cookie import CookieJar
 from polyglot.urllib import (build_opener, HTTPBasicAuthHandler,

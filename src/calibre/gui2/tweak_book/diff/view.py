@@ -12,7 +12,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes
+from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
 
 import regex
 from PyQt5.Qt import (

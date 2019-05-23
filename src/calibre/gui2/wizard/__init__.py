@@ -25,7 +25,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import choose_dir, error_dialog
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 if iswindows:
     winutil = plugins['winutil'][0]

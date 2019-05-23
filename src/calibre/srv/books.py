@@ -22,7 +22,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import as_unicode
+from polyglot.builtins import as_unicode, map
 
 cache_lock = RLock()
 queued_jobs = {}

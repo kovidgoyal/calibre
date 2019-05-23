@@ -19,7 +19,7 @@ except ImportError:
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues, unicode_type, map, range
 
 
 class RevealBar(QWidget):  # {{{
@@ -578,8 +578,7 @@ class BarsManager(QObject):
         QObject.__init__(self, parent)
         self.location_manager = location_manager
 
-        bars = [ToolBar(donate_action, location_manager, parent) for i in
-                range(3)]
+        bars = [ToolBar(donate_action, location_manager, parent) for i in range(3)]
         self.main_bars = tuple(bars[:2])
         self.child_bars = tuple(bars[2:])
         self.reveal_bar = RevealBar(parent)

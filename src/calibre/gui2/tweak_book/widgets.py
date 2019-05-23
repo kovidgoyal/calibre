@@ -27,10 +27,11 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import iteritems, unicode_type, zip, getcwd
+from polyglot.builtins import iteritems, unicode_type, zip, getcwd, filter as ignore_me
 
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
+ignore_me
 
 
 class BusyCursor(object):

@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QContextMenuEvent, QDialog, QDialogButtonBox, QLabel, QVBoxLayout)
 
 from calibre.constants import iswindows
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, map
 
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7

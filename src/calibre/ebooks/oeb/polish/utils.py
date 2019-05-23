@@ -10,6 +10,7 @@ import re, os
 from bisect import bisect
 
 from calibre import guess_type as _guess_type, replace_entities
+from polyglot.builtins import filter
 
 
 def guess_type(x):

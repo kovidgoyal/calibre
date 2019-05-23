@@ -25,7 +25,7 @@
 #
 
 from __future__ import absolute_import
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, zip
 
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'

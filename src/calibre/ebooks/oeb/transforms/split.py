@@ -20,7 +20,7 @@ from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
         urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, map
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)

@@ -21,7 +21,7 @@ from calibre.utils.date import is_date_undefined, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -104,8 +104,8 @@ class Jacket(Base):
         self.log('Inserting metadata into book...')
 
         try:
-            tags = map(unicode_type, self.oeb.metadata.subject)
-        except:
+            tags = list(map(unicode_type, self.oeb.metadata.subject))
+        except Exception:
             tags = []
 
         try:

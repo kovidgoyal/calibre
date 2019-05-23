@@ -35,7 +35,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
 from polyglot.builtins import (iteritems, itervalues, unicode_type,
-        string_or_bytes, range)
+        string_or_bytes, range, map)
 from polyglot import queue
 
 try:
@@ -321,7 +321,7 @@ def default_author_link():
 
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
-    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount())))
+    return list(map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount()))))
 
 
 def available_height():

@@ -13,7 +13,7 @@ from calibre import prints
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -183,7 +183,7 @@ def do_list(
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = map(lambda x: min(x + 1, field_width), widths)
+    base_widths = list(map(lambda x: min(x + 1, field_width), widths))
 
     while sum(base_widths) < screen_width:
         adjusted = False

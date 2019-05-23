@@ -38,7 +38,7 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, filter
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, filter, map
 from polyglot.binary import as_hex_unicode
 
 try:
@@ -990,7 +990,7 @@ class MergeDialog(QDialog):  # {{{
 
         buttons = self.buttons = [QRadioButton(n) for n in names]
         buttons[0].setChecked(True)
-        map(w.l.addWidget, buttons)
+        tuple(map(w.l.addWidget, buttons))
         sa.setWidget(w)
 
         self.resize(self.sizeHint() + QSize(150, 20))

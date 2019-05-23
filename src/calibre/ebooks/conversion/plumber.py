@@ -18,7 +18,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, map
 
 DEBUG_README=u'''
 This debug directory contains snapshots of the e-book as it passes through the
@@ -1172,7 +1172,7 @@ OptionRecommendation(name='search_replace',
             fkey = self.opts.dest.fkey
         else:
             try:
-                fkey = map(float, fkey.split(','))
+                fkey = list(map(float, fkey.split(',')))
             except:
                 self.log.error('Invalid font size key: %r ignoring'%fkey)
                 fkey = self.opts.dest.fkey

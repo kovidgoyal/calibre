@@ -131,6 +131,12 @@ class To3(Base):
         return re.search(r'^RefactoringTool: No changes to ' + f, output, flags=re.M) is None
 
 
+def edit_file(f):
+    subprocess.Popen([
+        'vim', '-S', os.path.join(Command.SRC, '../session.vim'), '-f', f
+    ]).wait()
+
+
 class UnicodeCheck(Base):
 
     description = 'Check for unicode porting status'
@@ -169,9 +175,63 @@ class UnicodeCheck(Base):
         return self.get_error_statement(f) is not None
 
     def report_file_error(self, f, num_left):
-        subprocess.Popen([
-            'vim', '-S', os.path.join(self.SRC, '../session.vim'), '-f', f
-        ]).wait()
+        edit_file(f)
+        self.info('%d files left to check' % num_left)
         if self.file_has_errors(f):
             raise SystemExit(self.get_error_statement(f))
+
+
+def has_import(text, module, name):
+    pat = re.compile(r'^from\s+{}\s+import\s+.*\b{}\b'.format(module, name), re.MULTILINE)
+    if pat.search(text) is not None:
+        return True
+    pat = re.compile(r'^from\s+{}\s+import\s+\([^)]*\b{}\b'.format(module, name), re.MULTILINE | re.DOTALL)
+    if pat.search(text) is not None:
+        return True
+    return False
+
+
+class IteratorsCheck(Base):
+
+    description = 'Check for builtins changed to return iterators porting status'
+    CACHE = 'check_iterators.json'
+
+    def get_errors_in_file(self, f):
+        pat = re.compile(r'\b(range|map|filter|zip)\(')
+        text = open(f, 'rb').read().decode('utf-8')
+        matches = tuple(pat.finditer(text))
+        if not matches:
+            return []
+        ans = []
+        names = {m.group(1) for m in matches}
+        imported_names = {n for n in names if has_import(text, 'polyglot.builtins', n)}
+        safe_funcs = 'list|tuple|set|frozenset|join'
+        func_pat = r'({})\('.format(safe_funcs)
+        for_pat = re.compile(r'\bfor\s+.+?\s+\bin\b')
+        for i, line in enumerate(text.splitlines()):
+            m = pat.search(line)
+            if m is not None:
+                itname = m.group(1)
+                if itname in imported_names:
+                    continue
+                start = m.start()
+                if start > 0:
+                    if line[start-1] == '*':
+                        continue
+                    if line[start-1] == '(':
+                        if re.search(func_pat + itname, line) is not None:
+                            continue
+                    fm = for_pat.search(line)
+                    if fm is not None and fm.start() < start:
+                        continue
+                    ans.append('%s:%s' % (i, itname))
+        return ans
+
+    def file_has_errors(self, f):
+        return bool(self.get_errors_in_file(f))
+
+    def report_file_error(self, f, num_left):
+        edit_file(f)
         self.info('%d files left to check' % num_left)
+        if self.file_has_errors(f):
+            raise SystemExit('\n'.join(self.get_errors_in_file(f)))

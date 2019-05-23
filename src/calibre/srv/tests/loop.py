@@ -18,7 +18,7 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import range, unicode_type, map
 from polyglot import http_client
 is_ci = os.environ.get('CI', '').lower() == 'true'
 

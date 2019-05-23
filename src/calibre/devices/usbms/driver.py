@@ -20,7 +20,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from polyglot.builtins import itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes, zip
 
 BASE_TIME = None
 
@@ -335,7 +335,7 @@ class USBMS(CLI, Device):
 
         self.report_progress(1.0, _('Transferring books to device...'))
         debug_print('USBMS: finished uploading %d books'%(len(files)))
-        return zip(paths, cycle([on_card]))
+        return list(zip(paths, cycle([on_card])))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''

@@ -24,7 +24,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 
 class BusyWidget(QWidget):  # {{{
