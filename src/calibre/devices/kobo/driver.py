@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2010-2018, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
+__copyright__ = '2010-2019, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -2651,7 +2651,8 @@ class KOBOTOUCH(KOBO):
         # NOTE: Loosely based on Qt's QSize::scaled implementation
         if keep_cover_aspect:
             # NOTE: Py3k wouldn't need explicit casts to return a float
-            # NOTE: Unlike Qt, we round to avoid accumulating errors
+            # NOTE: Unlike Qt, we round to avoid accumulating errors,
+            #       as ImageOps will then floor via fit_image
             aspect_ratio = library_size[0] / float(library_size[1])
             rescaled_width = int(round(kobo_size[1] * aspect_ratio))
 

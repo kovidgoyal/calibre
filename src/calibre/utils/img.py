@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2015-2018, Kovid Goyal <kovid at kovidgoyal.net>
+# License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -232,15 +232,9 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
             changed = True
             img = grayscale_image(img)
     if eink:
-        eink_cmap = ['#000000', '#111111', '#222222', '#333333', '#444444', '#555555', '#666666', '#777777',
-                     '#888888', '#999999', '#AAAAAA', '#BBBBBB', '#CCCCCC', '#DDDDDD', '#EEEEEE', '#FFFFFF']
         # NOTE: Keep in mind that JPG does NOT actually support indexed colors, so the JPG algorithm will then smush everything back into a 256c mess...
         #       Thankfully, Nickel handles PNG just fine, and we generate smaller files to boot, because they're properly color indexed ;).
-        img = quantize_image(img, max_colors=16, dither=True, palette=eink_cmap)
-        '''
-        # NOTE: Neither Grayscale8 nor Indexed8 actually do any kind of dithering?... :/.
-        img = img.convertToFormat(QImage.Format_Grayscale8, [QColor(x).rgb() for x in eink_cmap], Qt.AutoColor | Qt.DiffuseDither | Qt.ThresholdAlphaDither | Qt.PreferDither)
-        '''
+        img = eink_dither_image(img)
         changed = True
     if path is None:
         return image_to_data(img, compression_quality, fmt) if changed else data
@@ -465,6 +459,15 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     if palette and isinstance(palette, string_or_bytes):
         palette = palette.split()
     return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
+
+def eink_dither_image(img):
+    ''' Dither the source image down to the eInk palette of 16 shades of grey,
+    using ImageMagick's OrderedDither algorithm.
+    '''
+    img = image_from_data(img)
+    if img.hasAlphaChannel():
+        img = blend_image(img)
+    return imageops.ordered_dither(img)
 
 # }}}
 

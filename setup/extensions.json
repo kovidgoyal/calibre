@@ -139,7 +139,7 @@
     },
     {
         "name": "imageops",
-        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp",
+        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp calibre/utils/imageops/ordered_dither.cpp",
         "headers": "calibre/utils/imageops/imageops.h",
         "sip_files": "calibre/utils/imageops/imageops.sip",
         "inc_dirs": "calibre/utils/imageops"
