@@ -316,9 +316,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                              _('Upload dithered covers'),
                              _('Dither cover images to the appropriate 16c grayscale palette for an eInk screen.'
                                ' This usually ensures greater accuracy and avoids banding, making sleep covers look better.'
-                               ' Note that in some cases, you might want to leave this disabled,'
-                               ' as Nickel will do a better job than Calibre, especially on newer FW versions (>= 4.11)!'
-                               ' Unfortunately, this desirable behavior appears to depend on the exact device and FW version combo...'
+                               ' On FW >= 4.11, Nickel itself may sometimes do a decent job of it.'
                                ' Has no effect without "Upload black and white covers"!'),
                              device.get_pref('dithered_covers')
                              )
@@ -337,10 +335,10 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
         self.letterbox_fs_covers_checkbox = create_checkbox(
                              _('Letterbox full-screen covers'),
-                             _('Do it on our end, instead of letting nickel handle it.'
+                             _('Do it on our end, instead of letting Nickel handle it.'
                                ' Provides pixel-perfect results on devices where Nickel does not do extra processing.'
                                ' Obviously has no effect without "Keep cover aspect ratio".'
-                               ' This is also probably undesirable if you disable the "Show book covers full screen"'
+                               ' This is probably undesirable if you disable the "Show book covers full screen"'
                                ' setting on your device.'),
                              device.get_pref('letterbox_fs_covers'))
         # Make it visually depend on AR being enabled!
@@ -355,7 +353,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' Higher quality, especially with "Upload dithered covers" enabled,'
                                ' which will also help generate potentially smaller files.'
                                ' Behavior completely unknown on "old" Kobo firmwares,'
-                               ' last tested on FW 4.9 to 4.12.'
+                               ' known to behave on FW >= 4.9.'
                                ' Has no effect without "Upload black and white covers"!'),
                              device.get_pref('png_covers'))
         # Make it visually depend on B&W being enabled, to avoid storing ridiculously large color PNGs.

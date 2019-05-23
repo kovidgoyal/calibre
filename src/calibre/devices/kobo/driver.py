@@ -1442,7 +1442,7 @@ class KOBOTOUCH(KOBO):
     # NOTE: Values pulled from Nickel by @geek1011,
     #       c.f., this handy recap: https://github.com/shermp/Kobo-UNCaGED/issues/16#issuecomment-494229994
     #       Only the N3_FULL values differ, as they should match the screen's effective resolution.
-    #       Note that All Kobo devices share a common AR at roughly 0.75,
+    #       Note that all Kobo devices share a common AR at roughly 0.75,
     #       so results should be similar, no matter the exact device.
     COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
@@ -2683,12 +2683,11 @@ class KOBOTOUCH(KOBO):
         :param kobo_size:     Size of the cover image on the device.
         :param upload_grayscale: boolean True if driver configured to send grayscale thumbnails
         :param dithered_covers: boolean True if driver configured to quantize to 16-col grayscale
-                        at calibre end
         :param keep_cover_aspect: boolean - True if the aspect ratio of the cover in the library is to be kept.
         :param is_full_size:  True if this is the kobo_size is for the full size cover image
                         Passed to allow ability to process screensaver differently
                         to smaller thumbnails
-        :param letterbox:     True if we were asked to handle the letterboxing at calibre end
+        :param letterbox:     True if we were asked to handle the letterboxing
         :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
         '''
 
