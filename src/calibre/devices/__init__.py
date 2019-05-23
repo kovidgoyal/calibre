@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -8,7 +8,7 @@ Device drivers.
 
 import sys, time, pprint
 from functools import partial
-from polyglot.builtins import zip
+from polyglot.builtins import zip, unicode_type
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
@@ -19,8 +19,8 @@ INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 def strptime(src):
     src = src.strip()
     src = src.split()
-    src[0] = str(DAY_MAP[src[0][:-1]])+','
-    src[2] = str(MONTH_MAP[src[2]])
+    src[0] = unicode_type(DAY_MAP[src[0][:-1]])+','
+    src[2] = unicode_type(MONTH_MAP[src[2]])
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
 
 

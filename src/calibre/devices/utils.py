@@ -100,7 +100,7 @@ def create_upload_path(mdata, fname, template, sanitize,
     opts = config().parse()
     if not isinstance(template, unicode_type):
         template = template.decode('utf-8')
-    app_id = str(getattr(mdata, 'application_id', ''))
+    app_id = unicode_type(getattr(mdata, 'application_id', ''))
     id_ = mdata.get('id', fname)
     extra_components = get_components(template, mdata, id_,
             timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,

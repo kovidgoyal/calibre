@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -15,6 +16,7 @@ from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
+from polyglot.builtins import unicode_type
 from polyglot.io import PolyglotBytesIO
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
@@ -92,7 +94,7 @@ def info(dev):
 
 def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     def col_split(l, cols):  # split list l into columns
-        rows = len(l) / cols
+        rows = len(l) // cols
         if len(l) % cols:
             rows += 1
         m = []
@@ -122,7 +124,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
         maxlen = 0
         if ll:  # Calculate column width for size column
             for file in files:
-                size = len(str(file.size))
+                size = len(unicode_type(file.size))
                 if human_readable_size:
                     file = FileFormatter(file)
                     size = len(file.human_readable_size)
@@ -134,14 +136,14 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             lsoutput.append(name)
             lscoloutput.append(name)
             if ll:
-                size = str(file.size)
+                size = unicode_type(file.size)
                 if human_readable_size:
                     size = file.human_readable_size
-                prints(file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name, file=output)
+                prints(file.mode_string, ("%"+unicode_type(maxlen)+"s")%size, file.modification_time, name, file=output)
         if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
-                trycols = int(cols/colwidth)
+                trycols = int(cols//colwidth)
                 trytable = col_split(lsoutput, trycols)
                 works = True
                 for row in trytable:
@@ -241,7 +243,7 @@ def main():
             print("Filesystem\tSize \tUsed \tAvail \tUse%")
             for i in range(3):
                 print("%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
-                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
+                                                                            unicode_type(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
         elif command == 'eject':
             dev.eject()
         elif command == "books":

@@ -1,23 +1,26 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, re
 
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes, as_unicode
 
 
 def node_mountpoint(node):
 
-    def de_mangle(raw):
-        return raw.replace('\\040', ' ').replace('\\011', '\t').replace('\\012',
-                '\n').replace('\\0134', '\\')
+    if isinstance(node, unicode_type):
+        node = node.encode('utf-8')
 
-    for line in open('/proc/mounts').readlines():
+    def de_mangle(raw):
+        return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012',
+                b'\n').replace(b'\\0134', b'\\').decode('utf-8')
+
+    for line in open('/proc/mounts', 'rb').readlines():
         line = line.split()
         if line[0] == node:
             return de_mangle(line[1])
@@ -53,9 +56,9 @@ class UDisks(object):
             return unicode_type(d.FilesystemMount('',
                 ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
                  'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
-        except:
+        except Exception:
             # May be already mounted, check
-            mp = node_mountpoint(str(device_node_path))
+            mp = node_mountpoint(unicode_type(device_node_path))
             if mp is None:
                 raise
             return mp
@@ -103,8 +106,8 @@ class UDisks2(object):
         try:
             device = bd.Get(self.BLOCK, 'Device',
                 dbus_interface='org.freedesktop.DBus.Properties')
-            device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
-        except:
+            device = bytearray(as_bytes(device)).replace(b'\x00', b'').decode('utf-8')
+        except Exception:
             device = None
 
         if device == device_node_path:
@@ -120,7 +123,7 @@ class UDisks2(object):
             try:
                 device = bd.Get(self.BLOCK, 'Device',
                     dbus_interface='org.freedesktop.DBus.Properties')
-                device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
+                device = bytearray(as_bytes(device)).replace(b'\x00', b'').decode('utf-8')
             except:
                 device = None
             if device == device_node_path:
@@ -133,15 +136,15 @@ class UDisks2(object):
         mount_options = ['rw', 'noexec', 'nosuid',
                 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
         try:
-            return unicode_type(d.Mount(
+            return as_unicode(d.Mount(
                 {
                     'auth.no_user_interaction':True,
                     'options':','.join(mount_options)
                 },
                 dbus_interface=self.FILESYSTEM))
-        except:
+        except Exception:
             # May be already mounted, check
-            mp = node_mountpoint(str(device_node_path))
+            mp = node_mountpoint(unicode_type(device_node_path))
             if mp is None:
                 raise
             return mp
