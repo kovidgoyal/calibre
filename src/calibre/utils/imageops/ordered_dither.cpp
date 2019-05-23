@@ -72,7 +72,7 @@ QImage ordered_dither(const QImage &image) { // {{{
     QImage img = image;
     int y = 0, x = 0, width = img.width(), height = img.height();
     uint8_t gray = 0, dithered = 0;
-    QImage dst(width, height, QImage::Format_Indexed8);
+    QImage dst(width, height, QImage::Format_Grayscale8);
 
     // We're running behind blend_image, so, we should only ever be fed RGB32 as input...
     if (img.format() != QImage::Format_RGB32) {
