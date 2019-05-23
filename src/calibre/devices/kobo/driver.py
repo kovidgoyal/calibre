@@ -1439,98 +1439,104 @@ class KOBOTOUCH(KOBO):
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
+    # NOTE: Values pulled from Nickel by @geek1011,
+    #       c.f., this handy recap: https://github.com/shermp/Kobo-UNCaGED/issues/16#issuecomment-494229994
+    #       Only the N3_FULL values differ, as they should match the screen's effective resolution.
+    #       Note that All Kobo devices share a common AR at roughly 0.75,
+    #       so results should be similar, no matter the exact device.
     COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 82, 100,False,],
                           }
-    # Glo and Aura share resolution, so the image sizes should be the same.
+    # Glo
     GLO_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':[(758,1024),0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
+                          }
+    # Aura
+    AURA_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          # NOTE: The Aura's bezel covers 10 pixels at the bottom.
+                          #       Kobo officially advertised the screen resolution with those chopped off.
+                          ' - N3_FULL.parsed':[(758,1014),0, 200,True,],
+                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
+                          # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
+                          # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     # Glo HD and Clara HD share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  479), 0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  201), 0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_H2O_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          # NOTE: Top 11px are dead. Confirmed w/ fbgrab.
+                          # NOTE: The H2O's bezel covers 11 pixels at the top.
+                          #       Unlike on the Aura, Nickel fails to account for this when generating covers.
+                          #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
                           ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          # NOTE: Should probably be 354x472 or 357x476 to keep honoring the 0.75 AR,
-                          #       but that's not what Nickel does...
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          # NOTE: Again, 147x196 or 150x200 would match the 0.75 AR perfectly...
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           }
     FORMA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          # NOTE: Nickel keeps generating smaller images (1404x1872) for sideloaded content,
-                          #       and will *also* download Aura One sized images for kePubs, which is stupid.
-                          #       What's worse is that it expects that size during the full pipeline,
-                          #       which means sleep covers get mangled by a terrible upscaling pass...
-                          #       Hopefully that's just a teething quirk that'll be fixed in a later FW.
+                          # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
+                          #       choosing instead to follow the Aura One codepath.
                           ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          # NOTE: Same thing, Nickel generates tiny thumbnails (355x473),
-                          #       but *will* download slightly larger ones for kePubs.
-                          #       That's still probably A1 sized, I'd expect roughly x636 instead...
-                          #       The actual widget itself has space for a 316x421 image...
-                          ' - N3_LIBRARY_FULL.parsed':[(398,  530), 0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
                           # Used for library lists
-                          # NOTE: Same thing, Nickel generates tiny thumbnails (149x198),
-                          #       but downloads larger ones for kePubs.
-                          #       Again, probably still A1 sized, I'd expect roughly x266 instead...
-                          #       The actual widget itself has space for a 155x207 image...
-                          ' - N3_LIBRARY_GRID.parsed':[(167,  223), 0, 200,False,],  # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 # ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
 # ' - N3_LIBRARY_FULL.parsed':[(600,800),0, 99,],
-# ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],   # Used for library lists
+# ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 99,],   # Used for library lists
 #                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
 # ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
@@ -3315,7 +3321,7 @@ class KOBOTOUCH(KOBO):
 
     def cover_file_endings(self):
         if self.isAura():
-            _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.AURA_COVER_FILE_ENDINGS
         elif self.isAuraEdition2():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isAuraHD():
