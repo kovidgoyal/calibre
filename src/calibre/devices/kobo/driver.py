@@ -2644,20 +2644,27 @@ class KOBOTOUCH(KOBO):
             path = os.path.join(path, imageId)
         return path
 
-    def _calculate_kobo_cover_size(self, library_size, kobo_size, keep_cover_aspect, letterbox):
+    def _calculate_kobo_cover_size(self, library_size, kobo_size, expand, keep_cover_aspect, letterbox):
         # Remember the canvas size
         canvas_size = kobo_size
 
+        # NOTE: Loosely based on Qt's QSize::scaled implementation
         if keep_cover_aspect:
             # NOTE: Py3k wouldn't need explicit casts to return a float
-            # NOTE: Ideally, the target AR should be 0.75, but that's rarely exactly the case for thumbnails,
-            #       which is why we try to limit accumulating even more rounding errors on top of Nickel's.
-            library_aspect = library_size[0] / float(library_size[1])
-            kobo_aspect = kobo_size[0] / float(kobo_size[1])
-            if library_aspect > kobo_aspect:
-                kobo_size = (kobo_size[0], int(round(kobo_size[0] / library_aspect)))
+            # NOTE: Unlike Qt, we round to avoid accumulating errors
+            aspect_ratio = library_size[0] / float(library_size[1])
+            rescaled_width = int(round(kobo_size[1] * aspect_ratio))
+
+            if expand:
+                use_height = (rescaled_width >= kobo_size[0])
             else:
-                kobo_size = (int(round(library_aspect * kobo_size[1])), kobo_size[1])
+                use_height = (rescaled_width <= kobo_size[0])
+
+            if use_height:
+                kobo_size = (rescaled_width, kobo_size[1])
+            else:
+                kobo_size = (kobo_size[0], int(round(kobo_size[0] / aspect_ratio)))
+
             # Did we actually want to letterbox?
             if not letterbox:
                 canvas_size = kobo_size
@@ -2757,13 +2764,18 @@ class KOBOTOUCH(KOBO):
                         # Never letterbox thumbnails, that's ugly. But for fullscreen covers, honor the setting.
                         letterbox = letterbox_fs_covers if is_full_size else False
 
-                        resize_to, minify_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, keep_cover_aspect, letterbox)
+                        # NOTE: Full size means we have to fit *inside* the given boundaries. Thumbnails, on the other hand, are *expanded* around those boundaries.
+                        #       In Qt, it'd mean full-screen covers are resized using Qt::KeepAspectRatio, while thumbnails are resized using Qt::KeepAspectRatioByExpanding
+                        #       (i.e., QSize's boundedTo() vs. expandedTo(). See also IM's '^' geometry token, for the same "expand" behavior.)
+                        #       Note that Nickel itself will generate bounded thumbnails, while it will download expanded thumbnails for store-bought KePubs...
+                        #       We chose to emulate the KePub behavior.
+                        resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, expand=not is_full_size, keep_cover_aspect, letterbox)
                         if show_debug:
-                             debug_print("KoboTouch:_calculate_kobo_cover_size - minify_to=%s (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
-                                 minify_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
+                             debug_print("KoboTouch:_calculate_kobo_cover_size - expand_to=%s (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
+                                 expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
 
                         # Return the data resized and properly grayscaled/dithered/letterboxed if requested
-                        data = self._create_cover_data(cover_data, resize_to, minify_to, kobo_size, upload_grayscale, dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers)
+                        data = self._create_cover_data(cover_data, resize_to, expand_to, kobo_size, upload_grayscale, dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers)
 
                         with lopen(fpath, 'wb') as f:
                             f.write(data)
