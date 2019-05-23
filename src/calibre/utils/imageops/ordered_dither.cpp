@@ -70,9 +70,9 @@ static uint8_t
 QImage ordered_dither(const QImage &image) { // {{{
     ScopedGILRelease PyGILRelease;
     QImage img = image;
-    QRgb *row = NULL, *pixel = NULL;
     int y = 0, x = 0, width = img.width(), height = img.height();
     uint8_t gray = 0, dithered = 0;
+    QImage dst(width, height, QImage::Format_Indexed8);
 
     // We're running behind blend_image, so, we should only ever be fed RGB32 as input...
     if (img.format() != QImage::Format_RGB32) {
@@ -81,13 +81,15 @@ QImage ordered_dither(const QImage &image) { // {{{
     }
 
     for (y = 0; y < height; y++) {
-        row = reinterpret_cast<QRgb*>(img.scanLine(y));
-        for (x = 0, pixel = row; x < width; x++, pixel++) {
+        const QRgb *src_row = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+        uint8_t *dst_row = dst.scanLine(r);
+        for (x = 0; x < width; x++) {
+            const QRgb pixel = *(src_row + x);
             // We're running behind grayscale_image, so R = G = B
             gray = qRed(*pixel);
             dithered = dither_o8x8(x, y, gray);
-            *pixel = qRgb(dithered, dithered, dithered);
+            *(dst_row + x) = dithered;
         }
     }
-    return img;
+    return dst;
 } // }}}

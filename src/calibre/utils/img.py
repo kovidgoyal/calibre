@@ -463,10 +463,14 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
 def eink_dither_image(img):
     ''' Dither the source image down to the eInk palette of 16 shades of grey,
     using ImageMagick's OrderedDither algorithm.
+
+    NOTE: Expects input as a grayscale image in RGB32 pixel format (as returned by grayscale_image).
+          Running blend_image if the image has an alpha channel,
+          or grayscale_image if it's not already grayscaled is the caller's responsibility.
+
+    Returns a QImage in Indexed8 pixel format.
     '''
     img = image_from_data(img)
-    if img.hasAlphaChannel():
-        img = blend_image(img)
     return imageops.ordered_dither(img)
 
 # }}}
