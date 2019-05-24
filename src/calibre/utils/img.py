@@ -227,7 +227,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
-    if grayscale:
+    if grayscale and not eink:
         if not img.allGray():
             changed = True
             img = grayscale_image(img)
@@ -464,13 +464,13 @@ def eink_dither_image(img):
     ''' Dither the source image down to the eInk palette of 16 shades of grey,
     using ImageMagick's OrderedDither algorithm.
 
-    NOTE: Expects input as a grayscale image in RGB32 pixel format (as returned by grayscale_image).
-          Running blend_image if the image has an alpha channel,
-          or grayscale_image if it's not already grayscaled is the caller's responsibility.
+    NOTE: No need to call grayscale_image first, as this will inline a grayscaling pass if need be.
 
     Returns a QImage in Grayscale8 pixel format.
     '''
     img = image_from_data(img)
+    if img.hasAlphaChannel():
+        img = blend_image(img)
     return imageops.ordered_dither(img)
 
 # }}}

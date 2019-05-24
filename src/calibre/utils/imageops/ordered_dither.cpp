@@ -109,13 +109,19 @@ QImage ordered_dither(const QImage &image) { // {{{
         if (img.isNull()) throw std::bad_alloc();
     }
 
+    const bool is_gray = img.isGrayscale();
+
     for (y = 0; y < height; y++) {
         const QRgb *src_row = reinterpret_cast<const QRgb*>(img.constScanLine(y));
         uint8_t *dst_row = dst.scanLine(y);
         for (x = 0; x < width; x++) {
             const QRgb pixel = *(src_row + x);
-            // We're running behind grayscale_image, so R = G = B
-            gray = qRed(pixel);
+            if (is_gray) {
+                // Grayscale and RGB32, so R = G = B
+                gray = qRed(pixel);
+            } else {
+                gray = qGray(pixel);
+            }
             dithered = dither_o8x8(x, y, gray);
             *(dst_row + x) = dithered;  // ... or palette.indexOf(dithered); for Indexed8
         }
