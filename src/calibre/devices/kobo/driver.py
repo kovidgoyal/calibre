@@ -30,7 +30,7 @@ from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints, fsync
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
@@ -2697,6 +2697,7 @@ class KOBOTOUCH(KOBO):
 
     def _upload_cover(self, path, filename, metadata, filepath, upload_grayscale, dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False):
         from calibre.utils.imghdr import identify
+        from calibre.utils.img import optimize_png_fast
         debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
 
         if not metadata.cover:
@@ -2777,9 +2778,21 @@ class KOBOTOUCH(KOBO):
                         # Return the data resized and properly grayscaled/dithered/letterboxed if requested
                         data = self._create_cover_data(cover_data, resize_to, expand_to, kobo_size, upload_grayscale, dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers)
 
-                        with lopen(fpath, 'wb') as f:
-                            f.write(data)
-                            fsync(f)
+                        # NOTE: If we're writing a PNG file, go through a quick optipng pass to make sure it's encoded properly, as Qt doesn't afford us enough control to do it right...
+                        #       Unfortunately, optipng doesn't support reading pipes, so this gets a bit clunky as we have go through a temporary file...
+                        if png_covers:
+                            tmp_cover = better_mktemp()
+                            with lopen(tmp_cover, 'wb') as f:
+                                f.write(data)
+
+                            optimize_png_fast(tmp_cover)
+                            # Crossing FS boundaries, can't rename, have to copy + delete :/
+                            shutil.copy2(tmp_cover, fpath)
+                            os.remove(tmp_cover)
+                        else:
+                            with lopen(fpath, 'wb') as f:
+                                f.write(data)
+                                fsync(f)
         except Exception as e:
             err = unicode_type(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)

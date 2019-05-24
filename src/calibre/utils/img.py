@@ -560,6 +560,12 @@ def optimize_png(file_path):
     cmd = [exe] + '-fix -clobber -strip all -o7 -out'.split() + [False, True]
     return run_optimizer(file_path, cmd)
 
+# Use -o1 to make it much, much faster, when we only care about re-encoding, and not recompression.
+def optimize_png_fast(file_path):
+    exe = get_exe_path('optipng')
+    cmd = [exe] + '-fix -clobber -strip all -o1 -out'.split() + [False, True]
+    return run_optimizer(file_path, cmd)
+
 
 def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
