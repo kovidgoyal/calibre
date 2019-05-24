@@ -25,6 +25,13 @@ typedef unsigned __int32 uint32_t;
 #include <cstdint>
 #endif
 
+// NOTE: *May* not behave any better than a simple / 0xFF on modern x86_64 CPUs...
+//       This was, however, tested on ARM, where it is noticeably faster.
+static uint32_t DIV255(uint32_t v) {
+    v += 128;
+    return (((v >> 8U) + v) >> 8U);
+}
+
 // Quantize an 8-bit color value down to a palette of 16 evenly spaced colors, using an ordered 8x8 dithering pattern.
 // With a grayscale input, this happens to match the eInk palette perfectly ;).
 // If the input is not grayscale, and the output fb is not grayscale either,
@@ -64,7 +71,7 @@ static uint8_t
 	// NOTE: We're doing unsigned maths, so, clamping is basically MIN(q, UINT8_MAX) ;).
 	//       The only overflow we should ever catch should be for a few black (v = 0xFF) input pixels
 	//       that get shifted to the next step (i.e., q = 272 (0xFF + 17)).
-	return (q > UINT8_MAX ? UINT8_MAX : reinterpret_cast<uint8_t>(q);
+	return (q > UINT8_MAX ? UINT8_MAX : static_cast<uint8_t>(q));
 }
 
 QImage ordered_dither(const QImage &image) { // {{{
@@ -82,11 +89,11 @@ QImage ordered_dither(const QImage &image) { // {{{
 
     for (y = 0; y < height; y++) {
         const QRgb *src_row = reinterpret_cast<const QRgb*>(img.constScanLine(y));
-        uint8_t *dst_row = dst.scanLine(r);
+        uint8_t *dst_row = dst.scanLine(y);
         for (x = 0; x < width; x++) {
             const QRgb pixel = *(src_row + x);
             // We're running behind grayscale_image, so R = G = B
-            gray = qRed(*pixel);
+            gray = qRed(pixel);
             dithered = dither_o8x8(x, y, gray);
             *(dst_row + x) = dithered;
         }
