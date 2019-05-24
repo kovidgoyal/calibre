@@ -1023,7 +1023,7 @@ class KOBO(USBMS):
             debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, ditheredcovers, letterboxcovers, pngcovers):
-        from calibre.utils.img import save_cover_data_to, optimize_png
+        from calibre.utils.img import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
 
@@ -1076,9 +1076,6 @@ class KOBO(USBMS):
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
                                 fsync(f)
-
-                            if pngcovers:
-                                optimize_png(fpath)
 
                 else:
                     debug_print("ImageID could not be retreived from the database")
@@ -2700,7 +2697,6 @@ class KOBOTOUCH(KOBO):
 
     def _upload_cover(self, path, filename, metadata, filepath, upload_grayscale, dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False):
         from calibre.utils.imghdr import identify
-        from calibre.utils.img import optimize_png
         debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
 
         if not metadata.cover:
@@ -2784,9 +2780,6 @@ class KOBOTOUCH(KOBO):
                         with lopen(fpath, 'wb') as f:
                             f.write(data)
                             fsync(f)
-
-                        if png_covers:
-                            optimize_png(fpath)
         except Exception as e:
             err = unicode_type(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
