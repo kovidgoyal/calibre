@@ -25,6 +25,9 @@ typedef unsigned __int32 uint32_t;
 #include <cstdint>
 #endif
 
+// Only needed for the (commented out) Indexed8 codepath
+//#include <QVector>
+
 // NOTE: *May* not behave any better than a simple / 0xFF on modern x86_64 CPUs...
 //       This was, however, tested on ARM, where it is noticeably faster.
 static uint32_t DIV255(uint32_t v) {
@@ -82,6 +85,22 @@ QImage ordered_dither(const QImage &image) { // {{{
     // NOTE: We went with Grayscale8 because QImageWriter was doing some weird things with an Indexed8 input...
     QImage dst(width, height, QImage::Format_Grayscale8);
 
+    /*
+    QImage dst(width, height, QImage::Format_Indexed8);
+
+    // Set up the eInk palette
+    // FIXME: Make it const and switch to C++11 list init if MSVC is amenable...
+    QVector<uint8_t> palette(16);
+    QVector<QRgb> color_table(16);
+    int i = 0;
+    for (i = 0; i < 16; i++) {
+        uint8_t color = i * 17;
+        palette << color;
+        color_table << qRgb(color, color, color);
+    }
+    dst.setColorTable(color_table);
+    */
+
     // We're running behind blend_image, so, we should only ever be fed RGB32 as input...
     if (img.format() != QImage::Format_RGB32) {
         img = img.convertToFormat(QImage::Format_RGB32);
@@ -96,7 +115,7 @@ QImage ordered_dither(const QImage &image) { // {{{
             // We're running behind grayscale_image, so R = G = B
             gray = qRed(pixel);
             dithered = dither_o8x8(x, y, gray);
-            *(dst_row + x) = dithered;
+            *(dst_row + x) = dithered;  // ... or palette.indexOf(dithered); for Indexed8
         }
     }
     return dst;
