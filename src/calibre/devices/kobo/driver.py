@@ -2769,7 +2769,7 @@ class KOBOTOUCH(KOBO):
                         #       (i.e., QSize's boundedTo() vs. expandedTo(). See also IM's '^' geometry token, for the same "expand" behavior.)
                         #       Note that Nickel itself will generate bounded thumbnails, while it will download expanded thumbnails for store-bought KePubs...
                         #       We chose to emulate the KePub behavior.
-                        resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, expand=not is_full_size, keep_cover_aspect, letterbox)
+                        resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, not is_full_size, keep_cover_aspect, letterbox)
                         if show_debug:
                              debug_print("KoboTouch:_calculate_kobo_cover_size - expand_to=%s (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
                                  expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
