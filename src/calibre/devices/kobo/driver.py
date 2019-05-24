@@ -1444,62 +1444,42 @@ class KOBOTOUCH(KOBO):
     #       Only the N3_FULL values differ, as they should match the screen's effective resolution.
     #       Note that all Kobo devices share a common AR at roughly 0.75,
     #       so results should be similar, no matter the exact device.
-    COVER_FILE_ENDINGS = {
-                          # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],
+    # Common to all Kobo models
+    COMMON_COVER_FILE_ENDINGS = {
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':              [(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':              [(149,223),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
+                          ' - N3_LIBRARY_LIST.parsed':              [(60,90),0, 53,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 82, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed': [(355,530), 82, 100,False,],
+                          }
+    # Legacy 6" devices
+    LEGACY_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(600,800),0, 200,True,],
                           }
     # Glo
     GLO_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
+                          ' - N3_FULL.parsed':        [(758,1024),0, 200,True,],
                           }
     # Aura
     AURA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           # NOTE: The Aura's bezel covers 10 pixels at the bottom.
                           #       Kobo officially advertised the screen resolution with those chopped off.
-                          ' - N3_FULL.parsed':[(758,1014),0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
+                          ' - N3_FULL.parsed':        [(758,1014),0, 200,True,],
                           }
     # Glo HD and Clara HD share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_H2O_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
@@ -1507,30 +1487,16 @@ class KOBOTOUCH(KOBO):
                           #       Unlike on the Aura, Nickel fails to account for this when generating covers.
                           #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
                           ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,530), 88, 100,False,],
                           }
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           }
     FORMA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
                           #       choosing instead to follow the Aura One codepath.
                           ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 200,False,],
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -3366,15 +3332,18 @@ class KOBOTOUCH(KOBO):
         elif self.isGloHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isMini():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         else:
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
-        return _cover_file_endings
+        # Don't forget to merge that on top of the common dictionary (c.f., https://stackoverflow.com/q/38987)
+        _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
+        _all_cover_file_endings.update(_cover_file_endings)
+        return _all_cover_file_endings
 
     def set_device_name(self):
         device_name = self.gui_name
