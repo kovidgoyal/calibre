@@ -79,6 +79,7 @@ QImage ordered_dither(const QImage &image) { // {{{
     QImage img = image;
     int y = 0, x = 0, width = img.width(), height = img.height();
     uint8_t gray = 0, dithered = 0;
+    // NOTE: We went with Grayscale8 because QImageWriter was doing some weird things with an Indexed8 input...
     QImage dst(width, height, QImage::Format_Grayscale8);
 
     // We're running behind blend_image, so, we should only ever be fed RGB32 as input...

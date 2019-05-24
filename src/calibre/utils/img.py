@@ -233,7 +233,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
             img = grayscale_image(img)
     if eink:
         # NOTE: Keep in mind that JPG does NOT actually support indexed colors, so the JPG algorithm will then smush everything back into a 256c mess...
-        #       Thankfully, Nickel handles PNG just fine, and we generate smaller files to boot, because they're properly color indexed ;).
+        #       Thankfully, Nickel handles PNG just fine, and we potentially generate smaller files to boot, because they can be properly color indexed ;).
         img = eink_dither_image(img)
         changed = True
     if path is None:
