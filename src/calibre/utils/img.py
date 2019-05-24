@@ -468,7 +468,7 @@ def eink_dither_image(img):
           Running blend_image if the image has an alpha channel,
           or grayscale_image if it's not already grayscaled is the caller's responsibility.
 
-    Returns a QImage in Grayscale8 pixel format.
+    Returns a QImage in Indexed8 pixel format.
     '''
     img = image_from_data(img)
     return imageops.ordered_dither(img)
