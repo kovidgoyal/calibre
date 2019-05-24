@@ -45,8 +45,11 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         cover_item = soup.find('p', attrs={'class': 'cover'})
         dates = type(u'')(soup.find('span', attrs={'class': 'coverdate'}))
-        newdates = re.sub(r'\<.*\>', '', re.split(r'<br\s*/>', dates)[1])
-        self.timefmt = ' [%s]' % newdates
+        try:
+            newdates = re.sub(r'\<.*\>', '', re.split(r'<br\s*/>', dates)[1])
+            self.timefmt = ' [%s]' % newdates
+        except Exception:
+            pass
         lrbtitle = self.title
         if cover_item:
             self.cover_url = re.sub('/m/', '/l/', cover_item.a.img['src'])
