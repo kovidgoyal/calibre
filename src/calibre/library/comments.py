@@ -163,15 +163,12 @@ def find_tests():
                         '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
 
                     ('a <b>b&c</b>\nf',
-                        '<p class="description">a <b>b&amp;c</b><br>f</p>'),
+                        '<p class="description">a <b>b&amp;c</b><br/>f</p>'),
 
                     ('a <?xml asd> b\n\ncd',
                         '<p class="description">a  b</p><p class="description">cd</p>'),
             ]:
                 cval = comments_to_html(pat)
-                # normalize <br> representations produced by different
-                # versions of html5-parser
-                cval = cval.replace('<br></br>', '<br>').replace('<br/>', '<br>')
                 self.assertEqual(cval, val)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(Test)
