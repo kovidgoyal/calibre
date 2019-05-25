@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
