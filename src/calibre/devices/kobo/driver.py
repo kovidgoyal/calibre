@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
@@ -109,7 +109,7 @@ class KOBO(USBMS):
     SUPPORTS_ANNOTATIONS = True
 
     # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work.
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(('kobo', ''))
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('The Kobo supports several collections including ')+ 'Read, Closed, Im_Reading. ' + _(
@@ -197,9 +197,9 @@ class KOBO(USBMS):
         # Determine the firmware version
         try:
             with lopen(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
-                fwversion = f.readline().split(',')[2]
-                fwversion = tuple((int(x) for x in fwversion.split('.')))
-        except:
+                fwversion = f.readline().split(b',')[2]
+                fwversion = tuple((int(x) for x in fwversion.split(b'.')))
+        except Exception:
             debug_print("Kobo::get_firmware_version - didn't get firmware version from file'")
             fwversion = (0,0,0)
 
@@ -372,7 +372,7 @@ class KOBO(USBMS):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = str(e)
+                err = unicode_type(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded')):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -478,13 +478,13 @@ class KOBO(USBMS):
                     cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 '
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
-                    if 'no such column' not in str(e):
+                    if 'no such column' not in unicode_type(e):
                         raise
                     try:
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 '
                             'where BookID is Null and ContentID =?',t)
                     except Exception as e:
-                        if 'no such column' not in str(e):
+                        if 'no such column' not in unicode_type(e):
                             raise
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' '
                             'where BookID is Null and ContentID =?',t)
@@ -524,7 +524,7 @@ class KOBO(USBMS):
             path = self.normalize_path(path)
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
-            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path)
+            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path)
 
             ContentID = self.contentid_from_path(path, ContentType)
 
@@ -550,7 +550,7 @@ class KOBO(USBMS):
                     try:
                         # print "removed"
                         os.removedirs(os.path.dirname(path))
-                    except:
+                    except Exception:
                         pass
         self.report_progress(1.0, _('Removing books from device...'))
 
@@ -827,7 +827,7 @@ class KOBO(USBMS):
             cursor.execute(query)
         except Exception as e:
             debug_print('    Database Exception:  Unable to reset Shortlist list')
-            if 'no such column' not in str(e):
+            if 'no such column' not in unicode_type(e):
                 raise
         finally:
             cursor.close()
@@ -841,7 +841,7 @@ class KOBO(USBMS):
             cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
         except Exception as e:
             debug_print('    Database Exception:  Unable set book as Shortlist')
-            if 'no such column' not in str(e):
+            if 'no such column' not in unicode_type(e):
                 raise
         finally:
             cursor.close()
@@ -905,17 +905,17 @@ class KOBO(USBMS):
                                 book.device_collections.append(category)
 
                             extension =  os.path.splitext(book.path)[1]
-                            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
 
                             ContentID = self.contentid_from_path(book.path, ContentType)
 
-                            if category in list(readstatuslist.keys()):
+                            if category in tuple(readstatuslist):
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, ContentID, readstatuslist.get(category))
                             elif category == 'Shortlist' and self.dbversion >= 14:
                                 # Manage FavouritesIndex/Shortlist
                                 self.set_favouritesindex(connection, ContentID)
-                            elif category in list(accessibilitylist.keys()):
+                            elif category in tuple(accessibilitylist):
                                 # Do not manage the Accessibility List
                                 pass
             else:  # No collections
@@ -1181,7 +1181,7 @@ class KOBO(USBMS):
         with closing(self.device_database_connection()) as connection:
             for id in path_map:
                 extension =  os.path.splitext(path_map[id])[1]
-                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
+                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[id])
                 ContentID = self.contentid_from_path(path_map[id], ContentType)
                 debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
@@ -1769,7 +1769,7 @@ class KOBOTOUCH(KOBO):
                                 debug_print('KoboTouch:update_booklist - book file does not exist. ContentID="%s"'%ContentID)
 
                     except Exception as e:
-                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%str(e))
+                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%unicode_type(e))
                         debug_print("        prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors,
                                     "MimeType: ", MimeType, "DateCreated: ", DateCreated, "ContentType: ", ContentType, "ImageID: ", ImageID)
                         raise
@@ -1909,7 +1909,7 @@ class KOBOTOUCH(KOBO):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = str(e)
+                err = unicode_type(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded', 'Series', 'ExternalId')):
                     raise
                 query= ('SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -2022,7 +2022,7 @@ class KOBOTOUCH(KOBO):
         if len(ImageID) > 0:
             path = self.images_path(prefix, ImageID)
 
-            for ending in self.cover_file_endings().keys():
+            for ending in self.cover_file_endings():
                 fpath = path + ending
                 if os.path.exists(fpath):
                     if show_debug:
@@ -2118,7 +2118,7 @@ class KOBOTOUCH(KOBO):
 
                     cursor.close()
             except Exception as e:
-                debug_print('KoboTouch:upload_books - Exception:  %s'%str(e))
+                debug_print('KoboTouch:upload_books - Exception:  %s'%unicode_type(e))
 
         return result
 
@@ -2217,7 +2217,7 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:commit_container: removing container temp files.")
         try:
             shutil.rmtree(container.root)
-        except:
+        except Exception:
             pass
 
     def delete_via_sql(self, ContentID, ContentType):
@@ -2262,7 +2262,7 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:delete_via_sql: finished SQL')
                 debug_print('KoboTouch:delete_via_sql: After SQL, no exception')
             except Exception as e:
-                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%str(e))
+                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%unicode_type(e))
 
         debug_print('KoboTouch:delete_via_sql: imageId="%s"'%imageId)
         if imageId is None:
@@ -2287,7 +2287,7 @@ class KOBOTOUCH(KOBO):
 
             try:
                 os.removedirs(os.path.dirname(path))
-            except:
+            except Exception:
                 pass
 
     def contentid_from_path(self, path, ContentType):
@@ -2301,7 +2301,7 @@ class KOBOTOUCH(KOBO):
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
-            elif extension == '':
+            elif not extension:
                 ContentID = path
                 ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
             else:
@@ -2432,7 +2432,7 @@ class KOBOTOUCH(KOBO):
                             if book.contentID is None:
                                 debug_print('    Do not know ContentID - Title="%s, Authors=%s"'%(book.title, book.author))
                                 extension =  os.path.splitext(book.path)[1]
-                                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
 
                             if category in self.ignore_collections_names:
@@ -2446,7 +2446,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('        Setting bookshelf on device')
                                     self.set_bookshelf(connection, book, category)
                                     category_added = True
-                            elif category in list(readstatuslist.keys()):
+                            elif category in readstatuslist:
                                 debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
@@ -2461,7 +2461,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('            and about to set it - %s'%book.title)
                                     self.set_favouritesindex(connection, book.contentID)
                                     category_added = True
-                            elif category in list(accessibilitylist.keys()):
+                            elif category in accessibilitylist:
                                 # Do not manage the Accessibility List
                                 pass
 
@@ -2560,7 +2560,7 @@ class KOBOTOUCH(KOBO):
         try:
             self._upload_cover(path, filename, metadata, filepath, self.upload_grayscale, self.keep_cover_aspect)
         except Exception as e:
-            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
+            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, unicode_type(e)))
 
     def imageid_from_contentid(self, ContentID):
         ImageID = ContentID.replace('/', '_')
@@ -2638,7 +2638,7 @@ class KOBOTOUCH(KOBO):
 
         # Get ContentID for Selected Book
         extension =  os.path.splitext(filepath)[1]
-        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
+        ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(filepath)
         ContentID = self.contentid_from_path(filepath, ContentType)
 
         try:
@@ -2694,7 +2694,7 @@ class KOBOTOUCH(KOBO):
                             f.write(data)
                             fsync(f)
         except Exception as e:
-            err = str(e)
+            err = unicode_type(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
             raise
 
@@ -3008,7 +3008,7 @@ class KOBOTOUCH(KOBO):
 
         plugboard = None
         if self.plugboard_func and not series_only:
-            if book.contentID.endswith('.kepub.epub') or os.path.splitext(book.contentID)[1] == "":
+            if book.contentID.endswith('.kepub.epub') or not os.path.splitext(book.contentID)[1]:
                 extension = 'kepub'
             else:
                 extension = os.path.splitext(book.contentID)[1][1:]
