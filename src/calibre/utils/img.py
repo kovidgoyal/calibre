@@ -237,9 +237,9 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         img = eink_dither_image(img)
         changed = True
     if path is None:
-        return image_to_data(img, compression_quality, fmt) if changed else data
+        return image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data
     with lopen(path, 'wb') as f:
-        f.write(image_to_data(img, compression_quality, fmt) if changed else data)
+        f.write(image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data)
 # }}}
 
 # Overlaying images {{{

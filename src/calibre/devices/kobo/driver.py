@@ -2637,7 +2637,7 @@ class KOBOTOUCH(KOBO):
                 canvas_size = kobo_size
         return (kobo_size, canvas_size)
 
-    def _create_cover_data(self, cover_data, resize_to, minify_to, kobo_size, upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False):
+    def _create_cover_data(self, cover_data, resize_to, minify_to, kobo_size, upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
         for save_cover_data_to to allow it to be overriden in a subclass. For this reason,
@@ -2655,10 +2655,11 @@ class KOBOTOUCH(KOBO):
                         to smaller thumbnails
         :param letterbox:     True if we were asked to handle the letterboxing
         :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
+        :param quality:       0-100 Output encoding quality (or compression level for PNG, àla IM)
         '''
 
         from calibre.utils.img import save_cover_data_to
-        data = save_cover_data_to(cover_data, resize_to=resize_to, minify_to=minify_to, grayscale=upload_grayscale, eink=dithered_covers, letterbox=letterbox, data_fmt="png" if png_covers else "jpeg")
+        data = save_cover_data_to(cover_data, resize_to=resize_to, compression_quality=quality, minify_to=minify_to, grayscale=upload_grayscale, eink=dithered_covers, letterbox=letterbox, data_fmt="png" if png_covers else "jpeg")
         return data
 
     def _upload_cover(self, path, filename, metadata, filepath, upload_grayscale, dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False):
@@ -2741,8 +2742,12 @@ class KOBOTOUCH(KOBO):
                              debug_print("KoboTouch:_calculate_kobo_cover_size - expand_to=%s (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
                                  expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
 
+                        # NOTE: To speed things up, we enforce a lower compression level for png_covers, as the final optipng pass will then select a higher compression level anyway,
+                        #       so the compression level from that first pass is irrelevant, and only takes up precious time ;).
+                        quality = 10 if png_covers else 90
+
                         # Return the data resized and properly grayscaled/dithered/letterboxed if requested
-                        data = self._create_cover_data(cover_data, resize_to, expand_to, kobo_size, upload_grayscale, dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers)
+                        data = self._create_cover_data(cover_data, resize_to, expand_to, kobo_size, upload_grayscale, dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality)
 
                         # NOTE: If we're writing a PNG file, go through a quick optipng pass to make sure it's encoded properly, as Qt doesn't afford us enough control to do it right...
                         #       Unfortunately, optipng doesn't support reading pipes, so this gets a bit clunky as we have go through a temporary file...
