@@ -17,7 +17,7 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG, plugins
+from calibre.constants import iswindows, DEBUG, plugins, ispy3
 from calibre.utils.icu import sort_key
 from calibre import prints
 from polyglot.builtins import unicode_type, cmp
@@ -238,7 +238,10 @@ def icu_collator(s1, s2):
 def load_c_extensions(conn, debug=DEBUG):
     try:
         conn.enable_load_extension(True)
-        ext_path = os.path.join(sys.extensions_location, 'sqlite_custom.'+
+        plugins_loc = sys.extensions_location
+        if ispy3:
+            plugins_loc = os.path.join(plugins_loc, '3')
+        ext_path = os.path.join(plugins_loc, 'sqlite_custom.'+
                 ('pyd' if iswindows else 'so'))
         conn.load_extension(ext_path)
         conn.enable_load_extension(False)

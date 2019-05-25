@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import fr
 from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
-    is_running_from_develop, isbsd, isfrozen, islinux, isosx, iswindows, isxp,
+    is_running_from_develop, isbsd, isfrozen, islinux, isosx, ispy3, iswindows, isxp,
     plugins
 )
 from calibre.ebooks.metadata import MetaInformation
@@ -821,7 +821,10 @@ class Application(QApplication):
         if headless:
             if not args:
                 args = sys.argv[:1]
-            args.extend(['-platformpluginpath', sys.extensions_location, '-platform', 'headless'])
+            plugins_loc = sys.extensions_location
+            if ispy3:
+                plugins_loc = os.path.join(plugins_loc, '3')
+            args.extend(['-platformpluginpath', plugins_loc, '-platform', 'headless'])
         self.headless = headless
         qargs = [i.encode('utf-8') if isinstance(i, unicode_type) else i for i in args]
         self.pi, pi_err = plugins['progress_indicator']
@@ -1167,7 +1170,10 @@ def ensure_app(headless=True):
             args = sys.argv[:1]
             has_headless = isosx or islinux or isbsd
             if headless and has_headless:
-                args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
+                plugins_loc = sys.extensions_location
+                if ispy3:
+                    plugins_loc = os.path.join(plugins_loc, '3')
+                args += ['-platformpluginpath', plugins_loc, '-platform', 'headless']
             _store_app = QApplication(args)
             if headless and has_headless:
                 _store_app.headless = True

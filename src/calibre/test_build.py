@@ -87,6 +87,9 @@ class BuildTest(unittest.TestCase):
         del ifaddr
 
     def test_plugins(self):
+        plugins_loc = sys.extensions_location
+        if ispy3:
+            plugins_loc = os.path.join(plugins_loc, '3')
         exclusions = set()
         if is_ci:
             if isosx:
@@ -103,7 +106,7 @@ class BuildTest(unittest.TestCase):
             if name in exclusions:
                 if name in ('libusb', 'libmtp'):
                     # Just check that the DLL can be loaded
-                    ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
+                    ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
