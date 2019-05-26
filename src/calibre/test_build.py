@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest, time
 
-from calibre.constants import plugins, iswindows, islinux, isosx, ispy3
+from calibre.constants import plugins, iswindows, islinux, isosx, ispy3, plugins_loc
 from polyglot.builtins import iteritems, map, unicode_type, getenv, native_string_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -103,7 +103,7 @@ class BuildTest(unittest.TestCase):
             if name in exclusions:
                 if name in ('libusb', 'libmtp'):
                     # Just check that the DLL can be loaded
-                    ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
+                    ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)

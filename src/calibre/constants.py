@@ -147,6 +147,12 @@ def cache_dir():
         ans = cache_dir.ans = _get_cache_dir()
     return ans
 
+
+plugins_loc = sys.extensions_location
+if ispy3:
+    plugins_loc = os.path.join(plugins_loc, '3')
+
+
 # plugins {{{
 
 
@@ -195,9 +201,6 @@ class Plugins(collections.Mapping):
     def load_plugin(self, name):
         if name in self._plugins:
             return
-        plugins_loc = sys.extensions_location
-        if ispy3:
-            plugins_loc = os.path.join(plugins_loc, '3')
         sys.path.insert(0, plugins_loc)
         try:
             del sys.modules[name]
