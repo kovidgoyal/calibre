@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013 Roman Mukhin <ramses_ru at hotmail.com>'
