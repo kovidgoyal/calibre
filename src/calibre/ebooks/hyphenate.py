@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """ Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes
@@ -13,7 +15,6 @@
     Ned Batchelder, July 2007.
     This Python code is in the public domain.
 """
-from __future__ import print_function
 
 import re
 

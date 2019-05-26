@@ -425,7 +425,7 @@ class WEBOS(USBMS):
             im.thumbnail((52, 69), Image.ANTIALIAS)
 
             x, y = im.size
-            cover.paste(im, ((52-x)/2, (69-y)/2))
+            cover.paste(im, ((52-x)//2, (69-y)//2))
 
         cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
 
