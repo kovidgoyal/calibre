@@ -113,16 +113,16 @@ class ConnectionListener(Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
-                            content_server_port = b''
+                            content_server_port = ''
                             try:
                                 from calibre.srv.opts import server_config
-                                content_server_port = str(server_config().port)
+                                content_server_port = unicode_type(server_config().port)
                             except Exception:
                                 pass
-                            message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
-                                            str(socket.gethostname().partition('.')[0]) +
-                                            b');' + content_server_port +
-                                            b',' + str(self.driver.port))
+                            message = (self.driver.ZEROCONF_CLIENT_STRING + ' (on ' +
+                                            unicode_type(socket.gethostname().partition('.')[0]) +
+                                            ');' + content_server_port +
+                                            ',' + unicode_type(self.driver.port)).encode('utf-8')
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
                         except:
@@ -234,7 +234,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     CURRENT_CC_VERSION          = 128
 
-    ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
+    ZEROCONF_CLIENT_STRING      = 'calibre wireless device client'
 
     # A few "random" port numbers to use for detecting clients using broadcast
     # The clients are expected to broadcast a UDP 'hi there' on all of these
@@ -481,7 +481,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         opts = config().parse()
         if not isinstance(template, unicode_type):
             template = template.decode('utf-8')
-        app_id = str(getattr(mdata, 'application_id', ''))
+        app_id = unicode_type(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
                 timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
@@ -1885,7 +1885,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
                 self._debug(message)
                 self.set_option('thumbnail_compression_quality',
-                                str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
+                                unicode_type(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
 
             try:
                 self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

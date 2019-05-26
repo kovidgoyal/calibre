@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -9,13 +9,13 @@ __docformat__ = 'restructuredtext en'
 Device driver for Amazon's Kindle
 '''
 
-import datetime, os, re, sys, json, hashlib, errno
+import datetime, os, re, json, hashlib, errno
 
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, filesystem_encoding
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime, fsync, prints
-from polyglot.builtins import unicode_type, as_bytes
+from polyglot.builtins import unicode_type, as_bytes, as_unicode
 
 '''
 Notes on collections:
@@ -111,12 +111,10 @@ class KINDLE(USBMS):
         else:
             mi = cls.metadata_from_formats([path])
         if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
+            path = as_unicode(path, filesystem_encoding, 'replace')
             match = cls.WIRELESS_FILE_NAME_PATTERN.match(os.path.basename(path))
             if match is not None:
                 mi.title = match.group('title')
-                if not isinstance(mi.title, unicode_type):
-                    mi.title = mi.title.decode(sys.getfilesystemencoding(),
-                                               'replace')
         return mi
 
     def get_annotations(self, path_map):
@@ -428,7 +426,7 @@ class KINDLE2(KINDLE):
             for x in items:
                 x = x[-40:]
                 if x not in path_map:
-                    path_map[x] = set([])
+                    path_map[x] = set()
                 path_map[x].add(col)
         if path_map:
             for book in bl:

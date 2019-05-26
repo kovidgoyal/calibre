@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john at nachtimwald.com>'
@@ -17,7 +18,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
 from calibre import prints, fsync
 from calibre.constants import DEBUG
-from polyglot.builtins import range, as_unicode, as_bytes
+from polyglot.builtins import range, as_unicode, as_bytes, unicode_type, map
 
 
 class APNXBuilder(object):
@@ -32,7 +33,7 @@ class APNXBuilder(object):
         using either the fast or accurate algorithm.
         '''
         import uuid
-        apnx_meta = {'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
+        apnx_meta = {'guid': unicode_type(uuid.uuid4()).replace('-', '')[:8], 'asin':
                 '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': ''}
 
         with lopen(mobi_file_path, 'rb') as mf:
@@ -52,11 +53,11 @@ class APNXBuilder(object):
             if mh.exth is None or not mh.exth.cdetype:
                 apnx_meta['cdetype'] = 'EBOK'
             else:
-                apnx_meta['cdetype'] = str(mh.exth.cdetype)
+                apnx_meta['cdetype'] = unicode_type(mh.exth.cdetype)
             if mh.exth is None or not mh.exth.uuid:
                 apnx_meta['asin'] = ''
             else:
-                apnx_meta['asin'] = str(mh.exth.uuid)
+                apnx_meta['asin'] = unicode_type(mh.exth.uuid)
 
         # Get the pages depending on the chosen parser
         pages = []
@@ -113,16 +114,18 @@ class APNXBuilder(object):
 
         if DEBUG:
             prints('APNX Content Header:', content_header)
+        content_header = as_bytes(content_header)
+        page_header = as_bytes(page_header)
 
         apnx += struct.pack('>I', 65537)
         apnx += struct.pack('>I', 12 + len(content_header))
         apnx += struct.pack('>I', len(content_header))
-        apnx += as_bytes(content_header)
+        apnx += content_header
         apnx += struct.pack('>H', 1)
         apnx += struct.pack('>H', len(page_header))
         apnx += struct.pack('>H', len(pages))
         apnx += struct.pack('>H', 32)
-        apnx += as_bytes(page_header)
+        apnx += page_header
 
         # Write page values to APNX.
         for page in pages:
@@ -234,15 +237,17 @@ class APNXBuilder(object):
         # not modifying the text. In this case the case
         # doesn't matter just the absolute character and
         # the position within the stream.
-        for c in mr.mobi_html.lower():
+        data = bytearray(as_bytes(mr.mobi_html.lower()))
+        slash, p, lt, gt = map(ord, '/p<>')
+        for c in data:
             pos += 1
 
             # Check if we are starting or stopping a p tag.
             if check_p:
-                if c == '/':
+                if c == slash:
                     closing = True
                     continue
-                elif c == 'p':
+                elif c == p:
                     if closing:
                         in_p = False
                     else:
@@ -252,11 +257,11 @@ class APNXBuilder(object):
                 closing = False
                 continue
 
-            if c == '<':
+            if c == lt:
                 in_tag = True
                 check_p = True
                 continue
-            elif c == '>':
+            elif c == gt:
                 in_tag = False
                 check_p = False
                 continue
@@ -287,8 +292,8 @@ class APNXBuilder(object):
             return self.get_pages_fast(mobi_file_path)
         mr.extract_text()
 
-        html = mr.mobi_html.lower()
-        for m in re.finditer('<[^>]*pagebreak[^>]*>', html):
+        html = as_bytes(mr.mobi_html.lower())
+        for m in re.finditer(b'<[^>]*pagebreak[^>]*>', html):
             pages.append(m.end())
 
         return pages
