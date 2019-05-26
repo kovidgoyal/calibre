@@ -35,13 +35,13 @@ Periodical identifier sample from a PRS-650:
 '''
 
 # Utility functions {{{
-EMPTY_CARD_CACHE = '''\
+EMPTY_CARD_CACHE = b'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
 </cache>
 '''
 
-EMPTY_EXT_CACHE = '''\
+EMPTY_EXT_CACHE = b'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cacheExt xmlns="http://www.sony.com/xmlns/product/prs/device/1">
 </cacheExt>
@@ -726,8 +726,8 @@ class XMLCache(object):
             self.cleanup_whitespace(i)
             raw = etree.tostring(self.roots[i], encoding='UTF-8',
                     xml_declaration=True)
-            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
-                    '<?xml version="1.0" encoding="UTF-8"?>')
+            raw = raw.replace(b"<?xml version='1.0' encoding='UTF-8'?>",
+                    b'<?xml version="1.0" encoding="UTF-8"?>')
             with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)
@@ -738,8 +738,8 @@ class XMLCache(object):
                     xml_declaration=True)
             except:
                 continue
-            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
-                    '<?xml version="1.0" encoding="UTF-8"?>')
+            raw = raw.replace(b"<?xml version='1.0' encoding='UTF-8'?>",
+                    b'<?xml version="1.0" encoding="UTF-8"?>')
             with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)

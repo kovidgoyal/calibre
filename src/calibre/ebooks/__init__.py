@@ -204,7 +204,7 @@ def check_ebook_format(stream, current_guess):
     ans = current_guess
     if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
-        if stream.read(3) == 'TPZ':
+        if stream.read(3) == b'TPZ':
             ans = 'tpz'
         stream.seek(0)
     return ans

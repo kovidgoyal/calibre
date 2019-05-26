@@ -237,7 +237,7 @@ class APNXBuilder(object):
         # not modifying the text. In this case the case
         # doesn't matter just the absolute character and
         # the position within the stream.
-        data = bytearray(as_bytes(mr.mobi_html.lower()))
+        data = mr.mobi_html.lower()
         slash, p, lt, gt = map(ord, '/p<>')
         for c in data:
             pos += 1

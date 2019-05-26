@@ -135,10 +135,10 @@ class PRS505(USBMS):
                             time.sleep(5)
                             os.makedirs(dname, mode=0o777)
                     with lopen(cachep, 'wb') as f:
-                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                        f.write(b'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
-                            '''.encode('utf8'))
+                            ''')
                         fsync(f)
                 return True
             except:
