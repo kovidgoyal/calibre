@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
-from polyglot.builtins import unicode_type, as_bytes, as_unicode
+from polyglot.builtins import unicode_type, as_unicode
 
 
 def node_mountpoint(node):
@@ -106,7 +106,7 @@ class UDisks2(object):
         try:
             device = bd.Get(self.BLOCK, 'Device',
                 dbus_interface='org.freedesktop.DBus.Properties')
-            device = bytearray(as_bytes(device)).replace(b'\x00', b'').decode('utf-8')
+            device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
         except Exception:
             device = None
 
@@ -116,15 +116,15 @@ class UDisks2(object):
         # Enumerate all devices known to UDisks
         devs = self.bus.get_object('org.freedesktop.UDisks2',
                         '/org/freedesktop/UDisks2/block_devices')
-        xml = devs.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable')
-        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', unicode_type(xml)):
+        xml = unicode_type(devs.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable'))
+        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', xml):
             bd = self.bus.get_object('org.freedesktop.UDisks2',
-                '/org/freedesktop/UDisks2/block_devices/%s2'%dev.group(1))
+                '/org/freedesktop/UDisks2/block_devices/%s'%dev.group(1))
             try:
                 device = bd.Get(self.BLOCK, 'Device',
                     dbus_interface='org.freedesktop.DBus.Properties')
-                device = bytearray(as_bytes(device)).replace(b'\x00', b'').decode('utf-8')
-            except:
+                device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
+            except Exception:
                 device = None
             if device == device_node_path:
                 return bd
