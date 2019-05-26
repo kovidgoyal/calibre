@@ -17,6 +17,10 @@ builtins.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 builtins.__dict__['__'] = lambda s: s
 
+# For backwards compat with some third party plugins
+builtins.__dict__['dynamic_property'] = lambda func: func(None)
+
+
 from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG, isfreebsd, ispy3
 
 _run_once = False
