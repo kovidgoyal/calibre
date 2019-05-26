@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -243,9 +243,9 @@ class Device(DeviceConfig, DevicePlugin):
         try:
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
         except Exception:
-            dlmap = []
+            dlmap = {}
 
-        if not dlmap['drive_letters']:
+        if not dlmap.get('drive_letters'):
             time.sleep(7)
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
 
@@ -467,7 +467,7 @@ class Device(DeviceConfig, DevicePlugin):
                     if not os.access(j(usb_dir, y), os.R_OK):
                         usb_dir = None
                         continue
-                e = lambda q : raw2num(open(j(usb_dir, q)).read())
+                e = lambda q : raw2num(open(j(usb_dir, q), 'rb').read().decode('utf-8'))
                 ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
                         test(bcd, 'bcdDevice')):
@@ -489,7 +489,7 @@ class Device(DeviceConfig, DevicePlugin):
                     sz = j(x, 'size')
                     node = parts[idx+1]
                     try:
-                        exists = int(open(sz).read()) > 0
+                        exists = int(open(sz, 'rb').read().decode('utf-8')) > 0
                         if exists:
                             node = self.find_largest_partition(x)
                             ok[node] = True
@@ -523,7 +523,7 @@ class Device(DeviceConfig, DevicePlugin):
             if not os.access(sz, os.R_OK):
                 continue
             try:
-                sz = int(open(sz).read())
+                sz = int(open(sz, 'rb').read().decode('utf-8'))
             except:
                 continue
             if sz > 0:

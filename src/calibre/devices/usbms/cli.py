@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -102,6 +102,6 @@ class CLI(object):
     def touch(self, path, end_session=True):
         path = self.munge_path(path)
         if not os.path.exists(path):
-            lopen(path, 'w').close()
+            lopen(path, 'wb').close()
         if not os.path.isdir(path):
             os.utime(path, None)
