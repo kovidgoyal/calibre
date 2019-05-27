@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
@@ -166,11 +166,11 @@ class OptionParser(optparse.OptionParser):
 
     def options_iter(self):
         for opt in self.option_list:
-            if str(opt).strip():
+            if native_string_type(opt).strip():
                 yield opt
         for gr in self.option_groups:
             for opt in gr.option_list:
-                if str(opt).strip():
+                if native_string_type(opt).strip():
                     yield opt
 
     def option_by_dest(self, dest):
