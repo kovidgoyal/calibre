@@ -95,7 +95,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
         if not as_xml:
             with lopen(index, 'r+b') as i:
-                raw = i.read().decode('utf-8')
+                raw = i.read().decode('utf-8', 'replace')
                 raw = flip_images(raw)
                 raw = raw.replace('<head', '<!-- created by calibre\'s pdftohtml -->\n  <head', 1)
                 i.seek(0)
