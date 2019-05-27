@@ -42,7 +42,7 @@ class ConversionOption(object):
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self.name == getattr(other, 'name', other)
 
     def clone(self):
         return ConversionOption(name=self.name, help=self.help,
