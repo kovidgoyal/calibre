@@ -21,15 +21,15 @@ def _clean(s):
 
 
 def _detag(tag):
-    str = u""
+    ans = u""
     if tag is None:
-        return str
+        return ans
     for elem in tag:
         if hasattr(elem, "contents"):
-            str += _detag(elem)
+            ans += _detag(elem)
         else:
-            str += _clean(elem)
-    return str
+            ans += _clean(elem)
+    return ans
 
 
 def _metadata_from_table(soup, searchfor):

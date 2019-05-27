@@ -124,9 +124,9 @@ def recipe_test(option, opt_str, value, parser):
     assert value is None
     value = []
 
-    def floatable(str):
+    def floatable(s):
         try:
-            float(str)
+            float(s)
             return True
         except ValueError:
             return False
