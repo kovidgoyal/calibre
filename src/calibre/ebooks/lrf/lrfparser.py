@@ -79,7 +79,8 @@ class LRFDocument(LRFMetaFile):
 
     def write_files(self):
         for obj in chain(itervalues(self.image_map), itervalues(self.font_map)):
-            open(obj.file, 'wb').write(obj.stream)
+            with open(obj.file, 'wb') as f:
+                f.write(obj.stream)
 
     def to_xml(self, write_files=True):
         bookinfo = u'<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
@@ -96,7 +97,8 @@ class LRFDocument(LRFMetaFile):
             prefix = ascii_filename(self.metadata.title)
             bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
             if write_files:
-                open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
+                with open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb') as f:
+                    f.write(th)
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
         bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
         bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
@@ -159,13 +161,13 @@ def main(args=sys.argv, logger=None):
         return 1
     if opts.out is None:
         opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+".lrs")
-    o = codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8')
-    o.write(u'<?xml version="1.0" encoding="UTF-8"?>\n')
     logger.info(_('Parsing LRF...'))
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
     logger.info(_('Creating XML...'))
-    o.write(d.to_xml(write_files=opts.output_resources))
+    with codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write(d.to_xml(write_files=opts.output_resources))
     logger.info(_('LRS written to ')+opts.out)
     return 0
 

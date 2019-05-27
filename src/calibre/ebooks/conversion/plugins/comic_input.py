@@ -102,7 +102,8 @@ class ComicInput(InputFormatPlugin):
                     '%s is not a valid comic collection'
                     ' no comics.txt was found in the file')
                         %stream.name)
-            raw = open('comics.txt', 'rb').read()
+            with open('comics.txt', 'rb') as f:
+                raw = f.read()
             if raw.startswith(codecs.BOM_UTF16_BE):
                 raw = raw.decode('utf-16-be')[1:]
             elif raw.startswith(codecs.BOM_UTF16_LE):
@@ -230,8 +231,8 @@ class ComicInput(InputFormatPlugin):
                                 _('Page')+' %d'%(i+1), play_order=po)
                         po += 1
         opf.set_toc(toc)
-        m, n = open(u'metadata.opf', 'wb'), open('toc.ncx', 'wb')
-        opf.render(m, n, u'toc.ncx')
+        with open(u'metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
+            opf.render(m, n, u'toc.ncx')
         return os.path.abspath(u'metadata.opf')
 
     def create_wrappers(self, pages):

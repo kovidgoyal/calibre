@@ -367,7 +367,8 @@ class EPUBOutput(OutputFormatPlugin):
                 if tag.tail:
                     tag.tail = tag.tail.strip()
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
-            open(ncx_path, 'wb').write(compressed)
+            with open(ncx_path, 'wb') as f:
+                f.write(compressed)
     # }}}
 
     def workaround_ade_quirks(self):  # {{{

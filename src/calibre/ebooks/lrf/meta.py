@@ -703,9 +703,8 @@ def main(args=sys.argv):
         lrf.producer = options.producer
     if options.thumbnail:
         path = os.path.expanduser(os.path.expandvars(options.thumbnail))
-        f = open(path, "rb")
-        lrf.thumbnail = f.read()
-        f.close()
+        with open(path, "rb") as f:
+            lrf.thumbnail = f.read()
     if options.book_id is not None:
         lrf.book_id = options.book_id
     if options.comment:
@@ -716,9 +715,8 @@ def main(args=sys.argv):
         td = "None"
         if t and len(t) > 0:
             td = os.path.basename(args[1])+"_thumbnail."+lrf.thumbail_extension()
-            f = open(td, "w")
-            f.write(t)
-            f.close()
+            with open(td, "w") as f:
+                f.write(t)
 
     fields = LRFMetaFile.__dict__.items()
     fields.sort()
@@ -734,7 +732,8 @@ def main(args=sys.argv):
             ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
-            open(cover, 'wb').write(data)
+            with open(cover, 'wb') as f:
+                f.write(data)
             print('Cover:', cover)
         else:
             print('Could not find cover in the LRF file')

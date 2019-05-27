@@ -91,17 +91,20 @@ class HTMLOutput(OutputFormatPlugin):
 
         # read template files
         if opts.template_html_index is not None:
-            template_html_index_data = open(opts.template_html_index, 'rb').read()
+            with open(opts.template_html_index, 'rb') as f:
+                template_html_index_data = f.read()
         else:
             template_html_index_data = P('templates/html_export_default_index.tmpl', data=True)
 
         if opts.template_html is not None:
-            template_html_data = open(opts.template_html, 'rb').read()
+            with open(opts.template_html, 'rb') as f:
+                template_html_data = f.read()
         else:
             template_html_data = P('templates/html_export_default.tmpl', data=True)
 
         if opts.template_css is not None:
-            template_css_data = open(opts.template_css, 'rb').read()
+            with open(opts.template_css, 'rb') as f:
+                template_css_data = f.read()
         else:
             template_css_data = P('templates/html_export_default.css', data=True)
 
