@@ -40,7 +40,7 @@ class Reader(FormatReader):
 
         self.stream.seek(0)
         raw_data = self.stream.read()
-        data = ''
+        data = b''
         mo = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
         if mo:
             data = mo.group()
