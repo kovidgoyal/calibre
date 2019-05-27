@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # coding: utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from polyglot.builtins import range
 

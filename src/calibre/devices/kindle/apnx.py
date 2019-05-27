@@ -147,7 +147,7 @@ class APNXBuilder(object):
             r0 = phead.section_data(0)
             text_length = struct.unpack('>I', r0[4:8])[0]
 
-        chars_per_page = int(text_length / page_count)
+        chars_per_page = int(text_length // page_count)
         while count < text_length:
             pages.append(count)
             count += chars_per_page
@@ -237,7 +237,7 @@ class APNXBuilder(object):
         # not modifying the text. In this case the case
         # doesn't matter just the absolute character and
         # the position within the stream.
-        data = bytearray(as_bytes(mr.mobi_html.lower()))
+        data = mr.mobi_html.lower()
         slash, p, lt, gt = map(ord, '/p<>')
         for c in data:
             pos += 1

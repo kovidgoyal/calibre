@@ -346,7 +346,7 @@ class MobiReader(object):
     def cleanup_html(self):
         self.log.debug('Cleaning up HTML...')
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
-        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
+        if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')

@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -65,7 +66,7 @@ class HTMLRenderer(object):
             buf = QBuffer(ba)
             buf.open(QBuffer.WriteOnly)
             image.save(buf, 'JPEG')
-            self.data = str(ba.data())
+            self.data = bytes(ba.data())
         except Exception as e:
             self.exception = e
             self.traceback = traceback.format_exc()
@@ -204,7 +205,7 @@ def check_ebook_format(stream, current_guess):
     ans = current_guess
     if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
-        if stream.read(3) == 'TPZ':
+        if stream.read(3) == b'TPZ':
             ans = 'tpz'
         stream.seek(0)
     return ans

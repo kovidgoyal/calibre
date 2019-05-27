@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 store_version = 7  # Needed for dynamic plugin loading
 
 from contextlib import closing

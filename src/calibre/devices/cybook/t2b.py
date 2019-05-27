@@ -40,7 +40,7 @@ def write_t2b(t2bfile, coverdata=None):
         t2bcover = Image.new('L', (96, 144), 'white')
 
         x, y = cover.size
-        t2bcover.paste(cover, ((96-x)/2, (144-y)/2))
+        t2bcover.paste(cover, ((96-x)//2, (144-y)//2))
 
         px = []
         pxs = t2bcover.getdata()

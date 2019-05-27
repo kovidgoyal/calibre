@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -118,11 +118,11 @@ class KINDLE(USBMS):
         return mi
 
     def get_annotations(self, path_map):
-        MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
+        MBP_FORMATS = ['azw', 'mobi', 'prc', 'txt']
         mbp_formats = set(MBP_FORMATS)
-        PDR_FORMATS = [u'pdf']
+        PDR_FORMATS = ['pdf']
         pdr_formats = set(PDR_FORMATS)
-        TAN_FORMATS = [u'tpz', u'azw1']
+        TAN_FORMATS = ['tpz', 'azw1']
         tan_formats = set(TAN_FORMATS)
 
         def get_storage():
@@ -213,7 +213,7 @@ class KINDLE(USBMS):
         # Add the last-read location
         if bookmark.book_format == 'pdf':
             markup = _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
-                    time=strftime(u'%x', timestamp.timetuple()),
+                    time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
         else:

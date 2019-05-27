@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Read content from azw4 file.
@@ -40,7 +41,7 @@ class Reader(FormatReader):
 
         self.stream.seek(0)
         raw_data = self.stream.read()
-        data = ''
+        data = b''
         mo = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
         if mo:
             data = mo.group()

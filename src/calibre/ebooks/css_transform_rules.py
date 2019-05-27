@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 from functools import partial
 from collections import OrderedDict
 import operator, numbers
@@ -13,7 +12,7 @@ from css_parser.css import Property, CSSRule
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def compile_pat(pat):
@@ -162,7 +161,7 @@ def transform_number(val, op, raw):
     v = op(v, val)
     if int(v) == v:
         v = int(v)
-    return str(v) + u
+    return unicode_type(v) + u
 
 
 class Rule(object):
@@ -380,7 +379,7 @@ def test(return_tests=False):  # {{{
         r = Rule(**rule)
         decl = StyleDeclaration(safe_parser().parseStyle(style))
         r.process_declaration(decl)
-        return str(decl)
+        return unicode_type(decl)
 
     class TestTransforms(unittest.TestCase):
         longMessage = True
