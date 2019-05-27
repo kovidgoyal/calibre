@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 ''' CHM File decoding support '''
 __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
@@ -64,7 +66,7 @@ class CHMInput(InputFormatPlugin):
                 metadata = Metadata(os.path.basename(chm_name))
             encoding = self._chm_reader.get_encoding() or options.input_encoding or 'cp1252'
             self._chm_reader.CloseCHM()
-            # print tdir, mainpath
+            # print((tdir, mainpath))
             # from calibre import ipython
             # ipython()
 
@@ -117,10 +119,10 @@ class CHMInput(InputFormatPlugin):
                             strip_encoding_pats=True, resolve_entities=True)[0]
         hhcroot = html.fromstring(hhcdata)
         toc = self._process_nodes(hhcroot)
-        # print "============================="
-        # print "Printing hhcroot"
-        # print etree.tostring(hhcroot, pretty_print=True)
-        # print "============================="
+        # print("=============================")
+        # print("Printing hhcroot")
+        # print(etree.tostring(hhcroot, pretty_print=True))
+        # print("=============================")
         log.debug('Found %d section nodes' % toc.count())
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
         base = os.path.dirname(os.path.abspath(htmlpath))
@@ -183,7 +185,7 @@ class CHMInput(InputFormatPlugin):
             p = node.xpath('ancestor::ul[1]/ancestor::li[1]/object[1]')
             parent = p[0] if p else None
             toc = ancestor_map.get(parent, toc)
-            title = href = u''
+            title = href = ''
             for param in node.xpath('./param'):
                 if match_string(param.attrib['name'], 'name'):
                     title = param.attrib['value']

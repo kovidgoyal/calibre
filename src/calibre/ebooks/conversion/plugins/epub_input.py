@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -44,7 +45,7 @@ class EPUBInput(InputFormatPlugin):
         import uuid, hashlib
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
-            idpf_key = re.sub(u'[\u0020\u0009\u000d\u000a]', u'', idpf_key)
+            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in opf.identifier_iter():
@@ -269,7 +270,7 @@ class EPUBInput(InputFormatPlugin):
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
-            for f in walk(u'.'):
+            for f in walk('.'):
                 if f.lower().endswith('.opf') and '__MACOSX' not in f and \
                         not os.path.basename(f).startswith('.'):
                     opf = os.path.abspath(f)

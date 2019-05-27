@@ -164,7 +164,7 @@ class DocAnalysis(object):
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
-                l = int(l/100)
+                l = int(l // 100)
                 # print("adding "+unicode_type(l))
                 hRaw[l]+=1
 

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -848,7 +850,7 @@ OptionRecommendation(name='search_replace',
         rec = self.get_option_by_name(name)
         help = getattr(rec, 'help', None)
         if help is not None:
-            return help.replace('%default', str(rec.recommended_value))
+            return help.replace('%default', unicode_type(rec.recommended_value))
 
     def get_all_help(self):
         ans = {}

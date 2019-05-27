@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -142,11 +142,11 @@ class RecipeInput(InputFormatPlugin):
         for key, val in self.recipe_object.conversion_options.items():
             setattr(opts, key, val)
 
-        for f in os.listdir(u'.'):
+        for f in os.listdir('.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-        for f in walk(u'.'):
+        for f in walk('.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
