@@ -65,7 +65,8 @@ class RecipeInput(InputFormatPlugin):
             zf = ZipFile(recipe_or_file, 'r')
             zf.extractall()
             zf.close()
-            self.recipe_source = open(u'download.recipe', 'rb').read()
+            with open('download.recipe', 'rb') as f:
+                self.recipe_source = f.read()
             recipe = compile_recipe(self.recipe_source)
             recipe.needs_subscription = False
             self.recipe_object = recipe(opts, log, self.report_progress)
@@ -87,7 +88,8 @@ class RecipeInput(InputFormatPlugin):
                     self.recipe_source = self.recipe_source.encode('utf-8')
                 recipe = compile_recipe(self.recipe_source)
             elif os.access(recipe_or_file, os.R_OK):
-                self.recipe_source = open(recipe_or_file, 'rb').read()
+                with open(recipe_or_file, 'rb') as f:
+                    self.recipe_source = f.read()
                 recipe = compile_recipe(self.recipe_source)
                 log('Using custom recipe')
             else:

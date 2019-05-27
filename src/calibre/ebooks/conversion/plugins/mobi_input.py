@@ -52,7 +52,8 @@ class MOBIInput(InputFormatPlugin):
         if raw:
             if isinstance(raw, unicode_type):
                 raw = raw.encode('utf-8')
-            open(u'debug-raw.html', 'wb').write(raw)
+            with open(u'debug-raw.html', 'wb') as f:
+                f.write(raw)
         from calibre.ebooks.oeb.base import close_self_closing_tags
         for f, root in parse_cache.items():
             raw = html.tostring(root, encoding='utf-8', method='xml',
