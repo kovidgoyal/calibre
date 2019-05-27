@@ -106,7 +106,7 @@ class CHMReader(CHMFile):
         return data
 
     def ExtractFiles(self, output_dir=getcwd(), debug_dump=False):
-        html_files = set([])
+        html_files = set()
         try:
             x = self.get_encoding()
             codecs.lookup(x)
