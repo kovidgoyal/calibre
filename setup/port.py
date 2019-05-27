@@ -56,6 +56,8 @@ def run_2to3(path, show_diffs=False):
 
 class Base(Command):
 
+    scan_all_files = False
+
     @property
     def cache_file(self):
         return self.j(build_cache_dir(), self.CACHE)
@@ -89,6 +91,14 @@ class Base(Command):
                 raise
         dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
         try:
+            if self.scan_all_files:
+                bad_files = []
+                for f in dirty_files:
+                    if self.file_has_errors(f):
+                        bad_files.append(f)
+                    else:
+                        cache[f] = self.file_hash(f)
+                dirty_files = bad_files
             for i, f in enumerate(dirty_files):
                 num_left = len(dirty_files) - i - 1
                 self.info('\tChecking', f)
@@ -141,6 +151,7 @@ class UnicodeCheck(Base):
 
     description = 'Check for unicode porting status'
     CACHE = 'check_unicode.json'
+    scan_all_files = True
 
     def get_error_statement(self, f):
         uni_pat = re.compile(r'from __future__ import .*\bunicode_literals\b')
