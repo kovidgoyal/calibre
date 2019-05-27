@@ -20,7 +20,7 @@ from calibre import (extract, walk, isbytestring, filesystem_encoding,
 from calibre.constants import __version__
 from polyglot.builtins import unicode_type, string_or_bytes, map
 
-DEBUG_README=u'''
+DEBUG_README=b'''
 This debug directory contains snapshots of the e-book as it passes through the
 various stages of conversion. The stages are:
 
@@ -1061,8 +1061,8 @@ OptionRecommendation(name='search_replace',
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
-            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
-                    'wb').write(DEBUG_README.encode('utf-8'))
+            with open(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
+                f.write(DEBUG_README)
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
                 if os.path.exists(x):
