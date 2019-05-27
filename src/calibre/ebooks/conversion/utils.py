@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -329,7 +330,7 @@ class HeuristicProcessor(object):
 
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
-            words_per_chptr = wordcount / self.html_preprocess_sections
+            words_per_chptr = wordcount // self.html_preprocess_sections
         self.log.debug("Total wordcount is: "+ unicode_type(wordcount)+", Average words per section is: "+
                        unicode_type(words_per_chptr)+", Marked up "+unicode_type(self.html_preprocess_sections)+" chapters")
         return html
@@ -361,13 +362,13 @@ class HeuristicProcessor(object):
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
-        lookahead = "(?<=.{"+unicode_type(length)+u"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IA\u00DF]|(?<!\\&\\w{4});))"
-        em_en_lookahead = "(?<=.{"+unicode_type(length)+u"}[\u2013\u2014])"
-        soft_hyphen = u"\xad"
+        lookahead = "(?<=.{"+unicode_type(length)+"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IA\u00DF]|(?<!\\&\\w{4});))"
+        em_en_lookahead = "(?<=.{"+unicode_type(length)+"}[\u2013\u2014])"
+        soft_hyphen = "\xad"
         line_ending = "\\s*(?P<style_close></(span|[iub])>)?\\s*(</(p|div)>)?"
         blanklines = "\\s*(?P<up2threeblanks><(p|span|div)[^>]*>\\s*(<(p|span|div)[^>]*>\\s*</(span|p|div)>\\s*)</(span|p|div)>\\s*){0,3}\\s*"
         line_opening = "<(p|div)[^>]*>\\s*(?P<style_open><(span|[iub])[^>]*>)?\\s*"
-        txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
+        txt_line_wrap = "((\u0020|\u0009)*\n){1,4}"
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
@@ -378,9 +379,9 @@ class HeuristicProcessor(object):
             em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
             shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
-        unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
-        em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
-        shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
+        unwrap = re.compile("%s" % unwrap_regex, re.UNICODE)
+        em_en_unwrap = re.compile("%s" % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile("%s" % shy_unwrap_regex, re.UNICODE)
 
         if format == 'txt':
             content = unwrap.sub(' ', content)
@@ -599,7 +600,7 @@ class HeuristicProcessor(object):
                                 ' expression, using default')
                     else:
                         replacement_break = re.sub('(?i)(width=\\d+\\%?|width:\\s*\\d+(\\%|px|pt|em)?;?)', '', replacement_break)
-                        divpercent = (100 - width) / 2
+                        divpercent = (100 - width) // 2
                         hr_open = re.sub('45', unicode_type(divpercent), hr_open)
                         scene_break = hr_open+replacement_break+'</div>'
                 else:
@@ -865,5 +866,5 @@ class HeuristicProcessor(object):
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly
-            html = self.anyblank.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+            html = self.anyblank.sub('\n'+r'\g<openline>'+'\u00a0'+r'\g<closeline>', html)
         return html

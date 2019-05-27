@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,11 +18,11 @@ from polyglot.builtins import iterkeys
 
 
 def _clean(s):
-    return s.replace(u'\u00a0', u' ')
+    return s.replace('\u00a0', ' ')
 
 
 def _detag(tag):
-    ans = u""
+    ans = ""
     if tag is None:
         return ans
     for elem in tag:
@@ -77,10 +77,10 @@ def _get_comments(soup):
     pages = (_metadata_from_span(soup, 'pages') or _metadata_from_table(soup, 'pages'))
     try:
         # date span can have copyright symbols in it...
-        date = date.replace(u'\u00a9', '').strip()
+        date = date.replace('\u00a9', '').strip()
         # and pages often comes as '(\d+ pages)'
         pages = re.search(r'\d+', pages).group(0)
-        return u'Published %s, %s pages.' % (date, pages)
+        return 'Published %s, %s pages.' % (date, pages)
     except:
         pass
     return None
