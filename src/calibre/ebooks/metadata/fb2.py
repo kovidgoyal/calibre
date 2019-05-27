@@ -27,7 +27,7 @@ NAMESPACES = {
     'xlink' :   'http://www.w3.org/1999/xlink'
 }
 
-tostring = partial(etree.tostring, method='text', encoding=unicode_type)
+tostring = partial(etree.tostring, method='text', encoding='unicode')
 
 
 def XLINK(tag):
@@ -448,7 +448,7 @@ def ensure_namespace(doc):
                 break
     if bare_tags:
         import re
-        raw = etree.tostring(doc, encoding=unicode_type)
+        raw = etree.tostring(doc, encoding='unicode')
         raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
         doc = etree.fromstring(raw)
     return doc

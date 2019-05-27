@@ -43,7 +43,7 @@ class Article(object):
         if summary and '<' in summary:
             try:
                 s = html.fragment_fromstring(summary, create_parent=True)
-                summary = html.tostring(s, method='text', encoding=unicode_type)
+                summary = html.tostring(s, method='text', encoding='unicode')
             except:
                 print('Failed to process article summary, deleting:')
                 print(summary.encode('utf-8'))

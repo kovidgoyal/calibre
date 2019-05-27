@@ -400,7 +400,7 @@ def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
 
 
 def xml2text(elem, pretty_print=False):
-    return etree.tostring(elem, method='text', encoding=unicode_type, with_tail=False, pretty_print=pretty_print)
+    return etree.tostring(elem, method='text', encoding='unicode', with_tail=False, pretty_print=pretty_print)
 
 
 def escape_cdata(root):

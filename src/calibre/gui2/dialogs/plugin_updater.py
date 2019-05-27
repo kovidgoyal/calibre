@@ -840,7 +840,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                     continue
                 if heading_node.text_content().lower().find('version history') != -1:
                     div_node = spoiler_node.xpath('div')[0]
-                    text = html.tostring(div_node, method='html', encoding=unicode_type)
+                    text = html.tostring(div_node, method='html', encoding='unicode')
                     return re.sub(r'<div\s.*?>', '<div>', text)
             except:
                 if DEBUG:

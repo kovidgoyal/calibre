@@ -135,7 +135,7 @@ class PMLMLizer(object):
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
-            content = unicode_type(etree.tostring(item.data, encoding=unicode_type))
+            content = etree.tostring(item.data, encoding='unicode')
             content = self.prepare_text(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)

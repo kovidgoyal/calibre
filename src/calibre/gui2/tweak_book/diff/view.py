@@ -65,7 +65,7 @@ def beautify_text(raw, syntax):
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
-    return etree.tostring(root, encoding=unicode_type)
+    return etree.tostring(root, encoding='unicode')
 
 
 class LineNumberMap(dict):  # {{{
