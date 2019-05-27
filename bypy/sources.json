@@ -370,9 +370,9 @@
     {
         "name": "webkit",
         "unix": {
-            "filename":"qtwebkit-5.212.0-alpha2.tar.xz",
-            "hash": "sha256:f8f901de567e11fc5659402b6b827eac75505ff9c5072d8e919aa306003f8f8a",
-            "urls":["https://github.com/annulen/webkit/releases/download/qtwebkit-5.212.0-alpha2/{filename}"]
+            "filename":"qtwebkit-95401fe3908e0b4eebc9447e678298d768617bc7.tar.xz",
+            "hash":"git:95401fe3908e0b4eebc9447e678298d768617bc7",
+            "urls":["https://github.com/kovidgoyal/webkit.git"]
         }
     },
 
