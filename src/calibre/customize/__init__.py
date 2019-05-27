@@ -211,7 +211,7 @@ class Plugin(object):  # {{{
         For example to load an image::
 
             pixmap = QPixmap()
-            pixmap.loadFromData(tuple(self.load_resources(['images/icon.png']).values())[0])
+            pixmap.loadFromData(self.load_resources(['images/icon.png'])['images/icon.png'])
             icon = QIcon(pixmap)
 
         :param names: List of paths to resources in the ZIP file using / as separator
@@ -247,7 +247,7 @@ class Plugin(object):  # {{{
         :param gui: If True return HTML help, otherwise return plain text help.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def temporary_file(self, suffix):
         '''

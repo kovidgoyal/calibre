@@ -42,7 +42,7 @@ class ConversionOption(object):
         return hash(self.name)
 
     def __eq__(self, other):
-        return hash(self) == hash(other)
+        return self.name == other.name
 
     def clone(self):
         return ConversionOption(name=self.name, help=self.help,
@@ -143,7 +143,7 @@ class InputFormatPlugin(Plugin):
 
     #: Set of file types for which this plugin should be run
     #: For example: ``set(['azw', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     #: If True, this input plugin generates a collection of images,
     #: one per HTML file. This can be set dynamically, in the convert method
@@ -180,11 +180,11 @@ class InputFormatPlugin(Plugin):
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.
-    options = set([])
+    options = set()
 
     #: A set of 3-tuples of the form
     #: (option_name, recommended_value, recommendation_level)
-    recommendations = set([])
+    recommendations = set()
 
     def __init__(self, *args):
         Plugin.__init__(self, *args)
@@ -226,7 +226,7 @@ class InputFormatPlugin(Plugin):
                              subsequent stages of the conversion.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def __call__(self, stream, options, file_ext, log,
                  accelerators, output_dir):
@@ -337,7 +337,7 @@ class OutputFormatPlugin(Plugin):
         :param log: The logger. Print debug/info messages etc. using this.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     def is_periodical(self):

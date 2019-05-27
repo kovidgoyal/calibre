@@ -162,7 +162,7 @@ class XMLCache(object):
     def purge_broken_playlist_items(self, root):
         id_map = self.build_id_map(root)
         for pl in root.xpath('//*[local-name()="playlist"]'):
-            seen = set([])
+            seen = set()
             for item in list(pl):
                 id_ = item.get('id', None)
                 if id_ is None or id_ in seen or id_map.get(id_, None) is None:
@@ -573,7 +573,7 @@ class XMLCache(object):
         id_ = self.max_id(root)+1
         attrib = {
                 'page':'0', 'part':'0','pageOffset':'0','scale':'0',
-                'id':unicod_type(id_), 'sourceid':'1', 'path':lpath}
+                'id':unicode_type(id_), 'sourceid':'1', 'path':lpath}
         ans = root.makeelement('{%s}text'%namespace, attrib=attrib, nsmap=root.nsmap)
         root.append(ans)
         return ans
