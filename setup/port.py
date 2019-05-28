@@ -57,6 +57,7 @@ def run_2to3(path, show_diffs=False):
 class Base(Command):
 
     scan_all_files = False
+    EXCLUDED_BASENAMES = {'Zeroconf.py'}
 
     @property
     def cache_file(self):
@@ -71,7 +72,7 @@ class Base(Command):
     def get_files(self):
         from calibre import walk
         for path in walk(os.path.join(self.SRC, 'calibre')):
-            if path.endswith('.py'):
+            if path.endswith('.py') and not os.path.basename(path) in self.EXCLUDED_BASENAMES:
                 yield path
 
     def file_hash(self, f):
