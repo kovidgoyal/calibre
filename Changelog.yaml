@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title:
 
+- version: 3.43.0
+  date: 2019-05-25
+
+  new features:
+    - title: "Kobo driver: Support for new Kobo firmware"
+
+    - title: "Edit metadata dialog: Remember relative sizes of the cover and comments editors."
+      tickets: [1828291]
+
+  bug fixes:
+    - title: "PDF Output: Fix hang when converting some documents."
+      ticket: [1829535]
+
+    - title: "Handle newlines when serializing to csr files"
+      tickets: [1827198]
+
+    - title: "Fix searching in manage tags throws away all changes"
+      tickets: [1828986]
+
+    - title: "Fix a regression in the previous release that broke using the wireless device driver with the device_for_template option"
+
+    - title: "Fix metadata download from Amazon stripping accents from comments text in the binary builds"
+
+    - title: "Amazon metadata download: Fix some downloads failing when a mobile user agent is randomnly selected."
+      tickets: [1827027]
+
+    - title: "LRF Input: Fix a regression that broke parsing LRF files."
+      tickets: [1826970]
+
+    - title: "PDF Input: Workaround for pdftohtml not always producing valid UTF-8."
+      tickets: [1830568]
+
+  improved recipes:
+    - The Toronto Star
+    - The Financial Express
+    - London Review of Books
+    - Boston Globe Subscription
+
+  new recipes:
+    - title: The Baffler
+      author: Jose Ortiz
+
 - version: 3.42.0
   date: 2019-04-30
 
