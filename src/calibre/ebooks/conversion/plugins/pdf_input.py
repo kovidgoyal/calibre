@@ -36,7 +36,7 @@ class PDFInput(InputFormatPlugin):
         from calibre.ebooks.pdf.reflow import PDFDocument
 
         pdftohtml(getcwd(), stream.name, self.opts.no_images, as_xml=True)
-        with open(u'index.xml', 'rb') as f:
+        with lopen('index.xml', 'rb') as f:
             xml = clean_ascii_chars(f.read())
         PDFDocument(xml, self.opts, self.log)
         return os.path.join(getcwd(), 'metadata.opf')
@@ -69,12 +69,12 @@ class PDFInput(InputFormatPlugin):
 
         opf.create_spine(['index.html'])
         log.debug('Rendering manifest...')
-        with open('metadata.opf', 'wb') as opffile:
+        with lopen('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
         if os.path.exists('toc.ncx'):
             ncxid = opf.manifest.id_for_path('toc.ncx')
             if ncxid:
-                with open('metadata.opf', 'r+b') as f:
+                with lopen('metadata.opf', 'r+b') as f:
                     raw = f.read().replace(b'<spine', b'<spine toc="%s"' % as_bytes(ncxid))
                     f.seek(0)
                     f.write(raw)

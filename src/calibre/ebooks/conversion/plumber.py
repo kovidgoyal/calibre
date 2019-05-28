@@ -297,8 +297,8 @@ OptionRecommendation(name='toc_threshold',
 OptionRecommendation(name='max_toc_links',
             recommended_value=50, level=OptionRecommendation.LOW,
             help=_('Maximum number of links to insert into the TOC. Set to 0 '
-               'to disable. Default is: %default. Links are only added to the '
-            'TOC if less than the threshold number of chapters were detected.'
+                'to disable. Default is: %default. Links are only added to the '
+                'TOC if less than the threshold number of chapters were detected.'
                 )
         ),
 
@@ -537,8 +537,8 @@ OptionRecommendation(name='asciiize',
             '(characters shared by Chinese and Japanese for instance) the '
             'representation based on the current calibre interface language will be '
             'used.')%
-            u'\u041c\u0438\u0445\u0430\u0438\u043b '
-            u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
+            '\u041c\u0438\u0445\u0430\u0438\u043b '
+            '\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
         ),
 
@@ -948,8 +948,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.read_metadata_from_opf is not None:
             self.opts.read_metadata_from_opf = os.path.abspath(
                                             self.opts.read_metadata_from_opf)
-            opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
-                      os.path.dirname(self.opts.read_metadata_from_opf))
+            with lopen(self.opts.read_metadata_from_opf, 'rb') as stream:
+                opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
         if mi.cover:
@@ -958,7 +958,8 @@ OptionRecommendation(name='search_replace',
             ext = mi.cover.rpartition('.')[-1].lower().strip()
             if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
-            mi.cover_data = (ext, open(mi.cover, 'rb').read())
+            with lopen(mi.cover, 'rb') as stream:
+                mi.cover_data = (ext, stream.read())
             mi.cover = None
         self.user_metadata = mi
 
@@ -1014,7 +1015,7 @@ OptionRecommendation(name='search_replace',
         try:
             sys.stdout.flush()
             sys.stderr.flush()
-        except:
+        except Exception:
             pass
 
     def dump_oeb(self, oeb, out_dir):
@@ -1063,7 +1064,7 @@ OptionRecommendation(name='search_replace',
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
-            with open(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
+            with lopen(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
                 f.write(DEBUG_README)
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
@@ -1081,7 +1082,7 @@ OptionRecommendation(name='search_replace',
 
         tdir = PersistentTemporaryDirectory('_plumber')
         stream = self.input if self.input_fmt == 'recipe' else \
-                open(self.input, 'rb')
+                lopen(self.input, 'rb')
         if self.input_fmt == 'recipe':
             self.opts.original_recipe_input_arg = self.original_input_arg
 
@@ -1175,7 +1176,7 @@ OptionRecommendation(name='search_replace',
         else:
             try:
                 fkey = list(map(float, fkey.split(',')))
-            except:
+            except Exception:
                 self.log.error('Invalid font size key: %r ignoring'%fkey)
                 fkey = self.opts.dest.fkey
 

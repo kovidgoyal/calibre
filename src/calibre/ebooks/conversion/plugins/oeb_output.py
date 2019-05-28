@@ -53,7 +53,7 @@ class OEBOutput(OutputFormatPlugin):
                         # Needed as I can't get lxml to output opf:role and
                         # not output <opf:metadata> as well
                         raw = re.sub(br'(<[/]{0,1})opf:', br'\1', raw)
-                    with open(href, 'wb') as f:
+                    with lopen(href, 'wb') as f:
                         f.write(raw)
 
             for item in oeb_book.manifest:
@@ -65,7 +65,7 @@ class OEBOutput(OutputFormatPlugin):
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-                with open(path, 'wb') as f:
+                with lopen(path, 'wb') as f:
                     f.write(item.bytes_representation)
                 item.unload_data_from_memory(memory=path)
 

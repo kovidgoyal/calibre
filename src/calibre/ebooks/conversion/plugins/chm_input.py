@@ -174,9 +174,8 @@ class CHMInput(InputFormatPlugin):
         return htmlpath, toc
 
     def _read_file(self, name):
-        f = open(name, 'rb')
-        data = f.read()
-        f.close()
+        with lopen(name, 'rb') as f:
+            data = f.read()
         return data
 
     def add_node(self, node, toc, ancestor_map):

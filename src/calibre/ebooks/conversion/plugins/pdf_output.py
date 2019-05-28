@@ -20,8 +20,8 @@ from polyglot.builtins import iteritems, unicode_type
 UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
          'cicero', 'devicepixel']
 
-PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
-               u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
+PAPER_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
+               'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
 
 
 class PDFMetadata(object):  # {{{

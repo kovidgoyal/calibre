@@ -8,7 +8,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import as_bytes, getcwd
+from polyglot.builtins import getcwd
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -24,7 +24,7 @@ def decrypt_font_data(key, data, algorithm):
 
 
 def decrypt_font(key, path, algorithm):
-    with open(path, 'r+b') as f:
+    with lopen(path, 'r+b') as f:
         data = decrypt_font_data(key, f.read(), algorithm)
         f.seek(0), f.truncate(), f.write(data)
 
@@ -57,7 +57,7 @@ class EPUBInput(InputFormatPlugin):
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
                     key = item.text.rpartition(':')[-1]
-                    key = uuid.UUID(as_bytes(key)).bytes
+                    key = uuid.UUID(key).bytes
                 except:
                     import traceback
                     traceback.print_exc()
@@ -223,8 +223,8 @@ class EPUBInput(InputFormatPlugin):
             if os.path.exists(guide_cover):
                 renderer = render_html_svg_workaround(guide_cover, log)
                 if renderer is not None:
-                    open('calibre_raster_cover.jpg', 'wb').write(
-                        renderer)
+                    with lopen('calibre_raster_cover.jpg', 'wb') as f:
+                        f.write(renderer)
 
         # Set the titlepage guide entry
         self.set_guide_type(opf, 'titlepage', guide_cover, 'Title Page')
@@ -238,7 +238,7 @@ class EPUBInput(InputFormatPlugin):
                 if k.endswith(attr):
                     return v
         try:
-            with open('META-INF/container.xml', 'rb') as f:
+            with lopen('META-INF/container.xml', 'rb') as f:
                 root = etree.fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
                     if attr(r, 'media-type') != "application/oebps-package+xml":
@@ -348,7 +348,7 @@ class EPUBInput(InputFormatPlugin):
         with lopen('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
-        return os.path.abspath(u'content.opf')
+        return os.path.abspath('content.opf')
 
     def convert_epub3_nav(self, nav_path, opf, log, opts):
         from lxml import etree
@@ -421,7 +421,7 @@ class EPUBInput(InputFormatPlugin):
                     changed = True
                     elem.set('data-calibre-removed-titlepage', '1')
             if changed:
-                with open(nav_path, 'wb') as f:
+                with lopen(nav_path, 'wb') as f:
                     f.write(serialize(root, 'application/xhtml+xml'))
 
     def postprocess_book(self, oeb, opts, log):
