@@ -360,7 +360,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
             for body in root.xpath('//body'):
                 if body.text:
                     elems.append(body.text)
-                elems += [html.tostring(x, encoding=unicode_type) for x in body if
+                elems += [html.tostring(x, encoding='unicode') for x in body if
                     x.tag not in ('script', 'style')]
 
             if len(elems) > 1:

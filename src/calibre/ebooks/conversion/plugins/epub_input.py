@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -7,7 +8,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import unicode_type, as_bytes, getcwd
+from polyglot.builtins import as_bytes, getcwd
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -44,7 +45,7 @@ class EPUBInput(InputFormatPlugin):
         import uuid, hashlib
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
-            idpf_key = re.sub(u'[\u0020\u0009\u000d\u000a]', u'', idpf_key)
+            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in opf.identifier_iter():
@@ -269,7 +270,7 @@ class EPUBInput(InputFormatPlugin):
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
-            for f in walk(u'.'):
+            for f in walk('.'):
                 if f.lower().endswith('.opf') and '__MACOSX' not in f and \
                         not os.path.basename(f).startswith('.'):
                     opf = os.path.abspath(f)
@@ -369,7 +370,7 @@ class EPUBInput(InputFormatPlugin):
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
                 text = etree.tostring(
-                    x, method='text', encoding=unicode_type, with_tail=False).strip() or ' '.join(
+                    x, method='text', encoding='unicode', with_tail=False).strip() or ' '.join(
                             x.xpath('descendant-or-self::*/@title')).strip()
                 href = x.get('href')
                 if href:

@@ -893,7 +893,7 @@ class OPF(object):  # {{{
         ans = None
         for match in self.pubdate_path(self.metadata):
             try:
-                val = parse_date(etree.tostring(match, encoding=unicode_type,
+                val = parse_date(etree.tostring(match, encoding='unicode',
                     method='text', with_tail=False).strip())
             except:
                 continue
@@ -906,7 +906,7 @@ class OPF(object):  # {{{
         least_val = least_elem = None
         for match in self.pubdate_path(self.metadata):
             try:
-                cval = parse_date(etree.tostring(match, encoding=unicode_type,
+                cval = parse_date(etree.tostring(match, encoding='unicode',
                     method='text', with_tail=False).strip())
             except:
                 match.getparent().remove(match)
@@ -964,7 +964,7 @@ class OPF(object):  # {{{
             for attr, val in iteritems(x.attrib):
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
-                    val = etree.tostring(x, with_tail=False, encoding=unicode_type,
+                    val = etree.tostring(x, with_tail=False, encoding='unicode',
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
                         if typ == 'isbn' and val.lower().startswith('urn:isbn:'):
@@ -973,7 +973,7 @@ class OPF(object):  # {{{
                     found_scheme = True
                     break
             if not found_scheme:
-                val = etree.tostring(x, with_tail=False, encoding=unicode_type,
+                val = etree.tostring(x, with_tail=False, encoding='unicode',
                             method='text').strip()
                 if val.lower().startswith('urn:isbn:'):
                     val = check_isbn(val.split(':')[-1])

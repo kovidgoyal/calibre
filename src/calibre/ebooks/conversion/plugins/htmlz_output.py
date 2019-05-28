@@ -100,7 +100,7 @@ class HTMLZOutput(OutputFormatPlugin):
                 for item in oeb_book.manifest:
                     if item.media_type in OEB_IMAGES and item.href in images:
                         if item.media_type == SVG_MIME:
-                            data = unicode_type(etree.tostring(item.data, encoding=unicode_type))
+                            data = etree.tostring(item.data, encoding='unicode')
                         else:
                             data = item.data
                         fname = os.path.join(tdir, u'images', images[item.href])

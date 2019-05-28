@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -29,13 +30,13 @@ class MOBIInput(InputFormatPlugin):
             mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_pipeline)
             if mr.kf8_type is None:
-                mr.extract_content(u'.', parse_cache)
+                mr.extract_content('.', parse_cache)
 
         except:
             mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_pipeline, try_extra_data_fix=True)
             if mr.kf8_type is None:
-                mr.extract_content(u'.', parse_cache)
+                mr.extract_content('.', parse_cache)
 
         if mr.kf8_type is not None:
             log('Found KF8 MOBI of type %r'%mr.kf8_type)
@@ -52,7 +53,8 @@ class MOBIInput(InputFormatPlugin):
         if raw:
             if isinstance(raw, unicode_type):
                 raw = raw.encode('utf-8')
-            open(u'debug-raw.html', 'wb').write(raw)
+            with open('debug-raw.html', 'wb') as f:
+                f.write(raw)
         from calibre.ebooks.oeb.base import close_self_closing_tags
         for f, root in parse_cache.items():
             raw = html.tostring(root, encoding='utf-8', method='xml',

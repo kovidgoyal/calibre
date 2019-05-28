@@ -75,8 +75,8 @@ def smarten_punctuation(html, log=None):
     from calibre.ebooks.conversion.utils import HeuristicProcessor
     preprocessor = HeuristicProcessor(log=log)
     from uuid import uuid4
-    start = 'calibre-smartypants-'+str(uuid4())
-    stop = 'calibre-smartypants-'+str(uuid4())
+    start = 'calibre-smartypants-'+unicode_type(uuid4())
+    stop = 'calibre-smartypants-'+unicode_type(uuid4())
     html = html.replace('<!--', start)
     html = html.replace('-->', stop)
     html = preprocessor.fix_nbsp_indents(html)
@@ -152,20 +152,20 @@ class DocAnalysis(object):
         maxLineLength=1900  # Discard larger than this to stay in range
         buckets=20  # Each line is divided into a bucket based on length
 
-        # print "there are "+str(len(lines))+" lines"
+        # print("there are "+unicode_type(len(lines))+" lines")
         # max = 0
         # for line in self.lines:
         #    l = len(line)
         #    if l > max:
         #        max = l
-        # print "max line found is "+str(max)
+        # print("max line found is "+unicode_type(max))
         # Build the line length histogram
         hRaw = [0 for i in range(0,buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
-                l = int(l/100)
-                # print "adding "+str(l)
+                l = int(l // 100)
+                # print("adding "+unicode_type(l))
                 hRaw[l]+=1
 
         # Normalize the histogram into percents
@@ -174,8 +174,8 @@ class DocAnalysis(object):
             h = [float(count)/totalLines for count in hRaw]
         else:
             h = []
-        # print "\nhRaw histogram lengths are: "+str(hRaw)
-        # print "              percents are: "+str(h)+"\n"
+        # print("\nhRaw histogram lengths are: "+unicode_type(hRaw))
+        # print("              percents are: "+unicode_type(h)+"\n")
 
         # Find the biggest bucket
         maxValue = 0
@@ -184,10 +184,10 @@ class DocAnalysis(object):
                 maxValue = h[i]
 
         if maxValue < percent:
-            # print "Line lengths are too variable. Not unwrapping."
+            # print("Line lengths are too variable. Not unwrapping.")
             return False
         else:
-            # print str(maxValue)+" of the lines were in one bucket"
+            # print(unicode_type(maxValue)+" of the lines were in one bucket")
             return True
 
 
@@ -232,7 +232,7 @@ class Dehyphenator(object):
         if len(firsthalf) > 4 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
         if self.verbose > 2:
-            self.log("lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated))
+            self.log("lookup word is: "+lookupword+", orig is: " + hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
         except:
@@ -240,33 +240,33 @@ class Dehyphenator(object):
         if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
-                    self.log("    Cleanup:returned dehyphenated word: " + str(dehyphenated))
+                    self.log("    Cleanup:returned dehyphenated word: " + dehyphenated)
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
                 if self.verbose > 2:
-                    self.log("        Cleanup:returned hyphenated word: " + str(hyphenated))
+                    self.log("        Cleanup:returned hyphenated word: " + hyphenated)
                 return hyphenated
             else:
                 if self.verbose > 2:
-                    self.log("            Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf))
+                    self.log("            Cleanup:returning original text "+firsthalf+" + linefeed "+secondhalf)
                 return firsthalf+'\u2014'+wraptags+secondhalf
 
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
                 if self.verbose > 2:
-                    self.log("too short, returned hyphenated word: " + str(hyphenated))
+                    self.log("too short, returned hyphenated word: " + hyphenated)
                 return hyphenated
             if len(firsthalf) <= 2 and len(secondhalf) <= 2:
                 if self.verbose > 2:
-                    self.log("too short, returned hyphenated word: " + str(hyphenated))
+                    self.log("too short, returned hyphenated word: " + hyphenated)
                 return hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
-                    self.log("     returned dehyphenated word: " + str(dehyphenated))
+                    self.log("     returned dehyphenated word: " + dehyphenated)
                 return dehyphenated
             else:
                 if self.verbose > 2:
-                    self.log("          returned hyphenated word: " + str(hyphenated))
+                    self.log("          returned hyphenated word: " + hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -595,7 +595,7 @@ class HTMLPreProcessor(object):
             docanalysis = DocAnalysis('pdf', html)
             length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
-                # print "The pdf line length returned is " + str(length)
+                # print("The pdf line length returned is " + unicode_type(length))
                 # unwrap em/en dashes
                 end_rules.append((re.compile(
                     r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))

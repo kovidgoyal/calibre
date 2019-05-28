@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -65,7 +65,8 @@ class RecipeInput(InputFormatPlugin):
             zf = ZipFile(recipe_or_file, 'r')
             zf.extractall()
             zf.close()
-            self.recipe_source = open(u'download.recipe', 'rb').read()
+            with open('download.recipe', 'rb') as f:
+                self.recipe_source = f.read()
             recipe = compile_recipe(self.recipe_source)
             recipe.needs_subscription = False
             self.recipe_object = recipe(opts, log, self.report_progress)
@@ -87,7 +88,8 @@ class RecipeInput(InputFormatPlugin):
                     self.recipe_source = self.recipe_source.encode('utf-8')
                 recipe = compile_recipe(self.recipe_source)
             elif os.access(recipe_or_file, os.R_OK):
-                self.recipe_source = open(recipe_or_file, 'rb').read()
+                with open(recipe_or_file, 'rb') as f:
+                    self.recipe_source = f.read()
                 recipe = compile_recipe(self.recipe_source)
                 log('Using custom recipe')
             else:
@@ -140,11 +142,11 @@ class RecipeInput(InputFormatPlugin):
         for key, val in self.recipe_object.conversion_options.items():
             setattr(opts, key, val)
 
-        for f in os.listdir(u'.'):
+        for f in os.listdir('.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-        for f in walk(u'.'):
+        for f in walk('.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 

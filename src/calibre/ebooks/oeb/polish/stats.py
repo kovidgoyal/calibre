@@ -120,7 +120,7 @@ def get_element_text(elem, resolve_property, resolve_pseudo_property, capitalize
     if before:
         ans.append(before)
     if for_pseudo is not None:
-        ans.append(tostring(elem, method='text', encoding=unicode_type, with_tail=False))
+        ans.append(tostring(elem, method='text', encoding='unicode', with_tail=False))
     else:
         if elem.text:
             ans.append(elem.text)

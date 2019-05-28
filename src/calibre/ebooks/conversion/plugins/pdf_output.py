@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -30,7 +31,7 @@ class PDFMetadata(object):  # {{{
         from calibre.ebooks.metadata import authors_to_string
         self.title = _(u'Unknown')
         self.author = _(u'Unknown')
-        self.tags = u''
+        self.tags = ''
         self.mi = mi
 
         if mi is not None:
@@ -39,7 +40,7 @@ class PDFMetadata(object):  # {{{
             if mi.authors:
                 self.author = authors_to_string(mi.authors)
             if mi.tags:
-                self.tags = u', '.join(mi.tags)
+                self.tags = ', '.join(mi.tags)
 
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
@@ -242,16 +243,16 @@ class PDFOutput(OutputFormatPlugin):
                 elif iswindows and rule.type == rule.STYLE_RULE:
                     from tinycss.fonts3 import parse_font_family, serialize_font_family
                     s = rule.style
-                    f = s.getProperty(u'font-family')
+                    f = s.getProperty('font-family')
                     if f is not None:
                         font_families = parse_font_family(css_text(f.propertyValue))
-                        ff = [x for x in font_families if x.lower() != u'courier']
+                        ff = [x for x in font_families if x.lower() != 'courier']
                         if len(ff) != len(font_families):
                             if 'courier' not in self.filtered_font_warnings:
                                 # See https://bugs.launchpad.net/bugs/1665835
-                                self.filtered_font_warnings.add(u'courier')
-                                self.log.warn(u'Removing courier font family as it does not render on windows')
-                            f.propertyValue.cssText = serialize_font_family(ff or [u'monospace'])
+                                self.filtered_font_warnings.add('courier')
+                                self.log.warn('Removing courier font family as it does not render on windows')
+                            f.propertyValue.cssText = serialize_font_family(ff or ['monospace'])
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF

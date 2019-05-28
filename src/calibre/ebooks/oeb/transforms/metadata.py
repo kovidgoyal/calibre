@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
-from polyglot.builtins import iteritems, unicode_type, filter
+from polyglot.builtins import iteritems, filter
 filter
 
 
@@ -206,7 +206,7 @@ class MergeMetadata(object):
         for item in affected_items:
             body = XPath('//h:body')(item.data)
             if body:
-                text = etree.tostring(body[0], method='text', encoding=unicode_type)
+                text = etree.tostring(body[0], method='text', encoding='unicode')
             else:
                 text = ''
             text = re.sub(r'\s+', '', text)

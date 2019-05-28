@@ -743,7 +743,7 @@ class BasicNewsRecipe(Recipe):
             heading.text = extracted_title
             body.insert(0, heading)
 
-        raw_html = tostring(root, encoding=unicode_type)
+        raw_html = tostring(root, encoding='unicode')
 
         return raw_html
 
@@ -1667,7 +1667,7 @@ class BasicNewsRecipe(Recipe):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring
-            ans = tostring(tag, method='text', encoding=unicode_type, with_tail=False)
+            ans = tostring(tag, method='text', encoding='unicode', with_tail=False)
         else:
             strings = []
             for item in tag.contents:

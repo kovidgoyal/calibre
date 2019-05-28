@@ -85,7 +85,7 @@ class SNBMLizer(object):
         from calibre.ebooks.oeb.stylizer import Stylizer
         output = [u'']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
-        content = unicode_type(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode_type))
+        content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
 #        content = self.remove_newlines(content)
         trees = {}
         for subitem, subtitle in self.subitems:

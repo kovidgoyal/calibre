@@ -428,7 +428,7 @@ class OEBReader(object):
                     'descendant::calibre:meta[@name = "description"]')
             if descriptionElement:
                 description = etree.tostring(descriptionElement[0],
-                method='text', encoding=unicode_type).strip()
+                method='text', encoding='unicode').strip()
                 if not description:
                     description = None
             else:

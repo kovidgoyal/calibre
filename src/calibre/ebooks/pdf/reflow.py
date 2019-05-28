@@ -11,7 +11,7 @@ from itertools import count
 
 from lxml import etree
 
-from polyglot.builtins import unicode_type, range, map
+from polyglot.builtins import range, map
 
 
 class Font(object):
@@ -76,10 +76,10 @@ class Text(Element):
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
-                encoding=unicode_type)
+                encoding='unicode')
         self.raw = text.text if text.text else u''
         for x in text.iterchildren():
-            self.raw += etree.tostring(x, method='xml', encoding=unicode_type)
+            self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.average_character_width = self.width/len(self.text_as_string)
 
     def coalesce(self, other, page_number):

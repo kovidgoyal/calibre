@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 from polyglot.plistlib import loads
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
@@ -30,8 +30,8 @@ def generate_public_uti_map():
     for table in tables:
         for tr in table.xpath('descendant::tr')[1:]:
             td = tr.xpath('descendant::td')
-            identifier = etree.tostring(td[0], method='text', encoding=unicode_type).strip()
-            tags = etree.tostring(td[2], method='text', encoding=unicode_type).strip()
+            identifier = etree.tostring(td[0], method='text', encoding='unicode').strip()
+            tags = etree.tostring(td[2], method='text', encoding='unicode').strip()
             identifier = identifier.split()[0].replace('\u200b', '')
             exts = [x.strip()[1:].lower() for x in tags.split(',') if x.strip().startswith('.')]
             for ext in exts:

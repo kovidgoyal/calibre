@@ -235,7 +235,7 @@ class KF8Writer(object):
             root = self.data(item)
 
             for svg in XPath('//svg:svg')(root):
-                raw = etree.tostring(svg, encoding=unicode_type, with_tail=False)
+                raw = etree.tostring(svg, encoding='unicode', with_tail=False)
                 idx = len(self.flows)
                 self.flows.append(raw)
                 p = svg.getparent()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -188,7 +188,7 @@ class LRFOutput(OutputFormatPlugin):
         self.flatten_toc()
 
         from calibre.ptempfile import TemporaryDirectory
-        with TemporaryDirectory(u'_lrf_output') as tdir:
+        with TemporaryDirectory('_lrf_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)

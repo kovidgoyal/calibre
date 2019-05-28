@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -38,7 +39,7 @@ class PDFInput(InputFormatPlugin):
         with open(u'index.xml', 'rb') as f:
             xml = clean_ascii_chars(f.read())
         PDFDocument(xml, self.opts, self.log)
-        return os.path.join(getcwd(), u'metadata.opf')
+        return os.path.join(getcwd(), 'metadata.opf')
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -57,7 +58,7 @@ class PDFInput(InputFormatPlugin):
         mi = get_metadata(stream, 'pdf')
         opf = OPFCreator(getcwd(), mi)
 
-        manifest = [(u'index.html', None)]
+        manifest = [('index.html', None)]
 
         images = os.listdir(getcwd())
         images.remove('index.html')
@@ -66,16 +67,16 @@ class PDFInput(InputFormatPlugin):
         log.debug('Generating manifest...')
         opf.create_manifest(manifest)
 
-        opf.create_spine([u'index.html'])
+        opf.create_spine(['index.html'])
         log.debug('Rendering manifest...')
-        with open(u'metadata.opf', 'wb') as opffile:
+        with open('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
-        if os.path.exists(u'toc.ncx'):
+        if os.path.exists('toc.ncx'):
             ncxid = opf.manifest.id_for_path('toc.ncx')
             if ncxid:
-                with open(u'metadata.opf', 'r+b') as f:
+                with open('metadata.opf', 'r+b') as f:
                     raw = f.read().replace(b'<spine', b'<spine toc="%s"' % as_bytes(ncxid))
                     f.seek(0)
                     f.write(raw)
 
-        return os.path.join(getcwd(), u'metadata.opf')
+        return os.path.join(getcwd(), 'metadata.opf')

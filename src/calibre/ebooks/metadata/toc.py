@@ -210,7 +210,7 @@ class TOC(list):
                 text = u''
                 for txt in txt_path(nl):
                     text += etree.tostring(txt, method='text',
-                            encoding=unicode_type, with_tail=False)
+                            encoding='unicode', with_tail=False)
                 content = content_path(np)
                 if content and text:
                     content = content[0]
