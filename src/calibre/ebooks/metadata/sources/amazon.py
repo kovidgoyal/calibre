@@ -863,14 +863,14 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 9)
+    version = (1, 2, 10)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
-    capabilities = frozenset(['identify', 'cover'])
-    touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
-                                'rating', 'comments', 'publisher', 'pubdate',
-                                'languages', 'series', 'tags'])
+    capabilities = frozenset(('identify', 'cover'))
+    touched_fields = frozenset(('title', 'authors', 'identifier:amazon',
+        'rating', 'comments', 'publisher', 'pubdate',
+        'languages', 'series', 'tags'))
     has_html_comments = True
     supports_gzip_transfer_encoding = True
     prefer_results_with_isbn = False
@@ -1190,9 +1190,14 @@ class Amazon(Source):
                 return False
             return True
 
-        result_links = root.xpath('//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]')
-        if not result_links:
-            result_links = root.xpath(r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]')
+        for query in (
+                '//div[contains(@class, "s-result-list")]//h2/a[@href]',
+                '//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]',
+                r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]',
+        ):
+            result_links = root.xpath(query)
+            if result_links:
+                break
         for a in result_links:
             title = tostring(a, method='text', encoding='unicode')
             if title_ok(title):
@@ -1496,7 +1501,6 @@ def manual_tests(domain, **kw):  # {{{
                                                       isbn_test, title_test, authors_test, comments_test, series_test)
     all_tests = {}
     all_tests['com'] = [  # {{{
-
         (   # Paperback with series
             {'identifiers': {'amazon': '1423146786'}},
             [title_test('The Heroes of Olympus, Book Five The Blood of Olympus',
