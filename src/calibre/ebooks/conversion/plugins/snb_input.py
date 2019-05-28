@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
@@ -9,12 +10,13 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import unicode_type
 
-HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
+HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 
 def html_encode(s):
-    return s.replace(u'&', u'&amp;').replace(u'<', u'&lt;').replace(u'>', u'&gt;').replace(u'"', u'&quot;').replace(u"'", u'&apos;').replace(u'\n', u'<br/>').replace(u' ', u'&nbsp;')  # noqa
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')  # noqa
 
 
 class SNBInput(InputFormatPlugin):
@@ -74,7 +76,7 @@ class SNBInput(InputFormatPlugin):
             if d['cover'] != '':
                 oeb.guide.add('cover', 'Cover', d['cover'])
 
-        bookid = str(uuid.uuid4())
+        bookid = unicode_type(uuid.uuid4())
         oeb.metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in oeb.metadata.identifier:
             if 'id' in ident.attrib:
@@ -99,11 +101,11 @@ class SNBInput(InputFormatPlugin):
                     lines = []
                     for line in snbc.find('.//body'):
                         if line.tag == 'text':
-                            lines.append(u'<p>%s</p>' % html_encode(line.text))
+                            lines.append('<p>%s</p>' % html_encode(line.text))
                         elif line.tag == 'img':
-                            lines.append(u'<p><img src="%s" /></p>' % html_encode(line.text))
+                            lines.append('<p><img src="%s" /></p>' % html_encode(line.text))
                     with open(os.path.join(tdir, fname), 'wb') as f:
-                        f.write((HTML_TEMPLATE % (chapterName, u'\n'.join(lines))).encode('utf-8', 'replace'))
+                        f.write((HTML_TEMPLATE % (chapterName, '\n'.join(lines))).encode('utf-8', 'replace'))
                     oeb.toc.add(ch.text, fname)
                     id, href = oeb.manifest.generate(id='html',
                         href=ascii_filename(fname))

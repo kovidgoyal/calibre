@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,7 +17,7 @@ from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
-from polyglot.builtins import unicode_type
+from polyglot.builtins import is_py3, unicode_type
 from polyglot.urllib import urlparse, urlunparse
 
 
@@ -67,6 +66,9 @@ class Link(object):
 
     def __str__(self):
         return u'Link: %s --> %s'%(self.url, self.path)
+
+    if not is_py3:
+        __unicode__ = __str__
 
 
 class IgnoreFile(Exception):
@@ -149,10 +151,10 @@ class HTMLFile(object):
         return hash(self.path)
 
     def __str__(self):
-        return u'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
+        return 'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
 
     def __repr__(self):
-        return str(self)
+        return unicode_type(self)
 
     def find_links(self, src):
         for match in self.LINK_PAT.finditer(src):

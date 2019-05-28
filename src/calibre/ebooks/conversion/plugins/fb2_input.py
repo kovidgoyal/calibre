@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
@@ -125,9 +126,9 @@ class FB2Input(InputFormatPlugin):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))
         index = transform.tostring(result)
-        with open(u'index.xhtml', 'wb') as f:
+        with open('index.xhtml', 'wb') as f:
             f.write(index.encode('utf-8'))
-        with open(u'inline-styles.css', 'wb') as f:
+        with open('inline-styles.css', 'wb') as f:
             f.write(css.encode('utf-8'))
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
@@ -137,9 +138,9 @@ class FB2Input(InputFormatPlugin):
             mi.authors = [_('Unknown')]
         cpath = None
         if mi.cover_data and mi.cover_data[1]:
-            with open(u'fb2_cover_calibre_mi.jpg', 'wb') as f:
+            with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
                 f.write(mi.cover_data[1])
-            cpath = os.path.abspath(u'fb2_cover_calibre_mi.jpg')
+            cpath = os.path.abspath('fb2_cover_calibre_mi.jpg')
         else:
             for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
                 href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
@@ -152,12 +153,12 @@ class FB2Input(InputFormatPlugin):
         opf = OPFCreator(getcwd(), mi)
         entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir(u'.')]
         opf.create_manifest(entries)
-        opf.create_spine([u'index.xhtml'])
+        opf.create_spine(['index.xhtml'])
         if cpath:
             opf.guide.set_cover(cpath)
-        with open(u'metadata.opf', 'wb') as f:
+        with open('metadata.opf', 'wb') as f:
             opf.render(f)
-        return os.path.join(getcwd(), u'metadata.opf')
+        return os.path.join(getcwd(), 'metadata.opf')
 
     def extract_embedded_content(self, doc):
         from calibre.ebooks.fb2 import base64_decode

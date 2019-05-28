@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
@@ -243,7 +244,7 @@ class SNBOutput(OutputFormatPlugin):
             # TODO : intelligent image rotation
             #     img = img.rotate(90)
             #     x,y = y,x
-            img = resize_image(img, x / scale, y / scale)
+            img = resize_image(img, x // scale, y // scale)
         with lopen(imagePath, 'wb') as f:
             f.write(image_to_data(img, fmt=imagePath.rpartition('.')[-1]))
 

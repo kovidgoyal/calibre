@@ -120,7 +120,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.language:
             l = canonicalize_lang(getattr(opts, 'language', None))
             if not l:
-                oeb.logger.warn(u'Language not specified')
+                oeb.logger.warn('Language not specified')
                 l = get_lang().replace('_', '-')
             metadata.add('language', l)
         if not metadata.creator:
@@ -135,7 +135,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-        bookid = str(uuid.uuid4())
+        bookid = unicode_type(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
