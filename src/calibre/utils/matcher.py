@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip, raw_input, filter, getcwd
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip, raw_input, filter, getcwd, unicode_type
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -294,12 +294,12 @@ def test(return_tests=False):
 
             start = memory()
             for i in range(10):
-                doit(str(i))
+                doit(unicode_type(i))
             gc.collect()
             used10 = memory() - start
             start = memory()
             for i in range(100):
-                doit(str(i))
+                doit(unicode_type(i))
             gc.collect()
             used100 = memory() - start
             if used100 > 0 and used10 > 0:

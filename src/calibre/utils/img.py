@@ -18,12 +18,12 @@ from PyQt5.QtCore import QBuffer, QByteArray, Qt
 from PyQt5.QtGui import QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
 
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows, plugins, ispy3
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, unicode_type
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']
@@ -465,11 +465,11 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             cmd[cmd.index(q)] = r
         if not as_filter:
             repl(True, iname), repl(False, oname)
-        if iswindows:
+        if iswindows and not ispy3:
             # subprocess in python 2 cannot handle unicode strings that are not
             # encodeable in mbcs, so we fail here, where it is more explicit,
             # instead.
-            cmd = [x.encode('mbcs') if isinstance(x, type('')) else x for x in cmd]
+            cmd = [x.encode('mbcs') if isinstance(x, unicode_type) else x for x in cmd]
             if isinstance(cwd, type('')):
                 cwd = cwd.encode('mbcs')
         stdin = subprocess.PIPE if as_filter else None
@@ -534,7 +534,7 @@ def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
-    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]
+    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [unicode_type(quality)]
     img = QImage()
     if not img.load(file_path):
         raise ValueError('%s is not a valid image file' % file_path)
