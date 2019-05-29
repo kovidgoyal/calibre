@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -35,8 +35,10 @@ if iswindows:
             raise RuntimeError('Failed to delete: %r with error code: %d' % (path, retcode))
 
     def recycler_main():
+        stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         while True:
-            path = eintr_retry_call(sys.stdin.readline)
+            path = eintr_retry_call(stdin.readline)
             if not path:
                 break
             try:
@@ -46,16 +48,16 @@ if iswindows:
             try:
                 recycle_path(path)
             except:
-                eintr_retry_call(print, b'KO', file=sys.stdout)
-                sys.stdout.flush()
+                eintr_retry_call(stdout.write, b'KO\n')
+                stdout.flush()
                 try:
                     import traceback
                     traceback.print_exc()  # goes to stderr, which is the same as for parent process
                 except Exception:
                     pass  # Ignore failures to write the traceback, since GUI processes on windows have no stderr
             else:
-                eintr_retry_call(print, b'OK', file=sys.stdout)
-                sys.stdout.flush()
+                eintr_retry_call(stdout.write, b'OK\n')
+                stdout.flush()
 
     def delegate_recycle(path):
         if '\n' in path:
@@ -149,4 +151,3 @@ def delete_tree(path, permanent=False):
                 import traceback
                 traceback.print_exc()
         delete_tree(path, permanent=True)
-
