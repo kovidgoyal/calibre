@@ -45,7 +45,7 @@ class SNBInput(InputFormatPlugin):
         except:
             raise ValueError("Invalid SNB file")
         if not snbFile.IsValid():
-            log.debug("Invaild SNB file")
+            log.debug("Invalid SNB file")
             raise ValueError("Invalid SNB file")
         log.debug("Handle meta data ...")
         from calibre.ebooks.conversion.plumber import create_oebbook
