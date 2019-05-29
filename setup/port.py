@@ -57,7 +57,7 @@ def run_2to3(path, show_diffs=False):
 class Base(Command):
 
     scan_all_files = False
-    EXCLUDED_BASENAMES = {'Zeroconf.py'}
+    EXCLUDED_BASENAMES = {'Zeroconf.py', 'smtplib.py'}
 
     @property
     def cache_file(self):
