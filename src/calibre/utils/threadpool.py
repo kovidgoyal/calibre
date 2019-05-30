@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """Easy to use object-oriented thread pool framework.
 
 A thread pool is an object that maintains a pool of worker threads to perform
@@ -29,7 +31,6 @@ See the end of the module code for a brief, annotated usage example.
 
 Website : http://chrisarndt.de/en/software/python/threadpool/
 """
-from __future__ import print_function
 
 __all__ = [
   'makeRequests',

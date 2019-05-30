@@ -1,5 +1,5 @@
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -13,6 +13,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
 from calibre.constants import ispy3
+from polyglot.builtins import unicode_type
 
 
 def safe_localhost():
@@ -100,7 +101,7 @@ def get_mx(host, verbose=0):
         print('Find mail exchanger for', host)
     answers = list(dns.resolver.query(host, 'MX'))
     answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxsize)))
-    return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
+    return [unicode_type(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,

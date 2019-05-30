@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # Copyright (C) 2003-2006 Red Hat Inc. <http://www.redhat.com/>
 # Copyright (C) 2003 David Zeuthen
 # Copyright (C) 2004 Rob Taylor
@@ -24,9 +26,6 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-from __future__ import absolute_import
-from polyglot.builtins import itervalues, zip
-
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'
 
@@ -45,7 +44,8 @@ from dbus.exceptions import (
     DBusException, NameExistsException, UnknownMethodException)
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
-is_py2 = sys.version_info.major == 2
+
+from polyglot.builtins import itervalues, zip, is_py3
 
 
 class dbus_property(object):
@@ -161,7 +161,7 @@ class _VariantSignature(object):
         """Return 'v' whenever called."""
         return 'v'
 
-    if is_py2:
+    if not is_py3:
         next = __next__
 
 
@@ -602,7 +602,7 @@ class Object(Interface):
                 self.LastInputChanged(var)      # emits the signal
                 # Emit the property changed signal
                 self.PropertiesChanged('com.example.Sample', {'LastInput': var}, [])
-                return str(var)
+                return unicode_type(var)
 
             @dbus.service.signal(interface='com.example.Sample',
                                  signature='v')
