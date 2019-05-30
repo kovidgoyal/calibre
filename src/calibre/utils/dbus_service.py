@@ -45,7 +45,7 @@ from dbus.exceptions import (
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
 
-from polyglot.builtins import itervalues, zip, is_py3
+from polyglot.builtins import itervalues, zip, is_py3, native_string_type
 
 
 class dbus_property(object):
@@ -501,7 +501,7 @@ class InterfaceType(type):
 
 # Define Interface as an instance of the metaclass InterfaceType, in a way
 # that is compatible across both Python 2 and Python 3.
-Interface = InterfaceType('Interface', (object,), {})
+Interface = InterfaceType(native_string_type('Interface'), (object,), {})
 
 
 class PropertiesInterface(Interface):
