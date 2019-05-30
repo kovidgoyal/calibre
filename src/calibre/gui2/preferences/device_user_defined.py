@@ -64,6 +64,7 @@ class UserDefinedDevice(QDialog):
             res = ''
             if len(new_devices) == 1:
                 def fmtid(x):
+                    x = x or 0
                     if isinstance(x, numbers.Integral):
                         x = hex(x)
                     if not x.startswith('0x'):
