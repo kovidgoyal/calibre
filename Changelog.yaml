@@ -20,6 +20,18 @@
 #   new recipes:
 #     - title:
 
+- version: 3.44.0
+  date: 2019-05-31
+
+  new features:
+    - title: "Driver for the new NOOK Glowlight Plus"
+
+    - title: "Driver for updated Kobo firmware"
+
+  bug fixes:
+    - title: "Amazon metadata plugin: Fix searching the Amazon servers directly not working because of changed markup"
+
+
 - version: 3.43.0
   date: 2019-05-28
 
