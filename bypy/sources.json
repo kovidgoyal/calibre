@@ -23,9 +23,9 @@
         "name": "easylzma",
         "os": "windows",
         "windows": {
-            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.bz2",
-            "hash": "git:1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
-            "urls": ["https://github.com/lloyd/easylzma.git"]
+            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.gz",
+            "hash": "sha256:7664240898fe09bce8b39cd428407dd24ac3b87200e6b40d4007c78f2c725254",
+            "urls": ["github:lloyd/easylzma"]
         }
     },
 
@@ -123,9 +123,9 @@
             "urls": ["https://www.python.org/ftp/python/2.7.16/{filename}"]
         },
         "windows": {
-            "filename":"python-1948b35e654e0b69ac93e31e3c3405172a6a1b91.tar.bz2",
-            "hash":"git:1948b35e654e0b69ac93e31e3c3405172a6a1b91",
-            "urls":["https://github.com/kovidgoyal/cpython.git"]
+            "filename":"python-1948b35e654e0b69ac93e31e3c3405172a6a1b91.tar.gz",
+            "hash":"sha1:1948b35e654e0b69ac93e31e3c3405172a6a1b91",
+            "urls":["github:kovidgoyal/cpython"]
         }
     },
 
@@ -134,9 +134,9 @@
         "os": "windows",
         "python": 2,
         "windows": {
-            "filename":"pywin32-dd5760063f88a300403c74f3e81f3437b8396d8f.tar.bz2",
-            "hash":"git:dd5760063f88a300403c74f3e81f3437b8396d8f",
-            "urls":["https://github.com/kovidgoyal/pywin32.git"]
+            "filename":"pywin32-dd5760063f88a300403c74f3e81f3437b8396d8f.tar.gz",
+            "hash":"sha1:dd5760063f88a300403c74f3e81f3437b8396d8f",
+            "urls":["github:kovidgoyal/pywin32"]
         }
     },
 
@@ -370,9 +370,9 @@
     {
         "name": "webkit",
         "unix": {
-            "filename":"qtwebkit-95401fe3908e0b4eebc9447e678298d768617bc7.tar.xz",
-            "hash":"git:95401fe3908e0b4eebc9447e678298d768617bc7",
-            "urls":["https://github.com/kovidgoyal/webkit.git"]
+            "filename":"qtwebkit-95401fe3908e0b4eebc9447e678298d768617bc7.tar.gz",
+            "hash":"sha256:4794e03c4c477d6e563fb999838fa982f2fb25e0478e4b1db49ef17b6a742609",
+            "urls":["github:kovidgoyal/webkit"]
         }
     },
 
