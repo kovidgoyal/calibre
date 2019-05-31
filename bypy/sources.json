@@ -3,9 +3,9 @@
         "name": "nasm",
         "os": "macos",
         "unix": {
-            "filename": "nasm-2.12.02.tar.xz",
-            "hash": "sha1:a0e6e655d04009178d4b7c15d935a46a691a617c",
-            "urls": ["http://www.nasm.us/pub/nasm/releasebuilds/2.12.02/{filename}"]
+            "filename": "nasm-2.14.02.tar.xz",
+            "hash": "sha256:e24ade3e928f7253aa8c14aa44726d1edf3f98643f87c9d72ec1df44b26be8f5",
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/{filename}"]
         }
     },
 
@@ -13,9 +13,9 @@
         "name": "cmake",
         "os": "macos",
         "unix": {
-            "filename": "cmake-3.6.0.tar.gz",
-            "hash": "sha1:6b0d2d7d93c2e74f8890c4b8b824deb3b36d24b6",
-            "urls": ["https://cmake.org/files/v3.6/{filename}"]
+            "filename": "cmake-3.14.4.tar.gz",
+            "hash": "sha256:00b4dc9b0066079d10f16eed32ec592963a44e7967371d2f5077fd1670ff36d9",
+            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.14.4/{filename}"]
         }
     },
 
