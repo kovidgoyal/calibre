@@ -716,7 +716,7 @@ def main(args=sys.argv):
         td = "None"
         if t and len(t) > 0:
             td = os.path.basename(args[1])+"_thumbnail."+lrf.thumbail_extension()
-            with open(td, "w") as f:
+            with open(td, "wb") as f:
                 f.write(t)
 
     fields = LRFMetaFile.__dict__.items()
