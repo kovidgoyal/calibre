@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 16  # Needed for dynamic plugin loading
+store_version = 17  # Needed for dynamic plugin loading
 
 from contextlib import closing
 try:
