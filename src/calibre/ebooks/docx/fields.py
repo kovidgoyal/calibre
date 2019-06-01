@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, native_string_type
 
 
 class Field(object):
@@ -75,7 +75,7 @@ def parser(name, field_map, default_field_name=None):
         ans.pop(null, None)
         return ans
 
-    parse.__name__ = str('parse_' + name)
+    parse.__name__ = native_string_type('parse_' + name)
 
     return parse
 

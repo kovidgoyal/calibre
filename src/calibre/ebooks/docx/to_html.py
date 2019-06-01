@@ -28,7 +28,7 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues, filter, getcwd, map
+from polyglot.builtins import iteritems, itervalues, filter, getcwd, map, unicode_type
 
 
 NBSP = '\xa0'
@@ -480,7 +480,7 @@ class Convert(object):
                 current_hyperlink = x
             elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
                 old_anchor = current_anchor
-                anchor = str(uuid.uuid4())
+                anchor = unicode_type(uuid.uuid4())
                 self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(itervalues(self.anchor_map)))
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
@@ -693,9 +693,9 @@ class Convert(object):
                 ans.append(text.elem)
                 ans[-1].set('class', 'tab')
             elif self.namespace.is_tag(child, 'w:noBreakHyphen'):
-                text.buf.append(u'\u2011')
+                text.buf.append('\u2011')
             elif self.namespace.is_tag(child, 'w:softHyphen'):
-                text.buf.append(u'\u00ad')
+                text.buf.append('\u00ad')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 

@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -18,7 +19,7 @@ def rules(stylesheets):
 
 
 def simple_container_xml(opf_path, extra_entries=''):
-    return u'''\
+    return '''\
 <?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
    <rootfiles>
@@ -36,7 +37,7 @@ def initialize_container(path_to_container, opf_name='metadata.opf',
     '''
     rootfiles = ''
     for path, mimetype, _ in extra_entries:
-        rootfiles += u'<rootfile full-path="{0}" media-type="{1}"/>'.format(
+        rootfiles += '<rootfile full-path="{0}" media-type="{1}"/>'.format(
                 path, mimetype)
     CONTAINER = simple_container_xml(opf_name, rootfiles).encode('utf-8')
     zf = ZipFile(path_to_container, 'w')

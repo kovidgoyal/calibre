@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
@@ -79,47 +81,49 @@ class LRFDocument(LRFMetaFile):
 
     def write_files(self):
         for obj in chain(itervalues(self.image_map), itervalues(self.font_map)):
-            open(obj.file, 'wb').write(obj.stream)
+            with open(obj.file, 'wb') as f:
+                f.write(obj.stream)
 
     def to_xml(self, write_files=True):
-        bookinfo = u'<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
-        bookinfo += u'<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
-        bookinfo += u'<Author reading="%s">%s</Author>\n'%(self.metadata.author_reading, self.metadata.author)
-        bookinfo += u'<BookID>%s</BookID>\n'%(self.metadata.book_id,)
-        bookinfo += u'<Publisher reading="">%s</Publisher>\n'%(self.metadata.publisher,)
-        bookinfo += u'<Label reading="">%s</Label>\n'%(self.metadata.label,)
-        bookinfo += u'<Category reading="">%s</Category>\n'%(self.metadata.category,)
-        bookinfo += u'<Classification reading="">%s</Classification>\n'%(self.metadata.classification,)
-        bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
+        bookinfo = '<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
+        bookinfo += '<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
+        bookinfo += '<Author reading="%s">%s</Author>\n'%(self.metadata.author_reading, self.metadata.author)
+        bookinfo += '<BookID>%s</BookID>\n'%(self.metadata.book_id,)
+        bookinfo += '<Publisher reading="">%s</Publisher>\n'%(self.metadata.publisher,)
+        bookinfo += '<Label reading="">%s</Label>\n'%(self.metadata.label,)
+        bookinfo += '<Category reading="">%s</Category>\n'%(self.metadata.category,)
+        bookinfo += '<Classification reading="">%s</Classification>\n'%(self.metadata.classification,)
+        bookinfo += '<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
             prefix = ascii_filename(self.metadata.title)
-            bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
+            bookinfo += '<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
             if write_files:
-                open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
-        bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
-        bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
-        bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
-        bookinfo += u'<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n%s</BookInformation>\n'%(self.doc_info.page,self.toc)
-        pages = u''
+                with open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb') as f:
+                    f.write(th)
+        bookinfo += '<Language reading="">%s</Language>\n'%(self.doc_info.language,)
+        bookinfo += '<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
+        bookinfo += '<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
+        bookinfo += '<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n%s</BookInformation>\n'%(self.doc_info.page,self.toc)
+        pages = ''
         done_main = False
         pt_id = -1
         for page_tree in self:
             if not done_main:
                 done_main = True
-                pages += u'<Main>\n'
-                close = u'</Main>\n'
+                pages += '<Main>\n'
+                close = '</Main>\n'
                 pt_id = page_tree.id
             else:
-                pages += u'<PageTree objid="%d">\n'%(page_tree.id,)
-                close = u'</PageTree>\n'
+                pages += '<PageTree objid="%d">\n'%(page_tree.id,)
+                close = '</PageTree>\n'
             for page in page_tree:
                 pages += unicode_type(page)
             pages += close
         traversed_objects = [int(i) for i in re.findall(r'objid="(\w+)"', pages)] + [pt_id]
 
-        objects = u'\n<Objects>\n'
-        styles  = u'\n<Style>\n'
+        objects = '\n<Objects>\n'
+        styles  = '\n<Style>\n'
         for obj in self.objects:
             obj = self.objects[obj]
             if obj.id in traversed_objects:
@@ -159,13 +163,13 @@ def main(args=sys.argv, logger=None):
         return 1
     if opts.out is None:
         opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+".lrs")
-    o = codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8')
-    o.write(u'<?xml version="1.0" encoding="UTF-8"?>\n')
     logger.info(_('Parsing LRF...'))
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
     logger.info(_('Creating XML...'))
-    o.write(d.to_xml(write_files=opts.output_resources))
+    with codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write(d.to_xml(write_files=opts.output_resources))
     logger.info(_('LRS written to ')+opts.out)
     return 0
 

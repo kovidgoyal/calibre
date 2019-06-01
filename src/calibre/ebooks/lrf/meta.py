@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -9,7 +10,7 @@ Just create an L{LRFMetaFile} object and use its properties
 to get and set meta information. For example:
 
 >>> lrf = LRFMetaFile("mybook.lrf")
->>> print lrf.title, lrf.author
+>>> print(lrf.title, lrf.author)
 >>> lrf.category = "History"
 """
 
@@ -50,8 +51,8 @@ class field(object):
     def __repr__(self):
         typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
         return "An " + typ + " stored in " + \
-        str(struct.calcsize(self._fmt)) + \
-        " bytes starting at byte " + str(self._start)
+        unicode_type(struct.calcsize(self._fmt)) + \
+        " bytes starting at byte " + unicode_type(self._start)
 
 
 class versioned_field(field):
@@ -92,20 +93,20 @@ class fixed_stringfield(object):
         self._start = start
 
     def __get__(self, obj, typ=None):
-        length = str(self._length)
+        length = unicode_type(self._length)
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
 
     def __set__(self, obj, val):
-        if val.__class__.__name__ != 'str':
-            val = str(val)
+        if not isinstance(val, unicode_type):
+            val = unicode_type(val)
         if len(val) != self._length:
             raise LRFException("Trying to set fixed_stringfield with a " +
                                "string of  incorrect length")
-        obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
+        obj.pack(val, start=self._start, fmt="<"+unicode_type(len(val))+"s")
 
     def __repr__(self):
-        return "A string of length " + str(self._length) + \
-                " starting at byte " + str(self._start)
+        return "A string of length " + unicode_type(self._length) + \
+                " starting at byte " + unicode_type(self._start)
 
 
 class xml_attr_field(object):
@@ -191,7 +192,7 @@ class xml_field(object):
             return elem
 
         if not val:
-            val = u''
+            val = ''
         if not isinstance(val, unicode_type):
             val = val.decode('utf-8')
 
@@ -703,9 +704,8 @@ def main(args=sys.argv):
         lrf.producer = options.producer
     if options.thumbnail:
         path = os.path.expanduser(os.path.expandvars(options.thumbnail))
-        f = open(path, "rb")
-        lrf.thumbnail = f.read()
-        f.close()
+        with open(path, "rb") as f:
+            lrf.thumbnail = f.read()
     if options.book_id is not None:
         lrf.book_id = options.book_id
     if options.comment:
@@ -716,15 +716,14 @@ def main(args=sys.argv):
         td = "None"
         if t and len(t) > 0:
             td = os.path.basename(args[1])+"_thumbnail."+lrf.thumbail_extension()
-            f = open(td, "w")
-            f.write(t)
-            f.close()
+            with open(td, "wb") as f:
+                f.write(t)
 
     fields = LRFMetaFile.__dict__.items()
     fields.sort()
     for f in fields:
-        if "XML" in str(f):
-            print(str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
+        if "XML" in unicode_type(f):
+            print(unicode_type(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
     if options.get_thumbnail:
         print("Thumbnail:", td)
     if options.get_cover:
@@ -734,7 +733,8 @@ def main(args=sys.argv):
             ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
-            open(cover, 'wb').write(data)
+            with open(cover, 'wb') as f:
+                f.write(data)
             print('Cover:', cover)
         else:
             print('Could not find cover in the LRF file')

@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, io, collections, re
@@ -127,7 +128,7 @@ class LRFContentObject(LRFObject):
                 func, args = action[0], (action[1],)
             getattr(self, func)(tag, *args)
         else:
-            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
+            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, unicode_type(tag)))
 
     def __iter__(self):
         for i in self._contents:
@@ -195,17 +196,17 @@ class PageTree(LRFObject):
 class StyleObject(object):
 
     def _tags_to_xml(self):
-        s = u''
+        s = ''
         for h in self.tag_map.values():
             attr = h[0]
             if hasattr(self, attr):
-                s += u'%s="%s" '%(attr, getattr(self, attr))
+                s += '%s="%s" '%(attr, getattr(self, attr))
         return s
 
     def __str__(self):
-        s = u'<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
+        s = '<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
         s += self._tags_to_xml()
-        s += u'/>\n'
+        s += '/>\n'
         return s
 
     if not ispy3:
@@ -254,7 +255,7 @@ class Color(object):
         self.a, self.r, self.g, self.b = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
 
     def __str__(self):
-        return u'0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
+        return '0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
 
     if not ispy3:
         __unicode__ = __str__
@@ -286,7 +287,7 @@ class PageDiv(EmptyPageElement):
         self.linecolor = Color(linecolor)
 
     def __str__(self):
-        return u'\n<PageDiv pain="%s" spacesize="%s" linewidth="%s" linecolor="%s" />\n'%\
+        return '\n<PageDiv pain="%s" spacesize="%s" linewidth="%s" linecolor="%s" />\n'%\
                 (self.pain, self.spacesize, self.linewidth, self.color)
 
     if not ispy3:
@@ -304,7 +305,7 @@ class RuledLine(EmptyPageElement):
         self.id = -1
 
     def __str__(self):
-        return u'\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
+        return '\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
                 (self.linelength, self.linetype, self.linewidth, self.linecolor)
 
     if not ispy3:
@@ -317,7 +318,7 @@ class Wait(EmptyPageElement):
         self.time = time
 
     def __str__(self):
-        return u'\n<Wait time="%d" />\n'%(self.time)
+        return '\n<Wait time="%d" />\n'%(self.time)
 
     if not ispy3:
         __unicode__ = __str__
@@ -331,7 +332,7 @@ class Locate(EmptyPageElement):
         self.pos = self.pos_map[pos]
 
     def __str__(self):
-        return u'\n<Locate pos="%s" />\n'%(self.pos)
+        return '\n<Locate pos="%s" />\n'%(self.pos)
 
     if not ispy3:
         __unicode__ = __str__
@@ -343,7 +344,7 @@ class BlockSpace(EmptyPageElement):
         self.xspace, self.yspace = xspace, yspace
 
     def __str__(self):
-        return u'\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
+        return '\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
                 (self.xspace, self.yspace)
 
     if not ispy3:
@@ -444,7 +445,7 @@ class Page(LRFStream):
             yield i
 
     def __str__(self):
-        s = u'\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
+        s = '\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
         for i in self:
             s += unicode_type(i)
         s += '\n</Page>\n'
@@ -454,7 +455,7 @@ class Page(LRFStream):
         __unicode__ = __str__
 
     def to_html(self):
-        s = u''
+        s = ''
         for i in self:
             s += i.to_html()
         return s
@@ -629,7 +630,7 @@ class Block(LRFStream, TextCSS):
                 self.attrs[attr] = getattr(self, attr)
 
     def __str__(self):
-        s = u'\n<%s objid="%d" blockstyle="%d" '%(self.name, self.id, self.style_id)
+        s = '\n<%s objid="%d" blockstyle="%d" '%(self.name, self.id, self.style_id)
         if hasattr(self, 'textstyle_id'):
             s += 'textstyle="%d" '%(self.textstyle_id,)
         for attr in self.attrs:
@@ -646,8 +647,8 @@ class Block(LRFStream, TextCSS):
 
     def to_html(self):
         if self.name == 'TextBlock':
-            return u'<div class="block%s text%s">%s</div>'%(self.style_id, self.textstyle_id, self.content.to_html())
-        return u''
+            return '<div class="block%s text%s">%s</div>'%(self.style_id, self.textstyle_id, self.content.to_html())
+        return ''
 
 
 class MiniPage(LRFStream):
@@ -668,7 +669,7 @@ class Text(LRFStream):
 
     style = property(fget=lambda self : self._document.objects[self.style_id])
 
-    text_map = {0x22: u'"', 0x26: u'&amp;', 0x27: u'\'', 0x3c: u'&lt;', 0x3e: u'&gt;'}
+    text_map = {0x22: '"', 0x26: '&amp;', 0x27: '\'', 0x3c: '&lt;', 0x3e: '&gt;'}
     entity_pattern = re.compile(r'&amp;(\S+?);')
 
     text_tags = {
@@ -717,20 +718,20 @@ class Text(LRFStream):
             self.self_closing = self_closing
 
         def __str__(self):
-            s = u'<%s '%(self.name,)
+            s = '<%s '%(self.name,)
             for name, val in self.attrs.items():
                 s += '%s="%s" '%(name, val)
-            return s.rstrip() + (u' />' if self.self_closing else u'>')
+            return s.rstrip() + (' />' if self.self_closing else '>')
 
         if not ispy3:
             __unicode__ = __str__
 
         def to_html(self):
-            s = u''
+            s = ''
             return s
 
         def close_html(self):
-            return u''
+            return ''
 
     class Span(TextTag):
         pass
@@ -901,7 +902,7 @@ class Text(LRFStream):
         self.stream = None
 
     def __str__(self):
-        s = u''
+        s = ''
         open_containers = collections.deque()
         for c in self.content:
             if isinstance(c, string_or_bytes):
@@ -909,7 +910,7 @@ class Text(LRFStream):
             elif c is None:
                 if open_containers:
                     p = open_containers.pop()
-                    s += u'</%s>'%(p.name,)
+                    s += '</%s>'%(p.name,)
             else:
                 s += unicode_type(c)
                 if not c.self_closing:
@@ -917,7 +918,7 @@ class Text(LRFStream):
 
         if len(open_containers) > 0:
             if len(open_containers) == 1:
-                s += u'</%s>'%(open_containers[0].name,)
+                s += '</%s>'%(open_containers[0].name,)
             else:
                 raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
         return s
@@ -926,7 +927,7 @@ class Text(LRFStream):
         __unicode__ = __str__
 
     def to_html(self):
-        s = u''
+        s = ''
         open_containers = collections.deque()
         in_p = False
         for c in self.content:
@@ -970,7 +971,7 @@ class Image(LRFObject):
     data = property(fget=lambda self : self._document.objects[self.refstream].stream)
 
     def __str__(self):
-        return u'<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
+        return '<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
         (self.id, self.x0, self.y0, self.x1, self.y1, self.xsize, self.ysize, self.refstream)
 
     if not ispy3:
@@ -984,7 +985,7 @@ class PutObj(EmptyPageElement):
         self.object = objects[refobj]
 
     def __str__(self):
-        return u'<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
+        return '<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
 
     if not ispy3:
         __unicode__ = __str__
@@ -1069,12 +1070,12 @@ class ImageStream(LRFStream):
 
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
-        self.file = str(self.id) + '.' + self.encoding.lower()
+        self.file = unicode_type(self.id) + '.' + self.encoding.lower()
         if self._document is not None:
             self._document.image_map[self.id] = self
 
     def __str__(self):
-        return u'<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
+        return '<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
             (self.id, self.encoding, self.file)
 
     if not ispy3:
@@ -1156,7 +1157,7 @@ class Button(LRFObject):
         return (None, None)
 
     def __str__(self):
-        s = u'<Button objid="%s">\n'%(self.id,)
+        s = '<Button objid="%s">\n'%(self.id,)
         if self.button_flags & 0x10 != 0:
             s += '<PushButton '
             if 2 in self.refimage:
@@ -1233,10 +1234,10 @@ class BookAttr(StyleObject, LRFObject):
         self.font_link_list.append(tag.dword)
 
     def __str__(self):
-        s = u'<BookStyle objid="%s" stylelabel="%s">\n'%(self.id, self.id)
-        s += u'<SetDefault %s />\n'%(self._tags_to_xml(),)
+        s = '<BookStyle objid="%s" stylelabel="%s">\n'%(self.id, self.id)
+        s += '<SetDefault %s />\n'%(self._tags_to_xml(),)
         doc = self._document
-        s += u'<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
+        s += '<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
         (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth)
         for font in self._document.font_map.values():
             s += unicode_type(font)
@@ -1257,7 +1258,7 @@ class TocLabel(object):
         self.refpage, self.refobject, self.label = refpage, refobject, label
 
     def __str__(self):
-        return u'<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
+        return '<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
 
     if not ispy3:
         __unicode__ = __str__
@@ -1284,7 +1285,7 @@ class TOCObject(LRFStream):
             yield i
 
     def __str__(self):
-        s = u'<TOC>\n'
+        s = '<TOC>\n'
         for i in self:
             s += unicode_type(i)
         return s + '</TOC>\n'

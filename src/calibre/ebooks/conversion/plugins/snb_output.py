@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
@@ -113,9 +114,8 @@ class SNBOutput(OutputFormatPlugin):
                 etree.SubElement(headTree, "cover").text = ProcessFileName(href)
             else:
                 etree.SubElement(headTree, "cover")
-            bookInfoFile = open(os.path.join(snbfDir, 'book.snbf'), 'wb')
-            bookInfoFile.write(etree.tostring(bookInfoTree, pretty_print=True, encoding='utf-8'))
-            bookInfoFile.close()
+            with open(os.path.join(snbfDir, 'book.snbf'), 'wb') as f:
+                f.write(etree.tostring(bookInfoTree, pretty_print=True, encoding='utf-8'))
 
             # Output TOC
             tocInfoTree = etree.Element("toc-snbf")
@@ -168,9 +168,8 @@ class SNBOutput(OutputFormatPlugin):
 
             etree.SubElement(tocHead, "chapters").text = '%d' % len(tocBody)
 
-            tocInfoFile = open(os.path.join(snbfDir, 'toc.snbf'), 'wb')
-            tocInfoFile.write(etree.tostring(tocInfoTree, pretty_print=True, encoding='utf-8'))
-            tocInfoFile.close()
+            with open(os.path.join(snbfDir, 'toc.snbf'), 'wb') as f:
+                f.write(etree.tostring(tocInfoTree, pretty_print=True, encoding='utf-8'))
 
             # Output Files
             oldTree = None
@@ -185,9 +184,8 @@ class SNBOutput(OutputFormatPlugin):
                     else:
                         if oldTree is not None and mergeLast:
                             log.debug('Output the modified chapter again: %s' % lastName)
-                            outputFile = open(os.path.join(snbcDir, lastName), 'wb')
-                            outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
-                            outputFile.close()
+                            with open(os.path.join(snbcDir, lastName), 'wb') as f:
+                                f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                             mergeLast = False
 
                     log.debug('Converting %s to snbc...' % item.href)
@@ -201,9 +199,8 @@ class SNBOutput(OutputFormatPlugin):
                                 postfix = '_' + subName
                             lastName = ProcessFileName(item.href + postfix + ".snbc")
                             oldTree = snbcTrees[subName]
-                            outputFile = open(os.path.join(snbcDir, lastName), 'wb')
-                            outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
-                            outputFile.close()
+                            with open(os.path.join(snbcDir, lastName), 'wb') as f:
+                                f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                     else:
                         log.debug('Merge %s with last TOC item...' % item.href)
                         snbwriter.merge_content(oldTree, oeb_book, item, [('', _("Start"))], opts)
@@ -211,9 +208,8 @@ class SNBOutput(OutputFormatPlugin):
             # Output the last one if needed
             log.debug('Output the last modified chapter again: %s' % lastName)
             if oldTree is not None and mergeLast:
-                outputFile = open(os.path.join(snbcDir, lastName), 'wb')
-                outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
-                outputFile.close()
+                with open(os.path.join(snbcDir, lastName), 'wb') as f:
+                    f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                 mergeLast = False
 
             for item in m:
@@ -248,7 +244,7 @@ class SNBOutput(OutputFormatPlugin):
             # TODO : intelligent image rotation
             #     img = img.rotate(90)
             #     x,y = y,x
-            img = resize_image(img, x / scale, y / scale)
+            img = resize_image(img, x // scale, y // scale)
         with lopen(imagePath, 'wb') as f:
             f.write(image_to_data(img, fmt=imagePath.rpartition('.')[-1]))
 

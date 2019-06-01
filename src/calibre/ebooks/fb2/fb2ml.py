@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -62,12 +63,12 @@ class FB2MLizer(object):
         output.append(self.get_text())
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
-        output = self.clean_text(u''.join(output))
+        output = self.clean_text(''.join(output))
 
         if self.opts.pretty_print:
-            return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding='unicode', pretty_print=True)
+            return '<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding='unicode', pretty_print=True)
         else:
-            return u'<?xml version="1.0" encoding="UTF-8"?>' + output
+            return '<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
         # Condense empty paragraphs into a line break.
@@ -116,11 +117,11 @@ class FB2MLizer(object):
         metadata['cover'] = self.get_cover()
         metadata['genre'] = self.opts.fb2_genre
 
-        metadata['author'] = u''
+        metadata['author'] = ''
         for auth in self.oeb_book.metadata.creator:
-            author_first = u''
-            author_middle = u''
-            author_last = u''
+            author_first = ''
+            author_middle = ''
+            author_last = ''
             author_parts = auth.value.split(' ')
             if len(author_parts) == 1:
                 author_last = author_parts[0]
@@ -138,22 +139,22 @@ class FB2MLizer(object):
             metadata['author'] += '<last-name>%s</last-name>' % prepare_string_for_xml(author_last)
             metadata['author'] += '</author>'
         if not metadata['author']:
-            metadata['author'] = u'<author><first-name></first-name><last-name></last-name></author>'
+            metadata['author'] = '<author><first-name></first-name><last-name></last-name></author>'
 
-        metadata['keywords'] = u''
+        metadata['keywords'] = ''
         tags = list(map(unicode_type, self.oeb_book.metadata.subject))
         if tags:
             tags = ', '.join(prepare_string_for_xml(x) for x in tags)
             metadata['keywords'] = '<keywords>%s</keywords>'%tags
 
-        metadata['sequence'] = u''
+        metadata['sequence'] = ''
         if self.oeb_book.metadata.series:
             index = '1'
             if self.oeb_book.metadata.series_index:
                 index = self.oeb_book.metadata.series_index[0]
-            metadata['sequence'] = u'<sequence name="%s" number="%s" />' % (prepare_string_for_xml(u'%s' % self.oeb_book.metadata.series[0]), index)
+            metadata['sequence'] = '<sequence name="%s" number="%s" />' % (prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
 
-        year = publisher = isbn = u''
+        year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
             if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
@@ -161,7 +162,7 @@ class FB2MLizer(object):
                 break
         if metadata['id'] is None:
             self.log.warn('No UUID identifier found')
-            metadata['id'] = str(uuid.uuid4())
+            metadata['id'] = unicode_type(uuid.uuid4())
 
         try:
             date = self.oeb_book.metadata['date'][0]
@@ -194,7 +195,7 @@ class FB2MLizer(object):
             from calibre.utils.html2text import html2text
             metadata['comments'] = '<annotation>{}</annotation>'.format(prepare_string_for_xml(html2text(comments.value.strip())))
 
-        return textwrap.dedent(u'''
+        return textwrap.dedent('''
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <description>
                     <title-info>
@@ -222,7 +223,7 @@ class FB2MLizer(object):
                 </description>\n''') % metadata
 
     def fb2_footer(self):
-        return u'\n</FictionBook>'
+        return '\n</FictionBook>'
 
     def get_cover(self):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
@@ -255,9 +256,9 @@ class FB2MLizer(object):
             if cover_href in self.oeb_book.manifest.hrefs.keys():
                 if cover_href not in self.image_hrefs.keys():
                     self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
-            return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+            return '<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
 
-        return u''
+        return ''
 
     def get_text(self):
         from calibre.ebooks.oeb.base import XHTML

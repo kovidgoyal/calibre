@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -102,7 +103,8 @@ class ComicInput(InputFormatPlugin):
                     '%s is not a valid comic collection'
                     ' no comics.txt was found in the file')
                         %stream.name)
-            raw = open('comics.txt', 'rb').read()
+            with open('comics.txt', 'rb') as f:
+                raw = f.read()
             if raw.startswith(codecs.BOM_UTF16_BE):
                 raw = raw.decode('utf-16-be')[1:]
             elif raw.startswith(codecs.BOM_UTF16_LE):
@@ -176,7 +178,7 @@ class ComicInput(InputFormatPlugin):
         comics = []
         for i, x in enumerate(comics_):
             title, fname = x
-            cdir = u'comic_%d'%(i+1) if len(comics_) > 1 else u'.'
+            cdir = 'comic_%d'%(i+1) if len(comics_) > 1 else '.'
             cdir = os.path.abspath(cdir)
             if not os.path.exists(cdir):
                 os.makedirs(cdir)
@@ -230,14 +232,14 @@ class ComicInput(InputFormatPlugin):
                                 _('Page')+' %d'%(i+1), play_order=po)
                         po += 1
         opf.set_toc(toc)
-        m, n = open(u'metadata.opf', 'wb'), open('toc.ncx', 'wb')
-        opf.render(m, n, u'toc.ncx')
-        return os.path.abspath(u'metadata.opf')
+        with open('metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
+            opf.render(m, n, 'toc.ncx')
+        return os.path.abspath('metadata.opf')
 
     def create_wrappers(self, pages):
         from calibre.ebooks.oeb.base import XHTML_NS
         wrappers = []
-        WRAPPER = textwrap.dedent(u'''\
+        WRAPPER = textwrap.dedent('''\
         <html xmlns="%s">
             <head>
                 <meta charset="utf-8"/>
@@ -258,7 +260,7 @@ class ComicInput(InputFormatPlugin):
         dir = os.path.dirname(pages[0])
         for i, page in enumerate(pages):
             wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
-            page = os.path.join(dir, u'page_%d.xhtml'%(i+1))
+            page = os.path.join(dir, 'page_%d.xhtml'%(i+1))
             with open(page, 'wb') as f:
                 f.write(wrapper.encode('utf-8'))
             wrappers.append(page)
