@@ -20,6 +20,36 @@
     },
 
     {
+        "name": "autoconf",
+        "os": "macos",
+        "unix": {
+            "filename": "autoconf-2.69.tar.xz",
+            "hash": "sha256:64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684",
+            "urls": ["ftp://ftp.gnu.org/gnu/autoconf/{filename}"]
+        }
+    },
+
+    {
+        "name": "automake",
+        "os": "macos",
+        "unix": {
+            "filename": "automake-1.16.tar.xz",
+            "hash": "sha256:f98f2d97b11851cbe7c2d4b4eaef498ae9d17a3c2ef1401609b7b4ca66655b8a",
+            "urls": ["ftp://ftp.gnu.org/gnu/automake/{filename}"]
+        }
+    },
+
+    {
+        "name": "libtool",
+        "os": "macos",
+        "unix": {
+            "filename": "libtool-2.4.6.tar.xz",
+            "hash": "sha256:7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f",
+            "urls": ["ftp://ftp.gnu.org/gnu/libtool/{filename}"]
+        }
+    },
+
+    {
         "name": "easylzma",
         "os": "windows",
         "windows": {
