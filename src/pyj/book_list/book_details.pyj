@@ -259,7 +259,9 @@ def render_metadata(mi, table, book_id):  # {{{
     def process_datetime(field, fm, name, val):
         if val:
             fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
-            add_row(name, format_date(val, fmt))
+            val = format_date(val, fmt)
+            if val:
+                add_row(name, val)
 
     def process_series(field, fm, name, val):
         if val:
