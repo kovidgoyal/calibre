@@ -1,5 +1,5 @@
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -10,6 +10,12 @@ from struct import pack
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre import force_unicode
+from polyglot.builtins import codepoint_to_chr, int_to_byte
+
+
+def is_dkey(x):
+    q = b'dkey' if isinstance(x, bytes) else 'dkey'
+    return x == q
 
 
 class StringIO(io.StringIO):
@@ -118,14 +124,13 @@ class MetadataUpdater(object):
         self.get_original_metadata()
         if 'bookLength' in self.metadata:
             return int(self.metadata['bookLength'])
-        else:
-            return 0
+        return 0
 
-    def decode_vwi(self,bytes):
+    def decode_vwi(self, byts):
         pos, val = 0, 0
         done = False
-        byts = bytearray(bytes)
-        while pos < len(bytes) and not done:
+        byts = bytearray(byts)
+        while pos < len(byts) and not done:
             b = byts[pos]
             pos += 1
             if (b & 0x80) == 0:
@@ -149,7 +154,7 @@ class MetadataUpdater(object):
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
-        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+        FILTER=''.join([(len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x) or '.' for x in range(256)])
         N=0
         result=''
         while src:
@@ -166,36 +171,36 @@ class MetadataUpdater(object):
             print('%s: %s' % (tag, repr(self.metadata[tag])))
 
     def encode_vwi(self,value):
-        bytes = []
+        ans = []
         multi_byte = (value > 0x7f)
         while value:
             b = value & 0x7f
             value >>= 7
             if value == 0:
                 if multi_byte:
-                    bytes.append(b|0x80)
-                    if bytes[-1] == 0xFF:
-                        bytes.append(0x80)
-                    if len(bytes) == 4:
-                        return pack('>BBBB',bytes[3],bytes[2],bytes[1],bytes[0]).decode('iso-8859-1')
-                    elif len(bytes) == 3:
-                        return pack('>BBB',bytes[2],bytes[1],bytes[0]).decode('iso-8859-1')
-                    elif len(bytes) == 2:
-                        return pack('>BB',bytes[1],bytes[0]).decode('iso-8859-1')
+                    ans.append(b|0x80)
+                    if ans[-1] == 0xFF:
+                        ans.append(0x80)
+                    if len(ans) == 4:
+                        return pack('>BBBB',ans[3],ans[2],ans[1],ans[0]).decode('iso-8859-1')
+                    elif len(ans) == 3:
+                        return pack('>BBB',ans[2],ans[1],ans[0]).decode('iso-8859-1')
+                    elif len(ans) == 2:
+                        return pack('>BB',ans[1],ans[0]).decode('iso-8859-1')
                 else:
                     return pack('>B', b).decode('iso-8859-1')
             else:
-                if len(bytes):
-                    bytes.append(b|0x80)
+                if len(ans):
+                    ans.append(b|0x80)
                 else:
-                    bytes.append(b)
+                    ans.append(b)
 
         # If value == 0, return 0
         return pack('>B', 0x0).decode('iso-8859-1')
 
     def generate_dkey(self):
         for x in self.topaz_headers:
-            if self.topaz_headers[x]['tag'] == 'dkey':
+            if is_dkey(self.topaz_headers[x]['tag']):
                 if self.topaz_headers[x]['blocks']:
                     offset = self.base + self.topaz_headers[x]['blocks'][0]['offset']
                     len_uncomp = self.topaz_headers[x]['blocks'][0]['len_uncomp']
@@ -208,7 +213,7 @@ class MetadataUpdater(object):
         offset += 1
         dks.write(dkey['tag'])
         offset += len('dkey')
-        dks.write(u'\0')
+        dks.write('\0')
         offset += 1
         dks.write(self.data[offset:offset + len_uncomp].decode('iso-8859-1'))
         return dks.getvalue().encode('iso-8859-1')
@@ -245,8 +250,8 @@ class MetadataUpdater(object):
         ms = StringIO()
         ms.write(self.encode_vwi(len(self.md_header['tag'])).encode('iso-8859-1'))
         ms.write(self.md_header['tag'])
-        ms.write(chr(self.md_header['flags']))
-        ms.write(chr(len(self.metadata)))
+        ms.write(int_to_byte(self.md_header['flags']))
+        ms.write(int_to_byte(len(self.metadata)))
 
         # Add the metadata fields.
         # for tag in self.metadata:

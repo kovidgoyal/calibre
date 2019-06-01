@@ -11,7 +11,7 @@ from itertools import count, chain
 from operator import attrgetter
 import io
 import time
-import random
+import os
 import re
 import copy
 import uuid
@@ -134,8 +134,7 @@ def decint(value):
     return bytes(bytearray(reversed(ans)))
 
 
-def randbytes(n):
-    return ''.join(chr(random.randint(0, 255)) for x in range(n))
+randbytes = os.urandom
 
 
 def warn(x):
