@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Basic support for manipulating OEB 1.x/2.0 content and metadata.
 '''
@@ -22,7 +23,7 @@ from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter, codepoint_to_chr
 from polyglot.urllib import unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse
 from calibre.utils.icu import numeric_sort_key
 
@@ -148,7 +149,7 @@ def close_self_closing_tags(raw):
 
 
 def uuid_id():
-    return u'u'+uuid4()
+    return 'u' + uuid4()
 
 
 def itercsslinks(raw):
@@ -169,12 +170,12 @@ def iterlinks(root, find_links_in_css=True):
     '''
     assert etree.iselement(root)
 
-    for el in root.iter():
-        attribs = el.attrib
+    for el in root.iter('*'):
         try:
             tag = barename(el.tag).lower()
         except Exception:
             continue
+        attribs = el.attrib
 
         if tag == 'object':
             codebase = None
@@ -323,7 +324,7 @@ PNG_MIME       = types_map['.png']
 SVG_MIME       = types_map['.svg']
 BINARY_MIME    = 'application/octet-stream'
 
-XHTML_CSS_NAMESPACE = u'@namespace "%s";\n' % XHTML_NS
+XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 
 OEB_STYLES        = {CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'}
 OEB_DOCS          = {XHTML_MIME, 'text/html', OEB_DOC_MIME,
@@ -394,7 +395,7 @@ def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
                           pretty_print=pretty_print, with_tail=with_tail)
 
     if strip_comments:
-        ans = re.compile(r'<!--.*?-->', re.DOTALL).sub('', ans)
+        ans = re.compile(br'<!--.*?-->', re.DOTALL).sub(b'', ans)
 
     return ans
 
@@ -432,12 +433,15 @@ def serialize(data, media_type, pretty_print=False):
     return bytes(data)
 
 
-ASCII_CHARS   = set(chr(x) for x in range(128))
-UNIBYTE_CHARS = set(chr(x) for x in range(256))
-URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                    'abcdefghijklmnopqrstuvwxyz'
-                    '0123456789' '_.-/~')
-URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
+ASCII_CHARS   = frozenset(codepoint_to_chr(x) for x in range(128))
+UNIBYTE_CHARS = frozenset(x.encode('ascii') for x in ASCII_CHARS)
+USAFE         = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                 'abcdefghijklmnopqrstuvwxyz'
+                 '0123456789' '_.-/~')
+URL_SAFE      = frozenset(USAFE)
+URL_SAFE_BYTES = frozenset(USAFE.encode('ascii'))
+URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE_BYTES]
+del USAFE
 
 
 def urlquote(href):
@@ -445,13 +449,16 @@ def urlquote(href):
     That is, this function returns valid IRIs not valid URIs. In particular,
     IRIs can contain non-ascii characters.  """
     result = []
-    unsafe = 0 if isinstance(href, unicode_type) else 1
-    unsafe = URL_UNSAFE[unsafe]
+    isbytes = isinstance(href, bytes)
+    unsafe = URL_UNSAFE[int(isbytes)]
+    esc, join = "%%%02x", ''
+    if isbytes:
+        esc, join = esc.encode('ascii'), b''
     for char in href:
         if char in unsafe:
-            char = "%%%02x" % ord(char)
+            char = esc % ord(char)
         result.append(char)
-    return ''.join(result)
+    return join.join(result)
 
 
 def urlnormalize(href):
@@ -852,7 +859,7 @@ class Metadata(object):
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = {value: key for key, value in iteritems(nsmap)}
         elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
@@ -866,7 +873,7 @@ class Metadata(object):
 
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
-        nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsrmap = {value: key for key, value in iteritems(nsmap)}
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -935,10 +942,10 @@ class Manifest(object):
 
         # Parsing {{{
         def _parse_xml(self, data):
+            if not data:
+                return
             data = xml_to_unicode(data, strip_encoding_pats=True,
                     assume_utf8=True, resolve_entities=True)[0]
-            if not data:
-                return None
             return etree.fromstring(data, parser=RECOVER_PARSER)
 
         def _parse_xhtml(self, data):
@@ -956,7 +963,10 @@ class Manifest(object):
             return data
 
         def _parse_txt(self, data):
-            if '<html>' in data:
+            has_html = '<html>'
+            if isinstance(data, bytes):
+                has_html = has_html.encode('ascii')
+            if has_html in data:
                 return self._parse_xhtml(data)
 
             self.oeb.log.debug('Converting', self.href, '...')
@@ -1202,7 +1212,7 @@ class Manifest(object):
             base = id
             index = 1
             while id in self.ids:
-                id = base + str(index)
+                id = base + unicode_type(index)
                 index += 1
         if href is not None:
             href = urlnormalize(href)
@@ -1210,7 +1220,7 @@ class Manifest(object):
             index = 1
             lhrefs = {x.lower() for x in self.hrefs}
             while href.lower() in lhrefs:
-                href = base + str(index) + ext
+                href = base + unicode_type(index) + ext
                 index += 1
         return id, unicode_type(href)
 
@@ -1600,17 +1610,17 @@ class TOC(object):
             return 1
 
     def get_lines(self, lvl=0):
-        ans = [(u'\t'*lvl) + u'TOC: %s --> %s'%(self.title, self.href)]
+        ans = [('\t'*lvl) + 'TOC: %s --> %s'%(self.title, self.href)]
         for child in self:
             ans.extend(child.get_lines(lvl+1))
         return ans
 
     if ispy3:
         def __str__(self):
-            return u'\n'.join(self.get_lines())
+            return '\n'.join(self.get_lines())
     else:
         def __unicode__(self):
-            return u'\n'.join(self.get_lines())
+            return '\n'.join(self.get_lines())
 
         def __str__(self):
             return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
@@ -1734,11 +1744,11 @@ class PageList(object):
 
     def to_ncx(self, parent=None):
         plist = element(parent, NCX('pageList'), id=uuid_id())
-        values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
+        values = {t: count(1) for t in ('front', 'normal', 'special')}
         for page in self.pages:
             id = page.id or uuid_id()
             type = page.type
-            value = str(next(values[type]))
+            value = unicode_type(next(values[type]))
             attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}
             if page.klass:
                 attrib['class'] = page.klass
@@ -1831,7 +1841,7 @@ class OEBBook(object):
 
     def translate(self, text):
         """Translate :param:`text` into the book's primary language."""
-        lang = str(self.metadata.language[0])
+        lang = unicode_type(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
 
@@ -1842,14 +1852,14 @@ class OEBBook(object):
         if isinstance(data, unicode_type):
             return fix_data(data)
         bom_enc = None
-        if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
-            bom_enc = {'\0\0\xfe\xff':'utf-32-be',
-                    '\xff\xfe\0\0':'utf-32-le'}[data[:4]]
+        if data[:4] in (b'\0\0\xfe\xff', b'\xff\xfe\0\0'):
+            bom_enc = {b'\0\0\xfe\xff':'utf-32-be',
+                    b'\xff\xfe\0\0':'utf-32-le'}[data[:4]]
             data = data[4:]
-        elif data[:2] in ('\xff\xfe', '\xfe\xff'):
-            bom_enc = {'\xff\xfe':'utf-16-le', '\xfe\xff':'utf-16-be'}[data[:2]]
+        elif data[:2] in (b'\xff\xfe', b'\xfe\xff'):
+            bom_enc = {b'\xff\xfe':'utf-16-le', 'b\xfe\xff':'utf-16-be'}[data[:2]]
             data = data[2:]
-        elif data[:3] == '\xef\xbb\xbf':
+        elif data[:3] == b'\xef\xbb\xbf':
             bom_enc = 'utf-8'
             data = data[3:]
         if bom_enc is not None:

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
 '''
@@ -57,15 +59,17 @@ class Reader202(FormatReader):
 
     def decompress_text(self, number):
         from calibre.ebooks.compression.palmdoc import decompress_doc
-        return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')  # noqa
+        data = bytearray(self.section_data(number))
+        data = bytes(bytearray(x ^ 0xA5 for x in data))
+        return decompress_doc(data).decode(self.encoding or 'cp1252', 'replace')
 
     def get_image(self, number):
         name = None
         img = None
 
         data = self.section_data(number)
-        if data.startswith('PNG'):
-            name = data[4:4 + 32].strip('\x00')
+        if data.startswith(b'PNG'):
+            name = data[4:4 + 32].strip(b'\x00')
             img = data[62:]
 
         return name, img
@@ -89,7 +93,7 @@ class Reader202(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        pml = u''
+        pml = ''
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
             pml += self.get_text_page(i)
@@ -98,7 +102,7 @@ class Reader202(FormatReader):
         if not isinstance(title, unicode_type):
             title = title.decode('utf-8', 'replace')
 
-        html = u'<html><head><title>%s</title></head><body>%s</body></html>' % \
+        html = '<html><head><title>%s</title></head><body>%s</body></html>' % \
             (title, pml_to_html(pml))
 
         with CurrentDir(output_dir):
