@@ -26,7 +26,6 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     INDEX = 'https://www3.bostonglobe.com/todayspaper/%Y/%m/%d?arc404=true'
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
-    needs_subscription = 'optional'
     keep_only_tags = [
         dict(attrs={'class': lambda x: x and (
             x.startswith('headline |') or x.startswith('subheader |') or
@@ -75,23 +74,6 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
     def image_url_processor(self, baseurl, url):
         return self.absolutize_url(url)
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            def is_login_form(form):
-                return form.action == "https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/login2.jsp"
-
-            # br.set_debug_http(True)
-            # br.set_debug_responses(True)
-            # br.set_debug_redirects(True)
-            br.open(
-                "https://www.bostonglobe.com/login?p1=BGHeader_LogIn")
-            br.select_form(predicate=is_login_form)
-            br["username"] = self.username
-            br["password"] = self.password
-            br.submit()
-        return br
 
     def absolutize_url(self, url):
         if url.startswith("//"):
