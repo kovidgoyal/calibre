@@ -503,7 +503,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(pos, c.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
             self.highlighter.join()
-            found, start, end = self.smarts.find_text(pat, c)
+            found, start, end = self.smarts.find_text(pat, c, reverse)
             if not found:
                 return False
         else:

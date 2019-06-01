@@ -733,12 +733,14 @@ class Smarts(NullSmarts):
 
             return 'complete_names', (names_type, doc_name, c.root), query
 
-    def find_text(self, pat, cursor):
+    def find_text(self, pat, cursor, reverse):
         from calibre.gui2.tweak_book.text_search import find_text_in_chunks
         chunks = []
 
         cstart = min(cursor.position(), cursor.anchor())
         cend = max(cursor.position(), cursor.anchor())
+        if reverse:
+            cend -= 1
         c = QTextCursor(cursor)
         c.setPosition(cstart)
         block = c.block()
