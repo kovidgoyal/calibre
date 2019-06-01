@@ -638,6 +638,7 @@ class KOBO(USBMS):
     def get_content_type_from_path(self, path):
         # Strictly speaking the ContentType could be 6 or 10
         # however newspapers have the same storage format
+        ContentType = 901
         if path.find('kepub') >= 0:
             ContentType = 6
         return ContentType
