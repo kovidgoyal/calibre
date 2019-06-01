@@ -239,7 +239,7 @@ class PackedIon(PackedData):
 
     def unpack_unsigned_int(self, length):
         # unsigned big-endian (MSB first)
-        return struct.unpack_from(b'>Q', chr(0) * (8 - length) + self.extract(length))[0]
+        return struct.unpack_from(b'>Q', b'\0' * (8 - length) + self.extract(length))[0]
 
 
 def property_name(property_number):
