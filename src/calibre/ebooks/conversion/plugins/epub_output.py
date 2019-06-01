@@ -12,7 +12,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from polyglot.builtins import unicode_type, filter, map, zip
+from polyglot.builtins import unicode_type, filter, map, zip, range, as_bytes
 
 block_level_tags = (
       'address',
@@ -269,7 +269,7 @@ class EPUBOutput(OutputFormatPlugin):
                     extra_entries=extra_entries) as epub:
                 epub.add_dir(tdir)
                 if encryption is not None:
-                    epub.writestr('META-INF/encryption.xml', encryption)
+                    epub.writestr('META-INF/encryption.xml', as_bytes(encryption))
                 if metadata_xml is not None:
                     epub.writestr('META-INF/metadata.xml',
                             metadata_xml.encode('utf-8'))
@@ -331,9 +331,9 @@ class EPUBOutput(OutputFormatPlugin):
                 with lopen(path, 'r+b') as f:
                     data = f.read(1024)
                     if len(data) >= 1024:
+                        data = bytearray(data)
                         f.seek(0)
-                        for i in range(1024):
-                            f.write(chr(ord(data[i]) ^ key[i%16]))
+                        f.write(bytes(bytearray(data[i] ^ key[i%16] for i in range(1024))))
                     else:
                         self.log.warn('Font', path, 'is invalid, ignoring')
                 if not isinstance(uri, unicode_type):
@@ -347,13 +347,13 @@ class EPUBOutput(OutputFormatPlugin):
                 </enc:EncryptedData>
                 '''%(uri.replace('"', '\\"')))
             if fonts:
-                ans = b'''<encryption
+                ans = '''<encryption
                     xmlns="urn:oasis:names:tc:opendocument:xmlns:container"
                     xmlns:enc="http://www.w3.org/2001/04/xmlenc#"
                     xmlns:deenc="http://ns.adobe.com/digitaleditions/enc">
                     '''
-                ans += '\n'.join(fonts).encode('utf-8')
-                ans += b'\n</encryption>'
+                ans += '\n'.join(fonts)
+                ans += '\n</encryption>'
                 return ans
     # }}}
 

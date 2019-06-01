@@ -14,7 +14,7 @@ from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins, preferred_encoding
 from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, native_string_type
 
 _utc_tz = utc_tz
 _local_tz = local_tz
@@ -194,8 +194,8 @@ def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    # str(sep) because isoformat barfs with unicode sep on python 2.x
-    return unicode_type(date_time.isoformat(str(sep)))
+    # native_string_type(sep) because isoformat barfs with unicode sep on python 2.x
+    return unicode_type(date_time.isoformat(native_string_type(sep)))
 
 
 def internal_iso_format_string():

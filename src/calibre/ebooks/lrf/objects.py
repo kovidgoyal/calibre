@@ -123,7 +123,7 @@ class LRFContentObject(LRFObject):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
             if isinstance(action, string_or_bytes):
-                func, args = action, tuple([])
+                func, args = action, ()
             else:
                 func, args = action[0], (action[1],)
             getattr(self, func)(tag, *args)
@@ -495,7 +495,7 @@ class BlockAttr(StyleObject, LRFObject):
             return ans
 
         if hasattr(obj, 'sidemargin'):
-            margin = str(obj.sidemargin) + 'px'
+            margin = unicode_type(obj.sidemargin) + 'px'
             ans += item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
         if hasattr(obj, 'topskip'):
             ans += item('margin-top: %dpx;'%obj.topskip)
@@ -1109,7 +1109,7 @@ class Button(LRFObject):
     tag_map.update(LRFObject.tag_map)
 
     def __init__(self, document, stream, id, scramble_key, boundary):
-        self.xml = u''
+        self.xml = ''
         self.refimage = {}
         self.actions = {}
         self.to_dump = True

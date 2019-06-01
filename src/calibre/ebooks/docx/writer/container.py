@@ -18,7 +18,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, map, unicode_type, native_string_type
 
 
 def xml2str(root, pretty_print=False, with_tail=False):
@@ -243,7 +243,7 @@ class DOCX(object):
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['cp'], nsmap={x:namespaces[x] for x in 'cp dc dcterms xsi'.split()})
         cp = E.coreProperties(E.revision("1"), E.lastModifiedBy('calibre'))
-        ts = utcnow().isoformat(unicode_type('T')).rpartition('.')[0] + 'Z'
+        ts = utcnow().isoformat(native_string_type('T')).rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
             x = cp.makeelement('{%s}%s' % (namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
             x.text = ts

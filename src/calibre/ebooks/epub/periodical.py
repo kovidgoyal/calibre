@@ -134,7 +134,7 @@ def sony_metadata(oeb):
         toc.nodes.append(section)
 
     entries = []
-    seen_titles = set([])
+    seen_titles = set()
     for i, section in enumerate(toc):
         if not section.href:
             continue

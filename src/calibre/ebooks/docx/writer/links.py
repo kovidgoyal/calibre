@@ -70,7 +70,7 @@ class LinksManager(object):
         self.namespace = namespace
         self.log = log
         self.document_relationships = document_relationships
-        self.top_anchor = uuid4().hex
+        self.top_anchor = unicode_type(uuid4().hex)
         self.anchor_map = {}
         self.used_bookmark_names = set()
         self.bmark_id = 0

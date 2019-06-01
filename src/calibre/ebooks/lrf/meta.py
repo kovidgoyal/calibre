@@ -21,7 +21,7 @@ from functools import wraps
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
@@ -97,8 +97,10 @@ class fixed_stringfield(object):
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
 
     def __set__(self, obj, val):
-        if not isinstance(val, unicode_type):
+        if not isinstance(val, string_or_bytes):
             val = unicode_type(val)
+        if isinstance(val, unicode_type):
+            val = val.encode('utf-8')
         if len(val) != self._length:
             raise LRFException("Trying to set fixed_stringfield with a " +
                                "string of  incorrect length")
@@ -710,7 +712,7 @@ def main(args=sys.argv):
         lrf.book_id = options.book_id
     if options.comment:
         path = os.path.expanduser(os.path.expandvars(options.comment))
-        lrf.free_text = open(path).read()
+        lrf.free_text = open(path, 'rb').read().decode('utf-8', 'replace')
     if options.get_thumbnail:
         t = lrf.thumbnail
         td = "None"

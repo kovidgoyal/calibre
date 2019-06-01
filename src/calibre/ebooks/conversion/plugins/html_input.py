@@ -15,7 +15,7 @@ from calibre.customize.conversion import (InputFormatPlugin,
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type, zip, getcwd
+from polyglot.builtins import unicode_type, zip, getcwd, as_unicode
 
 
 def sanitize_file_name(x):
@@ -290,7 +290,7 @@ class HTMLInput(InputFormatPlugin):
             # file, therefore we quote it here.
             if isinstance(bhref, unicode_type):
                 bhref = bhref.encode('utf-8')
-            item.html_input_href = unicode_type(quote(bhref))
+            item.html_input_href = as_unicode(quote(bhref))
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))

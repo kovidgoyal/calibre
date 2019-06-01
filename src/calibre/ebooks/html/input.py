@@ -65,7 +65,7 @@ class Link(object):
         return self.path == getattr(other, 'path', other)
 
     def __str__(self):
-        return u'Link: %s --> %s'%(self.url, self.path)
+        return 'Link: %s --> %s'%(self.url, self.path)
 
     if not is_py3:
         __unicode__ = __str__
@@ -176,8 +176,10 @@ class HTMLFile(object):
         return Link(url, self.base)
 
 
-def depth_first(root, flat, visited=set([])):
+def depth_first(root, flat, visited=None):
     yield root
+    if visited is None:
+        visited = set()
     visited.add(root)
     for link in root.links:
         if link.path is not None and link not in visited:

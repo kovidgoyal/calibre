@@ -27,8 +27,7 @@ class SNBInput(InputFormatPlugin):
     file_types  = {'snb'}
     commit_name = 'snb_input'
 
-    options = set([
-    ])
+    options = set()
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
