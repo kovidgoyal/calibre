@@ -119,7 +119,7 @@ def find_ext_volume_global_trash(volume_root):
     if not op.isdir(trash_dir) or op.islink(trash_dir) or not (mode & stat.S_ISVTX):
         return None
 
-    trash_dir = op.join(trash_dir, str(uid))
+    trash_dir = op.join(trash_dir, unicode_type(uid))
     try:
         check_create(trash_dir)
     except OSError:

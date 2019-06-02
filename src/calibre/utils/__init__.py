@@ -1,4 +1,7 @@
 #!/usr/bin/env  python2
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -35,8 +38,8 @@ def unpickle_binary_string(data):
         which = data[offset:offset+1]
         offset += 1
         if which == BINSTRING:
-            sz, = struct.unpack_from(b'<i', data, offset)
-            offset += struct.calcsize(b'<i')
+            sz, = struct.unpack_from('<i', data, offset)
+            offset += struct.calcsize('<i')
         elif which == SHORT_BINSTRING:
             sz = ord(data[offset])
             offset += 1

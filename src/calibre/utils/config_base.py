@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -284,7 +285,7 @@ class OptionSet(object):
         try:
             if not isinstance(src, unicode_type):
                 src = src.decode('utf-8')
-            src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
+            src = src.replace('PyQt%d.QtCore' % 4, 'PyQt5.QtCore')
             exec(src, options)
         except Exception as err:
             try:
@@ -360,7 +361,7 @@ class Config(ConfigInterface):
         return os.path.join(config_dir, self.filename_base + '.py.json')
 
     def parse(self):
-        src = u''
+        src = ''
         migrate = False
         path = self.config_file_path
         if os.path.exists(path):
@@ -554,7 +555,7 @@ if prefs['installation_uuid'] is None:
 
 
 def tweaks_file():
-    return os.path.join(config_dir, u'tweaks.json')
+    return os.path.join(config_dir, 'tweaks.json')
 
 
 def make_unicode(obj):
@@ -623,7 +624,7 @@ def read_custom_tweaks():
             import traceback
             traceback.print_exc()
             return ans
-    old_tweaks_file = tf.rpartition(u'.')[0] + u'.py'
+    old_tweaks_file = tf.rpartition('.')[0] + '.py'
     if os.path.exists(old_tweaks_file):
         ans = exec_tweaks(old_tweaks_file)
         ans = make_unicode(ans)

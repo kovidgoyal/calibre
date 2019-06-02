@@ -19,7 +19,7 @@ from calibre.utils.tdir_in_cache import (
     clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
     unlock_file
 )
-from polyglot.builtins import iteritems, getcwd
+from polyglot.builtins import iteritems, getcwd, native_string_type
 
 
 def FastFailEF(name):
@@ -53,7 +53,7 @@ def run_worker(mod, func, **kw):
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
-    kw['env'] = {str(k): str(v)
+    kw['env'] = {native_string_type(k): native_string_type(v)
                  for k, v in iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
