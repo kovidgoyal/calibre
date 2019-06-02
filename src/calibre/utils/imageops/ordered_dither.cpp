@@ -24,7 +24,7 @@ typedef unsigned __int8 uint8_t;
 #define UINT8_MAX _UI8_MAX
 typedef unsigned __int32 uint32_t;
 #else
-#include <cstdint>
+#include <stdint.h>
 #endif
 
 // Only needed for the (commented out) Indexed8 codepath
