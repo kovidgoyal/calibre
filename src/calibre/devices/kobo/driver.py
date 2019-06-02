@@ -1839,15 +1839,15 @@ class KOBOTOUCH(KOBO):
             self.bookshelvelist = self.get_bookshelflist(connection)
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
-            columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageId, ReadStatus, Description, Publisher, Language '
+            columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageId, ReadStatus, Description, Publisher '
             if self.dbversion >= 16:
                 columns += ', ___ExpirationStatus, FavouritesIndex, Accessibility'
             else:
                 columns += ', -1 as ___ExpirationStatus, -1 as FavouritesIndex, -1 as Accessibility'
             if self.dbversion >= 33:
-                columns += ', IsDownloaded, ISBN'
+                columns += ', Language, IsDownloaded, ISBN'
             else:
-                columns += ', "1" as IsDownloaded, null AS ISBN'
+                columns += ', NULL AS Language, "1" AS IsDownloaded, NULL AS ISBN'
             if self.supports_series():
                 columns += ", Series, SeriesNumber, ___UserID, ExternalId, Subtitle"
             else:
@@ -1915,7 +1915,7 @@ class KOBOTOUCH(KOBO):
                     raise
                 query= ('SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                         'ImageId, ReadStatus, -1 AS ___ExpirationStatus, "-1" AS FavouritesIndex, '
-                        'null AS ISBN, Language '
+                        'null AS ISBN, NULL AS Language '
                         '-1 AS Accessibility, 1 AS IsDownloaded, NULL AS Series, NULL AS SeriesNumber, null as Subtitle '
                         'FROM content '
                         'WHERE BookID IS NULL'
@@ -2325,17 +2325,18 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:contentid_from_path - end - ContentID='%s'"%ContentID)
         return ContentID
 
+    def get_content_type_from_path(self, path):
+        ContentType = 6
+        if self.fwversion < (1, 9, 17):
+            ContentType = super(KOBOTOUCH, self).get_content_type_from_path(path)
+        return ContentType
+
     def get_content_type_from_extension(self, extension):
         debug_print("KoboTouch:get_content_type_from_extension - start")
         # With new firmware, ContentType appears to be 6 for all types of sideloaded books.
-        if self.fwversion >= (1,9,17) or extension == '.kobo' or extension == '.mobi':
-            debug_print("KoboTouch:get_content_type_from_extension - V2 firmware")
-            ContentType = 6
-        # For older firmware, it depends on the type of file.
-        elif extension == '.kobo' or extension == '.mobi':
-            ContentType = 6
-        else:
-            ContentType = 901
+        ContentType = 6
+        if self.fwversion < (1,9,17):
+            ContentType = super(KOBOTOUCH, self).get_content_type_from_extension(extension)
         return ContentType
 
     def set_plugboards(self, plugboards, pb_func):
