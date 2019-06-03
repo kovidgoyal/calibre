@@ -2616,10 +2616,9 @@ class KOBOTOUCH(KOBO):
 
         # NOTE: Loosely based on Qt's QSize::scaled implementation
         if keep_cover_aspect:
-            # NOTE: Py3k wouldn't need explicit casts to return a float
             # NOTE: Unlike Qt, we round to avoid accumulating errors,
             #       as ImageOps will then floor via fit_image
-            aspect_ratio = library_size[0] / float(library_size[1])
+            aspect_ratio = library_size[0] / library_size[1]
             rescaled_width = int(round(kobo_size[1] * aspect_ratio))
 
             if expand:
