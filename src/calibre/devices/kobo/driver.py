@@ -139,6 +139,12 @@ class KOBO(USBMS):
             'to perform full read-write functionality - Here be Dragons!! '
             'Enable only if you are comfortable with restoring your kobo '
             'to factory defaults and testing software'),
+        _('Letterbox full-screen covers') + ':::'+_(
+            'Do it on our end, instead of letting Nickel handle it. '
+            'Provides pixel-perfect results on devices where Nickel does not do extra processing. '
+            'Obviously has no effect without "Keep cover aspect ratio". '
+            'This is probably undesirable if you disable the "Show book covers full screen" '
+            'setting on your device.'),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -146,6 +152,7 @@ class KOBO(USBMS):
             True,
             True,
             True,
+            False,
             False,
             False,
             False
