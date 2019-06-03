@@ -692,6 +692,7 @@ class Smarts(NullSmarts):
                     return True
             return False
 
+        editor.highlighter.join()
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
         if check_if_in_tag(block, offset) or check_if_in_tag(block.next()):
