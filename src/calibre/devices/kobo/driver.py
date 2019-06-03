@@ -154,13 +154,11 @@ class KOBO(USBMS):
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_UPLOAD_GRAYSCALE_COVERS  = 2
-    OPT_DITHERED_COVERS  = 3
-    OPT_LETTERBOX_FULLSCREEN_COVERS = 4
-    OPT_PNG_COVERS = 5
-    OPT_SHOW_EXPIRED_BOOK_RECORDS = 6
-    OPT_SHOW_PREVIEWS = 7
-    OPT_SHOW_RECOMMENDATIONS = 8
-    OPT_SUPPORT_NEWER_FIRMWARE = 9
+    OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+    OPT_SHOW_PREVIEWS = 4
+    OPT_SHOW_RECOMMENDATIONS = 5
+    OPT_SUPPORT_NEWER_FIRMWARE = 6
+    OPT_LETTERBOX_FULLSCREEN_COVERS = 7
 
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)
@@ -1001,28 +999,18 @@ class KOBO(USBMS):
         else:
             uploadgrayscale = True
 
-        if not opts.extra_customization[self.OPT_DITHERED_COVERS]:
-            ditheredcovers = False
-        else:
-            ditheredcovers = True
-
         if not opts.extra_customization[self.OPT_LETTERBOX_FULLSCREEN_COVERS]:
             letterboxcovers = False
         else:
             letterboxcovers = True
 
-        if not opts.extra_customization[self.OPT_PNG_COVERS]:
-            pngcovers = False
-        else:
-            pngcovers = True
-
         debug_print('KOBO: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, ditheredcovers, letterboxcovers, pngcovers)
+            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, letterboxcovers)
         except:
             debug_print('FAILED to upload cover', filepath)
 
-    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, ditheredcovers, letterboxcovers, pngcovers):
+    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, letterboxcovers):
         from calibre.utils.img import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
@@ -1065,13 +1053,16 @@ class KOBO(USBMS):
                         fpath = path + ending
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
+                        # Only full-screen covers should be letterboxed
+                        letterbox = letterboxcovers and "N3_FULL" in ending
+
                         if os.path.exists(fpath):
                             with lopen(cover, 'rb') as f:
                                 data = f.read()
 
-                            # Return the data resized and grayscaled/dithered/letterboxed if
+                            # Return the data resized and grayscaled/letterboxed if
                             # required
-                            data = save_cover_data_to(data, grayscale=uploadgrayscale, eink=ditheredcovers, resize_to=resize, minify_to=resize, letterbox=letterboxcovers, data_fmt="png" if pngcovers else "jpeg")
+                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize, letterbox=letterbox)
 
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
@@ -1116,13 +1107,11 @@ class KOBO(USBMS):
         OPT_COLLECTIONS    = 0
         OPT_UPLOAD_COVERS  = 1
         OPT_UPLOAD_GRAYSCALE_COVERS  = 2
-        OPT_DITHERED_COVERS = 3
-        OPT_LETTERBOX_FULLSCREEN_COVERS = 4
-        OPT_PNG_COVERS = 5
-        OPT_SHOW_EXPIRED_BOOK_RECORDS = 6
-        OPT_SHOW_PREVIEWS = 7
-        OPT_SHOW_RECOMMENDATIONS = 8
-        OPT_SUPPORT_NEWER_FIRMWARE = 9
+        OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+        OPT_SHOW_PREVIEWS = 4
+        OPT_SHOW_RECOMMENDATIONS = 5
+        OPT_SUPPORT_NEWER_FIRMWARE = 6
+        OPT_LETTERBOX_FULLSCREEN_COVERS = 7
 
         p = {}
         p['format_map'] = old_settings.format_map
@@ -1136,9 +1125,7 @@ class KOBO(USBMS):
 
         p['upload_covers'] = old_settings.extra_customization[OPT_UPLOAD_COVERS]
         p['upload_grayscale'] = old_settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
-        p['dithered_covers'] = old_settings.extra_customization[OPT_DITHERED_COVERS]
         p['letterbox_fs_covers'] = old_settings.extra_customization[OPT_LETTERBOX_FULLSCREEN_COVERS]
-        p['png_covers'] = old_settings.extra_customization[OPT_PNG_COVERS]
 
         p['show_expired_books'] = old_settings.extra_customization[OPT_SHOW_EXPIRED_BOOK_RECORDS]
         p['show_previews'] = old_settings.extra_customization[OPT_SHOW_PREVIEWS]
