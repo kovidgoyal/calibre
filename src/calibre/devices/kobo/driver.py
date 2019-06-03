@@ -2705,7 +2705,7 @@ class KOBOTOUCH(KOBO):
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
                         # Never letterbox thumbnails, that's ugly. But for fullscreen covers, honor the setting.
-                        letterbox = letterbox_fs_covers if is_full_size else False
+                        letterbox = letterbox_fs_covers and is_full_size
 
                         # NOTE: Full size means we have to fit *inside* the given boundaries. Thumbnails, on the other hand, are *expanded* around those boundaries.
                         #       In Qt, it'd mean full-screen covers are resized using Qt::KeepAspectRatio, while thumbnails are resized using Qt::KeepAspectRatioByExpanding
