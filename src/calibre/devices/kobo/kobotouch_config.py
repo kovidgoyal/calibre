@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2015-2018, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2015-2019, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap

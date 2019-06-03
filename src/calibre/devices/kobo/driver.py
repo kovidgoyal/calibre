@@ -139,12 +139,6 @@ class KOBO(USBMS):
             'to perform full read-write functionality - Here be Dragons!! '
             'Enable only if you are comfortable with restoring your kobo '
             'to factory defaults and testing software'),
-        _('Letterbox full-screen covers') + ':::'+_(
-            'Do it on our end, instead of letting Nickel handle it. '
-            'Provides pixel-perfect results on devices where Nickel does not do extra processing. '
-            'Obviously has no effect without "Keep cover aspect ratio". '
-            'This is probably undesirable if you disable the "Show book covers full screen" '
-            'setting on your device.'),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -152,7 +146,6 @@ class KOBO(USBMS):
             True,
             True,
             True,
-            False,
             False,
             False,
             False
@@ -165,7 +158,6 @@ class KOBO(USBMS):
     OPT_SHOW_PREVIEWS = 4
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
-    OPT_LETTERBOX_FULLSCREEN_COVERS = 7
 
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)
@@ -1006,18 +998,13 @@ class KOBO(USBMS):
         else:
             uploadgrayscale = True
 
-        if not opts.extra_customization[self.OPT_LETTERBOX_FULLSCREEN_COVERS]:
-            letterboxcovers = False
-        else:
-            letterboxcovers = True
-
         debug_print('KOBO: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, letterboxcovers)
+            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale)
         except:
             debug_print('FAILED to upload cover', filepath)
 
-    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, letterboxcovers):
+    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
         from calibre.utils.img import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
@@ -1060,16 +1047,13 @@ class KOBO(USBMS):
                         fpath = path + ending
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
-                        # Only full-screen covers should be letterboxed
-                        letterbox = letterboxcovers and "N3_FULL" in ending
-
                         if os.path.exists(fpath):
                             with lopen(cover, 'rb') as f:
                                 data = f.read()
 
-                            # Return the data resized and grayscaled/letterboxed if
+                            # Return the data resized and grayscaled if
                             # required
-                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize, letterbox=letterbox)
+                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize)
 
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
@@ -1118,7 +1102,6 @@ class KOBO(USBMS):
         OPT_SHOW_PREVIEWS = 4
         OPT_SHOW_RECOMMENDATIONS = 5
         OPT_SUPPORT_NEWER_FIRMWARE = 6
-        OPT_LETTERBOX_FULLSCREEN_COVERS = 7
 
         p = {}
         p['format_map'] = old_settings.format_map
@@ -1132,7 +1115,6 @@ class KOBO(USBMS):
 
         p['upload_covers'] = old_settings.extra_customization[OPT_UPLOAD_COVERS]
         p['upload_grayscale'] = old_settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
-        p['letterbox_fs_covers'] = old_settings.extra_customization[OPT_LETTERBOX_FULLSCREEN_COVERS]
 
         p['show_expired_books'] = old_settings.extra_customization[OPT_SHOW_EXPIRED_BOOK_RECORDS]
         p['show_previews'] = old_settings.extra_customization[OPT_SHOW_PREVIEWS]
