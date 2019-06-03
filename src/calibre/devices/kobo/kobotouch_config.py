@@ -352,8 +352,8 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                              _('Use the PNG image format instead of JPG.'
                                ' Higher quality, especially with "Upload dithered covers" enabled,'
                                ' which will also help generate potentially smaller files.'
-                               ' Behavior completely unknown on "old" Kobo firmwares,'
-                               ' known to behave on FW >= 4.9.'
+                               ' Behavior completely unknown on old (< 3.x) Kobo firmwares,'
+                               ' known to behave on FW >= 4.8.'
                                ' Has no effect without "Upload black and white covers"!'),
                              device.get_pref('png_covers'))
         # Make it visually depend on B&W being enabled, to avoid storing ridiculously large color PNGs.
