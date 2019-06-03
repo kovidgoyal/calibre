@@ -3576,13 +3576,7 @@ class KOBOTOUCH(KOBO):
         count_options += 1
         OPT_UPLOAD_GRAYSCALE_COVERS     = count_options
         count_options += 1
-        OPT_DITHERED_COVERS             = count_options
-        count_options += 1
         OPT_KEEP_COVER_ASPECT_RATIO     = count_options
-        count_options += 1
-        OPT_LETTERBOX_FULLSCREEN_COVERS = count_options
-        count_options += 1
-        OPT_PNG_COVERS                  = count_options
         count_options += 1
         OPT_SHOW_ARCHIVED_BOOK_RECORDS  = count_options
         count_options += 1
@@ -3614,9 +3608,6 @@ class KOBOTOUCH(KOBO):
             settings.upload_covers = settings.extra_customization[OPT_UPLOAD_COVERS]
             settings.keep_cover_aspect = settings.extra_customization[OPT_KEEP_COVER_ASPECT_RATIO]
             settings.upload_grayscale = settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
-            settings.dithered_covers = settings.extra_customization[OPT_DITHERED_COVERS]
-            settings.letterbox_fs_covers = settings.extra_customization[OPT_LETTERBOX_FULLSCREEN_COVERS]
-            settings.png_covers = settings.extra_customization[OPT_PNG_COVERS]
 
             settings.show_archived_books = settings.extra_customization[OPT_SHOW_ARCHIVED_BOOK_RECORDS]
             settings.show_previews = settings.extra_customization[OPT_SHOW_PREVIEWS]
