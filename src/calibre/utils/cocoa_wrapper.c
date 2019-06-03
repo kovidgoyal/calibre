@@ -8,6 +8,10 @@
 #include <Python.h>
 
 extern double cocoa_cursor_blink_time(void);
+extern void cocoa_send_notification(const char *identitifer, const char *title, const char *subtitle, const char *informativeText, const char* path_to_image);
+extern const char* cocoa_send2trash(const char *utf8_path);
+
+static PyObject *notification_activated_callback = NULL;
 
 static PyObject*
 cursor_blink_time(PyObject *self) {
@@ -16,8 +20,54 @@ cursor_blink_time(PyObject *self) {
     return PyFloat_FromDouble(ans);
 }
 
+void
+macos_notification_callback(const char* user_id) {
+	if (notification_activated_callback) {
+		PyObject *ret = PyObject_CallFunction(notification_activated_callback, "z", user_id);
+		if (ret == NULL) PyErr_Print();
+		else Py_DECREF(ret);
+	}
+}
+
+static PyObject*
+set_notification_activated_callback(PyObject *self, PyObject *callback) {
+    (void)self;
+    if (notification_activated_callback) Py_DECREF(notification_activated_callback);
+    notification_activated_callback = callback;
+    Py_INCREF(callback);
+    Py_RETURN_NONE;
+
+}
+
+static PyObject*
+send_notification(PyObject *self, PyObject *args) {
+	(void)self;
+    char *identifier = NULL, *title = NULL, *subtitle = NULL, *informativeText = NULL, *path_to_image = NULL;
+    if (!PyArg_ParseTuple(args, "zsz|zz", &identifier, &title, &informativeText, &path_to_image, &subtitle)) return NULL;
+	cocoa_send_notification(identifier, title, subtitle, informativeText, path_to_image);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+send2trash(PyObject *self, PyObject *args) {
+	(void)self;
+	char *path = NULL;
+    if (!PyArg_ParseTuple(args, "s", &path)) return NULL;
+	const char *err = cocoa_send2trash(path);
+	if (err) {
+		PyErr_SetString(PyExc_OSError, err);
+		free((void*)err);
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef module_methods[] = {
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
+    {"set_notification_activated_callback", (PyCFunction)set_notification_activated_callback, METH_O, ""},
+    {"send_notification", (PyCFunction)send_notification, METH_VARARGS, ""},
+    {"send2trash", (PyCFunction)send2trash, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

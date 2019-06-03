@@ -89,7 +89,7 @@ if iswindows:
         return delegate_recycle(path)
 
 elif isosx:
-    u = plugins['usbobserver'][0]
+    u = plugins['cocoa'][0]
     if hasattr(u, 'send2trash'):
         def osx_recycle(path):
             if isbytestring(path):
