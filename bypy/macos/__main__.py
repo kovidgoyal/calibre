@@ -505,7 +505,7 @@ class Freeze(object):
                 raise
         sp = join(self.resources_dir, 'Python', 'site-packages')
         for x in os.listdir(join(sp, 'PyQt5')):
-            if x.endswith('.so') and x.rpartition('.')[0] not in PYQT_MODULES:
+            if x.endswith('.so') and x.rpartition('.')[0] not in PYQT_MODULES and x != 'sip.so':
                 os.remove(join(sp, 'PyQt5', x))
         os.remove(join(sp, 'PyQt5', 'uic/port_v3/proxy_base.py'))
         self.remove_bytecode(sp)
@@ -639,12 +639,12 @@ class Freeze(object):
 
     @flush
     def create_gui_apps(self):
-        input_formats = sorted(json.loads(
+        input_formats = sorted(set(json.loads(
             subprocess.check_output([
                 join(self.contents_dir, 'MacOS', 'calibre-debug'), '-c',
-                'from calibre.customize.ui import all_input_formats; import sys, json; sys.stdout.write(json.dumps(set(all_input_formats())))'
+                'from calibre.customize.ui import all_input_formats; import sys, json; sys.stdout.write(json.dumps(tuple(all_input_formats())))'
             ])
-        ))
+        )))
 
         def specialise_plist(launcher, remove_types, plist):
             plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
