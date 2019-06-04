@@ -2,7 +2,11 @@
 #include "headless_integration.h"
 #include "headless_backingstore.h"
 #ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+#else
 #include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
+#endif
 #include <qpa/qplatformservices.h>
 #include <QtCore/private/qeventdispatcher_unix_p.h>
 #else
