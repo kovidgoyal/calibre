@@ -11,6 +11,7 @@ import sys
 from collections import OrderedDict, defaultdict
 from functools import partial
 from itertools import count
+from datetime import datetime
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
@@ -30,6 +31,7 @@ from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
+from calibre.srv.metadata import encode_datetime
 from polyglot.binary import as_base64_unicode as encode_component, from_base64_unicode as decode_component
 from polyglot.builtins import iteritems, map, is_py3, unicode_type
 from polyglot.urllib import quote, urlparse
@@ -522,20 +524,30 @@ def html_as_dict(root):
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
 
+def serialize_datetimes(d):
+    for k in tuple(d):
+        v = d[k]
+        if isinstance(v, datetime):
+            v = encode_datetime(v)
+            d[k] = v
+
+
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False):
     container = Container(pathtoebook, output_dir, book_hash=book_hash)
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.utils.serialize import json_dumps
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict
         with lopen(pathtoebook, 'rb') as f:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
             d = metadata_as_dict(mi)
+            serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
             cdata = d.pop('cover_data', None)
             if cdata and cdata[1] and container.book_render_data['raster_cover_name']:
                 with lopen(os.path.join(output_dir, container.book_render_data['raster_cover_name']), 'wb') as f:
                     f.write(cdata[1])
             with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
-                f.write(json.dumps(d))
+                f.write(json_dumps(d))
 
 
 if __name__ == '__main__':
