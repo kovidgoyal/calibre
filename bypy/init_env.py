@@ -2,11 +2,18 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import print_function
+
 import json
 import os
 import re
+import subprocess
+import sys
 
-from bypy.constants import SRC as CALIBRE_DIR
+from bypy.constants import (
+    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, build_dir, worker_env
+)
+from bypy.utils import run_shell
 
 
 def read_cal_file(name):
@@ -59,6 +66,36 @@ def initialize_constants():
     ).group(1)
     calibre_constants['book_extensions'] = json.loads(be.replace("'", '"'))
     return calibre_constants
+
+
+def run(*args):
+    env = os.environ.copy()
+    env.update(worker_env)
+    env['SW'] = PREFIX
+    env['LD_LIBRARY_PATH'] = LIBDIR
+    env['SIP_BIN'] = os.path.join(PREFIX, 'bin', 'sip')
+    env['QMAKE'] = os.path.join(PREFIX, 'qt', 'bin', 'qmake')
+    return subprocess.call(list(args), env=env, cwd=CALIBRE_DIR)
+
+
+def build_c_extensions(ext_dir):
+    bdir = os.path.join(build_dir(), 'calibre-extension-objects')
+    if run(
+        PYTHON, 'setup.py', 'build',
+        '--output-dir', ext_dir, '--build-dir', bdir
+    ) != 0:
+        print('Building of calibre C extensions failed', file=sys.stderr)
+        os.chdir(CALIBRE_DIR)
+        run_shell()
+        raise SystemExit('Building of calibre C extensions failed')
+
+
+def run_tests(path_to_calibre_debug, cwd_on_failure):
+    if run(path_to_calibre_debug, '--test-build') != 0:
+        os.chdir(cwd_on_failure)
+        print('running calibre build tests failed', file=sys.stderr)
+        run_shell()
+        raise SystemExit('running calibre build tests failed')
 
 
 if __name__ == 'program':

@@ -10,19 +10,16 @@ import os
 import shutil
 import stat
 import subprocess
-import sys
 import tarfile
 import time
 from functools import partial
 
 from bypy.constants import (
-    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
-    python_major_minor_version, worker_env
+    PREFIX, SRC as CALIBRE_DIR, SW, is64bit, python_major_minor_version
 )
 from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import (
-    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, run_shell,
-    walk
+    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 )
 
 j = os.path.join
@@ -282,36 +279,12 @@ def create_tarfile(env, compression_level='9'):
         os.path.basename(ans), os.stat(ans).st_size / (1024.**2)))
 
 
-def run_tests(path_to_calibre_debug, cwd_on_failure):
-    p = subprocess.Popen([path_to_calibre_debug, '--test-build'])
-    if p.wait() != 0:
-        os.chdir(cwd_on_failure)
-        print('running calibre build tests failed', file=sys.stderr)
-        run_shell()
-        raise SystemExit(p.wait())
-
-
-def build_extensions(env, ext_dir):
-    wenv = os.environ.copy()
-    wenv.update(worker_env)
-    wenv['LD_LIBRARY_PATH'] = LIBDIR
-    wenv['QMAKE'] = os.path.join(QT_PREFIX, 'bin', 'qmake')
-    wenv['SW'] = PREFIX
-    wenv['SIP_BIN'] = os.path.join(PREFIX, 'bin', 'sip')
-    p = subprocess.Popen([PYTHON, 'setup.py', 'build', '--build-dir=' + build_dir(), '--output-dir=' + ext_dir], env=wenv, cwd=CALIBRE_DIR)
-    if p.wait() != 0:
-        os.chdir(CALIBRE_DIR)
-        print('building calibre extensions failed', file=sys.stderr)
-        run_shell()
-        raise SystemExit(p.returncode)
-
-
 def main():
     args = globals()['args']
     ext_dir = globals()['ext_dir']
+    run_tests = globals()['init_env']['run_tests']
     env = Env()
     copy_libs(env)
-    build_extensions(env, ext_dir)
     copy_python(env, ext_dir)
     build_launchers(env)
     if not args.skip_tests:

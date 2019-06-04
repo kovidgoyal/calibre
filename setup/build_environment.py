@@ -149,12 +149,12 @@ if iswindows:
     podofo_lib = sw_lib_dir
 elif isosx:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
-    podofo_inc = os.path.join(sw, 'include', 'podofo')
-    podofo_lib = os.path.join(sw, 'lib')
+    sw_inc_dir  = os.path.join(sw, 'include')
+    sw_lib_dir  = os.path.join(sw, 'lib')
+    podofo_inc = os.path.join(sw_inc_dir, 'podofo')
+    podofo_lib = sw_lib_dir
     ft_libs = ['freetype']
     ft_inc_dirs = [sw + '/include/freetype2']
-    icu_inc_dirs = [sw + '/include']
-    icu_lib_dirs = [sw + '/lib']
     SSL = os.environ.get('OPENSSL_DIR', os.path.join(sw, 'private', 'ssl'))
     openssl_inc_dirs = [os.path.join(SSL, 'include')]
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
