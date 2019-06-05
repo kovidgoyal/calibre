@@ -15,7 +15,7 @@ import time
 from functools import partial
 
 from bypy.constants import (
-    PREFIX, SRC as CALIBRE_DIR, SW, is64bit, python_major_minor_version
+    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
 )
 from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import (
@@ -252,7 +252,7 @@ def strip_binaries(env):
 
 def create_tarfile(env, compression_level='9'):
     print('Creating archive...')
-    base = os.path.join(SW, 'dist')
+    base = OUTPUT_DIR
     try:
         shutil.rmtree(base)
     except EnvironmentError as err:

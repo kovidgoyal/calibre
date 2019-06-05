@@ -22,11 +22,10 @@ from functools import partial, reduce
 from itertools import repeat
 
 from bypy.constants import (
-    PREFIX, PYTHON, SRC as CALIBRE_DIR, SW, python_major_minor_version
+    OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
 )
 from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
-
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
 calibre_constants = globals()['init_env']['calibre_constants']
@@ -673,7 +672,7 @@ class Freeze(object):
         ''' Copy a directory d into a dmg named volname '''
         print('\nSigning...')
         sys.stdout.flush()
-        destdir = os.path.join(SW, 'dist')
+        destdir = OUTPUT_DIR
         try:
             shutil.rmtree(destdir)
         except EnvironmentError as err:
