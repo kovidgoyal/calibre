@@ -40,7 +40,8 @@ def binary_includes():
         ] + list(map(
             get_dll_path,
             ('usb-1.0 mtp expat sqlite3 ffi z poppler dbus-1 iconv xml2 xslt jpeg png16'
-             ' webp exslt ncursesw readline chm icudata icui18n icuuc icuio gcrypt gpg-error'
+             ' webp webpmux webpdemux exslt ncursesw readline chm'
+             ' icudata icui18n icuuc icuio gcrypt gpg-error'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1').split()
         )) + [
             get_dll_path('podofo', 3), get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),

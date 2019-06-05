@@ -384,16 +384,84 @@
     },
 
     {
-        "name": "qt",
-        "unix": {
-            "filename": "qt-everywhere-src-5.12.3.tar.xz",
-            "hash": "sha256:6462ac74c00ff466487d8ef8d0922971aa5b1d5b33c0753308ec9d57711f5a42",
-            "urls": ["https://download.qt.io/official_releases/qt/5.12/5.12.3/single/{filename}"]
-        },
-        "windows": {
-            "filename": "qt-everywhere-src-5.12.3.zip",
-            "hash": "md5:b684a2f37b1beebd421b3b7d1eca15dc",
-            "urls": ["https://download.qt.io/official_releases/qt/5.12/5.12.3/single/{filename}"]
+        "name": "qt-base",
+        "version": "5.12.3",
+        "hashes": {
+            "unix": "sha256:fddfd8852ef7503febeed67b876d1425160869ae2b1ae8e10b3fb0fedc5fe701",
+            "windows": "sha256:f7a14e5e7156988e1673a7c64ac1e25353c238c2e3008e4c0b91778f14d8c70c"
+        }
+    },
+
+    {
+        "name": "qt-svg",
+        "hashes": {
+            "unix": "sha256:f666438dbf6816b7534e539b95e3fa4405f11d7e2e2bbcde34f2db5ae0f27dc2",
+            "windows": "sha256:a39476cf3355e315311afb523c5d6da9153ba8434dc770b81407c4a3180c47a5"
+        }
+    },
+
+    {
+        "name": "qt-declarative",
+        "hashes": {
+            "unix": "sha256:839881cd6996e35c351bc7d560372ebb91e61f3688957c33248c4f31ea007fa7",
+            "windows": "sha256:9df94bdba58f6c136a93a4c3786b07f67a217343225d48f3da38f51c68f2ee1f"
+        }
+    },
+
+    {
+        "name": "qt-imageformats",
+        "hashes": {
+            "unix": "sha256:db5a9e784f9c327c1e6830b1550311024cc91202d3b8dde82cd0944164298be2",
+            "windows": "sha256:ade8a611d7f61971bbd87b205d5083d88b00300887a50c8ba92ec6268003824f"
+        }
+    },
+
+    {
+        "name": "qt-webchannel",
+        "hashes": {
+            "unix": "sha256:72d1620bcc94e14caa91ddf344c84cd1288aa9479e00b1bb3b5e51f92efe088a",
+            "windows": "sha256:f3de125c163a27a8683f5fcdf9bbb4af91461c8854976a9609b951f43a8fbad5"
+        }
+    },
+
+    {
+        "name": "qt-location",
+        "hashes": {
+            "unix": "sha256:52d589be2852ada0c000b06cc411b61e521cd0797470be567fd1625bcc9d75c6",
+            "windows": "sha256:47d329bf32b37023759353347431d8d7f7248b399e917e3717b2d20da4526b1f"
+        }
+    },
+
+    {
+        "name": "qt-x11extras",
+        "os": "linux",
+        "hashes": {
+            "unix": "sha256:85e3ae5177970c2d8656226d7535d0dff5764c100e55a79a59161d80754ba613"
+        }
+    },
+
+    {
+        "name": "qt-wayland",
+        "os": "linux",
+        "hashes": {
+            "unix": "sha256:f0b45ad84180730e2d5a1249eb20c6357869b4b78f45eb266c2f2b17f77d86ff"
+        }
+    },
+
+    {
+        "name": "qt-sensors",
+        "hashes": {
+            "unix": "sha256:7f63fedf60fdf110a3fc529568c7226d7acd59cc5eaee908f4d5a969e34005fc",
+            "windows": "sha256:5f1e9d8e1add61ba20b6499dd4335d9b157bb99793ed16319c142569625c546d"
+        }
+    },
+
+
+    {
+        "name": "qt-webengine",
+        "hashes": {
+            "unix": "sha256:3ff3bac12d75aa0f3fd993bb7077fe411f7b0e6a3993af6f8b039d48e3dc4317",
+            "windows": "sha256:dec39e37480cb8644d628a75bb13c124a799277ab8851864781d17739a4c573d"
         }
     },
 
