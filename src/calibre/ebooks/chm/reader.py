@@ -5,7 +5,7 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, re, codecs
+import os, re
 
 from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
@@ -15,7 +15,7 @@ from calibre.utils.chm.chm import CHMFile
 from calibre.constants import plugins
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import unicode_type, getcwd
+from polyglot.builtins import unicode_type, getcwd, as_unicode
 
 
 chmlib, chmlib_err = plugins['chmlib']
@@ -56,12 +56,17 @@ class CHMReader(CHMFile):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
         self.input_encoding = input_encoding
+        self.chm_encoding = self.get_encoding() or 'cp1252'
         self._sourcechm = input
         self._contents = None
         self._playorder = 0
         self._metadata = False
         self._extracted = False
         self.re_encoded_files = set()
+        if self.home:
+            self.home = as_unicode(self.home, self.chm_encoding)
+        if self.topics:
+            self.topics = as_unicode(self.topics, self.chm_encoding)
 
         # location of '.hhc' file, which is the CHM TOC.
         if self.topics is None:
@@ -91,6 +96,11 @@ class CHMReader(CHMFile):
         # print toc
         return toc
 
+    def ResolveObject(self, path):
+        if not isinstance(path, bytes):
+            path = path.encode(self.chm_encoding)
+        return CHMFile.ResolveObject(self, path)
+
     def GetFile(self, path):
         # have to have abs paths for ResolveObject, but Contents() deliberately
         # makes them relative. So we don't have to worry, re-add the leading /.
@@ -107,12 +117,7 @@ class CHMReader(CHMFile):
 
     def ExtractFiles(self, output_dir=getcwd(), debug_dump=False):
         html_files = set()
-        try:
-            x = self.get_encoding()
-            codecs.lookup(x)
-            enc = x
-        except:
-            enc = 'cp1252'
+        enc = self.chm_encoding
         for path in self.Contents():
             fpath = path
             if not isinstance(path, unicode_type):
@@ -275,11 +280,12 @@ class CHMReader(CHMFile):
         paths = []
 
         def get_paths(chm, ui, ctx):
+            path = as_unicode(ui.path, self.chm_encoding)
             # skip directories
             # note this path refers to the internal CHM structure
-            if ui.path[-1] != '/':
+            if path[-1] != '/':
                 # and make paths relative
-                paths.append(ui.path.lstrip('/'))
+                paths.append(path.lstrip('/'))
         chmlib.chm_enumerate(self.file, chmlib.CHM_ENUMERATE_NORMAL, get_paths, None)
         self._contents = paths
         return self._contents

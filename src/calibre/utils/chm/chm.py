@@ -30,7 +30,7 @@ import codecs
 import struct
 import sys
 
-from calibre.constants import plugins
+from calibre.constants import plugins, filesystem_encoding
 from polyglot.builtins import long_type
 
 chmlib, chmlib_err = plugins['chmlib']
@@ -226,7 +226,10 @@ class CHMFile:
         if self.filename is not None:
             self.CloseCHM()
 
-        self.file = chmlib.chm_open(archiveName)
+        path = archiveName
+        if not isinstance(path, bytes):
+            path = path.encode(filesystem_encoding)
+        self.file = chmlib.chm_open(path)
         if self.file is None:
             return 0
 
@@ -382,11 +385,8 @@ class CHMFile:
         The UnitInfo is used to retrieve the document contents
         '''
         if self.file:
-            # path = os.path.abspath(document)
-            path = document
-            return chmlib.chm_resolve_object(self.file, path)
-        else:
-            return (1, None)
+            return chmlib.chm_resolve_object(self.file, document)
+        return 1, None
 
     def RetrieveObject(self, ui, start=-1, length=-1):
         '''Retrieves the contents of a document.
@@ -442,7 +442,7 @@ class CHMFile:
         if ans:
             try:
                 codecs.lookup(ans)
-            except:
+            except Exception:
                 ans = None
         return ans
 

@@ -3827,18 +3827,18 @@ int dummy_enumerator (struct chmFile *h,
     if (arglist) {
       result = PyEval_CallObject(my_callback, arglist);
       Py_DECREF(arglist);
-      Py_DECREF(result);
 
       Py_DECREF(py_h);
       Py_DECREF(py_ui);
 
       if (result == NULL) {
-        return 0; /* Pass error back */
-      } else {
-        return 1;
+          PyErr_Print();
+          return 0; /* Pass error back */
       }
-    } else
-      return 0;
+      Py_DECREF(result);
+      return 1;
+      }
+    return 0;
  }
 
 

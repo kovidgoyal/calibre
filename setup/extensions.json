@@ -84,7 +84,7 @@
         "windows_libraries": "ChmLib",
         "inc_dirs": "!chmlib_inc_dirs",
         "lib_dirs": "!chmlib_lib_dirs",
-        "defines": "SWIG_COBJECT_TYPES"
+        "defines": "SWIG_COBJECT_TYPES SWIG_PYTHON_STRICT_BYTE_CHAR"
     },
     {
         "name": "lzx",
