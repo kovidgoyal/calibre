@@ -782,6 +782,21 @@
     },
 
     {
+        "name": "pyqt-webengine",
+        "unix": {
+            "filename": "PyQtWebEngine_gpl-5.12.1.tar.gz",
+            "hash": "sha256:860704672ea1b616e1347be1f347bc1c749e64ed378370863fe209e84e9bd473",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.12.1/{filename}"]
+        },
+        "windows": {
+            "filename": "PyQtWebEngine_gpl-5.12.1.zip",
+            "hash": "sha1:adc7cd647b23c438788f62e1e804ca2ee0ad1529",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.12.1/{filename}"]
+        }
+    },
+
+
+    {
         "name": "macfsevents",
         "os": "macos",
         "unix": {
