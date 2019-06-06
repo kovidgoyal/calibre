@@ -24,7 +24,7 @@ from itertools import repeat
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
 )
-from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
+from bypy.pkgs.qt_base import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname

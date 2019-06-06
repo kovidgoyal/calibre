@@ -17,7 +17,7 @@ from functools import partial
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
 )
-from bypy.pkgs.qt import PYQT_MODULES, QT_DLLS, QT_PLUGINS
+from bypy.pkgs.qt_base import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import (
     create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 )
