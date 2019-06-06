@@ -258,6 +258,8 @@ class Freeze(object):
         for x, is_id in self.get_dependencies(path_to_lib):
             if x.startswith('@rpath/Qt'):
                 yield x, x[len('@rpath/'):], is_id
+            elif x.startswith('@rpath/libjpeg'):
+                yield x, x[len('@rpath/'):], is_id
             else:
                 for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
                     if x.startswith(y):
@@ -363,6 +365,9 @@ class Freeze(object):
         for f in plugins:
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
+            if f.endswith('/podofo.so'):
+                self.change_dep('libpodofo.0.9.6.dylib',
+                    '@executable_path/../Frameworks/libpodofo.0.9.6.dylib', False, join(dest, basename(f)))
 
     @flush
     def create_plist(self):
