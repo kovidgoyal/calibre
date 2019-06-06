@@ -455,7 +455,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         what = _('try deleting the file: "%s"') % path
 
     info = base%(where, msg, what)
-    error_dialog(None, _('Cannot Start ')+__appname__,
+    error_dialog(None, _('Cannot start ')+__appname__,
         '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, det_msg=det_msg, show=True)
 
     raise SystemExit(1)

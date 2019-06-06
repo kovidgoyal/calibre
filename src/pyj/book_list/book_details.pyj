@@ -715,7 +715,7 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
             return
         if end_type is not 'load':
             error_dialog(_('Failed to copy book'), _(
-                'Failed to copy the book "{}" click "Show details" for more information.').format(title),
+                'Failed to copy the book "{}". Click "Show details" for more information.').format(title),
                 xhr.error_html)
             return
         try:
@@ -724,11 +724,11 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
                 raise Exception('bad')
         except:
             error_dialog(_('Failed to copy book'), _(
-                'Failed to copy the book "{}" got an invalid response from calibre').format(title))
+                'Failed to copy the book "{}" because of an invalid response from calibre').format(title))
             return
         if not response.ok:
             error_dialog(_('Failed to copy book'), _(
-                'Failed to copy the book "{}" click "Show details" for more information.').format(title),
+                'Failed to copy the book "{}". Click "Show details" for more information.').format(title),
                 response.payload
             )
             return
