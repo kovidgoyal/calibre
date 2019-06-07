@@ -74,7 +74,7 @@ static uint8_t
     // c = ClampToQuantum((l+(t >= map[(x % mw) + mw * (y % mh)])) * QuantumRange / (L-1));
     uint32_t q = ((l + (t >= threshold_map_o8x8[(x & 7U) + 8U * (y & 7U)])) * 17);
     // NOTE: We're doing unsigned maths, so, clamping is basically MIN(q, UINT8_MAX) ;).
-    //       The only overflow we should ever catch should be for a few black (v = 0xFF) input pixels
+    //       The only overflow we should ever catch should be for a few white (v = 0xFF) input pixels
     //       that get shifted to the next step (i.e., q = 272 (0xFF + 17)).
     return (q > UINT8_MAX ? UINT8_MAX : static_cast<uint8_t>(q));
 }
