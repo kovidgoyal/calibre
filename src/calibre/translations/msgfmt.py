@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # Written by Martin v. Loewis <loewis@informatik.hu-berlin.de>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 """Generate binary message catalog from textual translation description.
 
@@ -44,11 +45,11 @@ def usage(code, msg=''):
     sys.exit(code)
 
 
-def add(id, str, fuzzy):
+def add(id, s, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
     global MESSAGES
-    if not fuzzy and str:
-        MESSAGES[id] = str
+    if not fuzzy and s:
+        MESSAGES[id] = s
         if id:
             STATS['translated'] += 1
     else:
@@ -59,7 +60,7 @@ def add(id, str, fuzzy):
 def generate():
     "Return the generated output."
     global MESSAGES
-    keys = MESSAGES.keys()
+    keys = list(MESSAGES)
     # the keys are sorted in the .mo file
     keys.sort()
     offsets = []
@@ -93,8 +94,8 @@ def generate():
                          7*4+len(keys)*8,   # start of value index
                          0, 0)              # size and offset of hash table
     output += array.array("i", offsets).tostring()
-    output += ids
-    output += strs
+    output += ids.encode('utf-8')
+    output += strs.encode('utf-8')
     return output
 
 
@@ -123,6 +124,7 @@ def make(filename, outfile):
     lno = 0
     msgid = msgstr = ''
     for l in lines:
+        l = l.decode('utf-8')
         lno += 1
         # If we get a comment line after a msgstr, this is a new entry
         if l[0] == '#' and section == STR:
