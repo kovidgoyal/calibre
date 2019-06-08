@@ -4,6 +4,7 @@
 #ifdef __APPLE__
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
 #include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+class QCoreTextFontEngine;
 #else
 #include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
 #endif
@@ -37,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 
+
 #ifndef __APPLE__
 class GenericUnixServices : public QGenericUnixServices {
     /* We must return desktop environment as UNKNOWN otherwise other parts of
@@ -64,7 +66,11 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 
     screenAdded(mPrimaryScreen);
 #ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    m_fontDatabase.reset(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>());
+#else
     m_fontDatabase.reset(new QCoreTextFontDatabase());
+#endif
 #else
     m_fontDatabase.reset(new QFontconfigDatabase());
 #endif
