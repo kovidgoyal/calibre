@@ -43,7 +43,8 @@ def expand_dirs(items):
 
 
 def get_executable(info_path):
-    return plistlib.readPlist(info_path)['CFBundleExecutable']
+    with open(info_path, 'rb') as f:
+        return plistlib.load(f)['CFBundleExecutable']
 
 
 def sign_app(appdir):
