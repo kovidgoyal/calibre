@@ -11,9 +11,91 @@ import subprocess
 import sys
 
 from bypy.constants import (
-    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, build_dir, worker_env
+    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, build_dir, islinux, ismacos,
+    worker_env
 )
 from bypy.utils import run_shell
+
+
+dlls = [
+    'Core',
+    'Concurrent',
+    'Gui',
+    'Network',
+    # 'NetworkAuth',
+    'Location',
+    'PrintSupport',
+    'WebChannel',
+    # 'WebSockets',
+    # 'WebView',
+    'Positioning',
+    'Sensors',
+    'Sql',
+    'Svg',
+    'WebKit',
+    'WebKitWidgets',
+    'WebEngineCore',
+    'WebEngine',
+    'WebEngineWidgets',
+    'Widgets',
+    # 'Multimedia',
+    'OpenGL',
+    # 'MultimediaWidgets',
+    'Xml',
+    # 'XmlPatterns',
+]
+
+if islinux:
+    dlls += ['X11Extras', 'XcbQpa', 'WaylandClient', 'DBus']
+elif ismacos:
+    dlls += ['MacExtras', 'DBus']
+
+QT_DLLS = frozenset(
+    'Qt5' + x for x in dlls
+)
+
+QT_PLUGINS = [
+    'imageformats',
+    'iconengines',
+    # 'mediaservice',
+    'platforms',
+    'platformthemes',
+    # 'playlistformats',
+    'sqldrivers',
+    # 'styles',
+    # 'webview',
+    # 'audio', 'printsupport', 'bearer', 'position',
+]
+
+if not ismacos:
+    QT_PLUGINS.append('platforminputcontexts')
+
+if islinux:
+    QT_PLUGINS += [
+        'wayland-decoration-client',
+        'wayland-graphics-integration-client',
+        'wayland-shell-integration',
+        'xcbglintegrations',
+    ]
+
+PYQT_MODULES = (
+    'Qt',
+    'QtCore',
+    'QtGui',
+    'QtNetwork',
+    # 'QtMultimedia', 'QtMultimediaWidgets',
+    'QtPrintSupport',
+    'QtSensors',
+    'QtSvg',
+    'QtWebKit',
+    'QtWebKitWidgets',
+    'QtWidgets',
+    'QtWebEngine',
+    'QtWebEngineCore',
+    'QtWebEngineWidgets',
+    # 'QtWebChannel',
+)
+del dlls
 
 
 def read_cal_file(name):

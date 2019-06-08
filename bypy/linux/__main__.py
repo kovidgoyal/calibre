@@ -17,7 +17,6 @@ from functools import partial
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
 )
-from bypy.pkgs.qt_base import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import (
     create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 )
@@ -28,7 +27,9 @@ arch = 'x86_64' if is64bit else 'i686'
 
 py_ver = '.'.join(map(str, python_major_minor_version()))
 QT_PREFIX = os.path.join(PREFIX, 'qt')
-calibre_constants = globals()['init_env']['calibre_constants']
+iv = globals()['init_env']
+calibre_constants = iv['calibre_constants']
+QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
 qt_get_dll_path = partial(get_dll_path, loc=os.path.join(QT_PREFIX, 'lib'))
 
 
@@ -283,7 +284,7 @@ def create_tarfile(env, compression_level='9'):
 def main():
     args = globals()['args']
     ext_dir = globals()['ext_dir']
-    run_tests = globals()['init_env']['run_tests']
+    run_tests = iv['run_tests']
     env = Env()
     copy_libs(env)
     copy_python(env, ext_dir)

@@ -24,11 +24,12 @@ from itertools import repeat
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
 )
-from bypy.pkgs.qt_base import PYQT_MODULES, QT_DLLS, QT_PLUGINS
 from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
-calibre_constants = globals()['init_env']['calibre_constants']
+iv = globals()['init_env']
+calibre_constants = iv['calibre_constants']
+QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
 py_ver = '.'.join(map(str, python_major_minor_version()))
 sign_app = runpy.run_path(join(dirname(abspath(__file__)), 'sign.py'))['sign_app']
 
@@ -724,5 +725,5 @@ def main(args, ext_dir, test_runner):
 if __name__ == '__main__':
     args = globals()['args']
     ext_dir = globals()['ext_dir']
-    run_tests = globals()['init_env']['run_tests']
+    run_tests = iv['run_tests']
     main(args, ext_dir, run_tests)
