@@ -419,7 +419,7 @@ class PDFWriter(QObject):
                 self.paged_js += P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
                 hjs, self.hyphenate_lang = load_hyphenator_dicts({}, self.book_language)
                 self.paged_js += hjs
-            self.hf_uuid = str(uuid.uuid4()).replace('-', '')
+            self.hf_uuid = unicode_type(uuid.uuid4()).replace('-', '')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         self.view.page().longjs_counter = 0

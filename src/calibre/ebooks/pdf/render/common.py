@@ -69,7 +69,7 @@ def serialize(o, stream):
         # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, numbers.Integral):
-        stream.write_raw(str(o).encode('ascii') if ispy3 else bytes(o))
+        stream.write_raw(unicode_type(o).encode('ascii') if ispy3 else bytes(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:
