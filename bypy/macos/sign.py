@@ -90,9 +90,9 @@ def get_executable(info_path):
         return plistlib.load(f)['CFBundleExecutable']
 
 
-def sign_app(appdir):
+def do_sign_app(appdir):
     appdir = os.path.abspath(appdir)
-    with current_dir(os.path.join(appdir, 'Contents')), make_certificate_useable():
+    with current_dir(os.path.join(appdir, 'Contents')):
         executables = {get_executable('Info.plist')}
 
         # Sign the sub application bundles
@@ -102,6 +102,7 @@ def sign_app(appdir):
             if exe in executables:
                 raise ValueError('Multiple app bundles share the same executable: %s' % exe)
             executables.add(exe)
+        sub_apps.append('Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app')
         codesign(sub_apps)
 
         # Sign everything in MacOS except the main executables of the various
@@ -125,3 +126,8 @@ def sign_app(appdir):
     subprocess.check_call('spctl --verbose=4 --assess --type execute'.split() + [appdir])
 
     return 0
+
+
+def sign_app(appdir):
+    with make_certificate_useable():
+        do_sign_app(appdir)
