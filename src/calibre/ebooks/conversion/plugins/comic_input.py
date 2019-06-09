@@ -140,8 +140,8 @@ class ComicInput(InputFormatPlugin):
                     %comic)
         if self.opts.no_process:
             n2 = []
-            for page in new_pages:
-                n2.append(os.path.join(tdir2, os.path.basename(page)))
+            for i, page in enumerate(new_pages):
+                n2.append(os.path.join(tdir2, '{} - {}' .format(i, os.path.basename(page))))
                 shutil.copyfile(page, n2[-1])
             new_pages = n2
         else:
