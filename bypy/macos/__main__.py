@@ -674,7 +674,7 @@ class Freeze(object):
                                                  'lib', 'python' + py_ver))
 
     @flush
-    def makedmg(self, d, volname, internet_enable=True, format='UDBZ'):
+    def makedmg(self, d, volname, internet_enable=True, format='ULFO'):
         ''' Copy a directory d into a dmg named volname '''
         print('\nSigning...')
         sys.stdout.flush()
