@@ -2,18 +2,61 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-
-import subprocess
 import os
 import plistlib
+import re
+import shlex
+import subprocess
+import tempfile
 from glob import glob
-
+from uuid import uuid4
+from contextlib import contextmanager
 
 from bypy.utils import current_dir
 
-CODESIGN_KEYCHAIN = '/Users/kovid/codesign.keychain'
+CODESIGN_CREDS = os.path.expanduser('~/cert-cred')
+CODESIGN_CERT = os.path.expanduser('~/maccert.p12')
+
+
+def run(*args):
+    if len(args) == 1 and isinstance(args[0], str):
+        args = shlex.split(args[0])
+    if subprocess.call(args) != 0:
+        raise SystemExit('Failed: {}'.format(args))
+
+
+@contextmanager
+def make_certificate_useable():
+    KEYCHAIN = tempfile.NamedTemporaryFile(suffix='.keychain', dir=os.path.expanduser('~'), delete=False).name
+    os.remove(KEYCHAIN)
+    KEYCHAIN_PASSWORD = '{}'.format(uuid4())
+    # Create temp keychain
+    run('security create-keychain -p "{}" "{}"'.format(KEYCHAIN_PASSWORD, KEYCHAIN))
+    # Append temp keychain to the user domain
+    raw = subprocess.check_output('security list-keychains -d user'.split()).decode('utf-8')
+    existing_keychain = raw.replace('"', '').strip()
+    run('security list-keychains -d user -s "{}" "{}"'.format(KEYCHAIN, existing_keychain))
+    try:
+        # Remove relock timeout
+        run('security set-keychain-settings "{}"'.format(KEYCHAIN))
+        # Unlock keychain
+        run('security unlock-keychain -p "{}" "{}"'.format(KEYCHAIN_PASSWORD, KEYCHAIN))
+        # Add certificate to keychain
+        cert_pass = open(CODESIGN_CREDS).read().strip()
+        # Add certificate to keychain and allow codesign to use it
+        # Use -A instead of -T /usr/bin/codesign to allow all apps to use it
+        run('security import {} -k "{}" -P "{}" -T "/usr/bin/codesign"'.format(
+            CODESIGN_CERT, KEYCHAIN, cert_pass))
+        raw = subprocess.check_output([
+            'security', 'find-identity', '-v', '-p', 'codesigning', KEYCHAIN]).decode('utf-8')
+        cert_id = re.search(r'"([^"]+)"', raw).group(1)
+        # Enable codesigning from a non user interactive shell
+        run('security set-key-partition-list -S apple-tool:,apple: -s -k "{}" -D "{}" -t private "{}"'.format(
+            KEYCHAIN_PASSWORD, cert_id, KEYCHAIN))
+        yield
+    finally:
+        # Delete temporary keychain
+        run('security delete-keychain "{}"'.format(KEYCHAIN))
 
 
 def codesign(items):
@@ -24,7 +67,7 @@ def codesign(items):
     # servers, probably due to network congestion, so add --timestamp=none to
     # this command line. That means the signature will fail once your code
     # signing key expires and key revocation wont work, but...
-    subprocess.check_call(['codesign', '-s', 'Kovid Goyal', '--keychain', CODESIGN_KEYCHAIN] + list(items))
+    subprocess.check_call(['codesign', '-s', 'Kovid Goyal'] + list(items))
 
 
 def files_in(folder):
@@ -49,8 +92,7 @@ def get_executable(info_path):
 
 def sign_app(appdir):
     appdir = os.path.abspath(appdir)
-    subprocess.check_call(['security', 'unlock-keychain', '-p', 'keychains are stupid', CODESIGN_KEYCHAIN])
-    with current_dir(os.path.join(appdir, 'Contents')):
+    with current_dir(os.path.join(appdir, 'Contents')), make_certificate_useable():
         executables = {get_executable('Info.plist')}
 
         # Sign the sub application bundles
