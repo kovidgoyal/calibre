@@ -5,8 +5,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, _winreg as winreg, struct, datetime, numbers
+import ctypes, ctypes.wintypes as types, struct, datetime, numbers
 import winerror, win32con
+
+try:
+    import winreg
+except ImportError:
+    import _winreg as winreg
+
 
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32

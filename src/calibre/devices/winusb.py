@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os, string, _winreg as winreg, re, sys
+import os, string, re, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (
@@ -19,6 +19,12 @@ from polyglot.builtins import iteritems, itervalues, map, filter
 from calibre import prints, as_unicode
 
 is64bit = sys.maxsize > (1 << 32)
+
+try:
+    import winreg
+except ImportError:
+    import _winreg as winreg
+
 
 # Data and function type definitions {{{
 
