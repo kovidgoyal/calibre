@@ -1,7 +1,7 @@
 [
     {
         "name": "nasm",
-        "os": "macos",
+        "os": "macos,windows",
         "unix": {
             "filename": "nasm-2.14.02.tar.xz",
             "hash": "sha256:e24ade3e928f7253aa8c14aa44726d1edf3f98643f87c9d72ec1df44b26be8f5",
@@ -153,20 +153,9 @@
             "urls": ["https://www.python.org/ftp/python/2.7.16/{filename}"]
         },
         "windows": {
-            "filename":"python-1948b35e654e0b69ac93e31e3c3405172a6a1b91.tar.gz",
-            "hash":"sha1:1948b35e654e0b69ac93e31e3c3405172a6a1b91",
+            "filename":"python-ca3c62c123b8c81a39dfaa785dfa77a0e40b3604ca4bdaceb65df10e32e29b82.tar.gz",
+            "hash":"sha256:ca3c62c123b8c81a39dfaa785dfa77a0e40b3604ca4bdaceb65df10e32e29b82",
             "urls":["github:kovidgoyal/cpython"]
-        }
-    },
-
-    {
-        "name": "pywin32",
-        "os": "windows",
-        "python": 2,
-        "windows": {
-            "filename":"pywin32-dd5760063f88a300403c74f3e81f3437b8396d8f.tar.gz",
-            "hash":"sha1:dd5760063f88a300403c74f3e81f3437b8396d8f",
-            "urls":["github:kovidgoyal/pywin32"]
         }
     },
 
@@ -175,11 +164,6 @@
         "unix": {
             "filename": "icu4c-64_2-src.tgz",
             "hash": "sha256:627d5d8478e6d96fc8c90fed4851239079a561a6a8b9e48b0892f24e82d31d6c",
-            "urls": ["http://download.icu-project.org/files/icu4c/64.2/{filename}"]
-        },
-        "windows": {
-            "filename": "icu4c-64_2-src.zip",
-            "hash": "sha1:aaa014177845c16deba888450c0c34e8bd57e736",
             "urls": ["http://download.icu-project.org/files/icu4c/64.2/{filename}"]
         }
     },
@@ -501,6 +485,17 @@
     },
 
     {
+        "name": "pywin32",
+        "os": "windows",
+        "python": 2,
+        "windows": {
+            "filename":"pywin32-85c57822da3f8922b8d15a3d1eb7d3c954015a908dd2b663001408ef4c52b74a.tar.gz",
+            "hash":"sha256:85c57822da3f8922b8d15a3d1eb7d3c954015a908dd2b663001408ef4c52b74a",
+            "urls":["github:kovidgoyal/pywin32"]
+        }
+    },
+
+    {
         "name": "unrardll",
         "unix": {
             "filename": "unrardll-0.1.3.tar.gz",
@@ -767,11 +762,6 @@
             "filename": "sip-4.19.16.tar.gz",
             "hash": "sha256:184c790d58e9527fc6bdac2bbf8638f3d1b41dea922cad8eb83172b4ba70c620",
             "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.16/{filename}"]
-        },
-        "windows": {
-            "filename": "sip-4.19.16.zip",
-            "hash": "sha1:2c0844ea0304d11343168ee25a9ff11df1646c76",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.16/{filename}"]
         }
     },
 
@@ -781,11 +771,6 @@
             "filename": "PyQt5_gpl-5.12.1.tar.gz",
             "hash": "sha256:3718ce847d824090fd5f95ff3f13847ee75c2507368d4cbaeb48338f506e59bf",
             "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.12.1/{filename}"]
-        },
-        "windows": {
-            "filename": "PyQt5_gpl-5.12.1.zip",
-            "hash": "sha1:adc7cd647b23c438788f62e1e804ca2ee0ad1529",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.12.1/{filename}"]
         }
     },
 
@@ -794,11 +779,6 @@
         "unix": {
             "filename": "PyQtWebEngine_gpl-5.12.1.tar.gz",
             "hash": "sha256:860704672ea1b616e1347be1f347bc1c749e64ed378370863fe209e84e9bd473",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.12.1/{filename}"]
-        },
-        "windows": {
-            "filename": "PyQtWebEngine_gpl-5.12.1.zip",
-            "hash": "sha1:adc7cd647b23c438788f62e1e804ca2ee0ad1529",
             "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.12.1/{filename}"]
         }
     },

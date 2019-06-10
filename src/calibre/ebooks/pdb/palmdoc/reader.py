@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Read content from palmdoc pdb file.
@@ -49,7 +50,7 @@ class Reader(FormatReader):
         if self.header_record.compression == 2 or self.header_record.compression == 258:
             from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number))
-        return ''
+        return b''
 
     def extract_content(self, output_dir):
         raw_txt = b''
