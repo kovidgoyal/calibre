@@ -489,9 +489,9 @@
         "os": "windows",
         "python": 2,
         "windows": {
-            "filename":"pywin32-85c57822da3f8922b8d15a3d1eb7d3c954015a908dd2b663001408ef4c52b74a.tar.gz",
-            "hash":"sha256:85c57822da3f8922b8d15a3d1eb7d3c954015a908dd2b663001408ef4c52b74a",
-            "urls":["github:kovidgoyal/pywin32"]
+            "filename":"pywin32-224.zip",
+            "hash":"sha256:fa01a3b9f5e6afd0412013b216d40120b92bbc575dbb3d1a0afb45d8bc1c88d8",
+            "urls":["https://github.com/mhammond/pywin32/archive/b224.zip"]
         }
     },
 
