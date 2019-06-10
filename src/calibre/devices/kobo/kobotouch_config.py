@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
+from PyQt5.Qt import (Qt, QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
                       QDialog, QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
@@ -362,11 +362,11 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.upload_grayscale_checkbox.toggled.connect(
             lambda checked: not checked and self.png_covers_checkbox.setChecked(False))
 
-        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
-        self.options_layout.addWidget(self.dithered_covers_checkbox,      2, 0, 1, 1)
-        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  3, 0, 1, 1)
-        self.options_layout.addWidget(self.png_covers_checkbox,           4, 0, 1, 1)
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,     0, 0, 1, 1)
+        self.options_layout.addWidget(self.dithered_covers_checkbox,      0, 1, 1, 1)
+        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    1, 0, 1, 1)
+        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  1, 1, 1, 1)
+        self.options_layout.addWidget(self.png_covers_checkbox,           2, 0, 1, 2, Qt.AlignCenter)
 
     @property
     def upload_covers(self):
