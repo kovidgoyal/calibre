@@ -137,7 +137,12 @@ def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
         buf = io.BytesIO(zf.read(mpath + '/%s.mo' % which))
-        return GNUTranslations(buf)
+        try:
+            return GNUTranslations(buf)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise ValueError('Failed to load translations for: {} with error: {}'.format(mpath, e))
 
 
 def get_iso639_translator(lang):
