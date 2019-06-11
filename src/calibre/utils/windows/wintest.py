@@ -27,7 +27,6 @@ class TestWinutil(unittest.TestCase):
         q = self.winutil.file_association('.txt')
         self.assertIn('notepad.exe', q.lower())
         self.assertNotIn('\0', q)
-        self.assertIsNone(self.winutil.file_association('.mkjsfks'))
 
     def test_special_folder_path(self):
         self.assertEqual(os.path.expanduser('~'), self.winutil.special_folder_path(self.winutil.CSIDL_PROFILE))
