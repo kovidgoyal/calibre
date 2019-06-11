@@ -446,19 +446,19 @@ be a unicode string. Returns unicode strings."
         "move_file()\n\nRename the specified file."
     },
 
-    {"add_to_recent_docs", (PyCFunction)add_to_recent_docs, METH_VARARGS,
+    {"add_to_recent_docs", (PyCFunction)winutil_add_to_recent_docs, METH_VARARGS,
         "add_to_recent_docs()\n\nAdd a path to the recent documents list"
     },
 
-    {"file_association", (PyCFunction)file_association, METH_VARARGS,
+    {"file_association", (PyCFunction)winutil_file_association, METH_VARARGS,
         "file_association()\n\nGet the executable associated with the given file extension"
     },
 
-    {"friendly_name", (PyCFunction)friendly_name, METH_VARARGS,
+    {"friendly_name", (PyCFunction)winutil_friendly_name, METH_VARARGS,
         "friendly_name()\n\nGet the friendly name for the specified prog_id/exe"
     },
 
-    {"notify_associations_changed", (PyCFunction)notify_associations_changed, METH_VARARGS,
+    {"notify_associations_changed", (PyCFunction)winutil_notify_associations_changed, METH_VARARGS,
         "notify_associations_changed()\n\nNotify the OS that file associations have changed"
     },
 
