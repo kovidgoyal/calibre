@@ -72,4 +72,10 @@ file_association(PyObject *self, PyObject *args) {
 	return Py_BuildValue("u#", buf, (int)sz);
 }
 
+PyObject *
+notify_associations_changed(PyObject *self, PyObject *args) {
+	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, NULL, NULL);
+	Py_RETURN_NONE;
+}
+
 }

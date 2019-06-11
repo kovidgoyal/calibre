@@ -30,6 +30,9 @@ class TestWinutil(unittest.TestCase):
     def test_special_folder_path(self):
         self.assertEqual(os.path.expanduser('~'), self.winutil.special_folder_path(self.winutil.CSIDL_PROFILE))
 
+    def test_associations_changed(self):
+        self.assertIsNone(self.winutil.notify_associations_changed())
+
 
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestWinutil)

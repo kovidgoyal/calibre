@@ -12,7 +12,7 @@ from threading import Thread
 import winerror
 
 from calibre import guess_type, prints
-from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
+from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG, plugins
 from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
 from polyglot.builtins import iteritems, itervalues
 
@@ -131,8 +131,8 @@ def register():
         with Key(r'Software\RegisteredApplications') as key:
             key.set(data['name'], capabilities_path)
 
-    from win32com.shell import shell, shellcon
-    shell.SHChangeNotify(shellcon.SHCNE_ASSOCCHANGED, shellcon.SHCNF_DWORD | shellcon.SHCNF_FLUSH, 0, 0)
+    winutil = plugins['winutil'][0]
+    winutil.notify_associations_changed()
 
 
 def unregister():
