@@ -3,11 +3,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
+__copyright__ = '2010-2019, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Driver for Kobo ereaders. Supports all e-ink devices.
+Driver for Kobo eReaders. Supports all e-ink devices.
 
 Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
@@ -30,7 +30,7 @@ from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints, fsync
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
@@ -1052,9 +1052,9 @@ class KOBO(USBMS):
                             with lopen(cover, 'rb') as f:
                                 data = f.read()
 
-                            # Return the data resized and in Grayscale if
+                            # Return the data resized and grayscaled if
                             # required
-                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize)
+                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize)
 
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
@@ -1340,12 +1340,12 @@ class KOBO(USBMS):
 
 class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
-    gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
+    gui_name    = 'Kobo eReader'
     author      = 'David Forrester'
     description = _(
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
-        ' Aura H2O Edition 2, Clara HD and Forma ereaders.'
+        ' Aura H2O Edition 2, Clara HD and Forma eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
@@ -1416,71 +1416,70 @@ class KOBOTOUCH(KOBO):
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
-    COVER_FILE_ENDINGS = {
-                          # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen
+    # NOTE: Values pulled from Nickel by @geek1011,
+    #       c.f., this handy recap: https://github.com/shermp/Kobo-UNCaGED/issues/16#issuecomment-494229994
+    #       Only the N3_FULL values differ, as they should match the screen's effective resolution.
+    #       Note that all Kobo devices share a common AR at roughly 0.75,
+    #       so results should be similar, no matter the exact device.
+    # Common to all Kobo models
+    COMMON_COVER_FILE_ENDINGS = {
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':              [(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':              [(149,223),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
+                          ' - N3_LIBRARY_LIST.parsed':              [(60,90),0, 53,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed': [(355,530), 82, 100,False,],
                           }
-    # Glo and Aura share resolution, so the image sizes should be the same.
+    # Legacy 6" devices
+    LEGACY_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(600,800),0, 200,True,],
+                          }
+    # Glo
     GLO_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],
+                          ' - N3_FULL.parsed':        [(758,1024),0, 200,True,],
+                          }
+    # Aura
+    AURA_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          # NOTE: The Aura's bezel covers 10 pixels at the bottom.
+                          #       Kobo officially advertised the screen resolution with those chopped off.
+                          ' - N3_FULL.parsed':        [(758,1014),0, 200,True,],
                           }
     # Glo HD and Clara HD share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  479), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  201), 0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          }
+    AURA_H2O_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          # NOTE: The H2O's bezel covers 11 pixels at the top.
+                          #       Unlike on the Aura, Nickel fails to account for this when generating covers.
+                          #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
+                          ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
                           }
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
                           }
     FORMA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
+                          # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
+                          #       choosing instead to follow the Aura One codepath.
                           ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 # ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
 # ' - N3_LIBRARY_FULL.parsed':[(600,800),0, 99,],
-# ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],   # Used for library lists
+# ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 99,],   # Used for library lists
 #                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
 # ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
@@ -1507,7 +1506,7 @@ class KOBOTOUCH(KOBO):
         # Just dump some info to the logs.
         super(KOBOTOUCH, self).open_osx()
 
-        # Wrap some debugging output in a try/except so that it unlikely to break things completely.
+        # Wrap some debugging output in a try/except so that it is unlikely to break things completely.
         try:
             if DEBUG:
                 from calibre.constants import plugins
@@ -2560,7 +2559,10 @@ class KOBOTOUCH(KOBO):
 
 #        debug_print('KoboTouch: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, self.upload_grayscale, self.keep_cover_aspect)
+            self._upload_cover(
+                path, filename, metadata, filepath,
+                self.upload_grayscale, self.dithered_covers,
+                self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers)
         except Exception as e:
             debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, unicode_type(e)))
 
@@ -2589,17 +2591,36 @@ class KOBOTOUCH(KOBO):
             path = os.path.join(path, imageId)
         return path
 
-    def _calculate_kobo_cover_size(self, library_size, kobo_size, keep_cover_aspect, is_full_size):
-        if keep_cover_aspect:
-            library_aspect = library_size[0] / library_size[1]
-            kobo_aspect = kobo_size[0] / kobo_size[1]
-            if library_aspect > kobo_aspect:
-                kobo_size = (kobo_size[0], int(kobo_size[0] / library_aspect))
-            else:
-                kobo_size = (int(library_aspect * kobo_size[1]), kobo_size[1])
-        return kobo_size
+    def _calculate_kobo_cover_size(self, library_size, kobo_size, expand, keep_cover_aspect, letterbox):
+        # Remember the canvas size
+        canvas_size = kobo_size
 
-    def _create_cover_data(self, cover_data, resize_to, kobo_size, upload_grayscale=False, keep_cover_aspect=False, is_full_size=False):
+        # NOTE: Loosely based on Qt's QSize::scaled implementation
+        if keep_cover_aspect:
+            # NOTE: Unlike Qt, we round to avoid accumulating errors,
+            #       as ImageOps will then floor via fit_image
+            aspect_ratio = library_size[0] / library_size[1]
+            rescaled_width = int(round(kobo_size[1] * aspect_ratio))
+
+            if expand:
+                use_height = (rescaled_width >= kobo_size[0])
+            else:
+                use_height = (rescaled_width <= kobo_size[0])
+
+            if use_height:
+                kobo_size = (rescaled_width, kobo_size[1])
+            else:
+                kobo_size = (kobo_size[0], int(round(kobo_size[0] / aspect_ratio)))
+
+            # Did we actually want to letterbox?
+            if not letterbox:
+                canvas_size = kobo_size
+        return (kobo_size, canvas_size)
+
+    def _create_cover_data(
+        self, cover_data, resize_to, minify_to, kobo_size,
+        upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90
+):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
         for save_cover_data_to to allow it to be overriden in a subclass. For this reason,
@@ -2607,23 +2628,32 @@ class KOBOTOUCH(KOBO):
 
         :param cover_data:    original cover data
         :param resize_to:     Size to resize the cover to (width, height). None means do not resize.
+        :param minify_to:     Maximum canvas size for the resized cover (width, height).
         :param kobo_size:     Size of the cover image on the device.
         :param upload_grayscale: boolean True if driver configured to send grayscale thumbnails
-                        Passed to allow ability to decide to quantize to 16-col grayscale
-                        at calibre end
-        :param keep_cover_aspect: bookean - True if the aspect ratio of the cover in the library is to be kept.
+        :param dithered_covers: boolean True if driver configured to quantize to 16-col grayscale
+        :param keep_cover_aspect: boolean - True if the aspect ratio of the cover in the library is to be kept.
         :param is_full_size:  True if this is the kobo_size is for the full size cover image
                         Passed to allow ability to process screensaver differently
                         to smaller thumbnails
+        :param letterbox:     True if we were asked to handle the letterboxing
+        :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
+        :param quality:       0-100 Output encoding quality (or compression level for PNG, àla IM)
         '''
 
         from calibre.utils.img import save_cover_data_to
-        data = save_cover_data_to(cover_data, grayscale=upload_grayscale, resize_to=resize_to)
+        data = save_cover_data_to(
+            cover_data, resize_to=resize_to, compression_quality=quality, minify_to=minify_to, grayscale=upload_grayscale, eink=dithered_covers,
+            letterbox=letterbox, data_fmt="png" if png_covers else "jpeg")
         return data
 
-    def _upload_cover(self, path, filename, metadata, filepath, upload_grayscale, keep_cover_aspect=False):
+    def _upload_cover(
+        self, path, filename, metadata, filepath, upload_grayscale,
+        dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False
+):
         from calibre.utils.imghdr import identify
-        debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' "%(filename, upload_grayscale))
+        from calibre.utils.img import optimize_png
+        debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
 
         if not metadata.cover:
             return
@@ -2666,7 +2696,7 @@ class KOBOTOUCH(KOBO):
 
                 image_dir = os.path.dirname(os.path.abspath(path))
                 if not os.path.exists(image_dir):
-                    debug_print("KoboTouch:_upload_cover - Image directory does not exust. Creating path='%s'" % (image_dir))
+                    debug_print("KoboTouch:_upload_cover - Image directory does not exist. Creating path='%s'" % (image_dir))
                     os.makedirs(image_dir)
 
                 with lopen(cover, 'rb') as f:
@@ -2678,8 +2708,8 @@ class KOBOTOUCH(KOBO):
                 for ending, cover_options in self.cover_file_endings().items():
                     kobo_size, min_dbversion, max_dbversion, is_full_size = cover_options
                     if show_debug:
-                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s min_dbversion=%d max_dbversion=%d, is_full_size=%s" % (
-                            library_cover_size, min_dbversion, max_dbversion, is_full_size))
+                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s -> kobo_size=%s, min_dbversion=%d max_dbversion=%d, is_full_size=%s" % (
+                            library_cover_size, kobo_size, min_dbversion, max_dbversion, is_full_size))
 
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:
@@ -2687,14 +2717,58 @@ class KOBOTOUCH(KOBO):
                         fpath = path + ending
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
-                        resize_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, keep_cover_aspect, is_full_size)
+                        # Never letterbox thumbnails, that's ugly. But for fullscreen covers, honor the setting.
+                        letterbox = letterbox_fs_covers and is_full_size
 
-                        # Return the data resized and in Grayscale if required
-                        data = self._create_cover_data(cover_data, resize_to, kobo_size, upload_grayscale, keep_cover_aspect, is_full_size)
+                        # NOTE: Full size means we have to fit *inside* the
+                        # given boundaries. Thumbnails, on the other hand, are
+                        # *expanded* around those boundaries.
+                        #       In Qt, it'd mean full-screen covers are resized
+                        #       using Qt::KeepAspectRatio, while thumbnails are
+                        #       resized using Qt::KeepAspectRatioByExpanding
+                        #       (i.e., QSize's boundedTo() vs. expandedTo(). See also IM's '^' geometry token, for the same "expand" behavior.)
+                        #       Note that Nickel itself will generate bounded thumbnails, while it will download expanded thumbnails for store-bought KePubs...
+                        #       We chose to emulate the KePub behavior.
+                        resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, not is_full_size, keep_cover_aspect, letterbox)
+                        if show_debug:
+                            debug_print(
+                                "KoboTouch:_calculate_kobo_cover_size - expand_to=%s"
+                                " (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
+                                 expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
 
-                        with lopen(fpath, 'wb') as f:
-                            f.write(data)
-                            fsync(f)
+                        # NOTE: To speed things up, we enforce a lower
+                        # compression level for png_covers, as the final
+                        # optipng pass will then select a higher compression
+                        # level anyway,
+                        #       so the compression level from that first pass
+                        #       is irrelevant, and only takes up precious time
+                        #       ;).
+                        quality = 10 if png_covers else 90
+
+                        # Return the data resized and properly grayscaled/dithered/letterboxed if requested
+                        data = self._create_cover_data(
+                            cover_data, resize_to, expand_to, kobo_size, upload_grayscale,
+                            dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality)
+
+                        # NOTE: If we're writing a PNG file, go through a quick
+                        # optipng pass to make sure it's encoded properly, as
+                        # Qt doesn't afford us enough control to do it right...
+                        #       Unfortunately, optipng doesn't support reading
+                        #       pipes, so this gets a bit clunky as we have go
+                        #       through a temporary file...
+                        if png_covers:
+                            tmp_cover = better_mktemp()
+                            with lopen(tmp_cover, 'wb') as f:
+                                f.write(data)
+
+                            optimize_png(tmp_cover, level=1)
+                            # Crossing FS boundaries, can't rename, have to copy + delete :/
+                            shutil.copy2(tmp_cover, fpath)
+                            os.remove(tmp_cover)
+                        else:
+                            with lopen(fpath, 'wb') as f:
+                                f.write(data)
+                                fsync(f)
         except Exception as e:
             err = unicode_type(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
@@ -3172,8 +3246,11 @@ class KOBOTOUCH(KOBO):
         c.add_opt('ignore_collections_names', default='')
 
         c.add_opt('upload_covers', default=False)
+        c.add_opt('dithered_covers', default=False)
         c.add_opt('keep_cover_aspect', default=False)
         c.add_opt('upload_grayscale', default=False)
+        c.add_opt('letterbox_fs_covers', default=False)
+        c.add_opt('png_covers', default=False)
 
         c.add_opt('show_archived_books', default=False)
         c.add_opt('show_previews', default=False)
@@ -3245,13 +3322,13 @@ class KOBOTOUCH(KOBO):
 
     def cover_file_endings(self):
         if self.isAura():
-            _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.AURA_COVER_FILE_ENDINGS
         elif self.isAuraEdition2():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isAuraHD():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraH2O():
-            _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
+            _cover_file_endings = self.AURA_H2O_COVER_FILE_ENDINGS
         elif self.isAuraH2OEdition2():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraOne():
@@ -3265,15 +3342,18 @@ class KOBOTOUCH(KOBO):
         elif self.isGloHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isMini():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         else:
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
-        return _cover_file_endings
+        # Don't forget to merge that on top of the common dictionary (c.f., https://stackoverflow.com/q/38987)
+        _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
+        _all_cover_file_endings.update(_cover_file_endings)
+        return _all_cover_file_endings
 
     def set_device_name(self):
         device_name = self.gui_name
@@ -3356,6 +3436,18 @@ class KOBOTOUCH(KOBO):
     @property
     def upload_grayscale(self):
         return self.upload_covers and self.get_pref('upload_grayscale')
+
+    @property
+    def dithered_covers(self):
+        return self.upload_grayscale and self.get_pref('dithered_covers')
+
+    @property
+    def letterbox_fs_covers(self):
+        return self.keep_cover_aspect and self.get_pref('letterbox_fs_covers')
+
+    @property
+    def png_covers(self):
+        return self.upload_grayscale and self.get_pref('png_covers')
 
     def modifying_epub(self):
         return self.modifying_css()

@@ -3,12 +3,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2015-2019, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
+from PyQt5.Qt import (Qt, QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
                       QDialog, QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
@@ -106,6 +106,9 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['upload_covers'] = self.upload_covers
         p['keep_cover_aspect'] = self.keep_cover_aspect
         p['upload_grayscale'] = self.upload_grayscale
+        p['dithered_covers'] = self.dithered_covers
+        p['letterbox_fs_covers'] = self.letterbox_fs_covers
+        p['png_covers'] = self.png_covers
 
         p['show_recommendations'] = self.show_recommendations
         p['show_previews'] = self.show_previews
@@ -305,9 +308,24 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
         self.upload_grayscale_checkbox = create_checkbox(
                              _('Upload black and white covers'),
-                             _('Convert covers to black and white when uploading'),
+                             _('Convert covers to grayscale when uploading.'),
                              device.get_pref('upload_grayscale')
                              )
+
+        self.dithered_covers_checkbox = create_checkbox(
+                             _('Upload dithered covers'),
+                             _('Dither cover images to the appropriate 16c grayscale palette for an eInk screen.'
+                               ' This usually ensures greater accuracy and avoids banding, making sleep covers look better.'
+                               ' On FW >= 4.11, Nickel itself may sometimes do a decent job of it.'
+                               ' Has no effect without "Upload black and white covers"!'),
+                             device.get_pref('dithered_covers')
+                             )
+        # Make it visually depend on B&W being enabled!
+        # c.f., https://stackoverflow.com/q/36281103
+        self.dithered_covers_checkbox.setEnabled(device.get_pref('upload_grayscale'))
+        self.upload_grayscale_checkbox.toggled.connect(self.dithered_covers_checkbox.setEnabled)
+        self.upload_grayscale_checkbox.toggled.connect(
+            lambda checked: not checked and self.dithered_covers_checkbox.setChecked(False))
 
         self.keep_cover_aspect_checkbox = create_checkbox(
                              _('Keep cover aspect ratio'),
@@ -315,8 +333,40 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' This is for firmware versions 2.3.1 and later.'),
                              device.get_pref('keep_cover_aspect'))
 
-        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
+        self.letterbox_fs_covers_checkbox = create_checkbox(
+                             _('Letterbox full-screen covers'),
+                             _('Do it on our end, instead of letting Nickel handle it.'
+                               ' Provides pixel-perfect results on devices where Nickel does not do extra processing.'
+                               ' Obviously has no effect without "Keep cover aspect ratio".'
+                               ' This is probably undesirable if you disable the "Show book covers full screen"'
+                               ' setting on your device.'),
+                             device.get_pref('letterbox_fs_covers'))
+        # Make it visually depend on AR being enabled!
+        self.letterbox_fs_covers_checkbox.setEnabled(device.get_pref('keep_cover_aspect'))
+        self.keep_cover_aspect_checkbox.toggled.connect(self.letterbox_fs_covers_checkbox.setEnabled)
+        self.keep_cover_aspect_checkbox.toggled.connect(
+            lambda checked: not checked and self.letterbox_fs_covers_checkbox.setChecked(False))
+
+        self.png_covers_checkbox = create_checkbox(
+                             _('Save covers as PNG'),
+                             _('Use the PNG image format instead of JPG.'
+                               ' Higher quality, especially with "Upload dithered covers" enabled,'
+                               ' which will also help generate potentially smaller files.'
+                               ' Behavior completely unknown on old (< 3.x) Kobo firmwares,'
+                               ' known to behave on FW >= 4.8.'
+                               ' Has no effect without "Upload black and white covers"!'),
+                             device.get_pref('png_covers'))
+        # Make it visually depend on B&W being enabled, to avoid storing ridiculously large color PNGs.
+        self.png_covers_checkbox.setEnabled(device.get_pref('upload_grayscale'))
+        self.upload_grayscale_checkbox.toggled.connect(self.png_covers_checkbox.setEnabled)
+        self.upload_grayscale_checkbox.toggled.connect(
+            lambda checked: not checked and self.png_covers_checkbox.setChecked(False))
+
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,     0, 0, 1, 1)
+        self.options_layout.addWidget(self.dithered_covers_checkbox,      0, 1, 1, 1)
+        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    1, 0, 1, 1)
+        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  1, 1, 1, 1)
+        self.options_layout.addWidget(self.png_covers_checkbox,           2, 0, 1, 2, Qt.AlignCenter)
 
     @property
     def upload_covers(self):
@@ -327,8 +377,20 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         return self.upload_grayscale_checkbox.isChecked()
 
     @property
+    def dithered_covers(self):
+        return self.dithered_covers_checkbox.isChecked()
+
+    @property
     def keep_cover_aspect(self):
         return self.keep_cover_aspect_checkbox.isChecked()
+
+    @property
+    def letterbox_fs_covers(self):
+        return self.letterbox_fs_covers_checkbox.isChecked()
+
+    @property
+    def png_covers(self):
+        return self.png_covers_checkbox.isChecked()
 
 
 class DeviceListGroupBox(DeviceOptionsGroupBox):
