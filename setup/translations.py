@@ -511,7 +511,7 @@ class Translations(POT):  # {{{
                     try:
                         t = getattr(get_iso639_translator(l), 'gettext' if ispy3 else 'ugettext')
                         t = partial(get_iso_language, t)
-                    except IndexError:
+                    except Exception:
                         if is_ci and isosx:
                             t = get_language
                         else:
