@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import as_unicode
-from calibre.constants import isportable, iswindows
+from calibre.constants import isportable, iswindows, plugins
 from calibre.gui2 import (
     choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog,
     open_url, warning_dialog
@@ -49,8 +49,8 @@ if iswindows and not isportable:
         return exe
 
     def startup_shortcut_path():
-        from win32com.shell import shell, shellcon
-        startup_path = shell.SHGetFolderPath(0, shellcon.CSIDL_STARTUP, 0, 0)
+        winutil = plugins['winutil'][0]
+        startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
         return os.path.join(startup_path, "calibre.lnk")
 
     class Shortcut(object):

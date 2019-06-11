@@ -73,6 +73,26 @@ file_association(PyObject *self, PyObject *args) {
 }
 
 PyObject *
+friendly_name(PyObject *self, PyObject *args) {
+	wchar_t *exe, *prog_id, buf[2048], *p;
+	DWORD sz = sizeof(buf);
+	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &prog_id, py_to_wchar, &exe)) return NULL;
+	ASSOCF flags = ASSOCF_REMAPRUNDLL;
+	if (exe) {
+		p = exe;
+		flags |= ASSOCF_OPEN_BYEXENAME;
+	} else p = prog_id;
+	if (!p) {
+		free_wchar_buffer(&exe); free_wchar_buffer(&prog_id);
+		Py_RETURN_NONE;
+	}
+	HRESULT hr = AssocQueryStringW(flags, ASSOCSTR_FRIENDLYAPPNAME, p, NULL, buf, &sz);
+	free_wchar_buffer(&exe); free_wchar_buffer(&prog_id);
+	if (!SUCCEEDED(hr) || sz < 1) Py_RETURN_NONE;
+	return Py_BuildValue("u", buf);
+}
+
+PyObject *
 notify_associations_changed(PyObject *self, PyObject *args) {
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, NULL, NULL);
 	Py_RETURN_NONE;

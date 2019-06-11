@@ -250,10 +250,7 @@ def split_commandline(commandline):
 
 def friendly_app_name(prog_id=None, exe=None):
     try:
-        from win32com.shell import shell, shellcon
-        a = shell.AssocCreate()
-        a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or prog_id)
-        return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
+        return plugins['winutil'][0].friendly_name(prog_id, exe)
     except Exception:
         import traceback
         traceback.print_exc()

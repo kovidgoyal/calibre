@@ -27,6 +27,8 @@ class TestWinutil(unittest.TestCase):
         q = self.winutil.file_association('.txt')
         self.assertIn('notepad.exe', q.lower())
         self.assertNotIn('\0', q)
+        q = self.winutil.friendly_name(None, 'notepad.exe')
+        self.assertEqual('Notepad', q)
 
     def test_special_folder_path(self):
         self.assertEqual(os.path.expanduser('~'), self.winutil.special_folder_path(self.winutil.CSIDL_PROFILE))

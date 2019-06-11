@@ -377,6 +377,7 @@ winutil_strftime(PyObject *self, PyObject *args)
 static char winutil_doc[] = "Defines utility methods to interface with windows.";
 extern PyObject *add_to_recent_docs(PyObject *self, PyObject *args);
 extern PyObject *file_association(PyObject *self, PyObject *args);
+extern PyObject *friendly_name(PyObject *self, PyObject *args);
 extern PyObject *notify_associations_changed(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
@@ -451,6 +452,10 @@ be a unicode string. Returns unicode strings."
 
     {"file_association", (PyCFunction)file_association, METH_VARARGS,
         "file_association()\n\nGet the executable associated with the given file extension"
+    },
+
+    {"friendly_name", (PyCFunction)friendly_name, METH_VARARGS,
+        "friendly_name()\n\nGet the friendly name for the specified prog_id/exe"
     },
 
     {"notify_associations_changed", (PyCFunction)notify_associations_changed, METH_VARARGS,
