@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import Qt, QAction, pyqtSignal
 
-from calibre.constants import isosx, iswindows
+from calibre.constants import isosx, iswindows, plugins
 from calibre.gui2 import (
     error_dialog, Dispatcher, question_dialog, config, open_local_file,
     info_dialog, elided_text)
@@ -18,6 +18,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
 
 
 class HistoryAction(QAction):
@@ -125,11 +126,11 @@ class ViewAction(InterfaceAction):
                         kwargs=dict(args=args))
             else:
                 if iswindows:
-                    from calibre.utils.file_associations import file_assoc_windows
+                    winutil = plugins['winutil'][0]
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
-                            prog = file_assoc_windows(ext)
+                            prog = winutil.file_association(unicode_type('.' + ext))
                         except Exception:
                             prog = None
                         if prog and prog.lower().endswith('calibre.exe'):

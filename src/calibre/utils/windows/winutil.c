@@ -376,6 +376,7 @@ winutil_strftime(PyObject *self, PyObject *args)
 
 static char winutil_doc[] = "Defines utility methods to interface with windows.";
 extern PyObject *add_to_recent_docs(PyObject *self, PyObject *args);
+extern PyObject *file_association(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -445,6 +446,10 @@ be a unicode string. Returns unicode strings."
 
     {"add_to_recent_docs", (PyCFunction)add_to_recent_docs, METH_VARARGS,
         "add_to_recent_docs()\n\nAdd a path to the recent documents list"
+    },
+
+    {"file_association", (PyCFunction)file_association, METH_VARARGS,
+        "file_association()\n\nGet the executable associated with the given file extension"
     },
 
     {NULL, NULL, 0, NULL}

@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <combaseapi.h>
 #include <shlobj.h>
+#include <shlwapi.h>
 #include <atlbase.h>  // for CComPtr
 #include <Python.h>
 
@@ -60,4 +61,13 @@ add_to_recent_docs(PyObject *self, PyObject *args) {
 }
 
 
+PyObject *
+file_association(PyObject *self, PyObject *args) {
+	wchar_t *ext, buf[2048];
+	DWORD sz = sizeof(buf);
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &ext)) return NULL;
+	HRESULT hr = AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, ext, NULL, buf, &sz);
+	free_wchar_buffer(&ext);
+	if (!SUCCEEDED(hr)) Py_RETURN_NONE;
+	return Py_BuildValue("u#", buf, (int)sz);
 }
