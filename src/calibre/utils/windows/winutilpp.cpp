@@ -71,3 +71,5 @@ file_association(PyObject *self, PyObject *args) {
 	if (!SUCCEEDED(hr)) Py_RETURN_NONE;
 	return Py_BuildValue("u#", buf, (int)sz);
 }
+
+}

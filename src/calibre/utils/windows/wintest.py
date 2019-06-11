@@ -27,6 +27,9 @@ class TestWinutil(unittest.TestCase):
         self.assertIn('notepad.exe', self.winutil.file_association('.txt'))
         self.assertIsNone(self.winutil.file_association('.mkjsfks'))
 
+    def test_special_folder_path(self):
+        self.assertEqual(os.path.expanduser('~'), self.winutil.special_folder_path(self.winutil.CSIDL_PROFILE))
+
 
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestWinutil)
