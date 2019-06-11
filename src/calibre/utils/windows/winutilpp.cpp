@@ -29,71 +29,80 @@ py_to_wchar(PyObject *obj, wchar_t **output) {
 	return 1;
 }
 
-static inline void
-free_wchar_buffer(wchar_t **buf) {
-#if PY_MAJOR_VERSION >= 3
-	PyMem_Free(*buf);
-#endif
-	*buf = NULL;
-}
+class wchar_raii {
+	private:
+		wchar_t **handle;
+		// copy and assignment not implemented; prevent their use by
+		// declaring private.
+		wchar_raii( const wchar_raii & ) ;
+		wchar_raii & operator=( const wchar_raii & ) ;
 
+	public:
+		wchar_raii(wchar_t **buf) : handle(*buf) {}
+
+		~wchar_raii() {
+#if PY_MAJOR_VERSION >= 3
+			PyMem_Free(*handle);
+#endif
+			*handle = NULL;
+		}
+
+		wchar_t *ptr() { return *handle; }
+};
 
 extern "C" {
 
 PyObject *
-add_to_recent_docs(PyObject *self, PyObject *args) {
-	wchar_t *path, *app_id;
-	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &path, py_to_wchar, &app_id)) return NULL;
-	if (app_id) {
+winutil_add_to_recent_docs(PyObject *self, PyObject *args) {
+	wchar_t *path_, *app_id_;
+	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &path_, py_to_wchar, &app_id_)) return NULL;
+	wchar_raii path(path_), app_id(app_id_);
+	if (app_id.ptr()) {
 		CComPtr<IShellItem> item;
-		HRESULT hr = SHCreateItemFromParsingName(path, NULL, IID_PPV_ARGS(&item));
+		HRESULT hr = SHCreateItemFromParsingName(path.ptr(), NULL, IID_PPV_ARGS(&item));
 		if (SUCCEEDED(hr)) {
 			SHARDAPPIDINFO info;
 			info.psi = item;
-			info.pszAppID = app_id;
+			info.pszAppID = app_id.ptr();
 			SHAddToRecentDocs(SHARD_APPIDINFO, &info);
 		}
 	} else {
-		SHAddToRecentDocs(SHARD_PATHW, path);
+		SHAddToRecentDocs(SHARD_PATHW, path.ptr());
 	}
-	free_wchar_buffer(&path); free_wchar_buffer(&app_id);
 	Py_RETURN_NONE;
 }
 
 
 PyObject *
-file_association(PyObject *self, PyObject *args) {
-	wchar_t *ext, buf[2048];
+winutil_file_association(PyObject *self, PyObject *args) {
+	wchar_t *ext_, buf[2048];
 	DWORD sz = sizeof(buf);
-	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &ext)) return NULL;
-	HRESULT hr = AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, ext, NULL, buf, &sz);
-	free_wchar_buffer(&ext);
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &ext_)) return NULL;
+	wchar_raii ext(ext_);
+	HRESULT hr = AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, ext.ptr(), NULL, buf, &sz);
 	if (!SUCCEEDED(hr) || sz < 1) Py_RETURN_NONE;
 	return Py_BuildValue("u", buf);
 }
 
 PyObject *
-friendly_name(PyObject *self, PyObject *args) {
-	wchar_t *exe, *prog_id, buf[2048], *p;
+winutil_friendly_name(PyObject *self, PyObject *args) {
+	wchar_t *exe_, *prog_id_, buf[2048], *p;
 	DWORD sz = sizeof(buf);
-	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &prog_id, py_to_wchar, &exe)) return NULL;
+	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &prog_id_, py_to_wchar, &exe_)) return NULL;
+	wchar_raii exe(exe_), prog_id(prog_id_);
 	ASSOCF flags = ASSOCF_REMAPRUNDLL;
-	if (exe) {
-		p = exe;
+	if (exe.ptr()) {
+		p = exe.ptr();
 		flags |= ASSOCF_OPEN_BYEXENAME;
-	} else p = prog_id;
-	if (!p) {
-		free_wchar_buffer(&exe); free_wchar_buffer(&prog_id);
-		Py_RETURN_NONE;
-	}
+	} else p = prog_id.ptr();
+	if (!p) Py_RETURN_NONE;
 	HRESULT hr = AssocQueryStringW(flags, ASSOCSTR_FRIENDLYAPPNAME, p, NULL, buf, &sz);
-	free_wchar_buffer(&exe); free_wchar_buffer(&prog_id);
 	if (!SUCCEEDED(hr) || sz < 1) Py_RETURN_NONE;
 	return Py_BuildValue("u", buf);
 }
 
 PyObject *
-notify_associations_changed(PyObject *self, PyObject *args) {
+winutil_notify_associations_changed(PyObject *self, PyObject *args) {
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, NULL, NULL);
 	Py_RETURN_NONE;
 }

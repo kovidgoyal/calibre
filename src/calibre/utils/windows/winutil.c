@@ -375,10 +375,10 @@ winutil_strftime(PyObject *self, PyObject *args)
 }
 
 static char winutil_doc[] = "Defines utility methods to interface with windows.";
-extern PyObject *add_to_recent_docs(PyObject *self, PyObject *args);
-extern PyObject *file_association(PyObject *self, PyObject *args);
-extern PyObject *friendly_name(PyObject *self, PyObject *args);
-extern PyObject *notify_associations_changed(PyObject *self, PyObject *args);
+extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
+extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
+extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
+extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
