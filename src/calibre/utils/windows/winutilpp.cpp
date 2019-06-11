@@ -68,8 +68,8 @@ file_association(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &ext)) return NULL;
 	HRESULT hr = AssocQueryStringW(0, ASSOCSTR_EXECUTABLE, ext, NULL, buf, &sz);
 	free_wchar_buffer(&ext);
-	if (!SUCCEEDED(hr)) Py_RETURN_NONE;
-	return Py_BuildValue("u#", buf, (int)sz);
+	if (!SUCCEEDED(hr) || sz < 1) Py_RETURN_NONE;
+	return Py_BuildValue("u", buf);
 }
 
 PyObject *

@@ -24,7 +24,9 @@ class TestWinutil(unittest.TestCase):
         self.winutil.add_to_recent_docs(path, 'some-app-uid')
 
     def test_file_association(self):
-        self.assertIn('notepad.exe', self.winutil.file_association('.txt'))
+        q = self.winutil.file_association('.txt')
+        self.assertIn('notepad.exe', q.lower())
+        self.assertNotIn('\0', q)
         self.assertIsNone(self.winutil.file_association('.mkjsfks'))
 
     def test_special_folder_path(self):
