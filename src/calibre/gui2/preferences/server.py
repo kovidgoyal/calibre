@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import errno
 import json
 import numbers
@@ -53,45 +55,26 @@ if iswindows and not isportable:
         startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
         return os.path.join(startup_path, "calibre.lnk")
 
-    class Shortcut(object):
+    def create_shortcut(shortcut_path, target, description, *args):
+        quoted_args = None
+        if args:
+            quoted_args = []
+            for arg in args:
+                quoted_args.append('"{}"'.format(arg))
+            quoted_args = ' '.join(quoted_args)
+        plugins['winutil'][0].manage_shortcut(shortcut_path, target, description, quoted_args)
 
-        def __enter__(self):
-            import pythoncom
-            from win32com.shell import shell
-            pythoncom.CoInitialize()
-            self.instance = pythoncom.CoCreateInstance(shell.CLSID_ShellLink, None, pythoncom.CLSCTX_INPROC_SERVER, shell.IID_IShellLink)
-            self.persist_file = self.instance.QueryInterface(pythoncom.IID_IPersistFile)
-            return self
-
-        def __exit__(self, *a):
-            import pythoncom
-            del self.instance
-            del self.persist_file
-            pythoncom.CoUninitialize()
-
-        def create_at(self, shortcut_path, target, description, *args):
-            shortcut = self.instance
-            shortcut.SetPath(target)
-            shortcut.SetIconLocation(target, 0)
-            shortcut.SetDescription(description)
-            if args:
-                quoted_args = []
-                for arg in args:
-                    quoted_args.append('"{}"'.format(arg))
-                shortcut.SetArguments(' '.join(quoted_args))
-            self.persist_file.Save(shortcut_path, 0)
-
-        def exists_at(self, shortcut_path, target):
-            if not os.access(shortcut_path, os.R_OK):
-                return False
-            self.persist_file.Load(shortcut_path)
-            name = self.instance.GetPath(8)[0]
-            return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(get_exe()))
+    def shortcut_exists_at(shortcut_path, target):
+        if not os.access(shortcut_path, os.R_OK):
+            return False
+        name = plugins['winutil'][0].manage_shortcut(shortcut_path, None, None, None)
+        if name is None:
+            return False
+        return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(target))
 
     def set_run_at_startup(run_at_startup=True):
         if run_at_startup:
-            with Shortcut() as shortcut:
-                shortcut.create_at(startup_shortcut_path(), get_exe(), 'calibre - E-book management', '--start-in-tray')
+            create_shortcut(startup_shortcut_path(), get_exe(), 'calibre - E-book management', '--start-in-tray')
         else:
             shortcut_path = startup_shortcut_path()
             if os.path.exists(shortcut_path):
@@ -99,8 +82,7 @@ if iswindows and not isportable:
 
     def is_set_to_run_at_startup():
         try:
-            with Shortcut() as shortcut:
-                return shortcut.exists_at(startup_shortcut_path(), get_exe())
+            return shortcut_exists_at(startup_shortcut_path(), get_exe())
         except Exception:
             import traceback
             traceback.print_exc()

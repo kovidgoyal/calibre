@@ -79,13 +79,15 @@ class wchar_raii {  // {{{
 		wchar_raii() : handle(NULL) {}
 
 		~wchar_raii() {
+			if (handle) {
 #if PY_MAJOR_VERSION >= 3
-			PyMem_Free(*handle);
+				PyMem_Free(*handle);
 #endif
-			*handle = NULL;
+				*handle = NULL;
+			}
 		}
 
-		wchar_t *ptr() { return *handle; }
+		wchar_t *ptr() { return handle ? *handle : NULL; }
 		void set_ptr(wchar_t **val) { handle = val; }
 }; // }}}
 
@@ -215,4 +217,68 @@ winutil_move_to_trash(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+PyObject *
+winutil_manage_shortcut(PyObject *self, PyObject *args) {
+	wchar_raii path, target, description, quoted_args;
+	if (!PyArg_ParseTuple(args, "O&O&O&O&", py_to_wchar, &path, py_to_wchar, &target, py_to_wchar, &description, py_to_wchar, &quoted_args)) return NULL;
+	if (!path.ptr()) {
+		PyErr_SetString(PyExc_TypeError, "Path must not be None");
+		return NULL;
+	}
+
+	scoped_com_initializer com;
+	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+
+	CComPtr<IShellLink> shell_link;
+	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell_link)))) {
+		PyErr_SetString(PyExc_OSError, "Failed to create IShellLink instance");
+		return NULL;
+	}
+	CComPtr<IPersistFile> persist_file;
+	if (FAILED(shell_link->QueryInterface(IID_PPV_ARGS(&persist_file)))) {
+		PyErr_SetString(PyExc_OSError, "Failed to create IPersistFile instance");
+		return NULL;
+	}
+
+	if (!target.ptr()) {
+		wchar_t buf[2048];
+		if (FAILED(persist_file->Load(path.ptr(), 0))) Py_RETURN_NONE;
+		if (FAILED(shell_link->GetPath(buf, sizeof(buf), NULL, 0))) Py_RETURN_NONE;
+		return Py_BuildValue("u", buf);
+	}
+
+	if (FAILED(shell_link->SetPath(target.ptr()))) {
+		PyErr_SetString(PyExc_OSError, "Failed to set shortcut target");
+		return NULL;
+	}
+
+	if (FAILED(shell_link->SetIconLocation(target.ptr(), 0))) {
+		PyErr_SetString(PyExc_OSError, "Failed to set shortcut icon");
+		return NULL;
+	}
+
+	if (description.ptr()) {
+		if (FAILED(shell_link->SetDescription(description.ptr()))) {
+			PyErr_SetString(PyExc_OSError, "Failed to set shortcut description");
+			return NULL;
+		}
+	}
+
+	if (quoted_args.ptr()) {
+		if (FAILED(shell_link->SetArguments(quoted_args.ptr()))) {
+			PyErr_SetString(PyExc_OSError, "Failed to set shortcut arguments");
+			return NULL;
+		}
+	}
+
+	if (FAILED(persist_file->Save(path.ptr(), FALSE))) {
+		PyErr_SetString(PyExc_OSError, "Failed to save the shortcut");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+
+}
+
+// end extern "C"
 }
