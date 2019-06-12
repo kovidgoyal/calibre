@@ -11,6 +11,7 @@ import os, shutil, time, sys
 from calibre import isbytestring
 from calibre.constants import (iswindows, isosx, plugins, filesystem_encoding,
         islinux)
+from polyglot.builtins import unicode_type
 
 recycle = None
 
@@ -27,12 +28,7 @@ if iswindows:
             recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
     def recycle_path(path):
-        from win32com.shell import shell, shellcon
-        flags = (shellcon.FOF_ALLOWUNDO | shellcon.FOF_NOCONFIRMATION | shellcon.FOF_NOCONFIRMMKDIR | shellcon.FOF_NOERRORUI |
-                 shellcon.FOF_SILENT | shellcon.FOF_RENAMEONCOLLISION)
-        retcode, aborted = shell.SHFileOperation((0, shellcon.FO_DELETE, path, None, flags, None, None))
-        if retcode != 0 or aborted:
-            raise RuntimeError('Failed to delete: %r with error code: %d' % (path, retcode))
+        plugins['winutil'][0].move_to_trash(unicode_type(path))
 
     def recycler_main():
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)

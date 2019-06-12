@@ -13,12 +13,65 @@
 #include <shlwapi.h>
 #include <atlbase.h>  // for CComPtr
 #include <Python.h>
+#include <versionhelpers.h>
 
-class wchar_raii {
+class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
+ public:
+  DeleteFileProgressSink() : m_cRef(0) {}
+
+ private:
+  ULONG STDMETHODCALLTYPE AddRef(void) { InterlockedIncrement(&m_cRef); return m_cRef; }
+  ULONG STDMETHODCALLTYPE Release(void) {
+	  ULONG ulRefCount = InterlockedDecrement(&m_cRef);
+	  if (0 == m_cRef) delete this;
+	  return ulRefCount;
+  }
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, LPVOID* ppvObj) {
+	  if (!ppvObj) return E_INVALIDARG;
+	  *ppvObj = nullptr;
+	  if (riid == IID_IUnknown || riid == IID_IFileOperationProgressSink) {
+		  // Increment the reference count and return the pointer.
+		  *ppvObj = reinterpret_cast<IUnknown*>(this);
+		  AddRef();
+		  return NOERROR;
+	  }
+	  return E_NOINTERFACE;
+  }
+  HRESULT STDMETHODCALLTYPE StartOperations(void) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE FinishOperations(HRESULT) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PreRenameItem(
+      DWORD, IShellItem*, LPCWSTR) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PostRenameItem(
+      DWORD, IShellItem*, LPCWSTR, HRESULT, IShellItem*) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PreMoveItem(
+      DWORD, IShellItem*, IShellItem*, LPCWSTR) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PostMoveItem(
+      DWORD, IShellItem*, IShellItem*, LPCWSTR, HRESULT, IShellItem*) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PreCopyItem(
+      DWORD, IShellItem*, IShellItem*, LPCWSTR) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PostCopyItem(
+      DWORD, IShellItem*, IShellItem*, LPCWSTR, HRESULT, IShellItem*) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PreDeleteItem(DWORD dwFlags, IShellItem*) {
+	  if (!(dwFlags & TSF_DELETE_RECYCLE_IF_POSSIBLE)) return E_ABORT;
+	  return S_OK;
+  }
+  HRESULT STDMETHODCALLTYPE PostDeleteItem(
+      DWORD, IShellItem*, HRESULT, IShellItem*) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PreNewItem(
+      DWORD, IShellItem*, LPCWSTR) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE PostNewItem(
+      DWORD, IShellItem*, LPCWSTR, LPCWSTR, DWORD, HRESULT, IShellItem*) { return E_NOTIMPL; }
+  HRESULT STDMETHODCALLTYPE UpdateProgress(UINT, UINT) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE ResetTimer(void) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE PauseTimer(void) { return S_OK; }
+  HRESULT STDMETHODCALLTYPE ResumeTimer(void) { return S_OK; }
+
+  ULONG m_cRef;
+}; // }}}
+
+class wchar_raii {  // {{{
 	private:
 		wchar_t **handle;
-		// copy and assignment not implemented; prevent their use by
-		// declaring private.
 		wchar_raii( const wchar_raii & ) ;
 		wchar_raii & operator=( const wchar_raii & ) ;
 
@@ -34,7 +87,18 @@ class wchar_raii {
 
 		wchar_t *ptr() { return *handle; }
 		void set_ptr(wchar_t **val) { handle = val; }
-};
+}; // }}}
+
+class scoped_com_initializer {  // {{{
+	public:
+		scoped_com_initializer() : m_succeded(false) { if (SUCCEEDED(CoInitialize(NULL))) m_succeded = true; }
+		~scoped_com_initializer() { CoUninitialize(); }
+		bool succeded() { return m_succeded; }
+	private:
+		bool m_succeded;
+		scoped_com_initializer( const scoped_com_initializer & ) ;
+		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
+}; // }}}
 
 static inline int
 py_to_wchar(PyObject *obj, wchar_raii *output) {
@@ -104,6 +168,50 @@ winutil_friendly_name(PyObject *self, PyObject *args) {
 PyObject *
 winutil_notify_associations_changed(PyObject *self, PyObject *args) {
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, NULL, NULL);
+	Py_RETURN_NONE;
+}
+
+PyObject *
+winutil_move_to_trash(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
+
+	scoped_com_initializer com;
+	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+
+	CComPtr<IFileOperation> pfo;
+	if (FAILED(CoCreateInstance(CLSID_FileOperation, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&pfo)))) {
+		PyErr_SetString(PyExc_OSError, "Failed to create IFileOperation instance");
+		return NULL;
+	}
+	DWORD flags = FOF_NO_UI | FOF_NOERRORUI | FOF_SILENT;
+	if (IsWindows8OrGreater()) {
+		flags |= FOFX_ADDUNDORECORD | FOFX_RECYCLEONDELETE;
+	} else {
+		flags |= FOF_ALLOWUNDO;
+	}
+	if (FAILED(pfo->SetOperationFlags(flags))) {
+		PyErr_SetString(PyExc_OSError, "Failed to set operation flags");
+		return NULL;
+	}
+
+	CComPtr<IShellItem> delete_item;
+	if (FAILED(SHCreateItemFromParsingName(path.ptr(), NULL, IID_PPV_ARGS(&delete_item)))) {
+		PyErr_SetString(PyExc_OSError, "Failed to create shell item");
+		return NULL;
+	}
+
+	CComPtr<IFileOperationProgressSink> delete_sink(new DeleteFileProgressSink);
+	if (FAILED(pfo->DeleteItem(delete_item, delete_sink))) {
+		PyErr_SetString(PyExc_OSError, "Failed to delete item");
+		return NULL;
+	}
+
+	if (FAILED(pfo->PerformOperations())) {
+		PyErr_SetString(PyExc_OSError, "Failed to perform delete operation");
+		return NULL;
+	}
+
 	Py_RETURN_NONE;
 }
 

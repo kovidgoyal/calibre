@@ -379,6 +379,7 @@ extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
 extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
 extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
 extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
+extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -460,6 +461,10 @@ be a unicode string. Returns unicode strings."
 
     {"notify_associations_changed", (PyCFunction)winutil_notify_associations_changed, METH_VARARGS,
         "notify_associations_changed()\n\nNotify the OS that file associations have changed"
+    },
+
+    {"move_to_trash", (PyCFunction)winutil_move_to_trash, METH_VARARGS,
+        "move_to_trash()\n\nMove the specified path to trash"
     },
 
     {NULL, NULL, 0, NULL}
