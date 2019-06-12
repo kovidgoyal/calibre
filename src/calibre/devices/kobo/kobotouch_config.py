@@ -362,11 +362,11 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.upload_grayscale_checkbox.toggled.connect(
             lambda checked: not checked and self.png_covers_checkbox.setChecked(False))
 
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     0, 0, 1, 1)
-        self.options_layout.addWidget(self.dithered_covers_checkbox,      0, 1, 1, 1)
-        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    1, 0, 1, 1)
-        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  1, 1, 1, 1)
-        self.options_layout.addWidget(self.png_covers_checkbox,           2, 0, 1, 2, Qt.AlignCenter)
+        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
+        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  0, 1, 1, 1)
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
+        self.options_layout.addWidget(self.dithered_covers_checkbox,      1, 1, 1, 1)
+        self.options_layout.addWidget(self.png_covers_checkbox,           2, 1, 1, 1)
 
     @property
     def upload_covers(self):
