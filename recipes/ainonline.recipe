@@ -73,7 +73,7 @@ class AINOnline(BasicNewsRecipe):
 
             articles = []
             for div in section.findAll(attrs=article_attrs):
-                if frozenset(['views-row']).intersection(frozenset(div['class'])):
+                if 'views-row' in div['class']:
                     a = div.find(**classes('title')).a
                 elif 'featured-story' in div['class']:
                     a = div.find(
