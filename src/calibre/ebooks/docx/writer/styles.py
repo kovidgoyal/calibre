@@ -137,7 +137,8 @@ class FloatSpec(object):
             padding = getattr(self, 'padding_' + edge)
             width = getattr(self, 'border_%s_width' % edge)
             bstyle = getattr(self, 'border_%s_style' % edge)
-            self.makeelement(bdr, 'w:'+edge, w_space=unicode_type(padding), w_val=bstyle, w_sz=unicode_type(width), w_color=getattr(self, 'border_%s_color' % edge))
+            self.makeelement(
+                bdr, 'w:'+edge, w_space=unicode_type(padding), w_val=bstyle, w_sz=unicode_type(width), w_color=getattr(self, 'border_%s_color' % edge))
 
 
 class DOCXStyle(object):

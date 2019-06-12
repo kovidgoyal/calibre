@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (Qt, QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
+from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
                       QDialog, QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
