@@ -315,6 +315,8 @@ class TextBlock(object):
             raw = raw[pos:]
             if line_filled:
                 self.end_line()
+            if not pos:
+                break
 
     def __iter__(self):
         for line in self.lines:
