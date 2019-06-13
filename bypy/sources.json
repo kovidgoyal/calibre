@@ -374,6 +374,16 @@
     },
 
     {
+        "name": "gnuwin32",
+        "os": "windows",
+		"windows": {
+			"filename": "gnuwin32.zip",
+			"hash": "sha256:4a9dc893cc0a1695a16102a42ef47ef2e228652891f4afea67fadd452b63656b",
+			"urls": ["http://download.qt.io/development_releases/gnuwin32/{filename}"]
+		}
+    },
+
+    {
         "name": "qt-base",
         "version": "5.12.3",
         "hashes": {
