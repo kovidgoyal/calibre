@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -69,7 +70,7 @@ class TOC(list):
     def __str__(self):
         lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
         for child in self:
-            c = str(child).splitlines()
+            c = unicode_type(child).splitlines()
             for l in c:
                 lines.append('\t'+l)
         return '\n'.join(lines)
@@ -245,8 +246,8 @@ class TOC(list):
     def render(self, stream, uid):
         root = E.ncx(
                 E.head(
-                    E.meta(name='dtb:uid', content=str(uid)),
-                    E.meta(name='dtb:depth', content=str(self.depth())),
+                    E.meta(name='dtb:uid', content=unicode_type(uid)),
+                    E.meta(name='dtb:depth', content=unicode_type(self.depth())),
                     E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
                         __version__)),
                     E.meta(name='dtb:totalPageCount', content='0'),
@@ -271,7 +272,7 @@ class TOC(list):
                     E.content(src=unicode_type(np.href)+(('#' + unicode_type(np.fragment))
                         if np.fragment else '')),
                     id=item_id,
-                    playOrder=str(np.play_order)
+                    playOrder=unicode_type(np.play_order)
             )
             au = getattr(np, 'author', None)
             if au:

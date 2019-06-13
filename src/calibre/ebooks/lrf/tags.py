@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
@@ -5,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct
 
 from calibre.ebooks.lrf import LRFParseError
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type
 
 
 class Tag(object):
@@ -196,7 +198,7 @@ class Tag(object):
         self.id = 0xF500 + tag_id[0]
 
         size, self.name = self.__class__.tags[tag_id[0]]
-        if isinstance(size, string_or_bytes):
+        if isinstance(size, unicode_type):
             parser = getattr(self, size + '_parser')
             self.contents = parser(stream)
         else:

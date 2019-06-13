@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -21,7 +22,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextStyle
 )
 from calibre.utils.config import OptionParser
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, unicode_type
 
 
 class LrsParser(object):
@@ -54,7 +55,7 @@ class LrsParser(object):
         for key, val in tag.attrs:
             if key in exclude:
                 continue
-            result[str(key)] = val
+            result[unicode_type(key)] = val
         return result
 
     def text_tag_to_element(self, tag):

@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -10,7 +11,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import getcwd
+from polyglot.builtins import getcwd, unicode_type
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
@@ -230,7 +231,7 @@ def forked_read_metadata(path, tdir):
         f.seek(0, 2)
         sz = f.tell()
         with lopen(os.path.join(tdir, 'size.txt'), 'wb') as s:
-            s.write(str(sz).encode('ascii'))
+            s.write(unicode_type(sz).encode('ascii'))
         f.seek(0)
         mi = get_metadata(f, fmt)
     if mi.cover_data and mi.cover_data[1]:

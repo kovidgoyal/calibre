@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>'

@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
@@ -47,9 +48,9 @@ def read_info(outputdir, get_cover):
         return None
 
     for line in info_raw.splitlines():
-        if u':' not in line:
+        if ':' not in line:
             continue
-        field, val = line.partition(u':')[::2]
+        field, val = line.partition(':')[::2]
         val = val.strip()
         if field and val:
             ans[field] = val.strip()

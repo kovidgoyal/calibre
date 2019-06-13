@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -73,7 +75,7 @@ def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     style = ''
     for key, val in css.items():
         style += key + ':%s;'%val
-    html = u'''\
+    html = '''\
 <html>
     <head>
         %s

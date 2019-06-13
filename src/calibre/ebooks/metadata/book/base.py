@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -24,7 +25,7 @@ SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
-    return ('%.'+str(precision)+'f'+ 'MB') % ((size/(1024.*1024.)),)
+    return ('%.'+unicode_type(precision)+'f'+ 'MB') % (size/(1024*1024),)
 
 
 NULL_VALUES = {
@@ -607,13 +608,13 @@ class Metadata(object):
         return authors_to_string(self.authors)
 
     def format_tags(self):
-        return u', '.join([unicode_type(t) for t in sorted(self.tags, key=sort_key)])
+        return ', '.join([unicode_type(t) for t in sorted(self.tags, key=sort_key)])
 
-    def format_rating(self, v=None, divide_by=1.0):
+    def format_rating(self, v=None, divide_by=1):
         if v is None:
             if self.rating is not None:
                 return unicode_type(self.rating/divide_by)
-            return u'None'
+            return 'None'
         return unicode_type(v/divide_by)
 
     def format_field(self, key, series_with_index=True):
@@ -662,7 +663,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = u'%.2g'%(res/2.0)
+                res = '%.2g'%(res/2)
             elif datatype in ['int', 'float']:
                 try:
                     fmt = cmeta['display'].get('number_format', None)
@@ -702,7 +703,7 @@ class Metadata(object):
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
-                res = u'%.2g'%(res/2.0)
+                res = '%.2g'%(res/2)
             elif key == 'size':
                 res = human_readable(res)
             return (name, unicode_type(res), orig_res, fmeta)
@@ -719,7 +720,7 @@ class Metadata(object):
         ans = []
 
         def fmt(x, y):
-            ans.append(u'%-20s: %s'%(unicode_type(x), unicode_type(y)))
+            ans.append('%-20s: %s'%(unicode_type(x), unicode_type(y)))
 
         fmt('Title', self.title)
         if self.title_sort:
@@ -733,14 +734,14 @@ class Metadata(object):
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
         if self.tags:
-            fmt('Tags', u', '.join([unicode_type(t) for t in self.tags]))
+            fmt('Tags', ', '.join([unicode_type(t) for t in self.tags]))
         if self.series:
             fmt('Series', self.series + ' #%s'%self.format_series_index())
         if not self.is_null('languages'):
             fmt('Languages', ', '.join(self.languages))
         if self.rating is not None:
-            fmt('Rating', (u'%.2g'%(float(self.rating)/2.0)) if self.rating
-                    else u'')
+            fmt('Rating', ('%.2g'%(float(self.rating)/2)) if self.rating
+                    else '')
         if self.timestamp is not None:
             fmt('Timestamp', isoformat(self.timestamp))
         if self.pubdate is not None:
@@ -748,7 +749,7 @@ class Metadata(object):
         if self.rights is not None:
             fmt('Rights', unicode_type(self.rights))
         if self.identifiers:
-            fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
+            fmt('Identifiers', ', '.join(['%s:%s'%(k, v) for k, v in
                 iteritems(self.identifiers)]))
         if self.comments:
             fmt('Comments', self.comments)
@@ -758,7 +759,7 @@ class Metadata(object):
             if val:
                 (name, val) = self.format_field(key)
                 fmt(name, unicode_type(val))
-        return u'\n'.join(ans)
+        return '\n'.join(ans)
 
     def to_html(self):
         '''
@@ -772,10 +773,10 @@ class Metadata(object):
         ans += [(_('Producer'), unicode_type(self.book_producer))]
         ans += [(_('Comments'), unicode_type(self.comments))]
         ans += [('ISBN', unicode_type(self.isbn))]
-        ans += [(_('Tags'), u', '.join([unicode_type(t) for t in self.tags]))]
+        ans += [(_('Tags'), ', '.join([unicode_type(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode_type(self.series) + ' #%s'%self.format_series_index())]
-        ans += [(_('Languages'), u', '.join(self.languages))]
+        ans += [(_('Languages'), ', '.join(self.languages))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode_type(isoformat(self.timestamp, as_utc=False, sep=' ')))]
         if self.pubdate is not None:
@@ -788,8 +789,8 @@ class Metadata(object):
                 (name, val) = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
-            ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
-        return u'<table>%s</table>'%u'\n'.join(ans)
+            ans[i] = '<tr><td><b>%s</b></td><td>%s</td></tr>'%x
+        return '<table>%s</table>'%'\n'.join(ans)
 
     if ispy3:
         __str__ = __unicode__representation__

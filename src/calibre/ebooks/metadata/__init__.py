@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -26,9 +28,9 @@ except:
 def string_to_authors(raw):
     if not raw:
         return []
-    raw = raw.replace('&&', u'\uffff')
+    raw = raw.replace('&&', '\uffff')
     raw = _author_pat.sub('&', raw)
-    authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
+    authors = [a.strip().replace('\uffff', '&') for a in raw.split('&')]
     return [a for a in authors if a]
 
 
@@ -41,7 +43,7 @@ def authors_to_string(authors):
 
 def remove_bracketed_text(src, brackets=None):
     if brackets is None:
-        brackets = {u'(': u')', u'[': u']', u'{': u'}'}
+        brackets = {'(': ')', '[': ']', '{': '}'}
     from collections import Counter
     counts = Counter()
     buf = []
@@ -56,12 +58,12 @@ def remove_bracketed_text(src, brackets=None):
                 counts[idx] -= 1
         elif sum(itervalues(counts)) < 1:
             buf.append(char)
-    return u''.join(buf)
+    return ''.join(buf)
 
 
 def author_to_author_sort(author, method=None):
     if not author:
-        return u''
+        return ''
     sauthor = remove_bracketed_text(author).strip()
     tokens = sauthor.split()
     if len(tokens) < 2:
@@ -72,13 +74,13 @@ def author_to_author_sort(author, method=None):
     ltoks = frozenset(x.lower() for x in tokens)
     copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
     if ltoks.intersection(copy_words):
-        method = u'copy'
+        method = 'copy'
 
-    if method == u'copy':
+    if method == 'copy':
         return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
-    prefixes |= {y+u'.' for y in prefixes}
+    prefixes |= {y+'.' for y in prefixes}
     while True:
         if not tokens:
             return author
@@ -89,9 +91,9 @@ def author_to_author_sort(author, method=None):
             break
 
     suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
-    suffixes |= {y+u'.' for y in suffixes}
+    suffixes |= {y+'.' for y in suffixes}
 
-    suffix = u''
+    suffix = ''
     while True:
         if not tokens:
             return author
@@ -103,7 +105,7 @@ def author_to_author_sort(author, method=None):
             break
     suffix = suffix.strip()
 
-    if method == u'comma' and u',' in u''.join(tokens):
+    if method == 'comma' and ',' in ''.join(tokens):
         return author
 
     atokens = tokens[-1:] + tokens[:-1]
@@ -111,10 +113,10 @@ def author_to_author_sort(author, method=None):
     if suffix:
         atokens.append(suffix)
 
-    if method != u'nocomma' and num_toks > 1:
-        atokens[0] += u','
+    if method != 'nocomma' and num_toks > 1:
+        atokens[0] += ','
 
-    return u' '.join(atokens)
+    return ' '.join(atokens)
 
 
 def authors_to_sort_string(authors):
@@ -154,7 +156,7 @@ def get_title_sort_pat(lang=None):
     return ans
 
 
-_ignore_starts = u'\'"'+u''.join(codepoint_to_chr(x) for x in
+_ignore_starts = '\'"'+''.join(codepoint_to_chr(x) for x in
         list(range(0x2018, 0x201e))+[0x2032, 0x2033])
 
 
@@ -187,7 +189,7 @@ coding = list(zip(
 
 def roman(num):
     if num <= 0 or num >= 4000 or int(num) != num:
-        return str(num)
+        return unicode_type(num)
     result = []
     for d, r in coding:
         while num >= d:
@@ -202,7 +204,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
     try:
         i = float(i)
     except TypeError:
-        return str(i)
+        return unicode_type(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
     return fmt%i
@@ -312,7 +314,7 @@ class ResourceCollection(object):
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
-        return str(self)
+        return unicode_type(self)
 
     def append(self, resource):
         if not isinstance(resource, Resource):
@@ -374,7 +376,7 @@ def check_isbn13(isbn):
         check = 10 - (sum(products)%10)
         if check == 10:
             check = 0
-        if str(check) == isbn[12]:
+        if unicode_type(check) == isbn[12]:
             return isbn
     except Exception:
         pass
@@ -430,12 +432,9 @@ def check_doi(doi):
     return None
 
 
-def rating_to_stars(value, allow_half_stars=False, star=u'★', half=u'½'):
+def rating_to_stars(value, allow_half_stars=False, star='★', half='½'):
     r = max(0, min(int(value or 0), 10))
-    if allow_half_stars:
-        ans = star * (r // 2)
-        if r % 2:
+    ans = star * (r // 2)
+    if allow_half_stars and r % 2:
             ans += half
-    else:
-        ans = star * int(r/2.0)
     return ans

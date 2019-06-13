@@ -220,12 +220,10 @@ class GoogleBooks(Source):
             if author_tokens:
                 q += ('+' if q else '') + build_term('author', author_tokens)
 
-        if isinstance(q, type(u'')):
-            q = q.encode('utf-8')
         if not q:
             return None
         return BASE_URL + urlencode({
-            'q': q,
+            'q': q.encode('utf-8'),
             'max-results': 20,
             'start-index': 1,
             'min-viewability': 'none',
