@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Write content to ereader pdb file.
@@ -22,7 +23,7 @@ except ImportError:
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pml.pmlml import PMLMLizer
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 IDENTITY = 'PNRdPPrs'
 
@@ -42,10 +43,10 @@ class Writer(FormatWriter):
         pml = unicode_type(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
-        chapter_index = self._index_item(r'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
-        chapter_index += self._index_item(r'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
-        chapter_index += self._index_item(r'(?s)\\x(?P<text>.+?)\\x', pml)
-        link_index = self._index_item(r'(?s)\\Q="(?P<text>.+?)"', pml)
+        chapter_index = self._index_item(br'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
+        chapter_index += self._index_item(br'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
+        chapter_index += self._index_item(br'(?s)\\x(?P<text>.+?)\\x', pml)
+        link_index = self._index_item(br'(?s)\\Q="(?P<text>.+?)"', pml)
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
         metadata = [self._metadata(metadata)]
         hr = [self._header_record(len(text), len(chapter_index), len(link_index), len(images))]
@@ -66,7 +67,7 @@ class Writer(FormatWriter):
            12. Text block size record
            13. "MeTaInFo\x00" word record
         '''
-        sections = hr+text+chapter_index+link_index+images+metadata+[text_sizes]+['MeTaInFo\x00']
+        sections = hr+text+chapter_index+link_index+images+metadata+[text_sizes]+[b'MeTaInFo\x00']
 
         lengths = [len(i) if i not in images else len(i[0]) + len(i[1]) for i in sections]
 
@@ -82,13 +83,13 @@ class Writer(FormatWriter):
 
     def _text(self, pml):
         pml_pages = []
-        text_sizes = ''
+        text_sizes = b''
         index = 0
         while index < len(pml):
             '''
             Split on the space character closest to MAX_RECORD_SIZE when possible.
             '''
-            split = pml.rfind(' ', index, MAX_RECORD_SIZE)
+            split = pml.rfind(b' ', index, MAX_RECORD_SIZE)
             if split == -1:
                 len_end = len(pml[index:])
                 if len_end > MAX_RECORD_SIZE:
@@ -106,19 +107,19 @@ class Writer(FormatWriter):
     def _index_item(self, regex, pml):
         index = []
         for mo in re.finditer(regex, pml):
-            item = ''
+            item = b''
             if 'text' in mo.groupdict().keys():
                 item += struct.pack('>L', mo.start())
                 text = mo.group('text')
                 # Strip all PML tags from text
-                text = re.sub(r'\\U[0-9a-z]{4}', '', text)
-                text = re.sub(r'\\a\d{3}', '', text)
-                text = re.sub(r'\\.', '', text)
+                text = re.sub(br'\\U[0-9a-z]{4}', '', text)
+                text = re.sub(br'\\a\d{3}', '', text)
+                text = re.sub(br'\\.', '', text)
                 # Add appropriate spacing to denote the various levels of headings
                 if 'val' in mo.groupdict().keys():
-                    text = '%s%s' % (' ' * 4 * int(mo.group('val')), text)
+                    text = b'%s%s' % (b' ' * 4 * int(mo.group('val')), text)
                 item += text
-                item += '\x00'
+                item += b'\x00'
             if item:
                 index.append(item)
         return index
@@ -146,12 +147,13 @@ class Writer(FormatWriter):
                     data = io.BytesIO()
                     im.save(data, 'PNG')
                     data = data.getvalue()
+                    href = as_bytes(image_hrefs[item.href])
 
-                    header = 'PNG '
-                    header += image_hrefs[item.href].ljust(32, '\x00')[:32]
-                    header = header.ljust(58, '\x00')
+                    header = b'PNG '
+                    header += href.ljust(32, b'\x00')[:32]
+                    header = header.ljust(58, b'\x00')
                     header += struct.pack('>HH', im.size[0], im.size[1])
-                    header = header.ljust(62, '\x00')
+                    header = header.ljust(62, b'\x00')
 
                     if len(data) + len(header) < 65505:
                         images.append((header, data))
@@ -188,7 +190,7 @@ class Writer(FormatWriter):
             if len(metadata.publisher) >= 1:
                 publisher = metadata.publisher[0].value
 
-        return '%s\x00%s\x00%s\x00%s\x00%s\x00' % (title, author, copyright, publisher, isbn)
+        return as_bytes('%s\x00%s\x00%s\x00%s\x00%s\x00' % (title, author, copyright, publisher, isbn))
 
     def _header_record(self, text_count, chapter_count, link_count, image_count):
         '''
@@ -215,7 +217,7 @@ class Writer(FormatWriter):
         if link_count == 0:
             link_offset = last_data_offset
 
-        record = ''
+        record = b''
 
         record += struct.pack('>H', compression)            # [0:2]    # Compression. Specifies compression and drm. 2 = palmdoc, 10 = zlib. 260 and 272 = DRM
         record += struct.pack('>H', 0)                      # [2:4]    # Unknown.
