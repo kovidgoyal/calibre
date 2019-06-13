@@ -33,21 +33,6 @@ def asfloat(value, default):
     return float(value)
 
 
-def dynamic_rescale_factor(node):
-    classes = node.get('class', '').split(' ')
-    classes = [x.replace('calibre_rescale_', '') for x in classes if
-            x.startswith('calibre_rescale_')]
-    if not classes:
-        return None
-    factor = 1.0
-    for x in classes:
-        try:
-            factor *= float(x)/100.
-        except ValueError:
-            continue
-    return factor
-
-
 class KeyMapper(object):
 
     def __init__(self, sbase, dbase, dkey):
@@ -470,8 +455,12 @@ class CSSFlattener(object):
         if not self.context.disable_font_rescaling and not is_drop_cap:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
-            dyn_rescale = dynamic_rescale_factor(node)
+            dyn_rescale = node.attrib.pop('data-calibre-rescale', None)
             if dyn_rescale is not None:
+                try:
+                    dyn_rescale = float(dyn_rescale) / 100.0
+                except Exception:
+                    dyn_rescale = 1
                 fsize = self.fmap[_sbase]
                 fsize *= dyn_rescale
                 cssdict['font-size'] = '%0.5fem'%(fsize/psize)
@@ -541,10 +530,11 @@ class CSSFlattener(object):
                 items = sorted(iteritems(cssdict))
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
+                classes_list = classes.split()
                 # lower() because otherwise if the document uses the same class
                 # name with different case, both cases will apply, leading
                 # to incorrect results.
-                klass = ascii_text(STRIPNUM.sub('', classes.split()[0])).lower().strip().replace(' ', '_')
+                klass = ascii_text(STRIPNUM.sub('', classes_list[0])).lower().strip().replace(' ', '_')
                 if css in styles:
                     match = styles[css]
                 else:

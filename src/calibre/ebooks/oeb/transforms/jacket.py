@@ -369,11 +369,11 @@ def render_jacket(mi, output_profile,
         # the same as for text in the main book. So text with size x em will
         # be rescaled to the same value in both the jacket and the main content.
         #
-        # We cannot use calibre_rescale_100 on the body tag as that will just
+        # We cannot use data-calibre-rescale 100 on the body tag as that will just
         # give the body tag a font size of 1em, which is useless.
         for body in root.xpath('//*[local-name()="body"]'):
             fw = body.makeelement(XHTML('div'))
-            fw.set('class', 'calibre_rescale_100')
+            fw.set('data-calibre-rescale', '100')
             for child in body:
                 fw.append(child)
             body.append(fw)
