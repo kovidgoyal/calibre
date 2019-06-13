@@ -12,10 +12,9 @@ import sys
 
 from bypy.constants import (
     LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, build_dir, islinux, ismacos,
-    worker_env
+    iswindows, worker_env
 )
 from bypy.utils import run_shell
-
 
 dlls = [
     'Core',
@@ -49,6 +48,8 @@ if islinux:
     dlls += ['X11Extras', 'XcbQpa', 'WaylandClient', 'DBus']
 elif ismacos:
     dlls += ['MacExtras', 'DBus']
+elif iswindows:
+    dlls += ['WinExtras', 'Angle']
 
 QT_DLLS = frozenset(
     'Qt5' + x for x in dlls
