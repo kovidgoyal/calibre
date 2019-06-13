@@ -136,13 +136,18 @@ def get_all_translators():
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = io.BytesIO(zf.read(mpath + '/%s.mo' % which))
+        path = '{}/{}.mo'.format(mpath, which)
+        data = zf.read(path)
+        buf = io.BytesIO(data)
         try:
             return GNUTranslations(buf)
         except Exception as e:
             import traceback
             traceback.print_exc()
-            raise ValueError('Failed to load translations for: {} with error: {}'.format(mpath, e))
+            import hashlib
+            sig = hashlib.sha1(data).hexdigest()
+            raise ValueError('Failed to load translations for: {} (size: {} and signature: {}) with error: {}'.format(
+                path, len(data), sig, e))
 
 
 def get_iso639_translator(lang):
