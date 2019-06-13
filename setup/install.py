@@ -364,7 +364,11 @@ class Bootstrap(Command):
             import tarfile
             self.info('Downloading translations...')
             st = time.time()
-            data = download_securely(tarball_url)
+            try:
+                data = download_securely(tarball_url)
+            except Exception:
+                time.sleep(1)
+                data = download_securely(tarball_url)
             tarfile.open(fileobj=io.BytesIO(data)).extractall(tdir)
             x = os.listdir(tdir)[0]
             for y in os.listdir(os.path.join(tdir, x)):
