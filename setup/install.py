@@ -4,10 +4,21 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, glob
+import atexit
+import glob
+import io
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import textwrap
+import time
 
-from setup import (Command, islinux, isbsd, ishaiku, basenames, modules, functions,
-        __appname__, __version__)
+from setup import (
+    Command, __appname__, __version__, basenames, download_securely, functions,
+    isbsd, ishaiku, islinux, modules
+)
 
 HEADER = '''\
 #!/usr/bin/env python{py_major_version}
@@ -336,7 +347,7 @@ class Sdist(Command):
 class Bootstrap(Command):
 
     description = 'Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers'
-    TRANSLATIONS_REPO = 'https://github.com/kovidgoyal/calibre-translations.git'
+    TRANSLATIONS_REPO = 'kovidgoyal/calibre-translations'
     sub_commands = 'build iso639 iso3166 translations gui resources cacerts recent_uas'.split()
 
     def add_options(self, parser):
@@ -348,12 +359,25 @@ class Bootstrap(Command):
         if opts.ephemeral:
             if os.path.exists(tdir):
                 shutil.rmtree(tdir)
-            subprocess.check_call(['git', 'clone', '--depth=1', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+
+            tarball_url = 'https://api.github.com/repos/{}/tarball'.format(self.TRANSLATIONS_REPO)
+            import tarfile
+            self.info('Downloading translations...')
+            st = time.time()
+            data = download_securely(tarball_url)
+            tarfile.open(fileobj=io.BytesIO(data)).extractall(tdir)
+            x = os.listdir(tdir)[0]
+            for y in os.listdir(os.path.join(tdir, x)):
+                os.rename(os.path.join(tdir, x, y), os.path.join(tdir, y))
+            os.rmdir(os.path.join(tdir, x))
+            print('Downloaded translations in %d seconds' % int(time.time() - st))
         else:
             if os.path.exists(tdir):
                 subprocess.check_call(['git', 'pull'], cwd=tdir)
             else:
-                subprocess.check_call(['git', 'clone', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+                subprocess.check_call([
+                    'git', 'clone', 'https://github.com/{}.git'.format(self.TRANSLATIONS_REPO),
+                    'translations'], cwd=self.d(self.SRC))
 
     def run(self, opts):
         self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)
