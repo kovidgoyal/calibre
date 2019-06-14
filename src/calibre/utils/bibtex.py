@@ -2558,7 +2558,7 @@ class BibTeX:
         self.invalid_cit = re.compile('[ "@\',\\#}{~%&$^]')
         self.upper = re.compile('[' +
             string.ascii_uppercase + ']')
-        self.escape = re.compile('[~#&%_]')
+        self.escape = re.compile('[#&%_]')
 
     def ValidateCitationKey(self, text):
         """
@@ -2584,7 +2584,8 @@ class BibTeX:
         """
         Latex escaping some (not all) special characters
         """
-        text.replace('\\', '\\\\')
+        text = text.replace('\\', '\\\\')
+        text = text.replace('~', '{\\char`\\~}')  # TILDE
         return self.escape.sub(lambda m: '\\%s' % m.group(), text)
 
     # Calibre functions: Option to go to official ASCII Bibtex or unofficial UTF-8
@@ -2594,11 +2595,11 @@ class BibTeX:
         """
         if len(text) == 0:
             return ''
-        text.replace('\\', '\\\\')
         text = self.resolveEntities(text)
+        text = self.escapeSpecialCharacters(text)
         if self.ascii_bibtex :
             text = self.resolveUnicode(text)
-        return self.escapeSpecialCharacters(text)
+        return text
 
     def bibtex_author_format(self, item):
         """
