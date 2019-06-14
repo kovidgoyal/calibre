@@ -169,7 +169,9 @@ def upgrade_meta(root, data):
 
 def upgrade_cover(root, data):
     for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
-        remove_element(item, data.refines)
+        # Google Play Books does not recognize covers unless the old style
+        # <meta name="cover"> is present, so leave it in
+        # remove_element(item, data.refines)
         item_id = item.get('content')
         for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
             if item.get('id') == item_id:
