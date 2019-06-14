@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -17,7 +19,7 @@ from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 from polyglot.builtins import iteritems, unicode_type, map, range, long_type
 
-HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
+HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
 
 def clean_txt(txt):
@@ -201,7 +203,7 @@ def separate_hard_scene_breaks(txt):
             return '\n%s\n' % line
         else:
             return line
-    txt = re.sub(unicode_type(r'(?miu)^[ \t-=~\/_]+$'), lambda mo: sep_break(mo.group()), txt)
+    txt = re.sub(r'(?miu)^[ \t-=~\/_]+$', lambda mo: sep_break(mo.group()), txt)
     return txt
 
 
@@ -242,7 +244,7 @@ def split_string_separator(txt, size):
         size -= 2
         txt = []
         for part in (txt[i * size: (i + 1) * size] for i in range(0, len(txt), size)):
-            idx = part.rfind('.')
+            idx = part.rfind(b'.')
             if idx == -1:
                 part += b'\n\n'
             else:

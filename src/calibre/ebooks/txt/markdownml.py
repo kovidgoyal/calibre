@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '''2011, John Schember <john@nachtimwald.com>
@@ -42,7 +43,7 @@ class MarkdownMLizer(OEB2HTML):
         return txt
 
     def mlize_spine(self, oeb_book):
-        output = [u'']
+        output = ['']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to Markdown formatted TXT...' % item.href)
             self.rewrite_ids(item.data, item)

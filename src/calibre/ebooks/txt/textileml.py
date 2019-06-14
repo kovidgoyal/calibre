@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Leigh Parry <leighparry@blueyonder.co.uk>'
@@ -34,7 +35,7 @@ class TextileMLizer(OEB2HTML):
         self.in_a_link = False
         self.our_ids = []
         self.images = {}
-        self.id_no_text = u''
+        self.id_no_text = ''
         self.style_embed = []
         self.remove_space_after_newline = False
         self.base_hrefs = [item.href for item in oeb_book.spine]
@@ -56,7 +57,7 @@ class TextileMLizer(OEB2HTML):
         return txt
 
     def mlize_spine(self, oeb_book):
-        output = [u'']
+        output = ['']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to Textile formatted TXT...' % item.href)
             self.rewrite_ids(item.data, item)

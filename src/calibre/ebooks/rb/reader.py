@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -13,7 +14,7 @@ from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from polyglot.builtins import range
+from polyglot.builtins import range, as_unicode
 from polyglot.urllib import unquote
 
 
@@ -74,7 +75,7 @@ class Reader(object):
         if toc_item.flags in (1, 2):
             return
 
-        output = u''
+        output = ''
         self.stream.seek(toc_item.offset)
 
         if toc_item.flags == 8:
@@ -109,7 +110,7 @@ class Reader(object):
         images = []
 
         for item in self.toc:
-            iname = item.name.decode('utf-8')
+            iname = as_unicode(item.name)
             if iname.lower().endswith('html'):
                 self.log.debug('HTML item %s found...' % iname)
                 html.append(iname)

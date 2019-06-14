@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -80,8 +80,8 @@ class TXTMLizer(object):
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             output += self.dump_text(content.find(XHTML('body')), stylizer, item)
             output += '\n\n\n\n\n\n'
-        output = u''.join(output)
-        output = u'\n'.join(l.rstrip() for l in output.splitlines())
+        output = ''.join(output)
+        output = '\n'.join(l.rstrip() for l in output.splitlines())
         output = self.cleanup_text(output)
 
         return output
@@ -97,12 +97,12 @@ class TXTMLizer(object):
         return text
 
     def get_toc(self):
-        toc = [u'']
+        toc = ['']
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
-            toc.append(u'%s\n\n' % _(u'Table of Contents:'))
+            toc.append('%s\n\n' % _('Table of Contents:'))
             for item in self.toc_titles:
-                toc.append(u'* %s\n\n' % item)
+                toc.append('* %s\n\n' % item)
         return ''.join(toc)
 
     def create_flat_toc(self, nodes):
@@ -224,11 +224,11 @@ class TXTMLizer(object):
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             if self.opts.remove_paragraph_spacing and not in_heading:
-                text.append(u'\t')
+                text.append('\t')
             in_block = True
 
         if tag in SPACE_TAGS:
-            text.append(u' ')
+            text.append(' ')
 
         # Hard scene breaks.
         if tag == 'hr':
@@ -250,9 +250,9 @@ class TXTMLizer(object):
             text += self.dump_text(item, stylizer, page)
 
         if in_block:
-            text.append(u'\n\n')
+            text.append('\n\n')
         if in_heading:
-            text.append(u'\n')
+            text.append('\n')
             self.last_was_heading = True
         else:
             self.last_was_heading = False
