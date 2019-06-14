@@ -97,8 +97,8 @@ class LRFContentObject(LRFObject):
 
     tag_map = {}
 
-    def __init__(self, bytes, objects):
-        self.stream = bytes if hasattr(bytes, 'read') else io.BytesIO(bytes)
+    def __init__(self, byts, objects):
+        self.stream = byts if hasattr(byts, 'read') else io.BytesIO(byts)
         length = self.stream_size()
         self.objects = objects
         self._contents = []

@@ -56,13 +56,13 @@ fields = {
 }
 
 
-def normalize(str):
+def normalize(s):
     """
     The normalize-space function returns the argument string with whitespace
     normalized by stripping leading and trailing whitespace and replacing
     sequences of whitespace characters by a single space.
     """
-    return whitespace.sub(' ', str).strip()
+    return whitespace.sub(' ', s).strip()
 
 
 class MetaCollector:
@@ -75,9 +75,9 @@ class MetaCollector:
         self._content = []
         self.dowrite = True
 
-    def write(self, str):
+    def write(self, s):
         if self.dowrite:
-            self._content.append(str)
+            self._content.append(s)
 
     def content(self):
         return ''.join(self._content)
