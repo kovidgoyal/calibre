@@ -443,7 +443,10 @@ class MetadataUpdater(object):
 
         if mi.cover_data[1] or mi.cover:
             try:
-                data =  mi.cover_data[1] if mi.cover_data[1] else open(mi.cover, 'rb').read()
+                data =  mi.cover_data[1]
+                if not data:
+                    with open(mi.cover, 'rb') as f:
+                        data = f.read()
             except:
                 pass
             else:

@@ -352,10 +352,9 @@ class HTMLConverter(object):
             if not os.path.exists(tdir):
                 os.makedirs(tdir)
             try:
-                dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
-                dump.write(unicode_type(soup).encode('utf-8'))
-                self.log.info(_('Written preprocessed HTML to ')+dump.name)
-                dump.close()
+                with open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb') as f:
+                    f.write(unicode_type(soup).encode('utf-8'))
+                    self.log.info(_('Written preprocessed HTML to ')+f.name)
             except:
                 pass
 
@@ -375,15 +374,14 @@ class HTMLConverter(object):
 
         if not os.path.exists(path):
             path = path.replace('&', '%26')  # convertlit replaces & with %26 in file names
-        f = open(path, 'rb')
-        raw = f.read()
+        with open(path, 'rb') as f:
+            raw = f.read()
         if self.pdftohtml:  # Bug in pdftohtml that causes it to output invalid UTF-8 files
             raw = raw.decode('utf-8', 'ignore')
         elif self.encoding is not None:
             raw = raw.decode(self.encoding, 'ignore')
         else:
             raw = xml_to_unicode(raw, self.verbose)[0]
-        f.close()
         soup = self.preprocess(raw)
         self.log.info(_('\tConverting to BBeB...'))
         self.current_style = {}
@@ -1935,7 +1933,8 @@ def try_opf(path, options, logger):
 
     dirpath = os.path.dirname(os.path.abspath(opf))
     from calibre.ebooks.metadata.opf2 import OPF as OPF2
-    opf = OPF2(open(opf, 'rb'), dirpath)
+    with open(opf, 'rb') as f:
+        opf = OPF2(f, dirpath)
     try:
         title = opf.title
         if title and not getattr(options, 'title', None):

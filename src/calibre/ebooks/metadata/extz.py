@@ -64,7 +64,8 @@ def set_metadata(stream, mi):
             raise Exception('no cover')
     except:
         try:
-            new_cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                new_cdata = f.read()
         except:
             pass
     if new_cdata:

@@ -180,8 +180,9 @@ class TOC(list):
     def read_ncx_toc(self, toc, root=None):
         self.base_path = os.path.dirname(toc)
         if root is None:
-            raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
-                    strip_encoding_pats=True)[0]
+            with open(toc, 'rb') as f:
+                raw  = xml_to_unicode(f.read(), assume_utf8=True,
+                        strip_encoding_pats=True)[0]
             root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
                 no_network=True))
         xpn = {'re': 'http://exslt.org/regular-expressions'}
@@ -234,7 +235,9 @@ class TOC(list):
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        for href, fragment, txt in parse_html_toc(lopen(toc, 'rb').read()):
+        with lopen(toc, 'rb') as f:
+            parsed_toc = parse_html_toc(f.read())
+        for href, fragment, txt in parsed_toc:
             add = True
             for i in self.flat():
                 if i.href == href and i.fragment == fragment:

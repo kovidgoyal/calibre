@@ -687,9 +687,8 @@ class LrfWriter(object):
         self.tocObjId = obj.objId
 
     def setThumbnailFile(self, filename, encoding=None):
-        f = open(filename, "rb")
-        self.thumbnailData = f.read()
-        f.close()
+        with open(filename, "rb") as f:
+            self.thumbnailData = f.read()
 
         if encoding is None:
             encoding = os.path.splitext(filename)[1][1:]

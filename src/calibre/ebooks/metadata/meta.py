@@ -215,7 +215,8 @@ def opf_metadata(opfpath):
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
                 if os.access(cpath, os.R_OK):
                     fmt = cpath.rpartition('.')[-1]
-                    data = open(cpath, 'rb').read()
+                    with open(cpath, 'rb') as f:
+                        data = f.read()
                     mi.cover_data = (fmt, data)
             return mi
     except:
