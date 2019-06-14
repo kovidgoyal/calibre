@@ -390,7 +390,11 @@ if isosx:
                 self.clone_menu()
 
         def about_to_show(self):
+            if sip.isdeleted(self.clone):
+                return
             cm = self.clone.menu()
+            if cm is None:
+                return
             before = list(QMenu.actions(cm))
             cm.aboutToShow.emit()
             after = list(QMenu.actions(cm))
