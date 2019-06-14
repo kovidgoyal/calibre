@@ -492,9 +492,8 @@ class LrfFileStream(LrfStreamBase):
 
     def __init__(self, streamFlags, filename):
         LrfStreamBase.__init__(self, streamFlags)
-        f = open(filename, "rb")
-        self.streamData = f.read()
-        f.close()
+        with open(filename, "rb") as f:
+            self.streamData = f.read()
 
 
 class LrfObject(object):
