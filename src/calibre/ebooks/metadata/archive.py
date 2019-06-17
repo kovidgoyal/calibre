@@ -30,7 +30,7 @@ def archive_type(stream):
     ans = None
     if id_ == stringFileHeader:
         ans = 'zip'
-    elif id_.startswith('Rar'):
+    elif id_.startswith(b'Rar'):
         ans = 'rar'
     try:
         stream.seek(pos)
