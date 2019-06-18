@@ -96,14 +96,14 @@ def config():
 
 
 def filetypes():
-    readers = set([])
+    readers = set()
     for r in metadata_readers():
         readers = readers.union(set(r.file_types))
     return readers
 
 
 def option_parser():
-    writers = set([])
+    writers = set()
     for w in metadata_writers():
         writers = writers.union(set(w.file_types))
     ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
