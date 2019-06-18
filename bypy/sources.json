@@ -482,15 +482,6 @@
     },
 
     {
-        "name": "webkit",
-        "unix": {
-            "filename":"qtwebkit-95401fe3908e0b4eebc9447e678298d768617bc7.tar.gz",
-            "hash":"sha256:4794e03c4c477d6e563fb999838fa982f2fb25e0478e4b1db49ef17b6a742609",
-            "urls":["github:kovidgoyal/webkit"]
-        }
-    },
-
-    {
         "name": "setuptools",
         "unix": {
             "filename": "setuptools-41.0.1.zip",
