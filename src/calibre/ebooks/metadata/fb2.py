@@ -257,8 +257,8 @@ def _parse_tags(root, mi, ctx):
 
 
 def _parse_series(root, mi, ctx):
-    # calibri supports only 1 series: use the 1-st one
-    # pick up sequence but only from 1 secrion in preferred order
+    # calibre supports only 1 series: use the 1-st one
+    # pick up sequence but only from 1 section in preferred order
     # except <src-title-info>
     xp_ti = '//fb:title-info/fb:sequence[1]'
     xp_pi = '//fb:publish-info/fb:sequence[1]'
@@ -285,7 +285,7 @@ def _parse_isbn(root, mi, ctx):
 
 
 def _parse_comments(root, mi, ctx):
-    # pick up annotation but only from 1 secrion <title-info>;  fallback: <src-title-info>
+    # pick up annotation but only from 1 section <title-info>;  fallback: <src-title-info>
     for annotation_sec in ['title-info', 'src-title-info']:
         elms_annotation = ctx.XPath('//fb:%s/fb:annotation' % annotation_sec)(root)
         if elms_annotation:
