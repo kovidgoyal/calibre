@@ -6,7 +6,7 @@ import re, copy
 from datetime import date
 
 from PyQt5.Qt import (
-    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout,
+    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
     QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
     QSpinBox, QRadioButton
 )
@@ -115,11 +115,13 @@ def create_simple_tab(self, db):
     l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
+    le.setObjectName('title_box')
     le.setPlaceholderText(_('The title to search for'))
     l.addRow(_('&Title:'), le)
 
     self.authors_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The author to search for'))
+    le.setObjectName('authors_box')
     le.setEditText('')
     le.set_separator('&')
     le.set_space_before_sep(True)
@@ -129,6 +131,7 @@ def create_simple_tab(self, db):
 
     self.series_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The series to search for'))
+    le.setObjectName('series_box')
     all_series = sorted((x[1] for x in db.all_series()), key=sort_key)
     le.set_separator(None)
     le.update_items_cache(all_series)
@@ -136,6 +139,7 @@ def create_simple_tab(self, db):
     l.addRow(_('&Series:'), le)
 
     self.tags_box = le = EditWithComplete(self)
+    le.setObjectName('tags_box')
     le.lineEdit().setPlaceholderText(_('The tags to search for'))
     self.tags_box.update_items_cache(db.all_tags())
     l.addRow(_('Ta&gs:'), le)
@@ -146,6 +150,7 @@ def create_simple_tab(self, db):
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
     self.general_box = le = QLineEdit(self)
+    le.setObjectName('general_box')
     l.addRow(self.general_combo, le)
     if self.box_last_values:
         for k,v in self.box_last_values.items():
@@ -256,11 +261,19 @@ class SearchDialog(QDialog):
         self.tab_widget.setCurrentIndex(current_tab)
         if current_tab == 1:
             self.matchkind.setCurrentIndex(last_matchkind)
+            focused_field = gprefs.get('advanced_search_simple_tab_focused_field', 'title_box')
+            w = getattr(self, focused_field, None)
+            if w is not None:
+                w.setFocus(Qt.OtherFocusReason)
         self.resize(self.sizeHint())
 
     def save_state(self):
         gprefs['advanced search dialog current tab'] = \
             self.tab_widget.currentIndex()
+        if self.tab_widget.currentIndex() == 1:
+            fw = self.tab_widget.focusWidget().objectName()
+            if fw:
+                gprefs.set('advanced_search_simple_tab_focused_field', fw)
 
     def accept(self):
         self.save_state()
