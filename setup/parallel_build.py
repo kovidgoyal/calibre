@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess
+import subprocess, os
 from multiprocessing.dummy import Pool
 from functools import partial
 from contextlib import closing
@@ -49,8 +49,11 @@ cpu_count = min(16, max(1, cpu_count))
 def run_worker(job, decorate=True):
     cmd, human_text = job
     human_text = human_text or ' '.join(cmd)
+    cwd = None
+    if cmd[0].lower().endswith('cl.exe'):
+        cwd = os.environ.get('COMPILER_CWD')
     try:
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     except Exception as err:
         return False, human_text, unicode_type(err)
     stdout, stderr = p.communicate()

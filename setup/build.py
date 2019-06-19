@@ -206,7 +206,8 @@ def init_env():
         for p in win_inc:
             cflags.append('-I'+p)
         for p in win_lib:
-            ldflags.append('/LIBPATH:'+p)
+            if p:
+                ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
         linker = msvc.linker
@@ -297,7 +298,7 @@ class Build(Command):
 
     def lib_dirs_to_ldflags(self, dirs):
         pref = '/LIBPATH:' if iswindows else '-L'
-        return [pref+x for x in dirs]
+        return [pref+x for x in dirs if x]
 
     def libraries_to_ldflags(self, dirs):
         pref = '' if iswindows else '-l'
@@ -338,7 +339,11 @@ class Build(Command):
             self.info('Linking', ext.name)
             cmd = [linker]
             if iswindows:
-                cmd += self.env.ldflags + ext.ldflags + elib + xlib + \
+                pre_ld_flags = []
+                if ext.name in ('icu', 'matcher'):
+                    # windows has its own ICU libs that dont work
+                    pre_ld_flags = elib
+                cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
                     ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib

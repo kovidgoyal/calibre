@@ -151,9 +151,10 @@ def initialize_constants():
     return calibre_constants
 
 
-def run(*args):
+def run(*args, **extra_env):
     env = os.environ.copy()
     env.update(worker_env)
+    env.update(extra_env)
     env['SW'] = PREFIX
     env['LD_LIBRARY_PATH'] = LIBDIR
     env['SIP_BIN'] = os.path.join(PREFIX, 'bin', 'sip')
@@ -165,7 +166,8 @@ def build_c_extensions(ext_dir):
     bdir = os.path.join(build_dir(), 'calibre-extension-objects')
     if run(
         PYTHON, 'setup.py', 'build',
-        '--output-dir', ext_dir, '--build-dir', bdir
+        '--output-dir', ext_dir, '--build-dir', bdir,
+        COMPILER_CWD=bdir
     ) != 0:
         print('Building of calibre C extensions failed', file=sys.stderr)
         os.chdir(CALIBRE_DIR)

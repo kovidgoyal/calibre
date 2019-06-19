@@ -20,8 +20,8 @@ if iswindows:
     NMAKE = msvc.find_exe('nmake.exe')
     RC = msvc.find_exe('rc.exe')
     MT = msvc.find_exe('mt.exe')
-    win_inc = os.environ['include'].split(';')
-    win_lib = os.environ['lib'].split(';')
+    win_inc = [x for x in os.environ['include'].split(';') if x]
+    win_lib = [x for x in os.environ['lib'].split(';') if x]
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
