@@ -64,7 +64,12 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     mPrimaryScreen->mDepth = 32;
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    QWindowSystemInterface::handleScreenAdded(mPrimaryScreen);
+#else
     screenAdded(mPrimaryScreen);
+#endif
+
 #ifdef __APPLE__
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     m_fontDatabase.reset(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>());
