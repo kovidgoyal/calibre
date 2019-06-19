@@ -8,6 +8,7 @@ import errno
 import glob
 import os
 import re
+import runpy
 import shutil
 import stat
 import subprocess
@@ -15,11 +16,10 @@ import sys
 import zipfile
 
 from bypy.constants import (
-    PREFIX, SRC as CALIBRE_DIR, SW, is64bit, build_dir, python_major_minor_version
+    CL, LINK, PREFIX, RC, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
+    python_major_minor_version
 )
 from bypy.utils import py_compile, run, walk
-
-from .wix import create_installer
 
 iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
@@ -30,6 +30,9 @@ APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 WINVER = VERSION + '.0'
 machine = 'X64' if is64bit else 'X86'
 j, d, a, b = os.path.join, os.path.dirname, os.path.abspath, os.path.basename
+create_installer = runpy.run_path(
+    j(d(a(__file__)), 'wix.py'), {'calibre_constants': calibre_constants}
+)['create_installer']
 
 DESCRIPTIONS = {
     'calibre': 'The main calibre program',
@@ -51,7 +54,6 @@ DESCRIPTIONS = {
 
 # https://msdn.microsoft.com/en-us/library/windows/desktop/dn481241(v=vs.85).aspx
 SUPPORTED_OS = {
-    'vista': '{e2011457-1546-43c5-a5fe-008deee3d3f0}',
     'w7': '{35138b9a-5d96-4fbd-8e2d-a2440225f93a}',
     'w8': '{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}',
     'w81': '{1f676c76-80e1-4239-95bb-83d0f6d0da78}',
@@ -70,7 +72,6 @@ EXE_MANIFEST = '''\
     </trustInfo>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
       <application>
-          <supportedOS Id="{vista}"/>
           <supportedOS Id="{w7}"/>
           <supportedOS Id="{w8}"/>
           <supportedOS Id="{w81}"/>
@@ -84,6 +85,10 @@ EXE_MANIFEST = '''\
 def printf(*args, **kw):
     print(*args, **kw)
     sys.stdout.flush()
+
+
+def run_compiler(env, *cmd):
+    run(*cmd, cwd=env.obj_dir)
 
 
 class Env(object):
@@ -159,6 +164,8 @@ def freeze(env, ext_dir):
 
     printf('Adding Qt...')
     for x in QT_DLLS:
+        copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
+    for x in 'libGLESv2 libEGL'.split():
         copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
     plugdir = j(QT_PREFIX, 'plugins')
     tdir = j(env.app_base, 'qt_plugins')
@@ -253,7 +260,7 @@ def extract_pyd_modules(env, site_packages_dir):
         bpy = dest[:-1]
         if os.path.exists(bpy):
             with open(bpy, 'rb') as f:
-                raw = f.read().strip()
+                raw = f.read().strip().decode('utf-8')
             if (not raw.startswith('def __bootstrap__') or not raw.endswith('__bootstrap__()')):
                 raise ValueError('The file %r has non bootstrap code' % bpy)
         for ext in ('', 'c', 'o'):
@@ -298,7 +305,7 @@ def embed_resources(env, module, desc=None, extra_data=None, product_description
     icon_map = {'calibre': 'library', 'ebook-viewer': 'viewer', 'ebook-edit': 'ebook-edit',
                 'lrfviewer': 'viewer', 'calibre-portable': 'library'}
     file_type = 'DLL' if module.endswith('.dll') else 'APP'
-    template = open(env.rc_template, 'rb').read()
+    template = open(env.rc_template, 'rb').read().decode('utf-8')
     bname = b(module)
     internal_name = os.path.splitext(bname)[0]
     icon = icon_map.get(internal_name, 'command-prompt')
@@ -316,7 +323,7 @@ def embed_resources(env, module, desc=None, extra_data=None, product_description
     if product_description is None:
         product_description = APPNAME + ' - E-book management'
     rc = template.format(
-        icon=icon,
+        icon=icon.replace('\\', '/'),
         file_type=e(file_type),
         file_version=e(WINVER.replace('.', ',')),
         file_version_str=e(WINVER),
@@ -334,10 +341,10 @@ def embed_resources(env, module, desc=None, extra_data=None, product_description
         rc += '\nextra extra "%s"' % extra_data
     tdir = env.obj_dir
     rcf = j(tdir, bname + '.rc')
-    with open(rcf, 'wb') as f:
+    with open(rcf, 'w') as f:
         f.write(rc)
     res = j(tdir, bname + '.res')
-    run('rc', '/n', '/fo' + res, rcf)
+    run(RC, '/n', '/fo' + res, rcf)
     return res
 
 
@@ -356,8 +363,8 @@ def build_portable_installer(env):
         cflags.append(r'/I%s\include' % PREFIX)
         cflags.append('/DUNCOMPRESSED_SIZE=%d' % usz)
         printf('Compiling', obj)
-        cmd = ['cl.exe'] + cflags + ['/Fo' + obj, src]
-        run(*cmd)
+        cmd = [CL] + cflags + ['/Fo' + obj, src]
+        run_compiler(env, *cmd)
 
     base = d(a(__file__))
     src = j(base, 'portable-installer.cpp')
@@ -371,8 +378,8 @@ def build_portable_installer(env):
     printf('Linking', exe)
     manifest = exe + '.manifest'
     with open(manifest, 'wb') as f:
-        f.write(EXE_MANIFEST)
-    cmd = ['link.exe'] + [
+        f.write(EXE_MANIFEST.encode('utf-8'))
+    cmd = [LINK] + [
         '/INCREMENTAL:NO', '/MACHINE:' + machine,
         '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:WINDOWS',
         '/LIBPATH:' + (PREFIX + r'\lib'),
@@ -397,12 +404,12 @@ def build_portable(env):
     cflags = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE /DUNICODE'.split()
 
     printf('Compiling', obj)
-    cmd = ['cl.exe'] + cflags + ['/Fo' + obj, '/Tc' + src]
-    run(*cmd)
+    cmd = [CL] + cflags + ['/Fo' + obj, '/Tc' + src]
+    run_compiler(env, *cmd)
 
     exe = j(base, 'calibre-portable.exe')
     printf('Linking', exe)
-    cmd = ['link.exe'] + [
+    cmd = [LINK] + [
         '/INCREMENTAL:NO', '/MACHINE:' + machine,
         '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:WINDOWS',
         '/RELEASE',
@@ -482,16 +489,16 @@ def build_utils(env):
 
     def build(src, name, subsys='CONSOLE', libs='setupapi.lib'.split()):
         printf('Building ' + name)
-        obj = j(env.obj_dir, (src) + '.obj')
+        obj = j(env.obj_dir, os.path.basename(src) + '.obj')
         cflags = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
         ftype = '/T' + ('c' if src.endswith('.c') else 'p')
-        cmd = ['cl.exe'] + cflags + ['/Fo' + obj, ftype + src]
-        run(*cmd)
+        cmd = [CL] + cflags + ['/Fo' + obj, ftype + src]
+        run_compiler(env, *cmd)
         exe = j(env.dll_dir, name)
         mf = exe + '.manifest'
         with open(mf, 'wb') as f:
-            f.write(EXE_MANIFEST)
-        cmd = ['link.exe'] + [
+            f.write(EXE_MANIFEST.encode('utf-8'))
+        cmd = [LINK] + [
             '/MACHINE:' + machine,
             '/SUBSYSTEM:' + subsys, '/RELEASE', '/MANIFEST:EMBED', '/MANIFESTINPUT:' + mf,
             '/OUT:' + exe] + [embed_resources(env, exe), obj] + libs
@@ -512,12 +519,12 @@ def build_launchers(env, debug=False):
     cflags = '/c /EHsc /W3 /Ox /nologo /D_UNICODE'.split()
     cflags += ['/DPYDLL="python%s.dll"' % env.py_ver.replace('.', ''), '/I%s/include' % env.python_base]
     for src, obj in zip(sources, objects):
-        cmd = ['cl.exe'] + cflags + dflags + ['/MD', '/Fo' + obj, '/Tc' + src]
-        run(*cmd)
+        cmd = [CL] + cflags + dflags + ['/MD', '/Fo' + obj, '/Tc' + src]
+        run_compiler(env, *cmd)
 
     dll = j(env.obj_dir, 'calibre-launcher.dll')
     ver = '.'.join(VERSION.split('.')[:2])
-    cmd = ['link.exe', '/DLL', '/VERSION:' + ver, '/LTCG', '/OUT:' + dll,
+    cmd = [LINK, '/DLL', '/VERSION:' + ver, '/LTCG', '/OUT:' + dll,
            '/nologo', '/MACHINE:' + machine] + dlflags + objects + \
         [embed_resources(env, dll),
             '/LIBPATH:%s/libs' % env.python_base,
@@ -542,16 +549,16 @@ def build_launchers(env, debug=False):
                        '/DFUNCTION="%s"' % func]
             dest = j(env.obj_dir, bname + '.obj')
             printf('Compiling', bname)
-            cmd = ['cl.exe'] + cflags + dflags + ['/Tc' + src, '/Fo' + dest]
-            run(*cmd)
+            cmd = [CL] + cflags + dflags + ['/Tc' + src, '/Fo' + dest]
+            run_compiler(env, *cmd)
             exe = j(env.base, bname + '.exe')
             lib = dll.replace('.dll', '.lib')
             u32 = ['user32.lib']
             printf('Linking', bname)
             mf = dest + '.manifest'
             with open(mf, 'wb') as f:
-                f.write(EXE_MANIFEST)
-            cmd = ['link.exe'] + [
+                f.write(EXE_MANIFEST.encode('utf-8'))
+            cmd = [LINK] + [
                 '/MACHINE:' + machine, '/NODEFAULTLIB', '/ENTRY:start_here',
                 '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:' + subsys,
                 '/LIBPATH:%s/libs' % env.python_base, '/RELEASE',
@@ -689,3 +696,7 @@ def main():
         build_portable_installer(env)
     if args.sign_installers:
         sign_installers(env)
+
+
+if __name__ == '__main__':
+    main()

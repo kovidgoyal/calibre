@@ -31,8 +31,6 @@ dlls = [
     'Sensors',
     'Sql',
     'Svg',
-    'WebKit',
-    'WebKitWidgets',
     'WebEngineCore',
     'WebEngine',
     'WebEngineWidgets',
@@ -49,7 +47,7 @@ if islinux:
 elif ismacos:
     dlls += ['MacExtras', 'DBus']
 elif iswindows:
-    dlls += ['WinExtras', 'Angle']
+    dlls += ['WinExtras']
 
 QT_DLLS = frozenset(
     'Qt5' + x for x in dlls
@@ -68,7 +66,7 @@ QT_PLUGINS = [
     # 'audio', 'printsupport', 'bearer', 'position',
 ]
 
-if not ismacos:
+if not ismacos and not iswindows:
     QT_PLUGINS.append('platforminputcontexts')
 
 if islinux:
@@ -88,8 +86,6 @@ PYQT_MODULES = (
     'QtPrintSupport',
     'QtSensors',
     'QtSvg',
-    'QtWebKit',
-    'QtWebKitWidgets',
     'QtWidgets',
     'QtWebEngine',
     'QtWebEngineCore',

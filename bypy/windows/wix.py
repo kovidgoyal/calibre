@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
@@ -8,16 +8,16 @@ from itertools import count
 import os
 import shutil
 
-from pkgs.constants import is64bit
-from pkgs.utils import run
-from .. import calibre_constants
+from bypy.constants import is64bit
+from bypy.utils import run
 
-WIXP = r'C:\Program Files (x86)\WiX Toolset v3.10'
+WIXP = r'C:\Program Files (x86)\WiX Toolset v3.11'
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
 else:
     UPGRADE_CODE = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1'
-MINVERHUMAN = 'Windows Vista SP2'
+MINVERHUMAN = 'Windows 7'
+calibre_constants = globals()['calibre_constants']
 
 CANDLE = WIXP + r'\bin\candle.exe'
 LIGHT = WIXP + r'\bin\light.exe'
@@ -29,7 +29,7 @@ def create_installer(env):
         shutil.rmtree(env.installer_dir)
     os.makedirs(env.installer_dir)
 
-    template = open(j(d(__file__), 'wix-template.xml'), 'rb').read()
+    template = open(j(d(__file__), 'wix-template.xml'), 'rb').read().decode('utf-8')
 
     components, smap = get_components_from_files(env)
     wxs = template.format(
@@ -40,7 +40,7 @@ def create_installer(env):
         ProgramFilesFolder='ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
         x64=' 64bit' if is64bit else '',
         minverhuman=MINVERHUMAN,
-        minver='600',
+        minver='601',
         fix_wix='<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
         compression='high',
         app_components=components,
@@ -50,15 +50,15 @@ def create_installer(env):
         editor_icon=j(env.src_root, 'icons', 'ebook-edit.ico'),
         web_icon=j(env.src_root, 'icons', 'web.ico'),
     )
-    template = open(j(d(__file__), 'en-us.xml'), 'rb').read()
+    template = open(j(d(__file__), 'en-us.xml'), 'rb').read().decode('utf-8')
     enus = template.format(app=calibre_constants['appname'])
 
     enusf = j(env.installer_dir, 'en-us.wxl')
     wxsf = j(env.installer_dir, calibre_constants['appname'] + '.wxs')
     with open(wxsf, 'wb') as f:
-        f.write(wxs)
+        f.write(wxs.encode('utf-8'))
     with open(enusf, 'wb') as f:
-        f.write(enus)
+        f.write(enus.encode('utf-8'))
     wixobj = j(env.installer_dir, calibre_constants['appname'] + '.wixobj')
     arch = 'x64' if is64bit else 'x86'
     cmd = [CANDLE, '-nologo', '-arch', arch, '-ext', 'WiXUtilExtension', '-o', wixobj, wxsf]
