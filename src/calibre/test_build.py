@@ -142,7 +142,9 @@ class BuildTest(unittest.TestCase):
         winutil = plugins['winutil'][0]
 
         def au(x, name):
-            self.assertTrue(isinstance(x, unicode_type), name + '() did not return a unicode string')
+            self.assertTrue(
+                isinstance(x, unicode_type),
+                '%s() did not return a unicode string, instead returning: %r' % (name, x))
         for x in winutil.argv():
             au(x, 'argv')
         for x in 'username temp_path locale_name'.split():
@@ -152,12 +154,14 @@ class BuildTest(unittest.TestCase):
         au(d['decimal_point'], 'localeconv')
         for k, v in iteritems(d):
             au(v, k)
-        for k in os.environ:
-            au(getenv(k), 'getenv-' + k)
         os.environ['XXXTEST'] = 'YYY'
         self.assertEqual(getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
         self.assertIsNone(getenv('XXXTEST'))
+        for k in os.environ:
+            v = getenv(k)
+            if v is not None:
+                au(v, 'getenv-' + k)
         t = time.localtime()
         fmt = '%Y%a%b%e%H%M'
         for fmt in (fmt, fmt.encode('ascii')):
@@ -311,8 +315,8 @@ class BuildTest(unittest.TestCase):
 def find_tests():
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
     from calibre.utils.icu_test import find_tests
-    import duktape.tests as dtests
     ans.addTests(find_tests())
+    import duktape.tests as dtests
     ans.addTests(unittest.defaultTestLoader.loadTestsFromModule(dtests))
     from tinycss.tests.main import find_tests
     ans.addTests(find_tests())
