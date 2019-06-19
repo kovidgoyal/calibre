@@ -16,7 +16,7 @@ import sys
 import zipfile
 
 from bypy.constants import (
-    CL, LINK, MT, PREFIX, RC, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
+    CL, LINK, MT, PREFIX, RC, SIGNTOOL, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
     python_major_minor_version, worker_env
 )
 from bypy.utils import py_compile, run, walk
@@ -433,7 +433,7 @@ def build_portable(env):
 
 
 def sign_files(env, files):
-    args = ['signtool.exe', 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
+    args = [SIGNTOOL, 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
             'https://calibre-ebook.com', '/tr']
 
