@@ -16,8 +16,8 @@ import sys
 import zipfile
 
 from bypy.constants import (
-    CL, LINK, PREFIX, RC, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
-    python_major_minor_version
+    CL, LINK, MT, PREFIX, RC, SRC as CALIBRE_DIR, SW, build_dir, is64bit,
+    python_major_minor_version, worker_env
 )
 from bypy.utils import py_compile, run, walk
 
@@ -203,14 +203,14 @@ def freeze(env, ext_dir):
         shutil.rmtree(x)
     pyqt = j(env.lib_dir, 'site-packages', 'PyQt5')
     for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
-        if x.partition('.')[0] not in PYQT_MODULES:
+        if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
             os.remove(j(pyqt, x))
 
     printf('Adding calibre sources...')
     for x in glob.glob(j(CALIBRE_DIR, 'src', '*')):
         if os.path.isdir(x):
             if os.path.exists(os.path.join(x, '__init__.py')):
-                shutil.copytree(x, j(sp_dir, b(x)))
+                shutil.copytree(x, j(sp_dir, b(x)), ignore=shutil.ignore_patterns('*.pyc', '*.pyo'))
         else:
             shutil.copy(x, j(sp_dir, b(x)))
 
@@ -244,7 +244,7 @@ def embed_manifests(env):
         if os.path.splitext(dll)[1] == '.exe':
             res = 1
         if os.path.exists(dll) and open(manifest, 'rb').read().strip():
-            run('mt.exe', '-manifest', manifest, '-outputresource:%s;%d' % (dll, res))
+            run(MT, '-manifest', manifest, '-outputresource:%s;%d' % (dll, res))
         os.remove(manifest)
 
 
@@ -285,7 +285,7 @@ def extract_pyd_modules(env, site_packages_dir):
 
     roots = set()
     for pth in glob.glob(os.path.join(site_packages_dir, '*.pth')):
-        for line in open(pth, 'rb').readlines():
+        for line in open(pth).readlines():
             line = line.strip()
             if line and not line.startswith('#') and os.path.exists(os.path.join(site_packages_dir, line)):
                 roots.add(absp(line))
@@ -638,7 +638,7 @@ def archive_lib_dir(env):
 def copy_crt(env):
     printf('Copying CRT...')
     plat = ('x64' if is64bit else 'x86')
-    for key, val in os.environ.items():
+    for key, val in worker_env.items():
         if 'COMNTOOLS' in key.upper():
             redist_dir = os.path.dirname(os.path.dirname(val.rstrip(os.sep)))
             redist_dir = os.path.join(redist_dir, 'VC', 'Redist', 'MSVC')
@@ -648,7 +648,7 @@ def copy_crt(env):
         raise SystemExit('Could not find Visual Studio redistributable CRT')
 
     sdk_path = os.path.join(
-        os.environ['UNIVERSALCRTSDKDIR'], 'Redist', os.environ['WINDOWSSDKVERSION'],
+        worker_env['UNIVERSALCRTSDKDIR'], 'Redist', worker_env['WINDOWSSDKVERSION'],
         'ucrt', 'DLLs', plat)
     if not os.path.exists(sdk_path):
         raise SystemExit('Windows 10 Universal CRT redistributable not found at: %r' % sdk_path)
