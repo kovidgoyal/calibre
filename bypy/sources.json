@@ -153,8 +153,8 @@
             "urls": ["https://www.python.org/ftp/python/2.7.16/{filename}"]
         },
         "windows": {
-            "filename":"python-ca3c62c123b8c81a39dfaa785dfa77a0e40b3604ca4bdaceb65df10e32e29b82.tar.gz",
-            "hash":"sha256:ca3c62c123b8c81a39dfaa785dfa77a0e40b3604ca4bdaceb65df10e32e29b82",
+            "filename":"python-584870604fd8524e17bc2c067595b0210411319e.tar.gz",
+            "hash":"sha256:4f1833cac526f209de5b428d517cbd7a7923f13b89ba056e239dd8aa15894b7d",
             "urls":["github:kovidgoyal/cpython"]
         }
     },
