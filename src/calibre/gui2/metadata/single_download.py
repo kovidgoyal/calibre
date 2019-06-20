@@ -21,7 +21,6 @@ from PyQt5.Qt import (
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
     QCursor, QHBoxLayout, QPushButton, QSizePolicy)
-from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
@@ -313,31 +312,45 @@ class ResultsView(QTableView):  # {{{
 # }}}
 
 
-class Comments(QWebView):  # {{{
+class Comments(QTextBrowser):  # {{{
 
     def __init__(self, parent=None):
-        QWebView.__init__(self, parent)
+        QTextBrowser.__init__(self, parent)
         self.setAcceptDrops(False)
         self.setMaximumWidth(300)
         self.setMinimumWidth(300)
+        self.wait_timer = QTimer(self)
+        self.wait_timer.timeout.connect(self.update_wait)
+        self.wait_timer.setInterval(800)
+        self.dots_count = 0
 
         palette = self.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
-        self.page().setPalette(palette)
+        self.setPalette(palette)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
-
-        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
-        self.linkClicked.connect(self.link_clicked)
+        self.anchorClicked.connect(self.link_clicked)
 
     def link_clicked(self, url):
         from calibre.gui2 import open_url
         if url.scheme() in {'http', 'https'}:
             open_url(url)
 
-    def turnoff_scrollbar(self, *args):
-        self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+    def show_wait(self):
+        self.dots_count = 0
+        self.wait_timer.start()
+        self.update_wait()
+
+    def update_wait(self):
+        self.dots_count += 1
+        self.dots_count %= 10
+        self.dots_count = self.dots_count or 1
+        self.setHtml(
+            '<h2>'+_('Please wait')+
+            '<br><span id="dots">{}</span></h2>'.format('.' * self.dots_count))
 
     def show_data(self, html):
+        self.wait_timer.stop()
+
         def color_to_string(col):
             ans = '#000000'
             if col.isValid():
@@ -476,23 +489,7 @@ class IdentifyWidget(QWidget):  # {{{
         self.query.setWordWrap(True)
         l.addWidget(self.query, 2, 0, 1, 2)
 
-        self.comments_view.show_data('<h2>'+_('Please wait')+
-                '<br><span id="dots">.</span></h2>'+
-                '''
-                <script type="text/javascript">
-                window.onload=function(){
-                    var dotspan = document.getElementById('dots');
-                    window.setInterval(function(){
-                        if(dotspan.textContent == '............'){
-                        dotspan.textContent = '.';
-                        }
-                        else{
-                        dotspan.textContent += '.';
-                        }
-                    }, 400);
-                }
-                </script>
-                ''')
+        self.comments_view.show_wait()
 
     def emit_book_selected(self, book):
         self.book_selected.emit(book, self.caches)
