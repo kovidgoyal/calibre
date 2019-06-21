@@ -121,7 +121,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     # ISBN
     isbns = []
     for x in identifier(extra):
-        t = str(x.text).strip()
+        t = type('')(x.text).strip()
         if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
             if t[:5].upper() == 'ISBN:':
                 t = check_isbn(t[5:])

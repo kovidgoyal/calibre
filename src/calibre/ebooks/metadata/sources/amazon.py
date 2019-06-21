@@ -351,7 +351,7 @@ class Worker(Thread):  # Get details {{{
         if self.testing:
             import tempfile
             import uuid
-            with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4())) + '_',
+            with tempfile.NamedTemporaryFile(prefix=(asin or type('')(uuid.uuid4())) + '_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw)
             print('Downloaded html for', asin, 'saved in', f.name)
