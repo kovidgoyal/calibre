@@ -30,6 +30,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, rating_font, gprefs
 from calibre.gui2.progress_indicator import draw_snake_spinner
+from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
@@ -312,10 +313,10 @@ class ResultsView(QTableView):  # {{{
 # }}}
 
 
-class Comments(QTextBrowser):  # {{{
+class Comments(HTMLDisplay):  # {{{
 
     def __init__(self, parent=None):
-        QTextBrowser.__init__(self, parent)
+        HTMLDisplay.__init__(self, parent)
         self.setAcceptDrops(False)
         self.setMaximumWidth(300)
         self.setMinimumWidth(300)
@@ -323,14 +324,9 @@ class Comments(QTextBrowser):  # {{{
         self.wait_timer.timeout.connect(self.update_wait)
         self.wait_timer.setInterval(800)
         self.dots_count = 0
+        self.anchor_clicked.connect(self.link_activated)
 
-        palette = self.palette()
-        palette.setBrush(QPalette.Base, Qt.transparent)
-        self.setPalette(palette)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        self.anchorClicked.connect(self.link_clicked)
-
-    def link_clicked(self, url):
+    def link_activated(self, url):
         from calibre.gui2 import open_url
         if url.scheme() in {'http', 'https'}:
             open_url(url)

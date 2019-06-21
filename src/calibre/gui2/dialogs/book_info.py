@@ -8,14 +8,15 @@ from PyQt5.Qt import (
     QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
     pyqtSignal
 )
-from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
-from calibre.gui2.book_details import css, details_context_menu_event, render_html, set_html
+from calibre.gui2.book_details import (
+    css, details_context_menu_event, render_html, set_html
+)
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from polyglot.builtins import unicode_type
 
 
@@ -77,10 +78,10 @@ class Configure(Dialog):
         return Dialog.accept(self)
 
 
-class Details(QWebView):
+class Details(HTMLDisplay):
 
     def __init__(self, book_info, parent=None):
-        QWebView.__init__(self, parent)
+        HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
 
     def sizeHint(self):
@@ -113,20 +114,18 @@ class BookInfo(QDialog):
         self.splitter.addWidget(self.cover)
 
         self.details = Details(parent.book_details.book_info, self)
-        self.details.page().setLinkDelegationPolicy(self.details.page().DelegateAllLinks)
-        self.details.linkClicked.connect(self.link_clicked)
-        s = self.details.page().settings()
-        s.setAttribute(s.JavascriptEnabled, False)
+        self.details.anchor_clicked.connect(self.on_link_clicked)
         self.css = css()
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.details.palette()
         self.details.setAcceptDrops(False)
         palette.setBrush(QPalette.Base, Qt.transparent)
-        self.details.page().setPalette(palette)
+        self.details.setPalette(palette)
 
         self.c = QWidget(self)
         self.c.l = l2 = QGridLayout(self.c)
+        l2.setContentsMargins(0, 0, 0, 0)
         self.c.setLayout(l2)
         l2.addWidget(self.details, 0, 0, 1, -1)
         self.splitter.addWidget(self.c)
@@ -179,7 +178,7 @@ class BookInfo(QDialog):
                 if mi is not None:
                     self.refresh(self.current_row, mi=mi)
 
-    def link_clicked(self, qurl):
+    def on_link_clicked(self, qurl):
         link = unicode_type(qurl.toString(NO_URL_FORMATTING))
         self.link_delegate(link)
 
