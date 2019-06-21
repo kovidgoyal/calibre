@@ -208,18 +208,18 @@ class Worker(Thread):  # Get details {{{
                 12: ['diciembre'],
             },
             'jp': {
-                1: [u'1月'],
-                2: [u'2月'],
-                3: [u'3月'],
-                4: [u'4月'],
-                5: [u'5月'],
-                6: [u'6月'],
-                7: [u'7月'],
-                8: [u'8月'],
-                9: [u'9月'],
-                10: [u'10月'],
-                11: [u'11月'],
-                12: [u'12月'],
+                1: ['1月'],
+                2: ['2月'],
+                3: ['3月'],
+                4: ['4月'],
+                5: ['5月'],
+                6: ['6月'],
+                7: ['7月'],
+                8: ['8月'],
+                9: ['9月'],
+                10: ['10月'],
+                11: ['11月'],
+                12: ['12月'],
             },
             'nl': {
                 1: ['januari'], 2: ['februari'], 3: ['maart'], 5: ['mei'], 6: ['juni'], 7: ['juli'], 8: ['augustus'], 10: ['oktober'],
@@ -294,10 +294,10 @@ class Worker(Thread):  # Get details {{{
             'ita': ('Italian', 'Italiano'),
             'deu': ('German', 'Deutsch'),
             'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
-            'jpn': ('Japanese', u'日本語'),
+            'jpn': ('Japanese', '日本語'),
             'por': ('Portuguese', 'Português'),
             'nld': ('Dutch', 'Nederlands',),
-            'chs': ('Chinese', u'中文', u'简体中文'),
+            'chs': ('Chinese', '中文', '简体中文'),
         }
         self.lang_map = {}
         for code, names in lm.items():
@@ -351,7 +351,7 @@ class Worker(Thread):  # Get details {{{
         if self.testing:
             import tempfile
             import uuid
-            with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4())) + '_',
+            with tempfile.NamedTemporaryFile(prefix=(asin or type('')(uuid.uuid4())) + '_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw)
             print('Downloaded html for', asin, 'saved in', f.name)
@@ -1134,9 +1134,9 @@ class Amazon(Source):
 
         # magic parameter to enable Japanese Shift_JIS encoding.
         if domain == 'jp':
-            q['__mk_ja_JP'] = u'カタカナ'
+            q['__mk_ja_JP'] = 'カタカナ'
         if domain == 'nl':
-            q['__mk_nl_NL'] = u'ÅMÅŽÕÑ'
+            q['__mk_nl_NL'] = 'ÅMÅŽÕÑ'
             if 'field-keywords' not in q:
                 q['field-keywords'] = ''
             for f in 'field-isbn field-title field-author'.split():
@@ -1604,18 +1604,18 @@ def manual_tests(domain, **kw):  # {{{
     all_tests['jp'] = [  # {{{
         (  # Adult filtering test
             {'identifiers': {'isbn': '4799500066'}},
-            [title_test(u'Ｂｉｔｃｈ Ｔｒａｐ'), ]
+            [title_test('Ｂｉｔｃｈ Ｔｒａｐ'), ]
         ),
 
         (  # isbn -> title, authors
             {'identifiers': {'isbn': '9784101302720'}},
-            [title_test(u'精霊の守り人',
-                        exact=True), authors_test([u'上橋 菜穂子'])
+            [title_test('精霊の守り人',
+                        exact=True), authors_test(['上橋 菜穂子'])
              ]
         ),
         (  # title, authors -> isbn (will use Shift_JIS encoding in query.)
-            {'title': u'考えない練習',
-             'authors': [u'小池 龍之介']},
+            {'title': '考えない練習',
+             'authors': ['小池 龍之介']},
             [isbn_test('9784093881067'), ]
         ),
     ]  # }}}

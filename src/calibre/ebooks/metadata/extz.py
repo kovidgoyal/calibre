@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -63,7 +64,8 @@ def set_metadata(stream, mi):
             raise Exception('no cover')
     except:
         try:
-            new_cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                new_cdata = f.read()
         except:
             pass
     if new_cdata:

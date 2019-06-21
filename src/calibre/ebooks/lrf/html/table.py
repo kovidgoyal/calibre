@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import math, sys, re, numbers
@@ -125,7 +126,7 @@ class Cell(object):
 
     def pts_to_pixels(self, pts):
         pts = int(pts)
-        return ceil((float(self.conv.profile.dpi)/72.)*(pts/10.))
+        return ceil((float(self.conv.profile.dpi)/72)*(pts/10))
 
     def minimum_width(self):
         return max([self.minimum_tb_width(tb) for tb in self.text_blocks])
@@ -328,15 +329,15 @@ class Table(object):
         min_widths = [self.minimum_width(i)+10 for i in range(cols)]
         for i in range(len(widths)):
             wp = self.width_percent(i)
-            if wp >= 0.:
-                widths[i] = max(min_widths[i], ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad)))
+            if wp >= 0:
+                widths[i] = max(min_widths[i], ceil((wp/100) * (maxwidth - (cols-1)*self.colpad)))
 
         itercount = 0
 
         while sum(widths) > maxwidth-((len(widths)-1)*self.colpad) and itercount < 100:
             for i in range(cols):
-                widths[i] = ceil((95./100.)*widths[i]) if \
-                    ceil((95./100.)*widths[i]) >= min_widths[i] else widths[i]
+                widths[i] = ceil((95/100)*widths[i]) if \
+                    ceil((95/100)*widths[i]) >= min_widths[i] else widths[i]
             itercount += 1
 
         return [i+self.colpad for i in widths]

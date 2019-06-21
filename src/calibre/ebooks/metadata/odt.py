@@ -1,5 +1,4 @@
 #!/usr/bin/python2
-# -*- coding: utf-8 -*-
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 #
 # Copyright (C) 2006 Søren Roug, European Environment Agency
@@ -19,7 +18,7 @@
 #
 # Contributor(s):
 #
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import zipfile, re, io
 import xml.sax.saxutils
@@ -37,32 +36,32 @@ from polyglot.builtins import string_or_bytes
 whitespace = re.compile(r'\s+')
 
 fields = {
-'title':            (DCNS,u'title'),
-'description':      (DCNS,u'description'),
-'subject':          (DCNS,u'subject'),
-'creator':          (DCNS,u'creator'),
-'date':             (DCNS,u'date'),
-'language':         (DCNS,u'language'),
-'generator':        (METANS,u'generator'),
-'initial-creator':  (METANS,u'initial-creator'),
-'keyword':          (METANS,u'keyword'),
-'editing-duration': (METANS,u'editing-duration'),
-'editing-cycles':   (METANS,u'editing-cycles'),
-'printed-by':       (METANS,u'printed-by'),
-'print-date':       (METANS,u'print-date'),
-'creation-date':    (METANS,u'creation-date'),
-'user-defined':     (METANS,u'user-defined'),
-# 'template':         (METANS,u'template'),
+    'title':            (DCNS, 'title'),
+    'description':      (DCNS, 'description'),
+    'subject':          (DCNS, 'subject'),
+    'creator':          (DCNS, 'creator'),
+    'date':             (DCNS, 'date'),
+    'language':         (DCNS, 'language'),
+    'generator':        (METANS, 'generator'),
+    'initial-creator':  (METANS, 'initial-creator'),
+    'keyword':          (METANS, 'keyword'),
+    'editing-duration': (METANS, 'editing-duration'),
+    'editing-cycles':   (METANS, 'editing-cycles'),
+    'printed-by':       (METANS, 'printed-by'),
+    'print-date':       (METANS, 'print-date'),
+    'creation-date':    (METANS, 'creation-date'),
+    'user-defined':     (METANS, 'user-defined'),
+    # 'template':         (METANS, 'template'),
 }
 
 
-def normalize(str):
+def normalize(s):
     """
     The normalize-space function returns the argument string with whitespace
     normalized by stripping leading and trailing whitespace and replacing
     sequences of whitespace characters by a single space.
     """
-    return whitespace.sub(' ', str).strip()
+    return whitespace.sub(' ', s).strip()
 
 
 class MetaCollector:
@@ -75,9 +74,9 @@ class MetaCollector:
         self._content = []
         self.dowrite = True
 
-    def write(self, str):
+    def write(self, s):
         if self.dowrite:
-            self._content.append(str)
+            self._content.append(s)
 
     def content(self):
         return ''.join(self._content)
@@ -107,8 +106,8 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
 # location and not at the end
 #       if name == (METANS,u'template'):
 #           self._data = [attrs.get((XLINKNS,u'title'),'')]
-        if name == (METANS,u'user-defined'):
-            field = attrs.get((METANS,u'name'))
+        if name == (METANS, 'user-defined'):
+            field = attrs.get((METANS, 'name'))
         if field in self.deletefields:
             self.output.dowrite = False
         elif field in self.yieldfields:
@@ -120,15 +119,15 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
 
     def endElementNS(self, name, qname):
         field = name
-        if name == (METANS,u'user-defined'):
+        if name == (METANS, 'user-defined'):
             field = self._tag
-        if name == (OFFICENS,u'meta'):
+        if name == (OFFICENS, 'meta'):
             for k,v in self.addfields.items():
                 if len(v) > 0:
                     if isinstance(k, string_or_bytes):
-                        xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS,u'user-defined'),None,{(METANS,u'name'):k})
+                        xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS, 'user-defined'),None,{(METANS, 'name'):k})
                         xml.sax.saxutils.XMLGenerator.characters(self, v)
-                        xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS,u'user-defined'),None)
+                        xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS, 'user-defined'),None)
                     else:
                         xml.sax.saxutils.XMLGenerator.startElementNS(self, k, None, {})
                         xml.sax.saxutils.XMLGenerator.characters(self, v)
@@ -140,7 +139,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         self.seenfields[texttag] = self.data()
         # OpenOffice has the habit to capitalize custom properties, so we add a
         # lowercase version for easy access
-        if texttag[:4].lower() == u'opf.':
+        if texttag[:4].lower() == 'opf.':
             self.seenfields[texttag.lower()] = self.data()
 
         if field in self.deletefields:
@@ -245,7 +244,7 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
         except Exception:
             continue
         imgnum += 1
-        if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
+        if opfmeta and frm.getAttribute('name').lower() == 'opf.cover':
             cover_href = i_href
             cover_data = (fmt, raw)
             cover_frame = frm.getAttribute('name')  # could have upper case

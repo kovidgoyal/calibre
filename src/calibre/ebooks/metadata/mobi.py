@@ -2,8 +2,7 @@
 Retrieve and modify in-place Mobipocket book metadata.
 '''
 
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
@@ -398,11 +397,11 @@ class MetadataUpdater(object):
                 self.original_exth_records.get(501, None) == 'EBOK' and
                 not added_501 and not share_not_sync):
             from uuid import uuid4
-            update_exth_record((113, str(uuid4())))
+            update_exth_record((113, unicode_type(uuid4())))
         # Add a 112 record with actual UUID
         if getattr(mi, 'uuid', None):
             update_exth_record((112,
-                    (u"calibre:%s" % mi.uuid).encode(self.codec, 'replace')))
+                    ("calibre:%s" % mi.uuid).encode(self.codec, 'replace')))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
@@ -444,7 +443,10 @@ class MetadataUpdater(object):
 
         if mi.cover_data[1] or mi.cover:
             try:
-                data =  mi.cover_data[1] if mi.cover_data[1] else open(mi.cover, 'rb').read()
+                data =  mi.cover_data[1]
+                if not data:
+                    with open(mi.cover, 'rb') as f:
+                        data = f.read()
             except:
                 pass
             else:

@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -69,7 +70,7 @@ class TOC(list):
     def __str__(self):
         lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
         for child in self:
-            c = str(child).splitlines()
+            c = unicode_type(child).splitlines()
             for l in c:
                 lines.append('\t'+l)
         return '\n'.join(lines)
@@ -179,8 +180,9 @@ class TOC(list):
     def read_ncx_toc(self, toc, root=None):
         self.base_path = os.path.dirname(toc)
         if root is None:
-            raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
-                    strip_encoding_pats=True)[0]
+            with open(toc, 'rb') as f:
+                raw  = xml_to_unicode(f.read(), assume_utf8=True,
+                        strip_encoding_pats=True)[0]
             root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
                 no_network=True))
         xpn = {'re': 'http://exslt.org/regular-expressions'}
@@ -233,7 +235,9 @@ class TOC(list):
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        for href, fragment, txt in parse_html_toc(lopen(toc, 'rb').read()):
+        with lopen(toc, 'rb') as f:
+            parsed_toc = parse_html_toc(f.read())
+        for href, fragment, txt in parsed_toc:
             add = True
             for i in self.flat():
                 if i.href == href and i.fragment == fragment:
@@ -245,8 +249,8 @@ class TOC(list):
     def render(self, stream, uid):
         root = E.ncx(
                 E.head(
-                    E.meta(name='dtb:uid', content=str(uid)),
-                    E.meta(name='dtb:depth', content=str(self.depth())),
+                    E.meta(name='dtb:uid', content=unicode_type(uid)),
+                    E.meta(name='dtb:depth', content=unicode_type(self.depth())),
                     E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
                         __version__)),
                     E.meta(name='dtb:totalPageCount', content='0'),
@@ -271,7 +275,7 @@ class TOC(list):
                     E.content(src=unicode_type(np.href)+(('#' + unicode_type(np.fragment))
                         if np.fragment else '')),
                     id=item_id,
-                    playOrder=str(np.play_order)
+                    playOrder=unicode_type(np.play_order)
             )
             au = getattr(np, 'author', None)
             if au:

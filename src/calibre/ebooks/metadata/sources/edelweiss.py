@@ -139,7 +139,7 @@ def get_basic_data(browser, log, *skus):
             'orderID': '0',
             'mailingID': '',
             'tContentWidth': '926',
-            'originalOrder': ','.join(str(i) for i in range(len(skus))),
+            'originalOrder': ','.join(type('')(i) for i in range(len(skus))),
             'selectedOrderID': '0',
             'selectedSortColumn': '0',
             'listType': '1',
@@ -255,7 +255,7 @@ class Edelweiss(Source):
             return None
         params = {
             'q': (' '.join(keywords)).encode('utf-8'),
-            '_': str(int(time.time()))
+            '_': type('')(int(time.time()))
         }
         return BASE_URL+urlencode(params)
 
