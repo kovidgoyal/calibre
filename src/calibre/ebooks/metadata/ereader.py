@@ -49,12 +49,12 @@ def get_metadata(stream, extract_cover=True):
             try:
                 mdata = pheader.section_data(hr.metadata_offset)
 
-                mdata = mdata.decode('utf-8').split('\x00')
+                mdata = mdata.decode('cp1252', 'replace').split('\x00')
                 mi.title = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[0])
                 mi.authors = [re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[1])]
                 mi.publisher = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[3])
                 mi.isbn = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[4])
-            except:
+            except Exception:
                 pass
 
             if extract_cover:
@@ -96,8 +96,8 @@ def set_metadata(stream, mi):
     # Merge the metadata into the file
     file_mi = get_metadata(stream, False)
     file_mi.smart_update(mi)
-    sections[hr.metadata_offset] = ('%s\x00%s\x00%s\x00%s\x00%s\x00' % \
-        (file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)).encode('utf-8')
+    sections[hr.metadata_offset] = ('%s\x00%s\x00%s\x00%s\x00%s\x00' % (
+        file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)).encode('cp1252', 'replace')
 
     # Rebuild the PDB wrapper because the offsets have changed due to the
     # new metadata.
