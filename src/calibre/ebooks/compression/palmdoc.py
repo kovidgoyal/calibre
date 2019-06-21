@@ -48,11 +48,11 @@ def py_compress_doc(data):
                 out.write(pack('>H', code))
                 i += n
                 continue
-        ch = data[i]
+        ch = data[i:i+1]
         och = ord(ch)
         i += 1
         if ch == b' ' and (i + 1) < ldata:
-            onch = ord(data[i])
+            onch = ord(data[i:i+1])
             if onch >= 0x40 and onch < 0x80:
                 out.write(pack('>B', onch ^ 0x80))
                 i += 1
@@ -63,7 +63,7 @@ def py_compress_doc(data):
             j = i
             binseq = [ch]
             while j < ldata and len(binseq) < 8:
-                ch = data[j]
+                ch = data[j:j+1]
                 och = ord(ch)
                 if och == 0 or (och > 8 and och < 0x80):
                     break
