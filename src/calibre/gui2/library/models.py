@@ -1304,8 +1304,8 @@ class DeviceDBSortKeyGen(object):  # {{{
     def __call__(self, x):
         try:
             ans = self.keyfunc(getattr(self.db[x], self.attr))
-        except:
-            ans = None
+        except Exception:
+            ans = ''
         return ans
 # }}}
 
@@ -1485,7 +1485,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 'timestamp': ('datetime', functools.partial(dt_factory, assume_utc=True)),
                 'collections': ('device_collections', lambda x:sorted(x,
                     key=sort_key)),
-                'inlibrary': ('in_library', lambda x: x),
+                'inlibrary': ('in_library', lambda x: x or ''),
                 }[cname]
         keygen = keygen if callable(keygen) else DeviceDBSortKeyGen(
             keygen[0], keygen[1], self.db)
