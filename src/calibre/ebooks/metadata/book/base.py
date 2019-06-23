@@ -531,11 +531,11 @@ class Metadata(object):
 
             if getattr(other, 'cover_data', False):
                 other_cover = other.cover_data[-1]
-                self_cover = self.cover_data[-1] if self.cover_data else ''
+                self_cover = self.cover_data[-1] if self.cover_data else b''
                 if not self_cover:
-                    self_cover = ''
+                    self_cover = b''
                 if not other_cover:
-                    other_cover = ''
+                    other_cover = b''
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
 
@@ -595,7 +595,7 @@ class Metadata(object):
         v = self.series_index if val is None else val
         try:
             x = float(v)
-        except (ValueError, TypeError):
+        except Exception:
             x = 1
         return fmt_sidx(x)
 

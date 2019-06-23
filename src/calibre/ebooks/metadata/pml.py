@@ -74,7 +74,7 @@ def get_cover(name, tdir, top_level=False):
         cover_path = os.path.join(tdir, name + '_img', 'cover.png') if os.path.exists(os.path.join(tdir, name + '_img', 'cover.png')) else os.path.join(
             os.path.join(tdir, 'images'), 'cover.png') if os.path.exists(os.path.join(os.path.join(tdir, 'images'), 'cover.png')) else ''
     if cover_path:
-        with open(cover_path, 'r+b') as cstream:
+        with open(cover_path, 'rb') as cstream:
             cover_data = cstream.read()
 
     return ('png', cover_data)

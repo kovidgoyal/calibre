@@ -79,7 +79,7 @@ def get_series(title, authors, timeout=60):
         raw = raw.partition('.')[0].strip()
         try:
             mi.series_index = int(raw)
-        except:
+        except Exception:
             pass
     return mi
 

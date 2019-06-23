@@ -645,7 +645,7 @@ class LrfWriter(object):
         self.tocObjId = 0
         self.docInfoXml = ""
         self.thumbnailEncoding = "JPEG"
-        self.thumbnailData = ""
+        self.thumbnailData = b""
         self.objects = []
         self.objectTable = []
 

@@ -34,7 +34,7 @@ def archive_type(stream):
         ans = 'rar'
     try:
         stream.seek(pos)
-    except:
+    except Exception:
         pass
     return ans
 
@@ -144,7 +144,7 @@ def get_comic_book_info(d, mi, series_index='volume'):
             dt = date(puby, 6 if pubm is None else pubm, 15)
             dt = parse_only_date(unicode_type(dt))
             mi.pubdate = dt
-        except:
+        except Exception:
             pass
 
 

@@ -205,7 +205,7 @@ def get_metadata(stream, extract_cover=True):
             if data.get('opf.seriesindex', ''):
                 try:
                     mi.series_index = float(data['opf.seriesindex'])
-                except ValueError:
+                except Exception:
                     mi.series_index = 1.0
         if data.get('opf.language', ''):
             cl = canonicalize_lang(data['opf.language'])
@@ -215,7 +215,7 @@ def get_metadata(stream, extract_cover=True):
     if not opfnocover:
         try:
             read_cover(stream, zin, mi, opfmeta, extract_cover)
-        except:
+        except Exception:
             pass  # Do not let an error reading the cover prevent reading other data
 
     return mi

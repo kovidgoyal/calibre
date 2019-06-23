@@ -8,7 +8,7 @@ from calibre.ebooks.lrf.fonts import get_font
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
                                              CharButton, Plot, Paragraph, \
                                              LrsTextTag
-from polyglot.builtins import string_or_bytes, range
+from polyglot.builtins import string_or_bytes, range, native_string_type
 
 
 def ceil(num):
@@ -17,8 +17,8 @@ def ceil(num):
 
 def print_xml(elem):
     from calibre.ebooks.lrf.pylrs.pylrs import ElementWriter
-    elem = elem.toElement('utf8')
-    ew = ElementWriter(elem, sourceEncoding='utf8')
+    elem = elem.toElement(native_string_type('utf8'))
+    ew = ElementWriter(elem, sourceEncoding=native_string_type('utf8'))
     ew.write(sys.stdout)
     print()
 

@@ -9,7 +9,7 @@ import sys
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import unicode_type
 
-MAGIC = [b'\x00\x01BOOKDOUG', b'\x00\x02BOOKDOUG']
+MAGIC = (b'\x00\x01BOOKDOUG', b'\x00\x02BOOKDOUG')
 
 
 def get_metadata(stream):

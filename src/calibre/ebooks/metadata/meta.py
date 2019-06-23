@@ -13,18 +13,16 @@ from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import getcwd, unicode_type
 
-_METADATA_PRIORITIES = [
-                       'html', 'htm', 'xhtml', 'xhtm',
-                       'rtf', 'fb2', 'pdf', 'prc', 'odt',
-                       'epub', 'lit', 'lrx', 'lrf', 'mobi',
-                       'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
-                      ]
-
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values
 METADATA_PRIORITIES = collections.defaultdict(lambda:0)
-for i, ext in enumerate(_METADATA_PRIORITIES):
-    METADATA_PRIORITIES[ext] = i
+for i, ext in enumerate((
+    'html', 'htm', 'xhtml', 'xhtm',
+    'rtf', 'fb2', 'pdf', 'prc', 'odt',
+    'epub', 'lit', 'lrx', 'lrf', 'mobi',
+    'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
+)):
+    METADATA_PRIORITIES[ext] = i + 1
 
 
 def path_to_ext(path):
@@ -59,7 +57,7 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
                                      force_read_metadata=force_read_metadata,
                                      pattern=pattern)
                 mi.smart_update(newmi)
-            except:
+            except Exception:
                 continue
             if getattr(mi, 'application_id', None) is not None:
                 return mi
@@ -219,7 +217,7 @@ def opf_metadata(opfpath):
                         data = f.read()
                     mi.cover_data = (fmt, data)
             return mi
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         pass

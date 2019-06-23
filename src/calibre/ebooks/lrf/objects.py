@@ -933,8 +933,6 @@ class Text(LRFStream):
             if isinstance(c, unicode_type):
                 s += c
             elif c is None:
-                if c.name == 'P':
-                    in_p = False
                 p = open_containers.pop()
                 s += p.close_html()
             else:

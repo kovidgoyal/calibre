@@ -249,14 +249,6 @@ def load_library(name, cdll):
     return cdll.LoadLibrary(name+'.so')
 
 
-def filename_to_utf8(name):
-    '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''
-    if isinstance(name, unicode_type):
-        return name.encode('utf8')
-    codec = 'cp1252' if iswindows else 'utf8'
-    return name.decode(codec, 'replace').encode('utf8')
-
-
 def extract(path, dir):
     extractor = None
     # First use the file header to identify its type

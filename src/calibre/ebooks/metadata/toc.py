@@ -18,14 +18,8 @@ from polyglot.urllib import unquote, urlparse
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
 CALIBRE_NS = "http://calibre.kovidgoyal.net/2009/metadata"
-NSMAP = {
-            None: NCX_NS,
-            'calibre':CALIBRE_NS
-            }
-
-
+NSMAP = {None: NCX_NS, 'calibre':CALIBRE_NS}
 E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
-
 C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 
@@ -209,7 +203,7 @@ class TOC(list):
             nl = nl_path(np)
             if nl:
                 nl = nl[0]
-                text = u''
+                text = ''
                 for txt in txt_path(nl):
                     text += etree.tostring(txt, method='text',
                             encoding='unicode', with_tail=False)

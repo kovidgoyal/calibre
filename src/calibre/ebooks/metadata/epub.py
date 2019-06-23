@@ -93,7 +93,7 @@ class OCFReader(OCF):
 
     def __init__(self):
         try:
-            mimetype = self.open('mimetype').read().decode('utf-8').rstrip()
+            mimetype = self.read_bytes('mimetype').decode('utf-8').rstrip()
             if mimetype != OCF.MIMETYPE:
                 print('WARNING: Invalid mimetype declaration', mimetype)
         except:
@@ -123,9 +123,8 @@ class OCFReader(OCF):
     def encryption_meta(self):
         if self._encryption_meta_cached is None:
             try:
-                with closing(self.open(self.ENCRYPTION_PATH)) as f:
-                    self._encryption_meta_cached = Encryption(f.read())
-            except:
+                self._encryption_meta_cached = Encryption(self.read_bytes(self.ENCRYPTION_PATH))
+            except Exception:
                 self._encryption_meta_cached = Encryption(None)
         return self._encryption_meta_cached
 
@@ -152,7 +151,7 @@ class OCFZipReader(OCFReader):
                 self.root = getcwd()
         super(OCFZipReader, self).__init__()
 
-    def open(self, name, mode='r'):
+    def open(self, name):
         if isinstance(self.archive, LocalZipFile):
             return self.archive.open(name)
         return io.BytesIO(self.archive.read(name))
@@ -164,7 +163,7 @@ class OCFZipReader(OCFReader):
 def get_zip_reader(stream, root=None):
     try:
         zf = ZipFile(stream, mode='r')
-    except:
+    except Exception:
         stream.seek(0)
         zf = LocalZipFile(stream)
     return OCFZipReader(zf, root=root)
@@ -176,8 +175,12 @@ class OCFDirReader(OCFReader):
         self.root = path
         super(OCFDirReader, self).__init__()
 
-    def open(self, path, *args, **kwargs):
-        return open(os.path.join(self.root, path), *args, **kwargs)
+    def open(self, path):
+        return lopen(os.path.join(self.root, path), 'rb')
+
+    def read_bytes(self, path):
+        with self.open(path) as f:
+            return f.read()
 
 
 def render_cover(cpage, zf, reader=None):
@@ -238,15 +241,9 @@ def get_cover(raster_cover, first_spine_item, reader):
         if reader.encryption_meta.is_encrypted(raster_cover):
             return
         try:
-            member = zf.getinfo(raster_cover)
+            return reader.read_bytes(raster_cover)
         except Exception:
             pass
-        else:
-            f = zf.open(member)
-            data = f.read()
-            f.close()
-            zf.close()
-            return data
 
     return render_cover(first_spine_item, zf, reader=reader)
 
@@ -326,5 +323,5 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
         if cpath is not None:
             replacements[cpath].close()
             os.remove(replacements[cpath].name)
-    except:
+    except Exception:
         pass

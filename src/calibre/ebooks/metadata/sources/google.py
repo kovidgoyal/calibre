@@ -222,8 +222,10 @@ class GoogleBooks(Source):
 
         if not q:
             return None
+        if not isinstance(q, bytes):
+            q = q.encode('utf-8')
         return BASE_URL + urlencode({
-            'q': q.encode('utf-8'),
+            'q': q,
             'max-results': 20,
             'start-index': 1,
             'min-viewability': 'none',

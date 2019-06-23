@@ -13,13 +13,13 @@ import os, sys, re
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, itervalues
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, itervalues, as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
-except:
+except Exception:
     prints('Author split regexp:', tweaks['authors_split_regex'],
             'is invalid, using default')
     _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
@@ -270,7 +270,7 @@ class Resource(object):
         if self.path is None:
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
-        frag = '#'+quote(f) if self.fragment else ''
+        frag = '#'+as_unicode(quote(f)) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
         try:
@@ -279,7 +279,7 @@ class Resource(object):
             rpath = self.path
         if isinstance(rpath, unicode_type):
             rpath = rpath.encode('utf-8')
-        return quote(rpath.replace(os.sep, '/'))+frag
+        return as_unicode(quote(rpath.replace(os.sep, '/')))+frag
 
     def set_basedir(self, path):
         self._basedir = path
@@ -436,5 +436,5 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='½'):
     r = max(0, min(int(value or 0), 10))
     ans = star * (r // 2)
     if allow_half_stars and r % 2:
-            ans += half
+        ans += half
     return ans

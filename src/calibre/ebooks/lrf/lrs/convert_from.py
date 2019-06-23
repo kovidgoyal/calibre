@@ -221,7 +221,7 @@ class LrsParser(object):
                 res = cls.tag_to_string(item)
                 if res:
                     strings.append(res)
-        return u''.join(strings)
+        return ''.join(strings)
 
     def first_pass(self):
         info = self.soup.find('bbebxylog').find('bookinformation').find('info')

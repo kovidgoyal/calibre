@@ -1,44 +1,52 @@
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+import copy
+import glob
+import os
+import re
+import sys
+import tempfile
+from collections import deque
+from functools import partial
+from itertools import chain
+from math import ceil, floor
+
+from calibre import (
+    __appname__, entity_to_unicode, fit_image, force_unicode, preferred_encoding
+)
+from calibre.constants import filesystem_encoding
+from calibre.devices.interface import DevicePlugin as Device
+from calibre.ebooks import ConversionError
+from calibre.ebooks.BeautifulSoup import (
+    BeautifulSoup, Comment, Declaration, NavigableString, ProcessingInstruction, Tag
+)
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.lrf import Book
+from calibre.ebooks.lrf.html.color_map import lrs_color
+from calibre.ebooks.lrf.html.table import Table
+from calibre.ebooks.lrf.pylrs.pylrs import (
+    CR, BlockSpace, BookSetting, Canvas, CharButton, DropCaps, EmpLine, Image,
+    ImageBlock, ImageStream, Italic, JumpButton, LrsError, Paragraph, Plot,
+    RuledLine, Span, Sub, Sup, TextBlock
+)
+from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import getcwd, itervalues, string_or_bytes, unicode_type
+from polyglot.urllib import unquote, urlparse
+
 """
 Code to convert HTML ebooks into LRF ebooks.
 
 I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
-import os, re, sys, copy, glob, tempfile
-from collections import deque
-from math import ceil, floor
-from functools import partial
-from polyglot.builtins import string_or_bytes, itervalues, getcwd
-from itertools import chain
 
 try:
     from PIL import Image as PILImage
     PILImage
 except ImportError:
     import Image as PILImage
-
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
-                            NavigableString, Declaration, ProcessingInstruction
-from calibre.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
-                TextBlock, ImageBlock, JumpButton, CharButton, \
-                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
-                LrsError, Sup, Sub, EmpLine
-from calibre.ebooks.lrf.pylrs.pylrs import Span
-from calibre.ebooks.lrf import Book
-from calibre.ebooks import ConversionError
-from calibre.ebooks.lrf.html.table import Table
-from calibre import filename_to_utf8, __appname__, \
-                    fit_image, preferred_encoding, entity_to_unicode
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.devices.interface import DevicePlugin as Device
-from calibre.ebooks.lrf.html.color_map import lrs_color
-from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import unicode_type
-from polyglot.urllib import unquote, urlparse
 
 
 def update_css(ncss, ocss):
@@ -577,7 +585,7 @@ class HTMLConverter(object):
         css = self.tag_css(tag)[0]
         if ('display' in css and css['display'].lower() == 'none') or ('visibility' in css and css['visibility'].lower() == 'hidden'):
             return ''
-        text, alt_text = u'', u''
+        text, alt_text = '', ''
         for c in tag.contents:
             if limit is not None and len(text) > limit:
                 break
@@ -1112,7 +1120,7 @@ class HTMLConverter(object):
             val /= 2.
             ans['sidemargin'] = int(val)
         if 2*int(ans['sidemargin']) >= factor*int(self.current_block.blockStyle.attrs['blockwidth']):
-            ans['sidemargin'] = (factor*int(self.current_block.blockStyle.attrs['blockwidth'])) // 2
+            ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth'])) / 2)
 
         for prop in ('topskip', 'footskip', 'sidemargin'):
             if isinstance(ans[prop], string_or_bytes):
@@ -1348,7 +1356,7 @@ class HTMLConverter(object):
         ''' Ensure padding and text-indent properties are respected '''
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
-        indent = (float(text_properties['parindent'])//10) * (self.profile.dpi/72)
+        indent = (float(text_properties['parindent'])/10) * (self.profile.dpi/72)
         margin = float(block_properties['sidemargin'])
         # Since we're flattening the block structure, we need to ensure that text
         # doesn't go off the left edge of the screen
@@ -1780,7 +1788,7 @@ class HTMLConverter(object):
             else:
                 if xpos > 65535:
                     xpos = 65535
-                canvases[-1].put_object(block, xpos + delta//2, ypos)
+                canvases[-1].put_object(block, xpos + int(delta/2), ypos)
 
         for canvas in canvases:
             self.current_page.append(canvas)
@@ -1802,7 +1810,7 @@ class HTMLConverter(object):
 
 def process_file(path, options, logger):
     path = os.path.abspath(path)
-    default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
+    default_title = force_unicode(os.path.splitext(os.path.basename(path))[0], filesystem_encoding)
     dirpath = os.path.dirname(path)
 
     tpath = ''
