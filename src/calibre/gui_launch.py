@@ -88,6 +88,13 @@ def store_dialog(args=sys.argv):
     main(args)
 
 
+def toc_dialog(**kw):
+    detach_gui()
+    init_dbus()
+    from calibre.gui2.toc.main import main
+    main(**kw)
+
+
 def gui_ebook_edit(path=None, notify=None):
     ' For launching the editor from inside calibre '
     init_dbus()

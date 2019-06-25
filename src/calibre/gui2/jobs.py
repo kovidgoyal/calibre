@@ -281,9 +281,9 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         self.add_job(job)
         self.threaded_server.add_job(job)
 
-    def launch_gui_app(self, name, args=[], kwargs={}, description=''):
+    def launch_gui_app(self, name, args=(), kwargs=None, description=''):
         job = ParallelJob(name, description, lambda x: x,
-                args=args, kwargs=kwargs)
+                args=list(args), kwargs=kwargs or {})
         self.server.run_job(job, gui=True, redirect_output=False)
 
     def _kill_job(self, job):

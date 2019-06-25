@@ -85,6 +85,19 @@ def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
         time.sleep(sleep_time)
 
 
+def lock_file(path, timeout=15, sleep_time=0.2):
+    if iswindows:
+        return retry_for_a_time(
+            timeout, sleep_time, windows_open, windows_retry, path
+        )
+    f = unix_open(path)
+    retry_for_a_time(
+        timeout, sleep_time, fcntl.flock, unix_retry,
+        f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+    )
+    return f
+
+
 class ExclusiveFile(object):
 
     def __init__(self, path, timeout=15, sleep_time=0.2):
@@ -95,17 +108,7 @@ class ExclusiveFile(object):
         self.sleep_time = sleep_time
 
     def __enter__(self):
-        if iswindows:
-            self.file = retry_for_a_time(
-                self.timeout, self.sleep_time, windows_open, windows_retry, self.path
-            )
-        else:
-            f = unix_open(self.path)
-            retry_for_a_time(
-                self.timeout, self.sleep_time, fcntl.flock, unix_retry,
-                f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
-            )
-            self.file = f
+        self.file = lock_file(self.path, self.timeout, self.sleep_time)
         return self.file
 
     def __exit__(self, type, value, traceback):

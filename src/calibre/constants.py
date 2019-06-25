@@ -44,6 +44,7 @@ VIEWER_APP_UID = 'com.calibre-ebook.viewer'
 EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
 MAIN_APP_UID = 'com.calibre-ebook.main-gui'
 STORE_DIALOG_APP_UID = 'com.calibre-ebook.store-dialog'
+TOC_DIALOG_APP_UID = 'com.calibre-ebook.toc-editor'
 try:
     preferred_encoding = locale.getpreferredencoding()
     codecs.lookup(preferred_encoding)

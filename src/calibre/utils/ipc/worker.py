@@ -32,6 +32,9 @@ PARALLEL_FUNCS = {
     'store-dialog' :
     ('calibre.gui_launch', 'store_dialog', None),
 
+    'toc-dialog' :
+    ('calibre.gui_launch', 'toc_dialog', None),
+
     'render_pages' :
     ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
 
