@@ -10,6 +10,7 @@ from various formats.
 
 import traceback, os, re, numbers
 from calibre import CurrentDir, prints
+from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import unicode_type
 
 
@@ -127,18 +128,20 @@ def extract_calibre_cover(raw, base, log):
 
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
-    raw = open(path_to_html, 'rb').read()
+    with open(path_to_html, 'rb') as f:
+        raw = f.read()
+    raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     data = None
     if SVG_NS in raw:
         try:
             data = extract_cover_from_embedded_svg(raw,
                    os.path.dirname(path_to_html), log)
-        except:
+        except Exception:
             pass
     if data is None:
         try:
             data = extract_calibre_cover(raw, os.path.dirname(path_to_html), log)
-        except:
+        except Exception:
             pass
 
     if data is None:
