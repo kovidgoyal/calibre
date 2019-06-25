@@ -129,7 +129,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
     raw = open(path_to_html, 'rb').read()
     data = None
-    if SVG_NS in raw:
+    if SVG_NS.encode('utf-8') in raw:
         try:
             data = extract_cover_from_embedded_svg(raw,
                    os.path.dirname(path_to_html), log)
