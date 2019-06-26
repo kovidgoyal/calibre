@@ -88,9 +88,9 @@ var vfs = VFS;
 
 function read_file_sync(name) {
     var ans = vfs[name];
-    if (ans) return ans;
+    if (typeof ans === "string") return ans;
     ans = write_cache[name];
-    if (ans) return ans;
+    if (typeof ans === "string") return ans;
     return null;
 }
 
@@ -288,7 +288,7 @@ def compile_viewer():
     base = base_dir()
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
-    execfile(iconf, g)
+    exec_path(iconf, g)
     icons = g['merge']().encode('utf-8')
     with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read()
