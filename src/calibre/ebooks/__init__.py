@@ -8,8 +8,8 @@ Code for the conversion of ebook formats and the reading of metadata
 from various formats.
 '''
 
-import traceback, os, re, numbers
-from calibre import CurrentDir, prints
+import os, re, numbers, sys
+from calibre import prints
 from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import unicode_type
 
@@ -39,40 +39,6 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
                    'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx', 'docm', 'md',
                    'textile', 'markdown', 'ibook', 'ibooks', 'iba', 'azw3', 'ps', 'kepub', 'kfx']
-
-
-class HTMLRenderer(object):
-
-    def __init__(self, page, loop):
-        self.page, self.loop = page, loop
-        self.data = ''
-        self.exception = self.tb = None
-
-    def __call__(self, ok):
-        from PyQt5.Qt import QImage, QPainter, QByteArray, QBuffer
-        try:
-            if not ok:
-                raise RuntimeError('Rendering of HTML failed.')
-            de = self.page.mainFrame().documentElement()
-            pe = de.findFirst('parsererror')
-            if not pe.isNull():
-                raise ParserError(pe.toPlainText())
-            image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
-            image.setDotsPerMeterX(96*(100/2.54))
-            image.setDotsPerMeterY(96*(100/2.54))
-            painter = QPainter(image)
-            self.page.mainFrame().render(painter)
-            painter.end()
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            image.save(buf, 'JPEG')
-            self.data = ba.data()
-        except Exception as e:
-            self.exception = e
-            self.traceback = traceback.format_exc()
-        finally:
-            self.loop.exit(0)
 
 
 def return_raster_image(path):
@@ -145,63 +111,33 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
             pass
 
     if data is None:
-        from calibre.gui2 import is_ok_to_use_qt
-        if is_ok_to_use_qt():
-            data = render_html_data(path_to_html, width, height)
-        else:
-            from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-            try:
-                result = fork_job('calibre.ebooks',
-                                  'render_html_data',
-                                  (path_to_html, width, height),
-                                  no_output=True)
-                data = result['result']
-            except WorkerError as err:
-                prints(err.orig_tb)
-            except:
-                traceback.print_exc()
+        data = render_html_data(path_to_html, width, height)
     return data
 
 
 def render_html_data(path_to_html, width, height):
-    renderer = render_html(path_to_html, width, height)
-    return getattr(renderer, 'data', None)
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
+    def report_error(text=''):
+        prints('Failed to render', path_to_html, 'with errors:', file=sys.stderr)
+        if text:
+            prints(text, file=sys.stderr)
+        if result['stdout_stderr']:
+            with open(result['stdout_stderr'], 'rb') as f:
+                prints(f.read(), file=sys.stderr)
 
-def render_html(path_to_html, width=590, height=750, as_xhtml=True):
-    from PyQt5.QtWebKitWidgets import QWebPage
-    from PyQt5.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
-    from calibre.gui2 import is_ok_to_use_qt, secure_web_page
-    if not is_ok_to_use_qt():
-        return None
-    path_to_html = os.path.abspath(path_to_html)
-    with CurrentDir(os.path.dirname(path_to_html)):
-        page = QWebPage()
-        settings = page.settings()
-        secure_web_page(settings)
-        pal = page.palette()
-        pal.setBrush(QPalette.Background, Qt.white)
-        page.setPalette(pal)
-        page.setViewportSize(QSize(width, height))
-        page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-        loop = QEventLoop()
-        renderer = HTMLRenderer(page, loop)
-        page.loadFinished.connect(renderer, type=Qt.QueuedConnection)
-        if as_xhtml:
-            page.mainFrame().setContent(open(path_to_html, 'rb').read(),
-                    'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
+    with TemporaryDirectory('-render-html') as tdir:
+        try:
+            result = fork_job('calibre.ebooks.render_html', 'main', args=(path_to_html, tdir, 'jpeg'))
+        except WorkerError as e:
+            report_error(e.orig_tb)
         else:
-            page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
-        loop.exec_()
-    renderer.loop = renderer.page = None
-    page.loadFinished.disconnect()
-    del page
-    del loop
-    if isinstance(renderer.exception, ParserError) and as_xhtml:
-        return render_html(path_to_html, width=width, height=height,
-                as_xhtml=False)
-    return renderer
+            if result['result']:
+                with open(os.path.join(tdir, 'rendered.jpeg'), 'rb') as f:
+                    return f.read()
+            else:
+                report_error()
 
 
 def check_ebook_format(stream, current_guess):

@@ -23,6 +23,8 @@ def secure_webengine(view_or_page_or_settings, for_viewer=False):
     if not for_viewer:
         a(s.JavascriptEnabled, False)
         s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
+        if hasattr(view_or_page_or_settings, 'setAudioMuted'):
+            view_or_page_or_settings.setAudioMuted(True)
     a(s.JavascriptCanOpenWindows, False)
     a(s.JavascriptCanAccessClipboard, False)
     # ensure javascript cannot read from local files
