@@ -235,7 +235,7 @@ class OverDrive(Source):
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
-            for m in re.finditer(type(u'')(r'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)'), raw):
+            for m in re.finditer(type('')(r'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)'), raw):
                 if int(m.group('totalrecords')) == 0:
                     return ''
                 elif int(m.group('displayrecords')) >= 1:
@@ -258,7 +258,7 @@ class OverDrive(Source):
         close_matches = []
         raw = re.sub(r'.*?\[\[(?P<content>.*?)\]\].*', r'[[\g<content>]]', raw)
         results = json.loads(raw)
-        # log.error('raw results are:'+str(results))
+        # log.error('raw results are:'+type('')(results))
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
@@ -336,7 +336,7 @@ class OverDrive(Source):
         req.add_header('Referer', search_url)
         req.add_header('Accept', 'application/json, text/javascript, */*')
         raw = br.open_novisit(req)
-        raw = str(list(raw))
+        raw = type('')(list(raw))
         clean_cj = mechanize.CookieJar()
         br.set_cookiejar(clean_cj)
         return self.sort_ovrdrv_results(raw, log, None, None, None, ovrdrv_id)
@@ -443,7 +443,7 @@ class OverDrive(Source):
                 mi.language = lang
 
         if ebook_isbn:
-            # print "ebook isbn is "+str(ebook_isbn[0])
+            # print("ebook isbn is "+type('')(ebook_isbn[0]))
             isbn = check_isbn(ebook_isbn[0].strip())
             if isbn:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)
