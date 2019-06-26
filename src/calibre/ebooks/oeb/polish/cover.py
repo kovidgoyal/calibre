@@ -10,7 +10,7 @@ import shutil, re, os
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
 from calibre.ebooks.oeb.polish.replace import replace_links, get_recommended_folders
 from calibre.utils.imghdr import identify
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def set_azw3_cover(container, cover_path, report, options=None):
@@ -384,8 +384,8 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
             ar = 'xMidYMid meet' if keep_aspect else 'none'
             templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
             templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
-            templ = templ.replace('__width__', str(width))
-            templ = templ.replace('__height__', str(height))
+            templ = templ.replace('__width__', unicode_type(width))
+            templ = templ.replace('__height__', unicode_type(height))
     folder = recommended_folders[tname]
     if folder:
         tname = folder + '/' + tname

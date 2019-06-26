@@ -13,7 +13,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.utils import get_trailing_data
-from polyglot.builtins import iteritems, range, as_bytes
+from polyglot.builtins import as_bytes, iteritems, range, unicode_type
 
 # PalmDB {{{
 
@@ -42,7 +42,7 @@ class PalmDOCAttributes(object):
                 self.val))
 
     def __str__(self):
-        attrs = '\n\t'.join([str(x) for x in self.attributes])
+        attrs = '\n\t'.join([unicode_type(x) for x in self.attributes])
         return 'PalmDOC Attributes: %s\n\t%s'%(bin(self.val), attrs)
 
 
@@ -84,7 +84,7 @@ class PalmDB(object):
     def __str__(self):
         ans = ['*'*20 + ' PalmDB Header '+ '*'*20]
         ans.append('Name: %r'%self.name)
-        ans.append(str(self.attributes))
+        ans.append(unicode_type(self.attributes))
         ans.append('Version: %s'%self.version)
         ans.append('Creation date: %s (%s)'%(self.creation_date.isoformat(),
             self.creation_date_raw))
@@ -255,7 +255,7 @@ class EXTHHeader(object):
         ans.append('Number of EXTH records: %d'%self.count)
         ans.append('EXTH records...')
         for r in self.records:
-            ans.append(str(r))
+            ans.append(unicode_type(r))
         return '\n'.join(ans)
 # }}}
 
@@ -496,7 +496,7 @@ class MOBIHeader(object):  # {{{
         ans = '\n'.join(ans)
 
         if self.has_exth:
-            ans += '\n\n' + str(self.exth)
+            ans += '\n\n' + unicode_type(self.exth)
             ans += '\n\nBytes after EXTH (%d bytes): %s'%(
                     len(self.bytes_after_exth),
                     format_bytes(self.bytes_after_exth))

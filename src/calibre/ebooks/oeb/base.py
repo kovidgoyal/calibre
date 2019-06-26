@@ -920,7 +920,7 @@ class Manifest(object):
         """
 
         def __init__(self, oeb, id, href, media_type,
-                     fallback=None, loader=str, data=None):
+                     fallback=None, loader=unicode_type, data=None):
             if href:
                 href = unicode_type(href)
             self.oeb = oeb
@@ -937,7 +937,7 @@ class Manifest(object):
             self._data = data
 
         def __repr__(self):
-            return u'Item(id=%r, href=%r, media_type=%r)' \
+            return 'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
         # Parsing {{{
@@ -1640,7 +1640,7 @@ class TOC(object):
             po = node.play_order
             if po == 0:
                 po = 1
-            attrib = {'id': id, 'playOrder': str(po)}
+            attrib = {'id': id, 'playOrder': unicode_type(po)}
             if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
@@ -1923,7 +1923,7 @@ class OEBBook(object):
         for i, elem in enumerate(xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]')):
             href = urlnormalize(selector(elem)[0])
             order = playorder.get(href, i)
-            elem.attrib['playOrder'] = str(order)
+            elem.attrib['playOrder'] = unicode_type(order)
         return
 
     def _to_ncx(self):
@@ -1936,12 +1936,12 @@ class OEBBook(object):
         etree.SubElement(head, NCX('meta'),
             name='dtb:uid', content=unicode_type(self.uid))
         etree.SubElement(head, NCX('meta'),
-            name='dtb:depth', content=str(self.toc.depth()))
+            name='dtb:depth', content=unicode_type(self.toc.depth()))
         generator = ''.join(['calibre (', __version__, ')'])
         etree.SubElement(head, NCX('meta'),
             name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),
-            name='dtb:totalPageCount', content=str(len(self.pages)))
+            name='dtb:totalPageCount', content=unicode_type(len(self.pages)))
         maxpnum = etree.SubElement(head, NCX('meta'),
             name='dtb:maxPageNumber', content='0')
         title = etree.SubElement(ncx, NCX('docTitle'))
@@ -1952,7 +1952,7 @@ class OEBBook(object):
         if len(self.pages) > 0:
             plist = self.pages.to_ncx(ncx)
             value = max(int(x) for x in xpath(plist, '//@value'))
-            maxpnum.attrib['content'] = str(value)
+            maxpnum.attrib['content'] = unicode_type(value)
         self._update_playorder(ncx)
         return ncx
 

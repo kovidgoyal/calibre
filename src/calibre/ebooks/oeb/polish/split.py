@@ -12,7 +12,7 @@ from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DO
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import urlparse
 
 
@@ -282,7 +282,7 @@ def multisplit(container, name, xpath, before=True):
             raise AbortError('Cannot split on the <body> tag')
 
     for i, tag in enumerate(nodes):
-        tag.set('calibre-split-point', str(i))
+        tag.set('calibre-split-point', unicode_type(i))
 
     current = name
     all_names = [name]

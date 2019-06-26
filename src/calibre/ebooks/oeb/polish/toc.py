@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import re
 from collections import Counter, OrderedDict
 from functools import partial
-from polyglot.builtins import iteritems, map, unicode_type
 from operator import itemgetter
 
 from lxml import etree
@@ -24,6 +23,7 @@ from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
+from polyglot.builtins import iteritems, map, unicode_type
 from polyglot.urllib import urlparse
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
@@ -104,7 +104,7 @@ class TOC(object):
 
     def get_lines(self, lvl=0):
         frag = ('#'+self.frag) if self.frag else ''
-        ans = [(u'\t'*lvl) + u'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
+        ans = [('\t'*lvl) + 'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
         for child in self:
             ans.extend(child.get_lines(lvl+1))
         return ans
@@ -580,7 +580,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     etree.SubElement(head, NCX('meta'),
         name='dtb:uid', content=unicode_type(uid))
     etree.SubElement(head, NCX('meta'),
-        name='dtb:depth', content=str(toc.depth))
+        name='dtb:depth', content=unicode_type(toc.depth))
     generator = ''.join(['calibre (', __version__, ')'])
     etree.SubElement(head, NCX('meta'),
         name='dtb:generator', content=generator)
@@ -598,7 +598,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
         for child in toc_parent:
             play_order['c'] += 1
             point = etree.SubElement(xml_parent, NCX('navPoint'), id='num_%d' % play_order['c'],
-                            playOrder=str(play_order['c']))
+                            playOrder=unicode_type(play_order['c']))
             label = etree.SubElement(point, NCX('navLabel'))
             title = child.title
             if title:
@@ -764,7 +764,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
         for entry in toc.page_list:
             if container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
                 a = create_li(ol, entry)
-                a.text = str(entry['pagenum'])
+                a.text = unicode_type(entry['pagenum'])
         pretty_xml_tree(nav)
         collapse_li(nav)
     container.replace(tocname, root)

@@ -3,7 +3,7 @@
 '''
 CSS property propagation class.
 '''
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -74,7 +74,7 @@ def media_ok(raw):
         return mq.negated ^ matched
 
     try:
-        for mq in CSSMedia3Parser().parse_stylesheet(u'@media %s {}' % raw).rules[0].media:
+        for mq in CSSMedia3Parser().parse_stylesheet('@media %s {}' % raw).rules[0].media:
             if query_ok(mq):
                 return True
         return False
@@ -219,14 +219,14 @@ class Stylizer(object):
                 log=logging.getLogger('calibre.css'))
         for elem in style_tags:
             if (elem.tag == XHTML('style') and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
-                text = elem.text if elem.text else u''
+                text = elem.text if elem.text else ''
                 for x in elem:
                     t = getattr(x, 'text', None)
                     if t:
-                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                        text += '\n\n' + force_unicode(t, 'utf-8')
                     t = getattr(x, 'tail', None)
                     if t:
-                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                        text += '\n\n' + force_unicode(t, 'utf-8')
                 if text:
                     text = oeb.css_preprocessor(text)
                     # We handle @import rules separately
@@ -295,7 +295,7 @@ class Stylizer(object):
         self.flatten_style = self.oeb.stylizer_rules.flatten_style
 
         self._styles = {}
-        pseudo_pat = re.compile(u':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        pseudo_pat = re.compile(':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
         for _, _, cssdict, text, _ in self.rules:
@@ -309,7 +309,7 @@ class Stylizer(object):
             if fl is not None:
                 fl = fl.group(1)
                 if fl == 'first-letter' and getattr(self.oeb,
-                        'plumber_output_format', '').lower() in {u'mobi', u'docx'}:
+                        'plumber_output_format', '').lower() in {'mobi', 'docx'}:
                     # Fake first-letter
                     for elem in matches:
                         for x in elem.iter('*'):
@@ -323,8 +323,8 @@ class Stylizer(object):
                                     punctuation_chars.append(text[0])
                                     text = text[1:]
 
-                                special_text = u''.join(punctuation_chars) + \
-                                        (text[0] if text else u'')
+                                special_text = ''.join(punctuation_chars) + \
+                                        (text[0] if text else '')
                                 span = x.makeelement('{%s}span' % XHTML_NS)
                                 span.text = special_text
                                 span.set('data-fake-first-letter', '1')
@@ -486,7 +486,7 @@ class Style(object):
         return unit_convert(value, base, font, self._profile.dpi, body_font_size=self._stylizer.body_font_size)
 
     def pt_to_px(self, value):
-        return (self._profile.dpi / 72.0) * value
+        return (self._profile.dpi / 72) * value
 
     @property
     def backgroundColor(self):
@@ -590,7 +590,7 @@ class Style(object):
         x = self._style.get(attr)
         if x is not None:
             if x == 'auto':
-                ans = self._unit_convert(str(img_size) + 'px', base=base)
+                ans = self._unit_convert(unicode_type(img_size) + 'px', base=base)
             else:
                 x = self._unit_convert(x, base=base)
                 if isinstance(x, numbers.Number):
@@ -602,7 +602,7 @@ class Style(object):
                 if isinstance(x, numbers.Number):
                     ans = x
         if ans is None:
-            ans = self._unit_convert(str(img_size) + 'px', base=base)
+            ans = self._unit_convert(unicode_type(img_size) + 'px', base=base)
         maa = self._style.get('max-' + attr)
         if maa is not None:
             x = self._unit_convert(maa, base=base)
