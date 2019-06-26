@@ -11,21 +11,31 @@ This module implements a simple commandline SMTP client that supports:
 '''
 
 import sys, traceback, os, socket, encodings.idna as idna
-from calibre import isbytestring, force_unicode
-from calibre.constants import ispy3
+from calibre import isbytestring
+from calibre.constants import ispy3, iswindows
 from polyglot.builtins import unicode_type
+
+
+def decode_fqdn(fqdn):
+    if isinstance(fqdn, bytes):
+        enc = 'mbcs' if iswindows else 'utf-8'
+        try:
+            fqdn = fqdn.decode(enc)
+        except Exception:
+            fqdn = ''
+    return fqdn
 
 
 def safe_localhost():
     # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
     # if that can't be calculated, that we should use a domain literal
     # instead (essentially an encoded IP address like [A.B.C.D]).
-    fqdn = socket.getfqdn()
+    fqdn = decode_fqdn(socket.getfqdn())
     if '.' in fqdn and fqdn != '.':
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
         try:
-            local_hostname = idna.ToASCII(force_unicode(fqdn))
+            local_hostname = idna.ToASCII(fqdn)
         except Exception:
             local_hostname = 'localhost.localdomain'
     else:
