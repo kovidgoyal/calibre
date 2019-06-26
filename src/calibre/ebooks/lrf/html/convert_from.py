@@ -1727,44 +1727,18 @@ class HTMLConverter(object):
                     self.previous_text = ' '
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'table' and not self.ignore_tables and not self.in_table:
-                if self.render_tables_as_images:
-                    print('Rendering table...')
-                    from calibre.ebooks.lrf.html.table_as_image import render_table
-                    pheight = int(self.current_page.pageStyle.attrs['textheight'])
-                    pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
-                    images = render_table(self.soup, tag, tag_css,
-                                          os.path.dirname(self.target_prefix),
-                                          pwidth, pheight, self.profile.dpi,
-                                          self.text_size_multiplier_for_rendered_tables)
-                    for path, width, height in images:
-                        stream = ImageStream(path, encoding='PNG')
-                        im = Image(stream, x0=0, y0=0, x1=width, y1=height,
-                               xsize=width, ysize=height)
-                        pb = self.current_block
-                        self.end_current_para()
-                        self.process_alignment(tag_css)
-                        self.current_para.append(Plot(im, xsize=width*720./self.profile.dpi,
-                                                      ysize=height*720./self.profile.dpi))
-                        self.current_block.append(self.current_para)
-                        self.current_page.append(self.current_block)
-                        self.current_block = self.book.create_text_block(
-                                                        textStyle=pb.textStyle,
-                                                        blockStyle=pb.blockStyle)
-                        self.current_para = Paragraph()
-
-                else:
-                    tag_css = self.tag_css(tag)[0]  # Table should not inherit CSS
-                    try:
-                        self.process_table(tag, tag_css)
-                    except Exception as err:
-                        self.log.warning(_('An error occurred while processing a table: %s. Ignoring table markup.')%repr(err))
-                        self.log.exception('')
-                        self.log.debug(_('Bad table:\n%s')%unicode_type(tag)[:300])
-                        self.in_table = False
-                        self.process_children(tag, tag_css, tag_pseudo_css)
-                    finally:
-                        if self.minimize_memory_usage:
-                            tag.extract()
+                tag_css = self.tag_css(tag)[0]  # Table should not inherit CSS
+                try:
+                    self.process_table(tag, tag_css)
+                except Exception as err:
+                    self.log.warning(_('An error occurred while processing a table: %s. Ignoring table markup.')%repr(err))
+                    self.log.exception('')
+                    self.log.debug(_('Bad table:\n%s')%unicode_type(tag)[:300])
+                    self.in_table = False
+                    self.process_children(tag, tag_css, tag_pseudo_css)
+                finally:
+                    if self.minimize_memory_usage:
+                        tag.extract()
             else:
                 self.process_children(tag, tag_css, tag_pseudo_css)
         finally:
