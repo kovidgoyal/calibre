@@ -97,7 +97,7 @@ class UniqueFilenames(object):  # {{{
         self.opts = opts
         self.oeb = oeb
 
-        self.seen_filenames = set([])
+        self.seen_filenames = set()
         self.rename_map = {}
 
         for item in list(oeb.manifest.items):

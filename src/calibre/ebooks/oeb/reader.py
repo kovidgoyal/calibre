@@ -233,7 +233,7 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
             unchecked.clear()
-            warned = set([])
+            warned = set()
             for href in new:
                 known.add(href)
                 is_invalid = False
