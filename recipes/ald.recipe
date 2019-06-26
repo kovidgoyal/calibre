@@ -8,10 +8,9 @@ Recipe for Arts and Letters Daily website
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
-from datetime import date as dt
-from datetime import timedelta
-from datetime import datetime
+from datetime import date as dt, timedelta
 from itertools import compress
+from calibre.utils.date import parse_date
 
 
 class ALD(BasicNewsRecipe):
@@ -44,7 +43,7 @@ class ALD(BasicNewsRecipe):
             date_list.append(self.tag_to_string(div))
         date_list_clean = [re.sub(r'[^\w]', ' ', date) for date in date_list]
         date_list_bool = [
-            datetime.strptime(date, '%b %d %Y').date() >= oldest_date
+            parse_date(date).date() >= oldest_date
             for date in date_list_clean
         ]
         compress_date = list(compress(date_list, date_list_bool))
