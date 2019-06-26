@@ -640,17 +640,6 @@
     },
 
     {
-        "name": "dukpy",
-        "python": 2,
-        "unix": {
-            "filename": "dukpy-0.3.tar.gz",
-            "hash": "sha1:31c67f087f9d55798f2c00aba46fa18c3d8fb8aa",
-            "urls": ["https://github.com/kovidgoyal/dukpy/archive/v0.3.tar.gz"]
-        }
-    },
-
-
-    {
         "name": "chardet",
         "unix": {
             "filename": "chardet-3.0.4.tar.gz",
