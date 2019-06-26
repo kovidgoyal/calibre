@@ -34,7 +34,7 @@ from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jp
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
-from polyglot.builtins import iteritems, map, range, reraise, filter
+from polyglot.builtins import iteritems, map, range, reraise, filter, as_bytes
 from polyglot import http_client
 from polyglot.queue import Queue, Empty
 
@@ -468,13 +468,14 @@ def get_cover(metadata):
                 raise
         return b''
     etag, cached = safe_read(etag_file), safe_read(cover_file)
+    etag = etag.decode('utf-8')
     cached, etag = download_cover(metadata['cover-url'], etag, cached)
     if cached:
         with open(cover_file, 'wb') as f:
             f.write(cached)
     if etag:
         with open(etag_file, 'wb') as f:
-            f.write(etag)
+            f.write(as_bytes(etag))
     return cached or b''
 
 
