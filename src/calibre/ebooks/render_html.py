@@ -37,6 +37,7 @@ class Render(QWebEnginePage):
         if ok:
             self.start_print()
         else:
+            self.hang_timer.stop()
             QApplication.instance().exit(1)
 
     def start_load(self, path_to_html):
@@ -47,9 +48,11 @@ class Render(QWebEnginePage):
     def hang_check(self):
         if self.printing_started:
             if monotonic() - self.start_time > PRINT_TIMEOUT:
+                self.hang_timer.stop()
                 QApplication.instance().exit(4)
         else:
             if monotonic() - self.start_time > LOAD_TIMEOUT:
+                self.hang_timer.stop()
                 QApplication.instance().exit(3)
 
     def start_print(self):
