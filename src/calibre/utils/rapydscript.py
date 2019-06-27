@@ -144,6 +144,8 @@ document.title = 'compiler initialized';
             self.errors = []
             self.working = True
             options['basedir'] = '__stdlib__'
+            options['write_name'] = True
+            options['keep_docstrings'] = False
             src = 'var js = window.compiler.compile({}, {}); [js, window.write_cache]'.format(*map(json.dumps, (src, options)))
             self.runJavaScript(src, QWebEngineScript.ApplicationWorld, self.compilation_done)
             while self.working:
