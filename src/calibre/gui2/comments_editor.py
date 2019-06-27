@@ -14,8 +14,8 @@ from PyQt5.Qt import (
     QAction, QApplication, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
     QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon, QKeySequence,
     QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter,
-    Qt, QTabWidget, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
-    pyqtSlot
+    Qt, QTabWidget, QTextCursor, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal, pyqtSlot
 )
 
 from calibre import prepare_string_for_xml, xml_replace_entities
@@ -85,8 +85,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ('color', 'format-text-color', _('Foreground color')),
             ('background', 'format-fill-color', _('Background color')),
             ('insert_link', 'insert-link', _('Insert link or image'),),
-            ('insert_hr', 'format-text-hr.png', _('Insert separator'),),
-            ('clear', 'trash.png', _('Clear')),
+            ('insert_hr', 'format-text-hr', _('Insert separator'),),
+            ('clear', 'trash', _('Clear')),
         ):
             name, icon, text = rec[:3]
             checkable = len(rec) == 4
@@ -129,13 +129,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.readonly = what
 
     def do_clear(self, *args):
-        raise NotImplementedError('TODO')
-        us = self.page().undoStack()
-        us.beginMacro('clear all text')
-        self.action_select_all.trigger()
-        self.action_remove_format.trigger()
-        self.exec_command('delete')
-        us.endMacro()
+        c = self.textCursor()
+        c.beginEditBlock()
+        c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
+        c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        c.removeSelectedText()
+        c.endEditBlock()
         self.setFocus(Qt.OtherFocusReason)
     clear_text = do_clear
 
