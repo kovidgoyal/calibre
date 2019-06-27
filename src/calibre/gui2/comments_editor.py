@@ -1,151 +1,103 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+import json
+import os
+import re
+import weakref
 
-import re, os, json, weakref
-
-from lxml import html
-
-from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
-    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
-    QSyntaxHighlighter, QColor, QColorDialog, QMenu, QDialog, QLabel,
-    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
-    pyqtSignal, QCheckBox)
-from PyQt5.QtWebKitWidgets import QWebView, QWebPage
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
-
-from calibre.ebooks.chardet import xml_to_unicode
-from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING, secure_web_page
-from calibre.gui2.widgets import LineEditECM
 from html5_parser import parse
+from lxml import html
+from PyQt5.Qt import (
+    QAction, QApplication, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
+    QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon, QKeySequence,
+    QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter,
+    Qt, QTabWidget, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    pyqtSlot
+)
+
+from calibre import prepare_string_for_xml, xml_replace_entities
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
+from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
 
 
-class PageAction(QAction):  # {{{
-
-    def __init__(self, wac, icon, text, checkable, view):
-        QAction.__init__(self, QIcon(I(icon+'.png')), text, view)
-        self._page_action = getattr(QWebPage, wac)
-        self.setCheckable(checkable)
-        self.triggered.connect(self.trigger_page_action)
-        view.selectionChanged.connect(self.update_state,
-                type=Qt.QueuedConnection)
-        self.page_action.changed.connect(self.update_state,
-                type=Qt.QueuedConnection)
-        self.update_state()
-
-    @property
-    def page_action(self):
-        return self.parent().pageAction(self._page_action)
-
-    def trigger_page_action(self, *args):
-        self.page_action.trigger()
-
-    def update_state(self, *args):
-        if sip.isdeleted(self) or sip.isdeleted(self.page_action):
-            return
-        if self.isCheckable():
-            self.setChecked(self.page_action.isChecked())
-        self.setEnabled(self.page_action.isEnabled())
-
-# }}}
-
-
-class BlockStyleAction(QAction):  # {{{
-
-    def __init__(self, text, name, view):
-        QAction.__init__(self, text, view)
-        self._name = name
-        self.triggered.connect(self.apply_style)
-
-    def apply_style(self, *args):
-        self.parent().exec_command('formatBlock', self._name)
-
-# }}}
-
-
-class EditorWidget(QWebView, LineEditECM):  # {{{
+class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
 
+    @property
+    def readonly(self):
+        return self.isReadOnly()
+
+    @readonly.setter
+    def readonly(self, val):
+        self.setReadOnly(bool(val))
+
     def __init__(self, parent=None):
-        QWebView.__init__(self, parent)
+        QTextEdit.__init__(self, parent)
+        self.setTabChangesFocus(True)
+        font = self.font()
+        f = QFontInfo(font)
+        delta = tweaks['change_book_details_font_size_by'] + 1
+        if delta:
+            font.setPixelSize(f.pixelSize() + delta)
+            self.setFont(font)
         self.base_url = None
         self._parent = weakref.ref(parent)
-        self.readonly = False
-
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
 
         extra_shortcuts = {
-                'ToggleBold': 'Bold',
-                'ToggleItalic': 'Italic',
-                'ToggleUnderline': 'Underline',
+            'bold': 'Bold',
+            'italic': 'Italic',
+            'underline': 'Underline',
         }
 
-        for wac, name, icon, text, checkable in [
-                ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
-                ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
-                    True),
-                ('ToggleUnderline', 'underline', 'format-text-underline',
-                    _('Underline'), True),
-                ('ToggleStrikethrough', 'strikethrough', 'format-text-strikethrough',
-                    _('Strikethrough'), True),
-                ('ToggleSuperscript', 'superscript', 'format-text-superscript',
-                    _('Superscript'), True),
-                ('ToggleSubscript', 'subscript', 'format-text-subscript',
-                    _('Subscript'), True),
-                ('InsertOrderedList', 'ordered_list', 'format-list-ordered',
-                    _('Ordered list'), True),
-                ('InsertUnorderedList', 'unordered_list', 'format-list-unordered',
-                    _('Unordered list'), True),
+        for rec in (
+            ('bold', 'format-text-bold', _('Bold'), True),
+            ('italic', 'format-text-italic', _('Italic'), True),
+            ('underline', 'format-text-underline', _('Underline'), True),
+            ('strikethrough', 'format-text-strikethrough', _('Strikethrough'), True),
+            ('superscript', 'format-text-superscript', _('Superscript'), True),
+            ('subscript', 'format-text-subscript', _('Subscript'), True),
+            ('ordered_list', 'format-list-ordered', _('Ordered list'), True),
+            ('unordered_list', 'format-list-unordered', _('Unordered list'), True),
 
-                ('AlignLeft', 'align_left', 'format-justify-left',
-                    _('Align left'), False),
-                ('AlignCenter', 'align_center', 'format-justify-center',
-                    _('Align center'), False),
-                ('AlignRight', 'align_right', 'format-justify-right',
-                    _('Align right'), False),
-                ('AlignJustified', 'align_justified', 'format-justify-fill',
-                    _('Align justified'), False),
-                ('Undo', 'undo', 'edit-undo', _('Undo'), False),
-                ('Redo', 'redo', 'edit-redo', _('Redo'), False),
-                ('RemoveFormat', 'remove_format', 'edit-clear', _('Remove formatting'), False),
-                ('Copy', 'copy', 'edit-copy', _('Copy'), False),
-                ('Paste', 'paste', 'edit-paste', _('Paste'), False),
-                ('Cut', 'cut', 'edit-cut', _('Cut'), False),
-                ('Indent', 'indent', 'format-indent-more',
-                    _('Increase indentation'), False),
-                ('Outdent', 'outdent', 'format-indent-less',
-                    _('Decrease indentation'), False),
-                ('SelectAll', 'select_all', 'edit-select-all',
-                    _('Select all'), False),
-            ]:
-            ac = PageAction(wac, icon, text, checkable, self)
+            ('align_left', 'format-justify-left', _('Align left'), ),
+            ('align_center', 'format-justify-center', _('Align center'), ),
+            ('align_right', 'format-justify-right', _('Align right'), ),
+            ('align_justified', 'format-justify-fill', _('Align justified'), ),
+            ('undo', 'edit-undo', _('Undo'), ),
+            ('redo', 'edit-redo', _('Redo'), ),
+            ('remove_format', 'edit-clear', _('Remove formatting'), ),
+            ('copy', 'edit-copy', _('Copy'), ),
+            ('paste', 'edit-paste', _('Paste'), ),
+            ('cut', 'edit-cut', _('Cut'), ),
+            ('indent', 'format-indent-more', _('Increase indentation'), ),
+            ('outdent', 'format-indent-less', _('Decrease indentation'), ),
+            ('select_all', 'edit-select-all', _('Select all'), ),
+
+            ('color', 'format-text-color', _('Foreground color')),
+            ('background', 'format-fill-color', _('Background color')),
+            ('insert_link', 'insert-link', _('Insert link or image'),),
+            ('insert_hr', 'format-text-hr.png', _('Insert separator'),),
+            ('clear', 'trash.png', _('Clear')),
+        ):
+            name, icon, text = rec[:3]
+            checkable = len(rec) == 4
+            ac = QAction(QIcon(I(icon + '.png')), text, self)
+            if checkable:
+                ac.setCheckable(checkable)
             setattr(self, 'action_'+name, ac)
-            ss = extra_shortcuts.get(wac, None)
-            if ss:
+            ss = extra_shortcuts.get(name)
+            if ss is not None:
                 ac.setShortcut(QKeySequence(getattr(QKeySequence, ss)))
-            if wac == 'RemoveFormat':
-                ac.triggered.connect(self.remove_format_cleanup,
-                        type=Qt.QueuedConnection)
-
-        self.action_color = QAction(QIcon(I('format-text-color.png')), _('Foreground color'),
-                self)
-        self.action_color.triggered.connect(self.foreground_color)
-
-        self.action_background = QAction(QIcon(I('format-fill-color.png')),
-                _('Background color'), self)
-        self.action_background.triggered.connect(self.background_color)
+            ac.triggered.connect(getattr(self, 'do_' + name))
 
         self.action_block_style = QAction(QIcon(I('format-text-heading.png')),
                 _('Style text block'), self)
@@ -153,81 +105,124 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
                 _('Style the selected text block'))
         self.block_style_menu = QMenu(self)
         self.action_block_style.setMenu(self.block_style_menu)
-        self.block_style_actions = []
-        for text, name in [
-                (_('Normal'), 'p'),
-                (_('Heading') +' 1', 'h1'),
-                (_('Heading') +' 2', 'h2'),
-                (_('Heading') +' 3', 'h3'),
-                (_('Heading') +' 4', 'h4'),
-                (_('Heading') +' 5', 'h5'),
-                (_('Heading') +' 6', 'h6'),
-                (_('Pre-formatted'), 'pre'),
-                (_('Blockquote'), 'blockquote'),
-                (_('Address'), 'address'),
-                ]:
-            ac = BlockStyleAction(text, name, self)
+        h = _('Heading {0}')
+        for text, name in (
+            (_('Normal'), 'p'),
+            (h.format(1), 'h1'),
+            (h.format(2), 'h2'),
+            (h.format(3), 'h3'),
+            (h.format(4), 'h4'),
+            (h.format(5), 'h5'),
+            (h.format(6), 'h6'),
+            (_('Pre-formatted'), 'pre'),
+            (_('Blockquote'), 'blockquote'),
+            (_('Address'), 'address'),
+        ):
+            ac = QAction(text, self)
             self.block_style_menu.addAction(ac)
-            self.block_style_actions.append(ac)
-
-        self.action_insert_link = QAction(QIcon(I('insert-link.png')),
-                _('Insert link or image'), self)
-        self.action_insert_hr = QAction(QIcon(I('format-text-hr.png')),
-                _('Insert separator'), self)
-        self.action_insert_link.triggered.connect(self.insert_link)
-        self.action_insert_hr.triggered.connect(self.insert_hr)
-        self.pageAction(QWebPage.ToggleBold).changed.connect(self.update_link_action)
-        self.action_insert_link.setEnabled(False)
-        self.action_insert_hr.setEnabled(False)
-        self.action_clear = QAction(QIcon(I('trash.png')), _('Clear'), self)
-        self.action_clear.triggered.connect(self.clear_text)
-
-        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.page().linkClicked.connect(self.link_clicked)
-        secure_web_page(self.page().settings())
+            connect_lambda(ac.triggered, self, lambda self: self.do_format_block(name))
 
         self.setHtml('')
-        self.set_readonly(False)
-        self.page().contentsChanged.connect(self.data_changed)
-
-    def update_link_action(self):
-        wac = self.pageAction(QWebPage.ToggleBold).isEnabled()
-        self.action_insert_link.setEnabled(wac)
-        self.action_insert_hr.setEnabled(wac)
+        self.textChanged.connect(self.data_changed)
 
     def set_readonly(self, what):
         self.readonly = what
-        self.page().setContentEditable(not self.readonly)
 
-    def clear_text(self, *args):
+    def do_clear(self, *args):
+        raise NotImplementedError('TODO')
         us = self.page().undoStack()
         us.beginMacro('clear all text')
         self.action_select_all.trigger()
         self.action_remove_format.trigger()
         self.exec_command('delete')
         us.endMacro()
-        self.set_font_style()
         self.setFocus(Qt.OtherFocusReason)
+    clear_text = do_clear
 
-    def link_clicked(self, url):
-        open_url(url)
+    def do_bold(self):
+        raise NotImplementedError('TODO')
 
-    def foreground_color(self):
+    def do_italic(self):
+        raise NotImplementedError('TODO')
+
+    def do_underline(self):
+        raise NotImplementedError('TODO')
+
+    def do_strikethrough(self):
+        raise NotImplementedError('TODO')
+
+    def do_superscript(self):
+        raise NotImplementedError('TODO')
+
+    def do_subscript(self):
+        raise NotImplementedError('TODO')
+
+    def do_ordered_list(self):
+        raise NotImplementedError('TODO')
+
+    def do_unordered_list(self):
+        raise NotImplementedError('TODO')
+
+    def do_align_left(self):
+        raise NotImplementedError('TODO')
+
+    def do_align_center(self):
+        raise NotImplementedError('TODO')
+
+    def do_align_right(self):
+        raise NotImplementedError('TODO')
+
+    def do_align_justified(self):
+        raise NotImplementedError('TODO')
+
+    def do_undo(self):
+        self.undo()
+
+    def do_redo(self):
+        self.redo()
+
+    def do_remove_format(self):
+        raise NotImplementedError('TODO')
+
+    def do_copy(self):
+        self.copy()
+
+    def do_paste(self):
+        self.paste()
+
+    def do_cut(self):
+        self.cut()
+
+    def do_indent(self):
+        raise NotImplementedError('TODO')
+
+    def do_outdent(self):
+        raise NotImplementedError('TODO')
+
+    def do_select_all(self):
+        raise NotImplementedError('TODO')
+
+    def do_format_block(self, name):
+        raise NotImplementedError('TODO')
+
+    def do_color(self):
         col = QColorDialog.getColor(Qt.black, self,
                 _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
+            raise NotImplementedError('TODO')
             self.exec_command('foreColor', unicode_type(col.name()))
 
-    def background_color(self):
+    def do_background(self):
         col = QColorDialog.getColor(Qt.white, self,
                 _('Choose background color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
+            raise NotImplementedError('TODO')
             self.exec_command('hiliteColor', unicode_type(col.name()))
 
-    def insert_hr(self, *args):
-        self.exec_command('insertHTML', '<hr>')
+    def do_insert_hr(self, *args):
+        raise NotImplementedError('TODO')
 
-    def insert_link(self, *args):
+    def do_insert_link(self, *args):
         link, name, is_image = self.ask_link()
         if not link:
             return
@@ -235,6 +230,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         if url.isValid():
             url = unicode_type(url.toString(NO_URL_FORMATTING))
             self.setFocus(Qt.OtherFocusReason)
+            raise NotImplementedError('TODO')
             if is_image:
                 self.exec_command('insertHTML',
                         '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
@@ -325,18 +321,6 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
     def sizeHint(self):
         return QSize(150, 150)
 
-    def exec_command(self, cmd, arg=None):
-        frame = self.page().mainFrame()
-        if arg is not None:
-            js = 'document.execCommand("%s", false, %s);' % (cmd,
-                    json.dumps(unicode_type(arg)))
-        else:
-            js = 'document.execCommand("%s", false, null);' % cmd
-        frame.evaluateJavaScript(js)
-
-    def remove_format_cleanup(self):
-        self.html = self.html
-
     @property
     def html(self):
         ans = ''
@@ -371,7 +355,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
                 if not ans.startswith('<'):
                     ans = '<p>%s</p>'%ans
             ans = xml_replace_entities(ans)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -379,15 +363,25 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
 
     @html.setter
     def html(self, val):
-        if self.base_url is None:
-            self.setHtml(val)
-        else:
-            self.setHtml(val, self.base_url)
-        self.set_font_style()
+        self.setHtml(val)
 
     def set_base_url(self, qurl):
         self.base_url = qurl
-        self.setHtml('', self.base_url)
+
+    @pyqtSlot(int, 'QUrl', result='QVariant')
+    def loadResource(self, rtype, qurl):
+        if self.base_url:
+            if qurl.isRelative():
+                qurl = self.base_url.resolved(qurl)
+            if qurl.isLocalFile():
+                path = qurl.toLocalFile()
+                try:
+                    with lopen(path, 'rb') as f:
+                        data = f.read()
+                except EnvironmentError:
+                    pass
+                else:
+                    return QByteArray(data)
 
     def set_html(self, val, allow_undo=True):
         if not allow_undo or self.readonly:
@@ -396,44 +390,22 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
         mf = self.page().mainFrame()
         mf.evaluateJavaScript('document.execCommand("selectAll", false, null)')
         mf.evaluateJavaScript('document.execCommand("insertHTML", false, %s)' % json.dumps(unicode_type(val)))
-        self.set_font_style()
-
-    def set_font_style(self):
-        fi = QFontInfo(QApplication.font(self))
-        f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-        fam = unicode_type(fi.family()).strip().replace('"', '')
-        if not fam:
-            fam = 'sans-serif'
-        style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
-
-        # toList() is needed because PyQt on Debian is old/broken
-        for body in self.page().mainFrame().documentElement().findAll('body').toList():
-            body.setAttribute('style', style)
-        self.page().setContentEditable(not self.readonly)
-
-    def event(self, ev):
-        if ev.type() in (ev.KeyPress, ev.KeyRelease, ev.ShortcutOverride) and hasattr(ev, 'key') and ev.key() in (
-                Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
-            if (ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.ControlModifier and ev.type() == ev.KeyPress):
-                self.exec_command('insertHTML', '<span style="white-space:pre">\t</span>')
-                ev.accept()
-                return True
-            ev.ignore()
-            return False
-        return QWebView.event(self, ev)
 
     def text(self):
-        return self.page().selectedText()
+        return self.textCursor().selectedText()
 
     def setText(self, text):
-        self.exec_command('insertText', text)
+        c = self.textCursor()
+        c.insertText(text)
+        self.setTextCursor(c)
 
     def contextMenuEvent(self, ev):
-        menu = self.page().createStandardContextMenu()
-        paste = self.pageAction(QWebPage.Paste)
+        menu = self.createStandardContextMenu()
+        # paste = self.pageAction(QWebPage.Paste)
         for action in menu.actions():
-            if action == paste:
-                menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
+            pass
+            # if action == paste:
+            #     menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
         st = self.text()
         if st and st.strip():
             self.create_change_case_menu(menu)
@@ -757,7 +729,7 @@ class Editor(QWidget):  # {{{
         # }}}
 
         self.code_edit.textChanged.connect(self.code_dirtied)
-        self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
+        self.editor.data_changed.connect(self.wyswyg_dirtied)
 
     def set_minimum_height_for_editor(self, val):
         self.editor.setMinimumHeight(val)
