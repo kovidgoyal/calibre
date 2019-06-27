@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 
 import textwrap
@@ -83,7 +84,7 @@ class Tweak(object):  # {{{
         self.doc = ' ' + self.doc
         self.var_names = var_names
         if self.var_names:
-            self.doc = u"%s: %s\n\n%s"%(_('ID'), self.var_names[0], format_doc(self.doc))
+            self.doc = "%s: %s\n\n%s"%(_('ID'), self.var_names[0], format_doc(self.doc))
         self.default_values = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
@@ -99,10 +100,8 @@ class Tweak(object):  # {{{
                 ans.append('# ' + line)
         for key, val in iteritems(self.default_values):
             val = self.custom_values.get(key, val)
-            ans.append(u'%s = %r'%(key, val))
+            ans.append('%s = %r'%(key, val))
         ans = '\n'.join(ans)
-        if isinstance(ans, unicode_type):
-            ans = ans.encode('utf-8')
         return ans
 
     @property
@@ -124,9 +123,9 @@ class Tweak(object):  # {{{
         for x, val in iteritems(self.default_values):
             val = self.custom_values.get(x, val)
             if isinstance(val, (list, tuple, dict, set, frozenset)):
-                ans.append(u'%s = %s' % (x, pformat(val)))
+                ans.append('%s = %s' % (x, pformat(val)))
             else:
-                ans.append(u'%s = %r'%(x, val))
+                ans.append('%s = %r'%(x, val))
         return '\n\n'.join(ans)
 
     def restore_to_default(self):
@@ -236,7 +235,6 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         if not var_names:
             raise ValueError('Failed to find any variables for %r'%name)
         self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
-        # print '\n\n', self.tweaks[-1]
         return pos
 
     def restore_to_default(self, idx):
@@ -269,14 +267,14 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             ans.extend(['', '',
                 '# The following are tweaks for installed plugins', ''])
             for key, val in iteritems(self.plugin_tweaks):
-                ans.extend([u'%s = %r'%(key, val), '', ''])
+                ans.extend(['%s = %r'%(key, val), '', ''])
         return '\n'.join(ans)
 
     @property
     def plugin_tweaks_string(self):
         ans = []
         for key, val in iteritems(self.plugin_tweaks):
-            ans.extend([u'%s = %r'%(key, val), '', ''])
+            ans.extend(['%s = %r'%(key, val), '', ''])
         ans = '\n'.join(ans)
         if isbytestring(ans):
             ans = ans.decode('utf-8')
@@ -297,7 +295,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         query = lower(query)
         for r in candidates:
             dat = self.data(self.index(r), Qt.UserRole)
-            var_names = u' '.join(dat.default_values)
+            var_names = ' '.join(dat.default_values)
             if query in lower(dat.name) or query in lower(var_names):
                 ans.add(r)
         return ans
@@ -476,7 +474,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.context_menu.addAction(self.copy_icon,
                             _('Copy to clipboard'),
                             partial(self.copy_item_to_clipboard,
-                                    val=u"%s (%s: %s)"%(tweak.name,
+                                    val="%s (%s: %s)"%(tweak.name,
                                                         _('ID'),
                                                         tweak.var_names[0])))
         self.context_menu.popup(self.mapToGlobal(point))
