@@ -435,7 +435,7 @@ class HTMLDisplay(QTextBrowser):
     def __init__(self, parent=None):
         QTextBrowser.__init__(self, parent)
         font = self.font()
-        f = QFontInfo(self.font())
+        f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
         if delta:
             font.setPixelSize(f.pixelSize() + delta)
