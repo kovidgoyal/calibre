@@ -6,9 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, shutil, zipfile, glob, time, sys, hashlib, json, errno
+import os, re, shutil, zipfile, glob, json, errno
 from zlib import compress
-from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely, dump_json
@@ -28,102 +27,6 @@ def get_opts_from_parser(parser):
         for o in g.option_list:
             for x in do_opt(o):
                 yield x
-
-
-class Coffee(Command):  # {{{
-
-    description = 'Compile coffeescript files into javascript'
-    COFFEE_DIRS = ('ebooks/oeb/display', 'ebooks/oeb/polish')
-
-    def add_options(self, parser):
-        parser.add_option('--watch', '-w', action='store_true', default=False,
-                help='Autocompile when .coffee files are changed')
-        parser.add_option('--show-js', action='store_true', default=False,
-                help='Display the generated javascript')
-
-    def run(self, opts):
-        self.do_coffee_compile(opts)
-        if opts.watch:
-            try:
-                while True:
-                    time.sleep(0.5)
-                    self.do_coffee_compile(opts, timestamp=True,
-                            ignore_errors=True)
-            except KeyboardInterrupt:
-                pass
-
-    def show_js(self, raw):
-        from pygments.lexers import JavascriptLexer
-        from pygments.formatters import TerminalFormatter
-        from pygments import highlight
-        print(highlight(raw, JavascriptLexer(), TerminalFormatter()))
-
-    def do_coffee_compile(self, opts, timestamp=False, ignore_errors=False):
-        from calibre.utils.serve_coffee import compile_coffeescript
-        src_files = {}
-        for src in self.COFFEE_DIRS:
-            for f in glob.glob(self.j(self.SRC, __appname__, src,
-                '*.coffee')):
-                bn = self.b(f).rpartition('.')[0]
-                arcname = src.replace('/', '.') + '.' + bn + '.js'
-                try:
-                    with open(f, 'rb') as fs:
-                        src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
-                except EnvironmentError:
-                    time.sleep(0.1)
-                    with open(f, 'rb') as fs:
-                        src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
-
-        existing = {}
-        dest = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
-        if os.path.exists(dest):
-            with zipfile.ZipFile(dest, 'r') as zf:
-                existing_hashes = {}
-                raw = zf.comment
-                if raw:
-                    existing_hashes = json.loads(raw)
-                for info in zf.infolist():
-                    if info.filename in existing_hashes and src_files.get(info.filename, (None, None))[1] == existing_hashes[info.filename]:
-                        existing[info.filename] = (zf.read(info), info, existing_hashes[info.filename])
-
-        todo = set(src_files) - set(existing)
-        updated = {}
-        for arcname in todo:
-            name = arcname.rpartition('.')[0]
-            print('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
-                        timestamp else '', name))
-            src, sig = src_files[arcname]
-            js, errors = compile_coffeescript(open(src, 'rb').read(), filename=src)
-            if errors:
-                print('\n\tCompilation of %s failed'%name)
-                for line in errors:
-                    print(line, file=sys.stderr)
-                if ignore_errors:
-                    js = u'# Compilation from coffeescript failed'
-                else:
-                    raise SystemExit(1)
-            else:
-                if opts.show_js:
-                    self.show_js(js)
-                    print('#'*80)
-                    print('#'*80)
-            zi = zipfile.ZipInfo()
-            zi.filename = arcname
-            zi.date_time = time.localtime()[:6]
-            updated[arcname] = (js.encode('utf-8'), zi, sig)
-        if updated:
-            hashes = {}
-            with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
-                for raw, zi, sig in sorted(chain(itervalues(updated), itervalues(existing)), key=lambda x: x[1].filename):
-                    zf.writestr(zi, raw)
-                    hashes[zi.filename] = sig
-                zf.comment = json.dumps(hashes)
-
-    def clean(self):
-        x = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
-        if os.path.exists(x):
-            os.remove(x)
-# }}}
 
 
 class Kakasi(Command):  # {{{
@@ -296,7 +199,7 @@ class RapydScript(Command):  # {{{
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi', 'coffee', 'mathjax', 'rapydscript']
+    sub_commands = ['kakasi', 'mathjax', 'rapydscript']
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps
@@ -412,9 +315,8 @@ class Resources(Command):  # {{{
             x = self.j(self.RESOURCES, x+'.pickle')
             if os.path.exists(x):
                 os.remove(x)
-        from setup.commands import kakasi, coffee
+        from setup.commands import kakasi
         kakasi.clean()
-        coffee.clean()
         for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
                 'template-functions.json', 'user-manual-translation-stats.json'):
             x = self.j(self.RESOURCES, x)

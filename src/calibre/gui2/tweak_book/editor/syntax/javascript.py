@@ -90,4 +90,4 @@ Highlighter = create_highlighter('JavascriptHighlighter', JavascriptLexer)
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor
-    launch_editor(P('viewer/images.js'), syntax='javascript')
+    launch_editor(P('viewer.js'), syntax='javascript')

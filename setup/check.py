@@ -37,8 +37,6 @@ class Check(Command):
                             'unicodepoints.py', 'krcodepoints.py', 'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
                             'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
                         yield y
-                    if f.endswith('.coffee'):
-                        yield y
 
         for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
             for f in x[-1]:
@@ -90,12 +88,6 @@ class Check(Command):
             import whats_new
             whats_new.render_changelog(self.j(self.d(self.SRC), 'Changelog.yaml'))
             sys.path.remove(self.wn_path)
-        else:
-            from calibre.utils.serve_coffee import check_coffeescript
-            try:
-                check_coffeescript(f)
-            except:
-                return True
 
     def run(self, opts):
         self.fhash_cache = {}
