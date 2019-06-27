@@ -215,23 +215,19 @@ save_template_title_series_sorting = 'library_order'
 per_language_title_sort_articles = {
         # English
         'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
-
         # Esperanto
         'epo': (r'La\s+', r"L'", 'L´'),
-
         # Spanish
         'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra'  : (r'Le\s+', r'La\s+', r"L'", u'L´', u'L’', r'Les\s+', r'Un\s+', r'Une\s+',
                   r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", u'D´', u'L’'),
-
         # Italian
         'ita': ('Lo\\s+', 'Il\\s+', "L'", 'L´', 'La\\s+', 'Gli\\s+',
                 'I\\s+', 'Le\\s+', 'Uno\\s+', 'Un\\s+', 'Una\\s+', "Un'",
                 'Un´', 'Dei\\s+', 'Degli\\s+', 'Delle\\s+', 'Del\\s+',
                 'Della\\s+', 'Dello\\s+', "Dell'", 'Dell´'),
-
         # Portuguese
         'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
                   r'Uma\s+', r'Umas\s+', ),
