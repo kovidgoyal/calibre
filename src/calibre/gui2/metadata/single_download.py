@@ -17,7 +17,7 @@ from io import BytesIO
 from PyQt5.Qt import (
     QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
-    QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
+    QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
     QCursor, QHBoxLayout, QPushButton, QSizePolicy)
@@ -35,7 +35,6 @@ from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
-from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import iteritems, itervalues, unicode_type, range, getcwd
@@ -355,19 +354,13 @@ class Comments(HTMLDisplay):  # {{{
                     ans = unicode_type(col.name())
             return ans
 
-        fi = QFontInfo(QApplication.font(self.parent()))
-        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
-        fam = unicode_type(fi.family()).strip().replace('"', '')
-        if not fam:
-            fam = 'sans-serif'
-
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-family: "%s"; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -379,7 +372,7 @@ class Comments(HTMLDisplay):  # {{{
             </div>
             </body>
         <html>
-        '''%(fam, f, c)
+        '''%(c,)
         self.setHtml(templ%html)
 
     def sizeHint(self):

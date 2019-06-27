@@ -8,7 +8,7 @@ from collections import namedtuple
 from functools import partial
 
 from PyQt5.Qt import (
-    QAction, QApplication, QColor, QEasingCurve, QFontInfo, QIcon, QLayout, QMenu,
+    QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu,
     QMimeData, QPainter, QPalette, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
     QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
 )
@@ -118,12 +118,6 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
                 ans = unicode_type(col.name())
         return ans
 
-    fi = QFontInfo(QApplication.font(widget))
-    f = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-    fam = unicode_type(fi.family()).strip().replace('"', '')
-    if not fam:
-        fam = 'sans-serif'
-
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
     templ = '''\
@@ -132,8 +126,6 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         <style type="text/css">
             body, td {
                 background-color: transparent;
-                font-size: %dpx;
-                font-family: "%s",sans-serif;
                 color: %s
             }
         </style>
@@ -145,10 +137,10 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         %%s
         </body>
     <html>
-    '''%(f, fam, c, css)
+    '''%(c, css)
     comments = ''
     if comment_fields:
-        comments = '\n'.join(u'<div>%s</div>' % x for x in comment_fields)
+        comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
     right_pane = '<div id="comments" class="comments">%s</div>'%comments
 
     if vertical:

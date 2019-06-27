@@ -10,11 +10,12 @@ from PyQt5.Qt import (
     QAbstractListModel, QApplication, QCheckBox, QColor, QColorDialog, QComboBox,
     QDialog, QDialogButtonBox, QFont, QIcon, QKeySequence, QLabel, QLayout,
     QModelIndex, QPalette, QPixmap, QPoint, QPushButton, QRect, QSize, QSizePolicy,
-    QStyle, QStyledItemDelegate, Qt, QTextBrowser, QToolButton, QUndoCommand,
+    QStyle, QStyledItemDelegate, Qt, QTextBrowser, QToolButton, QUndoCommand, QFontInfo,
     QUndoStack, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.metadata import rating_to_stars
+from calibre.utils.config_base import tweaks
 from calibre.gui2 import gprefs, rating_font
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
@@ -433,6 +434,12 @@ class HTMLDisplay(QTextBrowser):
 
     def __init__(self, parent=None):
         QTextBrowser.__init__(self, parent)
+        font = self.font()
+        f = QFontInfo(self.font())
+        delta = tweaks['change_book_details_font_size_by'] + 1
+        if delta:
+            font.setPixelSize(f.pixelSize() + delta)
+            self.setFont(font)
         self.setFrameShape(self.NoFrame)
         self.setOpenLinks(False)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
