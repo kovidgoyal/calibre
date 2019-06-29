@@ -128,6 +128,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def set_readonly(self, what):
         self.readonly = what
 
+    def focus_self(self):
+        self.setFocus(Qt.TabFocusReason)
+
     def do_clear(self, *args):
         c = self.textCursor()
         c.beginEditBlock()
@@ -135,7 +138,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
         c.removeSelectedText()
         c.endEditBlock()
-        self.setFocus(Qt.OtherFocusReason)
+        self.focus_self()
     clear_text = do_clear
 
     def do_bold(self):
