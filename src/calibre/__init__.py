@@ -670,6 +670,9 @@ def fsync(fileobj):
         # harmless filesystem activity, and who cares about performance.
         # See https://bugs.launchpad.net/calibre/+bug/1834641
         # and https://bugzilla.kernel.org/show_bug.cgi?id=203973
+        # To check for the existence of the bug, simply run:
+        # python -c "p = '/run/media/kovid/Kindle/driveinfo.calibre'; f = open(p, 'r+b'); os.fsync(f.fileno());"
+        # this will cause the Kindle to disconnect.
         with open(fileobj.name + '.linux-sucks', 'wb') as f:
             f.write(b'I cannot believe I need to do this')
         os.remove(f.name)
