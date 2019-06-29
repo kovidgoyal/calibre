@@ -19,7 +19,7 @@ from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog, QCheckBox,
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
     get_toc, add_id, TOC, commit_toc, from_xpaths, from_links, from_files)
-from calibre.gui2 import Application, error_dialog, gprefs, info_dialog
+from calibre.gui2 import Application, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.gui2.convert.xpath_wizard import XPathEdit
@@ -305,11 +305,18 @@ class ItemView(QFrame):  # {{{
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
 
+    def ask_if_duplicates_should_be_removed(self):
+        return not question_dialog(self, _('Remove duplicates'), _(
+            'Should headings with the same text at the same level be included?'),
+            yes_text=_('&Include duplicates'), no_text=_('&Remove duplicates'))
+
     def create_from_major_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 4)], True)
+        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 4)],
+                self.ask_if_duplicates_should_be_removed())
 
     def create_from_all_headings(self):
-        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 7)], True)
+        self.create_from_xpath.emit(['//h:h%d'%i for i in range(1, 7)],
+                self.ask_if_duplicates_should_be_removed())
 
     def create_from_user_xpath(self):
         d = XPathDialog(self, self.prefs)
