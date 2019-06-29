@@ -660,3 +660,16 @@ def ipython(user_ns=None):
 def fsync(fileobj):
     fileobj.flush()
     os.fsync(fileobj.fileno())
+    if islinux and getattr(fileobj, 'name', None):
+        # On Linux kernels after 5.1.9 and 4.19.50 using fsync without any
+        # following activity causes Kindles to eject. Instead of fixing this in
+        # the obvious way, which is to have the kernel send some harmless
+        # filesystem activity after the FSYNC, the kernel developers seem to
+        # think the correct solution is to disable FSYNC using a mount flag
+        # which users will have to turn on manually. So instead we create some
+        # harmless filesystem activity, and who cares about performance.
+        # See https://bugs.launchpad.net/calibre/+bug/1834641
+        # and https://bugzilla.kernel.org/show_bug.cgi?id=203973
+        with open(fileobj.name + '.linux-sucks', 'wb') as f:
+            f.write(b'I cannot believe I need to do this')
+        os.remove(f.name)
