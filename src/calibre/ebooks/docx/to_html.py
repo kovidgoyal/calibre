@@ -497,6 +497,7 @@ class Convert(object):
         if m is not None:
             n = min(6, max(1, int(m.group(1))))
             dest.tag = 'h%d' % n
+            dest.set('data-heading-level', unicode_type(n))
 
         if style.bidi is True:
             dest.set('dir', 'rtl')
