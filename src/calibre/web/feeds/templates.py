@@ -102,7 +102,7 @@ class IndexTemplate(Template):
             head.append(STYLE(extra_css, type='text/css'))
         ul = UL(attrs('calibre_feed_list'))
         for i, feed in enumerate(feeds):
-            if feed:
+            if len(feed):
                 li = LI(A(feed.title, attrs('feed', rescale=120,
                     href='feed_%d/index.html'%i)), id='feed_%d'%i)
                 ul.append(li)
@@ -265,7 +265,7 @@ class TouchscreenIndexTemplate(Template):
 
         toc = TABLE(attrs('toc'),width="100%",border="0",cellpadding="3px")
         for i, feed in enumerate(feeds):
-            if feed:
+            if len(feed):
                 tr = TR()
                 tr.append(TD(attrs(rescale=120), A(feed.title, href='feed_%d/index.html'%i)))
                 tr.append(TD('%s' % len(feed.articles), style="text-align:right"))

@@ -243,12 +243,6 @@ class Feed(object):
     def __str__(self):
         return repr(self)
 
-    def __bool__(self):
-        for article in self:
-            if getattr(article, 'downloaded', False):
-                return True
-        return False
-
     def has_embedded_content(self):
         length = 0
         for a in self:
