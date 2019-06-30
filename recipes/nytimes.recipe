@@ -203,7 +203,7 @@ class NewYorkTimes(BasicNewsRecipe):
                     m = pat.search(key)
                     grouping, container, relation = map(int, m.groups())
                     asset = sdata['asset']
-                    if asset['typename'] == 'Article' and grouping == 0:
+                    if asset and asset['typename'] == 'Article' and grouping == 0:
                         if container not in sections:
                             sections[container] = []
                         sections[container].append(asset['id'].split(':', 1)[1])
