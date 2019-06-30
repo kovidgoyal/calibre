@@ -20,7 +20,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, as_unicode
 
 
 def is_basic_recipe(src):
@@ -594,6 +594,7 @@ class CustomRecipes(Dialog):
         src = get_builtin_recipe_by_id(id_, download_recipe=True)
         if src is None:
             raise Exception('Something weird happened')
+        src = as_unicode(src)
 
         self.edit_recipe(None, src)
 
