@@ -116,13 +116,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             (h.format(4), 'h4'),
             (h.format(5), 'h5'),
             (h.format(6), 'h6'),
-            (_('Pre-formatted'), 'pre'),
             (_('Blockquote'), 'blockquote'),
-            (_('Address'), 'address'),
         ):
             ac = QAction(text, self)
             self.block_style_menu.addAction(ac)
-            connect_lambda(ac.triggered, self, lambda self: self.do_format_block(name))
+            ac.block_name = name
+            ac.triggered.connect(self.do_format_block)
 
         self.setHtml('')
         self.copyAvailable.connect(self.update_clipboard_actions)
@@ -189,6 +188,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         fmt.setVerticalAlignment(which)
         c.mergeCharFormat(fmt)
         self.setTextCursor(c)
+        self.focus_self()
 
     def do_superscript(self):
         self.do_vertical_align(QTextCharFormat.AlignSuperScript)
@@ -206,6 +206,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         else:
             ls = c.createList(fmt)
         self.setTextCursor(c)
+        self.focus_self()
 
     def do_ordered_list(self):
         self.do_list(QTextListFormat.ListDecimal)
@@ -262,6 +263,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         bf.setTextIndent(bf.textIndent() + 2 * self.em_size * mult)
         c.setBlockFormat(bf)
         self.setTextCursor(c)
+        self.focus_self()
 
     def do_indent(self):
         self.indent_block()
@@ -274,9 +276,53 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
         c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
         self.setTextCursor(c)
+        self.focus_self()
 
-    def do_format_block(self, name):
-        raise NotImplementedError('TODO')
+    def font_size_for_heading(self, level):
+        return int(self.em_size * (1, 2, 1.5, 1.17, 1, 0.83, 0.67)[max(0, min(level, 6))])
+
+    def level_for_block_type(self, name):
+        if name == 'blockquote':
+            return 0
+        return {q: i for i, q in enumerate('p h1 h2 h3 h4 h5 h6'.split())}[name]
+
+    def vmargin_for_block_type(self, name):
+        if name == 'blockquote':
+            return self.em_size
+        return (0, 0.67, 0.83, 1, 1.33, 1.67, 2.33)[self.level_for_block_type(name)] * self.em_size
+
+    def do_format_block(self):
+        name = self.sender().block_name
+        c = self.textCursor()
+        c.beginEditBlock()
+        bf = QTextBlockFormat()
+        cf = QTextCharFormat()
+        bcf = c.blockCharFormat()
+        lvl = self.level_for_block_type(name)
+        hmargin = 0
+        font = self.font()
+        font.setBold(bool(lvl))
+        font.setPixelSize(self.font_size_for_heading(lvl))
+        if name == 'blockquote':
+            hmargin = self.em_size * 3
+        pos = None
+        if not c.hasSelection():
+            pos = c.position()
+            c.movePosition(QTextCursor.StartOfBlock, QTextCursor.MoveAnchor)
+            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        bf.setLeftMargin(hmargin), bf.setRightMargin(bf.leftMargin())
+        bf.setTopMargin(self.vmargin_for_block_type(name)), bf.setBottomMargin(bf.topMargin())
+        bf.setHeadingLevel(lvl)
+        bcf.setFont(font, QTextCharFormat.FontPropertiesSpecifiedOnly)
+        cf.setFont(font, QTextCharFormat.FontPropertiesSpecifiedOnly)
+        c.setBlockCharFormat(bcf)
+        c.mergeCharFormat(cf)
+        c.mergeBlockFormat(bf)
+        if pos is not None:
+            c.setPosition(pos)
+        c.endEditBlock()
+        self.setTextCursor(c)
+        self.focus_self()
 
     def do_color(self):
         col = QColorDialog.getColor(Qt.black, self,
