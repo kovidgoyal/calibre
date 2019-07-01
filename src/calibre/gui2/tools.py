@@ -22,7 +22,7 @@ from calibre.ebooks.conversion.config import (
         GuiRecommendations, load_defaults, load_specifics, save_specifics,
         get_input_format_for_book, NoSupportedInputFormats)
 from calibre.gui2.convert import bulk_defaults_for_input_format
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
@@ -187,7 +187,7 @@ class QueueBulk(QProgressDialog):
                         index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
-            out_file.write(self.output_format)
+            out_file.write(as_bytes(self.output_format))
             out_file.close()
             temp_files = [in_file]
 
