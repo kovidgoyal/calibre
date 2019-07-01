@@ -88,7 +88,7 @@ def expand_file_list(items, is_paths=True):
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:
             if '*' in item:
-                ans.extend(expand_file_list(glob.glob(os.path.join(SRC, item)), is_paths=is_paths))
+                ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths))
             else:
                 item = [item]
                 if is_paths:
