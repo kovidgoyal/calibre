@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
 import os
 import re
 import weakref
@@ -325,43 +324,35 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     @property
     def html(self):
-        ans = ''
+        raw = original_html = self.toHtml()
+        check = self.toPlainText().strip()
+        raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
+        raw = self.comments_pat.sub('', raw)
+        if not check and '<img' not in raw.lower():
+            return ''
+
         try:
-            if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
-                # Bypass cleanup if special meta tag exists
-                return unicode_type(self.page().mainFrame().toHtml())
-            check = unicode_type(self.page().mainFrame().toPlainText()).strip()
-            raw = unicode_type(self.page().mainFrame().toHtml())
-            raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                                resolve_entities=True)[0]
-            raw = self.comments_pat.sub('', raw)
-            if not check and '<img' not in raw.lower():
-                return ans
-
-            try:
-                root = html.fromstring(raw)
-            except Exception:
-                root = parse(raw, maybe_xhtml=False, sanitize_names=True)
-
-            elems = []
-            for body in root.xpath('//body'):
-                if body.text:
-                    elems.append(body.text)
-                elems += [html.tostring(x, encoding='unicode') for x in body if
-                    x.tag not in ('script', 'style')]
-
-            if len(elems) > 1:
-                ans = '<div>%s</div>'%(''.join(elems))
-            else:
-                ans = ''.join(elems)
-                if not ans.startswith('<'):
-                    ans = '<p>%s</p>'%ans
-            ans = xml_replace_entities(ans)
+            root = html.fromstring(raw)
         except Exception:
-            import traceback
-            traceback.print_exc()
+            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        if root.xpath('//meta[@name="calibre-dont-sanitize"]'):
+            # Bypass cleanup if special meta tag exists
+            return original_html
 
-        return ans
+        elems = []
+        for body in root.xpath('//body'):
+            if body.text:
+                elems.append(body.text)
+            elems += [html.tostring(x, encoding='unicode') for x in body if
+                x.tag not in ('script', 'style')]
+
+        if len(elems) > 1:
+            ans = '<div>%s</div>'%(u''.join(elems))
+        else:
+            ans = ''.join(elems)
+            if not ans.startswith('<'):
+                ans = '<p>%s</p>'%ans
+        return xml_replace_entities(ans)
 
     @html.setter
     def html(self, val):
@@ -389,9 +380,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if not allow_undo or self.readonly:
             self.html = val
             return
-        mf = self.page().mainFrame()
-        mf.evaluateJavaScript('document.execCommand("selectAll", false, null)')
-        mf.evaluateJavaScript('document.execCommand("insertHTML", false, %s)' % json.dumps(unicode_type(val)))
+        c = self.textCursor()
+        c.beginEditBlock()
+        c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
+        c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        c.removeSelectedText()
+        c.insertHTML(val)
+        c.endEditBlock()
+        self.setTextCursor(c)
 
     def text(self):
         return self.textCursor().selectedText()
