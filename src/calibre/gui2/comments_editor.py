@@ -12,8 +12,8 @@ from lxml import html
 from PyQt5.Qt import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
     QDialog, QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSize,
-    QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
+    QKeySequence, QLabel, QLineEdit, QTextListFormat, QMenu, QPlainTextEdit, QPushButton,
+    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
     QTextCursor, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
     pyqtSlot
 )
@@ -130,9 +130,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         connect_lambda(self.undoAvailable, self, lambda self, yes: self.action_undo.setEnabled(yes))
         connect_lambda(self.redoAvailable, self, lambda self, yes: self.action_redo.setEnabled(yes))
         self.action_undo.setEnabled(False), self.action_redo.setEnabled(False)
-        # self.textChanged.connect(self.update_action_state)
-        # self.cursorPositionChanged.connect(self.update_action_state)
+        self.textChanged.connect(self.update_cursor_position_actions)
+        self.cursorPositionChanged.connect(self.update_cursor_position_actions)
         self.textChanged.connect(self.data_changed)
+        self.update_cursor_position_actions()
 
     def update_clipboard_actions(self, copy_available):
         self.action_copy.setEnabled(copy_available)
@@ -141,6 +142,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def update_selection_based_actions(self):
         has_selection = self.textCursor().hasSelection()
         self.action_remove_format.setEnabled(has_selection)
+
+    def update_cursor_position_actions(self):
+        c = self.textCursor()
+        ls = c.currentList()
+        self.action_ordered_list.setChecked(ls is not None and ls.format().style() == QTextListFormat.ListDecimal)
+        self.action_unordered_list.setChecked(ls is not None and ls.format().style() == QTextListFormat.ListDisc)
 
     def set_readonly(self, what):
         self.readonly = what
@@ -176,11 +183,22 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def do_subscript(self):
         raise NotImplementedError('TODO')
 
+    def do_list(self, fmt):
+        c = self.textCursor()
+        ls = c.currentList()
+        if ls is not None:
+            lf = ls.format()
+            lf.setStyle(fmt)
+            ls.setFormat(lf)
+        else:
+            ls = c.createList(fmt)
+        self.setTextCursor(c)
+
     def do_ordered_list(self):
-        raise NotImplementedError('TODO')
+        self.do_list(QTextListFormat.ListDecimal)
 
     def do_unordered_list(self):
-        raise NotImplementedError('TODO')
+        self.do_list(QTextListFormat.ListDisc)
 
     def do_align_left(self):
         raise NotImplementedError('TODO')
