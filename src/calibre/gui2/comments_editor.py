@@ -10,11 +10,12 @@ import weakref
 from html5_parser import parse
 from lxml import html
 from PyQt5.Qt import (
-    QAction, QApplication, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
-    QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon, QKeySequence,
-    QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter,
-    Qt, QTabWidget, QTextCursor, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal, pyqtSlot
+    QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
+    QDialog, QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon,
+    QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSize,
+    QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
+    QTextCursor, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    pyqtSlot
 )
 
 from calibre import prepare_string_for_xml, xml_replace_entities
@@ -122,7 +123,24 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             connect_lambda(ac.triggered, self, lambda self: self.do_format_block(name))
 
         self.setHtml('')
+        self.copyAvailable.connect(self.update_clipboard_actions)
+        self.update_clipboard_actions(False)
+        self.selectionChanged.connect(self.update_selection_based_actions)
+        self.update_selection_based_actions()
+        connect_lambda(self.undoAvailable, self, lambda self, yes: self.action_undo.setEnabled(yes))
+        connect_lambda(self.redoAvailable, self, lambda self, yes: self.action_redo.setEnabled(yes))
+        self.action_undo.setEnabled(False), self.action_redo.setEnabled(False)
+        # self.textChanged.connect(self.update_action_state)
+        # self.cursorPositionChanged.connect(self.update_action_state)
         self.textChanged.connect(self.data_changed)
+
+    def update_clipboard_actions(self, copy_available):
+        self.action_copy.setEnabled(copy_available)
+        self.action_cut.setEnabled(copy_available)
+
+    def update_selection_based_actions(self):
+        has_selection = self.textCursor().hasSelection()
+        self.action_remove_format.setEnabled(has_selection)
 
     def set_readonly(self, what):
         self.readonly = what
@@ -178,21 +196,34 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def do_undo(self):
         self.undo()
+        self.focus_self()
 
     def do_redo(self):
         self.redo()
+        self.focus_self()
 
     def do_remove_format(self):
-        raise NotImplementedError('TODO')
+        c = self.textCursor()
+        c.beginEditBlock()
+        c.setBlockFormat(QTextBlockFormat())
+        text = c.selectedText()
+        c.removeSelectedText()
+        c.insertText(text)
+        c.endEditBlock()
+        self.setTextCursor(c)
+        self.focus_self()
 
     def do_copy(self):
         self.copy()
+        self.focus_self()
 
     def do_paste(self):
         self.paste()
+        self.focus_self()
 
     def do_cut(self):
         self.cut()
+        self.focus_self()
 
     def do_indent(self):
         raise NotImplementedError('TODO')
@@ -201,7 +232,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         raise NotImplementedError('TODO')
 
     def do_select_all(self):
-        raise NotImplementedError('TODO')
+        c = self.textCursor()
+        c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
+        c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        self.setTextCursor(c)
 
     def do_format_block(self, name):
         raise NotImplementedError('TODO')
@@ -217,8 +251,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         col = QColorDialog.getColor(Qt.white, self,
                 _('Choose background color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
-            raise NotImplementedError('TODO')
-            self.exec_command('hiliteColor', unicode_type(col.name()))
+            fmt = QTextCharFormat()
+            fmt.setBackground(QBrush(col))
+            c = self.textCursor()
+            c.mergeCharFormat(fmt)
+            self.setTextCursor(c)
 
     def do_insert_hr(self, *args):
         raise NotImplementedError('TODO')
