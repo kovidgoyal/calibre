@@ -11,11 +11,11 @@ from html5_parser import parse
 from lxml import html
 from PyQt5.Qt import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
-    QDialog, QDialogButtonBox, QFontInfo, QFormLayout, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QLineEdit, QTextListFormat, QMenu, QPlainTextEdit, QPushButton,
+    QDialog, QDialogButtonBox, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout,
+    QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton,
     QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
-    pyqtSlot
+    QTextCursor, QTextEdit, QTextListFormat, QToolBar, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal, pyqtSlot
 )
 
 from calibre import prepare_string_for_xml, xml_replace_entities
@@ -48,6 +48,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if delta:
             font.setPixelSize(f.pixelSize() + delta)
             self.setFont(font)
+        f = QFontMetrics(self.font())
+        self.em_size = f.horizontalAdvance('m')
         self.base_url = None
         self._parent = weakref.ref(parent)
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
@@ -254,11 +256,18 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.cut()
         self.focus_self()
 
+    def indent_block(self, mult=1):
+        c = self.textCursor()
+        bf = c.blockFormat()
+        bf.setTextIndent(bf.textIndent() + 2 * self.em_size * mult)
+        c.setBlockFormat(bf)
+        self.setTextCursor(c)
+
     def do_indent(self):
-        raise NotImplementedError('TODO')
+        self.indent_block()
 
     def do_outdent(self):
-        raise NotImplementedError('TODO')
+        self.indent_block(-1)
 
     def do_select_all(self):
         c = self.textCursor()
