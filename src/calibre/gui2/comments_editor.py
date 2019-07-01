@@ -148,6 +148,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         ls = c.currentList()
         self.action_ordered_list.setChecked(ls is not None and ls.format().style() == QTextListFormat.ListDecimal)
         self.action_unordered_list.setChecked(ls is not None and ls.format().style() == QTextListFormat.ListDisc)
+        tcf = c.charFormat()
+        vert = tcf.verticalAlignment()
+        self.action_superscript.setChecked(vert == QTextCharFormat.AlignSuperScript)
+        self.action_subscript.setChecked(vert == QTextCharFormat.AlignSubScript)
 
     def set_readonly(self, what):
         self.readonly = what
@@ -177,11 +181,18 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def do_strikethrough(self):
         raise NotImplementedError('TODO')
 
+    def do_vertical_align(self, which):
+        c = self.textCursor()
+        fmt = QTextCharFormat()
+        fmt.setVerticalAlignment(which)
+        c.mergeCharFormat(fmt)
+        self.setTextCursor(c)
+
     def do_superscript(self):
-        raise NotImplementedError('TODO')
+        self.do_vertical_align(QTextCharFormat.AlignSuperScript)
 
     def do_subscript(self):
-        raise NotImplementedError('TODO')
+        self.do_vertical_align(QTextCharFormat.AlignSubScript)
 
     def do_list(self, fmt):
         c = self.textCursor()
