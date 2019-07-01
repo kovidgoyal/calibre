@@ -308,9 +308,8 @@ How do I use calibre with my iPad/iPhone/iPod touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest way to transfer books wirelessly to your Apple device (iPad/iPhone/iPod)
-is to use the `Calibre Companion <https://calibrecompanion.co/>`_
-iOS app. This app is maintained by a core calibre developer and allows
-calibre to connect to your Apple device wirelessly, just as though you
+is to use the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=IOS>`_ iOS app.
+This app allows calibre to connect to your Apple device wirelessly, just as though you 
 plugged in the device with a USB cable. You can browse files on the device
 in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
@@ -386,9 +385,8 @@ Over the air
 ^^^^^^^^^^^^^^
 
 The easiest way to transfer books wirelessly to your Android device is to use
-the `Calibre Companion <https://calibrecompanion.co/>`_
-Android app. This app is maintained by a core calibre developer and allows
-calibre to connect to your Android device wirelessly, just as though you
+the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=Android>`_ Android app.
+This app allows calibre to connect to your Android device wirelessly, just as though you
 plugged in the device with a USB cable. You can browse files on the device
 in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
