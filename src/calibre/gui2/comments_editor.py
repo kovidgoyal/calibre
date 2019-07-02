@@ -7,6 +7,7 @@ import os
 import re
 import weakref
 from collections import defaultdict
+from contextlib import contextmanager
 
 from html5_parser import parse
 from lxml import html
@@ -159,6 +160,16 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def readonly(self, val):
         self.setReadOnly(bool(val))
 
+    @contextmanager
+    def editing_cursor(self, set_cursor=True):
+        c = self.textCursor()
+        c.beginEditBlock()
+        yield c
+        c.endEditBlock()
+        if set_cursor:
+            self.setTextCursor(c)
+        self.focus_self()
+
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
@@ -302,12 +313,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         raise NotImplementedError('TODO')
 
     def do_vertical_align(self, which):
-        c = self.textCursor()
-        fmt = QTextCharFormat()
-        fmt.setVerticalAlignment(which)
-        c.mergeCharFormat(fmt)
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            fmt = QTextCharFormat()
+            fmt.setVerticalAlignment(which)
+            c.mergeCharFormat(fmt)
 
     def do_superscript(self):
         self.do_vertical_align(QTextCharFormat.AlignSuperScript)
@@ -316,16 +325,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.do_vertical_align(QTextCharFormat.AlignSubScript)
 
     def do_list(self, fmt):
-        c = self.textCursor()
-        ls = c.currentList()
-        if ls is not None:
-            lf = ls.format()
-            lf.setStyle(fmt)
-            ls.setFormat(lf)
-        else:
-            ls = c.createList(fmt)
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            ls = c.currentList()
+            if ls is not None:
+                lf = ls.format()
+                lf.setStyle(fmt)
+                ls.setFormat(lf)
+            else:
+                ls = c.createList(fmt)
 
     def do_ordered_list(self):
         self.do_list(QTextListFormat.ListDecimal)
@@ -354,13 +361,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.focus_self()
 
     def do_remove_format(self):
-        c = self.textCursor()
-        c.beginEditBlock()
-        c.setBlockFormat(QTextBlockFormat())
-        c.setCharFormat(QTextCharFormat())
-        c.endEditBlock()
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            c.setBlockFormat(QTextBlockFormat())
+            c.setCharFormat(QTextCharFormat())
 
     def do_copy(self):
         self.copy()
@@ -375,12 +378,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.focus_self()
 
     def indent_block(self, mult=1):
-        c = self.textCursor()
-        bf = c.blockFormat()
-        bf.setTextIndent(bf.textIndent() + 2 * self.em_size * mult)
-        c.setBlockFormat(bf)
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            bf = c.blockFormat()
+            bf.setTextIndent(bf.textIndent() + 2 * self.em_size * mult)
+            c.setBlockFormat(bf)
 
     def do_indent(self):
         self.indent_block()
@@ -389,11 +390,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.indent_block(-1)
 
     def do_select_all(self):
-        c = self.textCursor()
-        c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
-        c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
+            c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
 
     def level_for_block_type(self, name):
         if name == 'blockquote':
@@ -407,39 +406,35 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def do_format_block(self):
         name = self.sender().block_name
-        c = self.textCursor()
-        c.beginEditBlock()
-        bf = QTextBlockFormat()
-        cf = QTextCharFormat()
-        bcf = c.blockCharFormat()
-        lvl = self.level_for_block_type(name)
-        hmargin = 0
-        wt = 75 if lvl else None
-        adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
-        if name == 'blockquote':
-            hmargin = self.em_size * 3
-        pos = None
-        if not c.hasSelection():
-            pos = c.position()
-            c.movePosition(QTextCursor.StartOfBlock, QTextCursor.MoveAnchor)
-            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
-        bf.setLeftMargin(hmargin), bf.setRightMargin(bf.leftMargin())
-        bf.setTopMargin(self.vmargin_for_block_type(name)), bf.setBottomMargin(bf.topMargin())
-        bf.setHeadingLevel(lvl)
-        if adjust:
-            bcf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
-            cf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
-        if wt:
-            bcf.setProperty(QTextCharFormat.FontWeight, wt)
-            cf.setProperty(QTextCharFormat.FontWeight, wt)
-        c.setBlockCharFormat(bcf)
-        c.mergeCharFormat(cf)
-        c.mergeBlockFormat(bf)
-        if pos is not None:
-            c.setPosition(pos)
-        c.endEditBlock()
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            bf = QTextBlockFormat()
+            cf = QTextCharFormat()
+            bcf = c.blockCharFormat()
+            lvl = self.level_for_block_type(name)
+            hmargin = 0
+            wt = 75 if lvl else None
+            adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
+            if name == 'blockquote':
+                hmargin = self.em_size * 3
+            pos = None
+            if not c.hasSelection():
+                pos = c.position()
+                c.movePosition(QTextCursor.StartOfBlock, QTextCursor.MoveAnchor)
+                c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            bf.setLeftMargin(hmargin), bf.setRightMargin(bf.leftMargin())
+            bf.setTopMargin(self.vmargin_for_block_type(name)), bf.setBottomMargin(bf.topMargin())
+            bf.setHeadingLevel(lvl)
+            if adjust:
+                bcf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
+                cf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
+            if wt:
+                bcf.setProperty(QTextCharFormat.FontWeight, wt)
+                cf.setProperty(QTextCharFormat.FontWeight, wt)
+            c.setBlockCharFormat(bcf)
+            c.mergeCharFormat(cf)
+            c.mergeBlockFormat(bf)
+            if pos is not None:
+                c.setPosition(pos)
 
     def do_color(self):
         col = QColorDialog.getColor(Qt.black, self,
@@ -454,18 +449,13 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if col.isValid():
             fmt = QTextCharFormat()
             fmt.setBackground(QBrush(col))
-            c = self.textCursor()
-            c.mergeCharFormat(fmt)
-            self.setTextCursor(c)
+            with self.editing_cursor() as c:
+                c.mergeCharFormat(fmt)
 
     def do_insert_hr(self, *args):
-        c = self.textCursor()
-        c.beginEditBlock()
-        c.movePosition(c.EndOfBlock, c.MoveAnchor)
-        c.insertHtml('<hr>')
-        c.endEditBlock()
-        self.setTextCursor(c)
-        self.focus_self()
+        with self.editing_cursor() as c:
+            c.movePosition(c.EndOfBlock, c.MoveAnchor)
+            c.insertHtml('<hr>')
 
     def do_insert_link(self, *args):
         link, name, is_image = self.ask_link()
