@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 
-from calibre import prepare_string_for_xml, xml_replace_entities
+from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
 from calibre.gui2.widgets import LineEditECM
@@ -121,6 +121,16 @@ def use_implicit_styling_for_span(span, style):
         span.tag = 'sub' if style.pop('vertical-align') == 'sub' else 'sup'
 
 
+def use_implicit_styling_for_a(a, style_map):
+    for span in a.iterchildren('span'):
+        style = style_map[span]
+        if style.get('text-decoration') == 'underline':
+            del style['text-decoration']
+        if style.get('color') == '#0000ff':
+            del style['color']
+        break
+
+
 def cleanup_qt_markup(root):
     from calibre.ebooks.docx.cleanup import lift
     style_map = defaultdict(dict)
@@ -134,6 +144,8 @@ def cleanup_qt_markup(root):
         remove_zero_indents(tag_style)
         if tag.tag.startswith('h') and tag.tag[1:] in '123456':
             remove_heading_font_styles(tag, tag_style)
+        for child in tag.iterdescendants('a'):
+            use_implicit_styling_for_a(child, style_map)
         for child in tag.iterdescendants('span'):
             use_implicit_styling_for_span(child, style_map[child])
     for style in itervalues(style_map):
@@ -517,24 +529,40 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         url = self.parse_link(link)
         if url.isValid():
             url = unicode_type(url.toString(NO_URL_FORMATTING))
-            self.setFocus(Qt.OtherFocusReason)
-            raise NotImplementedError('TODO')
-            if is_image:
-                self.exec_command('insertHTML',
-                        '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
-                            prepare_string_for_xml(name or _('Image'), True)))
-            elif name:
-                self.exec_command('insertHTML',
-                        '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
-                            prepare_string_for_xml(name)))
-            else:
-                self.exec_command('createLink', url)
+            self.focus_self()
+            with self.editing_cursor() as c:
+                if is_image:
+                    c.insertImage(url)
+                else:
+                    name = name or url
+                    fmt = QTextCharFormat()
+                    fmt.setAnchor(True)
+                    fmt.setAnchorHref(url)
+                    fmt.setFontUnderline(True)
+                    fmt.setForeground(QBrush(QColor('blue')))
+                    prev_fmt = c.charFormat()
+                    c.mergeCharFormat(fmt)
+                    c.insertText(url)
+                    c.setCharFormat(prev_fmt)
         else:
             error_dialog(self, _('Invalid URL'),
                          _('The url %r is invalid') % link, show=True)
 
     def ask_link(self):
-        d = QDialog(self)
+
+        class Ask(QDialog):
+
+            def accept(self):
+                if self.treat_as_image.isChecked():
+                    url = self.url.text()
+                    if url.lower().split(':', 1)[0] in ('http', 'https'):
+                        error_dialog(self, _('Remote images not supported'), _(
+                            'You must download the image to you computer, URLs pointing'
+                            ' to remote images are not supported.'), show=True)
+                        return
+                QDialog.accept(self)
+
+        d = Ask(self)
         d.setWindowTitle(_('Create link'))
         l = QFormLayout()
         l.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
@@ -548,7 +576,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
 
         def cf():
-            files = choose_files(d, 'select link file', _('Choose file'), select_only_single_file=True)
+            files = choose_files(d, 'select link file', _('Choose file'), [
+                (_('Images'), 'png jpeg jpg gif'.split())], select_only_single_file=True)
             if files:
                 path = files[0]
                 d.url.setText(path)
@@ -669,14 +698,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if not allow_undo or self.readonly:
             self.html = val
             return
-        c = self.textCursor()
-        c.beginEditBlock()
-        c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
-        c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
-        c.removeSelectedText()
-        c.insertHTML(val)
-        c.endEditBlock()
-        self.setTextCursor(c)
+        with self.editing_cursor() as c:
+            c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
+            c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+            c.removeSelectedText()
+            c.insertHTML(val)
 
     def text(self):
         return self.textCursor().selectedText()
@@ -687,6 +713,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.setTextCursor(c)
 
     def contextMenuEvent(self, ev):
+        raise NotImplementedError('TODO')
         menu = self.createStandardContextMenu()
         # paste = self.pageAction(QWebPage.Paste)
         for action in menu.actions():
