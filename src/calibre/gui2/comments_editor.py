@@ -13,11 +13,11 @@ from html5_parser import parse
 from lxml import html
 from PyQt5.Qt import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
-    QDialog, QDialogButtonBox, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout,
-    QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit, QPushButton,
-    QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat, QTextCharFormat,
-    QTextCursor, QTextEdit, QTextListFormat, QToolBar, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal, pyqtSlot
+    QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout,
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit,
+    QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat,
+    QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat, QToolBar, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 
 from calibre import prepare_string_for_xml, xml_replace_entities
@@ -28,8 +28,8 @@ from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
 
-
 # Cleanup Qt markup {{{
+
 
 def parse_style(style):
     props = filter(None, (x.strip() for x in style.split(';')))
@@ -283,6 +283,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         vert = tcf.verticalAlignment()
         self.action_superscript.setChecked(vert == QTextCharFormat.AlignSuperScript)
         self.action_subscript.setChecked(vert == QTextCharFormat.AlignSubScript)
+        self.action_bold.setChecked(tcf.intProperty(QTextCharFormat.FontWeight) == QFont.Bold)
+        self.action_italic.setChecked(tcf.boolProperty(QTextCharFormat.FontItalic))
 
     def set_readonly(self, what):
         self.readonly = what
@@ -301,10 +303,17 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     clear_text = do_clear
 
     def do_bold(self):
-        raise NotImplementedError('TODO')
+        with self.editing_cursor() as c:
+            fmt = QTextCharFormat()
+            fmt.setFontWeight(
+                QFont.Bold if c.charFormat().fontWeight() != QFont.Bold else QFont.Normal)
+            c.mergeCharFormat(fmt)
 
     def do_italic(self):
-        raise NotImplementedError('TODO')
+        with self.editing_cursor() as c:
+            fmt = QTextCharFormat()
+            fmt.setFontItalic(not c.charFormat().fontItalic())
+            c.mergeCharFormat(fmt)
 
     def do_underline(self):
         raise NotImplementedError('TODO')
@@ -412,7 +421,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             bcf = c.blockCharFormat()
             lvl = self.level_for_block_type(name)
             hmargin = 0
-            wt = 75 if lvl else None
+            wt = QFont.Bold if lvl else None
             adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
             if name == 'blockquote':
                 hmargin = self.em_size * 3
