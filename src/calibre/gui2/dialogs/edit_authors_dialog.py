@@ -137,7 +137,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.not_found_label_timer_event, type=Qt.QueuedConnection)
 
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.table.customContextMenuRequested .connect(self.show_context_menu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
         self.do_sort_by_author_sort()
 
     def save_state(self):
