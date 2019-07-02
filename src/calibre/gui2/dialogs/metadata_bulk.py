@@ -884,10 +884,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
-            col = 'rgb(255, 0, 0, 20%)'
+            col = 'rgba(255, 0, 0, 20%)'
             self.test_result.setText(error_message(self.s_r_error))
         else:
-            col = 'rgb(0, 255, 0, 20%)'
+            col = 'rgba(0, 255, 0, 20%)'
         self.test_result.setStyleSheet('QLineEdit { color: black; '
                                        'background-color: %s; }'%col)
         for i in range(0,self.s_r_number_of_books):

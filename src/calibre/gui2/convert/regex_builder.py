@@ -66,7 +66,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
                 return True
             except:
-                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(255,0,0,20%); }')
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
             self.preview.setExtraSelections([])

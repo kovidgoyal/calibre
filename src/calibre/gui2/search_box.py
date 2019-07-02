@@ -108,7 +108,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def __init__(self, parent=None, add_clear_action=True):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
+        self.normal_background = 'rgba(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
@@ -190,7 +190,7 @@ class SearchBox2(QComboBox):  # {{{
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
+        col = 'rgba(0,255,0,20%)' if ok else 'rgba(255,0,0,20%)'
         if not self.colorize:
             col = self.normal_background
         self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
@@ -320,7 +320,7 @@ class SavedSearchBox(QComboBox):  # {{{
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
+        self.normal_background = 'rgba(255, 255, 255, 0%)'
 
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
