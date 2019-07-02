@@ -201,10 +201,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ('ordered_list', 'format-list-ordered', _('Ordered list'), True),
             ('unordered_list', 'format-list-unordered', _('Unordered list'), True),
 
-            ('align_left', 'format-justify-left', _('Align left'), ),
-            ('align_center', 'format-justify-center', _('Align center'), ),
-            ('align_right', 'format-justify-right', _('Align right'), ),
-            ('align_justified', 'format-justify-fill', _('Align justified'), ),
+            ('align_left', 'format-justify-left', _('Align left'), True),
+            ('align_center', 'format-justify-center', _('Align center'), True),
+            ('align_right', 'format-justify-right', _('Align right'), True),
+            ('align_justified', 'format-justify-fill', _('Align justified'), True),
             ('undo', 'edit-undo', _('Undo'), ),
             ('redo', 'edit-redo', _('Redo'), ),
             ('remove_format', 'edit-clear', _('Remove formatting'), ),
@@ -287,6 +287,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.action_italic.setChecked(tcf.fontItalic())
         self.action_underline.setChecked(tcf.fontUnderline())
         self.action_strikethrough.setChecked(tcf.fontStrikeOut())
+        a = c.blockFormat().alignment()
+        self.action_align_left.setChecked(a == Qt.AlignLeft)
+        self.action_align_right.setChecked(a == Qt.AlignRight)
+        self.action_align_center.setChecked(a == Qt.AlignHCenter)
+        self.action_align_justified.setChecked(a == Qt.AlignJustify)
 
     def set_readonly(self, what):
         self.readonly = what
@@ -360,17 +365,23 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def do_unordered_list(self):
         self.do_list(QTextListFormat.ListDisc)
 
+    def do_alignment(self, which):
+        with self.editing_cursor() as c:
+            fmt = QTextBlockFormat()
+            fmt.setAlignment(which)
+            c.setBlockFormat(fmt)
+
     def do_align_left(self):
-        raise NotImplementedError('TODO')
+        self.do_alignment(Qt.AlignLeft)
 
     def do_align_center(self):
-        raise NotImplementedError('TODO')
+        self.do_alignment(Qt.AlignHCenter)
 
     def do_align_right(self):
-        raise NotImplementedError('TODO')
+        self.do_alignment(Qt.AlignRight)
 
     def do_align_justified(self):
-        raise NotImplementedError('TODO')
+        self.do_alignment(Qt.AlignJustify)
 
     def do_undo(self):
         self.undo()
