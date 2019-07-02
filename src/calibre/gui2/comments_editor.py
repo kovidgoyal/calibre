@@ -471,8 +471,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         col = QColorDialog.getColor(Qt.black, self,
                 _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
-            raise NotImplementedError('TODO')
-            self.exec_command('foreColor', unicode_type(col.name()))
+            fmt = QTextCharFormat()
+            fmt.setForeground(QBrush(col))
+            with self.editing_cursor() as c:
+                c.mergeCharFormat(fmt)
 
     def do_background(self):
         col = QColorDialog.getColor(Qt.white, self,
