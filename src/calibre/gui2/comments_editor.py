@@ -283,8 +283,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         vert = tcf.verticalAlignment()
         self.action_superscript.setChecked(vert == QTextCharFormat.AlignSuperScript)
         self.action_subscript.setChecked(vert == QTextCharFormat.AlignSubScript)
-        self.action_bold.setChecked(tcf.intProperty(QTextCharFormat.FontWeight) == QFont.Bold)
-        self.action_italic.setChecked(tcf.boolProperty(QTextCharFormat.FontItalic))
+        self.action_bold.setChecked(tcf.fontWeight() == QFont.Bold)
+        self.action_italic.setChecked(tcf.fontItalic())
+        self.action_underline.setChecked(tcf.fontUnderline())
+        self.action_strikethrough.setChecked(tcf.fontStrikeOut())
 
     def set_readonly(self, what):
         self.readonly = what
@@ -316,10 +318,16 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.mergeCharFormat(fmt)
 
     def do_underline(self):
-        raise NotImplementedError('TODO')
+        with self.editing_cursor() as c:
+            fmt = QTextCharFormat()
+            fmt.setFontUnderline(not c.charFormat().fontUnderline())
+            c.mergeCharFormat(fmt)
 
     def do_strikethrough(self):
-        raise NotImplementedError('TODO')
+        with self.editing_cursor() as c:
+            fmt = QTextCharFormat()
+            fmt.setFontStrikeOut(not c.charFormat().fontStrikeOut())
+            c.mergeCharFormat(fmt)
 
     def do_vertical_align(self, which):
         with self.editing_cursor() as c:
