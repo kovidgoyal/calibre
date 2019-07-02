@@ -238,6 +238,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 _('Style the selected text block'))
         self.block_style_menu = QMenu(self)
         self.action_block_style.setMenu(self.block_style_menu)
+        self.block_style_actions = []
         h = _('Heading {0}')
         for text, name in (
             (_('Normal'), 'p'),
@@ -252,6 +253,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ac = QAction(text, self)
             self.block_style_menu.addAction(ac)
             ac.block_name = name
+            ac.setCheckable(True)
+            self.block_style_actions.append(ac)
             ac.triggered.connect(self.do_format_block)
 
         self.setHtml('')
@@ -287,11 +290,21 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.action_italic.setChecked(tcf.fontItalic())
         self.action_underline.setChecked(tcf.fontUnderline())
         self.action_strikethrough.setChecked(tcf.fontStrikeOut())
-        a = c.blockFormat().alignment()
+        bf = c.blockFormat()
+        a = bf.alignment()
         self.action_align_left.setChecked(a == Qt.AlignLeft)
         self.action_align_right.setChecked(a == Qt.AlignRight)
         self.action_align_center.setChecked(a == Qt.AlignHCenter)
         self.action_align_justified.setChecked(a == Qt.AlignJustify)
+        lvl = bf.headingLevel()
+        name = 'p'
+        if lvl == 0:
+            if bf.leftMargin() == bf.rightMargin() and bf.leftMargin() > 0:
+                name = 'blockquote'
+        else:
+            name = 'h{}'.format(lvl)
+        for ac in self.block_style_actions:
+            ac.setChecked(ac.block_name == name)
 
     def set_readonly(self, what):
         self.readonly = what
@@ -430,11 +443,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             return 0
         return {q: i for i, q in enumerate('p h1 h2 h3 h4 h5 h6'.split())}[name]
 
-    def vmargin_for_block_type(self, name):
-        if name == 'blockquote':
-            return self.em_size
-        return (0, 0.67, 0.83, 1, 1.33, 1.67, 2.33)[self.level_for_block_type(name)] * self.em_size
-
     def do_format_block(self):
         name = self.sender().block_name
         with self.editing_cursor() as c:
@@ -442,18 +450,30 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             cf = QTextCharFormat()
             bcf = c.blockCharFormat()
             lvl = self.level_for_block_type(name)
-            hmargin = 0
             wt = QFont.Bold if lvl else None
             adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
-            if name == 'blockquote':
-                hmargin = self.em_size * 3
             pos = None
             if not c.hasSelection():
                 pos = c.position()
                 c.movePosition(QTextCursor.StartOfBlock, QTextCursor.MoveAnchor)
                 c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
-            bf.setLeftMargin(hmargin), bf.setRightMargin(bf.leftMargin())
-            bf.setTopMargin(self.vmargin_for_block_type(name)), bf.setBottomMargin(bf.topMargin())
+            # margin values are taken from qtexthtmlparser.cpp
+            hmargin = 0
+            if name == 'blockquote':
+                hmargin = 40
+            tmargin = bmargin = 12
+            if name == 'h1':
+                tmargin, bmargin = 18, 12
+            elif name == 'h2':
+                tmargin, bmargin = 16, 12
+            elif name == 'h3':
+                tmargin, bmargin = 14, 12
+            elif name == 'h4':
+                tmargin, bmargin = 12, 12
+            elif name == 'h5':
+                tmargin, bmargin = 12, 4
+            bf.setLeftMargin(hmargin), bf.setRightMargin(hmargin)
+            bf.setTopMargin(tmargin), bf.setBottomMargin(bmargin)
             bf.setHeadingLevel(lvl)
             if adjust:
                 bcf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
