@@ -255,8 +255,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.action_cut.setEnabled(copy_available)
 
     def update_selection_based_actions(self):
-        has_selection = self.textCursor().hasSelection()
-        self.action_remove_format.setEnabled(has_selection)
+        pass
 
     def update_cursor_position_actions(self):
         c = self.textCursor()
@@ -352,9 +351,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         c = self.textCursor()
         c.beginEditBlock()
         c.setBlockFormat(QTextBlockFormat())
-        text = c.selectedText()
-        c.removeSelectedText()
-        c.insertText(text)
+        c.setCharFormat(QTextCharFormat())
         c.endEditBlock()
         self.setTextCursor(c)
         self.focus_self()
