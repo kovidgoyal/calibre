@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import re
 import weakref
+from collections import defaultdict
 
 from html5_parser import parse
 from lxml import html
@@ -24,7 +25,102 @@ from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
 from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type
+from polyglot.builtins import filter, iteritems, itervalues, unicode_type
+
+
+def parse_style(style):
+    props = filter(None, (x.strip() for x in style.split(';')))
+    ans = {}
+    for prop in props:
+        try:
+            k, v = prop.split(':', 1)
+        except Exception:
+            continue
+        ans[k.strip().lower()] = v.strip()
+    return ans
+
+
+liftable_props = ('font-style', 'font-weight', 'font-family', 'font-size')
+
+
+def lift_styles(tag, style_map):
+    common_props = None
+    has_text = bool(tag.text)
+    child_styles = []
+    for child in tag.iterchildren('*'):
+        if child.tail:
+            has_text = True
+        style = style_map[child]
+        child_styles.append(style)
+        if common_props is None:
+            common_props = style.copy()
+        else:
+            for k, v in tuple(iteritems(common_props)):
+                if style.get(k) != v:
+                    del common_props[k]
+    if not has_text and common_props:
+        lifted_props = []
+        tag_style = style_map[tag]
+        for k in liftable_props:
+            if k in common_props:
+                lifted_props.append(k)
+                tag_style[k] = common_props[k]
+        if lifted_props:
+            for style in child_styles:
+                for k in lifted_props:
+                    del style[k]
+
+
+def filter_qt_styles(style):
+    for k in tuple(style):
+        if k.startswith('-qt-'):
+            del style[k]
+
+
+def remove_margins(tag, style):
+    ml, mr, mt, mb = (style.pop('margin-' + k, None) for k in 'left right top bottom'.split())
+    is_blockquote = ml == mr and ml and ml != '0px'
+    if is_blockquote:
+        tag.tag = 'blockquote'
+
+
+def remove_zero_indents(style):
+    ti = style.get('text-indent')
+    if ti == '0px':
+        del style['text-indent']
+
+
+def remove_heading_font_styles(tag, style):
+    lvl = int(tag.tag[1:])
+    expected_size = (None, 'xx-large', 'x-large', 'large', None, 'small', 'x-small')[lvl]
+    if style.get('font-size', 1) == expected_size:
+        del style['font-size']
+    if style.get('font-weight') == '600':
+        del style['font-weight']
+
+
+def cleanup_qt_markup(root):
+    from calibre.ebooks.docx.cleanup import lift
+    style_map = defaultdict(dict)
+    for tag in root.xpath('//*[@style]'):
+        style_map[tag] = parse_style(tag.get('style'))
+    block_tags = root.xpath('//body/*')
+    for tag in block_tags:
+        lift_styles(tag, style_map)
+        tag_style = style_map[tag]
+        remove_margins(tag, tag_style)
+        remove_zero_indents(tag_style)
+        if tag.tag.startswith('h'):
+            remove_heading_font_styles(tag, tag_style)
+    for style in itervalues(style_map):
+        filter_qt_styles(style)
+    for tag, style in iteritems(style_map):
+        if style:
+            tag.set('style', '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style)))
+        else:
+            tag.attrib.pop('style', None)
+    for span in root.xpath('//span[not(@style)]'):
+        lift(span)
 
 
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
@@ -278,9 +374,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.setTextCursor(c)
         self.focus_self()
 
-    def font_size_for_heading(self, level):
-        return int(self.em_size * (1, 2, 1.5, 1.17, 1, 0.83, 0.67)[max(0, min(level, 6))])
-
     def level_for_block_type(self, name):
         if name == 'blockquote':
             return 0
@@ -300,9 +393,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         bcf = c.blockCharFormat()
         lvl = self.level_for_block_type(name)
         hmargin = 0
-        font = self.font()
-        font.setBold(bool(lvl))
-        font.setPixelSize(self.font_size_for_heading(lvl))
+        wt = 75 if lvl else None
+        adjust = (0, 3, 2, 1, 0, -1, -1)[lvl]
         if name == 'blockquote':
             hmargin = self.em_size * 3
         pos = None
@@ -313,8 +405,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         bf.setLeftMargin(hmargin), bf.setRightMargin(bf.leftMargin())
         bf.setTopMargin(self.vmargin_for_block_type(name)), bf.setBottomMargin(bf.topMargin())
         bf.setHeadingLevel(lvl)
-        bcf.setFont(font, QTextCharFormat.FontPropertiesSpecifiedOnly)
-        cf.setFont(font, QTextCharFormat.FontPropertiesSpecifiedOnly)
+        if adjust:
+            bcf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
+            cf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
+        if wt:
+            bcf.setProperty(QTextCharFormat.FontWeight, wt)
+            cf.setProperty(QTextCharFormat.FontWeight, wt)
         c.setBlockCharFormat(bcf)
         c.mergeCharFormat(cf)
         c.mergeBlockFormat(bf)
@@ -452,14 +548,16 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if not check and '<img' not in raw.lower():
             return ''
 
-        try:
-            root = html.fromstring(raw)
-        except Exception:
-            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        root = parse(raw, maybe_xhtml=False, sanitize_names=True)
         if root.xpath('//meta[@name="calibre-dont-sanitize"]'):
             # Bypass cleanup if special meta tag exists
             return original_html
 
+        try:
+            cleanup_qt_markup(root)
+        except Exception:
+            import traceback
+            traceback.print_exc()
         elems = []
         for body in root.xpath('//body'):
             if body.text:
@@ -926,7 +1024,7 @@ if __name__ == '__main__':
     w = Editor()
     w.resize(800, 600)
     w.show()
-    w.html = '''<span style="background-color: rgb(0, 255, 255); ">He hadn't
+    w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set out to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, devoted one.</span>'''
     app.exec_()
     # print w.html
