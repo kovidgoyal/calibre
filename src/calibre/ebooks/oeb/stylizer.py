@@ -32,7 +32,8 @@ _html_css_stylesheet = None
 def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
-        html_css = open(P('templates/html.css'), 'rb').read()
+        with open(P('templates/html.css'), 'rb') as f:
+            html_css = f.read()
         _html_css_stylesheet = parseString(html_css, validate=False)
     return _html_css_stylesheet
 
