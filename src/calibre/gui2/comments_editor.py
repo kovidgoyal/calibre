@@ -111,6 +111,9 @@ def use_implicit_styling_for_span(span, style):
     if span.tag == 'span' and style.get('text-decoration') == 'underline':
         span.tag = 'u'
         del style['text-decoration']
+    if span.tag == 'span' and style.get('text-decoration') == 'line-through':
+        span.tag = 's'
+        del style['text-decoration']
     if span.tag == 'span' and style.get('vertical-align') in ('sub', 'super'):
         span.tag = 'sub' if style.pop('vertical-align') == 'sub' else 'sup'
 
@@ -1040,6 +1043,7 @@ if __name__ == '__main__':
     w.resize(800, 600)
     w.show()
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
-    set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, <b>devoted</b> one.</span>'''
+    set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
+    much</span> less a <s>long-term</s>, <b>devoted</b> one.</span>'''
     app.exec_()
     # print w.html
