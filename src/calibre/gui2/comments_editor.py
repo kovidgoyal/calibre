@@ -338,8 +338,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ls = c.currentList()
             if ls is not None:
                 lf = ls.format()
-                lf.setStyle(fmt)
-                ls.setFormat(lf)
+                if lf.style() == fmt:
+                    c.setBlockFormat(QTextBlockFormat())
+                else:
+                    lf.setStyle(fmt)
+                    ls.setFormat(lf)
             else:
                 ls = c.createList(fmt)
 
@@ -1053,6 +1056,6 @@ if __name__ == '__main__':
     w.show()
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
-    much</span> less a <s>long-term</s>, <b>devoted</b> one.</span>'''
+    much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
     app.exec_()
     # print w.html
