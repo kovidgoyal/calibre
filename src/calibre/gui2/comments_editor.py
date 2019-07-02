@@ -99,6 +99,22 @@ def remove_heading_font_styles(tag, style):
         del style['font-weight']
 
 
+def use_implicit_styling_for_span(span, style):
+    is_italic = style.get('font-style') == 'italic'
+    is_bold = style.get('font-weight') == '600'
+    if is_italic and not is_bold:
+        del style['font-style']
+        span.tag = 'em'
+    elif is_bold and not is_italic:
+        del style['font-weight']
+        span.tag = 'strong'
+    if span.tag == 'span' and style.get('text-decoration') == 'underline':
+        span.tag = 'u'
+        del style['text-decoration']
+    if span.tag == 'span' and style.get('vertical-align') in ('sub', 'super'):
+        span.tag = 'sub' if style.pop('vertical-align') == 'sub' else 'sup'
+
+
 def cleanup_qt_markup(root):
     from calibre.ebooks.docx.cleanup import lift
     style_map = defaultdict(dict)
@@ -112,6 +128,8 @@ def cleanup_qt_markup(root):
         remove_zero_indents(tag_style)
         if tag.tag.startswith('h'):
             remove_heading_font_styles(tag, tag_style)
+        for child in tag.iterdescendants('span'):
+            use_implicit_styling_for_span(child, style_map[child])
     for style in itervalues(style_map):
         filter_qt_styles(style)
     for tag, style in iteritems(style_map):
@@ -1025,6 +1043,6 @@ if __name__ == '__main__':
     w.resize(800, 600)
     w.show()
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
-    set out to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, devoted one.</span>'''
+    set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, <b>devoted</b> one.</span>'''
     app.exec_()
     # print w.html
