@@ -97,7 +97,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.sort_by_author.clicked.connect(self.do_sort_by_author)
         self.author_order = 1
 
-        self.table.sortByColumn(1, Qt.AscendingOrder)
         self.sort_by_author_sort.clicked.connect(self.do_sort_by_author_sort)
         self.sort_by_author_sort.setCheckable(True)
         self.sort_by_author_sort.setChecked(True)
@@ -139,6 +138,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested .connect(self.show_context_menu)
+        self.do_sort_by_author_sort()
 
     def save_state(self):
         self.table_column_widths = []

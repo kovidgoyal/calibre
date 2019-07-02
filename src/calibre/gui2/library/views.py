@@ -511,17 +511,18 @@ class BooksView(QTableView):  # {{{
             ch.blockSignals(False)
 
     def sort_by_column_and_order(self, col, ascending):
+        order = Qt.AscendingOrder if ascending else Qt.DescendingOrder
         self.column_header.blockSignals(True)
-        self.sortByColumn(col, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+        self.column_header.setSortIndicator(col, order)
         self.column_header.blockSignals(False)
+        self.model().sort(col, order)
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
     def user_sort_requested(self, col, order=Qt.AscendingOrder):
-        if col >= len(self.column_map) or col < 0:
-            return QTableView.sortByColumn(self, col)
-        field = self.column_map[col]
-        self.intelligent_sort(field, order == Qt.AscendingOrder)
+        if 0 <= col < len(self.column_map):
+            field = self.column_map[col]
+            self.intelligent_sort(field, order == Qt.AscendingOrder)
 
     def pin_view_user_sort_requested(self, col, order=Qt.AscendingOrder):
         if col < len(self.column_map) and col >= 0:

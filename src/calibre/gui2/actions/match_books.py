@@ -17,7 +17,7 @@ class MatchBookAction(InterfaceAction):
     action_spec = (_('Match book to library'), 'book.png',
             _('Match this book to a book in the library'),
             ())
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child', 'context-menu-cover-browser'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child', 'context-menu-cover-browser'))
     action_type = 'current'
 
     def genesis(self):

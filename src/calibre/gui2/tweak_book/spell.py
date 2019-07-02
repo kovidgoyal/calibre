@@ -1055,7 +1055,7 @@ class SpellCheck(Dialog):
         if self.words_model.sort_on[0] == 0:
             with self:
                 hh = self.words_view.horizontalHeader()
-                self.words_view.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
+                self.words_view.model().sort(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
 
     def search_type_changed(self):
         tprefs['spell_check_case_sensitive_search'] = bool(self.case_sensitive_search.isChecked())

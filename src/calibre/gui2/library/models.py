@@ -500,7 +500,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.searched.emit(True)
         self.search_done.emit()
 
-    def sort(self, col, order, reset=True):
+    def sort(self, col, order=Qt.AscendingOrder, reset=True):
         if not self.db:
             return
         if not isinstance(order, bool):
