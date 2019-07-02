@@ -28,6 +28,8 @@ from calibre.utils.imghdr import what
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
 
 
+# Cleanup Qt markup {{{
+
 def parse_style(style):
     props = filter(None, (x.strip() for x in style.split(';')))
     ans = {}
@@ -129,7 +131,7 @@ def cleanup_qt_markup(root):
         tag_style = style_map[tag]
         remove_margins(tag, tag_style)
         remove_zero_indents(tag_style)
-        if tag.tag.startswith('h'):
+        if tag.tag.startswith('h') and tag.tag[1:] in '123456':
             remove_heading_font_styles(tag, tag_style)
         for child in tag.iterdescendants('span'):
             use_implicit_styling_for_span(child, style_map[child])
@@ -142,6 +144,7 @@ def cleanup_qt_markup(root):
             tag.attrib.pop('style', None)
     for span in root.xpath('//span[not(@style)]'):
         lift(span)
+# }}}
 
 
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
@@ -456,7 +459,13 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             self.setTextCursor(c)
 
     def do_insert_hr(self, *args):
-        raise NotImplementedError('TODO')
+        c = self.textCursor()
+        c.beginEditBlock()
+        c.movePosition(c.EndOfBlock, c.MoveAnchor)
+        c.insertHtml('<hr>')
+        c.endEditBlock()
+        self.setTextCursor(c)
+        self.focus_self()
 
     def do_insert_link(self, *args):
         link, name, is_image = self.ask_link()
@@ -651,6 +660,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         menu.exec_(ev.globalPos())
 
 # }}}
+
 
 # Highlighter {{{
 
