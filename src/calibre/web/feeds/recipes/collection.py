@@ -221,6 +221,7 @@ def download_builtin_recipe(urn):
     import bz2
     recipe_source = bz2.decompress(get_https_resource_securely(
         'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
+    recipe_source = recipe_source.decode('utf-8')
     from calibre.web.feeds.recipes import compile_recipe
     recipe = compile_recipe(recipe_source)  # ensure the downloaded recipe is at least compile-able
     if recipe is None:
@@ -232,7 +233,7 @@ def download_builtin_recipe(urn):
 
 def get_builtin_recipe(urn):
     with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:
-        return zf.read(urn+'.recipe')
+        return zf.read(urn+'.recipe').decode('utf-8')
 
 
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
