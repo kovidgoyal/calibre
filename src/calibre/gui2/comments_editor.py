@@ -222,6 +222,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ('remove_format', 'edit-clear', _('Remove formatting'), ),
             ('copy', 'edit-copy', _('Copy'), ),
             ('paste', 'edit-paste', _('Paste'), ),
+            ('paste_and_match_style', 'edit-paste', _('Paste and match style'), ),
             ('cut', 'edit-cut', _('Cut'), ),
             ('indent', 'format-indent-more', _('Increase indentation'), ),
             ('outdent', 'format-indent-less', _('Decrease indentation'), ),
@@ -428,6 +429,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def do_paste(self):
         self.paste()
         self.focus_self()
+
+    def do_paste_and_match_style(self):
+        text = QApplication.instance().clipboard().text()
+        if text:
+            self.setText(text)
 
     def do_cut(self):
         self.cut()
@@ -708,18 +714,18 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         return self.textCursor().selectedText()
 
     def setText(self, text):
-        c = self.textCursor()
-        c.insertText(text)
-        self.setTextCursor(c)
+        with self.editing_cursor() as c:
+            c.insertText(text)
 
     def contextMenuEvent(self, ev):
-        raise NotImplementedError('TODO')
         menu = self.createStandardContextMenu()
-        # paste = self.pageAction(QWebPage.Paste)
         for action in menu.actions():
-            pass
-            # if action == paste:
-            #     menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
+            parts = action.text().split('\t')
+            if len(parts) == 2 and QKeySequence(QKeySequence.Paste).toString(QKeySequence.NativeText) in parts[-1]:
+                menu.insertAction(action, self.action_paste_and_match_style)
+                break
+        else:
+            menu.addAction(self.action_paste_and_match_style)
         st = self.text()
         if st and st.strip():
             self.create_change_case_menu(menu)
