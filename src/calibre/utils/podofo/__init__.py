@@ -53,45 +53,50 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 
+def set_metadata_implementation(pdf_doc, title, authors, bkp, tags, xmp_packet):
+    title = prep(title)
+    touched = False
+    if title and title != pdf_doc.title:
+        pdf_doc.title = title
+        touched = True
+
+    author = prep(authors_to_string(authors))
+    if author and author != pdf_doc.author:
+        pdf_doc.author = author
+        touched = True
+
+    bkp = prep(bkp)
+    if bkp and bkp != pdf_doc.creator:
+        pdf_doc.creator = bkp
+        touched = True
+
+    try:
+        tags = prep(', '.join([x.strip() for x in tags if x.strip()]))
+        if tags != pdf_doc.keywords:
+            pdf_doc.keywords = tags
+            touched = True
+    except Exception:
+        pass
+
+    try:
+        current_xmp_packet = pdf_doc.get_xmp_metadata()
+        if current_xmp_packet:
+            from calibre.ebooks.metadata.xmp import merge_xmp_packet
+            xmp_packet = merge_xmp_packet(current_xmp_packet, xmp_packet)
+        pdf_doc.set_xmp_metadata(xmp_packet)
+        touched = True
+    except Exception:
+        pass
+    return touched
+
+
 def set_metadata_(tdir, title, authors, bkp, tags, xmp_packet):
     podofo = get_podofo()
     os.chdir(tdir)
     p = podofo.PDFDoc()
     p.open('input.pdf')
-    title = prep(title)
-    touched = False
-    if title and title != p.title:
-        p.title = title
-        touched = True
 
-    author = prep(authors_to_string(authors))
-    if author and author != p.author:
-        p.author = author
-        touched = True
-
-    bkp = prep(bkp)
-    if bkp and bkp != p.creator:
-        p.creator = bkp
-        touched = True
-
-    try:
-        tags = prep(', '.join([x.strip() for x in tags if x.strip()]))
-        if tags != p.keywords:
-            p.keywords = tags
-            touched = True
-    except:
-        pass
-
-    try:
-        current_xmp_packet = p.get_xmp_metadata()
-        if current_xmp_packet:
-            from calibre.ebooks.metadata.xmp import merge_xmp_packet
-            xmp_packet = merge_xmp_packet(current_xmp_packet, xmp_packet)
-        p.set_xmp_metadata(xmp_packet)
-        touched = True
-    except:
-        pass
-
+    touched = set_metadata_implementation(p, title, authors, bkp, tags, xmp_packet)
     if touched:
         p.save('output.pdf')
 
