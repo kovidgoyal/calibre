@@ -14,10 +14,10 @@ from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
 from calibre.ebooks.docx.names import DOCXNamespace
 from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.pdf.render.common import PAPER_SIZES
 from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.pdf.render.common import PAPER_SIZES
 from polyglot.builtins import iteritems, map, unicode_type, native_string_type
 
 

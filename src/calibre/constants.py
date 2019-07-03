@@ -176,7 +176,6 @@ class Plugins(collections.Mapping):
                 'html',
                 'freetype',
                 'imageops',
-                'qt_hack',
                 'hunspell',
                 '_patiencediff_c',
                 'bzzdec',

@@ -145,14 +145,6 @@
         "inc_dirs": "calibre/utils/imageops"
     },
     {
-        "name": "qt_hack",
-        "sources": "calibre/ebooks/pdf/render/qt_hack.cpp",
-        "headers": "calibre/ebooks/pdf/render/qt_hack.h",
-        "sip_files": "calibre/ebooks/pdf/render/qt_hack.sip",
-        "inc_dirs": "calibre/ebooks/pdf/render",
-        "qt_private": "core gui"
-    },
-    {
         "name": "lzma_binding",
         "sources": "lzma/*.c",
         "headers": "lzma/*.h",

@@ -296,6 +296,7 @@ class PDFStream(object):
         self.image_cache = {}
         self.pattern_cache, self.shader_cache = {}, {}
         self.debug = debug
+        self.page_size = page_size
         self.links = Links(self, mark_links, page_size)
         i = QImage(1, 1, QImage.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
@@ -483,9 +484,11 @@ class PDFStream(object):
         return self.shader_cache[shader.cache_key]
 
     def draw_image(self, x, y, width, height, imgref):
+        self.draw_image_with_transform(imgref, scaling=(width, -height), translation=(x, y + height))
+
+    def draw_image_with_transform(self, imgref, translation=(0, 0), scaling=(1, 1)):
         name = self.current_page.add_image(imgref)
-        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(width),
-                            fmtnum(-height), fmtnum(x), fmtnum(y+height)))
+        self.current_page.write('q {} 0 0 {} {} {} cm '.format(*(tuple(scaling) + tuple(translation))))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
 

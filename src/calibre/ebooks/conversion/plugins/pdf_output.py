@@ -11,17 +11,16 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import iteritems, unicode_type
 
-UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
-         'cicero', 'devicepixel']
+UNITS = ('millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
+        'cicero', 'devicepixel')
 
-PAPER_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
-               'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
+PAPER_SIZES = ('a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
+        'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter')
 
 
 class PDFMetadata(object):  # {{{
@@ -53,7 +52,7 @@ class PDFOutput(OutputFormatPlugin):
     author = 'Kovid Goyal'
     file_type = 'pdf'
     commit_name = 'pdf_output'
-    ui_data = {'paper_sizes': PAPER_SIZES, 'units': UNITS, 'font_types': ['serif', 'sans', 'mono']}
+    ui_data = {'paper_sizes': PAPER_SIZES, 'units': UNITS, 'font_types': ('serif', 'sans', 'mono')}
 
     options = {
         OptionRecommendation(name='use_profile_size', recommended_value=False,
@@ -63,13 +62,13 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure for page sizes. Default is inch. Choices '
-            'are %s '
-            'Note: This does not override the unit for margins!') % UNITS),
+            'are {} '
+            'Note: This does not override the unit for margins!').format(UNITS)),
         OptionRecommendation(name='paper_size', recommended_value='letter',
             level=OptionRecommendation.LOW, choices=PAPER_SIZES,
             help=_('The size of the paper. This size will be overridden when a '
             'non default output profile is used. Default is letter. Choices '
-            'are %s') % PAPER_SIZES),
+            'are {}').format(PAPER_SIZES)),
         OptionRecommendation(name='custom_size', recommended_value=None,
             help=_('Custom size of the document. Use the form widthxheight '
             'e.g. `123x321` to specify the width and height. '
@@ -163,44 +162,34 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.gui2 import must_use_qt, load_builtin_fonts
-        from calibre.ebooks.oeb.transforms.split import Split
-        # Turn off hinting in WebKit (requires a patched build of QtWebKit)
-        os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
-        self.filtered_font_warnings = set()
         self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
-        try:
-            # split on page breaks, as the JS code to convert page breaks to
-            # column breaks will not work because of QWebSettings.LocalContentCanAccessFileUrls
-            Split()(oeb_book, opts)
-            must_use_qt()
-            load_builtin_fonts()
+        must_use_qt()
+        load_builtin_fonts()
 
-            self.oeb = oeb_book
-            self.input_plugin, self.opts, self.log = input_plugin, opts, log
-            self.output_path = output_path
-            from calibre.ebooks.oeb.base import OPF, OPF2_NS
-            from lxml import etree
-            from io import BytesIO
-            package = etree.Element(OPF('package'),
-                attrib={'version': '2.0', 'unique-identifier': 'dummy'},
-                nsmap={None: OPF2_NS})
-            from calibre.ebooks.metadata.opf2 import OPF
-            self.oeb.metadata.to_opf2(package)
-            self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
-            self.cover_data = None
+        self.oeb = oeb_book
+        self.input_plugin, self.opts, self.log = input_plugin, opts, log
+        self.output_path = output_path
+        from calibre.ebooks.oeb.base import OPF, OPF2_NS
+        from lxml import etree
+        from io import BytesIO
+        package = etree.Element(OPF('package'),
+            attrib={'version': '2.0', 'unique-identifier': 'dummy'},
+            nsmap={None: OPF2_NS})
+        from calibre.ebooks.metadata.opf2 import OPF
+        self.oeb.metadata.to_opf2(package)
+        self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
+        self.cover_data = None
 
-            if input_plugin.is_image_collection:
-                log.debug('Converting input as an image collection...')
-                self.convert_images(input_plugin.get_images())
-            else:
-                log.debug('Converting input as a text based book...')
-                self.convert_text(oeb_book)
-        finally:
-            os.environ.pop('CALIBRE_WEBKIT_NO_HINTING', None)
+        if input_plugin.is_image_collection:
+            log.debug('Converting input as an image collection...')
+            self.convert_images(input_plugin.get_images())
+        else:
+            log.debug('Converting input as a text based book...')
+            self.convert_text(oeb_book)
 
     def convert_images(self, images):
-        from calibre.ebooks.pdf.render.from_html import ImagePDFWriter
-        self.write(ImagePDFWriter, images, None)
+        from calibre.ebooks.pdf.image_writer import convert
+        convert(images, self.output_path, self.opts)
 
     def get_cover_data(self):
         oeb = self.oeb
@@ -210,8 +199,8 @@ class PDFOutput(OutputFormatPlugin):
             self.cover_data = item.data
 
     def process_fonts(self):
-        ''' Make sure all fonts are embeddable. Also remove some fonts that cause problems. '''
-        from calibre.ebooks.oeb.base import urlnormalize, css_text
+        ''' Make sure all fonts are embeddable '''
+        from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
 
         processed = set()
@@ -240,19 +229,6 @@ class PDFOutput(OutputFormatPlugin):
                         if nraw != raw:
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
-                elif iswindows and rule.type == rule.STYLE_RULE:
-                    from tinycss.fonts3 import parse_font_family, serialize_font_family
-                    s = rule.style
-                    f = s.getProperty('font-family')
-                    if f is not None:
-                        font_families = parse_font_family(css_text(f.propertyValue))
-                        ff = [x for x in font_families if x.lower() != 'courier']
-                        if len(ff) != len(font_families):
-                            if 'courier' not in self.filtered_font_warnings:
-                                # See https://bugs.launchpad.net/bugs/1665835
-                                self.filtered_font_warnings.add('courier')
-                                self.log.warn('Removing courier font family as it does not render on windows')
-                            f.propertyValue.cssText = serialize_font_family(ff or ['monospace'])
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
@@ -270,18 +246,6 @@ class PDFOutput(OutputFormatPlugin):
                     root = item.data
                     if hasattr(root, 'xpath') and margins:
                         root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
-
-        # Remove javascript
-        for item in self.oeb.spine:
-            root = item.data
-            if hasattr(root, 'xpath'):
-                for script in root.xpath('//*[local-name()="script"]'):
-                    script.text = None
-                    script.attrib.clear()
-                for elem in root.iter('*'):
-                    for attr in tuple(elem.attrib):
-                        if attr.startswith('on'):
-                            elem.set(attr, '')
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
