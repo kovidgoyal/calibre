@@ -28,8 +28,8 @@ class PDFMetadata(object):  # {{{
     def __init__(self, mi=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
-        self.title = _(u'Unknown')
-        self.author = _(u'Unknown')
+        self.title = _('Unknown')
+        self.author = _('Unknown')
         self.tags = ''
         self.mi = mi
 
@@ -189,7 +189,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_images(self, images):
         from calibre.ebooks.pdf.image_writer import convert
-        convert(images, self.output_path, self.opts)
+        convert(images, self.output_path, self.opts, PDFMetadata(self.metadata))
 
     def get_cover_data(self):
         oeb = self.oeb

@@ -4,13 +4,13 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import (
-    QMarginsF, QPageLayout, QPageSize, QPainter, QPdfWriter, QSize
-)
+from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QPainter, QPdfWriter, QSize
 
 from calibre import fit_image
 from calibre.ebooks.docx.writer.container import cicero, cm, didot, inch, mm, pica
+from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.utils.img import image_from_path
+from calibre.utils.podofo import get_podofo, set_metadata_implementation
 
 # Page layout {{{
 
@@ -81,8 +81,10 @@ def draw_image_page(painter, img, preserve_aspect_ratio=True):
     painter.drawImage(page_rect, img)
 
 
-def convert(images, output_path, opts):
+def convert(images, output_path, opts, pdf_metadata):
     writer = QPdfWriter(output_path)
+    writer.setCreator(pdf_metadata.author)
+    writer.setTitle(pdf_metadata.title)
     writer.setPageLayout(get_page_layout(opts, for_comic=True))
     painter = QPainter()
     painter.begin(writer)
@@ -94,3 +96,16 @@ def convert(images, output_path, opts):
             draw_image_page(painter, img)
     finally:
         painter.end()
+    if pdf_metadata.mi:
+        podofo = get_podofo()
+        pdf_doc = podofo.PDFDoc()
+        with open(output_path, 'r+b') as f:
+            raw = f.read()
+            pdf_doc.load(raw)
+            xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
+            set_metadata_implementation(
+                pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
+                pdf_metadata.mi.book_producer, pdf_metadata.tags, xmp_packet)
+            raw = pdf_doc.write()
+            f.seek(0), f.truncate()
+            f.write(raw)
