@@ -674,9 +674,7 @@ def fsync(fileobj):
         # python -c "p = '/run/media/kovid/Kindle/driveinfo.calibre'; f = open(p, 'r+b'); os.fsync(f.fileno());"
         # this will cause the Kindle to disconnect.
         try:
-            with open(fileobj.name + '.linux-sucks', 'wb') as f:
-                f.write(b'I cannot believe I need to do this')
-            os.remove(f.name)
+            os.utime(fileobj.name, None)
         except Exception:
             import traceback
             traceback.print_exc()
