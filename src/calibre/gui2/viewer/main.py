@@ -18,7 +18,7 @@ from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
 from calibre.gui2 import (
     Application, error_dialog, set_app_uid, setup_gui_option_parser
 )
-from calibre.gui2.viewer2.ui import EbookViewer
+from calibre.gui2.viewer.ui import EbookViewer
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import RC, viewer_socket_address

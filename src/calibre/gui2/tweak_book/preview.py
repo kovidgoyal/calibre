@@ -30,7 +30,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
-from calibre.gui2.viewer2.web_view import send_reply
+from calibre.gui2.viewer.web_view import send_reply
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js

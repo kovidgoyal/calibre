@@ -830,7 +830,7 @@ class CoversView(QListView):  # {{{
         if pmap is None and idx.row() == 0:
             pmap = self.model().cc
         if pmap is not None:
-            from calibre.gui2.viewer.image_popup import ImageView
+            from calibre.gui2.image_popup import ImageView
             d = ImageView(self, pmap, unicode_type(idx.data(Qt.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
 

@@ -115,7 +115,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             data = b'[' + manifest + b',' + metadata + b']'
             send_reply(rq, mime_type, data)
         elif name.startswith('mathjax/'):
-            from calibre.gui2.viewer2.mathjax import monkeypatch_mathjax
+            from calibre.gui2.viewer.mathjax import monkeypatch_mathjax
             if name == 'mathjax/manifest.json':
                 if self.mathjax_manifest is None:
                     import json

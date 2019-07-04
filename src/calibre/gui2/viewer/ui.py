@@ -11,8 +11,8 @@ from PyQt5.Qt import QDockWidget, Qt, pyqtSignal
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.viewer2.convert_book import prepare_book
-from calibre.gui2.viewer2.web_view import WebView, set_book_path
+from calibre.gui2.viewer.convert_book import prepare_book
+from calibre.gui2.viewer.web_view import WebView, set_book_path
 from calibre.utils.ipc.simple_worker import WorkerError
 
 
