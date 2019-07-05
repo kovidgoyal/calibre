@@ -1024,8 +1024,8 @@ class Manifest(object):
             - XML content is parsed and returned as an lxml.etree element.
             - CSS and CSS-variant content is parsed and returned as a css_parser
               CSS DOM stylesheet.
-            - All other content is returned as a :class:`str` object with no
-              special parsing.
+            - All other content is returned as a :class:`str` or :class:`bytes`
+              object with no special parsing.
             """
             data = self._data
             if data is None:
