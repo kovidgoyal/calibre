@@ -58,6 +58,7 @@ def get_page_layout(opts, for_comic=False):
 
     margins = QMarginsF(m('left'), m('top'), m('right'), m('bottom'))
     ans = QPageLayout(page_size, QPageLayout.Portrait, margins)
+    ans.setMode(QPageLayout.FullPageMode)
     return ans
 # }}}
 
