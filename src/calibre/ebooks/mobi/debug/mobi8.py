@@ -17,7 +17,7 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, zip, print_to_binary_file
 
 
 class FDST(object):
@@ -94,14 +94,15 @@ class MOBIFile(object):
         self.read_tbs()
 
     def print_header(self, f=sys.stdout):
-        print(unicode_type(self.mf.palmdb).encode('utf-8'), file=f)
-        print(file=f)
-        print('Record headers:', file=f)
+        p = print_to_binary_file(f)
+        p(unicode_type(self.mf.palmdb))
+        p()
+        p('Record headers:')
         for i, r in enumerate(self.mf.records):
-            print('%6d. %s'%(i, r.header), file=f)
+            p('%6d. %s'%(i, r.header))
 
-        print(file=f)
-        print(unicode_type(self.mf.mobi8_header).encode('utf-8'), file=f)
+        p()
+        p(unicode_type(self.mf.mobi8_header))
 
     def read_fdst(self):
         self.fdst = None

@@ -223,7 +223,7 @@ def get_trailing_data(record, extra_data_flags):
     if extra_data_flags & 0b1:
         # Only the first two bits are used for the size since there can
         # never be more than 3 trailing multibyte chars
-        sz = (ord(record[-1]) & 0b11) + 1
+        sz = (ord(record[-1:]) & 0b11) + 1
         consumed = 1
         if sz > consumed:
             data[0] = record[-sz:-consumed]
@@ -298,7 +298,7 @@ def decode_tbs(byts, flag_size=4):
         extra[0b0010] = x
         consumed += consumed2
     if flags & 0b0100:
-        extra[0b0100] = ord(byts[0])
+        extra[0b0100] = ord(byts[0:1])
         byts = byts[1:]
         consumed += 1
     if flags & 0b0001:

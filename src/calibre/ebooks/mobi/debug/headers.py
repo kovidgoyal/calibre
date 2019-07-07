@@ -28,6 +28,7 @@ class PalmDOCAttributes(object):
 
         def __str__(self):
             return '%s: %s'%(self.name, bool(self.val))
+        __unicode__ = __str__
 
     def __init__(self, raw):
         self.val = struct.unpack(b'<H', raw)[0]
@@ -44,6 +45,7 @@ class PalmDOCAttributes(object):
     def __str__(self):
         attrs = '\n\t'.join([unicode_type(x) for x in self.attributes])
         return 'PalmDOC Attributes: %s\n\t%s'%(bin(self.val), attrs)
+    __unicode__ = __str__
 
 
 class PalmDB(object):
@@ -102,6 +104,7 @@ class PalmDB(object):
         ans.append('Number of records: %s'%self.number_of_records)
 
         return '\n'.join(ans)
+    __unicode__ = __str__
 # }}}
 
 
@@ -257,6 +260,8 @@ class EXTHHeader(object):
         for r in self.records:
             ans.append(unicode_type(r))
         return '\n'.join(ans)
+    __unicode__ = __str__
+
 # }}}
 
 

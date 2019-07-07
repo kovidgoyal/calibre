@@ -89,7 +89,7 @@ class MobiReader(object):
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
-        if self.ident not in [b'BOOKMOBI', b'TEXTREAD']:
+        if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []

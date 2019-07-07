@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type, range, iteritems, as_bytes
+from polyglot.builtins import unicode_type, range, iteritems, as_bytes, print_to_binary_file
 
 
 class TagX(object):  # {{{
@@ -583,7 +583,7 @@ class TBSIndexing(object):  # {{{
             types[tbs_type] += strings
         for typ, strings in iteritems(types):
             with open(os.path.join(bdir, 'tbs_type_%d.txt'%typ), 'wb') as f:
-                f.write('\n'.join(strings))
+                f.write(as_bytes('\n'.join(strings)))
 
     def dump_record(self, r, dat):
         ans = []
@@ -788,14 +788,15 @@ class MOBIFile(object):  # {{{
                     self.index_record.indices, self.mobi_header.type_raw)
 
     def print_header(self, f=sys.stdout):
-        print(unicode_type(self.palmdb).encode('utf-8'), file=f)
-        print(file=f)
-        print('Record headers:', file=f)
+        p = print_to_binary_file(f)
+        p(unicode_type(self.palmdb))
+        p()
+        p('Record headers:')
         for i, r in enumerate(self.records):
-            print('%6d. %s'%(i, r.header), file=f)
+            p('%6d. %s'%(i, r.header))
 
-        print(file=f)
-        print(unicode_type(self.mobi_header).encode('utf-8'), file=f)
+        p()
+        p(unicode_type(self.mobi_header))
 # }}}
 
 
@@ -820,18 +821,20 @@ def inspect_mobi(mobi_file, ddir):
     if f.index_header is not None:
         f.index_record.alltext = alltext
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
+            print = print_to_binary_file(out)
             print(unicode_type(f.index_header), file=out)
             print('\n\n', file=out)
             if f.secondary_index_header is not None:
-                print(unicode_type(f.secondary_index_header).encode('utf-8'), file=out)
+                print(unicode_type(f.secondary_index_header), file=out)
                 print('\n\n', file=out)
             if f.secondary_index_record is not None:
-                print(unicode_type(f.secondary_index_record).encode('utf-8'), file=out)
+                print(unicode_type(f.secondary_index_record), file=out)
                 print('\n\n', file=out)
-            print(unicode_type(f.cncx).encode('utf-8'), file=out)
+            print(unicode_type(f.cncx), file=out)
             print('\n\n', file=out)
             print(unicode_type(f.index_record), file=out)
         with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
+            print = print_to_binary_file(out)
             print(unicode_type(f.tbs_indexing), file=out)
         f.tbs_indexing.dump(ddir)
 

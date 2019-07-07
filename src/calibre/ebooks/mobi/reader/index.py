@@ -123,6 +123,9 @@ class CNCX(object):  # {{{
 
     def iteritems(self):
         return iteritems(self.records)
+
+    def items(self):
+        return iteritems(self.records)
 # }}}
 
 

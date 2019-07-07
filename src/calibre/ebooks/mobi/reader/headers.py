@@ -75,7 +75,7 @@ class EXTHHeader(object):  # {{{
                 # they are messed up in the PDB header
                 try:
                     title = self.decode(content)
-                except:
+                except Exception:
                     pass
             elif idx == 524:  # Lang code
                 try:
@@ -83,7 +83,7 @@ class EXTHHeader(object):  # {{{
                     lang = canonicalize_lang(lang)
                     if lang:
                         self.mi.language = lang
-                except:
+                except Exception:
                     pass
             elif idx == 525:
                 try:
@@ -138,8 +138,8 @@ class EXTHHeader(object):  # {{{
             self.mi.tags = list(set(self.mi.tags))
         elif idx == 106:
             try:
-                self.mi.pubdate = parse_date(content, as_utc=False)
-            except:
+                self.mi.pubdate = parse_date(self.decode(content), as_utc=False)
+            except Exception:
                 pass
         elif idx == 108:
             self.mi.book_producer = clean_xml_chars(self.decode(content).strip())
@@ -165,7 +165,7 @@ class EXTHHeader(object):  # {{{
             try:
                 self.uuid = content.decode('ascii')
                 self.mi.set_identifier('mobi-asin', self.uuid)
-            except:
+            except Exception:
                 self.uuid = None
         elif idx == 116:
             self.start_offset, = struct.unpack(b'>L', content)
@@ -302,14 +302,14 @@ class MetadataHeader(BookHeader):
         try:
             if self.section_data(kf8_header_index-1) == b'BOUNDARY':
                 return 'joint'
-        except:
+        except Exception:
             pass
         return None
 
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
-        if ident not in [b'BOOKMOBI', b'TEXTREAD']:
+        if ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise MobiError('Unknown book type: %s' % ident)
         return ident
 
