@@ -368,7 +368,7 @@ class IndexEntry(object):  # {{{
             self.index, len(self.tags))]
         for tag in self.tags:
             if tag.value is not None:
-                ans.append('\t'+str(tag))
+                ans.append('\t'+unicode_type(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
@@ -421,7 +421,7 @@ class IndexRecord(object):  # {{{
                 len(w), not bool(w.replace(b'\0', b''))))
         for entry in self.indices:
             offset = entry.offset
-            a(str(entry))
+            a(unicode_type(entry))
             t = self.alltext
             if offset is not None and self.alltext is not None:
                 a('\tHTML before offset: %r'%t[offset-50:offset])
@@ -608,7 +608,7 @@ class TBSIndexing(object):  # {{{
             return as_bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
-            return str({bin4(k):v for k, v in iteritems(extra)})
+            return unicode_type({bin4(k):v for k, v in iteritems(extra)})
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
@@ -788,14 +788,14 @@ class MOBIFile(object):  # {{{
                     self.index_record.indices, self.mobi_header.type_raw)
 
     def print_header(self, f=sys.stdout):
-        print(str(self.palmdb).encode('utf-8'), file=f)
+        print(unicode_type(self.palmdb).encode('utf-8'), file=f)
         print(file=f)
         print('Record headers:', file=f)
         for i, r in enumerate(self.records):
             print('%6d. %s'%(i, r.header), file=f)
 
         print(file=f)
-        print(str(self.mobi_header).encode('utf-8'), file=f)
+        print(unicode_type(self.mobi_header).encode('utf-8'), file=f)
 # }}}
 
 
@@ -820,19 +820,19 @@ def inspect_mobi(mobi_file, ddir):
     if f.index_header is not None:
         f.index_record.alltext = alltext
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
-            print(str(f.index_header), file=out)
+            print(unicode_type(f.index_header), file=out)
             print('\n\n', file=out)
             if f.secondary_index_header is not None:
-                print(str(f.secondary_index_header).encode('utf-8'), file=out)
+                print(unicode_type(f.secondary_index_header).encode('utf-8'), file=out)
                 print('\n\n', file=out)
             if f.secondary_index_record is not None:
-                print(str(f.secondary_index_record).encode('utf-8'), file=out)
+                print(unicode_type(f.secondary_index_record).encode('utf-8'), file=out)
                 print('\n\n', file=out)
-            print(str(f.cncx).encode('utf-8'), file=out)
+            print(unicode_type(f.cncx).encode('utf-8'), file=out)
             print('\n\n', file=out)
-            print(str(f.index_record), file=out)
+            print(unicode_type(f.index_record), file=out)
         with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
-            print(str(f.tbs_indexing), file=out)
+            print(unicode_type(f.tbs_indexing), file=out)
         f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),

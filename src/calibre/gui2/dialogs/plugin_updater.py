@@ -357,7 +357,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def _get_display_version(self, version):
         if version is None:
             return ''
-        return '.'.join([str(v) for v in list(version)])
+        return '.'.join([unicode_type(v) for v in list(version)])
 
     def _get_status(self, display_plugin):
         if not display_plugin.is_valid_platform():

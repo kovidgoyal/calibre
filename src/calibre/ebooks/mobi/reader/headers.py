@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (absolute_import, print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -294,14 +294,14 @@ class MetadataHeader(BookHeader):
     def kf8_type(self):
         if (self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) !=
                 NULL_INDEX):
-            return u'standalone'
+            return 'standalone'
 
         kf8_header_index = getattr(self.exth, 'kf8_header', None)
         if kf8_header_index is None:
             return None
         try:
             if self.section_data(kf8_header_index-1) == b'BOUNDARY':
-                return u'joint'
+                return 'joint'
         except:
             pass
         return None

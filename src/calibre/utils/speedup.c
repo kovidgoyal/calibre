@@ -139,7 +139,7 @@ speedup_fdopen(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
 #if PY_MAJOR_VERSION >= 3
-    ans = PyFile_FromFd(fd, name, mode, bufsize, NULL, NULL, NULL, 1);
+    ans = PyFile_FromFd(fd, NULL, mode, bufsize, NULL, NULL, NULL, 1);
 #else
     fp = fdopen(fd, mode);
     if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);

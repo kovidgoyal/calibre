@@ -107,7 +107,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             break
     if uuid is None:
         from uuid import uuid4
-        uuid = str(uuid4())
+        uuid = unicode_type(uuid4())
 
     if isinstance(uuid, unicode_type):
         uuid = uuid.encode('utf-8')
@@ -137,9 +137,9 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
 
     # Add a publication date entry
     if metadata['date']:
-        datestr = str(metadata['date'][0])
+        datestr = unicode_type(metadata['date'][0])
     elif metadata['timestamp']:
-        datestr = str(metadata['timestamp'][0])
+        datestr = unicode_type(metadata['timestamp'][0])
 
     if datestr is None:
         raise ValueError("missing date or timestamp")

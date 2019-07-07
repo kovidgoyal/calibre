@@ -13,6 +13,7 @@ import html5_parser
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.utils.cleantext import clean_xml_chars
+from polyglot.builtins import unicode_type
 
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 
@@ -83,7 +84,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
         if linenumber_attribute:
             for elem in ans.iter(LxmlElement):
                 if elem.sourceline is not None:
-                    elem.set(linenumber_attribute, str(elem.sourceline))
+                    elem.set(linenumber_attribute, unicode_type(elem.sourceline))
         return ans
     except Exception:
         if log is not None:

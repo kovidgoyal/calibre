@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,7 +17,7 @@ from polyglot.urllib import unquote
 
 class CoverManager(object):
 
-    SVG_TEMPLATE = textwrap.dedent(u'''\
+    SVG_TEMPLATE = textwrap.dedent('''\
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -40,7 +41,7 @@ class CoverManager(object):
         </html>
         ''')
 
-    NONSVG_TEMPLATE = textwrap.dedent(u'''\
+    NONSVG_TEMPLATE = textwrap.dedent('''\
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -103,7 +104,7 @@ class CoverManager(object):
                     pass
             img_data = create_cover(title, authors, series, series_index)
             id, href = self.oeb.manifest.generate('cover',
-                    u'cover_image.jpg')
+                    'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
             m.clear('cover')
@@ -145,15 +146,15 @@ class CoverManager(object):
             self.svg_template = self.svg_template.replace('__viewbox__',
                     '0 0 %d %d'%(width, height))
             self.svg_template = self.svg_template.replace('__width__',
-                    str(width))
+                    unicode_type(width))
             self.svg_template = self.svg_template.replace('__height__',
-                    str(height))
+                    unicode_type(height))
 
             if href is not None:
                 templ = self.non_svg_template if self.no_svg_cover \
                         else self.svg_template
                 tp = templ%unquote(href)
-                id, href = m.generate('titlepage', u'titlepage.xhtml')
+                id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))
         else:

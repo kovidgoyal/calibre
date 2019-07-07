@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (absolute_import, print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -169,7 +169,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
                 self.processed_html)
-        self.processed_html = self.processed_html.replace(u'\ufeff', '')
+        self.processed_html = self.processed_html.replace('\ufeff', '')
         # Remove tags of the form <xyz: ...> as they can cause issues further
         # along the pipeline
         self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
@@ -356,15 +356,15 @@ class MobiReader(object):
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(
-            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\\g<para>'+'\\g<styletags>', self.processed_html)
+            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', r'\g<para>'+r'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\\g<styletags>'+'\\g<para>', self.processed_html)
+            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', r'\g<styletags>'+r'\g<para>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\\g<para>'+'\\g<blockquote>', self.processed_html)
+            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', r'\g<para>'+r'\g<blockquote>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\\g<blockquote>'+'\\g<para>', self.processed_html)
+            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', r'\g<blockquote>'+r'\g<para>', self.processed_html)
         bods = htmls = 0
-        for x in re.finditer(u'</body>|</html>', self.processed_html):
+        for x in re.finditer('</body>|</html>', self.processed_html):
             if x == '</body>':
                 bods +=1
             else:
@@ -442,7 +442,7 @@ class MobiReader(object):
                             # Paragraph spacer
                             # Insert nbsp so that the element is never
                             # discarded by a renderer
-                            tag.text = u'\u00a0'  # nbsp
+                            tag.text = '\u00a0'  # nbsp
                             styles.append('height: %s' %
                                     self.ensure_unit(height))
                         else:
@@ -642,11 +642,11 @@ class MobiReader(object):
             mi = MetaInformation(self.book_header.title, [_('Unknown')])
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
-            opf.cover = u'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
+            opf.cover = 'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
         elif mi.cover is not None:
             opf.cover = mi.cover
         else:
-            opf.cover = u'images/%05d.jpg' % 1
+            opf.cover = 'images/%05d.jpg' % 1
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
                 opf.cover = None
@@ -656,7 +656,7 @@ class MobiReader(object):
         if cover is not None:
             cover = cover.replace('/', os.sep)
             if os.path.exists(cover):
-                ncover = u'images'+os.sep+u'calibre_cover.jpg'
+                ncover = 'images'+os.sep+'calibre_cover.jpg'
                 if os.path.exists(ncover):
                     os.remove(ncover)
                 shutil.copyfile(cover, ncover)
@@ -664,9 +664,9 @@ class MobiReader(object):
                 opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
-            (os.path.abspath(u'styles.css'), 'text/css')]
+            (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
-        added = set([])
+        added = set()
         for i in getattr(self, 'image_names', []):
             path = os.path.join(bp, 'images', i)
             added.add(path)
@@ -699,9 +699,9 @@ class MobiReader(object):
                         continue
                     if reached and x.tag == 'a':
                         href = x.get('href', '')
-                        if href and re.match('\\w+://', href) is None:
+                        if href and re.match(r'\w+://', href) is None:
                             try:
-                                text = u' '.join([t.strip() for t in
+                                text = ' '.join([t.strip() for t in
                                     x.xpath('descendant::text()')])
                             except:
                                 text = ''

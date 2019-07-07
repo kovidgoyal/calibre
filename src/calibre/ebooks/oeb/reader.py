@@ -1,8 +1,7 @@
 """
 Container-/OPF-based input OEBBook reader.
 """
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -150,7 +149,7 @@ class OEBReader(object):
                 dict(a=__appname__, v=__version__)
         meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
         m = self.oeb.metadata
-        m.add('identifier', str(uuid.uuid4()), id='uuid_id', scheme='uuid')
+        m.add('identifier', unicode_type(uuid.uuid4()), id='uuid_id', scheme='uuid')
         self.oeb.uid = self.oeb.metadata.identifier[-1]
         if not m.title:
             m.add('title', self.oeb.translate(__('Unknown')))
@@ -198,8 +197,8 @@ class OEBReader(object):
                     try:
                         data = item.data
                     except:
-                        self.oeb.log.exception(u'Failed to read from manifest '
-                                u'entry with id: %s, ignoring'%item.id)
+                        self.oeb.log.exception('Failed to read from manifest '
+                                'entry with id: %s, ignoring'%item.id)
                         invalid.add(item)
                         continue
                 if data is None:
@@ -234,7 +233,7 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
             unchecked.clear()
-            warned = set([])
+            warned = set()
             for href in new:
                 known.add(href)
                 is_invalid = False
@@ -276,13 +275,13 @@ class OEBReader(object):
                 media_type = media_type.lower()
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
-                self.logger.warn(u'Duplicate manifest entry for %r' % href)
+                self.logger.warn('Duplicate manifest entry for %r' % href)
                 continue
             if not self.oeb.container.exists(href):
-                self.logger.warn(u'Manifest item %r not found' % href)
+                self.logger.warn('Manifest item %r not found' % href)
                 continue
             if id in manifest.ids:
-                self.logger.warn(u'Duplicate manifest id %r' % id)
+                self.logger.warn('Duplicate manifest id %r' % id)
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
         invalid = self._manifest_prune_invalid()
@@ -333,7 +332,7 @@ class OEBReader(object):
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
             idref = elem.get('idref')
             if idref not in manifest.ids:
-                self.logger.warn(u'Spine item %r not found' % idref)
+                self.logger.warn('Spine item %r not found' % idref)
                 continue
             item = manifest.ids[idref]
             if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath') and not getattr(item.data, 'tag', '').endswith('}ncx'):
@@ -365,7 +364,7 @@ class OEBReader(object):
                         corrected_href = href
                         break
                 if corrected_href is None:
-                    self.logger.warn(u'Guide reference %r not found' % ref_href)
+                    self.logger.warn('Guide reference %r not found' % ref_href)
                     continue
                 ref_href = corrected_href
             typ = elem.get('type')

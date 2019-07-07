@@ -289,7 +289,7 @@ class KF8Book(object):
             self.extra_data_flags |= 0b10
         self.uid = random.randint(0, 0xffffffff)
 
-        self.language_code = iana2mobi(str(metadata.language[0]))
+        self.language_code = iana2mobi(unicode_type(metadata.language[0]))
         self.exth_flags = 0b1010000
         if writer.opts.mobi_periodical:
             self.exth_flags |= 0b1000
