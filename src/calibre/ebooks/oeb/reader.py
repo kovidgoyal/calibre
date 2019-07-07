@@ -632,7 +632,7 @@ class OEBReader(object):
             path = os.path.join(tdir, unquote(hcover.href))
             data = render_html_svg_workaround(path, self.logger)
             if not data:
-                data = ''
+                data = b''
         id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
         item = self.oeb.manifest.add(id, href, JPEG_MIME, data=data)
         return item

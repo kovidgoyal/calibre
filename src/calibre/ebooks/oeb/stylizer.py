@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 CSS property propagation class.
 '''
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -33,7 +33,7 @@ def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         with open(P('templates/html.css'), 'rb') as f:
-            html_css = f.read()
+            html_css = f.read().decode('utf-8')
         _html_css_stylesheet = parseString(html_css, validate=False)
     return _html_css_stylesheet
 
@@ -95,6 +95,7 @@ def test_media_ok():
     assert not media_ok('(device-width:10px)')
     assert media_ok('screen, (device-width:10px)')
     assert not media_ok('screen and (device-width:10px)')
+
 
 class StylizerRules(object):
 
@@ -180,6 +181,7 @@ class StylizerRules(object):
             if stylesheet != stylesheets[index]:
                 return False
         return True
+
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -280,7 +282,7 @@ class Stylizer(object):
                     stylesheet = parser.parseString(text, href=cssname,
                             validate=False)
                     stylesheets.append(stylesheet)
-                except:
+                except Exception:
                     self.logger.exception('Failed to parse %s, ignoring.'%w)
                     self.logger.debug('Bad css: ')
                     self.logger.debug(x)
