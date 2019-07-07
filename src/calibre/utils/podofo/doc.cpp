@@ -6,6 +6,7 @@
  */
 
 #include "global.h"
+#include <iostream>
 
 using namespace pdf;
 
@@ -348,6 +349,55 @@ error:
 
 } // }}}
 
+// extract_links() {{{
+static PyObject *
+PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
+    const PdfObject* catalog = NULL;
+    PyObject *ans = PyList_New(0);
+    try {
+            if ((catalog = self->doc->GetCatalog()) != NULL) {
+                const PdfObject *dests_ref = catalog->GetDictionary().GetKey("Dests");
+                PdfPagesTree *tree = self->doc->GetPagesTree();
+                if (dests_ref && dests_ref->IsReference()) {
+                    const PdfObject *dests_obj = self->doc->GetObjects().GetObject(dests_ref->GetReference());
+                    if (dests_obj && dests_obj->IsDictionary()) {
+                        const PdfDictionary &dests = dests_obj->GetDictionary();
+                        const TKeyMap &keys = dests.GetKeys();
+                        for (TCIKeyMap itres = keys.begin(); itres != keys.end(); ++itres) {
+                            if (itres->second->IsArray()) {
+                                const PdfArray &dest = itres->second->GetArray();
+                                // see section 8.2 of PDF spec for different types of destination arrays
+                                // but chromium apparently generates only [page /XYZ left top zoom] type arrays
+                                if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetName() == "XYZ") {
+                                    const PdfPage *page = tree->GetPage(dest[0].GetReference());
+                                    if (page) {
+                                        unsigned int pagenum = page->GetPageNumber();
+                                        double left = dest[2].GetReal(), top = dest[3].GetReal();
+                                        long long zoom = dest[4].GetNumber();
+                                        const std::string &anchor = itres->first.GetName();
+                                        PyObject *tuple = Py_BuildValue("NIddL", PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace"), pagenum, left, top, zoom);
+                                        if (!tuple) { break; }
+                                        else { int ret = PyList_Append(ans, tuple); Py_DECREF(tuple); if (ret != 0) break; }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        Py_CLEAR(ans);
+        return NULL;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the box");
+        Py_CLEAR(ans);
+        return NULL;
+    }
+    if (PyErr_Occurred()) { Py_CLEAR(ans); return NULL; }
+    return ans;
+} // }}}
+
 // Properties {{{
 
 static PyObject *
@@ -569,6 +619,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"image_count", (PyCFunction)PDFDoc_image_count, METH_VARARGS,
      "image_count() -> Number of images in the PDF."
+    },
+    {"extract_anchors", (PyCFunction)PDFDoc_extract_anchors, METH_VARARGS,
+     "extract_anchors() -> Extract information about links in the document."
     },
     {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
      "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
