@@ -272,7 +272,7 @@ def atomic_write(base, name, content):
     name = os.path.join(base, name)
     tname = name + '.tmp'
     with lopen(tname, 'wb') as f:
-        f.write(content)
+        f.write(as_bytes(content))
     atomic_rename(tname, name)
 
 
