@@ -1486,6 +1486,8 @@ class Guide(object):
         return elem
 
     def to_opf2(self, parent=None):
+        if not len(self):
+            return
         elem = element(parent, OPF('guide'))
         for ref in self.refs.values():
             attrib = {'type': ref.type, 'href': urlunquote(ref.href)}
