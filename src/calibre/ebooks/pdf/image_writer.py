@@ -12,6 +12,30 @@ from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.utils.img import image_from_path
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
 
+
+class PDFMetadata(object):  # {{{
+
+    def __init__(self, mi=None):
+        from calibre import force_unicode
+        from calibre.ebooks.metadata import authors_to_string
+        self.title = _('Unknown')
+        self.author = _('Unknown')
+        self.tags = ''
+        self.mi = mi
+
+        if mi is not None:
+            if mi.title:
+                self.title = mi.title
+            if mi.authors:
+                self.author = authors_to_string(mi.authors)
+            if mi.tags:
+                self.tags = ', '.join(mi.tags)
+
+        self.title = force_unicode(self.title)
+        self.author = force_unicode(self.author)
+# }}}
+
+
 # Page layout {{{
 
 
@@ -82,8 +106,17 @@ def draw_image_page(painter, img, preserve_aspect_ratio=True):
     painter.drawImage(page_rect, img)
 
 
-def convert(images, output_path, opts, pdf_metadata):
+def update_metadata(pdf_doc, pdf_metadata):
+    if pdf_metadata.mi:
+        xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
+        set_metadata_implementation(
+            pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
+            pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
+
+
+def convert(images, output_path, opts, metadata):
     writer = QPdfWriter(output_path)
+    pdf_metadata = PDFMetadata(metadata)
     writer.setCreator(pdf_metadata.author)
     writer.setTitle(pdf_metadata.title)
     writer.setPageLayout(get_page_layout(opts, for_comic=True))
@@ -97,16 +130,13 @@ def convert(images, output_path, opts, pdf_metadata):
             draw_image_page(painter, img)
     finally:
         painter.end()
-    if pdf_metadata.mi:
-        podofo = get_podofo()
-        pdf_doc = podofo.PDFDoc()
-        with open(output_path, 'r+b') as f:
-            raw = f.read()
-            pdf_doc.load(raw)
-            xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
-            set_metadata_implementation(
-                pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
-                pdf_metadata.mi.book_producer, pdf_metadata.tags, xmp_packet)
-            raw = pdf_doc.write()
-            f.seek(0), f.truncate()
-            f.write(raw)
+
+    podofo = get_podofo()
+    pdf_doc = podofo.PDFDoc()
+    with open(output_path, 'r+b') as f:
+        raw = f.read()
+        pdf_doc.load(raw)
+        update_metadata(pdf_doc, pdf_metadata)
+        raw = pdf_doc.write()
+        f.seek(0), f.truncate()
+        f.write(raw)

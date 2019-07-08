@@ -6,17 +6,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 
-from PyQt5.Qt import QApplication, QUrl, QTimer
+from PyQt5.Qt import QApplication, QTimer, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.split import merge_html
+from calibre.ebooks.pdf.image_writer import (
+    PDFMetadata, get_page_layout, update_metadata
+)
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
-from calibre.ebooks.pdf.image_writer import get_page_layout
 from calibre.utils.logging import default_log
-
+from calibre.utils.podofo import get_podofo
 from polyglot.builtins import range
 
 OK, LOAD_FAILED, KILL_SIGNAL = range(0, 3)
@@ -96,7 +98,7 @@ class Renderer(QWebEnginePage):
         return self.pdf_data
 
 
-def convert(opf_path, opts, output_path=None, log=default_log):
+def convert(opf_path, opts, metadata=None, output_path=None, log=default_log):
     container = Container(opf_path, log)
     spine_names = [name for name, is_linear in container.spine_names]
     master = spine_names[0]
@@ -109,7 +111,14 @@ def convert(opf_path, opts, output_path=None, log=default_log):
     renderer = Renderer(opts)
     page_layout = get_page_layout(opts)
     pdf_data = renderer.convert_html_file(index_file, page_layout, settle_time=1)
+    podofo = get_podofo()
+    pdf_doc = podofo.PDFDoc()
+    pdf_doc.load(pdf_data)
 
+    if metadata is not None:
+        update_metadata(pdf_doc, PDFMetadata(metadata))
+
+    pdf_data = pdf_doc.write()
     if output_path is None:
         return pdf_data
     with open(output_path, 'wb') as f:
