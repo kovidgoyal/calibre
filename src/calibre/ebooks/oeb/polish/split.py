@@ -420,6 +420,9 @@ def merge_html(container, names, master, insert_page_breaks=False):
             first_child.set('id', unique_anchor(seen_anchors, 'top'))
             seen_anchors.add(first_child.get('id'))
 
+        if insert_page_breaks:
+            first_child.set('style', first_child.get('style', '') + '; page-break-before: always')
+
         amap[''] = first_child.get('id')
 
         # Fix links that point to local changed anchors
@@ -427,9 +430,6 @@ def merge_html(container, names, master, insert_page_breaks=False):
             q = a.get('href')[1:]
             if q in amap:
                 a.set('href', '#' + amap[q])
-
-        if insert_page_breaks:
-            master_body.append(master_body.makeelement(XHTML('div'), style='page-break-after:always'))
 
         for child in children:
             if isinstance(child, string_or_bytes):
