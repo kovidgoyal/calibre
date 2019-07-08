@@ -243,13 +243,10 @@ class PDFOutput(OutputFormatPlugin):
                             self.oeb.container.write(path, nraw)
 
     def convert_text(self, oeb_book):
-        from calibre.ebooks.metadata.opf2 import OPF
-        from calibre.ebooks.pdf.render.from_html import PDFWriter
-
-        self.log.debug('Serializing oeb input to disk for processing...')
+        from calibre.ebooks.pdf.html_writer import convert
         self.get_cover_data()
-
         self.process_fonts()
+
         if self.opts.pdf_use_document_margins and self.stored_page_margins:
             import json
             for href, margins in iteritems(self.stored_page_margins):
@@ -263,39 +260,5 @@ class PDFOutput(OutputFormatPlugin):
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
-
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
-            opf = OPF(opfpath, os.path.dirname(opfpath))
-
-            self.write(PDFWriter, [s.path for s in opf.spine], getattr(opf,
-                'toc', None))
-
-    def write(self, Writer, items, toc):
-        writer = Writer(self.opts, self.log, cover_data=self.cover_data,
-                toc=toc)
-        writer.report_progress = self.report_progress
-
-        close = False
-        if not hasattr(self.output_path, 'write'):
-            close = True
-            if not os.path.exists(os.path.dirname(self.output_path)) and os.path.dirname(self.output_path) != '':
-                os.makedirs(os.path.dirname(self.output_path))
-            out_stream = open(self.output_path, 'wb')
-        else:
-            out_stream = self.output_path
-
-        out_stream.seek(0)
-        out_stream.truncate()
-        self.log.debug('Rendering pages to PDF...')
-        import time
-        st = time.time()
-        if False:
-            import cProfile
-            cProfile.runctx('writer.dump(items, out_stream, PDFMetadata(self.metadata))',
-                        globals(), locals(), '/tmp/profile')
-        else:
-            writer.dump(items, out_stream, PDFMetadata(self.metadata))
-        self.log('Rendered PDF in %g seconds:'%(time.time()-st))
-
-        if close:
-            out_stream.close()
+            convert(opfpath, self.log, self.opts)
