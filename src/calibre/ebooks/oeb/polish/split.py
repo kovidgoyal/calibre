@@ -357,7 +357,7 @@ def remove_name_attributes(root):
         elem.set('id', elem.attrib.pop('name'))
 
 
-def merge_html(container, names, master):
+def merge_html(container, names, master, insert_page_breaks=False):
     p = container.parsed
     root = p(master)
 
@@ -427,6 +427,9 @@ def merge_html(container, names, master):
             q = a.get('href')[1:]
             if q in amap:
                 a.set('href', '#' + amap[q])
+
+        if insert_page_breaks:
+            master_body.append(master_body.makeelement(XHTML('div'), style='page-break-after:always'))
 
         for child in children:
             if isinstance(child, string_or_bytes):

@@ -813,6 +813,26 @@ def setup_hidpi():
         prints('Not controlling automatic hidpi scaling')
 
 
+def setup_unix_signals(self):
+    if hasattr(os, 'pipe2'):
+        read_fd, write_fd = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
+    else:
+        import fcntl
+        read_fd, write_fd = os.pipe()
+        cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
+        for fd in (read_fd, write_fd):
+            flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, lambda x, y: None)
+        signal.siginterrupt(sig, False)
+    signal.set_wakeup_fd(write_fd)
+    self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
+    self.signal_notifier.setEnabled(True)
+    self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+
+
 class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
@@ -1066,23 +1086,7 @@ class Application(QApplication):
         self.setQuitOnLastWindowClosed(True)
 
     def setup_unix_signals(self):
-        import fcntl
-        if hasattr(os, 'pipe2'):
-            read_fd, write_fd = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
-        else:
-            read_fd, write_fd = os.pipe()
-            cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
-            for fd in (read_fd, write_fd):
-                flags = fcntl.fcntl(fd, fcntl.F_GETFD)
-                fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
-
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            signal.signal(sig, lambda x, y: None)
-            signal.siginterrupt(sig, False)
-        signal.set_wakeup_fd(write_fd)
-        self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
-        self.signal_notifier.setEnabled(True)
-        self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+        setup_unix_signals(self)
 
     def signal_received(self, read_fd):
         try:
