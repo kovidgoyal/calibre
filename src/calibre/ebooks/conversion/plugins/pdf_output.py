@@ -238,4 +238,7 @@ class PDFOutput(OutputFormatPlugin):
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
-            convert(opfpath, self.opts, metadata=self.metadata, output_path=self.output_path, log=self.log)
+            convert(
+                opfpath, self.opts, metadata=self.metadata, output_path=self.output_path,
+                log=self.log, cover_data=self.cover_data
+            )

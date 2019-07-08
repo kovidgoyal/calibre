@@ -219,6 +219,24 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 } // }}}
 
+// insert_existing_page() {{{
+static PyObject *
+PDFDoc_insert_existing_page(PDFDoc *self, PyObject *args) {
+    PDFDoc *src_doc;
+    int src_page = 0, at = 0;
+
+    if (!PyArg_ParseTuple(args, "O!|ii", &PDFDocType, &src_doc, &src_page, &at)) return NULL;
+
+    try {
+        self->doc->InsertExistingPageAt(*src_doc->doc, src_page, at);
+    } catch (const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+} // }}}
+
 // set_box() {{{
 static PyObject *
 PDFDoc_set_box(PDFDoc *self, PyObject *args) {
@@ -628,6 +646,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"append", (PyCFunction)PDFDoc_append, METH_VARARGS,
      "append(doc) -> Append doc (which must be a PDFDoc) to this document."
+    },
+    {"insert_existing_page", (PyCFunction)PDFDoc_insert_existing_page, METH_VARARGS,
+     "insert_existing_page(src_doc, src_page, at) -> Insert the page src_page from src_doc at index: at."
     },
     {"set_box", (PyCFunction)PDFDoc_set_box, METH_VARARGS,
      "set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox, TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts."
