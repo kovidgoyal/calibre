@@ -156,15 +156,27 @@ class PDFOutput(OutputFormatPlugin):
     }
 
     def specialize_options(self, log, opts, input_fmt):
+        # Ensure Qt is setup to be used with WebEngine
+        # specialize_options is called early enough in the pipeline
+        # that hopefully no Qt application has been constructed as yet
+        from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage  # noqa
+        from calibre.gui2 import must_use_qt, load_builtin_fonts
+        from calibre.constants import FAKE_PROTOCOL
+        scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
+        scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
+        scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+        QWebEngineUrlScheme.registerScheme(scheme)
+        must_use_qt()
+        load_builtin_fonts()
+        self.input_fmt = input_fmt
+
         if opts.pdf_use_document_margins:
             # Prevent the conversion pipeline from overwriting document margins
             opts.margin_left = opts.margin_right = opts.margin_top = opts.margin_bottom = -1
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        from calibre.gui2 import must_use_qt, load_builtin_fonts
         self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
-        must_use_qt()
-        load_builtin_fonts()
 
         self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
