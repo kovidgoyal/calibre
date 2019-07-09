@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from io import BytesIO
-
 from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
 
 from calibre.constants import filesystem_encoding
@@ -130,19 +128,16 @@ def draw_image_page(writer, img, preserve_aspect_ratio=True):
 
 
 def convert(images, output_path, opts, metadata, report_progress):
-    buf = BytesIO()
-    page_layout = get_page_layout(opts, for_comic=True)
-    page_size = page_layout.fullRectPoints().size()
-    writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
-    writer.apply_fill(color=(1, 1, 1))
-    pdf_metadata = PDFMetadata(metadata)
-    writer.set_metadata(pdf_metadata.title, pdf_metadata.author, pdf_metadata.tags, pdf_metadata.mi)
-    for i, path in enumerate(images):
-        img = Image(as_unicode(path, filesystem_encoding))
-        draw_image_page(writer, img)
-        writer.end_page()
-        # report progress
-    writer.end()
-
-    with open(output_path, 'wb') as f:
-        f.write(buf.getvalue())
+    with open(output_path, 'wb') as buf:
+        page_layout = get_page_layout(opts, for_comic=True)
+        page_size = page_layout.fullRectPoints().size()
+        writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
+        writer.apply_fill(color=(1, 1, 1))
+        pdf_metadata = PDFMetadata(metadata)
+        writer.set_metadata(pdf_metadata.title, pdf_metadata.author, pdf_metadata.tags, pdf_metadata.mi)
+        for i, path in enumerate(images):
+            img = Image(as_unicode(path, filesystem_encoding))
+            draw_image_page(writer, img)
+            writer.end_page()
+            report_progress((i + 1) / len(images), _('Rendered {0} of {1} pages').format(i + 1, len(images)))
+        writer.end()
