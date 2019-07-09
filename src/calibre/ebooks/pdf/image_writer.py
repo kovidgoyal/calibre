@@ -8,11 +8,14 @@ from io import BytesIO
 
 from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
 
-from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
+from calibre.constants import filesystem_encoding
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
 from calibre.ebooks.pdf.render.serialize import PDFStream
-from calibre.utils.img import image_from_path
+from calibre.utils.img import image_and_format_from_data
+from calibre.utils.imghdr import identify
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
+from polyglot.builtins import as_unicode
 
 
 class PDFMetadata(object):  # {{{
@@ -89,12 +92,34 @@ def get_page_layout(opts, for_comic=False):
 # }}}
 
 
+class Image(object):  # {{{
+
+    def __init__(self, path_or_bytes):
+        if not isinstance(path_or_bytes, bytes):
+            with open(path_or_bytes, 'rb') as f:
+                path_or_bytes = f.read()
+        self.img_data = path_or_bytes
+        fmt, width, height = identify(path_or_bytes)
+        if width > 0 and height > 0 and fmt == 'jpeg':
+            self.fmt = fmt
+            self.width, self.height = width, height
+            self.cache_key = None
+        else:
+            self.img, self.fmt = image_and_format_from_data(path_or_bytes)
+            self.width, self.height = self.img.width(), self.img.height()
+            self.cache_key = self.img.cacheKey()
+# }}}
+
+
 def draw_image_page(writer, img, preserve_aspect_ratio=True):
-    ref = writer.add_image(img, img.cacheKey())
+    if img.fmt == 'jpeg':
+        ref = writer.add_jpeg_image(img.img_data, img.width, img.height, img.cache_key)
+    else:
+        ref = writer.add_image(img.img, img.cache_key)
     page_size = tuple(writer.page_size)
     scaling = list(writer.page_size)
     translation = [0, 0]
-    img_ar = img.width() / img.height()
+    img_ar = img.width / img.height
     page_ar = page_size[0]/page_size[1]
     if preserve_aspect_ratio and page_ar != img_ar:
         if page_ar > img_ar:
@@ -114,7 +139,7 @@ def update_metadata(pdf_doc, pdf_metadata):
             pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
 
 
-def convert(images, output_path, opts, metadata):
+def convert(images, output_path, opts, metadata, report_progress):
     buf = BytesIO()
     page_layout = get_page_layout(opts, for_comic=True)
     page_size = page_layout.fullRectPoints().size()
@@ -122,7 +147,7 @@ def convert(images, output_path, opts, metadata):
     writer.apply_fill(color=(1, 1, 1))
     pdf_metadata = PDFMetadata(metadata)
     for i, path in enumerate(images):
-        img = image_from_path(path)
+        img = Image(as_unicode(path, filesystem_encoding))
         draw_image_page(writer, img)
         writer.end_page()
     writer.end()

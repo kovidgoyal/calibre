@@ -178,7 +178,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_images(self, images):
         from calibre.ebooks.pdf.image_writer import convert
-        convert(images, self.output_path, self.opts, self.metadata)
+        convert(images, self.output_path, self.opts, self.metadata, self.report_progress)
 
     def get_cover_data(self):
         oeb = self.oeb

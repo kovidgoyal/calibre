@@ -5,22 +5,20 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+from io import BytesIO
 
-from PyQt5.Qt import (
-    QApplication, QBuffer, QMarginsF, QPageLayout, QPainter, QPdfWriter, QTimer,
-    QUrl
-)
+from PyQt5.Qt import QApplication, QTimer, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.split import merge_html
 from calibre.ebooks.pdf.image_writer import (
-    PDFMetadata, draw_image_page, get_page_layout, update_metadata
+    Image, PDFMetadata, draw_image_page, get_page_layout, update_metadata
 )
+from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
-from calibre.utils.img import image_from_data
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import get_podofo
 from polyglot.builtins import range
@@ -103,20 +101,14 @@ class Renderer(QWebEnginePage):
 
 
 def add_cover(pdf_doc, cover_data, page_layout, opts):
-    buf = QBuffer()
-    buf.open(QBuffer.ReadWrite)
-    cover_layout = QPageLayout(page_layout)
-    cover_layout.setMargins(QMarginsF(0, 0, 0, 0))
-    img = image_from_data(cover_data)
-    writer = QPdfWriter(buf)
-    writer.setPageLayout(cover_layout)
-    painter = QPainter()
-    painter.begin(writer)
-    try:
-        draw_image_page(painter, img, preserve_aspect_ratio=opts.preserve_cover_aspect_ratio)
-    finally:
-        painter.end()
-    cover_pdf = buf.data().data()
+    buf = BytesIO()
+    page_size = page_layout.fullRectPoints().size()
+    img = Image(cover_data)
+    writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
+    writer.apply_fill(color=(1, 1, 1))
+    draw_image_page(writer, img, preserve_aspect_ratio=opts.preserve_cover_aspect_ratio)
+    writer.end()
+    cover_pdf = buf.getvalue()
     podofo = get_podofo()
     cover_pdf_doc = podofo.PDFDoc()
     cover_pdf_doc.load(cover_pdf)
