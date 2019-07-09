@@ -4,11 +4,13 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QPainter, QPdfWriter, QSize
+from io import BytesIO
 
-from calibre import fit_image
-from calibre.ebooks.docx.writer.container import cicero, cm, didot, inch, mm, pica
+from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
+
+from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.utils.img import image_from_path
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
 
@@ -87,23 +89,21 @@ def get_page_layout(opts, for_comic=False):
 # }}}
 
 
-def draw_image_page(painter, img, preserve_aspect_ratio=True):
-    page_rect = painter.viewport()
-    if preserve_aspect_ratio:
-        aspect_ratio = float(img.width())/img.height()
-        nw, nh = page_rect.width(), page_rect.height()
-        if aspect_ratio > 1:
-            nh = int(page_rect.width()/aspect_ratio)
-        else:  # Width is smaller than height
-            nw = page_rect.height()*aspect_ratio
-        __, nnw, nnh = fit_image(nw, nh, page_rect.width(),
-                page_rect.height())
-        dx = int((page_rect.width() - nnw)/2.)
-        dy = int((page_rect.height() - nnh)/2.)
-        page_rect.translate(dx, dy)
-        page_rect.setHeight(nnh)
-        page_rect.setWidth(nnw)
-    painter.drawImage(page_rect, img)
+def draw_image_page(writer, img, preserve_aspect_ratio=True):
+    ref = writer.add_image(img, img.cacheKey())
+    page_size = tuple(writer.page_size)
+    scaling = list(writer.page_size)
+    translation = [0, 0]
+    img_ar = img.width() / img.height()
+    page_ar = page_size[0]/page_size[1]
+    if preserve_aspect_ratio and page_ar != img_ar:
+        if page_ar > img_ar:
+            scaling[0] = img_ar * page_size[1]
+            translation[0] = (page_size[0] - scaling[0]) / 2
+        else:
+            scaling[1] = page_size[0] / img_ar
+            translation[1] = (page_size[1] - scaling[1]) / 2
+    writer.draw_image_with_transform(ref, translation=translation, scaling=scaling)
 
 
 def update_metadata(pdf_doc, pdf_metadata):
@@ -115,28 +115,22 @@ def update_metadata(pdf_doc, pdf_metadata):
 
 
 def convert(images, output_path, opts, metadata):
-    writer = QPdfWriter(output_path)
+    buf = BytesIO()
+    page_layout = get_page_layout(opts, for_comic=True)
+    page_size = page_layout.fullRectPoints().size()
+    writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
+    writer.apply_fill(color=(1, 1, 1))
     pdf_metadata = PDFMetadata(metadata)
-    writer.setCreator(pdf_metadata.author)
-    writer.setTitle(pdf_metadata.title)
-    writer.setPageLayout(get_page_layout(opts, for_comic=True))
-    painter = QPainter()
-    painter.begin(writer)
-    try:
-        for i, path in enumerate(images):
-            if i > 0:
-                writer.newPage()
-            img = image_from_path(path)
-            draw_image_page(painter, img)
-    finally:
-        painter.end()
+    for i, path in enumerate(images):
+        img = image_from_path(path)
+        draw_image_page(writer, img)
+        writer.end_page()
+    writer.end()
 
     podofo = get_podofo()
     pdf_doc = podofo.PDFDoc()
-    with open(output_path, 'r+b') as f:
-        raw = f.read()
-        pdf_doc.load(raw)
-        update_metadata(pdf_doc, pdf_metadata)
-        raw = pdf_doc.write()
-        f.seek(0), f.truncate()
+    pdf_doc.load(buf.getvalue())
+    update_metadata(pdf_doc, pdf_metadata)
+    raw = pdf_doc.write()
+    with open(output_path, 'wb') as f:
         f.write(raw)
