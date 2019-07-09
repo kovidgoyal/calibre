@@ -11,16 +11,17 @@ from PyQt5.Qt import QApplication, QTimer, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import iswindows
+from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.split import merge_html
 from calibre.ebooks.pdf.image_writer import (
-    Image, PDFMetadata, draw_image_page, get_page_layout, update_metadata
+    Image, PDFMetadata, draw_image_page, get_page_layout
 )
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
-from calibre.utils.podofo import get_podofo
+from calibre.utils.podofo import get_podofo, set_metadata_implementation
 from polyglot.builtins import range
 
 OK, LOAD_FAILED, KILL_SIGNAL = range(0, 3)
@@ -98,6 +99,14 @@ class Renderer(QWebEnginePage):
         if ret != OK:
             raise SystemExit('Unknown error occurred')
         return self.pdf_data
+
+
+def update_metadata(pdf_doc, pdf_metadata):
+    if pdf_metadata.mi:
+        xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
+        set_metadata_implementation(
+            pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
+            pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
 
 
 def add_cover(pdf_doc, cover_data, page_layout, opts):

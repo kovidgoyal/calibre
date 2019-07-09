@@ -9,12 +9,10 @@ from io import BytesIO
 from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
 
 from calibre.constants import filesystem_encoding
-from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.utils.img import image_and_format_from_data
 from calibre.utils.imghdr import identify
-from calibre.utils.podofo import get_podofo, set_metadata_implementation
 from polyglot.builtins import as_unicode
 
 
@@ -131,14 +129,6 @@ def draw_image_page(writer, img, preserve_aspect_ratio=True):
     writer.draw_image_with_transform(ref, translation=translation, scaling=scaling)
 
 
-def update_metadata(pdf_doc, pdf_metadata):
-    if pdf_metadata.mi:
-        xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
-        set_metadata_implementation(
-            pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
-            pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
-
-
 def convert(images, output_path, opts, metadata, report_progress):
     buf = BytesIO()
     page_layout = get_page_layout(opts, for_comic=True)
@@ -146,16 +136,13 @@ def convert(images, output_path, opts, metadata, report_progress):
     writer = PDFStream(buf, (page_size.width(), page_size.height()), compress=True)
     writer.apply_fill(color=(1, 1, 1))
     pdf_metadata = PDFMetadata(metadata)
+    writer.set_metadata(pdf_metadata.title, pdf_metadata.author, pdf_metadata.tags, pdf_metadata.mi)
     for i, path in enumerate(images):
         img = Image(as_unicode(path, filesystem_encoding))
         draw_image_page(writer, img)
         writer.end_page()
+        # report progress
     writer.end()
 
-    podofo = get_podofo()
-    pdf_doc = podofo.PDFDoc()
-    pdf_doc.load(buf.getvalue())
-    update_metadata(pdf_doc, pdf_metadata)
-    raw = pdf_doc.write()
     with open(output_path, 'wb') as f:
-        f.write(raw)
+        f.write(buf.getvalue())
