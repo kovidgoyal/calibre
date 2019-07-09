@@ -77,10 +77,6 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
-        OptionRecommendation(name='uncompressed_pdf',
-            recommended_value=False, help=_(
-                'Generate an uncompressed PDF, useful for debugging, '
-                'only works with the new PDF engine.')),
         OptionRecommendation(name='pdf_page_numbers', recommended_value=False,
             help=_('Add page numbers to the bottom of every page in the generated PDF file. If you '
                    'specify a footer template, it will take precedence '
