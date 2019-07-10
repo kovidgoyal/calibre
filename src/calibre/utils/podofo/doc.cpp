@@ -181,7 +181,7 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
     return Py_BuildValue("i", count);
 } // }}}
 
-// delete_page {{{
+// delete_page() {{{
 static PyObject *
 PDFDoc_delete_page(PDFDoc *self, PyObject *args) {
     int num = 0;
@@ -367,11 +367,12 @@ error:
 
 } // }}}
 
-// extract_links() {{{
+// extract_anchors() {{{
 static PyObject *
 PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
     const PdfObject* catalog = NULL;
-    PyObject *ans = PyList_New(0);
+    PyObject *ans = PyDict_New();
+	if (ans == NULL) return NULL;
     try {
             if ((catalog = self->doc->GetCatalog()) != NULL) {
                 const PdfObject *dests_ref = catalog->GetDictionary().GetKey("Dests");
@@ -393,9 +394,12 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
                                         double left = dest[2].GetReal(), top = dest[3].GetReal();
                                         long long zoom = dest[4].GetNumber();
                                         const std::string &anchor = itres->first.GetName();
-                                        PyObject *tuple = Py_BuildValue("NIddL", PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace"), pagenum, left, top, zoom);
-                                        if (!tuple) { break; }
-                                        else { int ret = PyList_Append(ans, tuple); Py_DECREF(tuple); if (ret != 0) break; }
+										PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
+                                        PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
+                                        if (!tuple || !key) { break; }
+										int ret = PyDict_SetItem(ans, key, tuple);
+										Py_DECREF(key); Py_DECREF(tuple);
+										if (ret != 0) break;
                                     }
                                 }
                             }

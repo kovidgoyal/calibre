@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import signal
+from collections import namedtuple
 from io import BytesIO
 
 from PyQt5.Qt import QApplication, QMarginsF, QPageLayout, QTimer, QUrl
@@ -14,8 +15,10 @@ from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.split import merge_html
+from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.pdf.image_writer import (
     Image, PDFMetadata, draw_image_page, get_page_layout
 )
@@ -24,7 +27,8 @@ from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
-from polyglot.builtins import range
+from calibre.utils.short_uuid import uuid4
+from polyglot.builtins import iteritems, range
 
 OK, LOAD_FAILED, KILL_SIGNAL = range(0, 3)
 
@@ -188,15 +192,110 @@ def render_name(container, name, margins, renderer, page_layout):
     return pdf_doc
 
 
+def add_anchors_markup(root, uuid, anchors):
+    body = root[-1]
+    div = body.makeelement(XHTML('div'), id=uuid, style='page-break-before: always')
+    body.append(div)
+    for i, anchor in enumerate(anchors):
+        div.append(div.makeelement(XHTML('a'), href='#' + anchor))
+        div[-1].text = '{}'.format(i)
+        div[-1].tail = ' '
+    div.append(div.makeelement(XHTML('a'), href='#' + uuid))
+    div[-1].text = 'top'
+    div[-1].tail = ' '
+
+
+def add_toc_links(container, toc, margin_groups):
+    uuid = uuid4()
+    name_anchor_map = {}
+    for item in toc.iterdescendants():
+        if item.dest and item.frag:
+            anchors = name_anchor_map.setdefault(item.dest, set())
+            anchors.add(item.frag)
+    for group in margin_groups:
+        name = group[0][0]
+        anchors = name_anchor_map.get(name, set())
+        add_anchors_markup(container.parsed(name), uuid, anchors)
+        container.dirty(name)
+    return uuid
+
+
+def make_anchors_unique(container):
+    mapping = {}
+    count = 0
+    base = None
+
+    def replacer(url):
+        if not url:
+            return url
+        if '#' not in url:
+            return url
+        if url.startswith('#'):
+            href, frag = base, url[1:]
+        else:
+            href, frag = url.partition('#')[::2]
+        name = container.href_to_name(href, base)
+        if not name:
+            return url
+        key = name, frag
+        new_frag = mapping.get(key)
+        if new_frag is None:
+            return url
+        replacer.replaced = True
+        if url.startswith('#'):
+            return '#' + new_frag
+        return href + '#' + new_frag
+
+    for spine_name, is_linear in container.spine_names:
+        root = container.parsed(spine_name)
+        for elem in root.xpath('//*[@id]'):
+            count += 1
+            key = spine_name, elem.get('id')
+            if key not in mapping:
+                new_id = mapping[key] = 'a{}'.format(count)
+                elem.set('id', new_id)
+
+    for name in container.mime_map:
+        base = name
+        replacer.replaced = False
+        container.replace_links(name, replacer)
+
+
+AnchorLocation = namedtuple('AnchorLocation', 'pagenum left top zoom')
+
+
+def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
+    ans = {}
+    anchors = pdf_doc.extract_anchors()
+    toc_pagenum = anchors.pop(toc_uuid)[0]
+    for r in range(pdf_doc.page_count(), toc_pagenum - 1, -1):
+        pdf_doc.delete_page(r - 1)
+    for anchor, loc in iteritems(anchors):
+        loc = list(loc)
+        loc[0] += first_page_num - 1
+        ans[anchor] = AnchorLocation(*loc)
+    return ans
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
     container = Container(opf_path, log)
+    make_anchors_unique(container)
     margin_groups = create_margin_groups(container)
+    toc = get_toc(container)
+    toc_uuid = add_toc_links(container, toc, margin_groups)
     container.commit()
+
     renderer = Renderer(opts)
     page_layout = get_page_layout(opts)
     pdf_doc = None
+    anchor_locations = {}
+    num_pages = 0
     for group in margin_groups:
-        doc = render_name(container, group[0][0], group[0][1], renderer, page_layout)
+        name, margins = group[0]
+        doc = render_name(container, name, margins, renderer, page_layout)
+        anchor_locations.update(get_anchor_locations(doc, num_pages + 1, toc_uuid))
+        num_pages += doc.page_count()
+
         if pdf_doc is None:
             pdf_doc = doc
         else:
