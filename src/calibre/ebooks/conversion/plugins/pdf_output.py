@@ -216,12 +216,12 @@ class PDFOutput(OutputFormatPlugin):
                             self.oeb.container.write(path, nraw)
 
     def convert_text(self, oeb_book):
+        import json
         from calibre.ebooks.pdf.html_writer import convert
         self.get_cover_data()
         self.process_fonts()
 
         if self.opts.pdf_use_document_margins and self.stored_page_margins:
-            import json
             for href, margins in iteritems(self.stored_page_margins):
                 item = oeb_book.manifest.hrefs.get(href)
                 if item is not None:

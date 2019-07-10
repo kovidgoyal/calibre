@@ -4,10 +4,12 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import os
+import signal
 from io import BytesIO
 
-from PyQt5.Qt import QApplication, QTimer, QUrl
+from PyQt5.Qt import QApplication, QMarginsF, QPageLayout, QTimer, QUrl
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import iswindows
@@ -64,7 +66,15 @@ class Renderer(QWebEnginePage):
 
         self.loadFinished.connect(self.load_finished)
         if not iswindows:
-            setup_unix_signals(self)
+            self.original_signal_handlers = setup_unix_signals(self)
+
+    def block_signal_handlers(self):
+        for sig in self.original_signal_handlers:
+            signal.signal(sig, lambda x, y: None)
+
+    def restore_signal_handlers(self):
+        for sig, handler in self.original_signal_handlers.items():
+            signal.signal(sig, handler)
 
     def load_finished(self, ok):
         if not ok:
@@ -86,12 +96,19 @@ class Renderer(QWebEnginePage):
         self.pdf_data = pdf_data
         QApplication.instance().exit(OK)
 
+    def run_loop(self):
+        self.block_signal_handlers()
+        try:
+            return QApplication.exec_()
+        finally:
+            self.restore_signal_handlers()
+
     def convert_html_file(self, path, page_layout, settle_time=0):
         self.settle_time = settle_time
         self.page_layout = page_layout
         self.pdf_data = None
         self.setUrl(QUrl.fromLocalFile(path))
-        ret = QApplication.exec_()
+        ret = self.run_loop()
         if ret == LOAD_FAILED:
             raise SystemExit('Failed to load {}'.format(path))
         if ret == KILL_SIGNAL:
@@ -124,22 +141,66 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
     pdf_doc.insert_existing_page(cover_pdf_doc)
 
 
-def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
-    container = Container(opf_path, log)
-    spine_names = [name for name, is_linear in container.spine_names]
-    master = spine_names[0]
-    if len(spine_names) > 1:
-        merge_html(container, spine_names, master, insert_page_breaks=True)
+def create_margin_groups(container):
 
-    container.commit()
-    index_file = container.name_to_abspath(master)
+    def merge_group(group):
+        if len(group) > 1:
+            group_margins = group[0][1]
+            names = [name for (name, margins) in group]
+            merge_html(container, names, names[0], insert_page_breaks=True)
+            group = [(names[0], group_margins)]
+        return group
 
-    renderer = Renderer(opts)
-    page_layout = get_page_layout(opts)
+    groups = []
+    current_group = []
+    for name, is_linear in container.spine_names:
+        root = container.parsed(name)
+        margins = root.get('data-calibre-pdf-output-page-margins')
+        if margins:
+            margins = json.loads(margins)
+        if current_group:
+            prev_margins = current_group[-1][1]
+            if prev_margins != margins:
+                groups.append(merge_group(current_group))
+                current_group = []
+        current_group.append((name, margins))
+    if current_group:
+        groups.append(merge_group(current_group))
+    return groups
+
+
+def render_name(container, name, margins, renderer, page_layout):
+    index_file = container.name_to_abspath(name)
+    if margins:
+        page_layout = QPageLayout(page_layout)
+        page_layout.setUnits(QPageLayout.Point)
+        old_margins = page_layout.marginsPoints()
+        new_margins = QMarginsF(
+            margins.get('left', old_margins.left()),
+            margins.get('top', old_margins.top()),
+            margins.get('right', old_margins.right()),
+            margins.get('bottom', old_margins.bottom()))
+        page_layout.setMargins(new_margins)
     pdf_data = renderer.convert_html_file(index_file, page_layout, settle_time=1)
     podofo = get_podofo()
     pdf_doc = podofo.PDFDoc()
     pdf_doc.load(pdf_data)
+    return pdf_doc
+
+
+def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
+    container = Container(opf_path, log)
+    margin_groups = create_margin_groups(container)
+    container.commit()
+    renderer = Renderer(opts)
+    page_layout = get_page_layout(opts)
+    pdf_doc = None
+    for group in margin_groups:
+        doc = render_name(container, group[0][0], group[0][1], renderer, page_layout)
+        if pdf_doc is None:
+            pdf_doc = doc
+        else:
+            pdf_doc.append(doc)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)

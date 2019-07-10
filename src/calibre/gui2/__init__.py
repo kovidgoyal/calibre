@@ -824,13 +824,15 @@ def setup_unix_signals(self):
             flags = fcntl.fcntl(fd, fcntl.F_GETFD)
             fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
 
+    original_handlers = {}
     for sig in (signal.SIGINT, signal.SIGTERM):
-        signal.signal(sig, lambda x, y: None)
+        original_handlers[sig] = signal.signal(sig, lambda x, y: None)
         signal.siginterrupt(sig, False)
     signal.set_wakeup_fd(write_fd)
     self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
     self.signal_notifier.setEnabled(True)
     self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+    return original_handlers
 
 
 class Application(QApplication):
