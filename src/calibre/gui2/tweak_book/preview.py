@@ -289,6 +289,8 @@ class WebPage(QWebEnginePage):
         return False
 
     def go_to_anchor(self, anchor):
+        if anchor is TOP:
+            anchor = ''
         self.bridge.go_to_anchor.emit(anchor or '')
 
     def runjs(self, src, callback=None):
