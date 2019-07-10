@@ -18,8 +18,9 @@ from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
-from polyglot.builtins import iteritems
+from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import from_base64_bytes
+from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -170,6 +171,25 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             if fmt not in ('jpeg', 'png'):
                 raise HTTPBadRequest('Cover data must be either JPEG or PNG')
         dirtied |= db.set_cover({book_id: cdata})
+
+    added_formats = changes.pop('added_formats', False)
+    if added_formats:
+        for data in added_formats:
+            try:
+                fmt = data['ext'].upper()
+            except Exception:
+                raise HTTPBadRequest('Format has no extension')
+            if fmt:
+                try:
+                    fmt_data = from_base64_bytes(data['data_url'].split(',', 1)[-1])
+                except Exception:
+                    raise HTTPBadRequest('Format data is not valid base64 encoded data')
+                if db.add_format(book_id, fmt, ReadOnlyFileBuffer(fmt_data)):
+                    dirtied.add(book_id)
+    removed_formats = changes.pop('removed_formats', False)
+    if removed_formats:
+        db.remove_formats({book_id: list(removed_formats)})
+        dirtied.add(book_id)
 
     for field, value in iteritems(changes):
         dirtied |= db.set_field(field, {book_id: value})
