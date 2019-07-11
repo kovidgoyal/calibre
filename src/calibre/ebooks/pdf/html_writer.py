@@ -206,6 +206,8 @@ def add_anchors_markup(root, uuid, anchors):
 
 
 def add_toc_links(container, toc, margin_groups):
+    # TODO: Change this to work for all anchors so it can be used to fix
+    # arbitrary links
     uuid = uuid4()
     name_anchor_map = {}
     for item in toc.iterdescendants():
@@ -301,11 +303,17 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         else:
             pdf_doc.append(doc)
 
+    # TODO: Fix links using anchor_locations
+
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
 
     if metadata is not None:
         update_metadata(pdf_doc, PDFMetadata(metadata))
+
+    # TODO: Remove unused fonts
+    # TODO: Remove duplicate fonts
+    # TODO: Subset and embed fonts before rendering PDF
 
     pdf_data = pdf_doc.write()
     if output_path is None:
