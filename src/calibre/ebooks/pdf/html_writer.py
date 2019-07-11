@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+# Imports {{{
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
@@ -35,8 +36,10 @@ from polyglot.builtins import iteritems, range
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
+# }}}
 
 
+# Renderer {{{
 class Container(ContainerBase):
 
     tweak_mode = True
@@ -168,19 +171,36 @@ class RenderManager(QObject):
             QApplication.instance().exit(OK)
 
 
+def job_for_name(container, name, margins, page_layout):
+    index_file = container.name_to_abspath(name)
+    if margins:
+        page_layout = QPageLayout(page_layout)
+        page_layout.setUnits(QPageLayout.Point)
+        old_margins = page_layout.marginsPoints()
+        new_margins = QMarginsF(
+            margins.get('left', old_margins.left()),
+            margins.get('top', old_margins.top()),
+            margins.get('right', old_margins.right()),
+            margins.get('bottom', old_margins.bottom()))
+        page_layout.setMargins(new_margins)
+    return index_file, page_layout, name
+# }}}
+
+
+# Metadata {{{
+def data_as_pdf_doc(data):
+    podofo = get_podofo()
+    ans = podofo.PDFDoc()
+    ans.load(data)
+    return ans
+
+
 def update_metadata(pdf_doc, pdf_metadata):
     if pdf_metadata.mi:
         xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
         set_metadata_implementation(
             pdf_doc, pdf_metadata.title, pdf_metadata.mi.authors,
             pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
-
-
-def data_as_pdf_doc(data):
-    podofo = get_podofo()
-    ans = podofo.PDFDoc()
-    ans.load(data)
-    return ans
 
 
 def add_cover(pdf_doc, cover_data, page_layout, opts):
@@ -193,8 +213,10 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
     writer.end()
     cover_pdf_doc = data_as_pdf_doc(buf.getvalue())
     pdf_doc.insert_existing_page(cover_pdf_doc)
+# }}}
 
 
+# Margin groups {{{
 def create_margin_groups(container):
 
     def merge_group(group):
@@ -221,23 +243,10 @@ def create_margin_groups(container):
     if current_group:
         groups.append(merge_group(current_group))
     return groups
+# }}}
 
 
-def job_for_name(container, name, margins, page_layout):
-    index_file = container.name_to_abspath(name)
-    if margins:
-        page_layout = QPageLayout(page_layout)
-        page_layout.setUnits(QPageLayout.Point)
-        old_margins = page_layout.marginsPoints()
-        new_margins = QMarginsF(
-            margins.get('left', old_margins.left()),
-            margins.get('top', old_margins.top()),
-            margins.get('right', old_margins.right()),
-            margins.get('bottom', old_margins.bottom()))
-        page_layout.setMargins(new_margins)
-    return index_file, page_layout, name
-
-
+# Link handling  {{{
 def add_anchors_markup(root, uuid, anchors):
     body = root[-1]
     div = body.makeelement(XHTML('div'), id=uuid, style='page-break-before: always')
@@ -358,8 +367,10 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
         return loc
 
     pdf_doc.alter_links(replace_link, mark_links)
+# }}}
 
 
+# Outline creation {{{
 class PDFOutlineRoot(object):
 
     def __init__(self, pdf_doc):
@@ -388,15 +399,18 @@ def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map, log):
         pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
         if len(child):
             add_toc(pdf_child, child, anchor_locations, name_anchor_map, log)
+# }}}
 
 
-def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
+def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
+    report_progress(0.05, _('Parsed all content for markup transformation'))
     margin_groups = create_margin_groups(container)
     name_anchor_map = make_anchors_unique(container)
     toc = get_toc(container, verify_destinations=False)
     links_page_uuid = add_all_links(container, margin_groups)
     container.commit()
+    report_progress(0.1, _('Completed markup transformation'))
 
     manager = RenderManager(opts)
     page_layout = get_page_layout(opts)
@@ -421,20 +435,23 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             pdf_doc = doc
         else:
             pdf_doc.append(doc)
+    report_progress(0.7, _('Rendered all HTML as PDF'))
 
     fix_links(pdf_doc, anchor_locations, name_anchor_map, opts.pdf_mark_links, log)
     if toc and len(toc):
         add_toc(PDFOutlineRoot(pdf_doc), toc, anchor_locations, name_anchor_map, log)
+    report_progress(0.75, _('Added links to PDF content'))
+
+    # TODO: Remove unused fonts
+    # TODO: Remove duplicate fonts
+    # TODO: Subset and embed fonts before rendering PDF
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
 
     if metadata is not None:
         update_metadata(pdf_doc, PDFMetadata(metadata))
-
-    # TODO: Remove unused fonts
-    # TODO: Remove duplicate fonts
-    # TODO: Subset and embed fonts before rendering PDF
+    report_progress(1, _('Updated metadata in PDF'))
 
     pdf_data = pdf_doc.write()
     if output_path is None:

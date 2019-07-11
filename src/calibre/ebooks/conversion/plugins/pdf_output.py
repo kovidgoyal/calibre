@@ -236,5 +236,5 @@ class PDFOutput(OutputFormatPlugin):
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             convert(
                 opfpath, self.opts, metadata=self.metadata, output_path=self.output_path,
-                log=self.log, cover_data=self.cover_data
+                log=self.log, cover_data=self.cover_data, report_progress=self.report_progress
             )
