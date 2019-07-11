@@ -393,7 +393,8 @@ def test_normalization(return_tests=False):  # {{{
                 tuple('0 0 0 0'.split()) : '0',
             }):
                 for prefix in ('margin', 'padding'):
-                    css = {'%s-%s' % (prefix, x) : unicode_type(y)+'pt' if isinstance(y, numbers.Number) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
+                    css = {'%s-%s' % (prefix, x) : unicode_type(y)+'pt' if isinstance(y, numbers.Number) else y
+                            for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
                     css = '; '.join(('%s:%s' % (k, v) for k, v in iteritems(css)))
                     style = parseStyle(css)
                     condense_rule(style)
