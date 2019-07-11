@@ -10,9 +10,12 @@ import signal
 from collections import namedtuple
 from io import BytesIO
 
-from PyQt5.Qt import QApplication, QMarginsF, QPageLayout, QTimer, QUrl
+from PyQt5.Qt import (
+    QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
+)
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
+from calibre import detect_ncpus
 from calibre.constants import iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML
@@ -31,7 +34,7 @@ from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import iteritems, range
 from polyglot.urllib import urlparse
 
-OK, LOAD_FAILED, KILL_SIGNAL = range(0, 3)
+OK, KILL_SIGNAL = range(0, 2)
 
 
 class Container(ContainerBase):
@@ -45,9 +48,12 @@ class Container(ContainerBase):
 
 class Renderer(QWebEnginePage):
 
-    def __init__(self, opts):
-        QWebEnginePage.__init__(self)
+    work_done = pyqtSignal(object, object)
+
+    def __init__(self, opts, parent):
+        QWebEnginePage.__init__(self, parent)
         secure_webengine(self)
+        self.working = False
         self.settle_time = 0
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, True)
@@ -70,8 +76,49 @@ class Renderer(QWebEnginePage):
             s.setFontFamily(s.FixedFont, opts.pdf_mono_family)
 
         self.loadFinished.connect(self.load_finished)
+
+    def load_finished(self, ok):
+        if not ok:
+            self.working = False
+            self.work_done.emit(self, 'Load of {} failed'.format(self.url().toString()))
+            return
+        QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
+
+    def print_to_pdf(self):
+        self.printToPdf(self.printing_done, self.page_layout)
+
+    def printing_done(self, pdf_data):
+        self.working = False
+        self.work_done.emit(self, bytes(pdf_data))
+
+    def convert_html_file(self, path, page_layout, settle_time=0):
+        self.working = True
+        self.settle_time = settle_time
+        self.page_layout = page_layout
+        self.setUrl(QUrl.fromLocalFile(path))
+
+
+class RenderManager(QObject):
+
+    def __init__(self, opts):
+        QObject.__init__(self)
+        self.opts = opts
+        self.workers = []
+        self.max_workers = detect_ncpus()
         if not iswindows:
             self.original_signal_handlers = setup_unix_signals(self)
+
+    def create_worker(self):
+        worker = Renderer(self.opts, self)
+        worker.work_done.connect(self.work_done)
+        self.workers.append(worker)
+
+    def signal_received(self, read_fd):
+        try:
+            os.read(read_fd, 1024)
+        except EnvironmentError:
+            return
+        QApplication.instance().exit(KILL_SIGNAL)
 
     def block_signal_handlers(self):
         for sig in self.original_signal_handlers:
@@ -81,26 +128,6 @@ class Renderer(QWebEnginePage):
         for sig, handler in self.original_signal_handlers.items():
             signal.signal(sig, handler)
 
-    def load_finished(self, ok):
-        if not ok:
-            QApplication.instance().exit(LOAD_FAILED)
-            return
-        QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
-
-    def signal_received(self, read_fd):
-        try:
-            os.read(read_fd, 1024)
-        except EnvironmentError:
-            return
-        QApplication.instance().exit(KILL_SIGNAL)
-
-    def print_to_pdf(self):
-        self.printToPdf(self.printing_done, self.page_layout)
-
-    def printing_done(self, pdf_data):
-        self.pdf_data = pdf_data
-        QApplication.instance().exit(OK)
-
     def run_loop(self):
         self.block_signal_handlers()
         try:
@@ -108,19 +135,37 @@ class Renderer(QWebEnginePage):
         finally:
             self.restore_signal_handlers()
 
-    def convert_html_file(self, path, page_layout, settle_time=0):
+    def convert_html_files(self, jobs, settle_time=0):
+        while len(self.workers) < min(len(jobs), self.max_workers):
+            self.create_worker()
+        self.pending = list(jobs)
+        self.results = {}
         self.settle_time = settle_time
-        self.page_layout = page_layout
-        self.pdf_data = None
-        self.setUrl(QUrl.fromLocalFile(path))
+        QTimer.singleShot(0, self.assign_work)
         ret = self.run_loop()
-        if ret == LOAD_FAILED:
-            raise SystemExit('Failed to load {}'.format(path))
         if ret == KILL_SIGNAL:
             raise SystemExit('Kill signal received')
         if ret != OK:
             raise SystemExit('Unknown error occurred')
-        return self.pdf_data
+        return self.results
+
+    def assign_work(self):
+        free_workers = [w for w in self.workers if not w.working]
+        while free_workers and self.pending:
+            html_file, page_layout, result_key = self.pending.pop()
+            w = free_workers.pop()
+            w.result_key = result_key
+            w.convert_html_file(html_file, page_layout, settle_time=self.settle_time)
+
+    def work_done(self, worker, result):
+        self.results[worker.result_key] = result
+        if self.pending:
+            self.assign_work()
+        else:
+            for w in self.workers:
+                if w.working:
+                    return
+            QApplication.instance().exit(OK)
 
 
 def update_metadata(pdf_doc, pdf_metadata):
@@ -131,6 +176,13 @@ def update_metadata(pdf_doc, pdf_metadata):
             pdf_metadata.mi.book_producer, pdf_metadata.mi.tags, xmp_packet)
 
 
+def data_as_pdf_doc(data):
+    podofo = get_podofo()
+    ans = podofo.PDFDoc()
+    ans.load(data)
+    return ans
+
+
 def add_cover(pdf_doc, cover_data, page_layout, opts):
     buf = BytesIO()
     page_size = page_layout.fullRectPoints().size()
@@ -139,10 +191,7 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
     writer.apply_fill(color=(1, 1, 1))
     draw_image_page(writer, img, preserve_aspect_ratio=opts.preserve_cover_aspect_ratio)
     writer.end()
-    cover_pdf = buf.getvalue()
-    podofo = get_podofo()
-    cover_pdf_doc = podofo.PDFDoc()
-    cover_pdf_doc.load(cover_pdf)
+    cover_pdf_doc = data_as_pdf_doc(buf.getvalue())
     pdf_doc.insert_existing_page(cover_pdf_doc)
 
 
@@ -174,7 +223,7 @@ def create_margin_groups(container):
     return groups
 
 
-def render_name(container, name, margins, renderer, page_layout):
+def job_for_name(container, name, margins, page_layout):
     index_file = container.name_to_abspath(name)
     if margins:
         page_layout = QPageLayout(page_layout)
@@ -186,11 +235,7 @@ def render_name(container, name, margins, renderer, page_layout):
             margins.get('right', old_margins.right()),
             margins.get('bottom', old_margins.bottom()))
         page_layout.setMargins(new_margins)
-    pdf_data = renderer.convert_html_file(index_file, page_layout, settle_time=1)
-    podofo = get_podofo()
-    pdf_doc = podofo.PDFDoc()
-    pdf_doc.load(pdf_data)
-    return pdf_doc
+    return index_file, page_layout, name
 
 
 def add_anchors_markup(root, uuid, anchors):
@@ -316,16 +361,24 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     (toc)
     container.commit()
 
-    renderer = Renderer(opts)
+    manager = RenderManager(opts)
     page_layout = get_page_layout(opts)
     pdf_doc = None
     anchor_locations = {}
     name_page_numbers = {}
     num_pages = 0
+    jobs = []
+    for group in margin_groups:
+        name, margins = group[0]
+        jobs.append(job_for_name(container, name, margins, page_layout))
+    results = manager.convert_html_files(jobs, settle_time=1)
     for group in margin_groups:
         name, margins = group[0]
         name_page_numbers[name] = num_pages + 1
-        doc = render_name(container, name, margins, renderer, page_layout)
+        data = results[name]
+        if not isinstance(data, bytes):
+            raise SystemExit(data)
+        doc = data_as_pdf_doc(data)
         anchor_locations.update(get_anchor_locations(doc, num_pages + 1, links_page_uuid))
         num_pages += doc.page_count()
 
