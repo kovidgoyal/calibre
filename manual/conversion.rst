@@ -898,3 +898,28 @@ changes you like.
 
         .calibre-pdf-toc .level-1 td:first-of-type { padding-left: 1.4em }
         .calibre-pdf-toc .level-2 td:first-of-type { padding-left: 2.8em }
+
+
+Custom page margins for individual HTML files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are converting an EPUB of AZW3 file with multiple individual HTML files
+inside it and you want to change the page margins for a particular HTML file
+you can add the following style block to the HTML file using the calibre
+editor:
+
+.. code-block:: html
+
+    <style>
+    @page {
+        margin-left: 10pt;
+        margin-right: 10pt;
+        margin-top: 10pt;
+        margin-bottom: 10pt;
+    }
+    </style>
+
+
+Then, in the PDF output section of the conversion dialog, turn on the
+option to :guilabel:`Use page margins from the document being converted`.
+Now all pages generated from this HTML file will have ``10pt`` margins.

@@ -43,7 +43,6 @@ class PluginWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.layout().setFieldGrowthPolicy(self.layout().ExpandingFieldsGrow)
         self.template_box.layout().setFieldGrowthPolicy(self.layout().AllNonFixedFieldsGrow)
-        self.toggle_margins()
         self.profile_size_toggled()
 
     def profile_size_toggled(self):
@@ -52,17 +51,11 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_custom_size.setEnabled(enabled)
         self.opt_unit.setEnabled(enabled)
 
-    def toggle_margins(self):
-        enabled = not self.opt_pdf_use_document_margins.isChecked()
-        for which in 'left top right bottom'.split():
-            getattr(self, 'opt_pdf_page_margin_' + which).setEnabled(enabled)
-
     def setupUi(self, *a):
         Ui_Form.setupUi(self, *a)
         v = self.page_margins_box.v = QVBoxLayout(self.page_margins_box)
         self.opt_pdf_use_document_margins = c = QCheckBox(_('Use page margins from the &document being converted'))
         v.addWidget(c)
-        c.stateChanged.connect(self.toggle_margins)
         h = self.page_margins_box.h = QHBoxLayout()
         l = self.page_margins_box.l = QFormLayout()
         r = self.page_margins_box.r = QFormLayout()
