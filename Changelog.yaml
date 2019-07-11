@@ -20,6 +20,77 @@
 #   new recipes:
 #     - title:
 
+- version: 3.45.0
+  date: 2019-07-12
+
+  new features:
+    - title: "Content server: Allow adding or removing formats to a book via the edit metadata page."
+      tickets: [1831304]
+
+    - title: "ToC Editor: Allow user to control whether duplicate headings are included or not when generating ToC from headings"
+
+    - title: "Advanced search dialog: Remember the last focused field in the search by title/authors tab"
+
+    - title: "Conversion: Performance improvement for books that have many HTML files that all include the same CSS stylesheets"
+
+    - title: "Kobo driver: Add options to more precisely control the generation of cover images, to reduce size and enhance quality"
+
+    - title: "Support subtitle in Douban metadata plugin"
+
+  bug fixes:
+    - title: "Linux: Workaround for bug in recent Linux kernels that causes the Kindle to eject after calibre connects to it."
+      tickets: [1834641]
+
+    - title: "DOCX Input: When autodetecting the Table of Contents from headings, work even if the headings use numbering."
+      tickets: [1834661]
+
+    - title: "EPUB Output: If there are no guide elements do not output an empty guide tag. Makes epubcheck happy."
+      tickets: [1835560]
+
+    - title: "Workaround for sortByColumn being partially broken in Qt 5.13.0"
+      tickets: [1834989]
+
+    - title: "Fix a regression that broke the per_lang_title_sort_articles tweak."
+      tickets: [1834329]
+
+    - title: "Sending email: Fix an error on some windows machines with non-ASCII hostnames"
+
+    - title: "EPUB Output: When generating EPUB 3 preserve the old style meta tag to identify the cover as Google Play Books does not recognize EPUB 3 cover markup."
+      tickets: [1832660]
+
+    - title: "Create catalog: Fix handling of the tilde character in BiBTeX catalogs."
+      tickets: [1832726]
+
+    - title: "News downloads: Fix incorrect font sizes for some text in the index pages."
+      tickets: [1832628]
+
+    - title: 'Comic Input: Fix incorrect processing of comics with pages that have the same file names in different folders when using the "No process" option.'
+      tickets: [1831487]
+
+    - title: "CHM Input: Fix a regression that broke processing of some CHM files."
+      tickets: [1831511]
+
+    - title: "Edit book: When auto-closing tags on typing </, fix occasionally incorrect tag being closed in large files because syntax highlighting has not completed"
+
+    - title: "Kobo driver: Fix for ContentType not being defined error for extension-less non kepub files on a Kobo"
+
+    - title: "Content server: Book details page: Do not display empty rows for undefined dates"
+
+    - title: "Get books: Update Google books and amazon plugins for markup changes"
+
+    - title: "Edit book: Text search: Fix searching for a single character backwards not working"
+
+
+  improved recipes:
+    - Art and Letters Daily
+    - The Wall Street Journal
+    - Barrons
+    - Newsweek
+
+  new recipes:
+    - title: "Aviation International News"
+      author: Jose Ortiz
+
 - version: 3.44.0
   date: 2019-05-31
 
