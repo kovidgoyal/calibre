@@ -434,7 +434,6 @@ dictionary_has_key_name(PdfDictionary &d, T key, const char *name) {
 static PyObject *
 PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
     int count = 0;
-	static const PdfName XYZ("XYZ");
 	PyObject *alter_callback, *py_mark_links;
 	if (!PyArg_ParseTuple(args, "OO", &alter_callback, &py_mark_links)) return NULL;
 	bool mark_links = PyObject_IsTrue(py_mark_links);
@@ -459,8 +458,8 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 								PyObject *ret = PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace")));
 								if (!ret) { return NULL; }
 								if (PyTuple_Check(ret) && PyTuple_GET_SIZE(ret) == 4) {
-									int pagenum; double left, top; long long zoom;
-									if (PyArg_ParseTuple(ret, "iddL", &pagenum, &left, &top, &zoom)) {
+									int pagenum; double left, top, zoom;
+									if (PyArg_ParseTuple(ret, "iddd", &pagenum, &left, &top, &zoom)) {
 										PdfPage *page = NULL;
 										try {
 											page = self->doc->GetPage(pagenum - 1);
@@ -470,15 +469,9 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 											return NULL;
 										}
 										if (page) {
-											const PdfReference &pageref = page->GetObject()->Reference();
-											PdfArray dest;
-											dest.push_back(pageref);
-											dest.push_back(XYZ);
-											dest.push_back(left);
-											dest.push_back(top);
-											dest.push_back((PoDoFo::pdf_int64)zoom);
+                                            PdfDestination dest(page, left, top, zoom);
 											link.RemoveKey("A");
-											link.AddKey("Dest", dest);
+                                            dest.AddToDictionary(link);
 										}
 									}
 								}
