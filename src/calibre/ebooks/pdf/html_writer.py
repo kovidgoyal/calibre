@@ -374,7 +374,7 @@ class PDFOutlineRoot(object):
         return self.root_item
 
 
-def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map):
+def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map, log):
     for child in toc_parent:
         title, frag = child.title, child.frag
         try:
@@ -383,10 +383,11 @@ def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map):
             else:
                 loc = anchor_locations[frag]
         except Exception:
+            log.warn('Could not find anchor location for ToC entry: {} with href: {}'.format(title, frag))
             loc = AnchorLocation(1, 0, 0, 0)
         pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
         if len(child):
-            add_toc(pdf_child, child, anchor_locations, name_anchor_map)
+            add_toc(pdf_child, child, anchor_locations, name_anchor_map, log)
 
 
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
@@ -423,7 +424,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
 
     fix_links(pdf_doc, anchor_locations, name_anchor_map, opts.pdf_mark_links, log)
     if toc and len(toc):
-        add_toc(PDFOutlineRoot(pdf_doc), toc, anchor_locations, name_anchor_map)
+        add_toc(PDFOutlineRoot(pdf_doc), toc, anchor_locations, name_anchor_map, log)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
