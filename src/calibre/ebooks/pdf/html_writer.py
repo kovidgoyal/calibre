@@ -29,6 +29,7 @@ from calibre.utils.logging import default_log
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import iteritems, range
+from polyglot.urllib import urlparse
 
 OK, LOAD_FAILED, KILL_SIGNAL = range(0, 3)
 
@@ -205,15 +206,12 @@ def add_anchors_markup(root, uuid, anchors):
     div[-1].tail = ' '
 
 
-def add_toc_links(container, toc, margin_groups):
-    # TODO: Change this to work for all anchors so it can be used to fix
-    # arbitrary links
+def add_all_links(container, margin_groups):
     uuid = uuid4()
     name_anchor_map = {}
-    for item in toc.iterdescendants():
-        if item.dest and item.frag:
-            anchors = name_anchor_map.setdefault(item.dest, set())
-            anchors.add(item.frag)
+    for name, is_linear in container.spine_names:
+        root = container.parsed(name)
+        name_anchor_map[name] = frozenset(root.xpath('//*/@id'))
     for group in margin_groups:
         name = group[0][0]
         anchors = name_anchor_map.get(name, set())
@@ -226,12 +224,15 @@ def make_anchors_unique(container):
     mapping = {}
     count = 0
     base = None
+    spine_names = set()
 
     def replacer(url):
+        if replacer.file_type != 'text':
+            return url
         if not url:
             return url
         if '#' not in url:
-            return url
+            url += '#'
         if url.startswith('#'):
             href, frag = base, url[1:]
         else:
@@ -239,16 +240,21 @@ def make_anchors_unique(container):
         name = container.href_to_name(href, base)
         if not name:
             return url
+        if not frag and name in spine_names:
+            replacer.replaced = True
+            return 'https://calibre-pdf-anchor.n#' + name
         key = name, frag
         new_frag = mapping.get(key)
         if new_frag is None:
             return url
         replacer.replaced = True
+        return 'https://calibre-pdf-anchor.a#' + new_frag
         if url.startswith('#'):
             return '#' + new_frag
         return href + '#' + new_frag
 
     for spine_name, is_linear in container.spine_names:
+        spine_names.add(spine_name)
         root = container.parsed(spine_name)
         for elem in root.xpath('//*[@id]'):
             count += 1
@@ -279,23 +285,48 @@ def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
     return ans
 
 
+def fix_links(pdf_doc, anchor_locations, name_page_numbers, mark_links, log):
+
+    def replace_link(url):
+        purl = urlparse(url)
+        if purl.scheme != 'https' or purl.netloc not in ('calibre-pdf-anchor.a', 'calibre-pdf-anchor.n'):
+            return
+        loc = None
+        if purl.netloc == 'calibre-pdf-anchor.a':
+            loc = anchor_locations.get(purl.fragment)
+            if loc is None:
+                log.warn('Anchor location for link to {} not found'.format(purl.fragment))
+        else:
+            pnum = name_page_numbers.get(purl.fragment)
+            if pnum is None:
+                log.warn('Anchor location for link to {} not found'.format(purl.fragment))
+            else:
+                loc = AnchorLocation(pnum, 0, 0, 0)
+        return loc
+
+    pdf_doc.alter_links(replace_link, mark_links)
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
     container = Container(opf_path, log)
     make_anchors_unique(container)
     margin_groups = create_margin_groups(container)
+    links_page_uuid = add_all_links(container, margin_groups)
     toc = get_toc(container)
-    toc_uuid = add_toc_links(container, toc, margin_groups)
+    (toc)
     container.commit()
 
     renderer = Renderer(opts)
     page_layout = get_page_layout(opts)
     pdf_doc = None
     anchor_locations = {}
+    name_page_numbers = {}
     num_pages = 0
     for group in margin_groups:
         name, margins = group[0]
+        name_page_numbers[name] = num_pages + 1
         doc = render_name(container, name, margins, renderer, page_layout)
-        anchor_locations.update(get_anchor_locations(doc, num_pages + 1, toc_uuid))
+        anchor_locations.update(get_anchor_locations(doc, num_pages + 1, links_page_uuid))
         num_pages += doc.page_count()
 
         if pdf_doc is None:
@@ -303,7 +334,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         else:
             pdf_doc.append(doc)
 
-    # TODO: Fix links using anchor_locations
+    fix_links(pdf_doc, anchor_locations, name_page_numbers, opts.pdf_mark_links, log)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)

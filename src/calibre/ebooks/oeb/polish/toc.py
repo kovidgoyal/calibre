@@ -110,7 +110,7 @@ class TOC(object):
         return ans
 
     def __str__(self):
-        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+        return '\n'.join(self.get_lines())
 
     def to_dict(self, node_counter=None):
         ans = {

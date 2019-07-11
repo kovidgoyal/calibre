@@ -374,39 +374,39 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
     PyObject *ans = PyDict_New();
 	if (ans == NULL) return NULL;
     try {
-            if ((catalog = self->doc->GetCatalog()) != NULL) {
-                const PdfObject *dests_ref = catalog->GetDictionary().GetKey("Dests");
-                PdfPagesTree *tree = self->doc->GetPagesTree();
-                if (dests_ref && dests_ref->IsReference()) {
-                    const PdfObject *dests_obj = self->doc->GetObjects().GetObject(dests_ref->GetReference());
-                    if (dests_obj && dests_obj->IsDictionary()) {
-                        const PdfDictionary &dests = dests_obj->GetDictionary();
-                        const TKeyMap &keys = dests.GetKeys();
-                        for (TCIKeyMap itres = keys.begin(); itres != keys.end(); ++itres) {
-                            if (itres->second->IsArray()) {
-                                const PdfArray &dest = itres->second->GetArray();
-                                // see section 8.2 of PDF spec for different types of destination arrays
-                                // but chromium apparently generates only [page /XYZ left top zoom] type arrays
-                                if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetName() == "XYZ") {
-                                    const PdfPage *page = tree->GetPage(dest[0].GetReference());
-                                    if (page) {
-                                        unsigned int pagenum = page->GetPageNumber();
-                                        double left = dest[2].GetReal(), top = dest[3].GetReal();
-                                        long long zoom = dest[4].GetNumber();
-                                        const std::string &anchor = itres->first.GetName();
-										PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
-                                        PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
-                                        if (!tuple || !key) { break; }
-										int ret = PyDict_SetItem(ans, key, tuple);
-										Py_DECREF(key); Py_DECREF(tuple);
-										if (ret != 0) break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+		if ((catalog = self->doc->GetCatalog()) != NULL) {
+			const PdfObject *dests_ref = catalog->GetDictionary().GetKey("Dests");
+			PdfPagesTree *tree = self->doc->GetPagesTree();
+			if (dests_ref && dests_ref->IsReference()) {
+				const PdfObject *dests_obj = self->doc->GetObjects().GetObject(dests_ref->GetReference());
+				if (dests_obj && dests_obj->IsDictionary()) {
+					const PdfDictionary &dests = dests_obj->GetDictionary();
+					const TKeyMap &keys = dests.GetKeys();
+					for (TCIKeyMap itres = keys.begin(); itres != keys.end(); ++itres) {
+						if (itres->second->IsArray()) {
+							const PdfArray &dest = itres->second->GetArray();
+							// see section 8.2 of PDF spec for different types of destination arrays
+							// but chromium apparently generates only [page /XYZ left top zoom] type arrays
+							if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetName() == "XYZ") {
+								const PdfPage *page = tree->GetPage(dest[0].GetReference());
+								if (page) {
+									unsigned int pagenum = page->GetPageNumber();
+									double left = dest[2].GetReal(), top = dest[3].GetReal();
+									long long zoom = dest[4].GetNumber();
+									const std::string &anchor = itres->first.GetName();
+									PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
+									PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
+									if (!tuple || !key) { break; }
+									int ret = PyDict_SetItem(ans, key, tuple);
+									Py_DECREF(key); Py_DECREF(tuple);
+									if (ret != 0) break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         Py_CLEAR(ans);
@@ -418,6 +418,82 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
     }
     if (PyErr_Occurred()) { Py_CLEAR(ans); return NULL; }
     return ans;
+} // }}}
+
+// alter_links() {{{
+
+template<typename T>
+static inline bool
+dictionary_has_key_name(PdfDictionary &d, T key, const char *name) {
+	const PdfObject *val = d.GetKey(key);
+	if (val && val->IsName() && val->GetName().GetName() == name) return true;
+	return false;
+}
+
+
+static PyObject *
+PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
+    int count = 0;
+	static const PdfName XYZ("XYZ");
+	PyObject *alter_callback, *py_mark_links;
+	if (!PyArg_ParseTuple(args, "OO", &alter_callback, &py_mark_links)) return NULL;
+	bool mark_links = PyObject_IsTrue(py_mark_links);
+    try {
+		PdfArray border, link_color;
+		border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)1);
+		link_color.push_back(1.); link_color.push_back(0.); link_color.push_back(0.);
+        for(TCIVecObjects it = self->doc->GetObjects().begin(); it != self->doc->GetObjects().end(); it++) {
+			if((*it)->IsDictionary()) {
+				PdfDictionary &link = (*it)->GetDictionary();
+				if (dictionary_has_key_name(link, PdfName::KeyType, "Annot") && dictionary_has_key_name(link, PdfName::KeySubtype, "Link")) {
+					if (mark_links) {
+						link.AddKey("Border", border);
+						link.AddKey("C", link_color);
+					}
+					if (link.HasKey("A") && link.GetKey("A")->IsDictionary()) {
+						PdfDictionary &A = link.GetKey("A")->GetDictionary();
+						if (dictionary_has_key_name(A, PdfName::KeyType, "Action") && dictionary_has_key_name(A, "S", "URI")) {
+							PdfObject *uo = A.GetKey("URI");
+							if (uo && uo->IsString()) {
+								const std::string &uri = uo->GetString().GetStringUtf8();
+								PyObject *ret = PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace")));
+								if (!ret) { return NULL; }
+								if (PyTuple_Check(ret) && PyTuple_GET_SIZE(ret) == 4) {
+									int pagenum; double left, top; long long zoom;
+									if (PyArg_ParseTuple(ret, "iddL", &pagenum, &left, &top, &zoom)) {
+										PdfPage *page = NULL;
+										try {
+											page = self->doc->GetPage(pagenum - 1);
+										} catch(const PdfError &err) {
+											PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
+											Py_DECREF(ret);
+											return NULL;
+										}
+										if (page) {
+											const PdfReference &pageref = page->GetObject()->Reference();
+											PdfArray dest;
+											dest.push_back(pageref);
+											dest.push_back(XYZ);
+											dest.push_back(left);
+											dest.push_back(top);
+											dest.push_back((PoDoFo::pdf_int64)zoom);
+											link.RemoveKey("A");
+											link.AddKey("Dest", dest);
+										}
+									}
+								}
+								Py_DECREF(ret);
+							}
+						}
+					}
+				}
+			}
+		}
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    return Py_BuildValue("i", count);
 } // }}}
 
 // Properties {{{
@@ -644,6 +720,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"extract_anchors", (PyCFunction)PDFDoc_extract_anchors, METH_VARARGS,
      "extract_anchors() -> Extract information about links in the document."
+    },
+    {"alter_links", (PyCFunction)PDFDoc_alter_links, METH_VARARGS,
+     "alter_links() -> Change links in the document."
     },
     {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
      "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
