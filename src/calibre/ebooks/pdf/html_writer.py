@@ -272,7 +272,7 @@ def make_anchors_unique(container):
     spine_names = set()
 
     def replacer(url):
-        if replacer.file_type != 'text':
+        if replacer.file_type not in ('text', 'ncx'):
             return url
         if not url:
             return url
@@ -282,7 +282,10 @@ def make_anchors_unique(container):
             href, frag = base, url[1:]
         else:
             href, frag = url.partition('#')[::2]
-        name = container.href_to_name(href, base)
+        if base is None:
+            name = href
+        else:
+            name = container.href_to_name(href, base)
         if not name:
             return url
         if not frag and name in spine_names:
@@ -298,6 +301,7 @@ def make_anchors_unique(container):
             return '#' + new_frag
         return href + '#' + new_frag
 
+    name_anchor_map = {}
     for spine_name, is_linear in container.spine_names:
         spine_names.add(spine_name)
         root = container.parsed(spine_name)
@@ -307,11 +311,17 @@ def make_anchors_unique(container):
             if key not in mapping:
                 new_id = mapping[key] = 'a{}'.format(count)
                 elem.set('id', new_id)
+        body = root[-1]
+        if not body.get('id'):
+            count += 1
+            body.set('id', 'a{}'.format(count))
+        name_anchor_map[spine_name] = body.get('id')
 
     for name in container.mime_map:
         base = name
         replacer.replaced = False
         container.replace_links(name, replacer)
+    return name_anchor_map
 
 
 AnchorLocation = namedtuple('AnchorLocation', 'pagenum left top zoom')
@@ -330,7 +340,7 @@ def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
     return ans
 
 
-def fix_links(pdf_doc, anchor_locations, name_page_numbers, mark_links, log):
+def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
 
     def replace_link(url):
         purl = urlparse(url)
@@ -342,39 +352,63 @@ def fix_links(pdf_doc, anchor_locations, name_page_numbers, mark_links, log):
             if loc is None:
                 log.warn('Anchor location for link to {} not found'.format(purl.fragment))
         else:
-            pnum = name_page_numbers.get(purl.fragment)
-            if pnum is None:
+            loc = anchor_locations.get(name_anchor_map.get(purl.fragment))
+            if loc is None:
                 log.warn('Anchor location for link to {} not found'.format(purl.fragment))
-            else:
-                loc = AnchorLocation(pnum, 0, 0, 0)
         return loc
 
     pdf_doc.alter_links(replace_link, mark_links)
 
 
+class PDFOutlineRoot(object):
+
+    def __init__(self, pdf_doc):
+        self.pdf_doc = pdf_doc
+        self.root_item = None
+
+    def create(self, title, pagenum, as_child, left, top, zoom):
+        if self.root_item is None:
+            self.root_item = self.pdf_doc.create_outline(title, pagenum, left, top, zoom)
+        else:
+            self.root_item = self.root_item.create(title, pagenum, False, left, top, zoom)
+        return self.root_item
+
+
+def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map):
+    for child in toc_parent:
+        title, frag = child.title, child.frag
+        try:
+            if '.' in frag:
+                loc = anchor_locations[name_anchor_map[frag]]
+            else:
+                loc = anchor_locations[frag]
+        except Exception:
+            loc = AnchorLocation(1, 0, 0, 0)
+        pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
+        if len(child):
+            add_toc(pdf_child, child, anchor_locations, name_anchor_map)
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None):
     container = Container(opf_path, log)
-    make_anchors_unique(container)
     margin_groups = create_margin_groups(container)
+    name_anchor_map = make_anchors_unique(container)
+    toc = get_toc(container, verify_destinations=False)
     links_page_uuid = add_all_links(container, margin_groups)
-    toc = get_toc(container)
-    (toc)
     container.commit()
 
     manager = RenderManager(opts)
     page_layout = get_page_layout(opts)
     pdf_doc = None
     anchor_locations = {}
-    name_page_numbers = {}
-    num_pages = 0
     jobs = []
     for group in margin_groups:
         name, margins = group[0]
         jobs.append(job_for_name(container, name, margins, page_layout))
     results = manager.convert_html_files(jobs, settle_time=1)
+    num_pages = 0
     for group in margin_groups:
         name, margins = group[0]
-        name_page_numbers[name] = num_pages + 1
         data = results[name]
         if not isinstance(data, bytes):
             raise SystemExit(data)
@@ -387,7 +421,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         else:
             pdf_doc.append(doc)
 
-    fix_links(pdf_doc, anchor_locations, name_page_numbers, opts.pdf_mark_links, log)
+    fix_links(pdf_doc, anchor_locations, name_anchor_map, opts.pdf_mark_links, log)
+    if toc and len(toc):
+        add_toc(PDFOutlineRoot(pdf_doc), toc, anchor_locations, name_anchor_map)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)

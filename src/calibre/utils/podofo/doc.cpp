@@ -264,23 +264,30 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
 // create_outline() {{{
 static PyObject *
 PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
-    PyObject *p;
     PDFOutlineItem *ans;
-    int pagenum;
+    char *title_buf;
+    unsigned int pagenum;
+    double left = 0, top = 0, zoom = 0;
+    PdfPage *page;
 
-    if (!PyArg_ParseTuple(args, "Ui", &p, &pagenum)) return NULL;
+    if (!PyArg_ParseTuple(args, "esI|ddd", "UTF-8", &title_buf, &pagenum, &left, &top, &zoom)) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
     if (ans == NULL) goto error;
 
     try {
-        const PdfString title = podofo_convert_pystring(p);
+        PdfString title(reinterpret_cast<pdf_utf8 *>(title_buf));
         PdfOutlines *outlines = self->doc->GetOutlines();
         if (outlines == NULL) {PyErr_NoMemory(); goto error;}
         ans->item = outlines->CreateRoot(title);
         if (ans->item == NULL) {PyErr_NoMemory(); goto error;}
         ans->doc = self->doc;
-        PdfDestination dest(self->doc->GetPage(pagenum));
+        try {
+            page = self->doc->GetPage(pagenum - 1);
+        } catch (const PdfError &err) {
+            PyErr_Format(PyExc_ValueError, "Invalid page number: %u", pagenum - 1); goto error;
+        }
+        PdfDestination dest(page, left, top, zoom);
         ans->item->SetDestination(dest);
     } catch(const PdfError & err) {
         podofo_set_exception(err); goto error;
