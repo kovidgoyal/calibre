@@ -12,6 +12,13 @@ from calibre.ebooks.BeautifulSoup import Comment, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def get_classes(tag):
+    ans = tag.get('class') or ()
+    if hasattr(ans, 'split'):
+        ans = ans.split()
+    return list(ans)
+
+
 class PrivateEyeRecipe(BasicNewsRecipe):
     title = 'Private Eye Online'
     title_with_date = 'Private Eye Online'
@@ -114,7 +121,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         # Get cover image
         for img in soup.findAll('img', {'class': 'current-issue'}):
             if img['src'].endswith('_big.jpg'):
-                self.cover_url = self.DOMAIN + img['src']
+                self.cover_url = img['src']
                 filename = img['src'].split('/')[-1]
                 self.issue_no = filename.replace('_big.jpg', '')
                 self.log.debug('Cover image found. Issue: %s' % self.issue_no)
@@ -159,7 +166,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         title, url, descriptions = "", "", []
         for piece in online.contents:
             if isinstance(piece, Tag):
-                tag_class = (piece.name, piece.get('class', ''))
+                tag_class = piece.name, ' '.join(get_classes(piece))
                 if tag_class == ('span', 'header'):
                     self.page_index_append(current_section)
                     current_section = piece.string
@@ -184,13 +191,17 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         self.current_articles = []
         title, url, descriptions = "", "", []
         # Remove gaps
-        for gap in soup.findAll(lambda tag: tag.get('class', '').startswith('gap-')):
-            gap.extract()
+        for gap in soup.findAll(attrs={'class': True}):
+            classes = get_classes(gap)
+            for c in classes:
+                if c.startswith('gap-'):
+                    gap.extract()
+                    break
         # Find more items
         more = soup.find('span', {'class': 'section'})
         current_section = more.string
         more = more.findNextSibling()
-        while more.name == 'div' and more.get('class', '') == 'box-contents':
+        while more.name == 'div' and get_classes(more) == ['box-contents']:
             title_tag = more.find('a', {'class': 'header-home'})
             if title_tag:
                 title = title_tag.string
