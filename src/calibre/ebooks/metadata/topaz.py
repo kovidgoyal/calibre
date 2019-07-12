@@ -277,9 +277,9 @@ class MetadataUpdater(object):
         offset += consumed
         self.md_header['tag'] = self.data[offset:offset+taglen]
         offset += taglen
-        self.md_header['flags'] = ord(self.data[offset])
+        self.md_header['flags'] = ord(self.data[offset:offset+1])
         offset += 1
-        self.md_header['num_recs'] = ord(self.data[offset])
+        self.md_header['num_recs'] = ord(self.data[offset:offset+1])
         offset += 1
         # print "self.md_header: %s" % self.md_header
 

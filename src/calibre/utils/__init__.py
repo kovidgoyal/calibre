@@ -41,7 +41,7 @@ def unpickle_binary_string(data):
             sz, = struct.unpack_from('<i', data, offset)
             offset += struct.calcsize('<i')
         elif which == SHORT_BINSTRING:
-            sz = ord(data[offset])
+            sz = ord(data[offset:offset+1])
             offset += 1
         else:
             return

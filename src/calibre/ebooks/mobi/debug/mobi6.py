@@ -79,7 +79,7 @@ class SecondaryIndexHeader(object):  # {{{
             raise ValueError('TAGX last entry is not EOF')
 
         idxt0_pos = self.header_length+self.tagx_header_length
-        num = ord(raw[idxt0_pos])
+        num = ord(raw[idxt0_pos:idxt0_pos+1])
         count_pos = idxt0_pos+1+num
         self.last_entry = raw[idxt0_pos+1:count_pos]
         self.ncx_count, = struct.unpack(b'>H', raw[count_pos:count_pos+2])

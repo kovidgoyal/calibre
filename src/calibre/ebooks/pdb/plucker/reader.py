@@ -496,11 +496,11 @@ class Reader(FormatReader):
                     html += u'<p>'
                 paragraph_open = True
 
-            c = ord(d[offset])
+            c = ord(d[offset:offset+1])
             # PHTML "functions"
             if c == 0x0:
                 offset += 1
-                c = ord(d[offset])
+                c = ord(d[offset:offset+1])
                 # Page link begins
                 # 2 Bytes
                 # record ID

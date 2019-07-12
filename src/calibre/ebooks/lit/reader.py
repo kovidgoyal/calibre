@@ -871,7 +871,7 @@ class LitFile(object):
         for i in range(1, nentries + 1):
             if len(data) <= 1:
                 break
-            size, data = ord(data[0]), data[1:]
+            size, data = ord(data[0:1]), data[1:]
             if size == 0 or len(data) < size:
                 break
             tags[i], data = data[:size], data[size:]

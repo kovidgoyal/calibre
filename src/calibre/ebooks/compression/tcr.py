@@ -43,8 +43,8 @@ class TCRCompressor(object):
                 possible_codes.append(single_code.pop())
 
         for code in possible_codes:
-            self.coded_txt = self.coded_txt.replace(code, code[0])
-            self.codes[ord(code[0])] = b'%s%s' % (self.codes[ord(code[0])], self.codes[ord(code[1])])
+            self.coded_txt = self.coded_txt.replace(code, code[0:1])
+            self.codes[ord(code[0:1])] = b'%s%s' % (self.codes[ord(code[0:1])], self.codes[ord(code[1:2])])
 
     def _free_unused_codes(self):
         '''

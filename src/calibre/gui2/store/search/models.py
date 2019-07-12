@@ -333,7 +333,7 @@ class SearchFilter(SearchQueryParser):
 
     def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
-        self.srs = set([])
+        self.srs = set()
         # remove joiner words surrounded by space or at string boundaries
         self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
         self.punctuation_table = {ord(x):' ' for x in string.punctuation}

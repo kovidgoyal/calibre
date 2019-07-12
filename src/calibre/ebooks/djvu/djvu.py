@@ -84,9 +84,9 @@ class DjvuChunk(object):
                 if not res.strip(b'\0'):
                     raise ValueError('TXTz block is completely null')
                 l = 0
-                for x in res[:3]:
+                for x in bytearray(res[:3]):
                     l <<= 8
-                    l += ord(x)
+                    l += x
                 if verbose > 0 and out:
                     print(l, file=out)
                 txtout.write(res[3:3+l])
@@ -94,9 +94,9 @@ class DjvuChunk(object):
         if txtout and self.type == b'TXTa':
             res = self.buf[self.datastart: self.dataend]
             l = 0
-            for x in res[:3]:
+            for x in bytearray(res[:3]):
                 l <<= 8
-                l += ord(x)
+                l += x
             if verbose > 0 and out:
                 print(l, file=out)
             txtout.write(res[3:3+l])

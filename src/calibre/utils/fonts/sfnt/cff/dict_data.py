@@ -36,11 +36,11 @@ class ByteCode(dict):
         return b0 - 139, index
 
     def read_small_int1(self, b0, data, index):
-        b1 = ord(data[index])
+        b1 = ord(data[index:index+1])
         return (b0-247)*256 + b1 + 108, index+1
 
     def read_small_int2(self, b0, data, index):
-        b1 = ord(data[index])
+        b1 = ord(data[index:index+1])
         return -(b0-251)*256 - b1 - 108, index+1
 
     def read_short_int(self, b0, data, index):
@@ -61,7 +61,7 @@ class ByteCode(dict):
     def read_real_number(self, b0, data, index):
         number = ''
         while True:
-            b = ord(data[index])
+            b = ord(data[index:index+1])
             index = index + 1
             nibble0 = (b & 0xf0) >> 4
             nibble1 = b & 0x0f
@@ -144,7 +144,7 @@ class Dict(ByteCode):
         self.stack = []
         index = 0
         while index < len(data):
-            b0 = ord(data[index])
+            b0 = ord(data[index:index+1])
             index += 1
             handler = getattr(self, self.operand_encoding[b0])
             value, index = handler(b0, data, index)
@@ -153,7 +153,7 @@ class Dict(ByteCode):
 
     def do_operator(self, b0, data, index):
         if b0 == 12:
-            op = (b0, ord(data[index]))
+            op = (b0, ord(data[index:index+1]))
             index += 1
         else:
             op = b0

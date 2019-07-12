@@ -18,7 +18,7 @@ from css_selectors.errors import SelectorSyntaxError, ExpressionError
 from polyglot.builtins import unicode_type, codepoint_to_chr, range
 
 
-utab = {c:c+32 for c in range(ord('A'), ord('Z')+1)}
+utab = {c:c+32 for c in range(ord(u'A'), ord(u'Z')+1)}
 
 if sys.version_info.major < 3:
     tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
