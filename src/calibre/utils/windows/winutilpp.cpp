@@ -71,7 +71,7 @@ class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
 
 class wchar_raii {  // {{{
 	private:
-		wchar_t **handle;
+		wchar_t *handle;
 		wchar_raii( const wchar_raii & ) ;
 		wchar_raii & operator=( const wchar_raii & ) ;
 
@@ -80,15 +80,13 @@ class wchar_raii {  // {{{
 
 		~wchar_raii() {
 			if (handle) {
-#if PY_MAJOR_VERSION >= 3
-				PyMem_Free(*handle);
-#endif
-				*handle = NULL;
+				PyMem_Free(handle);
+				handle = NULL;
 			}
 		}
 
-		wchar_t *ptr() { return handle ? *handle : NULL; }
-		void set_ptr(wchar_t **val) { handle = val; }
+		wchar_t *ptr() { return handle; }
+		void set_ptr(wchar_t *val) { handle = val; }
 }; // }}}
 
 class scoped_com_initializer {  // {{{
@@ -102,6 +100,18 @@ class scoped_com_initializer {  // {{{
 		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
 }; // }}}
 
+#if PY_MAJOR_VERSION < 3
+static wchar_t*
+PyUnicode_AsWideCharString(PyObject *obj, Py_ssize_t *size) {
+    Py_ssize_t sz = PyUnicode_GET_SIZE(obj) * 4 + 4;
+    wchar_t *ans = (wchar_t*)PyMem_Malloc(sz);
+    memset(ans, 0, sz);
+    Py_ssize_t res = PyUnicode_AsWideChar(reinterpret_cast<PyUnicodeObject*>(obj), ans, (sz / sizeof(wchar_t)) - 1);
+    if (size) *size = res;
+    return ans;
+}
+#endif
+
 static inline int
 py_to_wchar(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {
@@ -109,11 +119,8 @@ py_to_wchar(PyObject *obj, wchar_raii *output) {
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}
-#if PY_MAJOR_VERSION < 3
-	output->set_ptr(&PyUnicode_AS_UNICODE(obj));
-#else
-	output->set_ptr(&PyUnicode_AsWideCharString(obj, NULL));
-#endif
+    wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
+	output->set_ptr(buf);
 	return 1;
 }
 
