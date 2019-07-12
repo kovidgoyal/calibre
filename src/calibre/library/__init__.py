@@ -4,14 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
 
 
+import os
 from polyglot.builtins import range
 
 
 def db(path=None, read_only=False):
     from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
-    from calibre.utils.filenames import expanduser
-    return LibraryDatabase(expanduser(path) if path else prefs['library_path'],
+    return LibraryDatabase(os.path.expanduser(path) if path else prefs['library_path'],
             read_only=read_only)
 
 

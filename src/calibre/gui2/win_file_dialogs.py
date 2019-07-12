@@ -27,11 +27,9 @@ def is_ok():
 
 try:
     from calibre.constants import filesystem_encoding
-    from calibre.utils.filenames import expanduser
     from calibre.utils.config import dynamic
 except ImportError:
-    filesystem_encoding = 'utf-8'
-    expanduser = os.path.expanduser
+    filesystem_encoding = 'mbcs'
     dynamic = {}
 
 
@@ -111,7 +109,7 @@ class Loop(QEventLoop):
 def process_path(x):
     if isinstance(x, bytes):
         x = x.decode(filesystem_encoding)
-    return os.path.abspath(expanduser(x))
+    return os.path.abspath(os.path.expanduser(x))
 
 
 def select_initial_dir(q):
@@ -122,7 +120,7 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return expanduser('~')
+    return os.path.expanduser('~')
 
 
 def run_file_dialog(
@@ -225,9 +223,9 @@ def run_file_dialog(
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
     name = name or 'dialog_' + title
     if no_save_dir:
-        initial_folder = expanduser(default_dir)
+        initial_folder = os.path.expanduser(default_dir)
     else:
-        initial_folder = dynamic.get(name, expanduser(default_dir))
+        initial_folder = dynamic.get(name, os.path.expanduser(default_dir))
     if not initial_folder or not os.path.isdir(initial_folder):
         initial_folder = select_initial_dir(initial_folder)
     return name, initial_folder
