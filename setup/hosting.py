@@ -196,7 +196,7 @@ class GitHub(Base):  # {{{
                         )
 
     def do_upload(self, url, path, desc, fname):
-        mime_type = mimetypes.guess_type(fname)[0]
+        mime_type = mimetypes.guess_type(fname)[0] or 'application/octet-stream'
         self.info('Uploading to GitHub: %s (%s)' % (fname, mime_type))
         with ReadFileWithProgressReporting(path) as f:
             return self.requests.post(
