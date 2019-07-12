@@ -12,7 +12,7 @@ from math import ceil
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding, isosx, ispy3
+    filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
 )
 from calibre.utils.localization import get_udc
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
@@ -545,20 +545,7 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
         raise
 
 
-if iswindows and not ispy3:
-    # Python's expanduser is broken for non-ASCII usernames
-    def expanduser(path):
-        if isinstance(path, bytes):
-            path = path.decode(filesystem_encoding)
-        if path[:1] != '~':
-            return path
-        i, n = 1, len(path)
-        while i < n and path[i] not in '/\\':
-            i += 1
-        userhome = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_PROFILE)
-        return userhome + path[i:]
-else:
-    expanduser = os.path.expanduser
+expanduser = os.path.expanduser
 
 
 def format_permissions(st_mode):

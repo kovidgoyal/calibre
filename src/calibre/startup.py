@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys
+import locale, sys, os
 
 # Default translation is NOOP
 from polyglot.builtins import builtins, is_py3, unicode_type
@@ -79,7 +79,25 @@ if not _run_once:
         if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode_type):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
-    #
+        if not ispy3:
+            # Python2's expanduser is broken for non-ASCII usernames
+            # and unicode paths
+
+            def expanduser(path):
+                if isinstance(path, bytes):
+                    path = path.decode('mbcs')
+                if path[:1] != '~':
+                    return path
+                i, n = 1, len(path)
+                while i < n and path[i] not in '/\\':
+                    i += 1
+                userhome = winutil.special_folder_path(winutil.CSIDL_PROFILE)
+                if i != 1:  # ~user
+                    userhome = os.path.join(os.path.dirname(userhome), path[1:i])
+
+                return userhome + path[i:]
+            os.path.expanduser = expanduser
+
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
     try:
