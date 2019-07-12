@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.45.0
+- version: 3.45.1
   date: 2019-07-12
 
   new features:
@@ -38,6 +38,9 @@
     - title: "Support subtitle in Douban metadata plugin"
 
   bug fixes:
+    - title: "Fix a Windows-specific regression in 3.45.0 that caused various errors in the viewer and editor"
+      tickets: [1836294]
+
     - title: "Linux: Workaround for bug in recent Linux kernels that causes the Kindle to eject after calibre connects to it."
       tickets: [1834641]
 
