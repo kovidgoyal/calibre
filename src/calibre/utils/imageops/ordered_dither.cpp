@@ -25,6 +25,10 @@ typedef unsigned __int8 uint8_t;
 typedef unsigned __int32 uint32_t;
 #else
 #include <stdint.h>
+// on older compilers this definition is missing
+#ifndef UINT8_MAX
+#define UINT8_MAX 255
+#endif
 #endif
 
 // Only needed for the (commented out) Indexed8 codepath
