@@ -20,7 +20,7 @@ from calibre.constants import (
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, set_app_uid, setup_gui_option_parser
+    question_dialog, setup_gui_option_parser
 )
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
@@ -111,7 +111,8 @@ def init_qt(args):
             prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
     override = 'calibre-gui' if islinux else None
-    app = Application(args, override_program_name=override)
+    app = Application(args, override_program_name=override, windows_app_uid=MAIN_APP_UID)
+
     app.file_event_hook = EventAccumulator()
     try:
         is_x11 = app.platformName() == 'xcb'
@@ -518,12 +519,6 @@ def main(args=sys.argv):
     if args[0] == '__CALIBRE_GUI_DEBUG__':
         gui_debug = args[1]
         args = ['calibre']
-
-    if iswindows:
-        # Ensure that all ebook editor instances are grouped together in the task
-        # bar. This prevents them from being grouped with viewer process when
-        # launched from within calibre, as both use calibre-parallel.exe
-        set_app_uid(MAIN_APP_UID)
 
     try:
         app, opts, args = init_qt(args)

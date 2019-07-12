@@ -23,7 +23,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.gui2 import (
     Application, add_to_recent_docs, choose_files, error_dialog, info_dialog,
-    open_url, set_app_uid, setup_gui_option_parser
+    open_url, setup_gui_option_parser
 )
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -1309,11 +1309,6 @@ def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
-    if iswindows:
-        # Ensure that all ebook editor instances are grouped together in the task
-        # bar. This prevents them from being grouped with viewer process when
-        # launched from within calibre, as both use calibre-parallel.exe
-        set_app_uid(VIEWER_APP_UID)
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
@@ -1326,7 +1321,7 @@ def main(args=sys.argv):
     listener = None
     override = 'calibre-ebook-viewer' if islinux else None
     acc = EventAccumulator()
-    app = Application(args, override_program_name=override, color_prefs=vprefs)
+    app = Application(args, override_program_name=override, color_prefs=vprefs, windows_app_uid=VIEWER_APP_UID)
     app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))

@@ -812,7 +812,13 @@ class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
 
-    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs):
+    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+        if iswindows:
+            self.windows_app_uid = None
+            if windows_app_uid:
+                windows_app_uid = unicode_type(windows_app_uid)
+                if set_app_uid(windows_app_uid):
+                    self.windows_app_uid = windows_app_uid
         self.file_event_hook = None
         if isfrozen and QT_VERSION <= 0x050700 and 'wayland' in os.environ.get('QT_QPA_PLATFORM', ''):
             os.environ['QT_QPA_PLATFORM'] = 'xcb'
@@ -1343,25 +1349,6 @@ empty_model = QStringListModel([''])
 empty_index = empty_model.index(0)
 
 
-def get_app_uid():
-    import ctypes
-    from ctypes import wintypes
-    lpBuffer = wintypes.LPWSTR()
-    try:
-        AppUserModelID = ctypes.windll.shell32.GetCurrentProcessExplicitAppUserModelID
-    except Exception:  # Vista has no app uids
-        return
-    AppUserModelID.argtypes = [wintypes.LPWSTR]
-    AppUserModelID.restype = wintypes.HRESULT
-    try:
-        AppUserModelID(ctypes.cast(ctypes.byref(lpBuffer), wintypes.LPWSTR))
-    except Exception:
-        return
-    appid = lpBuffer.value
-    ctypes.windll.ole32.CoTaskMemFree(lpBuffer)
-    return appid
-
-
 def set_app_uid(val):
     import ctypes
     from ctypes import wintypes
@@ -1380,5 +1367,5 @@ def set_app_uid(val):
 
 
 def add_to_recent_docs(path):
-    app_id = get_app_uid()
-    plugins['winutil'][0].add_to_recent_docs(unicode_type(path), app_id)
+    app = QApplication.instance()
+    plugins['winutil'][0].add_to_recent_docs(unicode_type(path), app.windows_app_uid)
