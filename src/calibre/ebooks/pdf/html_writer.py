@@ -5,6 +5,7 @@
 # Imports {{{
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import copy
 import json
 import os
 import signal
@@ -36,6 +37,28 @@ from polyglot.builtins import iteritems, range
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
+# }}}
+
+
+# Utils {{{
+def data_as_pdf_doc(data):
+    podofo = get_podofo()
+    ans = podofo.PDFDoc()
+    ans.load(data)
+    return ans
+
+
+def create_skeleton(container):
+    spine_name = next(container.spine_names)[0]
+    root = container.parsed(spine_name)
+    root = copy.deepcopy(root)
+    body = root[-1]
+    body.text = body.tail = None
+    del body[:]
+    name = container.add_file(spine_name, b'', modify_name_if_needed=True)
+    container.replace(name, root)
+    return name
+
 # }}}
 
 
@@ -188,13 +211,6 @@ def job_for_name(container, name, margins, page_layout):
 
 
 # Metadata {{{
-def data_as_pdf_doc(data):
-    podofo = get_podofo()
-    ans = podofo.PDFDoc()
-    ans.load(data)
-    return ans
-
-
 def update_metadata(pdf_doc, pdf_metadata):
     if pdf_metadata.mi:
         xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
@@ -385,20 +401,71 @@ class PDFOutlineRoot(object):
         return self.root_item
 
 
-def add_toc(pdf_parent, toc_parent, anchor_locations, name_anchor_map, log):
-    for child in toc_parent:
-        title, frag = child.title, child.frag
+def annotate_toc(toc, anchor_locations, name_anchor_map, log):
+    for child in toc.iterdescendants():
+        frag = child.frag
         try:
             if '.' in frag:
                 loc = anchor_locations[name_anchor_map[frag]]
             else:
                 loc = anchor_locations[frag]
         except Exception:
-            log.warn('Could not find anchor location for ToC entry: {} with href: {}'.format(title, frag))
+            log.warn('Could not find anchor location for ToC entry: {} with href: {}'.format(child.title, frag))
             loc = AnchorLocation(1, 0, 0, 0)
+        child.pdf_loc = loc
+
+
+def add_toc(pdf_parent, toc_parent):
+    for child in toc_parent:
+        title, loc = child.title, child.pdf_loc
         pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
         if len(child):
-            add_toc(pdf_child, child, anchor_locations, name_anchor_map, log)
+            add_toc(pdf_child, child)
+
+
+def add_pagenum_toc(root, toc, opts):
+    body = root[-1]
+    indents = []
+    for i in range(1, 7):
+        indents.extend((i, 1.4*i))
+
+    css = '''
+    .calibre-pdf-toc table { width: 100%% }
+
+    .calibre-pdf-toc table tr td:last-of-type { text-align: right }
+
+    .calibre-pdf-toc .level-0 {
+        font-size: larger;
+    }
+
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
+    ''' % tuple(indents) + (opts.extra_css or '')
+    style = body.makeelement(XHTML('style'), type='text/css')
+    style.text = css
+    body.append(style)
+    body.set('class', 'calibre-pdf-toc')
+
+    def E(tag, cls=None, text=None, tail=None, parent=None, **attrs):
+        ans = body.makeelement(XHTML(tag), **attrs)
+        ans.text, ans.tail = text, tail
+        if cls is not None:
+            ans.set('class', cls)
+        if parent is not None:
+            parent.append(ans)
+        return ans
+
+    E('h2', text=(opts.toc_title or _('Table of Contents')), parent=body)
+    table = E('table', parent=body)
+    for level, node in toc.iterdescendants(level=0):
+        tr = E('tr', cls='level-%d' % level, parent=table)
+        E('td', text=node.title or _('Unknown'), parent=tr)
+        E('td', text='{}'.format(node.pdf_loc.pagenum), parent=tr)
+
 # }}}
 
 
@@ -408,6 +475,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     margin_groups = create_margin_groups(container)
     name_anchor_map = make_anchors_unique(container)
     toc = get_toc(container, verify_destinations=False)
+    has_toc = toc and len(toc)
     links_page_uuid = add_all_links(container, margin_groups)
     container.commit()
     report_progress(0.1, _('Completed markup transformation'))
@@ -435,11 +503,24 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             pdf_doc = doc
         else:
             pdf_doc.append(doc)
+
+    if has_toc:
+        annotate_toc(toc, anchor_locations, name_anchor_map, log)
+        if opts.pdf_add_toc:
+            tocname = create_skeleton(container)
+            root = container.parsed(tocname)
+            add_pagenum_toc(root, toc, opts)
+            container.commit()
+            jobs = [job_for_name(container, tocname, None, page_layout)]
+            results = manager.convert_html_files(jobs, settle_time=1)
+            tocdoc = data_as_pdf_doc(results[tocname])
+            pdf_doc.append(tocdoc)
+
     report_progress(0.7, _('Rendered all HTML as PDF'))
 
     fix_links(pdf_doc, anchor_locations, name_anchor_map, opts.pdf_mark_links, log)
     if toc and len(toc):
-        add_toc(PDFOutlineRoot(pdf_doc), toc, anchor_locations, name_anchor_map, log)
+        add_toc(PDFOutlineRoot(pdf_doc), toc)
     report_progress(0.75, _('Added links to PDF content'))
 
     # TODO: Remove unused fonts

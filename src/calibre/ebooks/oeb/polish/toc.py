@@ -71,10 +71,14 @@ class TOC(object):
     def __len__(self):
         return len(self.children)
 
-    def iterdescendants(self):
+    def iterdescendants(self, level=None):
+        gc_level = None if level is None else level + 1
         for child in self:
-            yield child
-            for gc in child.iterdescendants():
+            if level is None:
+                yield child
+            else:
+                yield level, child
+            for gc in child.iterdescendants(level=gc_level):
                 yield gc
 
     def remove_duplicates(self, only_text=True):
