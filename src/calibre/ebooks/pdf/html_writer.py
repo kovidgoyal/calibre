@@ -33,7 +33,7 @@ from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems, range, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -174,6 +174,19 @@ class RenderManager(QObject):
         if ret != OK:
             raise SystemExit('Unknown error occurred')
         return self.results
+
+    def evaljs(self, js):
+        if not self.workers:
+            self.create_worker()
+        w = self.workers[0]
+        self.evaljs_result = None
+        w.runJavaScript(js, self.evaljs_callback)
+        QApplication.exec_()
+        return self.evaljs_result
+
+    def evaljs_callback(self, result):
+        self.evaljs_result = result
+        QApplication.instance().exit(0)
 
     def assign_work(self):
         free_workers = [w for w in self.workers if not w.working]
@@ -423,7 +436,30 @@ def add_toc(pdf_parent, toc_parent):
             add_toc(pdf_child, child)
 
 
-def add_pagenum_toc(root, toc, opts):
+def get_page_number_display_map(render_manager, opts, num_pages, log):
+    num_pages *= 2
+    default_map = {n:n for n in range(1, num_pages + 1)}
+    if opts.pdf_page_number_map:
+        js = '''
+        function map_num(n) { return eval(MAP_EXPRESSION); }
+        var ans = {};
+        for (var i=1; i <= NUM_PAGES; i++) ans[i] = map_num(i);
+        JSON.stringify(ans);
+        '''.replace('MAP_EXPRESSION', json.dumps(opts.pdf_page_number_map), 1).replace(
+                'NUM_PAGES', unicode_type(num_pages), 1)
+        result = render_manager.evaljs(js)
+        try:
+            result = json.loads(result)
+            if not isinstance(result, dict):
+                raise ValueError('Not a dict')
+        except Exception:
+            log.warn('Could not do page number mapping, got unexpected result: {}'.format(repr(result)))
+        else:
+            default_map = {int(k): int(v) for k, v in iteritems(result)}
+    return default_map
+
+
+def add_pagenum_toc(root, toc, opts, page_number_display_map):
     body = root[-1]
     indents = []
     for i in range(1, 7):
@@ -464,7 +500,9 @@ def add_pagenum_toc(root, toc, opts):
     for level, node in toc.iterdescendants(level=0):
         tr = E('tr', cls='level-%d' % level, parent=table)
         E('td', text=node.title or _('Unknown'), parent=tr)
-        E('td', text='{}'.format(node.pdf_loc.pagenum), parent=tr)
+        num = node.pdf_loc.pagenum
+        num = page_number_display_map.get(num, num)
+        E('td', text='{}'.format(num), parent=tr)
 
 # }}}
 
@@ -504,12 +542,14 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         else:
             pdf_doc.append(doc)
 
+    page_number_display_map = get_page_number_display_map(manager, opts, num_pages, log)
+
     if has_toc:
         annotate_toc(toc, anchor_locations, name_anchor_map, log)
         if opts.pdf_add_toc:
             tocname = create_skeleton(container)
             root = container.parsed(tocname)
-            add_pagenum_toc(root, toc, opts)
+            add_pagenum_toc(root, toc, opts, page_number_display_map)
             container.commit()
             jobs = [job_for_name(container, tocname, None, page_layout)]
             results = manager.convert_html_files(jobs, settle_time=1)
@@ -526,6 +566,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     # TODO: Remove unused fonts
     # TODO: Remove duplicate fonts
     # TODO: Subset and embed fonts before rendering PDF
+    # TODO: Support for mathematics
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
