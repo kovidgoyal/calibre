@@ -19,6 +19,26 @@ from polyglot.builtins import unicode_type, iteritems, map
 plugin_dir = os.path.join(config_dir, 'plugins')
 
 
+def parse_old_style(src):
+    if ispy3:
+        import pickle as cPickle
+    else:
+        import cPickle
+    options = {'cPickle':cPickle}
+    try:
+        if not isinstance(src, unicode_type):
+            src = src.decode('utf-8')
+        src = src.replace('PyQt%d.QtCore' % 4, 'PyQt5.QtCore')
+        src = re.sub(r'cPickle\.loads\(([\'"])', r'cPickle.loads(b\1', src)
+        exec(src, options)
+    except Exception as err:
+        try:
+            print('Failed to parse old style options string with error: {}'.format(err))
+        except Exception:
+            pass
+    return options
+
+
 def to_json(obj):
     import datetime
     if isinstance(obj, bytearray):
@@ -156,6 +176,7 @@ class OptionSet(object):
         self.group_list  = []
         self.groups      = {}
         self.set_buffer  = {}
+        self.loads_pat = None
 
     def has_option(self, name_or_option_object):
         if name_or_option_object in self.preferences:
@@ -276,30 +297,12 @@ class OptionSet(object):
             return match.group()
         return ''
 
-    def parse_old_style(self, src):
-        if ispy3:
-            import pickle as cPickle
-        else:
-            import cPickle
-        options = {'cPickle':cPickle}
-        try:
-            if not isinstance(src, unicode_type):
-                src = src.decode('utf-8')
-            src = src.replace('PyQt%d.QtCore' % 4, 'PyQt5.QtCore')
-            exec(src, options)
-        except Exception as err:
-            try:
-                print('Failed to parse old style options string with error: {}'.format(err))
-            except Exception:
-                pass
-        return options
-
     def parse_string(self, src):
         options = {}
         if src:
             is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, unicode_type) and src.startswith(u'#'))
             if is_old_style:
-                options = self.parse_old_style(src)
+                options = parse_old_style(src)
             else:
                 try:
                     options = json_loads(src)
