@@ -142,6 +142,18 @@ def get_image_count(path):
     return p.image_count()
 
 
+def list_fonts(pdf_doc):
+    fonts = pdf_doc.list_fonts()
+    ref_map = {f['Reference']: f for f in fonts}
+    for ref in pdf_doc.used_fonts_in_page_range():
+        ref_map[ref]['used'] = True
+    for font in fonts:
+        font['used'] = font.get('used', False)
+        if font['DescendantFont'] and font['used']:
+            ref_map[font['DescendantFont']]['used'] = True
+    return ref_map
+
+
 def test_list_fonts(src):
     podofo = get_podofo()
     p = podofo.PDFDoc()
@@ -149,7 +161,7 @@ def test_list_fonts(src):
         raw = f.read()
     p.load(raw)
     import pprint
-    pprint.pprint(p.list_fonts())
+    pprint.pprint(list_fonts(p))
 
 
 def test_save_to(src, dest):

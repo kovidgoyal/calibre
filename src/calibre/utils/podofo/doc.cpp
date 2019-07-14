@@ -718,6 +718,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"list_fonts", (PyCFunction)list_fonts, METH_VARARGS,
      "list_fonts() -> Get list of fonts in document"
     },
+    {"used_fonts_in_page_range", (PyCFunction)used_fonts_in_page_range, METH_VARARGS,
+     "used_fonts_in_page_range() -> Get list of references to fonts used in the specified pages"
+    },
     {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
      "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
     },

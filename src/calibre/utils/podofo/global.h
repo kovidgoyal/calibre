@@ -60,5 +60,6 @@ dictionary_has_key_name(const PdfDictionary &d, T key, const char *name) {
 
 extern "C" {
 PyObject* list_fonts(PDFDoc*, PyObject*);
+PyObject* used_fonts_in_page_range(PDFDoc *self, PyObject *args);
 }
 }
