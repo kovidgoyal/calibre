@@ -10,7 +10,7 @@ from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import range, unicode_type, iteritems
 
 
 def get_podofo():
@@ -152,6 +152,23 @@ def list_fonts(pdf_doc):
         if font['DescendantFont'] and font['used']:
             ref_map[font['DescendantFont']]['used'] = True
     return ref_map
+
+
+def remove_unused_fonts(pdf_doc):
+    font_ref_map = list_fonts(pdf_doc)
+    unused = tuple(ref for ref, font in iteritems(font_ref_map) if not font['used'])
+    pdf_doc.remove_fonts(unused)
+    return len(tuple(f for f in unused if font_ref_map[f]['StreamRef']))
+
+
+def test_remove_unused_fonts(src):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    p.open(src)
+    remove_unused_fonts(p)
+    dest = src.rpartition('.')[0] + '-removed.pdf'
+    p.save(dest)
+    print('Modified pdf saved to:', dest)
 
 
 def test_list_fonts(src):

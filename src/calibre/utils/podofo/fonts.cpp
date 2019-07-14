@@ -17,9 +17,27 @@ ref_as_tuple(const PdfReference &ref) {
     return Py_BuildValue("kk", num, generation);
 }
 
+static inline const PdfObject*
+get_font_file(const PdfObject *descriptor) {
+    PdfObject *ff = descriptor->GetIndirectKey("FontFile");
+    if (!ff) ff = descriptor->GetIndirectKey("FontFile2");
+    if (!ff) ff = descriptor->GetIndirectKey("FontFile3");
+    return ff;
+}
+
+static void
+remove_font(PdfVecObjects &objects, PdfObject *font) {
+    PdfObject *descriptor = font->GetIndirectKey("FontDescriptor");
+    if (descriptor) {
+        const PdfObject *ff = get_font_file(descriptor);
+        if (ff) delete objects.RemoveObject(ff->Reference());
+        delete objects.RemoveObject(descriptor->Reference());
+    }
+    delete objects.RemoveObject(font->Reference());
+}
 
 static bool
-used_fonts_in_page(PdfPage *page, PyObject *ans) {
+used_fonts_in_page(PdfPage *page, int page_num, PyObject *ans) {
     PdfContentsTokenizer tokenizer(page);
     bool in_text_block = false;
     const char* token = NULL;
@@ -73,9 +91,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     long long stream_len = 0;
                     pyunique_ptr descendant_font, stream_ref;
                     if (descriptor) {
-                        const PdfObject *ff = descriptor->GetIndirectKey("FontFile");
-                        if (!ff) ff = descriptor->GetIndirectKey("FontFile2");
-                        if (!ff) ff = descriptor->GetIndirectKey("FontFile3");
+                        const PdfObject *ff = get_font_file(descriptor);
                         if (ff) {
                             stream_ref.reset(ref_as_tuple(ff->Reference()));
                             if (!stream_ref) return NULL;
@@ -119,10 +135,27 @@ used_fonts_in_page_range(PDFDoc *self, PyObject *args) {
     for (int i = first - 1; i < last; i++) {
         try {
             PdfPage *page = self->doc->GetPage(i);
-            if (!used_fonts_in_page(page, ans.get())) return NULL;
+            if (!used_fonts_in_page(page, i, ans.get())) return NULL;
         } catch (const PdfError &err) { continue; }
     }
     return ans.release();
+}
+
+PyObject*
+remove_fonts(PDFDoc *self, PyObject *args) {
+    PyObject *fonts;
+    if (!PyArg_ParseTuple(args, "O!", &PyTuple_Type, &fonts)) return NULL;
+    PdfVecObjects &objects = self->doc->GetObjects();
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(fonts); i++) {
+        unsigned long num, gen;
+        if (!PyArg_ParseTuple(PyTuple_GET_ITEM(fonts, i), "kk", &num, &gen)) return NULL;
+        PdfReference ref(num, gen);
+        PdfObject *font = objects.GetObject(ref);
+        if (font) {
+            remove_font(objects, font);
+        }
+    }
+    Py_RETURN_NONE;
 }
 
 }

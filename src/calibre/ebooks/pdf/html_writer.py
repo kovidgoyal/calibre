@@ -31,7 +31,9 @@ from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
-from calibre.utils.podofo import get_podofo, set_metadata_implementation
+from calibre.utils.podofo import (
+    get_podofo, remove_unused_fonts, set_metadata_implementation
+)
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import iteritems, map, range, unicode_type
 from polyglot.urllib import urlparse
@@ -563,10 +565,13 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         add_toc(PDFOutlineRoot(pdf_doc), toc)
     report_progress(0.75, _('Added links to PDF content'))
 
-    # TODO: Remove unused fonts
     # TODO: Remove duplicate fonts
     # TODO: Subset and embed fonts before rendering PDF
     # TODO: Support for mathematics
+
+    num_removed = remove_unused_fonts(pdf_doc)
+    if num_removed:
+        log('Removed', num_removed, 'unused fonts')
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
