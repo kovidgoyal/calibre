@@ -10,7 +10,6 @@ import os
 import shutil
 import tempfile
 import time
-from cPickle import dumps
 from hashlib import sha1
 
 from calibre import walk
@@ -19,6 +18,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.short_uuid import uuid4
+from polyglot.builtins import as_bytes, as_unicode
 
 DAY = 24 * 3600
 
@@ -33,8 +33,10 @@ def cache_lock():
 
 def book_hash(path, size, mtime):
     path = os.path.normcase(os.path.abspath(path))
-    raw = dumps((path, size, mtime, RENDER_VERSION))
-    return sha1(raw).hexdigest().decode('ascii')
+    raw = json.dumps((path, size, mtime, RENDER_VERSION))
+    if not isinstance(raw, bytes):
+        raw = raw.encode('utf-8')
+    return as_unicode(sha1(raw).hexdigest())
 
 
 def safe_makedirs(path):
@@ -123,7 +125,7 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
     temp_path = safe_makedirs(os.path.join(book_cache_dir(), 't'))
 
     def save_metadata(metadata, f):
-        f.seek(0), f.truncate(), f.write(json.dumps(metadata, indent=2))
+        f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
 
     with cache_lock() as f:
         try:
