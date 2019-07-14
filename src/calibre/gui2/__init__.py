@@ -870,6 +870,7 @@ class Application(QApplication):
         QApplication.setApplicationName(APP_UID)
         if override_program_name and hasattr(QApplication, 'setDesktopFileName'):
             QApplication.setDesktopFileName(override_program_name)
+        QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)

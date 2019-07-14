@@ -182,6 +182,7 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage
         from PyQt5.QtGui import QImageReader, QFontDatabase
         from PyQt5.QtNetwork import QNetworkAccessManager
         from calibre.utils.img import image_from_data, image_to_data, test
@@ -219,6 +220,7 @@ class BuildTest(unittest.TestCase):
             QtWin
         del na
         del app
+        del QWebEnginePage
 
     def test_imaging(self):
         from PIL import Image
