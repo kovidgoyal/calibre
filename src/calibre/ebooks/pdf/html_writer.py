@@ -282,10 +282,10 @@ def add_anchors_markup(root, uuid, anchors):
     body.append(div)
     for i, anchor in enumerate(anchors):
         div.append(div.makeelement(XHTML('a'), href='#' + anchor))
-        div[-1].text = '{}'.format(i)
+        div[-1].text = '\xa0'
         div[-1].tail = ' '
     div.append(div.makeelement(XHTML('a'), href='#' + uuid))
-    div[-1].text = 'top'
+    div[-1].text = '\xa0'
     div[-1].tail = ' '
 
 
