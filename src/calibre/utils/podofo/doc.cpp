@@ -429,15 +429,6 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
 
 // alter_links() {{{
 
-template<typename T>
-static inline bool
-dictionary_has_key_name(PdfDictionary &d, T key, const char *name) {
-	const PdfObject *val = d.GetKey(key);
-	if (val && val->IsName() && val->GetName().GetName() == name) return true;
-	return false;
-}
-
-
 static PyObject *
 PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
     int count = 0;
@@ -723,6 +714,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"alter_links", (PyCFunction)PDFDoc_alter_links, METH_VARARGS,
      "alter_links() -> Change links in the document."
+    },
+    {"list_fonts", (PyCFunction)list_fonts, METH_VARARGS,
+     "list_fonts() -> Get list of fonts in document"
     },
     {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
      "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."

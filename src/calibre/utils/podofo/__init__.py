@@ -142,21 +142,14 @@ def get_image_count(path):
     return p.image_count()
 
 
-def test_outline(src):
+def test_list_fonts(src):
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(src, 'rb') as f:
         raw = f.read()
     p.load(raw)
-    total = p.page_count()
-    root = p.create_outline('Table of Contents')
-    for i in range(0, total):
-        root.create('Page %d'%i, i, True)
-    raw = p.write()
-    out = '/tmp/outlined.pdf'
-    with open(out, 'wb') as f:
-        f.write(raw)
-    print('Outlined PDF:', out)
+    import pprint
+    pprint.pprint(p.list_fonts())
 
 
 def test_save_to(src, dest):
