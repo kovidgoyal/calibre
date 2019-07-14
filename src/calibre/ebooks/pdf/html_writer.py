@@ -33,7 +33,7 @@ from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import get_podofo, set_metadata_implementation
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems, map, range, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -280,13 +280,13 @@ def add_anchors_markup(root, uuid, anchors):
     body = root[-1]
     div = body.makeelement(XHTML('div'), id=uuid, style='page-break-before: always')
     body.append(div)
-    for i, anchor in enumerate(anchors):
+
+    def a(anchor):
         div.append(div.makeelement(XHTML('a'), href='#' + anchor))
         div[-1].text = '\xa0'
         div[-1].tail = ' '
-    div.append(div.makeelement(XHTML('a'), href='#' + uuid))
-    div[-1].text = '\xa0'
-    div[-1].tail = ' '
+    tuple(map(a, anchors))
+    a(uuid)
 
 
 def add_all_links(container, margin_groups):
