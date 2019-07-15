@@ -747,22 +747,22 @@ class Translator(QTranslator):
 
 
 gui_thread = None
-
 qt_app = None
 
-builtin_fonts_loaded = False
+
+def calibre_font_files():
+    return glob.glob(P('fonts/liberation/*.?tf')) + [P('fonts/calibreSymbols.otf')] + \
+            glob.glob(os.path.join(config_dir, 'fonts', '*.?tf'))
 
 
 def load_builtin_fonts():
     global _rating_font, builtin_fonts_loaded
     # Load the builtin fonts and any fonts added to calibre by the user to
     # Qt
-    if builtin_fonts_loaded:
+    if hasattr(load_builtin_fonts, 'done'):
         return
-    builtin_fonts_loaded = True
-    for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
-            [P('fonts/calibreSymbols.otf')] + \
-            glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
+    load_builtin_fonts.done = True
+    for ff in calibre_font_files():
         if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
             with open(ff, 'rb') as s:
                 # Windows requires font files to be executable for them to be

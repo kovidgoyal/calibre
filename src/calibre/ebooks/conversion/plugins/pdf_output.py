@@ -56,14 +56,14 @@ class PDFOutput(OutputFormatPlugin):
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
         OptionRecommendation(name='pdf_serif_family',
-            recommended_value='Liberation Serif', help=_(
-                'The font family used to render serif fonts')),
+            recommended_value='Times', help=_(
+                'The font family used to render serif fonts. Will work only if the font is available system-wide.')),
         OptionRecommendation(name='pdf_sans_family',
-            recommended_value='Liberation Sans', help=_(
-                'The font family used to render sans-serif fonts')),
+            recommended_value='Helvetica', help=_(
+                'The font family used to render sans-serif fonts. Will work only if the font is available system-wide.')),
         OptionRecommendation(name='pdf_mono_family',
-            recommended_value='Liberation Mono', help=_(
-                'The font family used to render monospace fonts')),
+            recommended_value='Courier', help=_(
+                'The font family used to render monospace fonts. Will work only if the font is available system-wide.')),
         OptionRecommendation(name='pdf_standard_font', choices=ui_data['font_types'],
             recommended_value='serif', help=_(
                 'The font family used to render monospace fonts')),
@@ -134,14 +134,13 @@ class PDFOutput(OutputFormatPlugin):
         # that hopefully no Qt application has been constructed as yet
         from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
         from PyQt5.QtWebEngineWidgets import QWebEnginePage  # noqa
-        from calibre.gui2 import must_use_qt, load_builtin_fonts
+        from calibre.gui2 import must_use_qt
         from calibre.constants import FAKE_PROTOCOL
         scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
         scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
         scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
         QWebEngineUrlScheme.registerScheme(scheme)
         must_use_qt()
-        load_builtin_fonts()
         self.input_fmt = input_fmt
 
         if opts.pdf_use_document_margins:
