@@ -121,10 +121,10 @@ class SVGRasterizer(object):
             if abshref not in hrefs:
                 continue
             linkee = hrefs[abshref]
-            data = unicode_type(linkee)
+            data = linkee.bytes_representation
             ext = what(None, data) or 'jpg'
             with PersistentTemporaryFile(suffix='.'+ext) as pt:
-                pt.write(data.encode('utf-8'))
+                pt.write(data)
                 self.temp_files.append(pt.name)
             elem.attrib[XLINK('href')] = pt.name
         return svg
@@ -182,7 +182,7 @@ class SVGRasterizer(object):
         height = style['height']
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
-        data = QByteArray(unicode_type(svgitem).encode('utf-8'))
+        data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
         size.scale(width, height, Qt.KeepAspectRatio)
