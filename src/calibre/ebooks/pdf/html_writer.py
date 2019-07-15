@@ -9,7 +9,6 @@ import copy
 import json
 import os
 import signal
-from collections import namedtuple
 from io import BytesIO
 
 from PyQt5.Qt import (
@@ -364,7 +363,16 @@ def make_anchors_unique(container):
     return name_anchor_map
 
 
-AnchorLocation = namedtuple('AnchorLocation', 'pagenum left top zoom')
+class AnchorLocation(object):
+
+    __slots__ = ('pagenum', 'left', 'top', 'zoom')
+
+    def __init__(self, pagenum=1, left=0, top=0, zoom=0):
+        self.pagenum, self.left, self.top, self.zoom = pagenum, left, top, zoom
+
+    def __repr__(self):
+        return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(
+                self.pagenum, self.left, self.top, self.zoom)
 
 
 def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
