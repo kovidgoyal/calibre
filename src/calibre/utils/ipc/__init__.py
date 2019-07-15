@@ -1,12 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, errno
+import os, errno, sys
 from threading import Thread
 
 from calibre import force_unicode
@@ -98,7 +98,8 @@ class RC(Thread):
         try:
             self.conn = Client(self.socket_address)
             self.done = True
-        except:
+        except Exception:
             if self.print_error:
+                print('Failed to connect to address {}', file=sys.stderr).format(repr(self.socket_address))
                 import traceback
                 traceback.print_exc()
