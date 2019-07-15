@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +12,7 @@ from threading import Thread
 from calibre import force_unicode
 from calibre.constants import iswindows, get_windows_username, islinux, filesystem_encoding, ispy3
 from calibre.utils.filenames import ascii_filename
+from polyglot.functools import lru_cache
 
 VADDRESS = None
 
@@ -26,61 +27,38 @@ def eintr_retry_call(func, *args, **kwargs):
             raise
 
 
-def gui_socket_address():
-    if gui_socket_address.ans is None:
-        if iswindows:
-            gui_socket_address.ans = r'\\.\pipe\CalibreGUI'
-            try:
-                user = get_windows_username()
-            except:
-                user = None
+@lru_cache()
+def socket_address(which):
+    if iswindows:
+        ans = r'\\.\pipe\Calibre' + which
+        try:
+            user = get_windows_username()
+        except Exception:
+            user = None
+        if user:
+            user = ascii_filename(user).replace(' ', '_')
             if user:
-                user = ascii_filename(user).replace(' ', '_')
-                if user:
-                    gui_socket_address.ans += '-' + user[:100] + 'x'
+                ans += '-' + user[:100] + 'x'
+    else:
+        user = force_unicode(os.environ.get('USER') or os.path.basename(os.path.expanduser('~')), filesystem_encoding)
+        sock_name = '{}-calibre-{}.socket'.format(ascii_filename(user).replace(' ', '_'), which)
+        if islinux:
+            ans = '\0' + sock_name
         else:
-            user = os.environ.get('USER', '')
-            if not user:
-                user = os.path.basename(os.path.expanduser('~'))
-            if islinux:
-                gui_socket_address.ans = (u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user)))
-            else:
-                from tempfile import gettempdir
-                tmp = gettempdir()
-                gui_socket_address.ans = os.path.join(tmp, user+'-calibre-gui.socket')
-        if not ispy3 and not isinstance(gui_socket_address.ans, bytes):
-            gui_socket_address.ans = gui_socket_address.ans.encode(filesystem_encoding)
-    return gui_socket_address.ans
+            from tempfile import gettempdir
+            tmp = force_unicode(gettempdir(), filesystem_encoding)
+            ans = os.path.join(tmp, sock_name)
+    if not ispy3 and not isinstance(ans, bytes):
+        ans = ans.encode(filesystem_encoding)
+    return ans
+
+
+def gui_socket_address():
+    return socket_address('GUI' if iswindows else 'gui')
 
 
 def viewer_socket_address():
-    if viewer_socket_address.ans is None:
-        if iswindows:
-            viewer_socket_address.ans = r'\\.\pipe\CalibreViewer'
-            try:
-                user = get_windows_username()
-            except:
-                user = None
-            if user:
-                user = ascii_filename(user).replace(' ', '_')
-                if user:
-                    viewer_socket_address.ans += '-' + user[:100] + 'x'
-        else:
-            user = os.environ.get('USER', '')
-            if not user:
-                user = os.path.basename(os.path.expanduser('~'))
-            if islinux:
-                viewer_socket_address.ans = (u'\0%s-calibre-viewer.socket' % ascii_filename(force_unicode(user)))
-            else:
-                from tempfile import gettempdir
-                tmp = gettempdir()
-                viewer_socket_address.ans = os.path.join(tmp, user+'-calibre-viewer.socket')
-        if not ispy3 and not isinstance(viewer_socket_address.ans, bytes):
-            viewer_socket_address.ans = viewer_socket_address.ans.encode(filesystem_encoding)
-    return viewer_socket_address.ans
-
-
-gui_socket_address.ans = viewer_socket_address.ans = None
+    return socket_address('Viewer' if iswindows else 'viewer')
 
 
 class RC(Thread):
