@@ -30,14 +30,15 @@ def containsq(x, prefix):
 
 class CompleteModel(QAbstractListModel):  # {{{
 
-    def __init__(self, parent=None, sort_func=sort_key):
+    def __init__(self, parent=None, sort_func=sort_key, strip_completion_entries=True):
         QAbstractListModel.__init__(self, parent)
+        self.strip_completion_entries = strip_completion_entries
         self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
 
     def set_items(self, items):
-        items = [unicode_type(x.strip()) for x in items]
+        items = [unicode_type(x).strip() if self.strip_completion_entries else unicode_type(x) for x in items]
         items = [x for x in items if x]
         items = tuple(sorted(items, key=self.sort_func))
         self.beginResetModel()
@@ -84,7 +85,7 @@ class Completer(QListView):  # {{{
     item_selected = pyqtSignal(object)
     relayout_needed = pyqtSignal()
 
-    def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key):
+    def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key, strip_completion_entries=True):
         QListView.__init__(self)
         self.disable_popup = False
         self.completer_widget = weakref.ref(completer_widget)
@@ -95,7 +96,7 @@ class Completer(QListView):  # {{{
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
         self.setAlternatingRowColors(True)
-        self.setModel(CompleteModel(self, sort_func=sort_func))
+        self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
         self.setMouseTracking(True)
         self.entered.connect(self.item_entered)
         self.activated.connect(self.item_chosen)
@@ -301,7 +302,7 @@ class LineEdit(QLineEdit, LineEditECM):
     '''
     item_selected = pyqtSignal(object)
 
-    def __init__(self, parent=None, completer_widget=None, sort_func=sort_key):
+    def __init__(self, parent=None, completer_widget=None, sort_func=sort_key, strip_completion_entries=True):
         QLineEdit.__init__(self, parent)
 
         self.sep = ','
@@ -311,7 +312,7 @@ class LineEdit(QLineEdit, LineEditECM):
         completer_widget = (self if completer_widget is None else
                 completer_widget)
 
-        self.mcompleter = Completer(completer_widget, sort_func=sort_func)
+        self.mcompleter = Completer(completer_widget, sort_func=sort_func, strip_completion_entries=strip_completion_entries)
         self.mcompleter.item_selected.connect(self.completion_selected,
                 type=Qt.QueuedConnection)
         self.mcompleter.relayout_needed.connect(self.relayout)
@@ -436,7 +437,9 @@ class EditWithComplete(EnComboBox):
 
     def __init__(self, *args, **kwargs):
         EnComboBox.__init__(self, *args)
-        self.setLineEdit(LineEdit(self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key)))
+        self.setLineEdit(LineEdit(
+            self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key),
+            strip_completion_entries=kwargs.get('strip_completion_entries', False)))
         self.lineEdit().item_selected.connect(self.item_selected)
         self.setCompleter(None)
         self.eat_focus_out = True

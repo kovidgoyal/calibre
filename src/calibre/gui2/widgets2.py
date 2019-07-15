@@ -24,6 +24,7 @@ from polyglot.builtins import unicode_type
 class HistoryMixin(object):
 
     max_history_items = None
+    min_history_entry_length = 3
 
     def __init__(self, *args, **kwargs):
         pass
@@ -45,7 +46,7 @@ class HistoryMixin(object):
 
     def save_history(self):
         ct = unicode_type(self.text())
-        if len(ct) > 2:
+        if len(ct) >= self.min_history_entry_length:
             try:
                 self.history.remove(ct)
             except ValueError:
@@ -70,8 +71,8 @@ class HistoryLineEdit2(LineEdit, HistoryMixin):
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
-    def __init__(self, parent=None):
-        EditWithComplete.__init__(self, parent, sort_func=lambda x:b'')
+    def __init__(self, parent=None, strip_completion_entries=True):
+        EditWithComplete.__init__(self, parent, sort_func=lambda x:b'', strip_completion_entries=strip_completion_entries)
 
 
 class ColorButton(QPushButton):

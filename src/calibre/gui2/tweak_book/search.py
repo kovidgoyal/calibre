@@ -89,9 +89,10 @@ class HistoryBox(HistoryComboBox):
     max_history_items = 100
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
+    min_history_entry_length = 1
 
     def __init__(self, parent, clear_msg):
-        HistoryComboBox.__init__(self, parent)
+        HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.disable_popup = tprefs['disable_completion_popup_for_search']
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
