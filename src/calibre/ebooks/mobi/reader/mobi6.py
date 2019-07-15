@@ -197,6 +197,10 @@ class MobiReader(object):
             from html5_parser import parse
             self.log.warning('Malformed markup, parsing using html5-parser')
             self.processed_html = strip_encoding_declarations(self.processed_html)
+            # These trip up the html5 parser causing all content to be placed
+            # under the <guide> tag
+            self.processed_html = re.sub(r'<metadata>.+?</metadata>', '', self.processed_html, flags=re.I)
+            self.processed_html = re.sub(r'<guide>.+?</guide>', '', self.processed_html, flags=re.I)
             try:
                 root = parse(self.processed_html, maybe_xhtml=False, keep_doctype=False, sanitize_names=True)
             except Exception:
