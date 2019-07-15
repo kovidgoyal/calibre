@@ -191,7 +191,7 @@ def manage_users_cli(path=None):
                 _('Change read/write permission for {}').format(username),
                 _('Change the libraries {} is allowed to access').format(username),
                 _('Cancel'), ],
-            banner='\n' + _('{} has {} access').format(
+            banner='\n' + _('{0} has {1} access').format(
                 username,
                 _('readonly') if m.is_readonly(username) else _('read-write')))
         print()

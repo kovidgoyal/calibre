@@ -184,7 +184,7 @@ def ensure_single_instance():
 
 def main(args=sys.argv):
     opts, args = create_option_parser().parse_args(args)
-    if opts.auto_reload:
+    if opts.auto_reload and not opts.manage_users:
         if getattr(opts, 'daemonize', False):
             raise SystemExit(
                 'Cannot specify --auto-reload and --daemonize at the same time')
