@@ -271,20 +271,6 @@ class TestHTTP(BaseTest):
 
             server.log.filter_level = orig_level
             conn = server.connect()
-            # Test pipelining
-            responses = []
-            for i in range(10):
-                conn._HTTPConnection__state = http_client._CS_IDLE
-                conn.request('GET', '/%d'%i)
-                if ispy3:
-                    responses.append(conn.response_class(conn.sock, method=conn._method))
-                else:
-                    responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
-            for i in range(10):
-                r = responses[i]
-                r.begin()
-                self.ae(r.read(), ('%d' % i).encode('ascii'))
-            conn._HTTPConnection__state = http_client._CS_IDLE
 
             # Test closing
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
