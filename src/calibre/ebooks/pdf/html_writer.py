@@ -247,13 +247,14 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
 
 
 # Margin groups {{{
-def create_margin_groups(container):
+def create_margin_groups(container, name_anchor_map):
 
     def merge_group(group):
         if len(group) > 1:
             group_margins = group[0][1]
             names = [name for (name, margins) in group]
-            merge_html(container, names, names[0], insert_page_breaks=True)
+            first_anchor_map = merge_html(container, names, names[0], insert_page_breaks=True)
+            name_anchor_map.update(first_anchor_map)
             group = [(names[0], group_margins)]
         return group
 
@@ -371,8 +372,11 @@ class AnchorLocation(object):
         self.pagenum, self.left, self.top, self.zoom = pagenum, left, top, zoom
 
     def __repr__(self):
-        return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(
-                self.pagenum, self.left, self.top, self.zoom)
+        return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(self.as_tuple)
+
+    @property
+    def as_tuple(self):
+        return self.pagenum, self.left, self.top, self.zoom
 
 
 def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
@@ -403,7 +407,7 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
             loc = anchor_locations.get(name_anchor_map.get(purl.fragment))
             if loc is None:
                 log.warn('Anchor location for link to {} not found'.format(purl.fragment))
-        return loc
+        return None if loc is None else loc.as_tuple
 
     pdf_doc.alter_links(replace_link, mark_links)
 # }}}
@@ -520,8 +524,8 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
-    margin_groups = create_margin_groups(container)
     name_anchor_map = make_anchors_unique(container)
+    margin_groups = create_margin_groups(container, name_anchor_map)
     toc = get_toc(container, verify_destinations=False)
     has_toc = toc and len(toc)
     links_page_uuid = add_all_links(container, margin_groups)

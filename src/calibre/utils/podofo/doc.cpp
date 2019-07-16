@@ -453,17 +453,16 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 							PdfObject *uo = A.GetKey("URI");
 							if (uo && uo->IsString()) {
 								const std::string &uri = uo->GetString().GetStringUtf8();
-								PyObject *ret = PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace")));
+								pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace"))));
 								if (!ret) { return NULL; }
-								if (PyTuple_Check(ret) && PyTuple_GET_SIZE(ret) == 4) {
+								if (PyTuple_Check(ret.get()) && PyTuple_GET_SIZE(ret.get()) == 4) {
 									int pagenum; double left, top, zoom;
-									if (PyArg_ParseTuple(ret, "iddd", &pagenum, &left, &top, &zoom)) {
+									if (PyArg_ParseTuple(ret.get(), "iddd", &pagenum, &left, &top, &zoom)) {
 										PdfPage *page = NULL;
 										try {
 											page = self->doc->GetPage(pagenum - 1);
 										} catch(const PdfError &err) {
 											PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
-											Py_DECREF(ret);
 											return NULL;
 										}
 										if (page) {
@@ -473,7 +472,6 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 										}
 									}
 								}
-								Py_DECREF(ret);
 							}
 						}
 					}
