@@ -9,6 +9,7 @@ import copy
 import json
 import os
 import signal
+from collections import namedtuple
 from io import BytesIO
 
 from PyQt5.Qt import (
@@ -211,14 +212,17 @@ class RenderManager(QObject):
 def job_for_name(container, name, margins, page_layout):
     index_file = container.name_to_abspath(name)
     if margins:
+
+        def m(which):
+            ans = getattr(margins, which)
+            if ans is None:
+                ans = getattr(old_margins, which)()
+            return ans
+
         page_layout = QPageLayout(page_layout)
         page_layout.setUnits(QPageLayout.Point)
         old_margins = page_layout.marginsPoints()
-        new_margins = QMarginsF(
-            margins.get('left', old_margins.left()),
-            margins.get('top', old_margins.top()),
-            margins.get('right', old_margins.right()),
-            margins.get('bottom', old_margins.bottom()))
+        new_margins = QMarginsF(*map(m, 'left top right bottom'.split()))
         page_layout.setMargins(new_margins)
     return index_file, page_layout, name
 # }}}
@@ -247,6 +251,14 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
 
 
 # Margin groups {{{
+
+Margins = namedtuple('Margins', 'left top right bottom')
+
+
+def dict_to_margins(val, d=None):
+    return Margins(val.get('left', d), val.get('top', d), val.get('right', d), val.get('bottom', d))
+
+
 def create_margin_groups(container, name_anchor_map):
 
     def merge_group(group):
@@ -264,7 +276,7 @@ def create_margin_groups(container, name_anchor_map):
         root = container.parsed(name)
         margins = root.get('data-calibre-pdf-output-page-margins')
         if margins:
-            margins = json.loads(margins)
+            margins = dict_to_margins(json.loads(margins))
         if current_group:
             prev_margins = current_group[-1][1]
             if prev_margins != margins:
