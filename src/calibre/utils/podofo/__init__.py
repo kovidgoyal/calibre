@@ -10,7 +10,7 @@ from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import range, unicode_type, iteritems
+from polyglot.builtins import unicode_type, iteritems
 
 
 def get_podofo():
@@ -104,24 +104,6 @@ def set_metadata_(tdir, title, authors, bkp, tags, xmp_packet):
         p.save('output.pdf')
 
     return touched
-
-
-def delete_all_but(path, pages):
-    ''' Delete all the pages in the pdf except for the specified ones. Negative
-    numbers are counted from the end of the PDF. '''
-    podofo = get_podofo()
-    p = podofo.PDFDoc()
-    with open(path, 'rb') as f:
-        raw = f.read()
-    p.load(raw)
-    total = p.page_count()
-    pages = {total + x if x < 0 else x for x in pages}
-    for page in range(total-1, -1, -1):
-        if page not in pages:
-            p.delete_page(page)
-
-    with open(path, 'wb') as f:
-        p.save_to_fileobj(f)
 
 
 def get_xmp_metadata(path):

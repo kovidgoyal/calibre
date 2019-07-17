@@ -183,17 +183,33 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
 
 // delete_page() {{{
 static PyObject *
-PDFDoc_delete_page(PDFDoc *self, PyObject *args) {
-    int num = 0;
-    if (PyArg_ParseTuple(args, "i", &num)) {
+PDFDoc_delete_pages(PDFDoc *self, PyObject *args) {
+    int page = 0, count = 1;
+    if (PyArg_ParseTuple(args, "i|i", &page, &count)) {
         try {
-            self->doc->DeletePages(num, 1);
+            self->doc->DeletePages(page - 1, count);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
         }
     } else return NULL;
 
+    Py_RETURN_NONE;
+} // }}}
+
+// copy_page() {{{
+static PyObject *
+PDFDoc_copy_page(PDFDoc *self, PyObject *args) {
+    int from = 0, to = 0;
+    if (!PyArg_ParseTuple(args, "ii", &from, &to)) return NULL;
+    try {
+        PdfPagesTree* tree = self->doc->GetPagesTree();
+        PdfPage* page = tree->GetPage(from - 1);
+        tree->InsertPage(to - 1, page);
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
     Py_RETURN_NONE;
 } // }}}
 
@@ -722,8 +738,11 @@ static PyMethodDef PDFDoc_methods[] = {
     {"remove_fonts", (PyCFunction)remove_fonts, METH_VARARGS,
      "remove_fonts() -> Remove the specified font objects."
     },
-    {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
-     "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."
+    {"delete_pages", (PyCFunction)PDFDoc_delete_pages, METH_VARARGS,
+     "delete_page(page_num, count=1) -> Delete the specified pages from the pdf."
+    },
+    {"copy_page", (PyCFunction)PDFDoc_copy_page, METH_VARARGS,
+     "copy_page(from, to) -> Copy the specified page."
     },
     {"append", (PyCFunction)PDFDoc_append, METH_VARARGS,
      "append(doc) -> Append doc (which must be a PDFDoc) to this document."
