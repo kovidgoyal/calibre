@@ -50,6 +50,32 @@ struct PyObjectDeleter {
 // unique_ptr that uses Py_XDECREF as the destructor function.
 typedef std::unique_ptr<PyObject, PyObjectDeleter> pyunique_ptr;
 
+class PyBytesOutputStream : public PdfOutputStream {
+    private:
+        pyunique_ptr bytes;
+		PyBytesOutputStream( const PyBytesOutputStream & ) ;
+		PyBytesOutputStream & operator=( const PyBytesOutputStream & ) ;
+    public:
+        PyBytesOutputStream() : bytes() {}
+        void Close() {}
+        operator bool() const { return bool(bytes); }
+        PyObject* get() const { return bytes.get(); }
+        pdf_long Write(const char *buf, const pdf_long sz){
+            if (!bytes) {
+                bytes.reset(PyBytes_FromStringAndSize(buf, sz));
+                if (!bytes) throw PdfError(ePdfError_OutOfMemory, __FILE__, __LINE__, NULL);
+            } else {
+                size_t old_sz = PyBytes_GET_SIZE(bytes.get());
+                PyObject *old = bytes.release();
+                if (_PyBytes_Resize(&old, old_sz + sz) != 0) throw PdfError(ePdfError_OutOfMemory, __FILE__, __LINE__, NULL);
+                memcpy(PyBytes_AS_STRING(old) + old_sz, buf, sz);
+                bytes.reset(old);
+            }
+            return sz;
+        }
+};
+
+
 template<typename T>
 static inline bool
 dictionary_has_key_name(const PdfDictionary &d, T key, const char *name) {

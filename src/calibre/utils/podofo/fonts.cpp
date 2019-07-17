@@ -75,6 +75,8 @@ used_fonts_in_page(PdfPage *page, int page_num, PyObject *ans) {
 extern "C" {
 PyObject*
 list_fonts(PDFDoc *self, PyObject *args) {
+    int get_font_data = 0;
+    if (!PyArg_ParseTuple(args, "|i", &get_font_data)) return NULL;
     pyunique_ptr ans(PyList_New(0));
     if (!ans) return NULL;
     try {
@@ -88,15 +90,20 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     const PdfReference &ref = (*it)->Reference();
                     unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
                     const PdfObject *descriptor = (*it)->GetIndirectKey("FontDescriptor");
-                    long long stream_len = 0;
-                    pyunique_ptr descendant_font, stream_ref;
+                    pyunique_ptr descendant_font, stream_ref, encoding;
+                    PyBytesOutputStream stream_data;
+                    if (dict.HasKey("Encoding") && dict.GetKey("Encoding")->IsName()) {
+                        encoding.reset(PyUnicode_FromString(dict.GetKey("Encoding")->GetName().GetName().c_str()));
+                    }
                     if (descriptor) {
                         const PdfObject *ff = get_font_file(descriptor);
                         if (ff) {
                             stream_ref.reset(ref_as_tuple(ff->Reference()));
                             if (!stream_ref) return NULL;
                             const PdfStream *stream = ff->GetStream();
-                            if (stream) stream_len = stream->GetLength();
+                            if (stream && get_font_data) {
+                                stream->GetCopy(&stream_data);
+                            }
                         }
                     } else if (dict.HasKey("DescendantFonts")) {
                         const PdfArray &df = dict.GetKey("DescendantFonts")->GetArray();
@@ -105,13 +112,14 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     }
 #define V(x) (x ? x.get() : Py_None)
                     pyunique_ptr d(Py_BuildValue(
-                            "{ss ss s(kk) sL sO sO}",
+                            "{ss ss s(kk) sO sO sO sO}",
                             "BaseFont", name.c_str(),
                             "Subtype", subtype.c_str(),
                             "Reference", num, generation,
-                            "Length", stream_len,
+                            "Data", V(stream_data),
                             "DescendantFont", V(descendant_font),
-                            "StreamRef", V(stream_ref)
+                            "StreamRef", V(stream_ref),
+                            "Encoding", V(encoding)
                     ));
 #undef V
                     if (!d) { return NULL; }
