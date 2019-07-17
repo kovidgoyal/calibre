@@ -8,7 +8,7 @@ import sys
 from functools import partial
 
 from calibre import prints
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, iswindows
 from polyglot.builtins import iteritems, raw_input, filter, unicode_type
 
 # Manage users CLI {{{
@@ -24,6 +24,9 @@ def manage_users_cli(path=None):
         ans = raw_input()
         if isinstance(ans, bytes):
             ans = ans.decode(enc)
+        if iswindows:
+            # https://bugs.python.org/issue11272
+            ans = ans.rstrip('\r')
         return ans
 
     def choice(
