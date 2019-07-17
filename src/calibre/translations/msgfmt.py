@@ -112,6 +112,7 @@ def make(filename, outfile):
     ID = 1
     STR = 2
     CTXT = 3
+    unicode_prefix = 'u' if sys.version_info.major < 3 else ''
 
     # Compute .mo name from .po name and arguments
     if filename.endswith('.po'):
@@ -202,10 +203,8 @@ def make(filename, outfile):
         l = l.strip()
         if not l:
             continue
-        l = ast.literal_eval(l)
-        lb = l
-        if not isinstance(lb, bytes):
-            lb = lb.encode(encoding)
+        l = ast.literal_eval(unicode_prefix + l)
+        lb = l.encode(encoding)
         if section == CTXT:
             msgctxt += lb
         elif section == ID:
