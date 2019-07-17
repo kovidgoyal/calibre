@@ -22,7 +22,6 @@ from calibre.constants import iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.split import merge_html
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.pdf.image_writer import (
     Image, PDFMetadata, draw_image_page, get_page_layout
@@ -253,39 +252,20 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
 # Margin groups {{{
 
 Margins = namedtuple('Margins', 'left top right bottom')
+MarginFile = namedtuple('MarginFile', 'name margins')
 
 
 def dict_to_margins(val, d=None):
     return Margins(val.get('left', d), val.get('top', d), val.get('right', d), val.get('bottom', d))
 
 
-def create_margin_groups(container, name_anchor_map):
-
-    def merge_group(group):
-        if len(group) > 1:
-            group_margins = group[0][1]
-            names = [name for (name, margins) in group]
-            first_anchor_map = merge_html(container, names, names[0], insert_page_breaks=True)
-            name_anchor_map.update(first_anchor_map)
-            group = [(names[0], group_margins)]
-        return group
-
-    groups = []
-    current_group = []
+def create_margin_files(container):
     for name, is_linear in container.spine_names:
         root = container.parsed(name)
         margins = root.get('data-calibre-pdf-output-page-margins')
         if margins:
             margins = dict_to_margins(json.loads(margins))
-        if current_group:
-            prev_margins = current_group[-1][1]
-            if prev_margins != margins:
-                groups.append(merge_group(current_group))
-                current_group = []
-        current_group.append((name, margins))
-    if current_group:
-        groups.append(merge_group(current_group))
-    return groups
+        yield MarginFile(name, margins)
 # }}}
 
 
@@ -303,14 +283,14 @@ def add_anchors_markup(root, uuid, anchors):
     a(uuid)
 
 
-def add_all_links(container, margin_groups):
+def add_all_links(container, margin_files):
     uuid = uuid4()
     name_anchor_map = {}
     for name, is_linear in container.spine_names:
         root = container.parsed(name)
         name_anchor_map[name] = frozenset(root.xpath('//*/@id'))
-    for group in margin_groups:
-        name = group[0][0]
+    for margin_file in margin_files:
+        name = margin_file.name
         anchors = name_anchor_map.get(name, set())
         add_anchors_markup(container.parsed(name), uuid, anchors)
         container.dirty(name)
@@ -395,8 +375,7 @@ def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
     ans = {}
     anchors = pdf_doc.extract_anchors()
     toc_pagenum = anchors.pop(toc_uuid)[0]
-    for r in range(pdf_doc.page_count(), toc_pagenum - 1, -1):
-        pdf_doc.delete_page(r - 1)
+    pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
     for anchor, loc in iteritems(anchors):
         loc = list(loc)
         loc[0] += first_page_num - 1
@@ -537,10 +516,10 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
     name_anchor_map = make_anchors_unique(container)
-    margin_groups = create_margin_groups(container, name_anchor_map)
+    margin_files = tuple(create_margin_files(container))
     toc = get_toc(container, verify_destinations=False)
     has_toc = toc and len(toc)
-    links_page_uuid = add_all_links(container, margin_groups)
+    links_page_uuid = add_all_links(container, margin_files)
     container.commit()
     report_progress(0.1, _('Completed markup transformation'))
 
@@ -549,13 +528,12 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     pdf_doc = None
     anchor_locations = {}
     jobs = []
-    for group in margin_groups:
-        name, margins = group[0]
-        jobs.append(job_for_name(container, name, margins, page_layout))
+    for margin_file in margin_files:
+        jobs.append(job_for_name(container, margin_file.name, margin_file.margins, page_layout))
     results = manager.convert_html_files(jobs, settle_time=1)
     num_pages = 0
-    for group in margin_groups:
-        name, margins = group[0]
+    for margin_file in margin_files:
+        name = margin_file.name
         data = results[name]
         if not isinstance(data, bytes):
             raise SystemExit(data)
