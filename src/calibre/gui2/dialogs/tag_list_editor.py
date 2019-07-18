@@ -1,5 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate)
@@ -115,7 +118,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         # initialization
         self.to_rename = {}
-        self.to_delete = set([])
+        self.to_delete = set()
         self.all_tags = {}
         self.original_names = {}
 
@@ -265,7 +268,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
