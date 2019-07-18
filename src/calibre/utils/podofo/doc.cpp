@@ -729,7 +729,7 @@ static PyMethodDef PDFDoc_methods[] = {
     {"alter_links", (PyCFunction)PDFDoc_alter_links, METH_VARARGS,
      "alter_links() -> Change links in the document."
     },
-    {"list_fonts", (PyCFunction)list_fonts, METH_NOARGS,
+    {"list_fonts", (PyCFunction)list_fonts, METH_VARARGS,
      "list_fonts() -> Get list of fonts in document"
     },
     {"used_fonts_in_page_range", (PyCFunction)used_fonts_in_page_range, METH_VARARGS,

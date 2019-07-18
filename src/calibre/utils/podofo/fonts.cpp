@@ -72,6 +72,25 @@ used_fonts_in_page(PdfPage *page, int page_num, PyObject *ans) {
     return true;
 }
 
+static PyObject*
+convert_w_array(const PdfArray &w) {
+    pyunique_ptr ans(PyList_New(0));
+    if (!ans) return NULL;
+    for (PdfArray::const_iterator it = w.begin(); it != w.end(); it++) {
+        pyunique_ptr item;
+        if ((*it).IsArray()) {
+            item.reset(convert_w_array((*it).GetArray()));
+        } else if ((*it).IsNumber()) {
+            item.reset(PyLong_FromLongLong((long long)(*it).GetNumber()));
+        } else if ((*it).IsReal()) {
+            item.reset(PyFloat_FromDouble((*it).GetReal()));
+        } else PyErr_SetString(PyExc_ValueError, "Unknown datatype in w array");
+        if (!item) return NULL;
+        if (PyList_Append(ans.get(), item.get()) != 0) return NULL;
+    }
+    return ans.release();
+}
+
 extern "C" {
 PyObject*
 list_fonts(PDFDoc *self, PyObject *args) {
@@ -90,10 +109,19 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     const PdfReference &ref = (*it)->Reference();
                     unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
                     const PdfObject *descriptor = (*it)->GetIndirectKey("FontDescriptor");
-                    pyunique_ptr descendant_font, stream_ref, encoding;
+                    pyunique_ptr descendant_font, stream_ref, encoding, w, w2;
                     PyBytesOutputStream stream_data;
+                    if (dict.HasKey("W")) {
+                        w.reset(convert_w_array(dict.GetKey("W")->GetArray()));
+                        if (!w) return NULL;
+                    }
+                    if (dict.HasKey("W2")) {
+                        w2.reset(convert_w_array(dict.GetKey("W2")->GetArray()));
+                        if (!w2) return NULL;
+                    }
                     if (dict.HasKey("Encoding") && dict.GetKey("Encoding")->IsName()) {
                         encoding.reset(PyUnicode_FromString(dict.GetKey("Encoding")->GetName().GetName().c_str()));
+                        if (!encoding) return NULL;
                     }
                     if (descriptor) {
                         const PdfObject *ff = get_font_file(descriptor);
@@ -102,7 +130,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                             if (!stream_ref) return NULL;
                             const PdfStream *stream = ff->GetStream();
                             if (stream && get_font_data) {
-                                stream->GetCopy(&stream_data);
+                                stream->GetFilteredCopy(&stream_data);
                             }
                         }
                     } else if (dict.HasKey("DescendantFonts")) {
@@ -112,14 +140,15 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     }
 #define V(x) (x ? x.get() : Py_None)
                     pyunique_ptr d(Py_BuildValue(
-                            "{ss ss s(kk) sO sO sO sO}",
+                            "{ss ss s(kk) sO sO sO sO sO sO}",
                             "BaseFont", name.c_str(),
                             "Subtype", subtype.c_str(),
                             "Reference", num, generation,
                             "Data", V(stream_data),
                             "DescendantFont", V(descendant_font),
                             "StreamRef", V(stream_ref),
-                            "Encoding", V(encoding)
+                            "Encoding", V(encoding),
+                            "W", V(w), "W2", V(w2)
                     ));
 #undef V
                     if (!d) { return NULL; }

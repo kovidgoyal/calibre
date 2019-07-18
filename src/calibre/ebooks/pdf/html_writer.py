@@ -9,8 +9,10 @@ import copy
 import json
 import os
 import signal
+import sys
 from collections import namedtuple
 from io import BytesIO
+from operator import attrgetter
 
 from PyQt5.Qt import (
     QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
@@ -29,12 +31,13 @@ from calibre.ebooks.pdf.image_writer import (
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
+from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import (
     get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, map, range, unicode_type
+from polyglot.builtins import filter, iteritems, map, range, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -512,6 +515,104 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
 # }}}
 
 
+# Fonts {{{
+
+
+class Range(object):
+
+    __slots__ = ('first', 'last', 'width')
+
+    def __init__(self, first, last, width):
+        self.first, self.last, self.width = first, last, width
+        # Sort by first with larger ranges coming before smaller ones
+        self.sort_order = self.first, -self.last
+
+
+def merge_w_arrays(arrays):
+    ranges = []
+    for w in arrays:
+        i = 0
+        while i + 1 < len(w):
+            elem = w[i]
+            next_elem = w[i+1]
+            if isinstance(next_elem, list):
+                ranges.extend(Range(elem + c, elem + c, w) for c, w in enumerate(next_elem))
+                i += 2
+            elif i + 2 < len(w):
+                ranges.append(Range(elem, next_elem, w[i+2]))
+                i += 3
+            else:
+                break
+    ranges.sort(key=attrgetter('sort_order'))
+    merged_ranges = ranges[:1]
+    for r in ranges[1:]:
+        prev_range = merged_ranges[-1]
+        left_over = prev_range.merge(r)
+        if left_over is not None:
+            merged_ranges.append(left_over)
+    if not merged_ranges:
+        return []
+    # combine consecutive single value ranges
+
+
+def merge_font(fonts):
+    # TODO: Check if the ToUnicode entry in the Type) dict needs to be merged
+
+    # choose the largest font as the base font
+    fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
+    base_font = fonts[0]
+    t0_font = next(f for f in fonts if f['DescendantFont'] == base_font['Reference'])
+    descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0' and f is not base_font]
+    for key in ('W', 'W2'):
+        arrays = tuple(filter(True, (f[key] for f in descendant_fonts)))
+        base_font[key] = merge_w_arrays(arrays)
+    t0_font
+
+
+def merge_fonts(pdf_doc):
+    all_fonts = pdf_doc.list_fonts(True)
+    base_font_map = {}
+
+    def mergeable(fonts):
+        has_type0 = False
+        for font in fonts:
+            if font['Subtype'] == 'Type0':
+                has_type0 = True
+                if not font['Encoding'] or not font['Encoding'].startswith('Identity-'):
+                    return False
+            else:
+                if not font['Data']:
+                    return False
+                try:
+                    sfnt = Sfnt(font['Data'])
+                except UnsupportedFont:
+                    return False
+                font['sfnt'] = sfnt
+                if b'glyf' not in sfnt:
+                    # TODO: Add support for merging CFF tables
+                    return False
+        return has_type0
+
+    for f in all_fonts:
+        base_font_map.setdefault(f['BaseFont'], []).append(f)
+    for name, fonts in iteritems(base_font_map):
+        if mergeable(fonts):
+            merge_font(fonts)
+
+
+def test_merge_fonts():
+    path = sys.argv[-1]
+    podofo = get_podofo()
+    pdf_doc = podofo.PDFDoc()
+    pdf_doc.open(path)
+    merge_fonts(pdf_doc)
+    out = path.rpartition('.')[0] + '-merged.pdf'
+    pdf_doc.save(out)
+    print('Merged PDF writted to', out)
+
+# }}}
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
@@ -567,8 +668,8 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         add_toc(PDFOutlineRoot(pdf_doc), toc)
     report_progress(0.75, _('Added links to PDF content'))
 
-    # TODO: Remove duplicate fonts
-    # TODO: Subset and embed fonts before rendering PDF
+    merge_fonts(pdf_doc)
+
     # TODO: Support for mathematics
 
     num_removed = remove_unused_fonts(pdf_doc)
