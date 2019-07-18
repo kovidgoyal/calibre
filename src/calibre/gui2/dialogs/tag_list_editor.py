@@ -242,7 +242,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.fill_in_table(None, None)
         result = []
         for k in self.ordered_tags:
-            if search_for in icu_lower(unicode_type(self.all_tags[k]['cur_name'])):
+            tag = self.all_tags[k]
+            if (
+                search_for in icu_lower(unicode_type(tag['cur_name'])) or
+                search_for in icu_lower(unicode_type(self.original_names.get(tag['key'], '')))
+            ):
                 result.append(k)
         self.fill_in_table(result, None)
 
