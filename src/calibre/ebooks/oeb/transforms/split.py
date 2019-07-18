@@ -9,7 +9,7 @@ forced at "likely" locations to conform to size limitations. This transform
 assumes a prior call to the flatcss transform.
 '''
 
-import os, math, functools, collections, re, copy
+import os, functools, collections, re, copy
 from collections import OrderedDict
 
 from lxml.etree import XPath as _XPath
@@ -390,7 +390,7 @@ class FlowSplitter(object):
                 elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') !=
                         '1']
                 if elems:
-                    i = int(math.floor(len(elems)/2.))
+                    i = int(len(elems)//2)
                     elems[i].set(SPLIT_POINT_ATTR, '1')
                     return elems[i]
 
