@@ -18,9 +18,10 @@ from lxml import etree
 from calibre import as_unicode, force_unicode
 from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
-        urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
+        urldefrag, rewrite_links, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
 from polyglot.builtins import iteritems, range, map
+from polyglot.urllib import unquote
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -179,7 +180,7 @@ class Split(object):
             nhref = anchor_map[frag if frag else None]
             nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join((urlunquote(nhref), frag))
+                nhref = '#'.join((unquote(nhref), frag))
 
             return nhref
         return url
