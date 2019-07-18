@@ -83,7 +83,7 @@ def txt2rtf(text):
     for x in text:
         val = ord(x)
         if val == 160:
-            buf.write(u'\\~')
+            buf.write(ur'\~')
         elif val <= 127:
             buf.write(unicode_type(x))
         else:
@@ -115,7 +115,7 @@ class RTFMLizer(object):
                         self.opts, self.opts.output_profile)
                 self.currently_dumping_item = item
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
-                output += '{\\page }'
+                output += r'{\page }'
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
@@ -127,7 +127,7 @@ class RTFMLizer(object):
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             self.currently_dumping_item = item
             output += self.dump_text(content.find(XHTML('body')), stylizer)
-            output += '{\\page }'
+            output += r'{\page }'
         output += self.footer()
         output = self.insert_images(output)
         output = self.clean_text(output)
@@ -259,7 +259,7 @@ class RTFMLizer(object):
                 block_start = ''
                 block_end = ''
                 if 'block' not in tag_stack:
-                    block_start = '{\\par\\pard\\hyphpar '
+                    block_start = r'{\par\pard\hyphpar '
                     block_end = '}'
                 text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
@@ -292,7 +292,7 @@ class RTFMLizer(object):
             end_tag =  tag_stack.pop()
             if end_tag != 'block':
                 if tag in BLOCK_TAGS:
-                    text += u'\\par\\pard\\plain\\hyphpar}'
+                    text += ur'\par\pard\plain\hyphpar}'
                 else:
                     text += u'}'
 
@@ -300,6 +300,6 @@ class RTFMLizer(object):
             if 'block' in tag_stack:
                 text += '%s' % txt2rtf(elem.tail)
             else:
-                text += '{\\par\\pard\\hyphpar %s}' % txt2rtf(elem.tail)
+                text += r'{\par\pard\hyphpar %s}' % txt2rtf(elem.tail)
 
         return text

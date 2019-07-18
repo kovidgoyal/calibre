@@ -17,7 +17,7 @@ htmlstrip = re.compile("<"  # open
 
 def clean_attributes(html):
     while htmlstrip.search(html):
-        html = htmlstrip.sub('<\\1\\2>', html)
+        html = htmlstrip.sub(r'<\1\2>', html)
     return html
 
 

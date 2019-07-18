@@ -155,7 +155,7 @@ class PMLMLizer(object):
 
     def get_anchor(self, page, aid):
         aid = self.get_anchor_id(page.href, aid)
-        return u'\\Q="%s"' % aid
+        return ur'\Q="%s"' % aid
 
     def remove_newlines(self, text):
         text = text.replace('\r\n', ' ')
@@ -186,10 +186,10 @@ class PMLMLizer(object):
         anchors = set(re.findall(r'(?<=\\Q=").+?(?=")', text))
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
-            text = text.replace('\\Q="%s"' % unused, '')
+            text = text.replace(r'\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(unicode_type(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), '\\g<t>\\g<a>\\g<b>\\g<t>', text)
+        text = re.sub(unicode_type(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), r'\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
@@ -259,7 +259,7 @@ class PMLMLizer(object):
                             '%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         elif tag == 'hr':
-            w = '\\w'
+            w = r'\w'
             width = elem.get('width')
             if width:
                 if not width.endswith('%'):
@@ -286,17 +286,17 @@ class PMLMLizer(object):
                     toc_title, toc_depth = self.toc[toc_page].get(toc_x, (None, 0))
                     if toc_title:
                         toc_depth = max(min(toc_depth, 4), 0)
-                        text.append('\\C%s="%s"' % (toc_depth, toc_title))
+                        text.append(r'\C%s="%s"' % (toc_depth, toc_title))
 
         # Process style information that needs holds a single tag.
         # Commented out because every page in an OEB book starts with this style.
         if style['page-break-before'] == 'always':
-            text.append('\\p')
+            text.append(r'\p')
 
         # Process basic PML tags.
         pml_tag = TAG_MAP.get(tag, None)
         if pml_tag and pml_tag not in tag_stack+tags:
-            text.append('\\%s' % pml_tag)
+            text.append(r'\%s' % pml_tag)
             tags.append(pml_tag)
 
         # Special processing of tags that require an argument.
@@ -311,7 +311,7 @@ class PMLMLizer(object):
                     if href not in self.link_hrefs.keys():
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = '#%s' % self.link_hrefs[href]
-                    text.append('\\q="%s"' % href)
+                    text.append(r'\q="%s"' % href)
                     tags.append('q')
 
         # Anchor ids
@@ -325,14 +325,14 @@ class PMLMLizer(object):
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack+tags:
-                text.append('\\%s' % style_tag)
+                text.append('r\%s' % style_tag)
                 tags.append(style_tag)
 
         # margin left
         try:
             mms = int(float(style['margin-left']) * 100 / style.height)
             if mms:
-                text.append('\\T="%s%%"' % mms)
+                text.append(r'\T="%s%%"' % mms)
         except:
             pass
 
@@ -360,7 +360,7 @@ class PMLMLizer(object):
         #    text.append('\n\n')
 
         if style['page-break-after'] == 'always':
-            text.append('\\p')
+            text.append(r'\p')
 
         # Process text after this tag but not within another.
         if hasattr(elem, 'tail') and elem.tail:
@@ -382,5 +382,5 @@ class PMLMLizer(object):
                 if tag in ('c', 'r'):
                     text.append('\n\\%s' % tag)
                 else:
-                    text.append('\\%s' % tag)
+                    text.append(r'\%s' % tag)
         return text
