@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -244,7 +245,7 @@ class CBDialog(QDialog):
         geom = gprefs.get('cover_browser_dialog_geometry', bytearray(''))
         geom = QByteArray(geom)
         if not self.restoreGeometry(geom):
-            h, w = available_height()-60, int(available_width()/1.5)
+            h, w = available_height()-60, available_width()//1.5
             self.resize(w, h)
         self.action_fs_toggle = a = QAction(self)
         self.addAction(a)
@@ -458,7 +459,7 @@ def test():
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(int(available_width()/1.5), available_height()-60)
+    cf.resize(available_width()//1.5, available_height()-60)
     w.resize(cf.size()+QSize(30, 20))
     model = DummyImageList()
     cf.setImages(model)
@@ -479,7 +480,7 @@ if __name__ == '__main__':
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    cf.resize(int(available_width()/1.5), available_height()-60)
+    cf.resize(available_width()//1.5, available_height()-60)
     w.resize(cf.size()+QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])

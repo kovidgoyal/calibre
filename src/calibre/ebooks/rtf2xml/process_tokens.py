@@ -1,4 +1,4 @@
-from __future__ import unicode_literals, absolute_import, print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -15,6 +15,8 @@ import os, re
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
 from . import open_for_read, open_for_write
 
 
@@ -693,7 +695,7 @@ class ProcessTokens:
         if num[-1] == ';':
             num = num[:-1]
             third_field = 'en'
-        num = str('%X' % int(num))
+        num = unicode_type('%X' % int(num))
         if len(num) != 2:
             num = "0" + num
         return 'cw<%s<%s<%s<%s\n' % (pre, token, third_field, num)
@@ -730,7 +732,7 @@ class ProcessTokens:
             return 0
         num = '%0.2f' % round(numerator/denominator, 2)
         return num
-        string_num = str(num)
+        string_num = unicode_type(num)
         if string_num[-2:] == ".0":
             string_num = string_num[:-2]
         return string_num

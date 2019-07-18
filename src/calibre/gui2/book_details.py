@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import re
@@ -59,7 +60,7 @@ def css():
         val = P('templates/book_details.css', data=True).decode('utf-8')
         col = QApplication.instance().palette().color(QPalette.Link).name()
         val = val.replace('LINK_COLOR', col)
-        _css = re.sub(unicode_type(r'/\*.*?\*/'), u'', val, flags=re.DOTALL)
+        _css = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
     return _css
 
 
@@ -127,7 +128,7 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
 
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
-    templ = u'''\
+    templ = '''\
     <html>
         <head>
         <style type="text/css">
@@ -147,20 +148,20 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         </body>
     <html>
     '''%(f, fam, c, css)
-    comments = u''
+    comments = ''
     if comment_fields:
         comments = '\n'.join(u'<div>%s</div>' % x for x in comment_fields)
-    right_pane = u'<div id="comments" class="comments">%s</div>'%comments
+    right_pane = '<div id="comments" class="comments">%s</div>'%comments
 
     if vertical:
         ans = templ%(table+right_pane)
     else:
         if gprefs['book_details_narrow_comments_layout'] == 'columns':
-            ans = templ%(u'<table><tr><td valign="top" '
+            ans = templ%('<table><tr><td valign="top" '
                 'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
                     % (table, right_pane))
         else:
-            ans = templ%(u'<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
+            ans = templ%('<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
                     table, right_pane))
     return ans
 
@@ -266,7 +267,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
         else:
             el = r.linkElement()
             data = el.attribute('data-item')
-            author = el.toPlainText() if unicode_type(el.attribute('calibre-data')) == u'authors' else None
+            author = el.toPlainText() if unicode_type(el.attribute('calibre-data')) == 'authors' else None
             if url and not url.startswith('search:'):
                 for a, t in [('copy', _('&Copy link')),
                 ]:
@@ -382,12 +383,12 @@ class CoverView(QWidget):  # {{{
         extrax = canvas_size.width() - width
         if extrax < 0:
             extrax = 0
-        x = int(extrax/2.)
+        x = int(extrax//2)
         height = self.current_pixmap_size.height()
         extray = canvas_size.height() - height
         if extray < 0:
             extray = 0
-        y = int(extray/2.)
+        y = int(extray//2)
         target = QRect(x, y, width, height)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -403,7 +404,7 @@ class CoverView(QWidget):  # {{{
             f = p.font()
             f.setBold(True)
             p.setFont(f)
-            sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
+            sz = '\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
             flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
@@ -710,7 +711,7 @@ class DetailsLayout(QLayout):  # {{{
     def cover_height(self, r):
         if not self._children[0].widget().isVisible():
             return 0
-        mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
+        mh = min(int(r.height()//2), int(4/3 * r.width())+1)
         try:
             ph = self._children[0].widget().pixmap.height()
         except:
@@ -722,7 +723,7 @@ class DetailsLayout(QLayout):  # {{{
     def cover_width(self, r):
         if not self._children[0].widget().isVisible():
             return 0
-        mw = 1 + int(3/4. * r.height())
+        mw = 1 + int(3/4 * r.height())
         try:
             pw = self._children[0].widget().pixmap.width()
         except:
@@ -894,7 +895,7 @@ class BookDetails(QWidget):  # {{{
             self.last_data = {}
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
-        self.current_path = getattr(data, u'path', u'')
+        self.current_path = getattr(data, 'path', '')
         self.update_layout()
 
     def update_layout(self):

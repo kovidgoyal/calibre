@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -26,7 +26,7 @@ def XPath(x):
 
 
 def isspace(x):
-    return not x or x.replace(u'\xa0', u'').isspace()
+    return not x or x.replace('\xa0', '').isspace()
 
 
 def at_start(elem):
@@ -124,11 +124,11 @@ class DetectStructure(object):
                 elem = matches[0]
                 eid = elem.get('id', None)
                 if not eid:
-                    eid = u'start_reading_at_'+unicode_type(uuid.uuid4()).replace(u'-', u'')
+                    eid = 'start_reading_at_'+unicode_type(uuid.uuid4()).replace('-', '')
                     elem.set('id', eid)
-                if u'text' in self.oeb.guide:
-                    self.oeb.guide.remove(u'text')
-                self.oeb.guide.add(u'text', u'Start', item.href+u'#'+eid)
+                if 'text' in self.oeb.guide:
+                    self.oeb.guide.remove('text')
+                self.oeb.guide.add('text', 'Start', item.href+'#'+eid)
                 self.log('Setting start reading at position to %s in %s'%(
                     self.opts.start_reading_at, item.href))
                 return

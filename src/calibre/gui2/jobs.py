@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -73,7 +75,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
-        self.server        = Server(limit=int(config['worker_limit']/2.0),
+        self.server        = Server(limit=config['worker_limit']//2,
                                 enforce_cpu_limit=config['enforce_cpu_limit'])
         self.threaded_server = ThreadedJobServer()
         self.changed_queue = Queue()
@@ -149,7 +151,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                         return None
                     return human_readable_interval(rtime)
                 if col == 4 and job.start_time is not None:
-                    return (strftime(u'%H:%M -- %d %b', time.localtime(job.start_time)))
+                    return (strftime('%H:%M -- %d %b', time.localtime(job.start_time)))
             if role == Qt.DecorationRole and col == 0:
                 state = job.run_state
                 if state == job.WAITING:
@@ -325,7 +327,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         jobs = [j for j in jobs if j.duration is None]
         unkillable = [j for j in jobs if not getattr(j, 'killable', True)]
         if unkillable:
-            names = u'\n'.join(as_unicode(j.description) for j in unkillable)
+            names = '\n'.join(as_unicode(j.description) for j in unkillable)
             error_dialog(view, _('Cannot kill job'),
                     _('Some of the jobs cannot be stopped. Click Show details'
                         ' to see the list of unstoppable jobs.'), det_msg=names,
@@ -513,7 +515,7 @@ class JobsButton(QWidget):  # {{{
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
         b = _('Click to see list of jobs')
-        self.setToolTip(b + u' [%s]'%self.shortcut)
+        self.setToolTip(b + ' [%s]'%self.shortcut)
         self.action_toggle = QAction(b, parent)
         parent.addAction(self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
@@ -576,7 +578,7 @@ class JobsButton(QWidget):  # {{{
         jobs = self._jobs
         src = unicode_type(jobs.text())
         num = self.jobs()
-        text = src.replace(str(num), str(nnum))
+        text = src.replace(unicode_type(num), unicode_type(nnum))
         jobs.setText(text)
         self.start()
         self.tray_tooltip_updated.emit(self.tray_tooltip(nnum))
@@ -585,7 +587,7 @@ class JobsButton(QWidget):  # {{{
         jobs = self._jobs
         src = unicode_type(jobs.text())
         num = self.jobs()
-        text = src.replace(str(num), str(nnum))
+        text = src.replace(unicode_type(num), unicode_type(nnum))
         jobs.setText(text)
         if nnum == 0:
             self.no_more_jobs()

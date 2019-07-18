@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -103,7 +104,7 @@ class PMLMLizer(object):
     def pmlmlize_spine(self):
         self.image_hrefs = {}
         self.link_hrefs = {}
-        output = [u'']
+        output = ['']
         output.append(self.get_cover_page())
         output.append(self.get_text())
         output = ''.join(output)
@@ -114,7 +115,7 @@ class PMLMLizer(object):
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
 
-        output = u''
+        output = ''
         if 'cover' in self.oeb_book.guide:
             output += '\\m="cover.png"\n'
             self.image_hrefs[self.oeb_book.guide['cover'].href] = 'cover.png'
@@ -132,7 +133,7 @@ class PMLMLizer(object):
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
 
-        text = [u'']
+        text = ['']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
             content = etree.tostring(item.data, encoding='unicode')
@@ -155,7 +156,7 @@ class PMLMLizer(object):
 
     def get_anchor(self, page, aid):
         aid = self.get_anchor_id(page.href, aid)
-        return ur'\Q="%s"' % aid
+        return r'\Q="%s"' % aid
 
     def remove_newlines(self, text):
         text = text.replace('\r\n', ' ')
@@ -192,8 +193,8 @@ class PMLMLizer(object):
         text = re.sub(unicode_type(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), r'\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
-        text = text.replace(u'\xc2', '')
-        text = text.replace(u'\xa0', ' ')
+        text = text.replace('\xc2', '')
+        text = text.replace('\xa0', ' ')
 
         # Turn all characters that cannot be represented by themself into their
         # PML code equivelent

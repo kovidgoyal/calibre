@@ -1,4 +1,4 @@
-from __future__ import unicode_literals, absolute_import, print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -12,8 +12,11 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
 from . import open_for_read, open_for_write
 
 
@@ -621,7 +624,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             num = len(self.__style_num_strings)
             new_style = 1
         num = '%04d' % num
-        self.__att_val_dict['style-num'] = 's' + str(num)
+        self.__att_val_dict['style-num'] = 's' + unicode_type(num)
         if new_style:
             self.__write_body_styles()
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -188,7 +187,7 @@ class Series(unicode_type):
             combined = roman = escape(series or u'')
         s = unicode_type.__new__(self, combined)
         s.roman = roman
-        s.name = escape(series or u'')
+        s.name = escape(series or '')
         s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
         s.roman_number = escape(fmt_sidx(series_index or 1.0, use_roman=True))
         return s
@@ -260,7 +259,7 @@ def render_jacket(mi, output_profile,
             pubdate = ''
         else:
             dt = as_local_time(mi.pubdate)
-            pubdate = strftime(u'%Y', dt.timetuple())
+            pubdate = strftime('%Y', dt.timetuple())
     except:
         pubdate = ''
 

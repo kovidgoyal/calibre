@@ -1,7 +1,7 @@
 '''
 CSS flattening transform.
 '''
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -122,9 +122,9 @@ class EmbedFontsCSSRules(object):
         if not self.body_font_family:
             return None
         if not self.href:
-            iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
+            iid, href = oeb.manifest.generate('page_styles', 'page_styles.css')
             rules = [css_text(x) for x in self.rules]
-            rules = u'\n\n'.join(rules)
+            rules = '\n\n'.join(rules)
             sheet = css_parser.parseString(rules, validate=False)
             self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
                     data=sheet).href
@@ -228,13 +228,13 @@ class CSSFlattener(object):
         try:
             faces = font_scanner.fonts_for_family(family)
         except NoFonts:
-            msg = (u'No embeddable fonts found for family: %r'%family)
+            msg = ('No embeddable fonts found for family: %r'%family)
             if failure_critical:
                 raise ValueError(msg)
             self.oeb.log.warn(msg)
             return body_font_family, efi
         if not faces:
-            msg = (u'No embeddable fonts found for family: %r'%family)
+            msg = ('No embeddable fonts found for family: %r'%family)
             if failure_critical:
                 raise ValueError(msg)
             self.oeb.log.warn(msg)
@@ -243,26 +243,26 @@ class CSSFlattener(object):
         for i, font in enumerate(faces):
             ext = 'otf' if font['is_otf'] else 'ttf'
             fid, href = self.oeb.manifest.generate(id=u'font',
-                href=u'fonts/%s.%s'%(ascii_filename(font['full_name']).replace(u' ', u'-'), ext))
+                href='fonts/%s.%s'%(ascii_filename(font['full_name']).replace(' ', '-'), ext))
             item = self.oeb.manifest.add(fid, href,
                     guess_type('dummy.'+ext)[0],
                     data=font_scanner.get_font_data(font))
             item.unload_data_from_memory()
 
             cfont = {
-                    u'font-family':u'"%s"'%font['font-family'],
-                    u'panose-1': u' '.join(map(unicode_type, font['panose'])),
-                    u'src': u'url(%s)'%item.href,
+                    'font-family': '"%s"'%font['font-family'],
+                    'panose-1': ' '.join(map(unicode_type, font['panose'])),
+                    'src': 'url(%s)'%item.href,
             }
 
             if i == 0:
                 generic_family = panose_to_css_generic_family(font['panose'])
-                body_font_family = u"'%s',%s"%(font['font-family'], generic_family)
-                self.oeb.log(u'Embedding font: %s'%font['font-family'])
-            for k in (u'font-weight', u'font-style', u'font-stretch'):
-                if font[k] != u'normal':
+                body_font_family = "'%s',%s"%(font['font-family'], generic_family)
+                self.oeb.log('Embedding font: %s'%font['font-family'])
+            for k in ('font-weight', 'font-style', 'font-stretch'):
+                if font[k] != 'normal':
                     cfont[k] = font[k]
-            rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
+            rule = '@font-face { %s }'%('; '.join('%s:%s'%(k, v) for k, v in
                 iteritems(cfont)))
             rule = css_parser.parseString(rule)
             efi.append(rule)
@@ -295,7 +295,7 @@ class CSSFlattener(object):
             if self.context.change_justification != 'original':
                 bs.append('text-align: '+ self.context.change_justification)
             if self.body_font_family:
-                bs.append(u'font-family: '+self.body_font_family)
+                bs.append('font-family: '+self.body_font_family)
             body.set('style', '; '.join(bs))
             stylizer = Stylizer(html, item.href, self.oeb, self.context, profile,
                     user_css=self.context.extra_css,
@@ -458,7 +458,7 @@ class CSSFlattener(object):
             dyn_rescale = node.attrib.pop('data-calibre-rescale', None)
             if dyn_rescale is not None:
                 try:
-                    dyn_rescale = float(dyn_rescale) / 100.0
+                    dyn_rescale = float(dyn_rescale) / 100
                 except Exception:
                     dyn_rescale = 1
                 fsize = self.fmap[_sbase]
@@ -476,7 +476,7 @@ class CSSFlattener(object):
         try:
             minlh = self.context.minimum_line_height / 100.
             if not is_drop_cap and style['line-height'] < minlh * fsize:
-                cssdict['line-height'] = str(minlh)
+                cssdict['line-height'] = unicode_type(minlh)
         except:
             self.oeb.logger.exception('Failed to set minimum line-height')
 
@@ -528,7 +528,7 @@ class CSSFlattener(object):
 
             if cssdict:
                 items = sorted(iteritems(cssdict))
-                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                css = ';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 classes_list = classes.split()
                 # lower() because otherwise if the document uses the same class
@@ -538,7 +538,7 @@ class CSSFlattener(object):
                 if css in styles:
                     match = styles[css]
                 else:
-                    match = klass + str(names[klass] or '')
+                    match = klass + unicode_type(names[klass] or '')
                     styles[css] = match
                     names[klass] += 1
                 node.attrib['class'] = match
@@ -546,7 +546,7 @@ class CSSFlattener(object):
 
             for psel, cssdict in iteritems(pseudo_classes):
                 items = sorted(iteritems(cssdict))
-                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                css = ';\n'.join('%s: %s' % (key, val) for key, val in items)
                 pstyles = pseudo_styles[psel]
                 if css in pstyles:
                     match = pstyles[css]
@@ -558,7 +558,7 @@ class CSSFlattener(object):
                     # then the class attribute for a.x tags will contain both
                     # that class and the class for a.x:hover, which is wrong.
                     klass = 'pcalibre'
-                    match = klass + str(names[klass] or '')
+                    match = klass + unicode_type(names[klass] or '')
                     pstyles[css] = match
                     names[klass] += 1
                 keep_classes.add(match)

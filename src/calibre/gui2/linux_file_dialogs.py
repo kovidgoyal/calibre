@@ -136,7 +136,7 @@ def kde_cmd(window, title, *rest):
         ans += ['--desktopfile', 'calibre-gui']
     winid = get_winid(window)
     if winid is not None:
-        ans += ['--attach', str(int(winid))]
+        ans += ['--attach', unicode_type(int(winid))]
     return ans + list(rest)
 
 
@@ -174,7 +174,7 @@ def kdialog_choose_files(
     filters=[],
     all_files=True,
     select_only_single_file=False,
-    default_dir=u'~'):
+    default_dir='~'):
     initial_dir = get_initial_dir(name, title, default_dir, False)
     args = []
     if not select_only_single_file:
@@ -251,7 +251,7 @@ def zenity_choose_files(
     filters=[],
     all_files=True,
     select_only_single_file=False,
-    default_dir=u'~'):
+    default_dir='~'):
     initial_dir = get_initial_dir(name, title, default_dir, False)
     args = ['--filename=' + os.path.join(initial_dir, '.fgdfg.gdfhjdhf*&^839')]
     args += zenity_filters(filters, all_files)

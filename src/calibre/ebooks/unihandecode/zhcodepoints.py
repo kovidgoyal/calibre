@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010 Hiroshi Miura <miurahr@linux.com>'
@@ -9,7 +10,7 @@ Unicode code point dictionary.
 Based on Unicode.org Unihan database.
 '''
 
-CODEPOINTS = { 
+CODEPOINTS = {
     'x34':[
         'Qiu ','Tian ','','','Kua ','Wu ','Yin ','','','','','','Si ','','','',
         '','','','','','','Ye ','','','','','','Chou ','','','',
