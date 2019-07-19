@@ -20,6 +20,27 @@
 #   new recipes:
 #     - title:
 
+- version: 3.46.0
+  date: 2019-07-19
+
+  bug fixes:
+    - title: "Manage tags dialog: When searching for a tag also search the \"Was\" column to see if the original tag name matches."
+      tickets: [1836813]
+
+    - title: "Windows: Fix calibre-server --manage-users not working correctly"
+
+    - title: "MOBI Input: Fix conversion of MOBI files with malformed markup and embedded <guide> tags not working."
+      tickets: [1836548]
+
+    - title: "Edit book: Allow the search expression history to remember very short terms and also preserve leading and trailing whitespace."
+      tickets: [1836559]
+
+    - title: "Fix a regression in 3.45 that broke conversion of SVG images when converting to formats such as MOBI that do not support SVG."
+      tickets: [1836463]
+
+    - title: "Fix a regression in 3.45 that broke parsing of old-style .py config files"
+
+
 - version: 3.45.2
   date: 2019-07-12
 
