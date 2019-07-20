@@ -5,16 +5,23 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from base64 import standard_b64encode
 
 from mechanize import Request
 
 from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
+
+try:
+    import urllib.parse as urlparse
+except ImportError:
+    import urlparse
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 
 needs_subscription = False
 
@@ -40,7 +47,7 @@ class WSJ(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'data-scrim']
     needs_subscription = needs_subscription
-    WSJ_ITP = 'https://online.wsj.com/itp/today'
+    WSJ_ITP = 'https://www.wsj.com/print-edition/today'
 
     keep_only_tags = [
         dict(classes('wsj-article-headline-wrap article_header bigTop__hed bigTop__dek bigTop__captioncredit')),
@@ -87,51 +94,56 @@ class WSJ(BasicNewsRecipe):
     # login {{{
     if needs_subscription:
         def get_browser(self, *a, **kw):
-            # To understand the signin logic read signin.js from
-            # https://id.wsj.com/access/pages/wsj/us/signin.html
-            # This is the same login servie as used by Barrons
+            # To understand the login logic read app-min.js from
+            # https://sso.accounts.dowjones.com/login
+            itp = quote(self.WSJ_ITP, safe='')
+            start_url = 'https://accounts.wsj.com/login?target=' + itp
             kw['user_agent'] = random_user_agent(allow_ie=False)
             br = BasicNewsRecipe.get_browser(self, *a, **kw)
-            # self.wsj_itp_page = open('/t/raw.html').read()
-            # return br
-            url = 'https://id.wsj.com/access/pages/wsj/us/signin.html?mg=com-wsj&mg=id-wsj'
-            # br.set_debug_http(True)
-            br.open(url).read()
-            rurl = 'https://id.wsj.com/auth/submitlogin.json'
-            rq = Request(rurl, headers={
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Accept-Language': 'en-US,en;q=0.8',
-                'Content-Type': 'application/json',
-                'Referer': url,
-                'X-HTTP-Method-Override': 'POST',
-                'X-Requested-With': 'XMLHttpRequest',
-            }, data=json.dumps({
+            self.log('Starting login process...')
+            res = br.open(start_url)
+            sso_url = res.geturl()
+            query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
+            query = {k:v[0] for k, v in query.items()}
+            request_query = {
                 'username': self.username,
                 'password': self.password,
-                'realm': 'default',
-                'savelogin': 'true',
-                'template': 'default',
-                'url': quote(self.WSJ_ITP),
-            }))
-            r = br.open(rq)
-            if r.code != 200:
-                raise ValueError('Failed to login, check username and password')
-            data = json.loads(r.read())
-            # print(data)
-            if data.get('result') != 'success':
-                raise ValueError(
-                    'Failed to login (XHR failed), check username and password')
-            br.set_cookie('m', data['username'], '.wsj.com')
-            try:
-                r = br.open(data['url'])
-            except Exception:
-                self.log.error('Failed to open login url: {}'.format(data['url']))
-                raise
-            self.wsj_itp_page = raw = r.read()
+                'client_id': query['client'],
+                'sso': 'true',
+                'tenant': 'sso',
+                '_intstate': 'deprecated',
+            }
+            for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
+                request_query[k] = query[k]
+            login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
+            # you can get the version below from lib-min.js
+            # search for: str: "x.x.x"
+            # This might need to be updated in the future
+            auth0_client = json.dumps({"name": "auth0.js", "version": "7.0.3"})
+            if not isinstance(auth0_client, bytes):
+                auth0_client = auth0_client.encode('utf-8')
+            auth0_client = standard_b64encode(auth0_client)
+            if isinstance(auth0_client, bytes):
+                auth0_client = auth0_client.decode('ascii')
+            rq = Request(login_url, headers={
+                'Accept': 'text/html',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Auth0-Client': auth0_client.rstrip('='),
+                'X-HTTP-Method-Override': 'POST',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-Remote-User': self.username
+            }, data=request_query)
+            self.log('Sending login request...')
+            res = br.open(rq)
+            if res.code != 200:
+                raise ValueError('Failed to login, check your username and password')
+            br.select_form(nr=0)
+            self.log('Performing login callback...')
+            res = br.submit()
+            self.wsj_itp_page = raw = res.read()
             if b'>Sign Out<' not in raw:
                 raise ValueError(
-                    'Failed to login (auth URL failed), check username and password')
-            # open('/t/raw.html', 'w').write(raw)
+                    'Failed to login (callback URL failed), check username and password')
             return br
     else:
         def get_browser(self, *a, **kw):
