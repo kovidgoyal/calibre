@@ -520,12 +520,53 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
 
 class Range(object):
 
-    __slots__ = ('first', 'last', 'width')
+    __slots__ = ('first', 'last', 'widths', 'sort_order')
 
-    def __init__(self, first, last, width):
-        self.first, self.last, self.width = first, last, width
+    def __init__(self, first, last, widths):
+        self.first, self.last, self.widths = first, last, widths
         # Sort by first with larger ranges coming before smaller ones
         self.sort_order = self.first, -self.last
+
+    def __repr__(self):
+        return '({}, {}, {})'.format(self.first, self.last, self.widths)
+
+    def merge(self, r):
+        if r.last <= self.last:
+            return  # is a subset
+        if r.first > self.last:
+            if r.first == self.last + 1 and self.has_single_width == r.has_single_width:
+                if self.has_single_width:
+                    if r.widths[0] == self.widths[0]:
+                        self.last = r.last
+                        return
+                else:
+                    self.last = r.last
+                    delta = self.last - self.first + 1 - len(self.widths)
+                    self.widths.extend(r.widths[-delta:])
+                    return
+            return r
+        if self.has_single_width != r.has_single_width:
+            # make r disjoint
+            delta = self.last + 1 - r.first
+            r.first = self.last + 1
+            if len(r.widths) > 1:
+                del r.widths[:delta]
+            return r if r.widths else None
+        # subsume r into self
+        self.last = r.last
+        if not self.has_single_width:
+            delta = self.last - self.first + 1 - len(self.widths)
+            self.widths.extend(r.widths[-delta:])
+
+    @property
+    def as_item(self):
+        if self.has_single_width:
+            return self.first, self.last, self.widths[0]
+        return self.first, self.widths
+
+    @property
+    def has_single_width(self):
+        return len(self.widths) == 1
 
 
 def merge_w_arrays(arrays):
@@ -536,10 +577,10 @@ def merge_w_arrays(arrays):
             elem = w[i]
             next_elem = w[i+1]
             if isinstance(next_elem, list):
-                ranges.extend(Range(elem + c, elem + c, w) for c, w in enumerate(next_elem))
+                ranges.append(Range(elem, elem + len(next_elem) - 1, next_elem))
                 i += 2
             elif i + 2 < len(w):
-                ranges.append(Range(elem, next_elem, w[i+2]))
+                ranges.append(Range(elem, next_elem, [w[i+2]]))
                 i += 3
             else:
                 break
@@ -552,7 +593,10 @@ def merge_w_arrays(arrays):
             merged_ranges.append(left_over)
     if not merged_ranges:
         return []
-    # combine consecutive single value ranges
+    ans = []
+    for r in merged_ranges:
+        ans.extend(r.as_item)
+    return ans
 
 
 def merge_font(fonts):
