@@ -77,6 +77,10 @@ class DefaultAuthorLink(QWidget):  # {{{
             c.addItem(text, data)
         l.addRow(_('Clicking on &author names should:'), c)
         self.custom_url = u = QLineEdit(self)
+        u.setToolTip(_(
+            'Enter the URL to search. It should contain the string {0}'
+            '\nwhich will be replaced by the author name. For example,'
+            '\n{1}').format('{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
         u.textChanged.connect(self.changed_signal)
         u.setPlaceholderText(_('Enter the URL'))
         c.currentIndexChanged.connect(self.current_changed)
