@@ -70,8 +70,10 @@ class CompositeGlyph(SimpleGlyph):
 
 class GlyfTable(UnknownTable):
 
-    def glyph_data(self, offset, length):
+    def glyph_data(self, offset, length, as_raw=False):
         raw = self.raw[offset:offset+length]
+        if as_raw:
+            return raw
         num_of_countours = unpack_from(b'>h', raw)[0] if raw else 0
         if num_of_countours >= 0:
             return SimpleGlyph(num_of_countours, raw)

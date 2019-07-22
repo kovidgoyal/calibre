@@ -738,6 +738,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"remove_fonts", (PyCFunction)remove_fonts, METH_VARARGS,
      "remove_fonts() -> Remove the specified font objects."
     },
+    {"merge_fonts", (PyCFunction)merge_fonts, METH_VARARGS,
+     "merge_fonts() -> Merge the specified fonts."
+    },
     {"delete_pages", (PyCFunction)PDFDoc_delete_pages, METH_VARARGS,
      "delete_page(page_num, count=1) -> Delete the specified pages from the pdf."
     },

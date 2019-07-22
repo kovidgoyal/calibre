@@ -32,6 +32,7 @@ from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
+from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import (
     get_podofo, remove_unused_fonts, set_metadata_implementation
@@ -600,17 +601,19 @@ def merge_w_arrays(arrays):
 
 
 def merge_font(fonts):
-    # TODO: Check if the ToUnicode entry in the Type) dict needs to be merged
+    # TODO: Check if the ToUnicode entry in the Type0 dict needs to be merged
 
     # choose the largest font as the base font
     fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
     base_font = fonts[0]
     t0_font = next(f for f in fonts if f['DescendantFont'] == base_font['Reference'])
-    descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0' and f is not base_font]
+    descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0']
     for key in ('W', 'W2'):
-        arrays = tuple(filter(True, (f[key] for f in descendant_fonts)))
+        arrays = tuple(filter(None, (f[key] for f in descendant_fonts)))
         base_font[key] = merge_w_arrays(arrays)
-    t0_font
+    base_font['sfnt'] = merge_truetype_fonts_for_pdf(*(f['sfnt'] for f in descendant_fonts))
+    references_to_drop = tuple(f['Reference'] for f in fonts if f is not base_font and f is not t0_font)
+    return t0_font, base_font, references_to_drop
 
 
 def merge_fonts(pdf_doc):
@@ -639,9 +642,16 @@ def merge_fonts(pdf_doc):
 
     for f in all_fonts:
         base_font_map.setdefault(f['BaseFont'], []).append(f)
+    replacements = {}
+    items = []
     for name, fonts in iteritems(base_font_map):
         if mergeable(fonts):
-            merge_font(fonts)
+            t0_font, base_font, references_to_drop = merge_font(fonts)
+            for ref in references_to_drop:
+                replacements[ref] = t0_font['Reference']
+            data = base_font['sfnt']()[0]
+            items.append((base_font['Reference'], base_font['W'] or [], base_font['W2'] or [], data))
+    pdf_doc.merge_fonts(tuple(items), replacements)
 
 
 def test_merge_fonts():

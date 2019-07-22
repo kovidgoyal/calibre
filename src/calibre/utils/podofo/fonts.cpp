@@ -8,6 +8,7 @@
 #include "global.h"
 #include <iostream>
 #include <stack>
+#include <unordered_map>
 
 using namespace pdf;
 
@@ -17,7 +18,7 @@ ref_as_tuple(const PdfReference &ref) {
     return Py_BuildValue("kk", num, generation);
 }
 
-static inline const PdfObject*
+static inline PdfObject*
 get_font_file(const PdfObject *descriptor) {
     PdfObject *ff = descriptor->GetIndirectKey("FontFile");
     if (!ff) ff = descriptor->GetIndirectKey("FontFile2");
@@ -25,7 +26,7 @@ get_font_file(const PdfObject *descriptor) {
     return ff;
 }
 
-static void
+static inline void
 remove_font(PdfVecObjects &objects, PdfObject *font) {
     PdfObject *descriptor = font->GetIndirectKey("FontDescriptor");
     if (descriptor) {
@@ -34,6 +35,40 @@ remove_font(PdfVecObjects &objects, PdfObject *font) {
         delete objects.RemoveObject(descriptor->Reference());
     }
     delete objects.RemoveObject(font->Reference());
+}
+
+static inline uint64_t
+ref_as_integer(pdf_objnum num, pdf_gennum gen) {
+    return static_cast<uint64_t>(num) | (static_cast<uint64_t>(gen) << 32);
+}
+
+static inline uint64_t
+ref_as_integer(const PdfReference &ref) { return ref_as_integer(ref.ObjectNumber(), ref.GenerationNumber()); }
+
+
+static inline void
+replace_font_references(PDFDoc *self, std::unordered_map<uint64_t, uint64_t> &ref_map) {
+    int num_pages = self->doc->GetPageCount();
+    for (int i = 0; i < num_pages; i++) {
+        PdfPage *page = self->doc->GetPage(i);
+        PdfDictionary &resources = page->GetResources()->GetDictionary();
+        PdfObject* f = resources.GetKey("Font");
+        if (f && f->IsDictionary()) {
+            const PdfDictionary &font = f->GetDictionary();
+            PdfDictionary new_font = PdfDictionary(font);
+            for (auto &k : font.GetKeys()) {
+                if (k.second->IsReference()) {
+                    uint64_t key = ref_as_integer(k.second->GetReference()), r;
+                    try {
+                        r = ref_map.at(key);
+                    } catch (const std::out_of_range &err) { continue; }
+                    PdfReference new_ref(static_cast<uint32_t>(r & 0xffffffff), r >> 32);
+                    new_font.AddKey(k.first.GetName(), new_ref);
+                }
+            }
+            resources.AddKey("Font", new_font);
+        }
+    }
 }
 
 static bool
@@ -89,6 +124,34 @@ convert_w_array(const PdfArray &w) {
         if (PyList_Append(ans.get(), item.get()) != 0) return NULL;
     }
     return ans.release();
+}
+
+#if PY_MAJOR_VERSION > 2
+#define py_as_long_long PyLong_AsLongLong
+#else
+static inline long long
+py_as_long_long(const PyObject *x) {
+    if (PyInt_Check(x)) return PyInt_AS_LONG(x);
+    return PyLong_AsLongLong(x);
+}
+#endif
+
+static void
+convert_w_array(PyObject *src, PdfArray &dest) {
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(src); i++) {
+        PyObject *item = PyList_GET_ITEM(src, i);
+        if (PyFloat_Check(item)) {
+            dest.push_back(PdfObject(PyFloat_AS_DOUBLE(item)));
+        } else if (PyList_Check(item)) {
+            PdfArray sub;
+            convert_w_array(item, sub);
+            dest.push_back(sub);
+        } else {
+            pdf_int64 val = py_as_long_long(item);
+            if (val == -1 && PyErr_Occurred()) { PyErr_Print(); continue; }
+            dest.push_back(PdfObject(val));
+        }
+    }
 }
 
 extern "C" {
@@ -190,6 +253,59 @@ remove_fonts(PDFDoc *self, PyObject *args) {
         PdfObject *font = objects.GetObject(ref);
         if (font) {
             remove_font(objects, font);
+        }
+    }
+    Py_RETURN_NONE;
+}
+
+PyObject*
+merge_fonts(PDFDoc *self, PyObject *args) {
+    PyObject *items, *replacements;
+    if (!PyArg_ParseTuple(args, "O!O!", &PyTuple_Type, &items, &PyDict_Type, &replacements)) return NULL;
+    std::unordered_map<uint64_t, uint64_t> ref_map;
+    PdfVecObjects &objects = self->doc->GetObjects();
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    size_t c = 0;
+    while (PyDict_Next(replacements, &pos, &key, &value)) {
+        c++;
+        unsigned long num, gen;
+        if (!PyArg_ParseTuple(key, "kk", &num, &gen)) return NULL;
+        uint64_t k = ref_as_integer(num, gen);
+        PdfReference ref(num, gen);
+        PdfObject *font = objects.GetObject(ref);
+        if (font) remove_font(objects, font);
+        if (!PyArg_ParseTuple(value, "kk", &num, &gen)) return NULL;
+        uint64_t v = ref_as_integer(num, gen);
+        ref_map[k] = v;
+    }
+    if (c > 0) replace_font_references(self, ref_map);
+
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(items); i++) {
+        long num, gen;
+        PyObject *W, *W2;
+        const char *data;
+        Py_ssize_t sz;
+        if (!PyArg_ParseTuple(PyTuple_GET_ITEM(items, i), "(ll)O!O!s#", &num, &gen, &PyList_Type, &W, &PyList_Type, &W2, &data, &sz)) return NULL;
+        PdfReference ref(num, gen);
+        PdfObject *font = objects.GetObject(ref);
+        if (font) {
+            if (PyObject_IsTrue(W)) {
+                PdfArray w;
+                convert_w_array(W, w);
+                font->GetDictionary().AddKey("W", w);
+            }
+            if (PyObject_IsTrue(W2)) {
+                PdfArray w;
+                convert_w_array(W2, w);
+                font->GetDictionary().AddKey("W2", w);
+            }
+            const PdfObject *descriptor = font->GetIndirectKey("FontDescriptor");
+            if (descriptor) {
+                PdfObject *ff = get_font_file(descriptor);
+                PdfStream *stream = ff->GetStream();
+                stream->Set(data, sz);
+            }
         }
     }
     Py_RETURN_NONE;

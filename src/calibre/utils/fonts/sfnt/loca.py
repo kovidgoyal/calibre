@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from struct import calcsize, unpack_from, pack
 from operator import itemgetter
+from itertools import repeat
 
 from calibre.utils.fonts.sfnt import UnknownTable
 from polyglot.builtins import iteritems, range
@@ -32,12 +33,13 @@ class LocaTable(UnknownTable):
         next_offset = self.offset_map[glyph_id+1]
         return offset, next_offset - offset
 
-    def subset(self, resolved_glyph_map):
+    def update(self, resolved_glyph_map):
         '''
         Update this table to contain pointers only to the glyphs in
         resolved_glyph_map which must be a map of glyph_ids to (offset, sz)
         '''
-        self.offset_map = [0 for i in self.offset_map]
+        max_glyph_id = max(resolved_glyph_map or (0,))
+        self.offset_map = list(repeat(0, max_glyph_id + 2))
         glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in
                     iteritems(resolved_glyph_map)]
         glyphs.sort(key=itemgetter(1))
@@ -55,6 +57,7 @@ class LocaTable(UnknownTable):
             vals = [i//2 for i in self.offset_map]
 
         self.raw = pack(('>%d%s'%(len(vals), self.fmt)).encode('ascii'), *vals)
+    subset = update
 
     def dump_glyphs(self, sfnt):
         if not hasattr(self, 'offset_map'):

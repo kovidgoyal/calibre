@@ -88,5 +88,6 @@ extern "C" {
 PyObject* list_fonts(PDFDoc*, PyObject*);
 PyObject* used_fonts_in_page_range(PDFDoc *self, PyObject *args);
 PyObject* remove_fonts(PDFDoc *self, PyObject *args);
+PyObject* merge_fonts(PDFDoc *self, PyObject *args);
 }
 }
