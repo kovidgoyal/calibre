@@ -8,11 +8,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import copy
 import json
 import os
+import re
 import signal
 import sys
 from collections import namedtuple
 from io import BytesIO
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 
 from PyQt5.Qt import (
     QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
@@ -38,7 +39,7 @@ from calibre.utils.podofo import (
     get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import filter, iteritems, map, range, unicode_type
+from polyglot.builtins import as_bytes, filter, iteritems, map, range, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -600,14 +601,126 @@ def merge_w_arrays(arrays):
     return ans
 
 
-def merge_font(fonts):
-    # TODO: Check if the ToUnicode entry in the Type0 dict needs to be merged
+class CMap(object):
 
+    def __init__(self):
+        self.start_codespace = sys.maxsize
+        self.end_codespace = 0
+        self.ranges = set()
+        self.chars = set()
+        self.header = self.footer = None
+
+    def add_codespace(self, start, end):
+        self.start_codespace = min(self.start_codespace, start)
+        self.end_codespace = max(self.end_codespace, end)
+
+    def serialize(self):
+        chars = sorted(self.chars, key=itemgetter(0))
+
+        def ashex(x):
+            ans = '{:04X}'.format(x)
+            leftover = len(ans) % 4
+            if leftover:
+                ans = ('0' * (4 - leftover)) + ans
+            return ans
+
+        lines = ['1 begincodespacerange', '<{}> <{}>'.format(*map(ashex, (self.start_codespace, self.end_codespace))), 'endcodespacerange']
+        while chars:
+            group, chars = chars[:100], chars[100:]
+            del chars[:100]
+            lines.append('{} beginbfchar'.format(len(group)))
+            for g in group:
+                lines.append('<{}> <{}>'.format(*map(ashex, g)))
+            lines.append('endbfchar')
+
+        ranges = sorted(self.ranges, key=itemgetter(0))
+        while ranges:
+            group, ranges = ranges[:100], ranges[100:]
+            lines.append('{} beginbfrange'.format(len(group)))
+            for g in group:
+                lines.append('<{}> <{}> <{}>'.format(*map(ashex, g)))
+            lines.append('endbfrange')
+        return self.header + '\n' + '\n'.join(lines) + '\n' + self.footer
+
+
+def merge_cmaps(cmaps):
+    header, incmap, incodespace, inchar, inrange, footer = 'header cmap codespace char range footer'.split()
+    start_pat = re.compile(r'\d+\s+begin(codespacerange|bfrange|bfchar)')
+    ans = CMap()
+    for cmap in cmaps:
+        state = header
+        headerlines = []
+        footerlines = []
+        prefix_ended = False
+        for line in cmap.decode('utf-8', 'replace').splitlines():
+            line = line.strip()
+            if state is header:
+                headerlines.append(line)
+                if line == 'begincmap':
+                    state = incmap
+                continue
+            if state is incmap:
+                if line == 'endcmap':
+                    state = footer
+                    footerlines.append(line)
+                    continue
+                m = start_pat.match(line)
+                if m is not None:
+                    state = incodespace if m.group(1) == 'codespacerange' else (inchar if m.group(1) == 'bfchar' else inrange)
+                    prefix_ended = True
+                    continue
+                if not prefix_ended:
+                    headerlines.append(line)
+                continue
+            if state is incodespace:
+                if line == 'endcodespacerange':
+                    state = incmap
+                else:
+                    s, e = line.split()
+                    s = int(s[1:-1], 16)
+                    e = int(e[1:-1], 16)
+                    ans.add_codespace(s, e)
+                continue
+            if state is inchar:
+                if line == 'endbfchar':
+                    state = incmap
+                else:
+                    a, b = line.split()
+                    a = int(a[1:-1], 16)
+                    b = int(b[1:-1], 16)
+                    ans.chars.add((a, b))
+                continue
+            if state is inrange:
+                if line == 'endbfrange':
+                    state = incmap
+                else:
+                    # technically bfrange can contain arrays for th eunicode
+                    # value but from looking at SkPDFFont.cpp in chromium, it
+                    # does not generate any
+                    a, b, u = line.split()
+                    a = int(a[1:-1], 16)
+                    b = int(b[1:-1], 16)
+                    u = int(u[1:-1], 16)
+                    ans.ranges.add((a, b, u))
+                continue
+            if state is footer:
+                footerlines.append(line)
+        if ans.header is None:
+            ans.header = '\n'.join(headerlines)
+            ans.footer = '\n'.join(footerlines)
+    return ans.serialize()
+
+
+def merge_font(fonts):
     # choose the largest font as the base font
     fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
     base_font = fonts[0]
     t0_font = next(f for f in fonts if f['DescendantFont'] == base_font['Reference'])
     descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0']
+    t0_fonts = [f for f in fonts if f['Subtype'] == 'Type0']
+    cmaps = list(filter(None, (f['ToUnicode'] for f in t0_fonts)))
+    if cmaps:
+        t0_font['ToUnicode'] = as_bytes(merge_cmaps(cmaps))
     for key in ('W', 'W2'):
         arrays = tuple(filter(None, (f[key] for f in descendant_fonts)))
         base_font[key] = merge_w_arrays(arrays)
@@ -650,7 +763,9 @@ def merge_fonts(pdf_doc):
             for ref in references_to_drop:
                 replacements[ref] = t0_font['Reference']
             data = base_font['sfnt']()[0]
-            items.append((base_font['Reference'], base_font['W'] or [], base_font['W2'] or [], data))
+            items.append((
+                base_font['Reference'], t0_font['Reference'], base_font['W'] or [], base_font['W2'] or [],
+                data, t0_font['ToUnicode'] or b''))
     pdf_doc.merge_fonts(tuple(items), replacements)
 
 

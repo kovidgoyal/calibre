@@ -173,7 +173,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
                     const PdfObject *descriptor = (*it)->GetIndirectKey("FontDescriptor");
                     pyunique_ptr descendant_font, stream_ref, encoding, w, w2;
-                    PyBytesOutputStream stream_data;
+                    PyBytesOutputStream stream_data, to_unicode;
                     if (dict.HasKey("W")) {
                         w.reset(convert_w_array(dict.GetKey("W")->GetArray()));
                         if (!w) return NULL;
@@ -200,10 +200,18 @@ list_fonts(PDFDoc *self, PyObject *args) {
                         const PdfArray &df = dict.GetKey("DescendantFonts")->GetArray();
                         descendant_font.reset(ref_as_tuple(df[0].GetReference()));
                         if (!descendant_font) return NULL;
+                        if (get_font_data && dict.HasKey("ToUnicode")) {
+                            const PdfReference &uref = dict.GetKey("ToUnicode")->GetReference();
+                            PdfObject *t = objects.GetObject(uref);
+                            if (t) {
+                                PdfStream *stream = t->GetStream();
+                                if (stream) stream->GetFilteredCopy(&to_unicode);
+                            }
+                        }
                     }
 #define V(x) (x ? x.get() : Py_None)
                     pyunique_ptr d(Py_BuildValue(
-                            "{ss ss s(kk) sO sO sO sO sO sO}",
+                            "{ss ss s(kk) sO sO sO sO sO sO sO}",
                             "BaseFont", name.c_str(),
                             "Subtype", subtype.c_str(),
                             "Reference", num, generation,
@@ -211,6 +219,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                             "DescendantFont", V(descendant_font),
                             "StreamRef", V(stream_ref),
                             "Encoding", V(encoding),
+                            "ToUnicode", V(to_unicode),
                             "W", V(w), "W2", V(w2)
                     ));
 #undef V
@@ -282,11 +291,11 @@ merge_fonts(PDFDoc *self, PyObject *args) {
     if (c > 0) replace_font_references(self, ref_map);
 
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(items); i++) {
-        long num, gen;
+        long num, gen, t0num, t0gen;
         PyObject *W, *W2;
-        const char *data;
-        Py_ssize_t sz;
-        if (!PyArg_ParseTuple(PyTuple_GET_ITEM(items, i), "(ll)O!O!s#", &num, &gen, &PyList_Type, &W, &PyList_Type, &W2, &data, &sz)) return NULL;
+        const char *data, *tounicode_data;
+        Py_ssize_t sz, tounicode_sz;
+        if (!PyArg_ParseTuple(PyTuple_GET_ITEM(items, i), "(ll)(ll)O!O!s#s#", &num, &gen, &t0num, &t0gen, &PyList_Type, &W, &PyList_Type, &W2, &data, &sz, &tounicode_data, &tounicode_sz)) return NULL;
         PdfReference ref(num, gen);
         PdfObject *font = objects.GetObject(ref);
         if (font) {
@@ -305,6 +314,14 @@ merge_fonts(PDFDoc *self, PyObject *args) {
                 PdfObject *ff = get_font_file(descriptor);
                 PdfStream *stream = ff->GetStream();
                 stream->Set(data, sz);
+            }
+        }
+        if (tounicode_sz) {
+            PdfObject *t0font = objects.GetObject(PdfReference(t0num, t0gen));
+            if (t0font) {
+                PdfObject *s = t0font->GetIndirectKey("ToUnicode");
+                if (!s) { PyErr_SetString(PyExc_ValueError, "Type0 font has no ToUnicode stream"); return NULL; }
+                s->GetStream()->Set(tounicode_data, tounicode_sz);
             }
         }
     }

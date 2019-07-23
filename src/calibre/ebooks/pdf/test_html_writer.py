@@ -5,10 +5,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
-from .html_writer import merge_w_arrays
+from .html_writer import merge_w_arrays, merge_cmaps
 
 
 class TestPDFWriter(unittest.TestCase):
+
+    maxDiff = None
 
     def test_merge_w_arrays(self):
         self.assertEqual(merge_w_arrays((  # merge neighbor arrays
@@ -35,6 +37,22 @@ class TestPDFWriter(unittest.TestCase):
             [3, 10, 99, 11, 13, 77, 19, [77, 1]])),
             [1, 10, 99, 11, 13, 77, 19, [77, 1, 2, 3, 4]]
         )
+
+    def test_merge_cmaps(self):
+        roundtrip = '/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo\n<<  /Registry (Adobe)\n/Ordering (UCS)\n/Supplement 0\n>> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n12 beginbfchar\n<0003> <0020>\n<000F> <002C>\n<0011> <002E>\n<0013> <0030>\n<001A> <0037>\n<002C> <0049>\n<002E> <004B>\n<0030> <004D>\n<003D> <005A>\n<0070> <201C>\n<007B> <00A0>\n<01AC> <FB01>\nendbfchar\n9 beginbfrange\n<000B> <000C> <0028>\n<0015> <0016> <0032>\n<0024> <0028> <0041>\n<0032> <0033> <004F>\n<0036> <0038> <0053>\n<003A> <003B> <0057>\n<0044> <004C> <0061>\n<004E> <0053> <006B>\n<0055> <005C> <0072>\nendbfrange\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend'  # noqa
+        self.assertEqual(roundtrip, merge_cmaps((roundtrip,)))
+        self.assertEqual(roundtrip, merge_cmaps((roundtrip, roundtrip)))
+        res = merge_cmaps((
+            'a\nbegincmap\nb\n1 begincodespacerange\n<0010> <00FF>\nendcodespacerange\n'
+            '1 beginbfchar\n<0001> <0020>\nendbfchar\n1 beginbfrange\n<0002> <000a> <00021>\nendbfrange\nendcmap\nc',
+            'x\nbegincmap\ny\n1 begincodespacerange\n<0001> <0100>\nendcodespacerange\n'
+            '1 beginbfchar\n<0011> <0040>\nendbfchar\n1 beginbfrange\n<0012> <001a> <00051>\nendbfrange\nendcmap\nz'
+        ))
+        self.assertEqual(
+            'a\nbegincmap\nb\n1 begincodespacerange\n<0001> <0100>\nendcodespacerange\n'
+            '2 beginbfchar\n<0001> <0020>\n<0011> <0040>\nendbfchar\n'
+            '2 beginbfrange\n<0002> <000A> <0021>\n<0012> <001A> <0051>\nendbfrange\nendcmap\nc',
+            res)
 
 
 def find_tests():
