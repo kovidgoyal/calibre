@@ -852,6 +852,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         update_metadata(pdf_doc, PDFMetadata(metadata))
     report_progress(1, _('Updated metadata in PDF'))
 
+    if opts.uncompressed_pdf:
+        pdf_doc.uncompress()
+
     pdf_data = pdf_doc.write()
     if output_path is None:
         return pdf_data

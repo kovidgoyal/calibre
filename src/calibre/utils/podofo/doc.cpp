@@ -128,6 +128,18 @@ PDFDoc_save_to_fileobj(PDFDoc *self, PyObject *args) {
     return write_doc(self->doc, f);
 }
 
+static PyObject *
+PDFDoc_uncompress_pdf(PDFDoc *self, PyObject *args) {
+    for (TIVecObjects it = self->doc->GetObjects().begin(); it != self->doc->GetObjects().end(); it++) {
+        if((*it)->HasStream()) {
+            PdfMemStream* stream = dynamic_cast<PdfMemStream*>((*it)->GetStream());
+            stream->Uncompress();
+        }
+    }
+    Py_RETURN_NONE;
+}
+
+
 // }}}
 
 // extract_first_page() {{{
@@ -713,6 +725,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"save_to_fileobj", (PyCFunction)PDFDoc_save_to_fileobj, METH_VARARGS,
      "Write the PDF document to the soecified file-like object."
+    },
+    {"uncompress", (PyCFunction)PDFDoc_uncompress_pdf, METH_NOARGS,
+     "Uncompress the PDF"
     },
     {"extract_first_page", (PyCFunction)PDFDoc_extract_first_page, METH_VARARGS,
      "extract_first_page() -> Remove all but the first page."

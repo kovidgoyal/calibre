@@ -126,6 +126,10 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Adjust page numbers, as needed. Syntax is a JavaScript expression for the page number.'
                 ' For example, "if (n < 3) 0; else n - 3;", where n is current page number.')
         ),
+        OptionRecommendation(name='uncompressed_pdf',
+            recommended_value=False, help=_(
+                'Generate an uncompressed PDF, useful for debugging.')
+        ),
     }
 
     def specialize_options(self, log, opts, input_fmt):
