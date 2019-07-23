@@ -721,6 +721,8 @@ class LitWriter(object):
             dchunks.append(dchunk.getvalue())
             dcounts.append(dcount)
             if ichunk:
+                if not isinstance(name, bytes):
+                    name = name.encode('utf-8')
                 ichunk.write(decint(len(name)))
                 ichunk.write(name)
                 ichunk.write(decint(cid))
