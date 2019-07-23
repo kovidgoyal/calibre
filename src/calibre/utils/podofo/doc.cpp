@@ -747,11 +747,11 @@ static PyMethodDef PDFDoc_methods[] = {
     {"list_fonts", (PyCFunction)list_fonts, METH_VARARGS,
      "list_fonts() -> Get list of fonts in document"
     },
-    {"used_fonts_in_page_range", (PyCFunction)used_fonts_in_page_range, METH_VARARGS,
-     "used_fonts_in_page_range() -> Get list of references to fonts used in the specified pages"
-    },
     {"remove_fonts", (PyCFunction)remove_fonts, METH_VARARGS,
      "remove_fonts() -> Remove the specified font objects."
+    },
+    {"remove_unused_fonts", (PyCFunction)remove_unused_fonts, METH_NOARGS,
+     "remove_unused_fonts() -> Remove unused font objects."
     },
     {"merge_fonts", (PyCFunction)merge_fonts, METH_VARARGS,
      "merge_fonts() -> Merge the specified fonts."

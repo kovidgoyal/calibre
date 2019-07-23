@@ -8,7 +8,6 @@
 #include "global.h"
 #include <iostream>
 #include <stack>
-#include <unordered_map>
 
 using namespace pdf;
 
@@ -72,7 +71,7 @@ replace_font_references(PDFDoc *self, std::unordered_map<uint64_t, uint64_t> &re
 }
 
 static bool
-used_fonts_in_page(PdfPage *page, int page_num, PyObject *ans) {
+used_fonts_in_page(PdfPage *page, unordered_reference_set &ans) {
     PdfContentsTokenizer tokenizer(page);
     bool in_text_block = false;
     const char* token = NULL;
@@ -96,11 +95,7 @@ used_fonts_in_page(PdfPage *page, int page_num, PyObject *ans) {
             if (stack.size() > 0 && stack.top().IsName()) {
                 const PdfName &reference_name = stack.top().GetName();
                 PdfObject* font = page->GetFromResources("Font", reference_name);
-                if (font) {
-                    pyunique_ptr r(ref_as_tuple(font->Reference()));
-                    if (!r) return false;
-                    if (PySet_Add(ans, r.get()) != 0) return false;
-                }
+                if (font) ans.insert(font->Reference());
             }
         }
     }
@@ -236,21 +231,6 @@ list_fonts(PDFDoc *self, PyObject *args) {
 }
 
 PyObject*
-used_fonts_in_page_range(PDFDoc *self, PyObject *args) {
-    int first = 1, last = self->doc->GetPageCount();
-    if (!PyArg_ParseTuple(args, "|ii", &first, &last)) return NULL;
-    pyunique_ptr ans(PySet_New(NULL));
-    if (!ans) return NULL;
-    for (int i = first - 1; i < last; i++) {
-        try {
-            PdfPage *page = self->doc->GetPage(i);
-            if (!used_fonts_in_page(page, i, ans.get())) return NULL;
-        } catch (const PdfError &err) { continue; }
-    }
-    return ans.release();
-}
-
-PyObject*
 remove_fonts(PDFDoc *self, PyObject *args) {
     PyObject *fonts;
     if (!PyArg_ParseTuple(args, "O!", &PyTuple_Type, &fonts)) return NULL;
@@ -265,6 +245,63 @@ remove_fonts(PDFDoc *self, PyObject *args) {
         }
     }
     Py_RETURN_NONE;
+}
+
+typedef std::unordered_map<PdfReference, unsigned long, PdfReferenceHasher> charprocs_usage_map;
+
+PyObject*
+remove_unused_fonts(PDFDoc *self, PyObject *args) {
+    unordered_reference_set used_fonts;
+    for (int i = 0; i < self->doc->GetPageCount(); i++) {
+        PdfPage *page = self->doc->GetPage(i);
+        if (page) used_fonts_in_page(page, used_fonts);
+    }
+    unordered_reference_set all_fonts;
+    unordered_reference_set type3_fonts;
+    charprocs_usage_map charprocs_usage;
+    PdfVecObjects &objects = self->doc->GetObjects();
+    for (TCIVecObjects it = objects.begin(); it != objects.end(); it++) {
+        if ((*it)->IsDictionary()) {
+            const PdfDictionary &dict = (*it)->GetDictionary();
+            if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
+                const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
+                if (font_type == "Type0") {
+                    all_fonts.insert((*it)->Reference());
+                } else if (font_type == "Type3") {
+                    all_fonts.insert((*it)->Reference());
+                    type3_fonts.insert((*it)->Reference());
+                    for (auto &x : dict.GetKey("CharProcs")->GetDictionary().GetKeys()) {
+                        const PdfReference &ref = x.second->GetReference();
+                        if (charprocs_usage.find(ref) == charprocs_usage.end()) charprocs_usage[ref] = 1;
+                        else charprocs_usage[ref] += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    unsigned long count = 0;
+    for (auto &ref : all_fonts) {
+        if (used_fonts.find(ref) == used_fonts.end()) {
+            PdfObject *font = objects.GetObject(ref);
+            if (font) {
+                count++;
+                if (type3_fonts.find(ref) != type3_fonts.end()) {
+                    for (auto &x : font->GetIndirectKey("CharProcs")->GetDictionary().GetKeys()) {
+                        charprocs_usage[x.second->GetReference()] -= 1;
+                    }
+                }
+                remove_font(objects, font);
+            }
+        }
+    }
+
+    for (auto &x : charprocs_usage) {
+        if (x.second == 0u) {
+            delete objects.RemoveObject(x.first);
+        }
+    }
+    return Py_BuildValue("k", count);
 }
 
 PyObject*

@@ -12,6 +12,8 @@
 
 #define USING_SHARED_PODOFO
 #include <podofo.h>
+#include <unordered_set>
+#include <unordered_map>
 using namespace PoDoFo;
 
 namespace pdf {
@@ -84,10 +86,19 @@ dictionary_has_key_name(const PdfDictionary &d, T key, const char *name) {
 	return false;
 }
 
+class PdfReferenceHasher {
+    public:
+        size_t operator()(const PdfReference & obj) const {
+            return std::hash<pdf_objnum>()(obj.ObjectNumber());
+        }
+};
+typedef std::unordered_set<PdfReference, PdfReferenceHasher> unordered_reference_set;
+
+
 extern "C" {
 PyObject* list_fonts(PDFDoc*, PyObject*);
-PyObject* used_fonts_in_page_range(PDFDoc *self, PyObject *args);
 PyObject* remove_fonts(PDFDoc *self, PyObject *args);
+PyObject* remove_unused_fonts(PDFDoc *self, PyObject *args);
 PyObject* merge_fonts(PDFDoc *self, PyObject *args);
 }
 }
