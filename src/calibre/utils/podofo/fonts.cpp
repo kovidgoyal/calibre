@@ -251,56 +251,64 @@ typedef std::unordered_map<PdfReference, unsigned long, PdfReferenceHasher> char
 
 PyObject*
 remove_unused_fonts(PDFDoc *self, PyObject *args) {
-    unordered_reference_set used_fonts;
-    for (int i = 0; i < self->doc->GetPageCount(); i++) {
-        PdfPage *page = self->doc->GetPage(i);
-        if (page) used_fonts_in_page(page, used_fonts);
-    }
-    unordered_reference_set all_fonts;
-    unordered_reference_set type3_fonts;
-    charprocs_usage_map charprocs_usage;
-    PdfVecObjects &objects = self->doc->GetObjects();
-    for (TCIVecObjects it = objects.begin(); it != objects.end(); it++) {
-        if ((*it)->IsDictionary()) {
-            const PdfDictionary &dict = (*it)->GetDictionary();
-            if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
-                const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
-                if (font_type == "Type0") {
-                    all_fonts.insert((*it)->Reference());
-                } else if (font_type == "Type3") {
-                    all_fonts.insert((*it)->Reference());
-                    type3_fonts.insert((*it)->Reference());
-                    for (auto &x : dict.GetKey("CharProcs")->GetDictionary().GetKeys()) {
-                        const PdfReference &ref = x.second->GetReference();
-                        if (charprocs_usage.find(ref) == charprocs_usage.end()) charprocs_usage[ref] = 1;
-                        else charprocs_usage[ref] += 1;
-                    }
-                }
-            }
-        }
-    }
-
     unsigned long count = 0;
-    for (auto &ref : all_fonts) {
-        if (used_fonts.find(ref) == used_fonts.end()) {
-            PdfObject *font = objects.GetObject(ref);
-            if (font) {
-                count++;
-                if (type3_fonts.find(ref) != type3_fonts.end()) {
-                    for (auto &x : font->GetIndirectKey("CharProcs")->GetDictionary().GetKeys()) {
-                        charprocs_usage[x.second->GetReference()] -= 1;
+    try {
+        unordered_reference_set used_fonts;
+        for (int i = 0; i < self->doc->GetPageCount(); i++) {
+            PdfPage *page = self->doc->GetPage(i);
+            if (page) used_fonts_in_page(page, used_fonts);
+        }
+        unordered_reference_set all_fonts;
+        unordered_reference_set type3_fonts;
+        charprocs_usage_map charprocs_usage;
+        PdfVecObjects &objects = self->doc->GetObjects();
+        for (TCIVecObjects it = objects.begin(); it != objects.end(); it++) {
+            if ((*it)->IsDictionary()) {
+                const PdfDictionary &dict = (*it)->GetDictionary();
+                if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
+                    const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
+                    if (font_type == "Type0") {
+                        all_fonts.insert((*it)->Reference());
+                    } else if (font_type == "Type3") {
+                        all_fonts.insert((*it)->Reference());
+                        type3_fonts.insert((*it)->Reference());
+                        for (auto &x : dict.GetKey("CharProcs")->GetDictionary().GetKeys()) {
+                            const PdfReference &ref = x.second->GetReference();
+                            if (charprocs_usage.find(ref) == charprocs_usage.end()) charprocs_usage[ref] = 1;
+                            else charprocs_usage[ref] += 1;
+                        }
                     }
                 }
-                remove_font(objects, font);
             }
         }
-    }
 
-    for (auto &x : charprocs_usage) {
-        if (x.second == 0u) {
-            delete objects.RemoveObject(x.first);
+        for (auto &ref : all_fonts) {
+            if (used_fonts.find(ref) == used_fonts.end()) {
+                PdfObject *font = objects.GetObject(ref);
+                if (font) {
+                    count++;
+                    if (type3_fonts.find(ref) != type3_fonts.end()) {
+                        for (auto &x : font->GetIndirectKey("CharProcs")->GetDictionary().GetKeys()) {
+                            charprocs_usage[x.second->GetReference()] -= 1;
+                        }
+                    } else {
+                        for (auto &x : font->GetIndirectKey("DescendantFonts")->GetArray()) {
+                            PdfObject *dfont = objects.GetObject(x.GetReference());
+                            if (dfont) remove_font(objects, dfont);
+                        }
+                    }
+                    remove_font(objects, font);
+                }
+            }
         }
-    }
+
+        for (auto &x : charprocs_usage) {
+            if (x.second == 0u) {
+                delete objects.RemoveObject(x.first);
+            }
+        }
+    } catch(const PdfError &err) { podofo_set_exception(err); return NULL; }
+
     return Py_BuildValue("k", count);
 }
 
