@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -350,7 +351,7 @@ class Comments(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
-        self._tb = CommentsEditor(self._box, toolbar_prefs_name=u'metadata-comments-editor-widget-hidden-toolbars')
+        self._tb = CommentsEditor(self._box, toolbar_prefs_name='metadata-comments-editor-widget-hidden-toolbars')
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         # self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)

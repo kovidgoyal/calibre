@@ -1,8 +1,9 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, ssl, json
-from polyglot.builtins import map, unicode_type
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
@@ -18,6 +19,7 @@ from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
+from polyglot.builtins import map, unicode_type
 
 URL = 'https://code.calibre-ebook.com/latest'
 # URL = 'http://localhost:8000/latest'
@@ -56,7 +58,7 @@ def get_newest_version():
     try:
         version = version.decode('utf-8').strip()
     except UnicodeDecodeError:
-        version = u''
+        version = ''
     ans = NO_CALIBRE_UPDATE
     m = re.match(unicode_type(r'(\d+)\.(\d+).(\d+)$'), version)
     if m is not None:
@@ -211,21 +213,21 @@ class UpdateMixin(object):
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
         version_url = as_hex_unicode(msgpack_dumps((calibre_version, number_of_plugin_updates)))
-        calibre_version = u'.'.join(map(unicode_type, calibre_version))
+        calibre_version = '.'.join(map(unicode_type, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
             return
         if has_calibre_update:
-            plt = u''
+            plt = ''
             if has_plugin_updates:
                 plt = ngettext(' (one plugin update)', ' ({} plugin updates)', number_of_plugin_updates).format(number_of_plugin_updates)
-            msg = (u'<span style="color:green; font-weight: bold">%s: '
-                    u'<a href="update:%s">%s%s</a></span>') % (
+            msg = ('<span style="color:green; font-weight: bold">%s: '
+                    '<a href="update:%s">%s%s</a></span>') % (
                         _('Update found'), version_url, calibre_version, plt)
         else:
             plt = ngettext('updated plugin', 'updated plugins', number_of_plugin_updates)
-            msg = (u'<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates, plt)
+            msg = ('<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates, plt)
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
 

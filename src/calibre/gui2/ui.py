@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function, with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -535,7 +535,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def create_spare_pool(self, *args):
         if self._spare_pool is None:
-            num = min(detect_ncpus(), int(config['worker_limit']/2.0))
+            num = min(detect_ncpus(), config['worker_limit']//2)
             self._spare_pool = Pool(max_workers=num, name='GUIPool')
 
     def spare_pool(self):
@@ -765,7 +765,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             font.setBold(True)
             font.setItalic(True)
         self.virtual_library.setFont(font)
-        title = u'{0} - || {1}{2} ||'.format(
+        title = '{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
 

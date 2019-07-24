@@ -72,7 +72,8 @@ class Base(Command):
     def get_files(self):
         from calibre import walk
         for path in walk(os.path.join(self.SRC, 'calibre')):
-            if path.endswith('.py') and not os.path.basename(path) in self.EXCLUDED_BASENAMES:
+            if (path.endswith('.py') and not path.endswith('_ui.py') and not
+                    os.path.basename(path) in self.EXCLUDED_BASENAMES):
                 yield path
 
     def file_hash(self, f):

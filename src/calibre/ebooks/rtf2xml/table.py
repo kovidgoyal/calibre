@@ -1,4 +1,4 @@
-from __future__ import unicode_literals, absolute_import, print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -12,8 +12,11 @@ from __future__ import unicode_literals, absolute_import, print_function, divisi
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
 from . import open_for_read, open_for_write
 
 """
@@ -397,13 +400,13 @@ class Table:
             left_position = float(left_position)
         width = new_cell_position - self.__last_cell_position - left_position
         # width = round(width, 2)
-        width = str('%.2f' % width)
+        width = unicode_type('%.2f' % width)
         self.__last_cell_position = new_cell_position
         widths_exists = self.__row_dict.get('widths')
         if widths_exists:
-            self.__row_dict['widths'] += ', %s' % str(width)
+            self.__row_dict['widths'] += ', %s' % unicode_type(width)
         else:
-            self.__row_dict['widths'] = str(width)
+            self.__row_dict['widths'] = unicode_type(width)
         self.__cell_list[-1]['width'] = width
         self.__cell_list.append({})
         self.__cell_widths.append(width)

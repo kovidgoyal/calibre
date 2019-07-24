@@ -20,6 +20,7 @@
 # * GNU General Public License for more details.
 # *
 # */
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
 
@@ -48,7 +49,7 @@ class J2H (object):
         return (0x3400 <= ord(c) and ord(c) < 0xfa2e)
 
     def isCletter(self, l, c):
-        if (ord(u"ぁ") <= ord(c) and ord(c) <= 0x309f) and (l in self.cl_table[ord(c) - ord(u"ぁ")-1]):
+        if (ord("ぁ") <= ord(c) and ord(c) <= 0x309f) and (l in self.cl_table[ord(c) - ord("ぁ")-1]):
             return True
         return False
 

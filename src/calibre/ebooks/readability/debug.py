@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 def save_to_file(text, filename):
     f = open(filename, 'wt')
     f.write('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')

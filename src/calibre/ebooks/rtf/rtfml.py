@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -83,11 +84,12 @@ def txt2rtf(text):
     for x in text:
         val = ord(x)
         if val == 160:
-            buf.write(u'\\~')
+            buf.write(r'\~')
         elif val <= 127:
             buf.write(unicode_type(x))
         else:
-            c = unicode_type(r'\u{0:d}?'.format(val))
+            # python2 and ur'\u' does not work
+            c = unicode_type('\\u{0:d}?'.format(val))
             buf.write(c)
     return buf.getvalue()
 
@@ -115,19 +117,19 @@ class RTFMLizer(object):
                         self.opts, self.opts.output_profile)
                 self.currently_dumping_item = item
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
-                output += '{\\page }'
+                output += r'{\page }'
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub(u'<!--.*?-->', u'', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
+            content = re.sub('<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             self.currently_dumping_item = item
             output += self.dump_text(content.find(XHTML('body')), stylizer)
-            output += '{\\page }'
+            output += r'{\page }'
         output += self.footer()
         output = self.insert_images(output)
         output = self.clean_text(output)
@@ -149,7 +151,7 @@ class RTFMLizer(object):
         return text
 
     def header(self):
-        header = u'{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n' % (
+        header = '{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n' % (
             self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
         return header + (
             '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f2\\fswiss\\fprq2\\fcharset128 Arial;}{\\f3\\fnil\\fprq2\\fcharset128 Arial;}{\\f4\\fnil\\fprq2\\fcharset128 MS Mincho;}{\\f5\\fnil\\fprq2\\fcharset128 Tahoma;}{\\f6\\fnil\\fprq0\\fcharset128 Tahoma;}}\n'  # noqa
@@ -215,7 +217,7 @@ class RTFMLizer(object):
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
 
         # Remove non-breaking spaces
-        text = text.replace(u'\xa0', ' ')
+        text = text.replace('\xa0', ' ')
         text = text.replace('\n\r', '\n')
 
         return text
@@ -230,16 +232,16 @@ class RTFMLizer(object):
             if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return elem.tail
-            return u''
+            return ''
 
-        text = u''
+        text = ''
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return elem.tail
-            return u''
+            return ''
 
         tag = barename(elem.tag)
         tag_count = 0
@@ -259,7 +261,7 @@ class RTFMLizer(object):
                 block_start = ''
                 block_end = ''
                 if 'block' not in tag_stack:
-                    block_start = '{\\par\\pard\\hyphpar '
+                    block_start = r'{\par\pard\hyphpar '
                     block_end = '}'
                 text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
@@ -292,14 +294,14 @@ class RTFMLizer(object):
             end_tag =  tag_stack.pop()
             if end_tag != 'block':
                 if tag in BLOCK_TAGS:
-                    text += u'\\par\\pard\\plain\\hyphpar}'
+                    text += r'\par\pard\plain\hyphpar}'
                 else:
-                    text += u'}'
+                    text += '}'
 
         if hasattr(elem, 'tail') and elem.tail:
             if 'block' in tag_stack:
                 text += '%s' % txt2rtf(elem.tail)
             else:
-                text += '{\\par\\pard\\hyphpar %s}' % txt2rtf(elem.tail)
+                text += r'{\par\pard\hyphpar %s}' % txt2rtf(elem.tail)
 
         return text

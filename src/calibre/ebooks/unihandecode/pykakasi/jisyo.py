@@ -2,6 +2,8 @@
 #  jisyo.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from zlib import decompress
 
 from polyglot.builtins import unicode_type

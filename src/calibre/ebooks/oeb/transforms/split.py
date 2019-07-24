@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -9,7 +9,7 @@ forced at "likely" locations to conform to size limitations. This transform
 assumes a prior call to the flatcss transform.
 '''
 
-import os, math, functools, collections, re, copy
+import os, functools, collections, re, copy
 from collections import OrderedDict
 
 from lxml.etree import XPath as _XPath
@@ -18,9 +18,10 @@ from lxml import etree
 from calibre import as_unicode, force_unicode
 from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
-        urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
+        urldefrag, rewrite_links, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
-from polyglot.builtins import iteritems, range, map
+from polyglot.builtins import iteritems, range, map, unicode_type
+from polyglot.urllib import unquote
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -122,7 +123,7 @@ class Split(object):
 
         for i, elem in enumerate(item.data.iter('*')):
             try:
-                elem.set('pb_order', str(i))
+                elem.set('pb_order', unicode_type(i))
             except TypeError:  # Cant set attributes on comment nodes etc.
                 continue
 
@@ -179,7 +180,7 @@ class Split(object):
             nhref = anchor_map[frag if frag else None]
             nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join((urlunquote(nhref), frag))
+                nhref = '#'.join((unquote(nhref), frag))
 
             return nhref
         return url
@@ -201,7 +202,7 @@ class FlowSplitter(object):
         self.csp_counter    = 0
 
         base, ext = os.path.splitext(self.base)
-        self.base = base.replace('%', '%%')+u'_split_%.3d'+ext
+        self.base = base.replace('%', '%%')+'_split_%.3d'+ext
 
         self.trees = [self.item.data.getroottree()]
         self.splitting_on_page_breaks = True
@@ -294,7 +295,7 @@ class FlowSplitter(object):
         body = self.get_body(root)
         if body is None:
             return False
-        txt = re.sub(u'\\s+|\\xa0', '',
+        txt = re.sub(r'\s+|\xa0', '',
                 etree.tostring(body, method='text', encoding='unicode'))
         if len(txt) > 1:
             return False
@@ -337,7 +338,7 @@ class FlowSplitter(object):
                 for frag in frags:
                     pre2 = copy.copy(pre)
                     pre2.text = frag
-                    pre2.tail = u''
+                    pre2.tail = ''
                     new_pres.append(pre2)
                 new_pres[-1].tail = pre.tail
                 p = pre.getparent()
@@ -389,7 +390,7 @@ class FlowSplitter(object):
                 elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') !=
                         '1']
                 if elems:
-                    i = int(math.floor(len(elems)/2.))
+                    i = int(len(elems)//2)
                     elems[i].set(SPLIT_POINT_ATTR, '1')
                     return elems[i]
 
