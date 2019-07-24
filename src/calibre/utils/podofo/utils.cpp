@@ -9,10 +9,16 @@
 
 using namespace pdf;
 
-void pdf::podofo_set_exception(const PdfError &err) {
+void
+pdf::podofo_set_exception(const PdfError &err) {
     const char *msg = PdfError::ErrorMessage(err.GetError());
     if (msg == NULL) msg = err.what();
-    PyErr_SetString(Error, msg);
+    std::stringstream stream;
+    stream << msg << "\n";
+    for (auto &info : err.GetCallstack()) {
+        stream << "File: " << info.GetFilename() << "Line: " << info.GetLine() << " " << info.GetInformation() << "\n";
+    }
+    PyErr_SetString(Error, stream.str().c_str());
 }
 
 PyObject *
