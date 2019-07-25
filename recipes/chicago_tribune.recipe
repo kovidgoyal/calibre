@@ -64,7 +64,7 @@ class ChicagoTribune(BasicNewsRecipe):
                 ('sports', 'Sports'),
                 ('business', 'Business'),
                 ('entertainment', 'Entertainment'),
-                ('dining', 'Chicago Dinining'),
+                ('dining', 'Chicago Dining'),
                 ('columns', 'Tribune Voices'),
         ):
             self.log('Found section:', title)
