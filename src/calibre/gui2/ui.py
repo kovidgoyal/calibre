@@ -684,7 +684,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     tags += list(data['tags'])
                     self.current_db.new_api.set_field('tags', {book_id: tags})
         else:
-            prints(u'Ignoring unknown message from other instance: %r' % msg[:20])
+            prints('Ignoring unknown message from other instance: %r' % msg[:20])
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
