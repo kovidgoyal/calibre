@@ -21,7 +21,7 @@ class tokenDelimitatorStart():
         pass
 
     def toRTF(self):
-        return b'{'
+        return '{'
 
     def __repr__(self):
         return '{'
@@ -33,7 +33,7 @@ class tokenDelimitatorEnd():
         pass
 
     def toRTF(self):
-        return b'}'
+        return '}'
 
     def __repr__(self):
         return '}'

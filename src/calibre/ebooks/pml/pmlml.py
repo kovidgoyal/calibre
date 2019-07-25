@@ -190,7 +190,7 @@ class PMLMLizer(object):
             text = text.replace(r'\Q="%s"' % unused, '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(unicode_type(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)'), r'\g<t>\g<a>\g<b>\g<t>', text)
+        text = re.sub(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', r'\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace('\xc2', '')
@@ -326,7 +326,7 @@ class PMLMLizer(object):
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack+tags:
-                text.append('r\%s' % style_tag)
+                text.append(r'\%s' % style_tag)
                 tags.append(style_tag)
 
         # margin left

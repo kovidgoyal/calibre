@@ -112,7 +112,7 @@ class Customize(QFrame):
                 Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_Meta,
                 Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock, Qt.Key_ScrollLock):
             return QWidget.keyPressEvent(self, ev)
-        sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
+        sequence = QKeySequence(code|(int(ev.modifiers()) & (~Qt.KeypadModifier)))
         setattr(self, 'shortcut%d'%which, sequence)
         self.clear_button(which)
         self.capture = 0
@@ -237,7 +237,7 @@ class Shortcuts(QAbstractListModel):
     def get_match(self, event_or_sequence, ignore=tuple()):
         q = event_or_sequence
         if isinstance(q, QKeyEvent):
-            q = QKeySequence(q.key()|(int(q.modifiers())&~Qt.KeypadModifier))
+            q = QKeySequence(q.key()|(int(q.modifiers()) & (~Qt.KeypadModifier)))
         for key in self.order:
             if key not in ignore:
                 for seq in self.get_sequences(key):

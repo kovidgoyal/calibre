@@ -86,10 +86,10 @@ def txt2rtf(text):
         if val == 160:
             buf.write(r'\~')
         elif val <= 127:
-            buf.write(unicode_type(x))
+            buf.write(x)
         else:
             # python2 and ur'\u' does not work
-            c = unicode_type('\\u{0:d}?'.format(val))
+            c = '\\u{0:d}?'.format(val)
             buf.write(c)
     return buf.getvalue()
 
@@ -175,8 +175,8 @@ class RTFMLizer(object):
                 src = item.href
                 try:
                     data, width, height = self.image_to_hexstring(item.data)
-                except:
-                    self.log.warn('Image %s is corrupted, ignoring'%item.href)
+                except Exception:
+                    self.log.exception('Image %s is corrupted, ignoring'%item.href)
                     repl = '\n\n'
                 else:
                     repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)
@@ -188,8 +188,8 @@ class RTFMLizer(object):
         width, height = identify(data)[1:]
 
         raw_hex = ''
-        for char in data:
-            raw_hex += hex(ord(char)).replace('0x', '').rjust(2, '0')
+        for char in bytearray(data):
+            raw_hex += hex(char).replace('0x', '').rjust(2, '0')
 
         # Images must be broken up so that they are no longer than 129 chars
         # per line
@@ -202,7 +202,7 @@ class RTFMLizer(object):
             col += 1
             hex_string += char
 
-        return (hex_string, width, height)
+        return hex_string, width, height
 
     def clean_text(self, text):
         # Remove excessive newlines

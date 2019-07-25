@@ -731,7 +731,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     count = len(cols)
     layout_rows_for_comments = 9
     if two_column:
-        turnover_point = ((count-comments_not_in_tweak+1) + comments_in_tweak*(layout_rows_for_comments-1))/2
+        turnover_point = ((count-comments_not_in_tweak+1) + int(comments_in_tweak*(layout_rows_for_comments-1))/2)
     else:
         # Avoid problems with multi-line widgets
         turnover_point = count + 1000
@@ -758,7 +758,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 column = 0
                 row = max_row
                 base_row = row
-                turnover_point = row + (comments_not_in_tweak * layout_rows_for_comments)/2
+                turnover_point = row + int((comments_not_in_tweak * layout_rows_for_comments)/2)
                 comments_not_in_tweak = 0
 
         l = QGridLayout()

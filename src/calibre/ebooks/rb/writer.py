@@ -122,7 +122,7 @@ class RBWriter(object):
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    data = ''
+                    data = b''
 
                     im = Image.open(io.BytesIO(item.data)).convert('L')
                     data = io.BytesIO()

@@ -9,8 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
-from polyglot.builtins import iteritems, filter
-filter
+from polyglot.builtins import iteritems
 
 
 def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):

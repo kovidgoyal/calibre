@@ -11,12 +11,12 @@ import sys
 import time
 from threading import Thread
 
-from polyglot.builtins import reraise, unicode_type, string_or_bytes
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
-from calibre.constants import filesystem_encoding, preferred_encoding, DEBUG
+from calibre.constants import DEBUG, filesystem_encoding, ispy3, preferred_encoding
 from calibre.utils.config import dynamic
+from polyglot.builtins import getenv, reraise, string_or_bytes, unicode_type
 
 
 def dialog_name(name, title):
@@ -29,20 +29,20 @@ def get_winid(widget=None):
 
 
 def detect_desktop_environment():
-    de = os.environ.get('XDG_CURRENT_DESKTOP')
+    de = getenv('XDG_CURRENT_DESKTOP')
     if de:
-        return de.decode('utf-8', 'replace').upper().split(':', 1)[0]
-    if os.environ.get('KDE_FULL_SESSION') == 'true':
+        return de.upper().split(':', 1)[0]
+    if getenv('KDE_FULL_SESSION') == 'true':
         return 'KDE'
-    if os.environ.get('GNOME_DESKTOP_SESSION_ID'):
+    if getenv('GNOME_DESKTOP_SESSION_ID'):
         return 'GNOME'
-    ds = os.environ.get('DESKTOP_SESSION')
-    if ds and ds.upper() in {b'GNOME', b'XFCE'}:
-        return ds.decode('utf-8').upper()
+    ds = getenv('DESKTOP_SESSION')
+    if ds and ds.upper() in {'GNOME', 'XFCE'}:
+        return ds.upper()
 
 
 def is_executable_present(name):
-    PATH = os.environ.get('PATH') or b''
+    PATH = getenv('PATH') or ''
     for path in PATH.split(os.pathsep):
         if os.access(os.path.join(path, name), os.X_OK):
             return True
@@ -107,7 +107,7 @@ def decode_output(raw):
 
 def run(cmd):
     from calibre.gui2 import sanitize_env_vars
-    ecmd = list(map(encode_arg, cmd))
+    ecmd = cmd if ispy3 else list(map(encode_arg, cmd))
     if DEBUG:
         try:
             print(ecmd)
@@ -125,7 +125,10 @@ def run(cmd):
 def kdialog_supports_desktopfile():
     ans = getattr(kdialog_supports_desktopfile, 'ans', None)
     if ans is None:
-        raw = subprocess.check_output(['kdialog', '--help'])
+        try:
+            raw = subprocess.check_output(['kdialog', '--help'])
+        except EnvironmentError:
+            raw = b'--desktopfile'
         ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans
 
