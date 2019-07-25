@@ -277,9 +277,13 @@ class RecursiveFetcher(object):
         except URLError as err:
             if hasattr(err, 'code') and err.code in responses:
                 raise FetchError(responses[err.code])
-            if getattr(err, 'reason', [0])[0] == 104 or \
-                getattr(getattr(err, 'args', [None])[0], 'errno', None) in (-2,
-                        -3):  # Connection reset by peer or Name or service not known
+            is_temp = False
+            reason = getattr(err, 'reason', None)
+            if isinstance(reason, socket.gaierror):
+                # see man gai_strerror() for details
+                if getattr(reason, 'errno', None) in (socket.EAI_AGAIN, socket.EAI_NONAME):
+                    is_temp = True
+            if is_temp:  # Connection reset by peer or Name or service not known
                 self.log.debug('Temporary error, retrying in 1 second')
                 time.sleep(1)
                 with closing(open_func(url, timeout=self.timeout)) as f:
