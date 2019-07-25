@@ -461,7 +461,7 @@ class MetadataSingleDialogBase(QDialog):
             return
         cdata = None
         if mi.cover and os.access(mi.cover, os.R_OK):
-            with open(mi.cover) as f:
+            with open(mi.cover, 'rb') as f:
                 cdata = f.read()
         elif mi.cover_data[1] is not None:
             cdata = mi.cover_data[1]
