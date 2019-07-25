@@ -840,7 +840,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     merge_fonts(pdf_doc)
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
-        log('Removed', num_removed, 'unused Type3 glyphs')
+        log('Removed', num_removed, 'duplicated Type3 glyphs')
 
     # TODO: Support for mathematics
 

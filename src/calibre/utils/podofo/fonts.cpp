@@ -359,30 +359,28 @@ merge_fonts(PDFDoc *self, PyObject *args) {
 class CharProc {
     char *buf; pdf_long sz;
     PdfReference ref;
-    std::size_t precomputed_hash;
     CharProc( const CharProc & ) ;
     CharProc & operator=( const CharProc & ) ;
 
     public:
-        CharProc(const PdfReference &reference, const PdfObject *o) : buf(NULL), sz(0), ref(reference), precomputed_hash(0) {
+        CharProc(const PdfReference &reference, const PdfObject *o) : buf(NULL), sz(0), ref(reference) {
             const PdfStream *stream = o->GetStream();
             stream->GetFilteredCopy(&buf, &sz);
-            precomputed_hash = std::hash<pdf_long>()(sz);
         }
         CharProc(CharProc &&other) noexcept :
-            buf(other.buf), sz(other.sz), ref(other.ref), precomputed_hash(other.precomputed_hash) {
+            buf(other.buf), sz(other.sz), ref(other.ref) {
             other.buf = NULL;
         }
         CharProc& operator=(CharProc &&other) noexcept {
             if (buf) podofo_free(buf);
-            buf = other.buf; other.buf = NULL; sz = other.sz; ref = other.ref; precomputed_hash = other.precomputed_hash;
+            buf = other.buf; other.buf = NULL; sz = other.sz; ref = other.ref;
             return *this;
         }
         ~CharProc() noexcept { if (buf) podofo_free(buf); buf = NULL; }
         bool operator==(const CharProc &other) const noexcept {
             return other.sz == sz && memcmp(buf, other.buf, sz) == 0;
         }
-        std::size_t hash() const noexcept { return precomputed_hash; }
+        std::size_t hash() const noexcept { return sz; }
         const PdfReference& reference() const noexcept { return ref; }
 };
 
