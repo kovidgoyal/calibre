@@ -88,21 +88,21 @@ class HTMLZInput(InputFormatPlugin):
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
         base = getcwd()
-        fname = os.path.join(base, u'index.html')
+        htmlfile = os.path.join(base, u'index.html')
         c = 0
-        while os.path.exists(fname):
+        while os.path.exists(htmlfile):
             c += 1
-            fname = u'index%d.html'%c
-        htmlfile = open(fname, 'wb')
-        with htmlfile:
-            htmlfile.write(html.encode('utf-8'))
+            htmlfile = u'index%d.html'%c
+        with open(htmlfile, 'wb') as f:
+            f.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # Generate oeb from html conversion.
-        oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
+        with open(htmlfile, 'rb') as f:
+            oeb = html_input.convert(f, options, 'html', log,
                 {})
         options.debug_pipeline = odi
-        os.remove(htmlfile.name)
+        os.remove(htmlfile)
 
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata

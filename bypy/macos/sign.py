@@ -42,7 +42,8 @@ def make_certificate_useable():
         # Unlock keychain
         run('security unlock-keychain -p "{}" "{}"'.format(KEYCHAIN_PASSWORD, KEYCHAIN))
         # Add certificate to keychain
-        cert_pass = open(CODESIGN_CREDS).read().strip()
+        with open(CODESIGN_CREDS, 'r') as f:
+            cert_pass = f.read().strip()
         # Add certificate to keychain and allow codesign to use it
         # Use -A instead of -T /usr/bin/codesign to allow all apps to use it
         run('security import {} -k "{}" -P "{}" -T "/usr/bin/codesign"'.format(

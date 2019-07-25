@@ -39,10 +39,9 @@ class SNBFile:
     def Open(self, inputFile):
         self.fileName = inputFile
 
-        snbFile = open(self.fileName, "rb")
-        snbFile.seek(0)
-        self.Parse(snbFile)
-        snbFile.close()
+        with open(self.fileName, "rb") as f:
+            f.seek(0)
+            self.Parse(f)
 
     def Parse(self, snbFile, metaOnly=False):
         # Read header
@@ -158,7 +157,8 @@ class SNBFile:
         f = FileStream()
         f.attr = 0x41000000
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
-        f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
+        with open(os.path.join(tdir,fileName), 'rb') as data:
+            f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, unicode_type):
             f.fileName = f.fileName.encode("ascii", "ignore")
@@ -168,7 +168,8 @@ class SNBFile:
         f = FileStream()
         f.attr = 0x01000000
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
-        f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
+        with open(os.path.join(tdir,fileName), 'rb') as data:
+            f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, unicode_type):
             f.fileName = f.fileName.encode("ascii", "ignore")
@@ -186,9 +187,8 @@ class SNBFile:
             fname = os.path.basename(f.fileName)
             root, ext = os.path.splitext(fname)
             if ext in ['.jpeg', '.jpg', '.gif', '.svg', '.png']:
-                file = open(os.path.join(path, fname), 'wb')
-                file.write(f.fileBody)
-                file.close()
+                with open(os.path.join(path, fname), 'wb') as outfile:
+                    outfile.write(f.fileBody)
                 fileNames.append((fname, guess_type('a'+ext)[0]))
         return fileNames
 
@@ -297,9 +297,8 @@ class SNBFile:
             print("File Size: ", f.fileSize)
             print("Block Index: ", f.blockIndex)
             print("Content Offset: ", f.contentOffset)
-            tempFile = open("/tmp/" + f.fileName, 'wb')
-            tempFile.write(f.fileBody)
-            tempFile.close()
+            with open("/tmp/" + f.fileName, 'wb') as tempFile:
+                tempFile.write(f.fileBody)
 
 
 def usage():

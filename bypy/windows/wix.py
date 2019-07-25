@@ -29,7 +29,8 @@ def create_installer(env):
         shutil.rmtree(env.installer_dir)
     os.makedirs(env.installer_dir)
 
-    template = open(j(d(__file__), 'wix-template.xml'), 'rb').read().decode('utf-8')
+    with open(j(d(__file__), 'wix-template.xml'), 'rb') as f:
+        template = f.read().decode('utf-8')
 
     components, smap = get_components_from_files(env)
     wxs = template.format(
@@ -50,7 +51,8 @@ def create_installer(env):
         editor_icon=j(env.src_root, 'icons', 'ebook-edit.ico'),
         web_icon=j(env.src_root, 'icons', 'web.ico'),
     )
-    template = open(j(d(__file__), 'en-us.xml'), 'rb').read().decode('utf-8')
+    with open(j(d(__file__), 'en-us.xml'), 'rb') as f:
+        template = f.read().decode('utf-8')
     enus = template.format(app=calibre_constants['appname'])
 
     enusf = j(env.installer_dir, 'en-us.wxl')

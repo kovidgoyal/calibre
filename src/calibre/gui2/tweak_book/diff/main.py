@@ -139,7 +139,8 @@ def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='lef
 def file_diff(left, right):
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
     if type(raw1) is not type(raw2):
-        raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
+        with open(left, 'rb') as f1, open(right, 'rb') as f2:
+            raw1, raw2 = f1.read(), f2.read()
     cache = Cache()
     cache.set_left(left, raw1), cache.set_right(right, raw2)
     changed_names = {} if raw1 == raw2 else {left:right}

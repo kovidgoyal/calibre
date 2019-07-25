@@ -577,7 +577,8 @@ if __name__ == '__main__':
         from PyQt5.Qt import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
-            log = open(logfile).read().decode('utf-8', 'ignore')
+            with open(logfile) as f:
+                log = f.read().decode('utf-8', 'ignore')
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
                 '%s<b>Log:</b><br>%s')%(unicode_type(err),

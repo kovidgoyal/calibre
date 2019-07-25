@@ -368,15 +368,13 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage %prog rtfFileToConvert")
         sys.exit()
-    f = open(sys.argv[1], 'rb')
-    data = f.read()
-    f.close()
+    with open(sys.argv[1], 'rb') as f:
+        data = f.read()
 
     tokenizer = RtfTokenizer(data)
     parsedTokens = RtfTokenParser(tokenizer.tokens)
 
     data = parsedTokens.toRTF()
 
-    f = open(sys.argv[1], 'w')
-    f.write(data)
-    f.close()
+    with open(sys.argv[1], 'w') as f:
+        f.write(data)

@@ -606,7 +606,8 @@ def profile():
     from calibre.gui2.tweak_book.editor.themes import get_theme
     app = Application([])
     set_book_locale('en')
-    raw = open(sys.argv[-2], 'rb').read().decode('utf-8')
+    with open(sys.argv[-2], 'rb') as f:
+        raw = f.read().decode('utf-8')
     doc = QTextDocument()
     doc.setPlainText(raw)
     h = Highlighter()

@@ -454,7 +454,8 @@ class Build(Command):
             self.info(' '.join(cmd))
             self.check_call(cmd)
             self.info('')
-        raw = open(sbf, 'rb').read().decode('utf-8')
+        with open(sbf, 'rb') as f:
+            raw = f.read().decode('utf-8')
 
         def read(x):
             ans = re.search(r'^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()

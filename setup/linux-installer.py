@@ -748,7 +748,8 @@ except NameError:
 
 def update_intaller_wrapper():
     # To run: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
-    src = open(__file__, 'rb').read().decode('utf-8')
+    with open(__file__, 'rb') as f:
+        src = f.read().decode('utf-8')
     wrapper = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'linux-installer.sh')
     with open(wrapper, 'r+b') as f:
         raw = f.read().decode('utf-8')

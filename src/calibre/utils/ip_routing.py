@@ -70,7 +70,8 @@ else:
 
     def get_default_route_src_address():
         # Use /proc/net/ipv6_route for IPv6 addresses
-        raw = open('/proc/net/route', 'rb').read().decode('utf-8')
+        with open('/proc/net/route', 'rb') as f:
+            raw = f.read().decode('utf-8')
         for line in raw.splitlines():
             parts = line.split()
             if len(parts) > 1 and parts[1] == '00000000':

@@ -665,7 +665,8 @@ class GetTranslations(Translations):  # {{{
             return errs
 
         def check_for_control_chars(f):
-            raw = open(f, 'rb').read().decode('utf-8')
+            with open(f, 'rb') as f:
+                raw = f.read().decode('utf-8')
             pat = re.compile(type(u'')(r'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]'))
             errs = []
             for i, line in enumerate(raw.splitlines()):

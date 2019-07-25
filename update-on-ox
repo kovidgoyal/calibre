@@ -35,7 +35,8 @@ HOST = 'ox'
 
 base = os.path.dirname(os.path.abspath(__file__))
 if True:
-    raw = open(os.path.join(base, 'src/calibre/constants.py')).read()
+    with open(os.path.join(base, 'src/calibre/constants.py')) as f:
+        raw = f.read()
     v = re.search(r'numeric_version\s*=\s*(\(.+?\))', raw).group(1)
     v = '.'.join(map(str, ast.literal_eval(v)))
     dmg = f'calibre-{v}.dmg'
@@ -47,7 +48,8 @@ def run(what):
         raise SystemExit(ret.returncode)
 
 
-script = open(__file__, 'rb').read().decode('utf-8')
+with open(__file__, 'rb') as f:
+    script = f.read().decode('utf-8')
 script = script[:script.find('# EOF_REMOTE')].replace('if False:', 'if True:', 1)
 os.chdir(os.path.expanduser('~/work/build-calibre'))
 with tempfile.NamedTemporaryFile(prefix='install-dmg-', suffix='.py') as f:

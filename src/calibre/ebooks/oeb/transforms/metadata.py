@@ -126,7 +126,8 @@ class MergeMetadata(object):
     def set_cover(self, mi, prefer_metadata_cover):
         cdata, ext = '', 'jpg'
         if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                cdata = f.read()
             ext = mi.cover.rpartition('.')[-1].lower().strip()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
