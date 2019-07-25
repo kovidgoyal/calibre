@@ -753,6 +753,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"merge_fonts", (PyCFunction)py_merge_fonts, METH_VARARGS,
      "merge_fonts() -> Merge the specified fonts."
     },
+    {"dedup_type3_fonts", (PyCFunction)py_dedup_type3_fonts, METH_VARARGS,
+     "dedup_type3_fonts() -> De-duplicate repeated glyphs in Type3 fonts"
+    },
     {"delete_pages", (PyCFunction)PDFDoc_delete_pages, METH_VARARGS,
      "delete_page(page_num, count=1) -> Delete the specified pages from the pdf."
     },

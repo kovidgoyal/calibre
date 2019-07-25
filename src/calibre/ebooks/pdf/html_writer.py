@@ -36,7 +36,7 @@ from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.logging import default_log
 from calibre.utils.podofo import (
-    get_podofo, remove_unused_fonts, set_metadata_implementation
+    dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import as_bytes, filter, iteritems, map, range, unicode_type
@@ -838,6 +838,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     report_progress(0.75, _('Added links to PDF content'))
 
     merge_fonts(pdf_doc)
+    num_removed = dedup_type3_fonts(pdf_doc)
+    if num_removed:
+        log('Removed', num_removed, 'unused Type3 glyphs')
 
     # TODO: Support for mathematics
 

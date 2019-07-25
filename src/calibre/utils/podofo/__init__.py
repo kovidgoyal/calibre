@@ -144,6 +144,20 @@ def test_remove_unused_fonts(src):
     print('Modified pdf saved to:', dest)
 
 
+def dedup_type3_fonts(pdf_doc):
+    return pdf_doc.dedup_type3_fonts()
+
+
+def test_dedup_type3_fonts(src):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    p.open(src)
+    num = dedup_type3_fonts(p)
+    dest = src.rpartition('.')[0] + '-removed.pdf'
+    p.save(dest)
+    print('Modified pdf with {} glyphs removed saved to:'.format(num), dest)
+
+
 def test_list_fonts(src):
     podofo = get_podofo()
     p = podofo.PDFDoc()

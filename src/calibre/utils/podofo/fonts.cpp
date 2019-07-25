@@ -356,6 +356,103 @@ merge_fonts(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+class CharProc {
+    char *buf; pdf_long sz;
+    PdfReference ref;
+    std::size_t precomputed_hash;
+    CharProc( const CharProc & ) ;
+    CharProc & operator=( const CharProc & ) ;
+
+    public:
+        CharProc(const PdfReference &reference, const PdfObject *o) : buf(NULL), sz(0), ref(reference), precomputed_hash(0) {
+            const PdfStream *stream = o->GetStream();
+            stream->GetFilteredCopy(&buf, &sz);
+            precomputed_hash = std::hash<pdf_long>()(sz);
+        }
+        CharProc(CharProc &&other) noexcept :
+            buf(other.buf), sz(other.sz), ref(other.ref), precomputed_hash(other.precomputed_hash) {
+            other.buf = NULL;
+        }
+        CharProc& operator=(CharProc &&other) noexcept {
+            if (buf) podofo_free(buf);
+            buf = other.buf; other.buf = NULL; sz = other.sz; ref = other.ref; precomputed_hash = other.precomputed_hash;
+            return *this;
+        }
+        ~CharProc() noexcept { if (buf) podofo_free(buf); buf = NULL; }
+        bool operator==(const CharProc &other) const noexcept {
+            return other.sz == sz && memcmp(buf, other.buf, sz) == 0;
+        }
+        std::size_t hash() const noexcept { return precomputed_hash; }
+        const PdfReference& reference() const noexcept { return ref; }
+};
+
+struct CharProcHasher {
+    std::size_t operator()(const CharProc& k) const { return k.hash(); }
+};
+
+typedef std::unordered_map<CharProc, std::vector<PdfReference>, CharProcHasher> char_proc_reference_map;
+
+static PyObject*
+dedup_type3_fonts(PDFDoc *self, PyObject *args) {
+    unsigned long count = 0;
+    unordered_reference_set all_char_procs;
+    unordered_reference_set all_type3_fonts;
+    char_proc_reference_map cp_map;
+
+    PdfVecObjects &objects = self->doc->GetObjects();
+    for (auto &k : objects) {
+        const PdfDictionary &dict = k->GetDictionary();
+        if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
+            const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
+            if (font_type == "Type3") {
+                all_type3_fonts.insert(k->Reference());
+                for (auto &x : dict.GetKey("CharProcs")->GetDictionary().GetKeys()) {
+                    const PdfReference &ref = x.second->GetReference();
+                    const PdfObject *cpobj = objects.GetObject(ref);
+                    if (!cpobj || !cpobj->HasStream()) continue;
+                    CharProc cp(ref, cpobj);
+                    auto it = cp_map.find(cp);
+                    if (it == cp_map.end()) {
+                        std::vector<PdfReference> vals;
+                        cp_map.insert(std::make_pair(std::move(cp), std::move(vals)));
+                    } else (*it).second.push_back(ref);
+                }
+            }
+        }
+    }
+    std::unordered_map<PdfReference, PdfReference, PdfReferenceHasher> ref_map;
+    for (auto &x : cp_map) {
+        if (x.second.size() > 0) {
+            const PdfReference &canonical_ref = x.first.reference();
+            for (auto &ref : x.second) {
+                if (ref != canonical_ref) {
+                    ref_map[ref] = x.first.reference();
+                    delete objects.RemoveObject(ref);
+                    count++;
+                }
+            }
+        }
+    }
+    if (count > 0) {
+        for (auto &ref : all_type3_fonts) {
+            PdfObject *font = objects.GetObject(ref);
+            PdfDictionary dict = font->GetIndirectKey("CharProcs")->GetDictionary();
+            PdfDictionary new_dict = PdfDictionary(dict);
+            bool changed = false;
+            for (auto &k : dict.GetKeys()) {
+                auto it = ref_map.find(k.second->GetReference());
+                if (it != ref_map.end()) {
+                    new_dict.AddKey(k.first, (*it).second);
+                    changed = true;
+                }
+            }
+            if (changed) font->GetDictionary().AddKey("CharProcs", new_dict);
+        }
+    }
+    return Py_BuildValue("k", count);
+}
+
 PYWRAP(list_fonts)
 PYWRAP(merge_fonts)
 PYWRAP(remove_unused_fonts)
+PYWRAP(dedup_type3_fonts)
