@@ -72,7 +72,8 @@ gcc = os.environ.get('CC', 'clang')
 def compile_launchers(contents_dir, xprograms, pyver):
     base = dirname(abspath(__file__))
     lib = compile_launcher_lib(contents_dir, gcc, base)
-    src = open(join(base, 'launcher.c'), 'rb').read().decode('utf-8')
+    with open(join(base, 'launcher.c'), 'rb') as f:
+        src = f.read().decode('utf-8')
     env, env_vals = [], []
     for key, val in ENV.items():
         env.append('"%s"' % key)
@@ -450,7 +451,8 @@ class Freeze(object):
         src = os.path.join(PREFIX, 'etc', 'fonts')
         shutil.copytree(src, dst, symlinks=False)
         fc = os.path.join(dst, 'fonts.conf')
-        raw = open(fc, 'rb').read().decode('utf-8')
+        with open(fc, 'rb') as f:
+            raw = f.read().decode('utf-8')
         raw = raw.replace('<dir>/usr/share/fonts</dir>', '''\
         <dir>/Library/Fonts</dir>
         <dir>/System/Library/Fonts</dir>

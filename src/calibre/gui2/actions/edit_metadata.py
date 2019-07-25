@@ -937,7 +937,8 @@ class EditMetadataAction(InterfaceAction):
                 if old != prefs['read_file_metadata']:
                     prefs['read_file_metadata'] = old
             if mi.cover and os.access(mi.cover, os.R_OK):
-                cdata = open(mi.cover).read()
+                with open(mi.cover, 'rb') as f:
+                    cdata = f.read()
             elif mi.cover_data[1] is not None:
                 cdata = mi.cover_data[1]
             if cdata is None:

@@ -114,7 +114,8 @@ def get_custom_recipe_collection(*args):
         title, fname = x
         recipe = os.path.join(bdir, fname)
         try:
-            recipe = open(recipe, 'rb').read().decode('utf-8')
+            with open(recipe, 'rb') as f:
+                recipe = f.read().decode('utf-8')
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class

@@ -734,7 +734,8 @@ class BZZDecoder():
 def main():
     import sys
     from calibre.constants import plugins
-    raw = open(sys.argv[1], "rb").read()
+    with open(sys.argv[1], "rb") as f:
+        raw = f.read()
     d = plugins['bzzdec'][0]
     print(d.decompress(raw))
 

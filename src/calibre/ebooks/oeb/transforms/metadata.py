@@ -124,9 +124,10 @@ class MergeMetadata(object):
             self.oeb.metadata.add('identifier', mi.application_id, scheme='calibre')
 
     def set_cover(self, mi, prefer_metadata_cover):
-        cdata, ext = '', 'jpg'
+        cdata, ext = b'', 'jpg'
         if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                cdata = f.read()
             ext = mi.cover.rpartition('.')[-1].lower().strip()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
@@ -137,7 +138,7 @@ class MergeMetadata(object):
         if 'cover' in self.oeb.guide:
             old_cover = self.oeb.guide['cover']
         if prefer_metadata_cover and old_cover is not None:
-            cdata = ''
+            cdata = b''
         if cdata:
             self.oeb.guide.remove('cover')
             self.oeb.guide.remove('titlepage')

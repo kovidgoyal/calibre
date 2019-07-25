@@ -74,12 +74,11 @@ class FilesystemTest(BaseTest):
         cl = self.cloned_library
         cache = self.init_cache(cl)
         fpath = cache.format_abspath(1, 'FMT1')
-        f = open(fpath, 'rb')
-        with self.assertRaises(IOError):
-            cache.set_field('title', {1:'Moved'})
-        with self.assertRaises(IOError):
-            cache.remove_books({1})
-        f.close()
+        with open(fpath, 'rb') as f:
+            with self.assertRaises(IOError):
+                cache.set_field('title', {1:'Moved'})
+            with self.assertRaises(IOError):
+                cache.remove_books({1})
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
         # Test on folder with hardlinks

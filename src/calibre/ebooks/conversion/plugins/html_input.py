@@ -307,7 +307,8 @@ class HTMLInput(InputFormatPlugin):
         if link is None or not os.access(link, os.R_OK) or os.path.isdir(link):
             return (None, None)
         try:
-            raw = open(link, 'rb').read().decode('utf-8', 'replace')
+            with open(link, 'rb') as f:
+                raw = f.read().decode('utf-8', 'replace')
             raw = self.oeb.css_preprocessor(raw, add_namespace=False)
         except:
             self.log.exception('Failed to read CSS file: %r'%link)

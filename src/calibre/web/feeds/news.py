@@ -1299,7 +1299,8 @@ class BasicNewsRecipe(Recipe):
                 cdata = cu.read()
                 cu = getattr(cu, 'name', 'cover.jpg')
             elif os.access(cu, os.R_OK):
-                cdata = open(cu, 'rb').read()
+                with open(cu, 'rb') as f:
+                    cdata = f.read()
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
                 with closing(self.browser.open(cu)) as r:

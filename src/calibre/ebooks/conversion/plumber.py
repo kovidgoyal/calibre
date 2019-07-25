@@ -1191,7 +1191,8 @@ OptionRecommendation(name='search_replace',
             self.log('Structured HTML written to:', out_dir)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
-            self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
+            with open(self.opts.extra_css, 'rb') as f:
+                self.opts.extra_css = f.read()
 
         oibl = self.opts.insert_blank_line
         orps  = self.opts.remove_paragraph_spacing

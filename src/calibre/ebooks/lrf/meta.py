@@ -712,7 +712,8 @@ def main(args=sys.argv):
         lrf.book_id = options.book_id
     if options.comment:
         path = os.path.expanduser(os.path.expandvars(options.comment))
-        lrf.free_text = open(path, 'rb').read().decode('utf-8', 'replace')
+        with open(path, 'rb') as f:
+            lrf.free_text = f.read().decode('utf-8', 'replace')
     if options.get_thumbnail:
         t = lrf.thumbnail
         td = "None"

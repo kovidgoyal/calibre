@@ -487,9 +487,10 @@ def test():
 
 def main():
     import sys, os
-    for f in sys.argv[1:]:
-        print(os.path.basename(f))
-        raw = open(f, 'rb').read()
+    for arg in sys.argv[1:]:
+        print(os.path.basename(arg))
+        with open(arg, 'rb') as f:
+            raw = f.read()
         print(get_font_names(raw))
         characs = get_font_characteristics(raw)
         print(characs)

@@ -606,7 +606,8 @@ class CustomRecipes(Dialog):
         if files:
             path = files[0]
             try:
-                src = open(path, 'rb').read().decode('utf-8')
+                with open(path, 'rb') as f:
+                    src = f.read().decode('utf-8')
             except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%err, show=True)

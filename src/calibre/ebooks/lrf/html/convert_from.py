@@ -266,7 +266,8 @@ class HTMLConverter(object):
 
         if self._override_css is not None:
             if os.access(self._override_css, os.R_OK):
-                src = open(self._override_css, 'rb').read()
+                with open(self._override_css, 'rb') as f:
+                    src = f.read()
             else:
                 src = self._override_css
             if isinstance(src, bytes):

@@ -391,14 +391,13 @@ if __name__ == '__main__':
         print(get_metadata(open(sys.argv[1], 'rb')))
     else:
         # Test set_metadata()
-        data = open(sys.argv[1], 'rb')
         stream = io.BytesIO()
-        stream.write(data.read())
+        with open(sys.argv[1], 'rb') as data:
+            stream.write(data.read())
         mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
         set_metadata(stream, mi)
 
         # Write the result
         tokens = sys.argv[1].rpartition('.')
-        updated_data = open(tokens[0]+'-updated' + '.' + tokens[2],'wb')
-        updated_data.write(stream.getvalue())
-        updated_data.close()
+        with open(tokens[0]+'-updated' + '.' + tokens[2],'wb') as updated_data:
+            updated_data.write(stream.getvalue())

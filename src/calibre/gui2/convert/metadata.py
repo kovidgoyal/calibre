@@ -198,10 +198,10 @@ class MetadataWidget(Widget, Ui_Form):
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
-            cf, cover = None, None
+            cover = None
             try:
-                cf = open(_file, "rb")
-                cover = cf.read()
+                with open(_file, "rb") as f:
+                    cover = f.read()
             except IOError as e:
                 d = error_dialog(self.parent(), _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))

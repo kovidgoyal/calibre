@@ -305,7 +305,8 @@ def embed_resources(env, module, desc=None, extra_data=None, product_description
     icon_map = {'calibre': 'library', 'ebook-viewer': 'viewer', 'ebook-edit': 'ebook-edit',
                 'lrfviewer': 'viewer', 'calibre-portable': 'library'}
     file_type = 'DLL' if module.endswith('.dll') else 'APP'
-    template = open(env.rc_template, 'rb').read().decode('utf-8')
+    with open(env.rc_template, 'rb') as f:
+        template = f.read().decode('utf-8')
     bname = b(module)
     internal_name = os.path.splitext(bname)[0]
     icon = icon_map.get(internal_name, 'command-prompt')
