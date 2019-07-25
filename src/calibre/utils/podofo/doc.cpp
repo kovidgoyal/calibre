@@ -744,16 +744,13 @@ static PyMethodDef PDFDoc_methods[] = {
     {"alter_links", (PyCFunction)PDFDoc_alter_links, METH_VARARGS,
      "alter_links() -> Change links in the document."
     },
-    {"list_fonts", (PyCFunction)list_fonts, METH_VARARGS,
+    {"list_fonts", (PyCFunction)py_list_fonts, METH_VARARGS,
      "list_fonts() -> Get list of fonts in document"
     },
-    {"remove_fonts", (PyCFunction)remove_fonts, METH_VARARGS,
-     "remove_fonts() -> Remove the specified font objects."
-    },
-    {"remove_unused_fonts", (PyCFunction)remove_unused_fonts, METH_NOARGS,
+    {"remove_unused_fonts", (PyCFunction)py_remove_unused_fonts, METH_NOARGS,
      "remove_unused_fonts() -> Remove unused font objects."
     },
-    {"merge_fonts", (PyCFunction)merge_fonts, METH_VARARGS,
+    {"merge_fonts", (PyCFunction)py_merge_fonts, METH_VARARGS,
      "merge_fonts() -> Merge the specified fonts."
     },
     {"delete_pages", (PyCFunction)PDFDoc_delete_pages, METH_VARARGS,

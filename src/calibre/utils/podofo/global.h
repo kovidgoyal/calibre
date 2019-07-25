@@ -96,9 +96,8 @@ typedef std::unordered_set<PdfReference, PdfReferenceHasher> unordered_reference
 
 
 extern "C" {
-PyObject* list_fonts(PDFDoc*, PyObject*);
-PyObject* remove_fonts(PDFDoc *self, PyObject *args);
-PyObject* remove_unused_fonts(PDFDoc *self, PyObject *args);
-PyObject* merge_fonts(PDFDoc *self, PyObject *args);
+PyObject* py_list_fonts(PDFDoc*, PyObject*);
+PyObject* py_remove_unused_fonts(PDFDoc *self, PyObject *args);
+PyObject* py_merge_fonts(PDFDoc *self, PyObject *args);
 }
 }
