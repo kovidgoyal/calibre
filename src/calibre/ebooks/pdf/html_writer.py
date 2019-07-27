@@ -19,10 +19,11 @@ from operator import attrgetter, itemgetter
 from PyQt5.Qt import (
     QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
 )
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
 
 from calibre import detect_ncpus, prepare_string_for_xml
-from calibre.constants import iswindows
+from calibre.constants import __version__, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, xml2text
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
@@ -84,7 +85,7 @@ class Renderer(QWebEnginePage):
     work_done = pyqtSignal(object, object)
 
     def __init__(self, opts, parent):
-        QWebEnginePage.__init__(self, parent)
+        QWebEnginePage.__init__(self, parent.profile, parent)
         secure_webengine(self)
         self.working = False
         self.load_complete = False
@@ -154,10 +155,42 @@ class Renderer(QWebEnginePage):
         self.setUrl(QUrl.fromLocalFile(path))
 
 
+class RequestInterceptor(QWebEngineUrlRequestInterceptor):
+
+    def interceptRequest(self, request_info):
+        method = bytes(request_info.requestMethod())
+        if method not in (b'GET', b'HEAD'):
+            self.log.warn('Blocking URL request with method: {}'.format(method))
+            request_info.block(True)
+            return
+        qurl = request_info.requestUrl()
+        if qurl.scheme() != 'file':
+            self.log.warn('Blocking URL request with scheme: {}'.format(qurl.scheme()))
+            request_info.block(True)
+            return
+        path = qurl.toLocalFile()
+        path = os.path.normcase(os.path.abspath(path))
+        if not path.startswith(self.container_root):
+            self.log.warn('Blocking URL request with path: {}'.format(path))
+            request_info.block(True)
+            return
+
+
 class RenderManager(QObject):
 
-    def __init__(self, opts):
+    def __init__(self, opts, log, container_root):
         QObject.__init__(self)
+        self.interceptor = RequestInterceptor(self)
+        self.interceptor.log = log
+        self.interceptor.container_root = os.path.normcase(os.path.abspath(container_root))
+        ans = QWebEngineProfile(QApplication.instance())
+        ua = 'calibre-pdf-output ' + __version__
+        ans.setHttpUserAgent(ua)
+        s = ans.settings()
+        s.setDefaultTextEncoding('utf-8')
+        ans.setUrlRequestInterceptor(self.interceptor)
+        self.profile = ans
+
         self.opts = opts
         self.workers = []
         self.max_workers = detect_ncpus()
@@ -777,7 +810,6 @@ def merge_fonts(pdf_doc):
                     return False
                 font['sfnt'] = sfnt
                 if b'glyf' not in sfnt:
-                    # TODO: Add support for merging CFF tables
                     return False
         return has_type0
 
@@ -958,7 +990,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     container.commit()
     report_progress(0.1, _('Completed markup transformation'))
 
-    manager = RenderManager(opts)
+    manager = RenderManager(opts, log, container.root)
     page_layout = get_page_layout(opts)
     pdf_doc = None
     anchor_locations = {}
@@ -1016,7 +1048,6 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
 
-    # TODO: Add a url interceptor to ensure nothing outside the container is read
     # TODO: dedup images
     # TODO: Support for mathematics
 
