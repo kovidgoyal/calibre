@@ -791,7 +791,7 @@ def test_merge_fonts():
 PAGE_NUMBER_TEMPLATE = '<footer><div style="margin: auto">_PAGENUM_</div></footer>'
 
 
-def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress):
+def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress, toc=None):
     header_template, footer_template = opts.pdf_header_template, opts.pdf_footer_template
     if not footer_template and opts.pdf_page_numbers:
         footer_template = PAGE_NUMBER_TEMPLATE
@@ -801,6 +801,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     name = create_skeleton(container)
     root = container.parsed(name)
     body = root[-1]
+    body.attrib.pop('id', None)
     body.set('style', 'margin: 0; padding: 0; border-width: 0')
     skeleton = xml2text(root, method='html')
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
@@ -828,6 +829,43 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         }}
     '''.format(justify=justify)))
 
+    def create_toc_stack(iterator):
+        ans = []
+        for level, child in iterator:
+            pdf_loc = getattr(child, 'pdf_loc', None)
+            if pdf_loc is not None and pdf_loc.pagenum > 0:
+                ans.append((level, pdf_loc.pagenum, child.title))
+        return ans
+
+    def stack_to_map(stack):
+        ans = []
+        stack_pos = 0
+        current, page_for_current, level_for_current = '', -1, -1
+        stack_len = len(stack)
+        for page in range(1, pdf_doc.page_count() + 1):
+            while stack_pos < stack_len:
+                level, pagenum, title = stack[stack_pos]
+                if pagenum != page:
+                    break
+                if pagenum != page_for_current or level > level_for_current:
+                    page_for_current = pagenum
+                    level_for_current = level
+                    current = title
+                stack_pos += 1
+            ans.append(current)
+        return ans
+
+    if toc is None:
+        page_toc_map = stack_to_map(())
+        toplevel_toc_map = stack_to_map(())
+    else:
+        page_toc_map = stack_to_map(create_toc_stack(toc.iterdescendants(level=0)))
+
+        def tc():
+            for x in toc:
+                yield 0, x
+        toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
+
     def create_iframe(margins, f, is_footer=False):
         style = {
             'margin-left': '{}pt'.format(margins.left),
@@ -840,15 +878,17 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         )
 
     def format_template(template, page_num):
-        # TODO: _SECTION_ and _TOP_LEVEL_SECTION_
-        template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
         extra_style = 'header, footer { margin: 0; padding: 0; border-width: 0; height: 100vh; display: flex; align-items: center }'
         if page_num % 2:
             extra_style += '.even_page { display: none }'
         else:
             extra_style += '.odd_page { display: none }'
+
+        template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
         template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
         template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
+        template = template.replace('_TOP_LEVEL_SECTION_', prepare_string_for_xml(toplevel_toc_map[page_num - 1]))
+        template = template.replace('_SECTION_', prepare_string_for_xml(page_toc_map[page_num - 1]))
         template += '<style>{}</style>'.format(extra_style)
         repl = skeleton.replace('</body>', template + '</body>', 1)
         if repl == skeleton:
@@ -937,13 +977,17 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     report_progress(0.75, _('Added links to PDF content'))
 
     pdf_metadata = PDFMetadata(metadata)
-    add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress)
+    add_header_footer(
+        manager, opts, pdf_doc, container,
+        page_number_display_map, page_layout, page_margins_map,
+        pdf_metadata, report_progress, toc if has_toc else None)
 
     merge_fonts(pdf_doc)
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
 
+    # TODO: Add a url interceptor to ensure nothing outside the container is read
     # TODO: dedup images
     # TODO: Support for mathematics
 
