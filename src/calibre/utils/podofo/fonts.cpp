@@ -399,6 +399,7 @@ dedup_type3_fonts(PDFDoc *self, PyObject *args) {
 
     PdfVecObjects &objects = self->doc->GetObjects();
     for (auto &k : objects) {
+        if (!k->IsDictionary()) continue;
         const PdfDictionary &dict = k->GetDictionary();
         if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
             const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
