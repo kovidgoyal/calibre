@@ -114,6 +114,8 @@ def get_comic_book_info(d, mi, series_index='volume'):
                 mi.series_index = float(si)
             except Exception:
                 mi.series_index = 1
+    if d.get('language', '') != '':
+        mi.languages = [d['language'].strip()]
     if d.get('rating', -1) > -1:
         mi.rating = d['rating']
     for x in ('title', 'publisher'):
