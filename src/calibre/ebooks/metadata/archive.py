@@ -10,6 +10,7 @@ import os
 from contextlib import closing
 
 from calibre.customize import FileTypePlugin
+from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import filter, unicode_type
 
 
@@ -114,6 +115,10 @@ def get_comic_book_info(d, mi, series_index='volume'):
                 mi.series_index = float(si)
             except Exception:
                 mi.series_index = 1
+    if d.get('language', None):
+        lang = canonicalize_lang(d.get('lang'))
+        if lang:
+            mi.languages = [lang]
     if d.get('rating', -1) > -1:
         mi.rating = d['rating']
     for x in ('title', 'publisher'):
