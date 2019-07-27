@@ -87,7 +87,9 @@ class Renderer(QWebEnginePage):
         QWebEnginePage.__init__(self, parent)
         secure_webengine(self)
         self.working = False
+        self.load_complete = False
         self.settle_time = 0
+        self.wait_for_title = None
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, True)
         s.setFontSize(s.DefaultFontSize, opts.pdf_default_font_size)
@@ -108,14 +110,33 @@ class Renderer(QWebEnginePage):
         if opts.pdf_mono_family:
             s.setFontFamily(s.FixedFont, opts.pdf_mono_family)
 
+        self.titleChanged.connect(self.title_changed)
+        self.loadStarted.connect(self.load_started)
         self.loadFinished.connect(self.load_finished)
 
+    def load_started(self):
+        self.load_complete = False
+
+    def title_changed(self, title):
+        if self.wait_for_title and title == self.wait_for_title and self.load_complete:
+            QTimer.singleShot(0, self.print_to_pdf)
+
     def load_finished(self, ok):
+        self.load_complete = True
         if not ok:
             self.working = False
             self.work_done.emit(self, 'Load of {} failed'.format(self.url().toString()))
             return
-        QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
+        timeout = self.settle_time
+        if self.wait_for_title and self.title() == self.wait_for_title:
+            timeout = 0
+        QTimer.singleShot(int(1000 * timeout), self.print_to_pdf)
+
+    def javaScriptConsoleMessage(self, level, message, linenum, source_id):
+        try:
+            print('{}:{}:{}'.format(source_id, linenum, message))
+        except Exception:
+            pass
 
     def print_to_pdf(self):
         self.printToPdf(self.printing_done, self.page_layout)
@@ -124,8 +145,10 @@ class Renderer(QWebEnginePage):
         self.working = False
         self.work_done.emit(self, bytes(pdf_data))
 
-    def convert_html_file(self, path, page_layout, settle_time=0):
+    def convert_html_file(self, path, page_layout, settle_time=0, wait_for_title=None):
         self.working = True
+        self.load_complete = False
+        self.wait_for_title = wait_for_title
         self.settle_time = settle_time
         self.page_layout = page_layout
         self.setUrl(QUrl.fromLocalFile(path))
@@ -168,12 +191,13 @@ class RenderManager(QObject):
         finally:
             self.restore_signal_handlers()
 
-    def convert_html_files(self, jobs, settle_time=0):
+    def convert_html_files(self, jobs, settle_time=0, wait_for_title=None):
         while len(self.workers) < min(len(jobs), self.max_workers):
             self.create_worker()
         self.pending = list(jobs)
         self.results = {}
         self.settle_time = settle_time
+        self.wait_for_title = wait_for_title
         QTimer.singleShot(0, self.assign_work)
         ret = self.run_loop()
         if ret == KILL_SIGNAL:
@@ -201,7 +225,7 @@ class RenderManager(QObject):
             html_file, page_layout, result_key = self.pending.pop()
             w = free_workers.pop()
             w.result_key = result_key
-            w.convert_html_file(html_file, page_layout, settle_time=self.settle_time)
+            w.convert_html_file(html_file, page_layout, settle_time=self.settle_time, wait_for_title=self.wait_for_title)
 
     def work_done(self, worker, result):
         self.results[worker.result_key] = result
@@ -828,6 +852,14 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             justify-content: {justify}
         }}
     '''.format(justify=justify)))
+    root[0].append(m('script', '''
+    function iframe_loaded(iframe) {
+        for (let i of document.getElementsByTagName('iframe')) {
+            if (i.contentWindow.document.readyState !== 'complete') return;
+        }
+        document.title = 'iframe-loading-complete'
+    }
+    '''))
 
     def create_toc_stack(iterator):
         ans = []
@@ -872,10 +904,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'margin-right': '{}pt'.format(margins.right),
             'height': '{}pt'.format(margins.bottom if is_footer else margins.top)}
         style = '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style))
-        return m(
-            'iframe', seamless='seamless', style=style,
-            srcdoc=f
-        )
+        return m('iframe', seamless='seamless', style=style, onload='iframe_loaded(this)', srcdoc=f)
 
     def format_template(template, page_num):
         extra_style = 'header, footer { margin: 0; padding: 0; border-width: 0; height: 100vh; display: flex; align-items: center }'
@@ -907,7 +936,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             div.append(create_iframe(margins, f, True))
 
     container.commit()
-    results = manager.convert_html_files([job], settle_time=2)
+    results = manager.convert_html_files([job], wait_for_title='iframe-loading-complete')
     data = results[name]
     if not isinstance(data, bytes):
         raise SystemExit(data)

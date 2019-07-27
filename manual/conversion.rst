@@ -873,7 +873,8 @@ You can even use JavaScript inside the header and footer templates, for
 example, the following template will cause page numbers to start at 4 instead
 of 1::
 
-    <p id="pagenum" style="text-align:center;"></p><script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
+    <footer><div id="pagenum"></div></footer>
+    <script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
 
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the :guilabel:`PDF Output`
