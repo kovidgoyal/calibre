@@ -104,7 +104,7 @@ _archive_re = re.compile(r'[^ ]+')
 self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b',
 'bdo', 'blockquote', 'body', 'button', 'cite', 'code', 'dd', 'del', 'details',
 'dfn', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption', 'figure', 'footer',
-'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'i', 'ins', 'kbd',
+'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'i', 'iframe', 'ins', 'kbd',
 'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
 'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
 'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
@@ -400,8 +400,8 @@ def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
     return ans
 
 
-def xml2text(elem, pretty_print=False):
-    return etree.tostring(elem, method='text', encoding='unicode', with_tail=False, pretty_print=pretty_print)
+def xml2text(elem, pretty_print=False, method='text'):
+    return etree.tostring(elem, method=method, encoding='unicode', with_tail=False, pretty_print=pretty_print)
 
 
 def escape_cdata(root):

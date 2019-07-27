@@ -834,44 +834,50 @@ code that get rendered in the header and footer locations. For example, to
 display page numbers centered at the bottom of every page, in green, use the following
 footer template::
 
-    <p style="text-align:center; color:green">Page _PAGENUM_</p>
+    <footer><div style="margin: auto; color: green">_PAGENUM_</div></footer>
 
-calibre will automatically replace _PAGENUM_ with the current page number. You
+calibre will automatically replace :code:`_PAGENUM_` with the current page number. You
 can even put different content on even and odd pages, for example the following
 header template will show the title on odd pages and the author on even pages::
 
-    <p style="text-align:right"><span class="even_page">_AUTHOR_</span><span class="odd_page"><i>_TITLE_</i></span></p>
+    <header style="justify-content: flex-end">
+        <div class="even_page">_AUTHOR_</div>
+        <div class="odd_page"><i>_TITLE_</i></div>
+    </header>
 
-calibre will automatically replace _TITLE_ and _AUTHOR_ with the title and author
-of the document being converted.  You can also display text at the left and
-right edges and change the font size, as demonstrated with this header
-template::
+calibre will automatically replace :code:`_TITLE_` and :code:`_AUTHOR_` with
+the title and author of the document being converted.  You can also display
+text at the left and right edges and change the font size, as demonstrated with
+this header template::
 
-    <div style="font-size:x-small"><p style="float:left">_TITLE_</p><p style="float:right;"><i>_AUTHOR_</i></p></div>
+    <header style="justify-content: space-between; font-size: smaller">
+        <div>_TITLE_</div>
+        <div>_AUTHOR_</div>
+    </header>
 
 This will display the title at the left and the author at the right, in a font
 size smaller than the main text.
 
 You can also use the current section in templates, as shown below::
 
-    <p style="text-align:right">_SECTION_</p>
+    <header><div>_SECTION_</div></header>
 
-_SECTION_ is replaced by whatever the name of the current section is. These
+:code:`_SECTION_` is replaced by whatever the name of the current section is. These
 names are taken from the metadata Table of Contents in the document (the PDF
 Outline). If the document has no table of contents then it will be replaced by
 empty text. If a single PDF page has multiple sections, the first section on
-the page will be used. Similarly, there is a variable named _TOP_LEVEL_SECTION_
+the page will be used. Similarly, there is a variable named :code:`_TOP_LEVEL_SECTION_`
 that can be used to get the name of the current top-level section.
 
-You can even use javascript inside the header and footer templates, for
+You can even use JavaScript inside the header and footer templates, for
 example, the following template will cause page numbers to start at 4 instead
 of 1::
 
     <p id="pagenum" style="text-align:center;"></p><script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
 
 .. note:: When adding headers and footers make sure you set the page top and
-    bottom margins to large enough values, under the Page setup section of the
-    conversion dialog.
+    bottom margins to large enough values, under the :guilabel:`PDF Output`
+    section of the conversion dialog.
 
 Printable Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

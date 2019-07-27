@@ -13,6 +13,7 @@ import signal
 import sys
 from collections import namedtuple
 from io import BytesIO
+from itertools import repeat
 from operator import attrgetter, itemgetter
 
 from PyQt5.Qt import (
@@ -20,10 +21,10 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
-from calibre import detect_ncpus
+from calibre import detect_ncpus, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
-from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML, xml2text
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.pdf.image_writer import (
@@ -55,7 +56,7 @@ def data_as_pdf_doc(data):
 
 
 def create_skeleton(container):
-    spine_name = next(container.spine_names)[0]
+    spine_name = tuple(container.spine_names)[-1][0]
     root = container.parsed(spine_name)
     root = copy.deepcopy(root)
     body = root[-1]
@@ -213,20 +214,23 @@ class RenderManager(QObject):
             QApplication.instance().exit(OK)
 
 
+def resolve_margins(margins, page_layout):
+    old_margins = page_layout.marginsPoints()
+
+    def m(which):
+        ans = getattr(margins, which, None)
+        if ans is None:
+            ans = getattr(old_margins, which)()
+        return ans
+    return Margins(*map(m, 'left top right bottom'.split()))
+
+
 def job_for_name(container, name, margins, page_layout):
     index_file = container.name_to_abspath(name)
     if margins:
-
-        def m(which):
-            ans = getattr(margins, which)
-            if ans is None:
-                ans = getattr(old_margins, which)()
-            return ans
-
         page_layout = QPageLayout(page_layout)
         page_layout.setUnits(QPageLayout.Point)
-        old_margins = page_layout.marginsPoints()
-        new_margins = QMarginsF(*map(m, 'left top right bottom'.split()))
+        new_margins = QMarginsF(*resolve_margins(margins, page_layout))
         page_layout.setMargins(new_margins)
     return index_file, page_layout, name
 # }}}
@@ -324,14 +328,14 @@ def make_anchors_unique(container):
         else:
             name = container.href_to_name(href, base)
         if not name:
-            return url
+            return url.rstrip('#')
         if not frag and name in spine_names:
             replacer.replaced = True
             return 'https://calibre-pdf-anchor.n#' + name
         key = name, frag
         new_frag = mapping.get(key)
         if new_frag is None:
-            return url
+            return url.rstrip('#')
         replacer.replaced = True
         return 'https://calibre-pdf-anchor.a#' + new_frag
         if url.startswith('#'):
@@ -782,6 +786,98 @@ def test_merge_fonts():
 # }}}
 
 
+# Header/footer {{{
+
+PAGE_NUMBER_TEMPLATE = '<footer><div style="margin: auto">_PAGENUM_</div></footer>'
+
+
+def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress):
+    header_template, footer_template = opts.pdf_header_template, opts.pdf_footer_template
+    if not footer_template and opts.pdf_page_numbers:
+        footer_template = PAGE_NUMBER_TEMPLATE
+    if not header_template and not footer_template:
+        return
+    report_progress(0.8, _('Adding headers and footers'))
+    name = create_skeleton(container)
+    root = container.parsed(name)
+    body = root[-1]
+    body.set('style', 'margin: 0; padding: 0; border-width: 0')
+    skeleton = xml2text(root, method='html')
+    job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
+
+    def m(tag_name, text=None, **attrs):
+        ans = root.makeelement(XHTML(tag_name), **attrs)
+        if text is not None:
+            ans.text = text
+        return ans
+
+    justify = 'flex-end'
+    if header_template:
+        justify = 'space-between' if footer_template else 'flex-start'
+    del root[0][:]
+    root[0].append(m('style', '''
+        * {{ margin: 0; padding: 0; border-width: 0; box-sizing: border-box; }}
+        div {{
+            page-break-inside: avoid;
+            page-break-after:always;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin-bottom: 0pt;
+            justify-content: {justify}
+        }}
+    '''.format(justify=justify)))
+
+    def create_iframe(margins, f, is_footer=False):
+        style = {
+            'margin-left': '{}pt'.format(margins.left),
+            'margin-right': '{}pt'.format(margins.right),
+            'height': '{}pt'.format(margins.bottom if is_footer else margins.top)}
+        style = '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style))
+        return m(
+            'iframe', seamless='seamless', style=style,
+            srcdoc=f
+        )
+
+    def format_template(template, page_num):
+        # TODO: _SECTION_ and _TOP_LEVEL_SECTION_
+        template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
+        extra_style = 'header, footer { margin: 0; padding: 0; border-width: 0; height: 100vh; display: flex; align-items: center }'
+        if page_num % 2:
+            extra_style += '.even_page { display: none }'
+        else:
+            extra_style += '.odd_page { display: none }'
+        template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
+        template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
+        template += '<style>{}</style>'.format(extra_style)
+        repl = skeleton.replace('</body>', template + '</body>', 1)
+        if repl == skeleton:
+            raise ValueError('Failed to insert template into skeleton: ' + skeleton)
+        return repl
+
+    for page_num in range(1, pdf_doc.page_count() + 1):
+        div = m('div')
+        body.append(div)
+        margins = page_margins_map[page_num - 1]
+        if header_template:
+            f = format_template(header_template, page_num)
+            div.append(create_iframe(margins, f))
+        if footer_template:
+            f = format_template(footer_template, page_num)
+            div.append(create_iframe(margins, f, True))
+
+    container.commit()
+    results = manager.convert_html_files([job], settle_time=2)
+    data = results[name]
+    if not isinstance(data, bytes):
+        raise SystemExit(data)
+    doc = data_as_pdf_doc(data)
+    pdf_doc.append(doc)
+    report_progress(0.9, _('Headers and footers added'))
+
+# }}}
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
@@ -802,6 +898,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         jobs.append(job_for_name(container, margin_file.name, margin_file.margins, page_layout))
     results = manager.convert_html_files(jobs, settle_time=1)
     num_pages = 0
+    page_margins_map = []
     for margin_file in margin_files:
         name = margin_file.name
         data = results[name]
@@ -809,7 +906,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             raise SystemExit(data)
         doc = data_as_pdf_doc(data)
         anchor_locations.update(get_anchor_locations(doc, num_pages + 1, links_page_uuid))
-        num_pages += doc.page_count()
+        doc_pages = doc.page_count()
+        page_margins_map.extend(repeat(resolve_margins(margin_file.margins, page_layout), doc_pages))
+        num_pages += doc_pages
 
         if pdf_doc is None:
             pdf_doc = doc
@@ -837,11 +936,15 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         add_toc(PDFOutlineRoot(pdf_doc), toc)
     report_progress(0.75, _('Added links to PDF content'))
 
+    pdf_metadata = PDFMetadata(metadata)
+    add_header_footer(manager, opts, pdf_doc, container, page_number_display_map, page_layout, page_margins_map, pdf_metadata, report_progress)
+
     merge_fonts(pdf_doc)
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
 
+    # TODO: dedup images
     # TODO: Support for mathematics
 
     num_removed = remove_unused_fonts(pdf_doc)
@@ -852,7 +955,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         add_cover(pdf_doc, cover_data, page_layout, opts)
 
     if metadata is not None:
-        update_metadata(pdf_doc, PDFMetadata(metadata))
+        update_metadata(pdf_doc, pdf_metadata)
     report_progress(1, _('Updated metadata in PDF'))
 
     if opts.uncompressed_pdf:

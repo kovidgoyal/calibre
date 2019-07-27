@@ -18,7 +18,7 @@ OUTPUT = '/t/dev.pdf'
 class Renderer(QWebEnginePage):
 
     def do_print(self, ok):
-        p = QPageLayout(QPageSize(QPageSize(QPageSize.A6)), QPageLayout.Portrait, QMarginsF(10, 10, 10, 10))
+        p = QPageLayout(QPageSize(QPageSize(QPageSize.A4)), QPageLayout.Portrait, QMarginsF(72, 0, 72, 0))
         self.printToPdf(self.print_finished, p)
 
     def print_finished(self, pdf_data):
@@ -28,8 +28,6 @@ class Renderer(QWebEnginePage):
         podofo = get_podofo()
         doc = podofo.PDFDoc()
         doc.load(pdf_data)
-        from pprint import pprint
-        pprint(doc.extract_anchors())
 
 
 def main():
