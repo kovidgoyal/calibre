@@ -89,7 +89,7 @@ dictionary_has_key_name(const PdfDictionary &d, T key, const char *name) {
 class PdfReferenceHasher {
     public:
         size_t operator()(const PdfReference & obj) const {
-            return std::hash<pdf_objnum>()(obj.ObjectNumber());
+            return obj.ObjectNumber();
         }
 };
 typedef std::unordered_set<PdfReference, PdfReferenceHasher> unordered_reference_set;
