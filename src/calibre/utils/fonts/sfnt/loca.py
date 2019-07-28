@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import calcsize, unpack_from, pack
+import array, sys
 from operator import itemgetter
 from itertools import repeat
 
@@ -14,16 +14,22 @@ from calibre.utils.fonts.sfnt import UnknownTable
 from polyglot.builtins import iteritems, range
 
 
+def four_byte_type_code():
+    for c in 'IL':
+        a = array.array(c)
+        if a.itemsize == 4:
+            return c
+
+
 class LocaTable(UnknownTable):
 
     def load_offsets(self, head_table, maxp_table):
-        fmt = 'H' if head_table.index_to_loc_format == 0 else 'L'
-        num_glyphs = maxp_table.num_glyphs
-        sz = calcsize(('>%s'%fmt).encode('ascii'))
-        num = len(self.raw)//sz
-        self.offset_map = unpack_from(('>%d%s'%(num, fmt)).encode('ascii'),
-                self.raw)
-        self.offset_map = self.offset_map[:num_glyphs+1]
+        fmt = 'H' if head_table.index_to_loc_format == 0 else four_byte_type_code()
+        locs = array.array(fmt)
+        locs.fromstring(self.raw)
+        if sys.byteorder != "big":
+            locs.byteswap()
+        self.offset_map = locs.tolist()
         if fmt == 'H':
             self.offset_map = [2*i for i in self.offset_map]
         self.fmt = fmt
@@ -37,8 +43,14 @@ class LocaTable(UnknownTable):
         '''
         Update this table to contain pointers only to the glyphs in
         resolved_glyph_map which must be a map of glyph_ids to (offset, sz)
+        Note that the loca table is generated for all glyphs from 0 to the
+        largest glyph that is either in resolved_glyph_map or was present
+        originally. The pointers to glyphs that have no data will be set to
+        zero. This preserves glyph ids.
         '''
+        current_max_glyph_id = len(self.offset_map) - 2
         max_glyph_id = max(resolved_glyph_map or (0,))
+        max_glyph_id = max(max_glyph_id, current_max_glyph_id)
         self.offset_map = list(repeat(0, max_glyph_id + 2))
         glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in
                     iteritems(resolved_glyph_map)]
@@ -54,16 +66,16 @@ class LocaTable(UnknownTable):
 
         vals = self.offset_map
         max_offset = max(vals) if vals else 0
-        max_short_offset = 65535 * 2
-        if self.fmt == 'L' and max_offset <= max_short_offset:
+        if max_offset < 0x20000 and all(l % 2 == 0 for l in vals):
             self.fmt = 'H'
-        if self.fmt == 'H':
-            if max_offset > max_short_offset:
-                self.fmt = 'L'
-            else:
-                vals = [i//2 for i in vals]
+            vals = array.array(self.fmt, (i // 2 for i in vals))
+        else:
+            self.fmt = four_byte_type_code()
+            vals = array.array(self.fmt, vals)
 
-        self.raw = pack(('>%d%s'%(len(vals), self.fmt)).encode('ascii'), *vals)
+        if sys.byteorder != "big":
+            vals.byteswap()
+        self.raw = vals.tostring()
     subset = update
 
     def dump_glyphs(self, sfnt):

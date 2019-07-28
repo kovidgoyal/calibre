@@ -42,5 +42,5 @@ class MaxpTable(UnknownTable):
                 setattr(self, f, val)
 
     def update(self):
-        vals = [getattr(self, f) for f in self._fields]
+        vals = [getattr(self, f) for f in self.fields]
         self.raw = pack(self._fmt, *vals)
