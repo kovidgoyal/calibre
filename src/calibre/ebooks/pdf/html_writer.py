@@ -21,11 +21,12 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
+from html5_parser import parse
 
 from calibre import detect_ncpus, prepare_string_for_xml
 from calibre.constants import __version__, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
-from calibre.ebooks.oeb.base import XHTML, xml2text
+from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.pdf.image_writer import (
@@ -859,39 +860,20 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     body = root[-1]
     body.attrib.pop('id', None)
     body.set('style', 'margin: 0; padding: 0; border-width: 0')
-    skeleton = xml2text(root, method='html')
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
 
-    def m(tag_name, text=None, **attrs):
+    def m(tag_name, text=None, style=None, **attrs):
         ans = root.makeelement(XHTML(tag_name), **attrs)
         if text is not None:
             ans.text = text
+        if style is not None:
+            style = '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style))
+            ans.set('style', style)
         return ans
 
     justify = 'flex-end'
     if header_template:
         justify = 'space-between' if footer_template else 'flex-start'
-    del root[0][:]
-    root[0].append(m('style', '''
-        * {{ margin: 0; padding: 0; border-width: 0; box-sizing: border-box; }}
-        div {{
-            page-break-inside: avoid;
-            page-break-after:always;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin-bottom: 0pt;
-            justify-content: {justify}
-        }}
-    '''.format(justify=justify)))
-    root[0].append(m('script', '''
-    function iframe_loaded(iframe) {
-        for (let i of document.getElementsByTagName('iframe')) {
-            if (i.contentWindow.document.readyState !== 'complete') return;
-        }
-        document.title = 'iframe-loading-complete'
-    }
-    '''))
 
     def create_toc_stack(iterator):
         ans = []
@@ -930,45 +912,58 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
                 yield 0, x
         toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
 
-    def create_iframe(margins, f, is_footer=False):
+    def create_container(page_num, margins):
         style = {
+            'page-break-inside': 'avoid',
+            'page-break-after': 'always',
+            'display': 'flex',
+            'flex-direction': 'column',
+            'height': '100%',
+            'justify-content': justify,
             'margin-left': '{}pt'.format(margins.left),
             'margin-right': '{}pt'.format(margins.right),
-            'height': '{}pt'.format(margins.bottom if is_footer else margins.top)}
-        style = '; '.join('{}: {}'.format(k, v) for k, v in iteritems(style))
-        return m('iframe', seamless='seamless', style=style, onload='iframe_loaded(this)', srcdoc=f)
+            'margin-top': '0',
+            'margin-bottom': '0',
+            'padding': '0',
+            'border-width': '0',
+        }
 
-    def format_template(template, page_num):
-        extra_style = 'header, footer { margin: 0; padding: 0; border-width: 0; height: 100vh; display: flex; align-items: center }'
-        if page_num % 2:
-            extra_style += '.even_page { display: none }'
-        else:
-            extra_style += '.odd_page { display: none }'
+        ans = m('div', style=style, id='p{}'.format(page_num))
+        return ans
 
+    def format_template(template, page_num, height):
         template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
         template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
         template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
         template = template.replace('_TOP_LEVEL_SECTION_', prepare_string_for_xml(toplevel_toc_map[page_num - 1]))
         template = template.replace('_SECTION_', prepare_string_for_xml(page_toc_map[page_num - 1]))
-        template += '<style>{}</style>'.format(extra_style)
-        repl = skeleton.replace('</body>', template + '</body>', 1)
-        if repl == skeleton:
-            raise ValueError('Failed to insert template into skeleton: ' + skeleton)
-        return repl
+        troot = parse(template, namespace_elements=True)
+        ans = troot[-1][0]
+        style = ans.get('style') or ''
+        style = (
+            'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
+            'display: flex; align-items: center;').format(height=height) + style
+        ans.set('style', style)
+        for child in ans.xpath('descendant-or-self::*[@class]'):
+            cls = frozenset(child.get('class').split())
+            q = 'even-page' if page_num % 2 else 'odd-page'
+            if q in cls or q.replace('-', '_') in cls:
+                style = child.get('style') or ''
+                child.set('style', style + '; display: none')
+        return ans
 
     for page_num in range(1, pdf_doc.page_count() + 1):
-        div = m('div')
-        body.append(div)
         margins = page_margins_map[page_num - 1]
+        div = create_container(page_num, margins)
+        body.append(div)
         if header_template:
-            f = format_template(header_template, page_num)
-            div.append(create_iframe(margins, f))
+            div.append(format_template(header_template, page_num, margins.top))
         if footer_template:
-            f = format_template(footer_template, page_num)
-            div.append(create_iframe(margins, f, True))
+            div.append(format_template(footer_template, page_num, margins.bottom))
 
     container.commit()
-    results = manager.convert_html_files([job], wait_for_title='iframe-loading-complete')
+    # print(open(job[0]).read())
+    results = manager.convert_html_files([job], settle_time=1)
     data = results[name]
     if not isinstance(data, bytes):
         raise SystemExit(data)

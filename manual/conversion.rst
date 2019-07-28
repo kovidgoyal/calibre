@@ -841,14 +841,17 @@ can even put different content on even and odd pages, for example the following
 header template will show the title on odd pages and the author on even pages::
 
     <header style="justify-content: flex-end">
-        <div class="even_page">_AUTHOR_</div>
-        <div class="odd_page"><i>_TITLE_</i></div>
+        <div class="even-page">_AUTHOR_</div>
+        <div class="odd-page"><i>_TITLE_</i></div>
     </header>
 
 calibre will automatically replace :code:`_TITLE_` and :code:`_AUTHOR_` with
-the title and author of the document being converted.  You can also display
-text at the left and right edges and change the font size, as demonstrated with
-this header template::
+the title and author of the document being converted. Setting
+:code:`justify-content` to :code:`flex-end` will cause the text to be right
+aligned.
+
+You can also display text at the left and right edges and change the font size,
+as demonstrated with this header template::
 
     <header style="justify-content: space-between; font-size: smaller">
         <div>_TITLE_</div>
@@ -873,8 +876,10 @@ You can even use JavaScript inside the header and footer templates, for
 example, the following template will cause page numbers to start at 4 instead
 of 1::
 
-    <footer><div id="pagenum"></div></footer>
-    <script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
+    <footer>
+        <div></div>
+        <script>document.currentScript.parentNode.querySelector("div").innerHTML = "" + (_PAGENUM_ + 3)</script>
+    </footer>
 
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the :guilabel:`PDF Output`
