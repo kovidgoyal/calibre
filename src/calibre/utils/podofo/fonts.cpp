@@ -46,26 +46,34 @@ ref_as_integer(const PdfReference &ref) { return ref_as_integer(ref.ObjectNumber
 
 
 static inline void
-replace_font_references(PDFDoc *self, std::unordered_map<uint64_t, uint64_t> &ref_map) {
-    int num_pages = self->doc->GetPageCount();
-    for (int i = 0; i < num_pages; i++) {
-        PdfPage *page = self->doc->GetPage(i);
-        PdfDictionary &resources = page->GetResources()->GetDictionary();
-        PdfObject* f = resources.GetKey("Font");
-        if (f && f->IsDictionary()) {
-            const PdfDictionary &font = f->GetDictionary();
-            PdfDictionary new_font = PdfDictionary(font);
-            for (auto &k : font.GetKeys()) {
-                if (k.second->IsReference()) {
-                    uint64_t key = ref_as_integer(k.second->GetReference()), r;
-                    try {
-                        r = ref_map.at(key);
-                    } catch (const std::out_of_range &err) { continue; }
-                    PdfReference new_ref(static_cast<uint32_t>(r & 0xffffffff), r >> 32);
-                    new_font.AddKey(k.first.GetName(), new_ref);
-                }
+replace_font_references_in_resources(PdfDictionary &resources, const std::unordered_map<uint64_t, uint64_t> &ref_map) {
+    const PdfObject* f = resources.GetKey("Font");
+    if (f && f->IsDictionary()) {
+        const PdfDictionary &font = f->GetDictionary();
+        PdfDictionary new_font = PdfDictionary(font);
+        for (auto &k : font.GetKeys()) {
+            if (k.second->IsReference()) {
+                uint64_t key = ref_as_integer(k.second->GetReference()), r;
+                try {
+                    r = ref_map.at(key);
+                } catch (const std::out_of_range &err) { continue; }
+                PdfReference new_ref(static_cast<uint32_t>(r & 0xffffffff), r >> 32);
+                new_font.AddKey(k.first.GetName(), new_ref);
             }
-            resources.AddKey("Font", new_font);
+        }
+        resources.AddKey("Font", new_font);
+    }
+}
+
+static inline void
+replace_font_references(PDFDoc *self, const std::unordered_map<uint64_t, uint64_t> &ref_map) {
+    const PdfVecObjects &objects = self->doc->GetObjects();
+    for (auto &k : objects) {
+        if (!k->IsDictionary()) continue;
+        PdfDictionary &dict = k->GetDictionary();
+        if (dict.HasKey("Resources") && dict.GetKey("Resources")->IsDictionary()) {
+            PdfDictionary &res = dict.GetKey("Resources")->GetDictionary();
+            replace_font_references_in_resources(res, ref_map);
         }
     }
 }
