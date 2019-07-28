@@ -860,7 +860,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     root = container.parsed(name)
     body = root[-1]
     body.attrib.pop('id', None)
-    body.set('style', 'margin: 0; padding: 0; border-width: 0')
+    body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset')
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
 
     def m(tag_name, text=None, style=None, **attrs):
@@ -928,6 +928,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'padding': '0',
             'border-width': '0',
             'overflow': 'hidden',
+            'background-color': 'unset',
         }
 
         ans = m('div', style=style, id='p{}'.format(page_num))
@@ -944,7 +945,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         style = ans.get('style') or ''
         style = (
             'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
-            'display: flex; align-items: center; overflow: hidden').format(height=height) + style
+            'display: flex; align-items: center; overflow: hidden; background-color: unset').format(height=height) + style
         ans.set('style', style)
         for child in ans.xpath('descendant-or-self::*[@class]'):
             cls = frozenset(child.get('class').split())
@@ -970,7 +971,13 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     if not isinstance(data, bytes):
         raise SystemExit(data)
     doc = data_as_pdf_doc(data)
+    first_page_num = pdf_doc.page_count()
+    num_pages = doc.page_count()
+    if first_page_num != num_pages:
+        raise ValueError('The number of header/footers pages ({}) != number of document pages ({})'.format(
+            num_pages, first_page_num))
     pdf_doc.append(doc)
+    pdf_doc.impose(1, first_page_num + 1, num_pages)
     report_progress(0.9, _('Headers and footers added'))
 
 # }}}

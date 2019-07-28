@@ -100,5 +100,14 @@ PyObject* py_list_fonts(PDFDoc*, PyObject*);
 PyObject* py_remove_unused_fonts(PDFDoc *self, PyObject *args);
 PyObject* py_merge_fonts(PDFDoc *self, PyObject *args);
 PyObject* py_dedup_type3_fonts(PDFDoc *self, PyObject *args);
+PyObject* py_impose(PDFDoc *self, PyObject *args);
 }
+}
+
+#define PYWRAP(name) extern "C" PyObject* py_##name(PDFDoc *self, PyObject *args) { \
+    try { \
+        return name(self, args); \
+    } catch (const PdfError &err) { podofo_set_exception(err); return NULL; \
+    } catch (const std::exception &err) { PyErr_Format(Error, "Error in %s(): %s", #name, err.what()); return NULL; \
+    } catch (...) { PyErr_SetString(Error, "An unknown error occurred in " #name); return NULL; } \
 }

@@ -11,14 +11,6 @@
 
 using namespace pdf;
 
-#define PYWRAP(name) extern "C" PyObject* py_##name(PDFDoc *self, PyObject *args) { \
-    try { \
-        return name(self, args); \
-    } catch (const PdfError &err) { podofo_set_exception(err); return NULL; \
-    } catch (const std::exception &err) { PyErr_Format(Error, "Error in %s(): %s", #name, err.what()); return NULL; \
-    } catch (...) { PyErr_SetString(Error, "An unknown error occurred in " #name); return NULL; } \
-}
-
 static inline PyObject*
 ref_as_tuple(const PdfReference &ref) {
     unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
