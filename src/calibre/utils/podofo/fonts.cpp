@@ -78,14 +78,17 @@ replace_font_references(PDFDoc *self, const std::unordered_map<uint64_t, uint64_
     }
 }
 
-static bool
-used_fonts_in_page(PdfPage *page, unordered_reference_set &ans) {
-    PdfContentsTokenizer tokenizer(page);
+static void
+used_fonts_in_canvas(PdfCanvas *canvas, unordered_reference_set &ans) {
+    PdfContentsTokenizer tokenizer(canvas);
     bool in_text_block = false;
     const char* token = NULL;
     EPdfContentsType contents_type;
     PdfVariant var;
     std::stack<PdfVariant> stack;
+    const PdfDictionary &resources = canvas->GetResources()->GetDictionary();
+    if (!resources.HasKey("Font")) return;
+    const PdfDictionary &fonts_dict = resources.GetKey("Font")->GetDictionary();
 
     while (tokenizer.ReadNext(contents_type, token, var)) {
         if (contents_type == ePdfContentsType_Variant) stack.push(var);
@@ -102,12 +105,13 @@ used_fonts_in_page(PdfPage *page, unordered_reference_set &ans) {
             stack.pop();
             if (stack.size() > 0 && stack.top().IsName()) {
                 const PdfName &reference_name = stack.top().GetName();
-                PdfObject* font = page->GetFromResources("Font", reference_name);
-                if (font) ans.insert(font->Reference());
+                if (fonts_dict.HasKey(reference_name)) {
+                    ans.insert(fonts_dict.GetKey(reference_name)->GetReference());
+                }
             }
         }
     }
-    return true;
+    return;
 }
 
 static PyObject*
@@ -238,24 +242,35 @@ static PyObject*
 remove_unused_fonts(PDFDoc *self, PyObject *args) {
     unsigned long count = 0;
     unordered_reference_set used_fonts;
+    // Look in Pages
     for (int i = 0; i < self->doc->GetPageCount(); i++) {
         PdfPage *page = self->doc->GetPage(i);
-        if (page) used_fonts_in_page(page, used_fonts);
+        if (page) used_fonts_in_canvas(page, used_fonts);
+    }
+    // Look in XObjects
+    PdfVecObjects &objects = self->doc->GetObjects();
+    for (auto &k : objects) {
+        if (k->IsDictionary()) {
+            const PdfDictionary &dict = k->GetDictionary();
+            if (dictionary_has_key_name(dict, PdfName::KeyType, "XObject") && dictionary_has_key_name(dict, PdfName::KeySubtype, "Form")) {
+                PdfXObject xo(k);
+                used_fonts_in_canvas(&xo, used_fonts);
+            }
+        }
     }
     unordered_reference_set all_fonts;
     unordered_reference_set type3_fonts;
     charprocs_usage_map charprocs_usage;
-    PdfVecObjects &objects = self->doc->GetObjects();
-    for (TCIVecObjects it = objects.begin(); it != objects.end(); it++) {
-        if ((*it)->IsDictionary()) {
-            const PdfDictionary &dict = (*it)->GetDictionary();
+    for (auto &k : objects) {
+        if (k->IsDictionary()) {
+            const PdfDictionary &dict = k->GetDictionary();
             if (dictionary_has_key_name(dict, PdfName::KeyType, "Font")) {
                 const std::string &font_type = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
                 if (font_type == "Type0") {
-                    all_fonts.insert((*it)->Reference());
+                    all_fonts.insert(k->Reference());
                 } else if (font_type == "Type3") {
-                    all_fonts.insert((*it)->Reference());
-                    type3_fonts.insert((*it)->Reference());
+                    all_fonts.insert(k->Reference());
+                    type3_fonts.insert(k->Reference());
                     for (auto &x : dict.GetKey("CharProcs")->GetDictionary().GetKeys()) {
                         const PdfReference &ref = x.second->GetReference();
                         if (charprocs_usage.find(ref) == charprocs_usage.end()) charprocs_usage[ref] = 1;
