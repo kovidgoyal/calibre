@@ -774,6 +774,14 @@ def merge_cmaps(cmaps):
     return ans.serialize()
 
 
+def fonts_are_identical(fonts):
+    for key in ('ToUnicode', 'Data'):
+        all_values = {f[key] for f in fonts}
+        if len(all_values) > 1:
+            return False
+    return True
+
+
 def merge_font(fonts):
     # choose the largest font as the base font
     fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
@@ -781,6 +789,9 @@ def merge_font(fonts):
     t0_font = next(f for f in fonts if f['DescendantFont'] == base_font['Reference'])
     descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0']
     t0_fonts = [f for f in fonts if f['Subtype'] == 'Type0']
+    references_to_drop = tuple(f['Reference'] for f in fonts if f is not base_font and f is not t0_font)
+    if fonts_are_identical(descendant_fonts):
+        return t0_font, base_font, references_to_drop
     cmaps = list(filter(None, (f['ToUnicode'] for f in t0_fonts)))
     if cmaps:
         t0_font['ToUnicode'] = as_bytes(merge_cmaps(cmaps))
@@ -788,7 +799,6 @@ def merge_font(fonts):
         arrays = tuple(filter(None, (f[key] for f in descendant_fonts)))
         base_font[key] = merge_w_arrays(arrays)
     base_font['sfnt'] = merge_truetype_fonts_for_pdf(*(f['sfnt'] for f in descendant_fonts))
-    references_to_drop = tuple(f['Reference'] for f in fonts if f is not base_font and f is not t0_font)
     return t0_font, base_font, references_to_drop
 
 
