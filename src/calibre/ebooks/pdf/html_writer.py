@@ -775,10 +775,14 @@ def merge_cmaps(cmaps):
 
 
 def fonts_are_identical(fonts):
+    sentinel = object()
     for key in ('ToUnicode', 'Data'):
-        all_values = {f[key] for f in fonts}
-        if len(all_values) > 1:
-            return False
+        prev_val = sentinel
+        for f in fonts:
+            val = f[key]
+            if prev_val is not sentinel and prev_val != val:
+                return False
+            prev_val = val
     return True
 
 
