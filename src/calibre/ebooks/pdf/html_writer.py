@@ -85,10 +85,11 @@ class Renderer(QWebEnginePage):
 
     work_done = pyqtSignal(object, object)
 
-    def __init__(self, opts, parent):
+    def __init__(self, opts, parent, log):
         QWebEnginePage.__init__(self, parent.profile, parent)
         secure_webengine(self)
         self.working = False
+        self.log = log
         self.load_complete = False
         self.settle_time = 0
         self.wait_for_title = None
@@ -136,7 +137,7 @@ class Renderer(QWebEnginePage):
 
     def javaScriptConsoleMessage(self, level, message, linenum, source_id):
         try:
-            print('{}:{}:{}'.format(source_id, linenum, message))
+            self.log('{}:{}:{}'.format(source_id, linenum, message))
         except Exception:
             pass
 
@@ -182,7 +183,7 @@ class RenderManager(QObject):
     def __init__(self, opts, log, container_root):
         QObject.__init__(self)
         self.interceptor = RequestInterceptor(self)
-        self.interceptor.log = log
+        self.interceptor.log = self.log = log
         self.interceptor.container_root = os.path.normcase(os.path.abspath(container_root))
         ans = QWebEngineProfile(QApplication.instance())
         ua = 'calibre-pdf-output ' + __version__
@@ -199,7 +200,7 @@ class RenderManager(QObject):
             self.original_signal_handlers = setup_unix_signals(self)
 
     def create_worker(self):
-        worker = Renderer(self.opts, self)
+        worker = Renderer(self.opts, self, self.log)
         worker.work_done.connect(self.work_done)
         self.workers.append(worker)
 
@@ -926,6 +927,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'margin-bottom': '0',
             'padding': '0',
             'border-width': '0',
+            'overflow': 'hidden',
         }
 
         ans = m('div', style=style, id='p{}'.format(page_num))
@@ -942,7 +944,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         style = ans.get('style') or ''
         style = (
             'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
-            'display: flex; align-items: center;').format(height=height) + style
+            'display: flex; align-items: center; overflow: hidden').format(height=height) + style
         ans.set('style', style)
         for child in ans.xpath('descendant-or-self::*[@class]'):
             cls = frozenset(child.get('class').split())
