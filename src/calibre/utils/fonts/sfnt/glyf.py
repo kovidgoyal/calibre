@@ -85,7 +85,10 @@ class GlyfTable(UnknownTable):
         block = []
         for glyph_id, glyph in iteritems(sorted_glyph_map):
             raw = glyph()
-            ans[glyph_id] = (offset, len(raw))
+            pad = 4 - (len(raw) % 4)
+            if pad < 4:
+                raw += b'\0' * pad
+            ans[glyph_id] = offset, len(raw)
             offset += len(raw)
             block.append(raw)
         self.raw = b''.join(block)

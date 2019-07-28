@@ -64,6 +64,9 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
 
     # Update the loca table
     loca.subset(glyph_offset_map)
+    head.index_to_loc_format = 1 if loca.fmt == 'L' else 0
+    head.update()
+    maxp.num_glyphs = len(glyph_offset_map)
 
 # }}}
 

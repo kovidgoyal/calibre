@@ -53,8 +53,15 @@ class LocaTable(UnknownTable):
                 self.offset_map[i] = self.offset_map[i-1]
 
         vals = self.offset_map
+        max_offset = max(vals) if vals else 0
+        max_short_offset = 65535 * 2
+        if self.fmt == 'L' and max_offset <= max_short_offset:
+            self.fmt = 'H'
         if self.fmt == 'H':
-            vals = [i//2 for i in self.offset_map]
+            if max_offset > max_short_offset:
+                self.fmt = 'L'
+            else:
+                vals = [i//2 for i in vals]
 
         self.raw = pack(('>%d%s'%(len(vals), self.fmt)).encode('ascii'), *vals)
     subset = update
