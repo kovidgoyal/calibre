@@ -1066,12 +1066,15 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
 
-    # TODO: dedup images
     # TODO: Support for mathematics
 
     num_removed = remove_unused_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'unused fonts')
+
+    num_removed = pdf_doc.dedup_images()
+    if num_removed:
+        log('Removed', num_removed, 'duplicate images')
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)

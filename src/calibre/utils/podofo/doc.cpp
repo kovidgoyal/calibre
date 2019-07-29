@@ -759,6 +759,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"impose", (PyCFunction)py_impose, METH_VARARGS,
      "impose() -> impose pages onto each other"
     },
+    {"dedup_images", (PyCFunction)py_dedup_images, METH_VARARGS,
+     "dedup_images() -> Remove duplicated images"
+    },
     {"delete_pages", (PyCFunction)PDFDoc_delete_pages, METH_VARARGS,
      "delete_page(page_num, count=1) -> Delete the specified pages from the pdf."
     },
