@@ -844,7 +844,7 @@ class TextEdit(PlainTextEdit):
             height = 1600
         c = self.textCursor()
         template, alt = 'url(%s)', ''
-        left = min(c.position(), c.anchor)
+        left = min(c.position(), c.anchor())
         if self.syntax == 'html':
             left, right = self.get_range_inside_tag()
             c.setPosition(left)
