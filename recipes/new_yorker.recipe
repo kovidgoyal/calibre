@@ -77,6 +77,14 @@ class NewYorker(BasicNewsRecipe):
             cover_img = cover_img.find('img')
             if cover_img is not None:
                 self.cover_url = cover_img.get('src')
+                try:
+                    # the src original resolution w_280 was too low, replace w_280 with w_560
+                    cover_url_width_index = self.cover_url.find("w_")
+                    old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
+                    self.cover_url = self.cover_url.replace(old_width, "w_560")
+                except Exception as e:
+                    self.log('Failed enlarging cover img, using the original one')
+              
                 self.log('Found cover:', self.cover_url)
         stories = defaultdict(list)
         last_section = 'Unknown'
