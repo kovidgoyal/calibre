@@ -10,6 +10,9 @@ matrix:
     include:
         - os: linux
           sudo: false
+          addons:
+              apt:
+                  packages: libgl1-mesa-dev
         - os: osx
 
 before_install:
