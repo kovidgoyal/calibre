@@ -139,7 +139,7 @@ convert_w_array(const PdfArray &w) {
 #define py_as_long_long PyLong_AsLongLong
 #else
 static inline long long
-py_as_long_long(const PyObject *x) {
+py_as_long_long(PyObject *x) {
     if (PyInt_Check(x)) return PyInt_AS_LONG(x);
     return PyLong_AsLongLong(x);
 }
