@@ -506,7 +506,7 @@ class CHMFile:
         if not self.topics:
             self.topics = self.GetString(text, toc_index)
             if not self.topics.startswith(b"/"):
-                self.topics = "b/" + self.topics
+                self.topics = b"/" + self.topics
 
         if not self.index:
             self.index = self.GetString(text, idx_index)

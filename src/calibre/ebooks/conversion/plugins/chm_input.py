@@ -10,7 +10,7 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import filesystem_encoding
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 
 class CHMInput(InputFormatPlugin):
@@ -170,7 +170,7 @@ class CHMInput(InputFormatPlugin):
                                    pretty_print=True)
                 f.write(raw)
             else:
-                f.write(hhcdata)
+                f.write(as_bytes(hhcdata))
         return htmlpath, toc
 
     def _read_file(self, name):
@@ -180,7 +180,7 @@ class CHMInput(InputFormatPlugin):
 
     def add_node(self, node, toc, ancestor_map):
         from calibre.ebooks.chm.reader import match_string
-        if match_string(node.attrib['type'], 'text/sitemap'):
+        if match_string(node.attrib.get('type', ''), 'text/sitemap'):
             p = node.xpath('ancestor::ul[1]/ancestor::li[1]/object[1]')
             parent = p[0] if p else None
             toc = ancestor_map.get(parent, toc)

@@ -97,9 +97,14 @@ class CHMReader(CHMFile):
         return toc
 
     def ResolveObject(self, path):
+        opath = path
         if not isinstance(path, bytes):
             path = path.encode(self.chm_encoding)
-        return CHMFile.ResolveObject(self, path)
+        ans = CHMFile.ResolveObject(self, path)
+        if ans[0] != chmlib.CHM_RESOLVE_SUCCESS and not isinstance(opath, bytes):
+            path = opath.encode('utf-8')
+            ans = CHMFile.ResolveObject(self, path)
+        return ans
 
     def GetFile(self, path):
         # have to have abs paths for ResolveObject, but Contents() deliberately
@@ -280,7 +285,11 @@ class CHMReader(CHMFile):
         paths = []
 
         def get_paths(chm, ui, ctx):
-            path = as_unicode(ui.path, self.chm_encoding)
+            try:
+                path = as_unicode(ui.path, self.chm_encoding)
+            except UnicodeDecodeError:
+                path = as_unicode(ui.path, 'utf-8')
+
             # skip directories
             # note this path refers to the internal CHM structure
             if path[-1] != '/':
