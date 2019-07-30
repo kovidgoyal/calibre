@@ -16,12 +16,12 @@ from io import BytesIO
 from itertools import repeat
 from operator import attrgetter, itemgetter
 
+from html5_parser import parse
 from PyQt5.Qt import (
     QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
-from html5_parser import parse
 
 from calibre import detect_ncpus, prepare_string_for_xml
 from calibre.constants import __version__, iswindows
@@ -35,6 +35,7 @@ from calibre.ebooks.pdf.image_writer import (
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
+from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.logging import default_log
@@ -57,11 +58,15 @@ def data_as_pdf_doc(data):
     return ans
 
 
+def last_tag(root):
+    return tuple(root.iterchildren('*'))[-1]
+
+
 def create_skeleton(container):
     spine_name = tuple(container.spine_names)[-1][0]
     root = container.parsed(spine_name)
     root = copy.deepcopy(root)
-    body = root[-1]
+    body = last_tag(root)
     body.text = body.tail = None
     del body[:]
     name = container.add_file(spine_name, b'', modify_name_if_needed=True)
@@ -122,7 +127,11 @@ class Renderer(QWebEnginePage):
 
     def title_changed(self, title):
         if self.wait_for_title and title == self.wait_for_title and self.load_complete:
-            QTimer.singleShot(0, self.print_to_pdf)
+            QTimer.singleShot(self.settle_time, self.print_to_pdf)
+
+    @property
+    def log_prefix(self):
+        return os.path.basename(self.url().toLocalFile()) + ':'
 
     def load_finished(self, ok):
         self.load_complete = True
@@ -130,10 +139,10 @@ class Renderer(QWebEnginePage):
             self.working = False
             self.work_done.emit(self, 'Load of {} failed'.format(self.url().toString()))
             return
-        timeout = self.settle_time
-        if self.wait_for_title and self.title() == self.wait_for_title:
-            timeout = 0
-        QTimer.singleShot(int(1000 * timeout), self.print_to_pdf)
+        if self.wait_for_title and self.title() != self.wait_for_title:
+            self.log(self.log_prefix, 'Load finished, waiting for title to change to:', self.wait_for_title)
+            return
+        QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
 
     def javaScriptConsoleMessage(self, level, message, linenum, source_id):
         try:
@@ -152,6 +161,7 @@ class Renderer(QWebEnginePage):
         self.working = True
         self.load_complete = False
         self.wait_for_title = wait_for_title
+
         self.settle_time = settle_time
         self.page_layout = page_layout
         self.setUrl(QUrl.fromLocalFile(path))
@@ -172,8 +182,8 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             return
         path = qurl.toLocalFile()
         path = os.path.normcase(os.path.abspath(path))
-        if not path.startswith(self.container_root):
-            self.log.warn('Blocking URL request with path: {}'.format(path))
+        if not path.startswith(self.container_root) and not path.startswith(self.resources_root):
+            self.log.warn('Blocking request with path: {}'.format(path))
             request_info.block(True)
             return
 
@@ -183,8 +193,10 @@ class RenderManager(QObject):
     def __init__(self, opts, log, container_root):
         QObject.__init__(self)
         self.interceptor = RequestInterceptor(self)
+        self.has_maths = {}
         self.interceptor.log = self.log = log
         self.interceptor.container_root = os.path.normcase(os.path.abspath(container_root))
+        self.interceptor.resources_root = os.path.normcase(os.path.abspath(os.path.dirname(mathjax_dir())))
         ans = QWebEngineProfile(QApplication.instance())
         ua = 'calibre-pdf-output ' + __version__
         ans.setHttpUserAgent(ua)
@@ -226,7 +238,8 @@ class RenderManager(QObject):
         finally:
             self.restore_signal_handlers()
 
-    def convert_html_files(self, jobs, settle_time=0, wait_for_title=None):
+    def convert_html_files(self, jobs, settle_time=0, wait_for_title=None, has_maths=None):
+        self.has_maths = has_maths or {}
         while len(self.workers) < min(len(jobs), self.max_workers):
             self.create_worker()
         self.pending = list(jobs)
@@ -235,6 +248,7 @@ class RenderManager(QObject):
         self.wait_for_title = wait_for_title
         QTimer.singleShot(0, self.assign_work)
         ret = self.run_loop()
+        self.has_maths = {}
         if ret == KILL_SIGNAL:
             raise SystemExit('Kill signal received')
         if ret != OK:
@@ -260,7 +274,12 @@ class RenderManager(QObject):
             html_file, page_layout, result_key = self.pending.pop()
             w = free_workers.pop()
             w.result_key = result_key
-            w.convert_html_file(html_file, page_layout, settle_time=self.settle_time, wait_for_title=self.wait_for_title)
+            wait_for_title = self.wait_for_title
+            settle_time = self.settle_time
+            if self.has_maths.get(result_key):
+                wait_for_title = 'mathjax-load-complete'
+                settle_time *= 2
+            w.convert_html_file(html_file, page_layout, settle_time=settle_time, wait_for_title=wait_for_title)
 
     def work_done(self, worker, result):
         self.results[worker.result_key] = result
@@ -339,7 +358,7 @@ def create_margin_files(container):
 
 # Link handling  {{{
 def add_anchors_markup(root, uuid, anchors):
-    body = root[-1]
+    body = last_tag(root)
     div = body.makeelement(XHTML('div'), id=uuid, style='page-break-before: always')
     body.append(div)
 
@@ -411,7 +430,7 @@ def make_anchors_unique(container):
             if key not in mapping:
                 new_id = mapping[key] = 'a{}'.format(count)
                 elem.set('id', new_id)
-        body = root[-1]
+        body = last_tag(root)
         if not body.get('id'):
             count += 1
             body.set('id', 'a{}'.format(count))
@@ -533,7 +552,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
 
 
 def add_pagenum_toc(root, toc, opts, page_number_display_map):
-    body = root[-1]
+    body = last_tag(root)
     indents = []
     for i in range(1, 7):
         indents.extend((i, 1.4*i))
@@ -872,7 +891,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     report_progress(0.8, _('Adding headers and footers'))
     name = create_skeleton(container)
     root = container.parsed(name)
-    body = root[-1]
+    body = last_tag(root)
     body.attrib.pop('id', None)
     body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset')
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
@@ -955,7 +974,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         template = template.replace('_TOP_LEVEL_SECTION_', prepare_string_for_xml(toplevel_toc_map[page_num - 1]))
         template = template.replace('_SECTION_', prepare_string_for_xml(page_toc_map[page_num - 1]))
         troot = parse(template, namespace_elements=True)
-        ans = troot[-1][0]
+        ans = last_tag(troot)[0]
         style = ans.get('style') or ''
         style = (
             'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
@@ -997,9 +1016,37 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
 # }}}
 
 
+# Maths {{{
+
+def mathjax_dir():
+    return P('mathjax', allow_user_override=False)
+
+
+def path_to_url(path):
+    return QUrl.fromLocalFile(path).toString()
+
+
+def add_maths_script(container):
+    has_maths = {}
+    for name, is_linear in container.spine_names:
+        root = container.parsed(name)
+        has_maths[name] = hm = check_for_maths(root)
+        if not hm:
+            continue
+        script = root.makeelement(XHTML('script'), type="text/javascript", src=path_to_url(
+            P('pdf-mathjax-loader.js', allow_user_override=False)))
+        script.set('async', 'async')
+        script.set('data-mathjax-path', path_to_url(mathjax_dir()))
+        last_tag(root).append(script)
+    return has_maths
+# }}}
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
+    has_maths = add_maths_script(container)
+
     name_anchor_map = make_anchors_unique(container)
     margin_files = tuple(create_margin_files(container))
     toc = get_toc(container, verify_destinations=False)
@@ -1015,7 +1062,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     jobs = []
     for margin_file in margin_files:
         jobs.append(job_for_name(container, margin_file.name, margin_file.margins, page_layout))
-    results = manager.convert_html_files(jobs, settle_time=1)
+    results = manager.convert_html_files(jobs, settle_time=1, has_maths=has_maths)
     num_pages = 0
     page_margins_map = []
     for margin_file in margin_files:
@@ -1065,8 +1112,6 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
-
-    # TODO: Support for mathematics
 
     num_removed = remove_unused_fonts(pdf_doc)
     if num_removed:
