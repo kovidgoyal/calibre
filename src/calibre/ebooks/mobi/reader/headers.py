@@ -21,6 +21,14 @@ from polyglot.builtins import unicode_type
 NULL_INDEX = 0xffffffff
 
 
+def uniq(vals):
+    ''' Remove all duplicates from vals, while preserving order.  '''
+    vals = vals or ()
+    seen = set()
+    seen_add = seen.add
+    return list(x for x in vals if x not in seen and not seen_add(x))
+
+
 class EXTHHeader(object):  # {{{
 
     def __init__(self, raw, codec, title):
@@ -135,7 +143,7 @@ class EXTHHeader(object):  # {{{
             if not self.mi.tags:
                 self.mi.tags = []
             self.mi.tags.extend([x.strip() for x in clean_xml_chars(self.decode(content)).split(';')])
-            self.mi.tags = list(set(self.mi.tags))
+            self.mi.tags = uniq(self.mi.tags)
         elif idx == 106:
             try:
                 self.mi.pubdate = parse_date(self.decode(content), as_utc=False)
