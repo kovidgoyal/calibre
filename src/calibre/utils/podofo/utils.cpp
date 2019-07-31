@@ -28,23 +28,15 @@ pdf::podofo_convert_pdfstring(const PdfString &s) {
     return PyUnicode_FromString(s.GetStringUtf8().c_str());
 }
 
-PdfString *
-pdf::podofo_convert_pystring(PyObject *py) {
-    PyObject *u8 = PyUnicode_AsEncodedString(py, "UTF-8", "replace");
-    if (u8 == NULL) { return NULL; }
-    pdf_utf8 *s8 = reinterpret_cast<pdf_utf8 *>(PyBytes_AS_STRING(u8));
-    PdfString *ans = new PdfString(s8);
-    Py_DECREF(u8);
-    if (ans == NULL) PyErr_NoMemory();
-    return ans;
-}
-
-PdfString *
-pdf::podofo_convert_pystring_single_byte(PyObject *py) {
-    PyObject *s = PyUnicode_AsEncodedString(py, "cp1252", "replace");
-    if (s == NULL) { return NULL; }
-    PdfString *ans = new PdfString(PyBytes_AS_STRING(s));
-    Py_DECREF(s);
-    if (ans == NULL) PyErr_NoMemory();
-    return ans;
+const PdfString
+pdf::podofo_convert_pystring(PyObject *val) {
+#if PY_MAJOR_VERSION > 2
+    return s(reinterpret_cast<const pdf_utf8*>(PyUnicode_AsUTF8(val)));
+#else
+    PyObject *temp = PyUnicode_AsUTF8String(val);
+    if (!temp) throw std::bad_alloc();
+    PdfString s(reinterpret_cast<const pdf_utf8*>(PyBytes_AS_STRING(temp)));
+    Py_DECREF(temp);
+    return s;
+#endif
 }

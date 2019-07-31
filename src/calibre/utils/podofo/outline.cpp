@@ -47,36 +47,36 @@ create(PDFOutlineItem *self, PyObject *args) {
     PyObject *ptitle, *as_child = NULL;
     PDFOutlineItem *ans;
     int num;
-    PdfString *title;
     PdfPage *page;
 
     if (!PyArg_ParseTuple(args, "Ui|O", &ptitle, &num, &as_child)) return NULL;
-    title = podofo_convert_pystring(ptitle);
-    if (title == NULL) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
     if (ans == NULL) goto error;
     ans->doc = self->doc;
 
     try {
+        const PdfString title = podofo_convert_pystring(ptitle);
         page = self->doc->GetPage(num);
         if (page == NULL) { PyErr_Format(PyExc_ValueError, "Invalid page number: %d", num); goto error; }
         PdfDestination dest(page);
         if (as_child != NULL && PyObject_IsTrue(as_child)) {
-            ans->item = self->item->CreateChild(*title, dest);
+            ans->item = self->item->CreateChild(title, dest);
         } else
-            ans->item = self->item->CreateNext(*title, dest);
+            ans->item = self->item->CreateNext(title, dest);
     } catch (const PdfError &err) {
         podofo_set_exception(err); goto error;
+    } catch(const std::exception & err) {
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what());
+        goto error;
     } catch (...) {
         PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to create the outline item");
         goto error;
     }
 
-    delete title;
     return (PyObject*) ans;
 error:
-    Py_XDECREF(ans); delete title;
+    Py_XDECREF(ans);
     return NULL;
 }
 
