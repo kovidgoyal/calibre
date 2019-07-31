@@ -293,18 +293,18 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
 static PyObject *
 PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
     PDFOutlineItem *ans;
-    char *title_buf;
+    PyObject *title_buf;
     unsigned int pagenum;
     double left = 0, top = 0, zoom = 0;
     PdfPage *page;
 
-    if (!PyArg_ParseTuple(args, "esI|ddd", "UTF-8", &title_buf, &pagenum, &left, &top, &zoom)) return NULL;
+    if (!PyArg_ParseTuple(args, "UI|ddd", &title_buf, &pagenum, &left, &top, &zoom)) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
     if (ans == NULL) goto error;
 
     try {
-        PdfString title(reinterpret_cast<pdf_utf8 *>(title_buf));
+        PdfString title = podofo_convert_pystring(title_buf);
         PdfOutlines *outlines = self->doc->GetOutlines();
         if (outlines == NULL) {PyErr_NoMemory(); goto error;}
         ans->item = outlines->CreateRoot(title);

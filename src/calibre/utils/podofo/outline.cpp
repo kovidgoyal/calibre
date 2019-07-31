@@ -49,16 +49,16 @@ create(PDFOutlineItem *self, PyObject *args) {
     unsigned int num;
     double left = 0, top = 0, zoom = 0;
     PdfPage *page;
-    char *title_buf;
+    PyObject *title_buf;
 
-    if (!PyArg_ParseTuple(args, "esIO|ddd", "UTF-8", &title_buf, &num, &as_child, &left, &top, &zoom)) return NULL;
+    if (!PyArg_ParseTuple(args, "UIO|ddd", &title_buf, &num, &as_child, &left, &top, &zoom)) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
     if (ans == NULL) goto error;
     ans->doc = self->doc;
 
     try {
-        PdfString title(reinterpret_cast<pdf_utf8 *>(title_buf));
+        PdfString title = podofo_convert_pystring(title_buf);
         try {
             page = self->doc->GetPage(num - 1);
         } catch(const PdfError &err) { page = NULL; }
