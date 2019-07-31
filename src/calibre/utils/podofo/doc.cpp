@@ -394,7 +394,6 @@ PDFDoc_version_getter(PDFDoc *self, void *closure) {
 static PyObject *
 PDFDoc_getter(PDFDoc *self, int field)
 {
-    PyObject *ans;
     PdfString s;
     PdfInfo *info = self->doc->GetInfo();
     if (info == NULL) {
@@ -419,13 +418,7 @@ PDFDoc_getter(PDFDoc *self, int field)
             return NULL;
     }
 
-    ans = podofo_convert_pdfstring(s);
-    if (ans == NULL) {PyErr_NoMemory(); return NULL;}
-    PyObject *uans = PyUnicode_FromEncodedObject(ans, "utf-8", "replace");
-    Py_DECREF(ans);
-    if (uans == NULL) {return NULL;}
-    Py_INCREF(uans);
-    return uans;
+    return podofo_convert_pdfstring(s);
 }
 
 static int
