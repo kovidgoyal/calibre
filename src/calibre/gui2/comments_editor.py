@@ -708,7 +708,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.movePosition(QTextCursor.Start, QTextCursor.MoveAnchor)
             c.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
             c.removeSelectedText()
-            c.insertHTML(val)
+            c.insertHtml(val)
 
     def text(self):
         return self.textCursor().selectedText()
