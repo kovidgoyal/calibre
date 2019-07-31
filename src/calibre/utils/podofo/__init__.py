@@ -185,7 +185,8 @@ def test_podofo():
         p = podofo.PDFDoc()
         p.open(f.name)
         if (p.title, p.author) != (mi.title, mi.authors[0]):
-            raise ValueError('podofo failed to set title and author in Info dict')
+            raise ValueError('podofo failed to set title and author in Info dict %s != %s' % (
+                (p.title, p.author), (mi.title, mi.authors[0])))
         if not p.get_xmp_metadata():
             raise ValueError('podofo failed to write XMP packet')
         del p
