@@ -210,8 +210,6 @@ class BasicNewsRecipe(Recipe):
     #:
     #:   conversion_options = {
     #:     'base_font_size'   : 16,
-    #:     'tags'             : 'mytag1,mytag2',
-    #:     'title'            : 'My Title',
     #:     'linearize_tables' : True,
     #:   }
     #:
