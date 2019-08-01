@@ -7,7 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, QTimer, QUrl, QWidget
+    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, QTimer, QUrl, QWidget,
+    pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -238,6 +239,8 @@ class Inspector(QWidget):
 
 class WebView(RestartingWebEngineView):
 
+    cfi_changed = pyqtSignal(object)
+
     def __init__(self, parent=None):
         self._host_widget = None
         self.current_cfi = None
@@ -266,6 +269,7 @@ class WebView(RestartingWebEngineView):
                 cfi = frag[len('bookpos='):]
                 if cfi:
                     self.current_cfi = cfi
+                    self.cfi_changed.emit(cfi)
 
     @property
     def host_widget(self):
@@ -305,12 +309,12 @@ class WebView(RestartingWebEngineView):
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
-    def start_book_load(self):
+    def start_book_load(self, initial_cfi=None):
         key = (set_book_path.path,)
         if self.bridge.ready:
-            self.bridge.start_book_load(key, vprefs['session_data'])
+            self.bridge.start_book_load(key, vprefs['session_data'], initial_cfi)
         else:
-            self.pending_bridge_ready_actions['start_book_load'] = key, vprefs['session_data']
+            self.pending_bridge_ready_actions['start_book_load'] = key, vprefs['session_data'], initial_cfi
 
     def set_session_data(self, key, val):
         if key == '*' and val is None:

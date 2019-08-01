@@ -367,7 +367,7 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book):
+    def display_book(self, book, initial_cfi):
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
@@ -383,7 +383,7 @@ class View:
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
-        cfi = None
+        cfi = initial_cfi or None
         q = parse_url_params()
         if q.bookpos and q.bookpos.startswith('epubcfi(/'):
             cfi = q.bookpos
