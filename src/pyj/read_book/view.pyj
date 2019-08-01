@@ -369,6 +369,7 @@ class View:
 
     def display_book(self, book):
         self.hide_overlays()
+        self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
         if not is_current_book:
             self.iframe_wrapper.reset()
