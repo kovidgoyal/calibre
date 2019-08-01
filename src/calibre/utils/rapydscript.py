@@ -291,9 +291,9 @@ def compile_viewer():
     iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
     g = {'__file__': iconf}
     exec_path(iconf, g)
-    icons = g['merge']().encode('utf-8')
+    icons = g['merge']()
     with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
-        reset = f.read()
+        reset = f.read().decode('utf-8')
     html = '<!DOCTYPE html>\n<html><head><style>{reset}</style></head><body>{icons}</body></html>'.format(
             icons=icons, reset=reset)
 
