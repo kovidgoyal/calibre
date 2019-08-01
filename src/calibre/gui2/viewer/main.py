@@ -14,10 +14,8 @@ from PyQt5.Qt import QIcon, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 
 from calibre import as_unicode, prints
-from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
-from calibre.gui2 import (
-    Application, error_dialog, set_app_uid, setup_gui_option_parser
-)
+from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
+from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
 from calibre.gui2.viewer.ui import EbookViewer
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
@@ -130,13 +128,8 @@ def main(args=sys.argv):
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
     scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
-    if iswindows:
-        # Ensure that all ebook viewer instances are grouped together in the task
-        # bar. This prevents them from being grouped with the editor process when
-        # launched from within calibre, as both use calibre-parallel.exe
-        set_app_uid(VIEWER_APP_UID)
     override = 'calibre-ebook-viewer' if islinux else None
-    app = Application(args, override_program_name=override, color_prefs=vprefs)
+    app = Application(args, override_program_name=override, color_prefs=vprefs, windows_app_uid=VIEWER_APP_UID)
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
