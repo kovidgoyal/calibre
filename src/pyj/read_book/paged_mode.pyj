@@ -212,9 +212,12 @@ def layout(is_single_page):
             is_full_screen_layout = True
 
         # Prevent the TAB key from shifting focus as it causes partial scrolling
-        document.documentElement.addEventListener('keydown', def (evt):
-            if get_key(evt) is 'tab':
-                evt.preventDefault()
+        document.documentElement.addEventListener(
+            'keydown',
+            def (evt):
+                if get_key(evt) is 'tab':
+                    evt.preventDefault()
+            , {'passive': False}
         )
 
     # Some browser engine, WebKit at least, adjust column widths to please

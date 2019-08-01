@@ -97,9 +97,9 @@ class IframeBoss:
         window.onerror = self.onerror
         window.addEventListener('scroll', debounce(self.onscroll, 1000))
         window.addEventListener('resize', debounce(self.onresize, 500))
-        window.addEventListener('wheel', self.onwheel)
-        window.addEventListener('keydown', self.onkeydown)
-        document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
+        window.addEventListener('wheel', self.onwheel, {'passive': False})
+        window.addEventListener('keydown', self.onkeydown, {'passive': False})
+        document.documentElement.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
         self.color_scheme = data.color_scheme
         create_touch_handlers()
 
