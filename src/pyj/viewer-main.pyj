@@ -22,9 +22,6 @@ from utils import encode_query_with_path
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
 
-def container_div(id):
-    return E.div(id=id, style='margin: 0; padding: 0; display: none')
-
 runtime.is_standalone_viewer = True
 runtime.FAKE_HOST = FAKE_HOST
 runtime.FAKE_PROTOCOL = FAKE_PROTOCOL
@@ -177,11 +174,14 @@ def create_session_data(prefs):
 
 
 @from_python
-def start_book_load(key, prefs, initial_cfi):
+def create_view(prefs):
     nonlocal view
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
+
+@from_python
+def start_book_load(key, initial_cfi):
     xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()

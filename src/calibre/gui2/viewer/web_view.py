@@ -168,6 +168,7 @@ class ViewerBridge(Bridge):
 
     set_session_data = from_js(object, object)
 
+    create_view = to_js()
     start_book_load = to_js()
 
 
@@ -308,15 +309,16 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
+        self.bridge.create_view(vprefs['session_data'])
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
     def start_book_load(self, initial_cfi=None):
         key = (set_book_path.path,)
         if self.bridge.ready:
-            self.bridge.start_book_load(key, vprefs['session_data'], initial_cfi)
+            self.bridge.start_book_load(key, initial_cfi)
         else:
-            self.pending_bridge_ready_actions['start_book_load'] = key, vprefs['session_data'], initial_cfi
+            self.pending_bridge_ready_actions['start_book_load'] = key, initial_cfi
 
     def set_session_data(self, key, val):
         if key == '*' and val is None:

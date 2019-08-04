@@ -344,10 +344,13 @@ class View:
             if sd.get('max_text_width') or sd.get('max_text_height'):
                 self.set_margins()
 
+    def show_loading_message(self, msg):
+        self.overlay.show_loading_message(msg)
+
     def show_loading(self):
         title = self.book.metadata.title
         name = self.currently_showing.name
-        self.overlay.show_loading_message(_(
+        self.show_loading_message(_(
             'Loading <i>{name}</i> from <i>{title}</i>, please wait...').format(name=name, title=title))
 
     def hide_loading(self):
