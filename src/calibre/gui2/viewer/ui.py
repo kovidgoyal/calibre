@@ -5,22 +5,30 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+from collections import defaultdict
+from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import QDockWidget, Qt, QTimer, pyqtSignal
 
+from calibre.constants import config_dir
 from calibre.gui2 import error_dialog
 from calibre.gui2.main_window import MainWindow
+from calibre.gui2.viewer.annotations import (
+    merge_annotations, parse_annotations, serialize_annotations
+)
 from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.web_view import WebView, set_book_path
-from calibre.utils.config import JSONConfig
+from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
+from calibre.utils.serialize import json_loads
+from polyglot.builtins import as_bytes
+
+annotations_dir = os.path.join(config_dir, 'viewer', 'annots')
 
 
-def viewer_data():
-    if not hasattr(viewer_data, 'ans'):
-        viewer_data.ans = JSONConfig('viewer-data')
-    return viewer_data.ans
+def path_key(path):
+    return sha256(as_bytes(path)).hexdigest()
 
 
 class EbookViewer(MainWindow):
@@ -30,9 +38,13 @@ class EbookViewer(MainWindow):
 
     def __init__(self):
         MainWindow.__init__(self, None)
+        try:
+            os.makedirs(annotations_dir)
+        except EnvironmentError:
+            pass
         self.current_book_data = {}
-        self.save_cfi_debounce_timer = t = QTimer(self)
-        t.setInterval(2000), t.timeout.connect(self.save_cfi)
+        self.save_annotations_debounce_timer = t = QTimer(self)
+        t.setInterval(3000), t.timeout.connect(self.save_annotations)
         self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
 
         def create_dock(title, name, area, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
@@ -62,8 +74,8 @@ class EbookViewer(MainWindow):
 
     def load_ebook(self, pathtoebook, open_at=None):
         # TODO: Implement open_at
-        if self.save_cfi_debounce_timer.isActive():
-            self.save_cfi()
+        if self.save_annotations_debounce_timer.isActive():
+            self.save_annotations()
         self.current_book_data = {}
         t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at))
         t.daemon = True
@@ -88,28 +100,45 @@ class EbookViewer(MainWindow):
             return
         set_book_path(data['base'])
         self.current_book_data = data
+        self.current_book_data['annotations_map'] = defaultdict(list)
+        self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
+        self.load_book_annotations()
         self.web_view.start_book_load(initial_cfi=self.initial_cfi_for_current_book())
 
+    def load_book_annotations(self):
+        amap = self.current_book_data['annotations_map']
+        path = os.path.join(self.current_book_data['base'], 'calibre-book-annotations.json')
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                raw = f.read()
+            merge_annotations(json_loads(raw), amap)
+        path = os.path.join(annotations_dir, self.current_book_data['annotations_path_key'])
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                raw = f.read()
+            merge_annotations(parse_annotations(raw), amap)
+
     def initial_cfi_for_current_book(self):
-        vd = viewer_data()
-        lrp = vd.get('last-read-positions', {})
-        return lrp.get('path', {}).get(self.current_book_data['pathtoebook'])
+        lrp = self.current_book_data['annotations_map']['last-read']
+        if lrp:
+            lrp = lrp[0]
+            if lrp['pos_type'] == 'epubcfi':
+                return lrp['pos']
 
     def cfi_changed(self, cfi):
         if not self.current_book_data:
             return
-        self.current_book_data['last_known_cfi'] = cfi
-        self.save_cfi_debounce_timer.start()
+        self.current_book_data['annotations_map']['last-read'] = [{
+            'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+        self.save_annotations_debounce_timer.start()
 
-    def save_cfi(self):
-        self.save_cfi_debounce_timer.stop()
-        vd = viewer_data()
-        lrp = vd.get('last-read-positions', {})
-        path = lrp.setdefault('path', {})
-        path[self.current_book_data['pathtoebook']] = self.current_book_data['last_known_cfi']
-        vd.set('last-read-positions', lrp)
+    def save_annotations(self):
+        self.save_annotations_debounce_timer.stop()
+        amap = self.current_book_data['annotations_map']
+        with open(os.path.join(annotations_dir, self.current_book_data['annotations_path_key']), 'wb') as f:
+            f.write(as_bytes(serialize_annotations(amap)))
 
     def closeEvent(self, ev):
-        if self.save_cfi_debounce_timer.isActive():
-            self.save_cfi()
+        if self.save_annotations_debounce_timer.isActive():
+            self.save_annotations()
         return MainWindow.closeEvent(self, ev)

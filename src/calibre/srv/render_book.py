@@ -9,9 +9,9 @@ import os
 import re
 import sys
 from collections import OrderedDict, defaultdict
+from datetime import datetime
 from functools import partial
 from itertools import count
-from datetime import datetime
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
@@ -29,11 +29,14 @@ from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
 from calibre.ebooks.oeb.polish.css import transform_css
 from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
+from calibre.srv.metadata import encode_datetime
+from calibre.utils.date import EPOCH
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
-from calibre.srv.metadata import encode_datetime
-from polyglot.binary import as_base64_unicode as encode_component, from_base64_unicode as decode_component
-from polyglot.builtins import iteritems, map, is_py3, unicode_type
+from polyglot.binary import (
+    as_base64_unicode as encode_component, from_base64_unicode as decode_component
+)
+from polyglot.builtins import is_py3, iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -169,10 +172,16 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_legacy_bookmark_data=False):
         log = log or default_log
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
+        if save_legacy_bookmark_data:
+            bm_file = 'META-INF/calibre_bookmarks.txt'
+            self.legacy_bookmark_data = None
+            if self.exists(bm_file):
+                with self.open(bm_file, 'rb') as f:
+                    self.legacy_bookmark_data = f.read().decode('utf-8')
         # We do not add zero byte sized files as the IndexedDB API in the
         # browser has no good way to distinguish between zero byte files and
         # load failures.
@@ -532,8 +541,22 @@ def serialize_datetimes(d):
             d[k] = v
 
 
-def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False):
-    container = Container(pathtoebook, output_dir, book_hash=book_hash)
+def get_legacy_annotations(container):
+    from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
+    raw = container.legacy_bookmark_data or b''
+    for bm in parse_bookmarks(raw):
+        if bm['type'] == 'cfi' and isinstance(bm['pos'], unicode_type):
+            spine_index = (1 + bm['spine']) * 2
+            epubcfi = 'epubcfi(/{}/{})'.format(spine_index, bm['pos'].lstrip('/'))
+            title = bm.get('title')
+            if title and title != 'calibre_current_page_bookmark':
+                yield {'type': 'bookmark', 'title': title, 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
+            else:
+                yield {'type': 'last-read', 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
+
+
+def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False):
+    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_legacy_bookmark_data=extract_annotations)
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.utils.serialize import json_dumps
@@ -548,6 +571,13 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False):
                     f.write(cdata[1])
             with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
                 f.write(json_dumps(d))
+    if extract_annotations:
+        annotations = None
+        if container.legacy_bookmark_data:
+            annotations = json_dumps(tuple(get_legacy_annotations(container)))
+        if annotations:
+            with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
+                f.write(annotations)
 
 
 if __name__ == '__main__':

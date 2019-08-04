@@ -16,40 +16,41 @@ BM_FIELD_SEP = u'*|!|?|*'
 BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
 
 
+def parse_bookmarks(raw):
+    for line in raw.splitlines():
+        if '^' in line:
+            tokens = line.rpartition('^')
+            title, ref = tokens[0], tokens[2]
+            try:
+                spine, _, pos = ref.partition('#')
+                spine = int(spine.strip())
+            except Exception:
+                continue
+            yield {'type':'legacy', 'title':title, 'spine':spine, 'pos':pos}
+        elif BM_FIELD_SEP in line:
+            try:
+                title, spine, pos = line.strip().split(BM_FIELD_SEP)
+                spine = int(spine)
+            except Exception:
+                continue
+            # Unescape from serialization
+            pos = pos.replace(BM_LEGACY_ESC, u'^')
+            # Check for pos being a scroll fraction
+            try:
+                pos = float(pos)
+            except Exception:
+                pass
+            yield {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
+
+
 class BookmarksMixin(object):
 
     def __init__(self, copy_bookmarks_to_file=True):
         self.copy_bookmarks_to_file = copy_bookmarks_to_file
 
     def parse_bookmarks(self, raw):
-        for line in raw.splitlines():
-            bm = None
-            if line.count('^') > 0:
-                tokens = line.rpartition('^')
-                title, ref = tokens[0], tokens[2]
-                try:
-                    spine, _, pos = ref.partition('#')
-                    spine = int(spine.strip())
-                except:
-                    continue
-                bm = {'type':'legacy', 'title':title, 'spine':spine, 'pos':pos}
-            elif BM_FIELD_SEP in line:
-                try:
-                    title, spine, pos = line.strip().split(BM_FIELD_SEP)
-                    spine = int(spine)
-                except:
-                    continue
-                # Unescape from serialization
-                pos = pos.replace(BM_LEGACY_ESC, u'^')
-                # Check for pos being a scroll fraction
-                try:
-                    pos = float(pos)
-                except:
-                    pass
-                bm = {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
-
-            if bm:
-                self.bookmarks.append(bm)
+        for bm in parse_bookmarks(raw):
+            self.bookmarks.append(bm)
 
     def serialize_bookmarks(self, bookmarks):
         dat = []

@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+import sys
 
 from PyQt5.Qt import (
     QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, QTimer, QUrl, QWidget,
@@ -186,7 +187,8 @@ class WebPage(QWebEnginePage):
                     msg, linenumber, source_id.partition(':')[2]), show=True)
         prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
                 level, 'ERROR')
-        prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg))
+        prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
+        sys.stderr.flush()
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
         if req_type == self.NavigationTypeReload:

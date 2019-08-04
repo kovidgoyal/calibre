@@ -109,7 +109,7 @@ def prepare_convert(temp_path, key, st):
 def do_convert(path, temp_path, key, instance):
     tdir = os.path.join(temp_path, instance['path'])
     fork_job('calibre.srv.render_book', 'render', args=(
-        path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key}, True,
+        path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key}, True, True,
         ), timeout=3000, no_output=True
     )
     size = 0
