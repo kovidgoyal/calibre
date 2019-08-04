@@ -74,6 +74,7 @@ class EbookViewer(MainWindow):
 
     def load_ebook(self, pathtoebook, open_at=None):
         # TODO: Implement open_at
+        self.web_view.show_preparing_message()
         if self.save_annotations_debounce_timer.isActive():
             self.save_annotations()
         self.current_book_data = {}

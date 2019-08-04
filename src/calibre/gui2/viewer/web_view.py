@@ -169,6 +169,7 @@ class ViewerBridge(Bridge):
     set_session_data = from_js(object, object)
 
     create_view = to_js()
+    show_preparing_message = to_js()
     start_book_load = to_js()
 
 
@@ -315,10 +316,17 @@ class WebView(RestartingWebEngineView):
 
     def start_book_load(self, initial_cfi=None):
         key = (set_book_path.path,)
+        self.execute_when_ready('start_book_load', key, initial_cfi)
+
+    def execute_when_ready(self, action, *args):
         if self.bridge.ready:
-            self.bridge.start_book_load(key, initial_cfi)
+            getattr(self.bridge, action)(*args)
         else:
-            self.pending_bridge_ready_actions['start_book_load'] = key, initial_cfi
+            self.pending_bridge_ready_actions[action] = args
+
+    def show_preparing_message(self):
+        msg = _('Preparing book for reading, please wait…')
+        self.execute_when_ready('show_preparing_message', msg)
 
     def set_session_data(self, key, val):
         if key == '*' and val is None:

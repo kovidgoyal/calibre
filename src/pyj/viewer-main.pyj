@@ -180,6 +180,12 @@ def create_view(prefs):
         create_session_data(prefs)
         view = View(document.getElementById('view'))
 
+
+@from_python
+def show_preparing_message(msg):
+    view.show_loading_message(msg)
+
+
 @from_python
 def start_book_load(key, initial_cfi):
     xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi), ok_code=0)
