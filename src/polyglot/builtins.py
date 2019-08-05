@@ -72,6 +72,7 @@ if is_py3:
     codepoint_to_chr = chr
     unicode_type = str
     string_or_bytes = str, bytes
+    string_or_unicode = str
     long_type = int
     raw_input = input
     getcwd = os.getcwd
@@ -126,6 +127,7 @@ else:
     codepoint_to_chr = unichr
     unicode_type = unicode
     string_or_bytes = unicode, bytes
+    string_or_unicode = str, unicode
     long_type = long
     exec_path = execfile
     raw_input = builtins.raw_input
