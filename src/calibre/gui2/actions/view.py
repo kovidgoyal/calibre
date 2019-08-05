@@ -166,7 +166,7 @@ class ViewAction(InterfaceAction):
         rows = [r.row() for r in rows]
         book_ids = [db.id(r) for r in rows]
         formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
-        all_fmts = set([])
+        all_fmts = set()
         for x in formats:
             if x:
                 for f in x:

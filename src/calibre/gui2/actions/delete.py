@@ -165,7 +165,7 @@ class DeleteAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, err_title, _('No book selected'))
             d.exec_()
-            return set([])
+            return set()
         return set(map(self.gui.library_view.model().id, rows))
 
     def remove_format_by_id(self, book_id, fmt):

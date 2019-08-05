@@ -1343,7 +1343,7 @@ class DeviceMixin(object):  # {{{
                         self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
-                dynamic.set('catalogs_to_be_synced', set([]))
+                dynamic.set('catalogs_to_be_synced', set())
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
@@ -1355,7 +1355,7 @@ class DeviceMixin(object):  # {{{
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
-            dynamic.set('catalogs_to_be_synced', set([]))
+            dynamic.set('catalogs_to_be_synced', set())
             if files:
                 remove = []
                 space = {self.location_manager.free[0] : None,
