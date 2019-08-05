@@ -9,15 +9,15 @@ from collections import defaultdict
 from hashlib import sha256
 from threading import Thread
 
-from PyQt5.Qt import QDockWidget, Qt, QTimer, pyqtSignal
+from PyQt5.Qt import QDockWidget, Qt, pyqtSignal
 
 from calibre.constants import config_dir
 from calibre.gui2 import error_dialog
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
-    merge_annotations, parse_annotations, serialize_annotations
+    merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
 )
-from calibre.gui2.viewer.convert_book import prepare_book
+from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.web_view import WebView, set_book_path
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
@@ -43,8 +43,6 @@ class EbookViewer(MainWindow):
         except EnvironmentError:
             pass
         self.current_book_data = {}
-        self.save_annotations_debounce_timer = t = QTimer(self)
-        t.setInterval(3000), t.timeout.connect(self.save_annotations)
         self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
 
         def create_dock(title, name, area, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
@@ -75,8 +73,7 @@ class EbookViewer(MainWindow):
     def load_ebook(self, pathtoebook, open_at=None):
         # TODO: Implement open_at
         self.web_view.show_preparing_message()
-        if self.save_annotations_debounce_timer.isActive():
-            self.save_annotations()
+        self.save_annotations()
         self.current_book_data = {}
         t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at))
         t.daemon = True
@@ -131,15 +128,21 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{
             'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
-        self.save_annotations_debounce_timer.start()
 
     def save_annotations(self):
-        self.save_annotations_debounce_timer.stop()
+        if not self.current_book_data:
+            return
         amap = self.current_book_data['annotations_map']
+        annots = as_bytes(serialize_annotations(amap))
         with open(os.path.join(annotations_dir, self.current_book_data['annotations_path_key']), 'wb') as f:
-            f.write(as_bytes(serialize_annotations(amap)))
+            f.write(annots)
+        if self.current_book_data.get('pathtoebook', '').lower().endswith('.epub'):
+            path = self.current_book_data['pathtoebook']
+            if os.access(path, os.W_OK):
+                before_stat = os.stat(path)
+                save_annots_to_epub(path, annots)
+                update_book(path, before_stat, {'calibre-book-annotations.json': annots})
 
     def closeEvent(self, ev):
-        if self.save_annotations_debounce_timer.isActive():
-            self.save_annotations()
+        self.save_annotations()
         return MainWindow.closeEvent(self, ev)

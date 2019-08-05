@@ -5,11 +5,20 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import defaultdict
+from io import BytesIO
 from operator import itemgetter
 
-from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.serialize import json_dumps, json_loads
+from calibre.srv.render_book import (
+    EPUB_FILE_TYPE_MAGIC, parse_annotation, parse_annotations as _parse_annotations
+)
+from calibre.utils.serialize import json_dumps
+from calibre.utils.zipfile import safe_replace
+from polyglot.binary import as_base64_bytes
 from polyglot.builtins import iteritems, itervalues
+
+
+def parse_annotations(raw):
+    return list(_parse_annotations(raw))
 
 
 def merge_annots_with_identical_titles(annots):
@@ -28,6 +37,7 @@ def merge_annots_with_identical_titles(annots):
 
 def merge_annotations(annots, annots_map):
     for annot in annots:
+        annot = parse_annotation(annot)
         annots_map[annot.pop('type')].append(annot)
     lr = annots_map['last-read']
     if lr:
@@ -36,14 +46,6 @@ def merge_annotations(annots, annots_map):
         a = annots_map.get(annot_type)
         if a and len(a) > 1:
             annots_map[annot_type] = list(merge_annots_with_identical_titles(a))
-
-
-def parse_annotations(raw):
-    ans = []
-    for annot in json_loads(raw):
-        annot['timestamp'] = parse_iso8601(annot['timestamp'], assume_utc=True)
-        ans.append(annot)
-    return ans
 
 
 def serialize_annotations(annots_map):
@@ -55,3 +57,13 @@ def serialize_annotations(annots_map):
             annot['timestamp'] = annot['timestamp'].isoformat()
             ans.append(annot)
     return json_dumps(ans)
+
+
+def save_annots_to_epub(path, serialized_annots):
+    try:
+        zf = open(path, 'r+b')
+    except IOError:
+        return
+    with zf:
+        serialized_annots = EPUB_FILE_TYPE_MAGIC + as_base64_bytes(serialized_annots)
+        safe_replace(zf, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)

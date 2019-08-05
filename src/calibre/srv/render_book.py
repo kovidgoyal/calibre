@@ -31,10 +31,13 @@ from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.srv.metadata import encode_datetime
 from calibre.utils.date import EPOCH
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.logging import default_log
+from calibre.utils.serialize import json_loads
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import (
-    as_base64_unicode as encode_component, from_base64_unicode as decode_component
+    as_base64_unicode as encode_component, from_base64_bytes,
+    from_base64_unicode as decode_component
 )
 from polyglot.builtins import is_py3, iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
@@ -172,16 +175,16 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_legacy_bookmark_data=False):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False):
         log = log or default_log
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
-        if save_legacy_bookmark_data:
+        if save_bookmark_data:
             bm_file = 'META-INF/calibre_bookmarks.txt'
-            self.legacy_bookmark_data = None
+            self.bookmark_data = None
             if self.exists(bm_file):
                 with self.open(bm_file, 'rb') as f:
-                    self.legacy_bookmark_data = f.read().decode('utf-8')
+                    self.bookmark_data = f.read()
         # We do not add zero byte sized files as the IndexedDB API in the
         # browser has no good way to distinguish between zero byte files and
         # load failures.
@@ -541,9 +544,31 @@ def serialize_datetimes(d):
             d[k] = v
 
 
-def get_legacy_annotations(container):
+EPUB_FILE_TYPE_MAGIC = b'encoding=json+base64:\n'
+
+
+def parse_annotation(annot):
+    ts = annot['timestamp']
+    if hasattr(ts, 'rstrip'):
+        annot['timestamp'] = parse_iso8601(ts, assume_utc=True)
+    return annot
+
+
+def parse_annotations(raw):
+    for annot in json_loads(raw):
+        yield parse_annotation(annot)
+
+
+def get_stored_annotations(container):
     from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
-    raw = container.legacy_bookmark_data or b''
+
+    raw = container.bookmark_data or b''
+    if raw.startswith(EPUB_FILE_TYPE_MAGIC):
+        raw = raw[len(EPUB_FILE_TYPE_MAGIC):]
+        for annot in parse_annotations(from_base64_bytes(raw)):
+            yield annot
+        return
+
     for bm in parse_bookmarks(raw):
         if bm['type'] == 'cfi' and isinstance(bm['pos'], unicode_type):
             spine_index = (1 + bm['spine']) * 2
@@ -556,7 +581,7 @@ def get_legacy_annotations(container):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False):
-    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_legacy_bookmark_data=extract_annotations)
+    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations)
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.utils.serialize import json_dumps
@@ -573,8 +598,8 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
                 f.write(json_dumps(d))
     if extract_annotations:
         annotations = None
-        if container.legacy_bookmark_data:
-            annotations = json_dumps(tuple(get_legacy_annotations(container)))
+        if container.bookmark_data:
+            annotations = json_dumps(tuple(get_stored_annotations(container)))
         if annotations:
             with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
                 f.write(annotations)

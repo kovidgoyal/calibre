@@ -10,13 +10,14 @@ import os, numbers
 from io import BytesIO
 
 from calibre.utils.zipfile import safe_replace
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_unicode
 
 BM_FIELD_SEP = u'*|!|?|*'
 BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
 
 
 def parse_bookmarks(raw):
+    raw = as_unicode(raw)
     for line in raw.splitlines():
         if '^' in line:
             tokens = line.rpartition('^')
