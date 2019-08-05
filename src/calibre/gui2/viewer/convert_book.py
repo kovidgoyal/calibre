@@ -18,7 +18,7 @@ from calibre.srv.render_book import RENDER_VERSION
 from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import as_bytes, as_unicode
+from polyglot.builtins import as_bytes, as_unicode, iteritems
 
 DAY = 24 * 3600
 
@@ -118,14 +118,15 @@ def do_convert(path, temp_path, key, instance):
     instance['cache_size'] = size
 
 
+def save_metadata(metadata, f):
+    f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
+
+
 def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
     st = os.stat(path)
     key = book_hash(path, st.st_size, st.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
     temp_path = safe_makedirs(os.path.join(book_cache_dir(), 't'))
-
-    def save_metadata(metadata, f):
-        f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
 
     with cache_lock() as f:
         try:
@@ -163,6 +164,39 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY):
         expire_cache_and_temp(temp_path, finished_path, metadata, max_age)
         save_metadata(metadata, f)
     return ans
+
+
+def update_book(path, old_stat, name_data_map=None):
+    old_key = book_hash(path, old_stat.st_size, old_stat.st_mtime)
+    finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
+
+    with cache_lock() as f:
+        st = os.stat(path)
+        new_key = book_hash(path, st.st_size, st.st_mtime)
+        if old_key == new_key:
+            return
+        try:
+            metadata = json.loads(f.read())
+        except ValueError:
+            metadata = {'entries': {}, 'last_clear_at': 0}
+        entries = metadata['entries']
+        instances = entries.get(old_key)
+        if not instances:
+            return
+        for instance in tuple(instances):
+            if instance['status'] == 'finished':
+                entries.setdefault(new_key, []).append(instance)
+                instances.remove(instance)
+                if not instances:
+                    del entries[old_key]
+                instance['file_mtime'] = st.st_mtime
+                instance['file_size'] = st.st_size
+                if name_data_map:
+                    for name, data in iteritems(name_data_map):
+                        with open(os.path.join(finished_path, instance['path'], name), 'wb') as f2:
+                            f2.write(data)
+                save_metadata(metadata, f)
+                return
 
 
 def find_tests():
@@ -204,5 +238,25 @@ def find_tests():
             open(book_src, 'wb').write(b'bcd')
             prepare_book(book_src, convert_func=convert_mock, max_age=-1000)
             self.ae([], os.listdir(os.path.join(book_cache_dir(), 'f')))
+
+            # Test updating cached book
+            book_src = os.path.join(self.tdir, 'book2.epub')
+            open(book_src, 'wb').write(b'bb')
+            path = prepare_book(book_src, convert_func=convert_mock)
+            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'test')
+            bs = os.stat(book_src)
+            open(book_src, 'wb').write(b'cde')
+            update_book(book_src, bs, name_data_map={'sentinel': b'updated'})
+            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'updated')
+            self.ae(1, len(os.listdir(os.path.join(book_cache_dir(), 'f'))))
+            with cache_lock() as f:
+                metadata = json.loads(f.read())
+            self.ae(len(metadata['entries']), 1)
+            entry = list(metadata['entries'].values())[0]
+            self.ae(len(entry), 1)
+            entry = entry[0]
+            st = os.stat(book_src)
+            self.ae(entry['file_size'], st.st_size)
+            self.ae(entry['file_mtime'], st.st_mtime)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestViewerCache)
