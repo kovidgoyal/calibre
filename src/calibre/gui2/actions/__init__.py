@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -19,7 +20,7 @@ from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def menu_action_unique_name(plugin, unique_name):
-    return u'%s : menu action : %s'%(plugin.unique_name, unique_name)
+    return '%s : menu action : %s'%(plugin.unique_name, unique_name)
 
 
 class InterfaceAction(QObject):
@@ -151,7 +152,7 @@ class InterfaceAction(QObject):
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
             bn = self.interface_action_base_plugin.name
-        return u'Interface Action: %s (%s)'%(bn, self.name)
+        return 'Interface Action: %s (%s)'%(bn, self.name)
 
     def create_action(self, spec=None, attr='qaction', shortcut_name=None):
         if spec is None:
