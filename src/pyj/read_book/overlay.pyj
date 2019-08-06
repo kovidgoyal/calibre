@@ -454,6 +454,9 @@ class Overlay:
 
     def show_toc(self):
         self.hide_current_panel()
+        if runtime.is_standalone_viewer:
+            ui_operations.toggle_toc()
+            return
         self.panels.push(TOCOverlay(self))
         self.show_current_panel()
 

@@ -11,7 +11,7 @@ from collections import defaultdict
 from hashlib import sha256
 from threading import Thread
 
-from PyQt5.Qt import QDockWidget, Qt, pyqtSignal
+from PyQt5.Qt import QDockWidget, Qt, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prints
 from calibre.constants import config_dir
@@ -21,7 +21,8 @@ from calibre.gui2.viewer.annotations import (
     merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
 )
 from calibre.gui2.viewer.convert_book import prepare_book, update_book
-from calibre.gui2.viewer.web_view import WebView, set_book_path
+from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
+from calibre.gui2.viewer.web_view import WebView, set_book_path, vprefs
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.serialize import json_loads
@@ -38,6 +39,7 @@ class EbookViewer(MainWindow):
 
     msg_from_anotherinstance = pyqtSignal(object)
     book_prepared = pyqtSignal(object, object)
+    MAIN_WINDOW_STATE_VERSION = 1
 
     def __init__(self):
         MainWindow.__init__(self, None)
@@ -56,11 +58,22 @@ class EbookViewer(MainWindow):
             return ans
 
         self.toc_dock = create_dock(_('Table of Contents'), 'toc-dock', Qt.LeftDockWidgetArea)
+        self.toc_container = w = QWidget(self)
+        w.l = QVBoxLayout(w)
+        self.toc = TOCView(w)
+        self.toc_search = TOCSearch(self.toc, parent=w)
+        w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
+        self.toc_dock.setWidget(w)
+
         self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
+        self.web_view.toggle_toc.connect(self.toggle_toc)
         self.setCentralWidget(self.web_view)
+        state = vprefs['main_window_state']
+        if state:
+            self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
 
     def handle_commandline_arg(self, arg):
         if arg:
@@ -76,6 +89,12 @@ class EbookViewer(MainWindow):
             return
         self.load_ebook(path, open_at=open_at)
         self.raise_()
+
+    def toggle_toc(self):
+        if self.toc_dock.isVisible():
+            self.toc_dock.setVisible(False)
+        else:
+            self.toc_dock.setVisible(True)
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
@@ -119,7 +138,10 @@ class EbookViewer(MainWindow):
         path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
         with open(path, 'rb') as f:
             raw = f.read()
-        self.current_book_data['manifest'] = json.loads(raw)
+        self.current_book_data['manifest'] = manifest = json.loads(raw)
+        toc = manifest.get('toc')
+        self.toc_model = TOC(toc)
+        self.toc.setModel(self.toc_model)
 
     def load_book_annotations(self):
         amap = self.current_book_data['annotations_map']
@@ -161,6 +183,10 @@ class EbookViewer(MainWindow):
                 save_annots_to_epub(path, annots)
                 update_book(path, before_stat, {'calibre-book-annotations.json': annots})
 
+    def save_state(self):
+        vprefs['main_window_state'] = bytearray(self.saveState(self.MAIN_WINDOW_STATE_VERSION))
+
     def closeEvent(self, ev):
         self.save_annotations()
+        self.save_state()
         return MainWindow.closeEvent(self, ev)
