@@ -443,7 +443,7 @@ def serialize_elem(elem, nsmap):
         ns, name = None, 'epub-' + name
     if nl == 'meta':
         return  # Filter out <meta> tags as they have unknown side-effects
-    if name.lower() in {'img', 'script', 'link', 'image', 'style'}:
+    if nl in {'img', 'script', 'link', 'image', 'style'}:
         name = nl
     ans = {'n':name}
     if elem.text:

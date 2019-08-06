@@ -325,7 +325,7 @@ class WebView(RestartingWebEngineView):
             self.pending_bridge_ready_actions[action] = args
 
     def show_preparing_message(self):
-        msg = _('Preparing book for reading, please wait…')
+        msg = _('Preparing book for first read, please wait…')
         self.execute_when_ready('show_preparing_message', msg)
 
     def set_session_data(self, key, val):
