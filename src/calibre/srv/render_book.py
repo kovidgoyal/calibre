@@ -560,15 +560,16 @@ def parse_annotations(raw):
 
 
 def get_stored_annotations(container):
-    from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
-
     raw = container.bookmark_data or b''
+    if not raw:
+        return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
-        raw = raw[len(EPUB_FILE_TYPE_MAGIC):]
+        raw = raw[len(EPUB_FILE_TYPE_MAGIC):].replace(b'\n', b'')
         for annot in parse_annotations(from_base64_bytes(raw)):
             yield annot
         return
 
+    from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
     for bm in parse_bookmarks(raw):
         if bm['type'] == 'cfi' and isinstance(bm['pos'], unicode_type):
             spine_index = (1 + bm['spine']) * 2

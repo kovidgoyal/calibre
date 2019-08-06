@@ -59,11 +59,18 @@ def serialize_annotations(annots_map):
     return json_dumps(ans)
 
 
+def split_lines(chunk, length=80):
+    pos = 0
+    while pos < len(chunk):
+        yield chunk[pos:pos+length]
+        pos += length
+
+
 def save_annots_to_epub(path, serialized_annots):
     try:
         zf = open(path, 'r+b')
     except IOError:
         return
     with zf:
-        serialized_annots = EPUB_FILE_TYPE_MAGIC + as_base64_bytes(serialized_annots)
+        serialized_annots = EPUB_FILE_TYPE_MAGIC + b'\n'.join(split_lines(as_base64_bytes(serialized_annots)))
         safe_replace(zf, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
