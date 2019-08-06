@@ -9,18 +9,21 @@
 #include <Cocoa/Cocoa.h>
 #include <string.h>
 
+void
+activate_cocoa_multithreading(void) {
+	if (![NSThread isMultiThreaded]) [[NSThread new] start];
+}
+
 const char*
 cocoa_send2trash(const char *utf8_path) {
-	NSString *path = [[NSString alloc] initWithUTF8String:utf8_path];
-	NSURL *url = [NSURL fileURLWithPath:path];
+	@autoreleasepool {
 	const char *ret = NULL;
 	NSError* ns_error = nil;
-	if (![[NSFileManager defaultManager] trashItemAtURL:url resultingItemURL:nil error:&ns_error]) {
+	if (![[NSFileManager defaultManager] trashItemAtURL:[NSURL fileURLWithPath:@(utf8_path)] resultingItemURL:nil error:&ns_error]) {
 		ret = strdup([[ns_error localizedDescription] UTF8String]);
 	}
-	[url release];
-	[path release];
 	return ret;
+	}
 }
 
 
@@ -32,35 +35,31 @@ extern void macos_notification_callback(const char*);
 
 void
 cocoa_send_notification(const char *identifier, const char *title, const char *subtitle, const char *informativeText, const char* path_to_image) {
+	@autoreleasepool {
     NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
     if (!center) {return;}
     if (!center.delegate) center.delegate = [[NotificationDelegate alloc] init];
     NSUserNotification *n = [NSUserNotification new];
     NSImage *img = nil;
     if (path_to_image) {
-        NSString *p = [NSString stringWithUTF8String:path_to_image];
-        NSURL *url = [NSURL fileURLWithPath:p];
-        img = [[NSImage alloc] initWithContentsOfURL:url];
-        [url release]; [p release];
+		img = [[NSImage alloc] initWithContentsOfURL:[NSURL fileURLWithPath:@(path_to_image)]];
         if (img) {
             [n setValue:img forKey:@"_identityImage"];
             [n setValue:@(false) forKey:@"_identityImageHasBorder"];
         }
-        [img release];
+		[img release];
     }
 #define SET(x) { \
     if (x) { \
-        NSString *t = [NSString stringWithUTF8String:x]; \
-        n.x = t; \
-        [t release]; \
+        n.x = @(x); \
     }}
     SET(title); SET(subtitle); SET(informativeText);
 #undef SET
     if (identifier) {
-        n.userInfo = @{@"user_id": [NSString stringWithUTF8String:identifier]};
+        n.userInfo = @{@"user_id": @(identifier)};
     }
     [center deliverNotification:n];
-
+	}
 }
 
 @implementation NotificationDelegate

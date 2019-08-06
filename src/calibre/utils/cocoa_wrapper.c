@@ -10,6 +10,7 @@
 extern double cocoa_cursor_blink_time(void);
 extern void cocoa_send_notification(const char *identitifer, const char *title, const char *subtitle, const char *informativeText, const char* path_to_image);
 extern const char* cocoa_send2trash(const char *utf8_path);
+extern void activate_cocoa_multithreading(void);
 
 static PyObject *notification_activated_callback = NULL;
 
@@ -63,8 +64,15 @@ send2trash(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject*
+enable_cocoa_multithreading(PyObject *self, PyObject *args) {
+	activate_cocoa_multithreading();
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef module_methods[] = {
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
+    {"enable_cocoa_multithreading", (PyCFunction)enable_cocoa_multithreading, METH_NOARGS, ""},
     {"set_notification_activated_callback", (PyCFunction)set_notification_activated_callback, METH_O, ""},
     {"send_notification", (PyCFunction)send_notification, METH_VARARGS, ""},
     {"send2trash", (PyCFunction)send2trash, METH_VARARGS, ""},
