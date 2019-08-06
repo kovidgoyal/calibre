@@ -5,8 +5,8 @@ from __python__ import hash_literals, bound_methods
 from gettext import gettext as _
 from dom import svgicon, set_css, add_extra_css, build_rule, clear, unique_id
 from elementmaker import E
-from book_list.globals import get_session_data, get_read_ui
-from read_book.globals import default_color_schemes
+from book_list.globals import get_session_data
+from read_book.globals import default_color_schemes, ui_operations
 from modals import error_dialog
 from widgets import create_button
 
@@ -220,4 +220,4 @@ def commit_colors(onchange):
     if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg:
         sd = get_session_data()
         sd.set('current_color_scheme', ccs)
-        get_read_ui().update_color_scheme()
+        ui_operations.update_color_scheme()

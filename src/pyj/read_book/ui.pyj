@@ -63,6 +63,8 @@ class ReadUI:
         ui_operations.redisplay_book = self.redisplay_book.bind(self)
         ui_operations.reload_book = self.reload_book.bind(self)
         ui_operations.forward_gesture = self.forward_gesture.bind(self)
+        ui_operations.update_color_scheme = self.update_color_scheme.bind(self)
+        ui_operations.update_font_size = self.update_font_size.bind(self)
 
     def on_resize(self):
         self.view.on_resize()

@@ -218,6 +218,14 @@ def forward_gesture(gesture):
     view.forward_gesture(gesture)
 
 
+def update_color_scheme():
+    view.update_color_scheme()
+
+
+def update_font_size():
+    view.update_font_size()
+
+
 if window is window.top:
     # main
     ui_operations.get_file = get_file
@@ -227,6 +235,8 @@ if window is window.top:
     ui_operations.redisplay_book = redisplay_book
     ui_operations.reload_book = reload_book
     ui_operations.forward_gesture = forward_gesture
+    ui_operations.update_color_scheme = update_color_scheme
+    ui_operations.update_font_size = update_font_size
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

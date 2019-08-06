@@ -75,4 +75,6 @@ ui_operations = {
     'redisplay_book': None,
     'reload_book': None,
     'forward_gesture': None,
+    'update_color_scheme': None,
+    'update_font_size': None,
 }
