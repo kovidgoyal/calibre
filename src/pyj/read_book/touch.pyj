@@ -2,8 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from book_list.globals import get_read_ui
-from read_book.globals import get_boss
+from read_book.globals import get_boss, ui_operations
 from read_book.viewport import scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
@@ -257,7 +256,7 @@ class BookTouchHandler(TouchHandler):
                 return
             gesture.type = 'show-chrome'
         if self.for_side_margin:
-            get_read_ui().view.forward_gesture(gesture)
+            ui_operations.forward_gesture(gesture)
         else:
             get_boss().handle_gesture(gesture)
 

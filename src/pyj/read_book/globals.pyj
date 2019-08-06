@@ -74,4 +74,5 @@ ui_operations = {
     'show_error': None,
     'redisplay_book': None,
     'reload_book': None,
+    'forward_gesture': None,
 }

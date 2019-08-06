@@ -214,6 +214,10 @@ def reload_book():
     to_python.reload_book()
 
 
+def forward_gesture(gesture):
+    view.forward_gesture(gesture)
+
+
 if window is window.top:
     # main
     ui_operations.get_file = get_file
@@ -222,6 +226,7 @@ if window is window.top:
     ui_operations.show_error = show_error
     ui_operations.redisplay_book = redisplay_book
     ui_operations.reload_book = reload_book
+    ui_operations.forward_gesture = forward_gesture
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()
