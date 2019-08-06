@@ -271,7 +271,7 @@ def main(args=sys.argv):
         run_debug_gui(opts.gui_debug)
     elif opts.viewer:
         from calibre.gui_launch import ebook_viewer
-        ebook_viewer(['ebook-viewer', '--debug-javascript'] + args[1:])
+        ebook_viewer(['ebook-viewer'] + args[1:])
     elif opts.command:
         sys.argv = args
         exec(opts.command)
