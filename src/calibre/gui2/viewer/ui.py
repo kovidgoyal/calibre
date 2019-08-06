@@ -4,13 +4,16 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import os
+import sys
 from collections import defaultdict
 from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import QDockWidget, Qt, pyqtSignal
 
+from calibre import prints
 from calibre.constants import config_dir
 from calibre.gui2 import error_dialog
 from calibre.gui2.main_window import MainWindow
@@ -59,8 +62,11 @@ class EbookViewer(MainWindow):
         self.setCentralWidget(self.web_view)
 
     def handle_commandline_arg(self, arg):
-        if arg and os.path.isfile(arg) and os.access(arg, os.R_OK):
-            self.load_ebook(arg)
+        if arg:
+            if os.path.isfile(arg) and os.access(arg, os.R_OK):
+                self.load_ebook(arg)
+            else:
+                prints('Cannot read from:', arg, file=sys.stderr)
 
     def another_instance_wants_to_talk(self, msg):
         try:
@@ -100,8 +106,15 @@ class EbookViewer(MainWindow):
         self.current_book_data = data
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
-        self.load_book_annotations()
+        self.load_book_data()
         self.web_view.start_book_load(initial_cfi=self.initial_cfi_for_current_book())
+
+    def load_book_data(self):
+        self.load_book_annotations()
+        path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
+        with open(path, 'rb') as f:
+            raw = f.read()
+        self.current_book_data['manifest'] = json.loads(raw)
 
     def load_book_annotations(self):
         amap = self.current_book_data['annotations_map']
