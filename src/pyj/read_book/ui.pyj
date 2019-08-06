@@ -60,6 +60,8 @@ class ReadUI:
         ui_operations.update_url_state = self.update_url_state.bind(self)
         ui_operations.update_last_read_time = self.db.update_last_read_time
         ui_operations.show_error = self.show_error.bind(self)
+        ui_operations.redisplay_book = self.redisplay_book.bind(self)
+        ui_operations.reload_book = self.reload_book.bind(self)
 
     def on_resize(self):
         self.view.on_resize()

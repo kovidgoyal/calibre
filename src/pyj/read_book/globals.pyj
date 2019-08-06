@@ -72,4 +72,6 @@ ui_operations = {
     'update_url_state': None,
     'update_last_read_time': None,
     'show_error': None,
+    'redisplay_book': None,
+    'reload_book': None,
 }

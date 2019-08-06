@@ -59,6 +59,7 @@ class EbookViewer(MainWindow):
         self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
+        self.web_view.reload_book.connect(self.reload_book)
         self.setCentralWidget(self.web_view)
 
     def handle_commandline_arg(self, arg):
@@ -76,18 +77,22 @@ class EbookViewer(MainWindow):
         self.load_ebook(path, open_at=open_at)
         self.raise_()
 
-    def load_ebook(self, pathtoebook, open_at=None):
+    def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
         self.web_view.show_preparing_message()
         self.save_annotations()
         self.current_book_data = {}
-        t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at))
+        t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book))
         t.daemon = True
         t.start()
 
-    def _load_ebook_worker(self, pathtoebook, open_at):
+    def reload_book(self):
+        if self.current_book_data:
+            self.load_ebook(self.current_book_data['pathtoebook'], reload_book=True)
+
+    def _load_ebook_worker(self, pathtoebook, open_at, reload_book):
         try:
-            ans = prepare_book(pathtoebook)
+            ans = prepare_book(pathtoebook, force=reload_book)
         except WorkerError as e:
             self.book_prepared.emit(False, {'exception': e, 'tb': e.orig_tb, 'pathtoebook': pathtoebook})
         except Exception as e:

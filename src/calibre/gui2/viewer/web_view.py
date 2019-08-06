@@ -167,6 +167,7 @@ def create_profile():
 class ViewerBridge(Bridge):
 
     set_session_data = from_js(object, object)
+    reload_book = from_js()
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -244,6 +245,7 @@ class Inspector(QWidget):
 class WebView(RestartingWebEngineView):
 
     cfi_changed = pyqtSignal(object)
+    reload_book = pyqtSignal()
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -256,6 +258,7 @@ class WebView(RestartingWebEngineView):
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.set_session_data.connect(self.set_session_data)
+        self.bridge.reload_book.connect(self.reload_book)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)

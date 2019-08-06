@@ -5,19 +5,21 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.globals import get_read_ui
 from book_list.library_data import sync_library_books
 from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
-from utils import full_screen_element, request_full_screen, safe_set_inner_html, is_ios
+from read_book.globals import ui_operations, runtime
 from read_book.goto import create_goto_panel
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
 from session import get_device_uuid
+from utils import (
+    full_screen_element, is_ios, request_full_screen, safe_set_inner_html
+)
 from widgets import create_button, create_spinner
 
 
@@ -86,6 +88,10 @@ class DeleteBook:  # {{{
         pass  # Dont allow panel to be closed by a click
 
     def delete_book(self):
+        if runtime.is_standalone_viewer:
+            if self.reload_book:
+                ui_operations.reload_book()
+            return
         self.show_working()
         view = self.overlay.view
         view.ui.db.delete_book(view.book, def(book, errmsg):
@@ -94,7 +100,7 @@ class DeleteBook:  # {{{
                 view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
             else:
                 if self.reload_book:
-                    get_read_ui().reload_book()
+                    ui_operations.reload_book()
                 else:
                     home()
         )
@@ -207,6 +213,14 @@ class MainOverlay:
 
             return E.li(icon, '\xa0', text, onclick=action, title=tooltip)
 
+        sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
+        delete_action = ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash')
+        reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
+        if runtime.is_standalone_viewer:
+            reload_actions = E.ul(reload_action)
+        else:
+            reload_actions = E.ul(sync_action, delete_action, reload_action)
+
         actions_div = E.div( # actions
             E.ul(
                 ac(_('Home'), _('Return to list of books'), def(): home();, 'home'),
@@ -219,11 +233,7 @@ class MainOverlay:
                 ac(_('Go to'), _('Go to a specific location in the book'), self.overlay.show_goto, 'chevron-right'),
             ),
 
-            E.ul(
-                ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download'),
-                ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash'),
-                ac(_('Reload'), _('Reload this book from the server'), self.overlay.reload_book, 'refresh')
-            ),
+            reload_actions,
 
             E.ul(
                 ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
@@ -350,7 +360,7 @@ class PrefsOverlay: # {{{
     def on_hide(self):
         if self.changes_occurred:
             self.changes_occurred = False
-            get_read_ui().redisplay_book()
+            ui_operations.redisplay_book()
 
 # }}}
 
