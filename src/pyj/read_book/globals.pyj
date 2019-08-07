@@ -62,7 +62,8 @@ register_callback(def():
 )
 
 runtime = {
-    'is_standalone_viewer': False
+    'is_standalone_viewer': False,
+    'viewer_in_full_screen': False,
 }
 
 

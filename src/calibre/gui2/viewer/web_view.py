@@ -171,11 +171,13 @@ class ViewerBridge(Bridge):
     reload_book = from_js()
     toggle_toc = from_js()
     update_current_toc_nodes = from_js(object, object)
+    toggle_full_screen = from_js()
 
     create_view = to_js()
     show_preparing_message = to_js()
     start_book_load = to_js()
     goto_toc_node = to_js()
+    full_screen_state_changed = to_js()
 
 
 class WebPage(QWebEnginePage):
@@ -252,6 +254,7 @@ class WebView(RestartingWebEngineView):
     reload_book = pyqtSignal()
     toggle_toc = pyqtSignal()
     update_current_toc_nodes = pyqtSignal(object, object)
+    toggle_full_screen = pyqtSignal()
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -267,6 +270,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.reload_book.connect(self.reload_book)
         self.bridge.toggle_toc.connect(self.toggle_toc)
         self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
+        self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
@@ -342,6 +346,9 @@ class WebView(RestartingWebEngineView):
 
     def goto_toc_node(self, node_id):
         self.execute_when_ready('goto_toc_node', node_id)
+
+    def notify_full_screen_state_change(self, in_fullscreen_mode):
+        self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
 
     def set_session_data(self, key, val):
         if key == '*' and val is None:

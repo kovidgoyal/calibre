@@ -216,17 +216,18 @@ class MainOverlay:
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         delete_action = ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
+        home_action = ac(_('Home'), _('Return to list of books'), def(): home();, 'home')
+        back_action = ac(_('Back'), None, self.back, 'arrow-left')
+        forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
         if runtime.is_standalone_viewer:
             reload_actions = E.ul(reload_action)
+            nav_actions = E.ul(back_action, forward_action)
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
+            nav_actions = E.ul(home_action, back_action, forward_action)
 
         actions_div = E.div( # actions
-            E.ul(
-                ac(_('Home'), _('Return to list of books'), def(): home();, 'home'),
-                ac(_('Back'), None, self.back, 'arrow-left'),
-                ac(_('Forward'), None, self.forward, 'arrow-right'),
-            ),
+            nav_actions,
 
             E.ul(
                 ac(_('Search'), _('Search for text in this book'), self.overlay.show_search, 'search'),
@@ -247,12 +248,19 @@ class MainOverlay:
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS
         )
-        if not full_screen_element() and not is_ios:
-            # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen
-            actions_div.appendChild(
-            E.ul(
-                ac(_('Full screen'), _('Enter full screen mode'), def(): request_full_screen(), self.overlay.hide();, 'full-screen'),
-            ))
+        full_screen_actions = []
+        if runtime.is_standalone_viewer:
+            text = _('Exit full screen') if runtime.viewer_in_full_screen else _('Enter full screen')
+            full_screen_actions.push(
+                ac(text, '', def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen'))
+        else:
+            if not full_screen_element() and not is_ios:
+                # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen
+                full_screen_actions.push(
+                    ac(_('Full screen'), _('Enter full screen mode'), def(): request_full_screen(), self.overlay.hide();, 'full-screen')
+                )
+        if full_screen_actions.length:
+            actions_div.appendChild(E.ul(*full_screen_actions))
 
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,

@@ -11,7 +11,9 @@ from collections import defaultdict
 from hashlib import sha256
 from threading import Thread
 
-from PyQt5.Qt import QDockWidget, QModelIndex, Qt, QVBoxLayout, QWidget, pyqtSignal
+from PyQt5.Qt import (
+    QDockWidget, QEvent, QModelIndex, Qt, QVBoxLayout, QWidget, pyqtSignal
+)
 
 from calibre import prints
 from calibre.constants import config_dir
@@ -43,6 +45,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self):
         MainWindow.__init__(self, None)
+        self.in_full_screen_mode = None
         try:
             os.makedirs(annotations_dir)
         except EnvironmentError:
@@ -73,11 +76,13 @@ class EbookViewer(MainWindow):
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
+        self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.setCentralWidget(self.web_view)
         state = vprefs['main_window_state']
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
 
+    # IPC {{{
     def handle_commandline_arg(self, arg):
         if arg:
             if os.path.isfile(arg) and os.access(arg, os.R_OK):
@@ -92,7 +97,28 @@ class EbookViewer(MainWindow):
             return
         self.load_ebook(path, open_at=open_at)
         self.raise_()
+    # }}}
 
+    # Fullscreen {{{
+    def set_full_screen(self, on):
+        if on:
+            self.showFullScreen()
+        else:
+            self.showNormal()
+
+    def changeEvent(self, ev):
+        if ev.type() == QEvent.WindowStateChange:
+            in_full_screen_mode = self.isFullScreen()
+            if self.in_full_screen_mode is None or self.in_full_screen_mode != in_full_screen_mode:
+                self.in_full_screen_mode = in_full_screen_mode
+                self.web_view.notify_full_screen_state_change(self.in_full_screen_mode)
+        return MainWindow.changeEvent(self, ev)
+
+    def toggle_full_screen(self):
+        self.set_full_screen(not self.isFullScreen())
+    # }}}
+
+    # ToC {{{
     def toggle_toc(self):
         if self.toc_dock.isVisible():
             self.toc_dock.setVisible(False)
@@ -106,6 +132,9 @@ class EbookViewer(MainWindow):
     def toc_searched(self, index):
         item = self.toc_model.itemFromIndex(index)
         self.web_view.goto_toc_node(item.node_id)
+    # }}}
+
+    # Load book {{{
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
@@ -166,7 +195,9 @@ class EbookViewer(MainWindow):
             with open(path, 'rb') as f:
                 raw = f.read()
             merge_annotations(parse_annotations(raw), amap)
+    # }}}
 
+    # CFI management {{{
     def initial_cfi_for_current_book(self):
         lrp = self.current_book_data['annotations_map']['last-read']
         if lrp:
@@ -179,7 +210,9 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{
             'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+    # }}}
 
+    # State serialization {{{
     def save_annotations(self):
         if not self.current_book_data:
             return
@@ -201,3 +234,4 @@ class EbookViewer(MainWindow):
         self.save_annotations()
         self.save_state()
         return MainWindow.closeEvent(self, ev)
+    # }}}

@@ -198,6 +198,11 @@ def goto_toc_node(node_id):
     view.goto_toc_node(node_id)
 
 
+@from_python
+def full_screen_state_changed(viewer_in_full_screen):
+    runtime.viewer_in_full_screen = viewer_in_full_screen
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error
@@ -246,6 +251,8 @@ if window is window.top:
         to_python.toggle_toc()
     ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
         to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
+    ui_operations.toggle_full_screen = def():
+        to_python.toggle_full_screen()
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

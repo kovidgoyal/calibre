@@ -169,7 +169,7 @@ def main(args=sys.argv):
     if opts.raise_window:
         main.raise_()
     if opts.full_screen:
-        main.showFullScreen()
+        main.set_full_screen(True)
 
     app.exec_()
     if listener is not None:
