@@ -26,6 +26,7 @@ from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
+from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from polyglot.builtins import iteritems
 
@@ -155,6 +156,9 @@ def create_profile():
             from calibre.utils.rapydscript import compile_viewer
             compile_viewer()
         js = P('viewer.js', data=True, allow_user_override=False)
+        translations_json = get_translations_data()
+        if translations_json:
+            js = (b'window.calibre_translations_data = %s;\n\n' % translations_json) + js
         insert_scripts(ans, create_script('viewer.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)

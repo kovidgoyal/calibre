@@ -9,7 +9,7 @@ import random
 import shutil
 import sys
 import zipfile
-from json import load as load_json_file
+from json import load as load_json_file, loads as json_loads
 from threading import Lock
 
 from calibre import as_unicode
@@ -95,25 +95,27 @@ def get_basic_query_data(ctx, rd):
     return library_id, db, sorts, orders, rd.query.get('vl') or ''
 
 
-_cached_translations = None
+def get_translations_data():
+    with zipfile.ZipFile(
+        P('content-server/locales.zip', allow_user_override=False), 'r'
+    ) as zf:
+        names = set(zf.namelist())
+        lang = get_lang()
+        if lang not in names:
+            xlang = lang.split('_')[0].lower()
+            if xlang in names:
+                lang = xlang
+        if lang in names:
+            return zf.open(lang, 'r').read()
 
 
 def get_translations():
-    global _cached_translations
-    if _cached_translations is None:
-        _cached_translations = False
-        with zipfile.ZipFile(
-            P('content-server/locales.zip', allow_user_override=False), 'r'
-        ) as zf:
-            names = set(zf.namelist())
-            lang = get_lang()
-            if lang not in names:
-                xlang = lang.split('_')[0].lower()
-                if xlang in names:
-                    lang = xlang
-            if lang in names:
-                _cached_translations = load_json_file(zf.open(lang, 'r'))
-    return _cached_translations
+    if not hasattr(get_translations, 'cached'):
+        get_translations.cached = False
+        data = get_translations_data()
+        if data:
+            get_translations.cached = json_loads(data)
+    return get_translations.cached
 
 
 def custom_list_template():
