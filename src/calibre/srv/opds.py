@@ -182,7 +182,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
     field_metadata = request_context.db.field_metadata
     mi = request_context.db.get_metadata(book_id)
     extra = []
-    if mi.rating > 0:
+    if (mi.rating or 0) > 0:
         rating = rating_to_stars(mi.rating)
         extra.append(_('RATING: %s<br />')%rating)
     if mi.tags:
