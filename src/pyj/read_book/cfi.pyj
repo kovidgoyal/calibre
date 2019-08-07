@@ -312,6 +312,75 @@ def decode(cfi, doc): # {{{
 
     return point
 
+def cfi_sort_key(cfi): # {{{
+    simple_node_regex = ///
+        ^/(\d+)          # The node count
+          (\[[^\]]*\])?  # The optional id assertion
+    ///
+    steps = v'[]'
+
+    while cfi.length > 0:
+        r = cfi.match(simple_node_regex)
+        if r: # Path step
+            target = parseInt(r[1])
+            cfi = cfi.substr(r[0].length)
+            steps.push(target)
+        else if cfi[0] is '!': # Indirection
+            cfi = cfi.substr(1)
+        else:
+            break
+
+    ans = {'steps': steps, 'text_offset': 0, 'temporal_offset': 0, 'spatial_offset': v'[0, 0]'}
+
+    r = cfi.match(/^:(\d+)/)
+    if r:
+        # Character offset
+        offset = parseInt(r[1])
+        ans['text_offset'] = offset
+        cfi = cfi.substr(r[0].length)
+
+    r = cfi.match(/^~(-?\d+(\.\d+)?)/)
+    if r:
+        # Temporal offset
+        ans['temporal_offset'] = r[1] - 0  # Coerce to number
+        cfi = cfi.substr(r[0].length)
+
+    r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)
+    if r:
+        # Spatial offset
+        ans['spatial_offset'] = v'[r[1] - 0, r[3] - 0]'
+        cfi = cfi.substr(r[0].length)
+    return ans
+
+
+def sort_cfis(array_of_cfis):
+    key_map = {cfi: cfi_sort_key(cfi) for cfi in array_of_cfis}
+
+    Array.prototype.sort.call(array_of_cfis, def(a, b):
+        a = key_map[a]
+        b = key_map[b]
+        for i in range(min(a.steps.length, b.steps.length)):
+            diff = a.steps[i] - b.steps[i]
+            if diff is not 0:
+                return diff
+        diff = a.length - b.length
+        if diff is not 0:
+            return diff
+
+        if a.temporal_offset is not b.temporal_offset:
+            return a.temporal_offset - b.temporal_offset
+
+        if a.spatial_offset[0] is not b.spatial_offset[0]:
+            return a.spatial_offset[0] - b.spatial_offset[0]
+        if a.spatial_offset[1] is not b.spatial_offset[1]:
+            return a.spatial_offset[1] - b.spatial_offset[1]
+
+        if a.text_offset is not b.text_offset:
+            return a.text_offset - b.text_offset
+
+        return 0
+    )
+
 # }}}
 
 def at(x, y, doc):  # {{{
