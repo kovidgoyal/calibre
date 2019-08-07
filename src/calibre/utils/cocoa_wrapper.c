@@ -11,6 +11,8 @@ extern double cocoa_cursor_blink_time(void);
 extern void cocoa_send_notification(const char *identitifer, const char *title, const char *subtitle, const char *informativeText, const char* path_to_image);
 extern const char* cocoa_send2trash(const char *utf8_path);
 extern void activate_cocoa_multithreading(void);
+extern void disable_window_tabbing(void);
+extern void remove_cocoa_menu_items(void);
 
 static PyObject *notification_activated_callback = NULL;
 
@@ -70,11 +72,23 @@ enable_cocoa_multithreading(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject*
+disable_cocoa_ui_elements(PyObject *self, PyObject *args) {
+	PyObject *tabbing = Py_True, *menu_items = Py_True;
+	if (!PyArg_ParseTuple(args, "|OO", &tabbing, &menu_items)) return NULL;
+	if (PyObject_IsTrue(tabbing)) disable_window_tabbing();
+	if (PyObject_IsTrue(menu_items) remove_cocoa_menu_items();
+	Py_RETURN_NONE;
+}
+
+
+
 static PyMethodDef module_methods[] = {
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
     {"enable_cocoa_multithreading", (PyCFunction)enable_cocoa_multithreading, METH_NOARGS, ""},
     {"set_notification_activated_callback", (PyCFunction)set_notification_activated_callback, METH_O, ""},
     {"send_notification", (PyCFunction)send_notification, METH_VARARGS, ""},
+    {"disable_cocoa_ui_elements", (PyCFunction)disable_cocoa_ui_elements, METH_VARARGS, ""},
     {"send2trash", (PyCFunction)send2trash, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };

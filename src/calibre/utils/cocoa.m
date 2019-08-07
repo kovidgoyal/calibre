@@ -5,9 +5,28 @@
  * Distributed under terms of the GPL3 license.
  */
 
+#import <AppKit/AppKit.h>
+#import <AppKit/NSWindow.h>
+#import <Availability.h>
 
-#include <Cocoa/Cocoa.h>
 #include <string.h>
+
+void
+disable_window_tabbing(void) {
+	if ([NSWindow respondsToSelector:@selector(allowsAutomaticWindowTabbing)])
+        NSWindow.allowsAutomaticWindowTabbing = NO;
+}
+
+void
+remove_cocoa_menu_items(void) {
+	// Remove (disable) the "Start Dictation..." and "Emoji & Symbols" menu
+	// items from the "Edit" menu
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"NSDisabledDictationMenuItem"];
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"NSDisabledCharacterPaletteMenuItem"];
+
+	// Remove (don't have) the "Enter Full Screen" menu item from the "View" menu
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"NSFullScreenMenuItemEverywhere"];
+}
 
 void
 activate_cocoa_multithreading(void) {
