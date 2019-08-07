@@ -62,16 +62,21 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
 static PyObject *
 PDFDoc_open(PDFDoc *self, PyObject *args) {
     char *fname;
-
-    if (PyArg_ParseTuple(args, "s", &fname)) {
-        try {
-            self->doc->Load(fname);
-        } catch(const PdfError & err) {
-            podofo_set_exception(err);
-            return NULL;
-        }
-    } else return NULL;
-
+#ifdef _WIN32
+#define ENCODING "mbcs"
+#else
+#define ENCODING "utf-8"
+#endif
+    if (!PyArg_ParseTuple(args, "es", ENCODING, &fname)) return NULL;
+#undef ENCODING
+	try {
+		self->doc->Load(fname);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		PyMem_Free(fname);
+		return NULL;
+	}
+	PyMem_Free(fname);
 
     Py_RETURN_NONE;
 }
