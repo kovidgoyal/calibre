@@ -244,6 +244,8 @@ if window is window.top:
     ui_operations.update_font_size = update_font_size
     ui_operations.toggle_toc = def():
         to_python.toggle_toc()
+    ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
+        to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

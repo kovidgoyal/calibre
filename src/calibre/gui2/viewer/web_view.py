@@ -170,6 +170,7 @@ class ViewerBridge(Bridge):
     set_session_data = from_js(object, object)
     reload_book = from_js()
     toggle_toc = from_js()
+    update_current_toc_nodes = from_js(object, object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -250,6 +251,7 @@ class WebView(RestartingWebEngineView):
     cfi_changed = pyqtSignal(object)
     reload_book = pyqtSignal()
     toggle_toc = pyqtSignal()
+    update_current_toc_nodes = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -264,6 +266,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.set_session_data.connect(self.set_session_data)
         self.bridge.reload_book.connect(self.reload_book)
         self.bridge.toggle_toc.connect(self.toggle_toc)
+        self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)

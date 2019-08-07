@@ -582,10 +582,11 @@ class View:
                 window.clearInterval(self.clock_timer_id)
                 self.clock_timer_id = 0
 
-
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
         self.current_toc_node, self.current_toc_toplevel_node = get_current_toc_nodes()
+        if runtime.is_standalone_viewer:
+            ui_operations.update_current_toc_nodes(self.current_toc_node?.id, self.current_toc_toplevel_node?.id)
         self.update_header_footer()
 
     def show_spine_item(self, resource_data):

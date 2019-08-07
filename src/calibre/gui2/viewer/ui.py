@@ -72,6 +72,7 @@ class EbookViewer(MainWindow):
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
+        self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.setCentralWidget(self.web_view)
         state = vprefs['main_window_state']
         if state:

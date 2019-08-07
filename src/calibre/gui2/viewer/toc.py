@@ -101,6 +101,9 @@ class TOCView(QTreeView):
         m = self.model()
         QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
 
+    def update_current_toc_nodes(self, current_node_id, toplevel_node_id):
+        self.model().update_current_toc_nodes(current_node_id, toplevel_node_id)
+
 
 class TOCSearch(QWidget):
 
@@ -134,7 +137,7 @@ class TOCSearch(QWidget):
 
 class TOCItem(QStandardItem):
 
-    def __init__(self, toc, depth, all_items, parent=None):
+    def __init__(self, toc, depth, all_items, normal_font, emphasis_font, parent=None):
         text = toc.get('title') or ''
         if text:
             text = re.sub(r'\s', ' ', text)
@@ -143,15 +146,17 @@ class TOCItem(QStandardItem):
         self.node_id = toc['id']
         QStandardItem.__init__(self, text)
         all_items.append(self)
-        self.emphasis_font = QFont(self.font())
-        self.emphasis_font.setBold(True), self.emphasis_font.setItalic(True)
-        self.normal_font = self.font()
+        self.normal_font, self.emphasis_font = normal_font, emphasis_font
         for t in toc['children']:
-            self.appendRow(TOCItem(t, depth+1, all_items, parent=self))
+            self.appendRow(TOCItem(t, depth+1, all_items, normal_font, emphasis_font, parent=self))
         self.setFlags(Qt.ItemIsEnabled)
         self.is_current_search_result = False
         self.depth = depth
         self.is_being_viewed = False
+
+    def set_being_viewed(self, is_being_viewed):
+        self.is_being_viewed = is_being_viewed
+        self.setFont(self.emphasis_font if is_being_viewed else self.normal_font)
 
     @property
     def ancestors(self):
@@ -186,9 +191,13 @@ class TOC(QStandardItemModel):
         QStandardItemModel.__init__(self)
         self.current_query = {'text':'', 'index':-1, 'items':()}
         self.all_items = depth_first = []
+        normal_font = QApplication.instance().font()
+        emphasis_font = QFont(normal_font)
+        emphasis_font.setBold(True), emphasis_font.setItalic(True)
         if toc:
             for t in toc['children']:
-                self.appendRow(TOCItem(t, 0, depth_first))
+                self.appendRow(TOCItem(t, 0, depth_first, normal_font, emphasis_font))
+        self.node_id_map = {x.node_id: x for x in self.all_items}
         self.currently_viewed_entry = None
 
     def find_items(self, query):
@@ -210,6 +219,17 @@ class TOC(QStandardItemModel):
             index = self.indexFromItem(item)
             return index
         return QModelIndex()
+
+    def update_current_toc_nodes(self, current_node_id, top_level_node_id):
+        node = self.node_id_map.get(current_node_id)
+        viewed_nodes = set()
+        if node is not None:
+            viewed_nodes |= {x.node_id for x in node.ancestors}
+            viewed_nodes.add(node.node_id)
+        for node in self.all_items:
+            is_being_viewed = node.node_id in viewed_nodes
+            if is_being_viewed != node.is_being_viewed:
+                node.set_being_viewed(is_being_viewed)
 
     @property
     def as_plain_text(self):
