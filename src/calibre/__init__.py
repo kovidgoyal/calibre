@@ -498,6 +498,7 @@ def strftime(fmt, t=None):
         t = list(t)
         orig_year = t[0]
         t[0] = replacement
+        t = time.struct_time(t)
     ans = None
     if iswindows:
         if isinstance(fmt, bytes):

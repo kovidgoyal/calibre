@@ -38,7 +38,7 @@ class APNXBuilder(object):
 
         with lopen(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
-            if ident != b'BOOKMOBI':
+            if as_bytes(ident) != b'BOOKMOBI':
                 # Check that this is really a MOBI file.
                 raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
             apnx_meta['acr'] = as_unicode(PdbHeaderReader(mf).name(), errors='replace')
