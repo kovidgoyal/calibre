@@ -48,13 +48,17 @@ def merge_annotations(annots, annots_map):
             annots_map[annot_type] = list(merge_annots_with_identical_titles(a))
 
 
+def serialize_annotation(annot):
+    annot['timestamp'] = annot['timestamp'].isoformat()
+    return annot
+
+
 def serialize_annotations(annots_map):
     ans = []
     for atype, annots in iteritems(annots_map):
         for annot in annots:
-            annot = annot.copy()
+            annot = serialize_annotation(annot.copy())
             annot['type'] = atype
-            annot['timestamp'] = annot['timestamp'].isoformat()
             ans.append(annot)
     return json_dumps(ans)
 

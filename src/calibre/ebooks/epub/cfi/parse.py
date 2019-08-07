@@ -193,16 +193,16 @@ def cfi_sort_key(cfi, only_path=True):
     except Exception:
         import traceback
         traceback.print_exc()
-        return ()
+        return (), (0, (0, 0), 0)
     if not pcfi:
         import sys
         print('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
-        return ()
+        return (), (0, (0, 0), 0)
     steps = get_steps(pcfi)
     step_nums = tuple(s.get('num', 0) for s in steps)
     step = steps[-1] if steps else {}
     offsets = (step.get('temporal_offset', 0), tuple(reversed(step.get('spatial_offset', (0, 0)))), step.get('text_offset', 0), )
-    return (step_nums, offsets)
+    return step_nums, offsets
 
 
 def decode_cfi(root, cfi):
