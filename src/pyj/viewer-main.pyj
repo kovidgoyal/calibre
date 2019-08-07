@@ -216,26 +216,6 @@ def onerror(msg, script_url, line_number, column_number, error_object):
     return True
 
 
-def redisplay_book():
-    view.redisplay_book()
-
-
-def reload_book():
-    to_python.reload_book()
-
-
-def forward_gesture(gesture):
-    view.forward_gesture(gesture)
-
-
-def update_color_scheme():
-    view.update_color_scheme()
-
-
-def update_font_size():
-    view.update_font_size()
-
-
 if window is window.top:
     # main
     if window.calibre_translations_data:
@@ -244,11 +224,16 @@ if window is window.top:
     ui_operations.get_mathjax_files = get_mathjax_files
     ui_operations.update_url_state = update_url_state
     ui_operations.show_error = show_error
-    ui_operations.redisplay_book = redisplay_book
-    ui_operations.reload_book = reload_book
-    ui_operations.forward_gesture = forward_gesture
-    ui_operations.update_color_scheme = update_color_scheme
-    ui_operations.update_font_size = update_font_size
+    ui_operations.redisplay_book = def():
+        view.redisplay_book()
+    ui_operations.reload_book = def():
+        to_python.reload_book()
+    ui_operations.forward_gesture = def(gesture):
+        view.forward_gesture(gesture)
+    ui_operations.update_color_scheme = def():
+        view.update_color_scheme()
+    ui_operations.update_font_size = def():
+        view.update_font_size()
     ui_operations.toggle_toc = def():
         to_python.toggle_toc()
     ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
