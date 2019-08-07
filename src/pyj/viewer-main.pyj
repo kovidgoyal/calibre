@@ -193,6 +193,11 @@ def start_book_load(key, initial_cfi):
     xhr.send()
 
 
+@from_python
+def goto_toc_node(node_id):
+    view.goto_toc_node(node_id)
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error

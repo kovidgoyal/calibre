@@ -40,6 +40,7 @@ class TOCView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
+        self.setFocusPolicy(Qt.NoFocus)
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
@@ -123,6 +124,7 @@ class TOCSearch(QWidget):
             return
         index = self.toc_view.model().search(text)
         if index.isValid():
+            self.toc_view.scrollTo(index)
             self.toc_view.searched.emit(index)
         else:
             error_dialog(self.toc_view, _('No matches found'), _(

@@ -472,6 +472,18 @@ class View:
                 return
             self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
 
+    def goto_toc_node(self, node_id):
+        toc = self.book.manifest.toc
+
+        def process_node(x):
+            if x.id is node_id:
+                self.goto_named_destination(x.dest or '', x.frag or '')
+                return
+            for c in x.children:
+                process_node(c)
+        if toc:
+            process_node(toc)
+
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)

@@ -8,7 +8,7 @@ import os
 import sys
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, QTimer, QUrl, QWidget,
+    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, Qt, QTimer, QUrl, QWidget,
     pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
@@ -174,6 +174,7 @@ class ViewerBridge(Bridge):
     create_view = to_js()
     show_preparing_message = to_js()
     start_book_load = to_js()
+    goto_toc_node = to_js()
 
 
 class WebPage(QWebEnginePage):
@@ -301,6 +302,7 @@ class WebView(RestartingWebEngineView):
             child = event.child()
             if 'HostView' in child.metaObject().className():
                 self._host_widget = child
+                self._host_widget.setFocus(Qt.OtherFocusReason)
         return QWebEngineView.event(self, event)
 
     def sizeHint(self):
@@ -334,6 +336,9 @@ class WebView(RestartingWebEngineView):
     def show_preparing_message(self):
         msg = _('Preparing book for first read, please wait…')
         self.execute_when_ready('show_preparing_message', msg)
+
+    def goto_toc_node(self, node_id):
+        self.execute_when_ready('goto_toc_node', node_id)
 
     def set_session_data(self, key, val):
         if key == '*' and val is None:
