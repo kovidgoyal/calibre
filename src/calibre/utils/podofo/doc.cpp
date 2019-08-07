@@ -43,19 +43,18 @@ static PyObject *
 PDFDoc_load(PDFDoc *self, PyObject *args) {
     char *buffer; Py_ssize_t size;
 
-    if (PyArg_ParseTuple(args, BYTES_FMT, &buffer, &size)) {
-        try {
-#if PODOFO_VERSION <= 0x000905
-            self->doc->Load(buffer, (long)size);
-#else
-            self->doc->LoadFromBuffer(buffer, (long)size);
-#endif
-        } catch(const PdfError & err) {
-            podofo_set_exception(err);
-            return NULL;
-    }
-} else return NULL;
+    if (!PyArg_ParseTuple(args, BYTES_FMT, &buffer, &size)) return NULL;
 
+	try {
+#if PODOFO_VERSION <= 0x000905
+		self->doc->Load(buffer, (long)size);
+#else
+		self->doc->LoadFromBuffer(buffer, (long)size);
+#endif
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return NULL;
+	}
 
     Py_RETURN_NONE;
 }
