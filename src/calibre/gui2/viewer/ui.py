@@ -22,6 +22,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
     merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
 )
+from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.web_view import WebView, set_book_path, vprefs
@@ -70,11 +71,16 @@ class EbookViewer(MainWindow):
         w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
         self.toc_dock.setWidget(w)
 
+        self.bookmarks_dock = create_dock(_('Bookmarks'), 'bookmarks-dock', Qt.RightDockWidgetArea)
+        self.bookmarks_widget = w = BookmarkManager(self)
+        self.bookmarks_dock.setWidget(w)
+
         self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
+        self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.setCentralWidget(self.web_view)
@@ -118,12 +124,18 @@ class EbookViewer(MainWindow):
         self.set_full_screen(not self.isFullScreen())
     # }}}
 
-    # ToC {{{
+    # ToC/Bookmarks {{{
     def toggle_toc(self):
         if self.toc_dock.isVisible():
             self.toc_dock.setVisible(False)
         else:
             self.toc_dock.setVisible(True)
+
+    def toggle_bookmarks(self):
+        if self.bookmarks_dock.isVisible():
+            self.bookmarks_dock.setVisible(False)
+        else:
+            self.bookmarks_dock.setVisible(True)
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)

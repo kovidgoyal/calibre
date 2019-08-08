@@ -226,6 +226,12 @@ class MainOverlay:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
             nav_actions = E.ul(home_action, back_action, forward_action)
 
+        bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
+        toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True))
+
+        if runtime.is_standalone_viewer:
+            toc_actions.appendChild(bookmarks_action)
+
         actions_div = E.div( # actions
             nav_actions,
 
@@ -236,10 +242,7 @@ class MainOverlay:
 
             reload_actions,
 
-            E.ul(
-                ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
-                # ac(_('Bookmarks'), None, None, 'bookmark'),
-            ),
+            toc_actions,
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
@@ -467,6 +470,12 @@ class Overlay:
             return
         self.panels.push(TOCOverlay(self))
         self.show_current_panel()
+
+    def show_bookmarks(self):
+        self.hide_current_panel()
+        if runtime.is_standalone_viewer:
+            ui_operations.toggle_bookmarks()
+            return
 
     def show_goto(self):
         self.hide_current_panel()

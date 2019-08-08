@@ -236,6 +236,8 @@ if window is window.top:
         view.update_font_size()
     ui_operations.toggle_toc = def():
         to_python.toggle_toc()
+    ui_operations.toggle_bookmarks = def():
+        to_python.toggle_bookmarks()
     ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
         to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
     ui_operations.toggle_full_screen = def():
