@@ -13,7 +13,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring
 from calibre.constants import ispy3, iswindows
-from polyglot.builtins import unicode_type, as_unicode
+from polyglot.builtins import unicode_type, as_unicode, native_string_type
 
 
 def decode_fqdn(fqdn):
@@ -139,33 +139,37 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         raise IOError('Failed to send mail: '+repr(last_error))
 
 
+def get_smtp_class(use_ssl=False, debuglevel=0):
+    # We need this as in python 3.7 we have to pass the hostname
+    # in the constructor, because of https://bugs.python.org/issue36094
+    # which means the constructor calls connect(),
+    # but there is no way to set debuglevel before connect() is called
+    import polyglot.smtplib as smtplib
+    cls = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
+    bases = (cls,) if ispy3 else (cls, object)
+    return type(native_string_type('SMTP'), bases, {native_string_type('debuglevel'): debuglevel})
+
+
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
              port=-1, debug_output=None, verify_server_cert=False, cafile=None):
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
-    import polyglot.smtplib as smtplib
-    cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
     timeout = None  # Non-blocking sockets sometimes don't work
     port = int(port)
-    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
-    if debug_output is not None:
-        kwargs['debug_to'] = debug_output
-    s = cls(**kwargs)
-    s.set_debuglevel(verbose)
     if port < 0:
         port = 25 if encryption != 'SSL' else 465
-    s.connect(relay, port)
+    kwargs = dict(host=relay, port=port, timeout=timeout, local_hostname=localhost or safe_localhost())
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    cls = get_smtp_class(use_ssl=encryption == 'SSL', debuglevel=verbose)
+    s = cls(**kwargs)
     if encryption == 'TLS':
         context = None
         if verify_server_cert:
             import ssl
             context = ssl.create_default_context(cafile=cafile)
-        if not getattr(s, '_host', None) and ispy3:
-            # needed because as of python 3.7 starttls expects _host to be set,
-            # bu we cant set it via the constructor
-            s._host = relay
         s.starttls(context=context)
         s.ehlo()
     if username is not None and password is not None:
