@@ -3,6 +3,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+from collections import defaultdict
+
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -20,17 +22,35 @@ def new_tag(soup, name, attrs=()):
     return Tag(soup, name, attrs=attrs or None)
 
 
+def entry_to_article(entry):
+    url = entry.get('uri')
+    if not url:
+        return None, None
+    section = 'Articles'
+    article = {'url': url}
+    for component in entry.get('components', ()):
+        if component.get('content_type') == 'title':
+            article['title'] = component['title']['text']
+        elif component.get('content_type') == 'kicker':
+            v = component['kicker'].get('vertical') or {}
+            if v.get('name'):
+                section = v['name']
+        elif component.get('content_type') == 'dek':
+            if component['dek'].get('text'):
+                article['description'] = component['dek']['text']
+    if 'title' in article:
+        return article, section
+    return None, None
+
+
 class NatGeo(BasicNewsRecipe):
     title = u'National Geographic'
     description = 'Daily news articles from The National Geographic'
     language = 'en'
-    oldest_article = 20
-    max_articles_per_feed = 25
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
     category = 'science, nat geo'
     __author__ = 'Kovid Goyal'
-    masthead_url = 'http://s.ngeo.com/wpf/sites/themes/global/i/presentation/ng_logo_small.png'
     description = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     no_stylesheets = True
@@ -39,25 +59,34 @@ class NatGeo(BasicNewsRecipe):
     remove_javascript = False
 
     keep_only_tags = [
-            classes('mainArt byline'),
-            dict(id='article__body'),
+        classes('main-title article__dek byline-component publishDate mainArt byline'),
+        dict(id='article__body'),
     ]
     remove_tags = [
-            classes('hide-from-mobile ad-holder enlarge-button'),
-            dict(name='svg meta'.split()),
+        classes('hide-from-mobile ad-holder enlarge-button'),
+        dict(name='svg meta'.split()),
     ]
 
-    feeds = [
-        (u'Daily News', u'http://feeds.nationalgeographic.com/ng/News/News_Main')
-    ]
-
-    def parse_feeds(self):
-        feeds = BasicNewsRecipe.parse_feeds(self)
-        for feed in feeds:
-            for article in feed.articles[:]:
-                if 'Presented' in article.title or 'Pictures' in article.title:
-                    feed.articles.remove(article)
-        return feeds
+    def parse_index(self):
+        feeds = defaultdict(list)
+        br = self.get_browser()
+        # br.open('https://www.nationalgeographic.com/latest-stories/').read()
+        res = br.open_novisit(
+            'https://www.nationalgeographic.com/latest-stories/_jcr_content/content/hubfeed.promo-hub-feed-all-stories.json?offset=0&max=18')
+        entries = json.loads(res.read())
+        for entry in entries:
+            art, section = entry_to_article(entry)
+            if art is None:
+                continue
+            feeds[section].append(art)
+        ans = [(sec, feeds[sec]) for sec in sorted(feeds) if feeds[sec]]
+        for (sec, articles) in ans:
+            self.log('Found section:', sec)
+            for art in articles:
+                self.log('\t', art['title'], art['url'])
+                if 'description' in art:
+                    self.log('\t\t', art['description'])
+        return ans
 
     def preprocess_html(self, soup):
         for div in soup.findAll(attrs={'data-pestle-module': 'PictureFill'}):
