@@ -13,7 +13,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring
 from calibre.constants import ispy3, iswindows
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_unicode
 
 
 def decode_fqdn(fqdn):
@@ -35,7 +35,7 @@ def safe_localhost():
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
         try:
-            local_hostname = idna.ToASCII(fqdn)
+            local_hostname = as_unicode(idna.ToASCII(fqdn))
         except Exception:
             local_hostname = 'localhost.localdomain'
     else:
@@ -162,6 +162,10 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         if verify_server_cert:
             import ssl
             context = ssl.create_default_context(cafile=cafile)
+        if not getattr(s, '_host', None) and ispy3:
+            # needed because as of python 3.7 starttls expects _host to be set,
+            # bu we cant set it via the constructor
+            s._host = relay
         s.starttls(context=context)
         s.ehlo()
     if username is not None and password is not None:
