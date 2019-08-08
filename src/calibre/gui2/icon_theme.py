@@ -18,6 +18,10 @@ from PyQt5.Qt import (
     QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
     QStyle, QPen, QProgressDialog
 )
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre import walk, fit_image, human_readable, detect_ncpus as cpu_count
 from calibre.constants import cache_dir, config_dir
@@ -689,7 +693,8 @@ class ChooseTheme(Dialog):
             import traceback
             self.themes = traceback.format_exc()
         t.join()
-        self.themes_downloaded.emit()
+        if not sip.isdeleted(self):
+            self.themes_downloaded.emit()
 
     def show_themes(self):
         self.end_spinner()
