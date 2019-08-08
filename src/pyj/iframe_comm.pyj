@@ -135,11 +135,13 @@ class IframeWrapper:
                 print('Could not process message from iframe:')
                 console.log(e)
                 return
+        if not data.action:
+            return
         func = self.handlers[data.action]
         if func:
             func(data)
         else:
-            print('Unknown action in message from iframe to parent: ' + data.action)
+            print('Unknown action in message from iframe to parent:', data.action)
 
     def on_iframe_ready(self, data):
         self.messenger.reset()

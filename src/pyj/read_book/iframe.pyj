@@ -71,7 +71,6 @@ class IframeBoss:
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
-        self.encrypted_communications = False
         self.blob_url_map = {}
         self.resource_urls = {}
         self.content_ready = False
