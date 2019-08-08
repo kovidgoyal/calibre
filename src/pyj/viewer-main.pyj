@@ -17,6 +17,7 @@ from read_book.db import new_book
 from read_book.globals import runtime, ui_operations
 from read_book.iframe import main as iframe_main
 from read_book.view import View
+from read_book.footnotes import main as footnotes_main
 from session import session_defaults
 from utils import encode_query_with_path
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
@@ -250,5 +251,9 @@ if window is window.top:
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
 else:
     # iframe
-    iframe_main()
+    div = document.getElementById('calibre-viewer-footnote-iframe')
+    if div:
+        footnotes_main()
+    else:
+        iframe_main()
 window.calibre_translations_data = v'undefined'

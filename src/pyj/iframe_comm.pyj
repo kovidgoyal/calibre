@@ -58,13 +58,14 @@ class Messenger:
 
 class IframeWrapper:
 
-    def __init__(self, handlers, iframe, entry_point, bootstrap_text):
+    def __init__(self, handlers, iframe, entry_point, bootstrap_text, srcdoc):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
         self.needs_init = True
         self.ready = False
         self.encrypted_communications = False
         self.srcdoc_created = False
+        self.constructor_srcdoc = srcdoc
         self.entry_point = entry_point
         self.bootstrap_text = bootstrap_text
         self.handlers = {k: handlers[k] for k in handlers}
@@ -90,7 +91,7 @@ class IframeWrapper:
             }
             self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
         else:
-            self.iframe.srcdoc = '<div>\xa0</div>'
+            self.iframe.srcdoc = self.constructor_srcdoc or '<div>\xa0</div>'
         self.srcdoc_created = True
 
     def init(self):
