@@ -687,7 +687,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, format, quality=quality)
-    return bytes(ba.data())
+    return ba.data()
 
 
 def decouple(prefix):

@@ -76,7 +76,7 @@ def image_to_data(image):  # {{{
     buf.open(QBuffer.WriteOnly)
     if not image.save(buf, CACHE_FORMAT):
         raise EncodeError('Failed to encode thumbnail')
-    ret = bytes(ba.data())
+    ret = ba.data()
     buf.close()
     return ret
 # }}}

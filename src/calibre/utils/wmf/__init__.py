@@ -68,4 +68,4 @@ def to_png(bmp):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     i.save(buf, 'png')
-    return bytes(ba.data())
+    return ba.data()

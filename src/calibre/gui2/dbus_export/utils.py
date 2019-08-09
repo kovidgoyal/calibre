@@ -128,7 +128,7 @@ def icon_to_dbus_menu_icon(icon, size=32):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     icon.pixmap(32).save(buf, 'PNG')
-    return dbus.ByteArray(bytes((ba.data())))
+    return dbus.ByteArray(ba)
 
 
 def setup_for_cli_run():
