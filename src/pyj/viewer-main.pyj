@@ -200,8 +200,18 @@ def goto_toc_node(node_id):
 
 
 @from_python
+def goto_cfi(cfi):
+    view.goto_bookpos(cfi)
+
+
+@from_python
 def full_screen_state_changed(viewer_in_full_screen):
     runtime.viewer_in_full_screen = viewer_in_full_screen
+
+
+@from_python
+def get_current_cfi(request_id):
+    view.get_current_cfi(request_id)
 
 
 def onerror(msg, script_url, line_number, column_number, error_object):
@@ -243,6 +253,8 @@ if window is window.top:
         to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
     ui_operations.toggle_full_screen = def():
         to_python.toggle_full_screen()
+    ui_operations.report_cfi = def(request_id, data):
+        to_python.report_cfi(request_id, data)
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

@@ -7,14 +7,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 
 from PyQt5.Qt import (
-    QAction, QGridLayout, QIcon, QItemSelectionModel, QLabel, QListWidget,
-    QListWidgetItem, QPushButton, Qt, QWidget, pyqtSignal
+    QAction, QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QLabel,
+    QListWidget, QListWidgetItem, QPushButton, Qt, QWidget, pyqtSignal
 )
 
 from calibre.gui2 import choose_files, choose_save_file
 from calibre.gui2.viewer.annotations import serialize_annotation
 from calibre.srv.render_book import parse_annotation
-from calibre.utils.date import EPOCH
+from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import sort_key
 from polyglot.builtins import range, unicode_type
 
@@ -122,7 +122,7 @@ class BookmarkManager(QWidget):
 
     def item_activated(self, item):
         bm = self.item_to_bm(item)
-        self.activated.emit(bm)
+        self.activated.emit(bm['pos'])
 
     def set_bookmarks(self, bookmarks=()):
         self.bookmarks_list.clear()
@@ -146,12 +146,20 @@ class BookmarkManager(QWidget):
         for i in range(self.bookmarks_list.count()):
             yield self.item_to_bm(self.bookmarks_list.item(i))
 
+    def uniqify_bookmark_title(self, base):
+        all_titles = {bm['title'] for bm in self.get_bookmarks()}
+        c = 0
+        q = base
+        while q in all_titles:
+            c += 1
+            q = '{} #{}'.format(base, c)
+        return q
+
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
-        title = unicode_type(item.data(Qt.DisplayRole))
-        if not title:
-            title = _('Unknown')
-            item.setData(Qt.DisplayRole, title)
+        title = unicode_type(item.data(Qt.DisplayRole)) or _('Unknown')
+        title = self.uniqify_bookmark_title(title)
+        item.setData(Qt.DisplayRole, title)
         bm = self.item_to_bm(item)
         bm['title'] = title
         item.setData(Qt.UserRole, self.bm_to_item(bm))
@@ -231,7 +239,7 @@ class BookmarkManager(QWidget):
             for bm in imported:
                 if bm['title'] == 'calibre_current_page_bookmark':
                     continue
-                epubcfi = 'epubcfi(/{}/{})'.format(bm['spine'], bm['pos'].lstrip('/'))
+                epubcfi = 'epubcfi(/{}/{})'.format((bm['spine'] + 1) * 2, bm['pos'].lstrip('/'))
                 q = {'pos_type': 'epubcfi', 'pos': epubcfi, 'timestamp': EPOCH, 'title': bm['title']}
                 if q not in bookmarks:
                     bookmarks.append(q)
@@ -254,3 +262,22 @@ class BookmarkManager(QWidget):
                 import_old_bookmarks(imported)
             else:
                 import_current_bookmarks(imported)
+
+    def create_new_bookmark(self, pos_data):
+        title, ok = QInputDialog.getText(self, _('Add bookmark'),
+                _('Enter title for bookmark:'))
+        title = unicode_type(title).strip()
+        if not ok or not title:
+            return
+        title = self.uniqify_bookmark_title(title)
+        bm = {
+            'title': title,
+            'pos_type': 'epubcfi',
+            'pos': pos_data['cfi'],
+            'timestamp': utcnow()
+        }
+        bookmarks = self.get_bookmarks()
+        bookmarks.append(bm)
+        self.set_bookmarks(bookmarks)
+        self.set_current_bookmark(bm)
+        self.edited.emit(bookmarks)

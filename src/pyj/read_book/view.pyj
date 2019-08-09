@@ -157,6 +157,7 @@ class View:
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
+            'report_cfi': self.on_report_cfi,
             'update_toc_position': self.on_update_toc_position,
             'content_loaded': self.on_content_loaded,
             'show_chrome': self.show_chrome,
@@ -502,6 +503,13 @@ class View:
         toc_node = get_next_section(data.forward)
         if toc_node:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
+
+    def get_current_cfi(self, request_id):
+        self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
+
+    def on_report_cfi(self, data):
+        ui_operations.report_cfi(
+            data.request_id, {'cfi': data.cfi, 'progress_frac': data.progress_frac, 'file_progress_frac': data.file_progress_frac})
 
     def on_update_cfi(self, data):
         overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible

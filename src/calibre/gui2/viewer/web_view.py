@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import sys
+from itertools import count
 
 from PyQt5.Qt import (
     QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, Qt, QTimer, QUrl, QWidget,
@@ -177,12 +178,15 @@ class ViewerBridge(Bridge):
     toggle_bookmarks = from_js()
     update_current_toc_nodes = from_js(object, object)
     toggle_full_screen = from_js()
+    report_cfi = from_js(object, object)
 
     create_view = to_js()
     show_preparing_message = to_js()
     start_book_load = to_js()
     goto_toc_node = to_js()
+    goto_cfi = to_js()
     full_screen_state_changed = to_js()
+    get_current_cfi = to_js()
 
 
 class WebPage(QWebEnginePage):
@@ -264,6 +268,8 @@ class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         self._host_widget = None
+        self.callback_id_counter = count()
+        self.callback_map = {}
         self.current_cfi = None
         RestartingWebEngineView.__init__(self, parent)
         self.dead_renderer_error_shown = False
@@ -278,6 +284,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
         self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
+        self.bridge.report_cfi.connect(self.call_callback)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
@@ -354,6 +361,9 @@ class WebView(RestartingWebEngineView):
     def goto_toc_node(self, node_id):
         self.execute_when_ready('goto_toc_node', node_id)
 
+    def goto_cfi(self, cfi):
+        self.execute_when_ready('goto_cfi', cfi)
+
     def notify_full_screen_state_change(self, in_fullscreen_mode):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
 
@@ -364,3 +374,16 @@ class WebView(RestartingWebEngineView):
             sd = vprefs['session_data']
             sd[key] = val
             vprefs['session_data'] = sd
+
+    def do_callback(self, func_name, callback):
+        cid = next(self.callback_id_counter)
+        self.callback_map[cid] = callback
+        self.execute_when_ready('get_current_cfi', cid)
+
+    def call_callback(self, request_id, data):
+        callback = self.callback_map.pop(request_id, None)
+        if callback is not None:
+            callback(data)
+
+    def get_current_cfi(self, callback):
+        self.do_callback('get_current_cfi', callback)

@@ -86,6 +86,7 @@ class IframeBoss:
             'gesture_from_margin': self.gesture_from_margin,
             'find': self.find,
             'window_size': self.received_window_size,
+            'get_current_cfi': self.get_current_cfi,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -260,6 +261,20 @@ class IframeBoss:
         if index < 0:
             return 0
         return self.calculate_progress_frac(current_name, index)
+
+    def get_current_cfi(self, data):
+        cfi = at_current()
+        if cfi:
+            spine = self.book.manifest.spine
+            current_name = current_spine_item().name
+            index = spine.indexOf(current_name)
+            if index > -1:
+                cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                self.send_message(
+                    'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(current_name, index),
+                    file_progress_frac=progress_frac(), request_id=data.request_id)
+                return
+        self.send_message('report_cfi', cfi=None, progress_frac=0, file_progress_frac=0)
 
     def update_cfi(self):
         cfi = at_current()

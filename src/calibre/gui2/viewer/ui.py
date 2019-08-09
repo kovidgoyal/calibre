@@ -73,6 +73,11 @@ class EbookViewer(MainWindow):
 
         self.bookmarks_dock = create_dock(_('Bookmarks'), 'bookmarks-dock', Qt.RightDockWidgetArea)
         self.bookmarks_widget = w = BookmarkManager(self)
+        connect_lambda(
+            w.create_requested, self,
+            lambda self: self.web_view.get_current_cfi(self.bookmarks_widget.create_new_bookmark))
+        self.bookmarks_widget.edited.connect(self.bookmarks_edited)
+        self.bookmarks_widget.activated.connect(self.bookmark_activated)
         self.bookmarks_dock.setWidget(w)
 
         self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
@@ -144,6 +149,12 @@ class EbookViewer(MainWindow):
     def toc_searched(self, index):
         item = self.toc_model.itemFromIndex(index)
         self.web_view.goto_toc_node(item.node_id)
+
+    def bookmarks_edited(self, bookmarks):
+        self.current_book_data['annotations_map']['bookmark'] = bookmarks
+
+    def bookmark_activated(self, cfi):
+        self.web_view.goto_cfi(cfi)
     # }}}
 
     # Load book {{{
@@ -194,6 +205,7 @@ class EbookViewer(MainWindow):
         toc = manifest.get('toc')
         self.toc_model = TOC(toc)
         self.toc.setModel(self.toc_model)
+        self.bookmarks_widget.set_bookmarks(self.current_book_data['annotations_map']['bookmark'])
 
     def load_book_annotations(self):
         amap = self.current_book_data['annotations_map']
