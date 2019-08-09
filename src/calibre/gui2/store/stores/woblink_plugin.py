@@ -36,7 +36,7 @@ def as_base64(data):
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'http://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query)
+    url = 'https://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query)
     if max_results > 10:
         if max_results > 20:
             url += '&limit=30'
@@ -47,7 +47,7 @@ def search(query, max_results=10, timeout=60):
     rq = Request(url, headers={
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'X-Requested-With': 'XMLHttpRequest',
-        'Referrer':'http://woblink.com/ebooki-kategorie',
+        'Referrer':'https://woblink.com/ebooki-kategorie',
         'Cache-Control':'max-age=0',
     }, data=urlencode({
         'nw_filtry_filtr_zakrescen_formularz[min]':'0',
@@ -89,13 +89,13 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
-        url = 'http://woblink.com/publication'
+        url = 'https://woblink.com/publication'
 
         aff_url = aff_root + as_base64(url)
         detail_url = None
 
         if detail_item:
-            detail_url = aff_root + as_base64('http://woblink.com' + detail_item)
+            detail_url = aff_root + as_base64('https://woblink.com' + detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))

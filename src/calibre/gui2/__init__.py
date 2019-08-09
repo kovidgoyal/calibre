@@ -903,7 +903,7 @@ class Application(QApplication):
                 'calibre versions newer than 2.0 do not run on Windows XP. This is'
                 ' because the graphics toolkit calibre uses (Qt 5) crashes a lot'
                 ' on Windows XP. We suggest you stay with <a href="%s">calibre 1.48</a>'
-                ' which works well on Windows XP.') % 'http://download.calibre-ebook.com/1.48.0/', show=True)
+                ' which works well on Windows XP.') % 'https://download.calibre-ebook.com/1.48.0/', show=True)
             raise SystemExit(1)
 
         if iswindows:

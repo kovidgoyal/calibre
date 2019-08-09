@@ -23,10 +23,10 @@ from calibre.gui2.store.search_result import SearchResult
 
 class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
 
-    open_search_url = 'http://www.xinxii.com/catalog-search/'
-    web_url = 'http://xinxii.com/'
+    open_search_url = 'https://www.xinxii.com/catalog-search/'
+    web_url = 'https://xinxii.com/'
 
-    # http://www.xinxii.com/catalog/
+    # https://www.xinxii.com/catalog/
 
     def search(self, query, max_results=10, timeout=60):
         '''
@@ -42,7 +42,7 @@ class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
         function so this one is modified to remove parts that are used.
         '''
 
-        url = 'http://www.xinxii.com/catalog-search/query/?keywords=' + quote_plus(query)
+        url = 'https://www.xinxii.com/catalog-search/query/?keywords=' + quote_plus(query)
 
         counter = max_results
         br = browser()
