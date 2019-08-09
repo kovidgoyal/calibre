@@ -10,6 +10,8 @@ Try to read metadata from an HTML file.
 
 import re
 
+from HTMLParser import HTMLParser
+
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
@@ -87,6 +89,26 @@ def parse_meta_tags(src):
                 return ans
     return ans
 
+def parse_meta_tag_identifiers(src):
+    meta_identifiers = {}
+
+    class MetadataParser(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            attr_dict = dict(attrs)
+
+            if tag == 'meta' and re.match(r'(?:dc|dcterms)[\.:]identifier', attr_dict.get('name', ''), flags=re.IGNORECASE):
+                content = attr_dict.get('content', '').strip()
+                scheme = attr_dict.get('scheme', '').strip()
+                if not scheme:
+                    elements = re.split(r'[\.:]', attr_dict['name'])
+                    if len(elements) == 3:
+                        scheme = elements[2]
+                if content and scheme:
+                    meta_identifiers[scheme.lower()] = replace_entities(content)
+
+    MetadataParser().feed(src)
+
+    return meta_identifiers
 
 def parse_comment_tags(src):
     all_names = '|'.join(itervalues(COMMENT_NAMES))
@@ -113,6 +135,7 @@ def get_metadata_(src, encoding=None):
     src = src[:150000]  # Searching shouldn't take too long
     comment_tags = parse_comment_tags(src)
     meta_tags = parse_meta_tags(src)
+    meta_tag_ids = parse_meta_tag_identifiers(src)
 
     def get(field):
         ans = comment_tags.get(field, meta_tags.get(field, None))
@@ -192,5 +215,9 @@ def get_metadata_(src, encoding=None):
         tags = [x.strip() for x in tags.split(',') if x.strip()]
         if tags:
             mi.tags = tags
+
+    # IDENTIFIERS
+    for (k,v) in meta_tag_ids.iteritems():
+        mi.set_identifier(k, v)
 
     return mi
