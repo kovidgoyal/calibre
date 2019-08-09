@@ -136,7 +136,7 @@ def get_default_library_path():
             fname.encode(filesystem_encoding)
         except Exception:
             fname = 'Calibre Library'
-    x = os.path.expanduser('~'+os.sep+fname)
+    x = os.path.expanduser(os.path.join('~', fname))
     if not os.path.exists(x):
         try:
             os.makedirs(x)
