@@ -143,3 +143,23 @@ class PMLInput(InputFormatPlugin):
                 opf.render(opffile, tocfile, 'toc.ncx')
 
         return os.path.join(getcwd(), 'metadata.opf')
+
+    def postprocess_book(self, oeb, opts, log):
+        from calibre.ebooks.oeb.base import XHTML, barename
+        for item in oeb.spine:
+            if hasattr(item.data, 'xpath'):
+                for heading in item.data.iterdescendants(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
+                    if not len(heading):
+                        continue
+                    span = heading[0]
+                    if not heading.text and not span.text and not len(span) and barename(span.tag) == 'span':
+                        if not heading.get('id') and span.get('id'):
+                            heading.set('id', span.get('id'))
+                            heading.text = span.tail
+                            heading.remove(span)
+                    if len(heading) == 1 and heading[0].get('style') == 'text-align: center; margin: auto;':
+                        div = heading[0]
+                        if barename(div.tag) == 'div' and not len(div) and not div.get('id') and not heading.get('style'):
+                            heading.text = (heading.text or '') + (div.text or '') + (div.tail or '')
+                            heading.remove(div)
+                            heading.set('style', 'text-align: center')

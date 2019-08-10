@@ -220,7 +220,7 @@ class PML_HTMLizer(object):
         return html
 
     def cleanup_html_remove_redundant(self, html):
-        for key in self.STATES_TAGS.keys():
+        for key in self.STATES_TAGS:
             open, close = self.STATES_TAGS[key]
             if key in self.STATES_VALUE_REQ:
                 html = re.sub(r'(?u)%s\s*%s' % (open % '.*?', close), '', html)
@@ -618,7 +618,7 @@ class PML_HTMLizer(object):
                         pass
                     elif c == 'w':
                         empty = False
-                        text = '<hr width="%s" />' % self.code_value(line)
+                        text = '<hr style="width: %s" />' % self.code_value(line)
                     elif c == 't':
                         indent_state['t'] = not indent_state['t']
                     elif c == 'T':
