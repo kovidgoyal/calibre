@@ -226,9 +226,7 @@ def get_metadata_(src, encoding=None):
             mi.rating = float(rating)
             if mi.rating < 0:
                 mi.rating = 0
-            if mi.rating > 5:
-                mi.rating /= 2.
-            if mi.rating > 5:
+            if mi.rating > 10:
                 mi.rating = 0
         except:
             pass
