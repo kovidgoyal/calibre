@@ -8,12 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
+from PyQt5.Qt import (
+    QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication,
+    QSize, QDialogButtonBox, QGridLayout, QHBoxLayout, QCheckBox, QLabel,
+    QIcon, QComboBox, QListView, QSizePolicy, QSpacerItem, QStackedWidget,
+    QVBoxLayout, QFrame, QWidget, QTextEdit, QScrollArea, QRect)
 
 from calibre.gui2 import gprefs
 from calibre.ebooks.conversion.config import (
         GuiRecommendations, save_specifics, sort_formats_by_preference, get_input_format_for_book, get_output_formats)
-from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
@@ -56,7 +59,7 @@ class GroupModel(QAbstractListModel):
         return None
 
 
-class Config(QDialog, Ui_Dialog):
+class Config(QDialog):
     '''
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
@@ -72,7 +75,7 @@ class Config(QDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi()
         self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
 
@@ -95,6 +98,102 @@ class Config(QDialog, Ui_Dialog):
             self.restoreGeometry(geom)
         else:
             self.resize(self.sizeHint())
+
+    def setupUi(self):
+        self.setObjectName("Dialog")
+        self.resize(1024, 700)
+        self.setWindowIcon(QIcon(I('convert.png')))
+        self.gridLayout = QGridLayout(self)
+        self.gridLayout.setObjectName("gridLayout")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.input_label = QLabel(self)
+        self.input_label.setObjectName("input_label")
+        self.horizontalLayout.addWidget(self.input_label)
+        self.input_formats = QComboBox(self)
+        self.input_formats.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.input_formats.setMinimumContentsLength(5)
+        self.input_formats.setObjectName("input_formats")
+        self.horizontalLayout.addWidget(self.input_formats)
+        self.opt_individual_saved_settings = QCheckBox(self)
+        self.opt_individual_saved_settings.setObjectName("opt_individual_saved_settings")
+        self.horizontalLayout.addWidget(self.opt_individual_saved_settings)
+        spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.label_2 = QLabel(self)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout.addWidget(self.label_2)
+        self.output_formats = QComboBox(self)
+        self.output_formats.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.output_formats.setMinimumContentsLength(5)
+        self.output_formats.setObjectName("output_formats")
+        self.horizontalLayout.addWidget(self.output_formats)
+        self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 2)
+        self.groups = QListView(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groups.sizePolicy().hasHeightForWidth())
+        self.groups.setSizePolicy(sizePolicy)
+        self.groups.setTabKeyNavigation(True)
+        self.groups.setIconSize(QSize(48, 48))
+        self.groups.setWordWrap(True)
+        self.groups.setObjectName("groups")
+        self.gridLayout.addWidget(self.groups, 1, 0, 3, 1)
+        self.scrollArea = QScrollArea(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(4)
+        sizePolicy.setVerticalStretch(10)
+        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
+        self.scrollArea.setSizePolicy(sizePolicy)
+        self.scrollArea.setFrameShape(QFrame.NoFrame)
+        self.scrollArea.setLineWidth(0)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 810, 494))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.stack = QStackedWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.stack.sizePolicy().hasHeightForWidth())
+        self.stack.setSizePolicy(sizePolicy)
+        self.stack.setObjectName("stack")
+        self.page = QWidget()
+        self.page.setObjectName("page")
+        self.stack.addWidget(self.page)
+        self.page_2 = QWidget()
+        self.page_2.setObjectName("page_2")
+        self.stack.addWidget(self.page_2)
+        self.verticalLayout_3.addWidget(self.stack)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout.addWidget(self.scrollArea, 1, 1, 1, 1)
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok|QDialogButtonBox.RestoreDefaults)
+        self.buttonBox.setObjectName("buttonBox")
+        self.gridLayout.addWidget(self.buttonBox, 3, 1, 1, 1)
+        self.help = QTextEdit(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.help.sizePolicy().hasHeightForWidth())
+        self.help.setSizePolicy(sizePolicy)
+        self.help.setMaximumSize(QSize(16777215, 130))
+        self.help.setObjectName("help")
+        self.gridLayout.addWidget(self.help, 2, 1, 1, 1)
+        self.input_label.setBuddy(self.input_formats)
+        self.label_2.setBuddy(self.output_formats)
+        self.input_label.setText(_("&Input format:"))
+        self.opt_individual_saved_settings.setText(_("Use &saved conversion settings for individual books"))
+        self.label_2.setText(_("&Output format:"))
+
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
 
     def sizeHint(self):
         desktop = QCoreApplication.instance().desktop()
