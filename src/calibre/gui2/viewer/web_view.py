@@ -157,9 +157,8 @@ def create_profile():
             from calibre.utils.rapydscript import compile_viewer
             compile_viewer()
         js = P('viewer.js', data=True, allow_user_override=False)
-        translations_json = get_translations_data()
-        if translations_json:
-            js = (b'window.calibre_translations_data = %s;\n\n' % translations_json) + js
+        translations_json = get_translations_data() or b'null'
+        js = js.replace(b'__TRANSLATIONS_DATA__', translations_json, 1)
         insert_scripts(ans, create_script('viewer.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)

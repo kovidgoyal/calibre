@@ -229,8 +229,9 @@ def onerror(msg, script_url, line_number, column_number, error_object):
 
 if window is window.top:
     # main
-    if window.calibre_translations_data:
-        install(window.calibre_translations_data)
+    TRANSLATIONS_DATA = v'__TRANSLATIONS_DATA__'
+    if TRANSLATIONS_DATA:
+        install(TRANSLATIONS_DATA)
     ui_operations.get_file = get_file
     ui_operations.get_mathjax_files = get_mathjax_files
     ui_operations.update_url_state = update_url_state
@@ -268,4 +269,3 @@ else:
         footnotes_main()
     else:
         iframe_main()
-window.calibre_translations_data = v'undefined'
