@@ -1393,20 +1393,20 @@ class DeviceMixin(object):  # {{{
             del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
             ids = list(self.news_to_be_synced) if send_ids is None else send_ids
-            ids = [id for id in ids if self.library_view.model().db.has_id(id)]
+            ids = [book_id for book_id in ids if self.library_view.model().db.has_id(book_id)]
             with BusyCursor():
                 files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
                                 exclude_auto=do_auto_convert)
             auto = []
             if do_auto_convert and _auto_ids:
-                for id in _auto_ids:
-                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                for book_id in _auto_ids:
+                    dbfmts = self.library_view.model().db.formats(book_id, index_is_id=True)
                     formats = [] if dbfmts is None else \
                         [f.lower() for f in dbfmts.split(',')]
                     if set(formats).intersection(available_input_formats()) \
                             and set(settings.format_map).intersection(available_output_formats()):
-                        auto.append(id)
+                        auto.append(book_id)
             if auto:
                 format = None
                 for fmt in settings.format_map:
@@ -1414,7 +1414,7 @@ class DeviceMixin(object):  # {{{
                         format = fmt
                         break
                 if format is not None:
-                    autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                    autos = [self.library_view.model().db.title(book_id, index_is_id=True) for book_id in auto]
                     if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
                             'the device?'), autos):
@@ -1425,15 +1425,15 @@ class DeviceMixin(object):  # {{{
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
-            for mi in metadata:
+            for book_id, mi in zip(ids, metadata):
                 prefix = ascii_filename(mi.title)
                 if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, id,
+                names.append('%s_%d%s'%(prefix, book_id,
                     os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
-            self.news_to_be_synced = set([])
+            self.news_to_be_synced = set()
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
                 space = {self.location_manager.free[0] : None,
