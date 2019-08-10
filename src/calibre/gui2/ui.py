@@ -626,6 +626,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             msg = self.listener.queue.get_nowait()
         except Empty:
             return
+        if isinstance(msg, bytes):
+            msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
             import json
             try:
