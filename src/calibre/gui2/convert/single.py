@@ -1,37 +1,35 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import shutil
 
 from PyQt5.Qt import (
-    QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication,
-    QSize, QDialogButtonBox, QGridLayout, QHBoxLayout, QCheckBox, QLabel,
-    QIcon, QComboBox, QListView, QSizePolicy, QSpacerItem, QStackedWidget,
-    QVBoxLayout, QFrame, QWidget, QTextEdit, QScrollArea, QRect)
+    QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
+    QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
+    QListView, QModelIndex, QRect, QScrollArea, QSize, QSizePolicy, QSpacerItem,
+    QStackedWidget, Qt, QTextEdit, QVBoxLayout, QWidget
+)
 
-from calibre.gui2 import gprefs
+from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import (
-        GuiRecommendations, save_specifics, sort_formats_by_preference, get_input_format_for_book, get_output_formats)
-from calibre.gui2.convert.metadata import MetadataWidget
-from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+    GuiRecommendations, delete_specifics, get_input_format_for_book,
+    get_output_formats, save_specifics, sort_formats_by_preference
+)
+from calibre.ebooks.conversion.plumber import create_dummy_plumber
+from calibre.gui2 import gprefs
+from calibre.gui2.convert.debug import DebugWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
-from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
+from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
-from calibre.gui2.convert.debug import DebugWidget
-
-
-from calibre.ebooks.conversion.plumber import create_dummy_plumber
-from calibre.ebooks.conversion.config import delete_specifics
-from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import native_string_type, range, unicode_type
 
 
 class GroupModel(QAbstractListModel):
@@ -83,8 +81,8 @@ class Config(QDialog):
                 preferred_output_format)
         self.setup_pipeline()
 
-        self.input_formats.currentIndexChanged[str].connect(self.setup_pipeline)
-        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.input_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.groups.setSpacing(5)
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)

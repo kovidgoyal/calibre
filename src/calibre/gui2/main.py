@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import re
@@ -28,7 +28,7 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import unicode_type, range, environ_item
+from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -71,9 +71,9 @@ def find_portable_library():
         return
     import glob
     candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
-        os.path.join(base, u'*%smetadata.db'%os.sep))]
+        os.path.join(base, '*%smetadata.db'%os.sep))]
     if not candidates:
-        candidates = [u'Calibre Library']
+        candidates = ['Calibre Library']
     lp = prefs['library_path']
     if not lp:
         lib = os.path.join(base, candidates[0])
@@ -134,13 +134,13 @@ def get_default_library_path():
     if isinstance(fname, unicode_type):
         try:
             fname.encode(filesystem_encoding)
-        except:
+        except Exception:
             fname = 'Calibre Library'
     x = os.path.expanduser('~'+os.sep+fname)
     if not os.path.exists(x):
         try:
             os.makedirs(x)
-        except:
+        except Exception:
             x = os.path.expanduser('~')
     return x
 
@@ -360,8 +360,8 @@ def run_in_debug_mode():
     os.close(fd)
     os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
     run_calibre_debug(
-        '--gui-debug', logpath, stdout=lopen(logpath, 'w'),
-        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'r'))
+        '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
+        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
 
 
 def shellquote(s):
@@ -478,7 +478,7 @@ def shutdown_other(rc=None):
         if rc.conn is None:
             prints(_('No running calibre found'))
             return  # No running instance found
-    rc.conn.send('shutdown:')
+    rc.conn.send(b'shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
     for i in range(50):
         if singleinstance(singleinstance_name):
@@ -496,7 +496,7 @@ def communicate(opts, args):
         if len(args) > 1:
             args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
         import json
-        t.conn.send('launched:'+json.dumps(args))
+        t.conn.send(b'launched:'+as_bytes(json.dumps(args)))
     t.conn.close()
     raise SystemExit(0)
 
