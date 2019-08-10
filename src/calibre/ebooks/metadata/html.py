@@ -10,9 +10,10 @@ Try to read metadata from an HTML file.
 
 import re
 
+from collections import defaultdict
 from HTMLParser import HTMLParser
 
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import replace_entities, isbytestring
@@ -30,7 +31,7 @@ COMMENT_NAMES = {
     'authors': 'AUTHOR',
     'publisher': 'PUBLISHER',
     'isbn': 'ISBN',
-    'language': 'LANGUAGE',
+    'languages': 'LANGUAGE',
     'pubdate': 'PUBDATE',
     'timestamp': 'TIMESTAMP',
     'series': 'SERIES',
@@ -44,8 +45,8 @@ META_NAMES = {
     'title' : ('dc.title', 'dcterms.title', 'title'),
     'authors': ('author', 'dc.creator.aut', 'dcterms.creator.aut', 'dc.creator'),
     'publisher': ('publisher', 'dc.publisher', 'dcterms.publisher'),
-    'isbn': ('isbn', 'dc.identifier.isbn', 'dcterms.identifier.isbn'),
-    'language': ('dc.language', 'dcterms.language'),
+    'isbn': ('isbn',),
+    'languages': ('dc.language', 'dcterms.language'),
     'pubdate': ('pubdate', 'date of publication', 'dc.date.published', 'dc.date.publication', 'dc.date.issued', 'dcterms.issued'),
     'timestamp': ('timestamp', 'date of creation', 'dc.date.created', 'dc.date.creation', 'dcterms.created'),
     'series': ('series',),
@@ -59,69 +60,85 @@ META_NAMES = {
 # single quotes inside double quotes and vice versa.
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
 
-
-def parse_meta_tags(src):
-    rmap = {}
-    for field, names in iteritems(META_NAMES):
-        for name in names:
-            rmap[name.lower()] = field
-    all_names = '|'.join(rmap)
-    ans = {}
-    npat = r'''name\s*=\s*['"]{0,1}(?P<name>%s)['"]{0,1}''' % all_names
-    cpat = r'content\s*=\s*%s' % attr_pat
-    for pat in (
-        r'<meta\s+%s\s+%s' % (npat, cpat),
-        r'<meta\s+%s\s+%s' % (cpat, npat),
-    ):
-        for match in re.finditer(pat, src, flags=re.IGNORECASE):
-            x = match.group('name').lower()
-            try:
-                field = rmap[x]
-            except KeyError:
-                try:
-                    field = rmap[x.replace(':', '.')]
-                except KeyError:
-                    continue
-
-            if field not in ans:
-                ans[field] = replace_entities(match.group('content'))
-            if len(ans) == len(META_NAMES):
-                return ans
-    return ans
-
-def parse_meta_tag_identifiers(src):
-    meta_identifiers = {}
-
+def parse_metadata(src):
     class MetadataParser(HTMLParser):
+        def __init__(self):
+            self.comment_tags = defaultdict(list)
+            self.meta_tag_ids = defaultdict(list)
+            self.meta_tags = defaultdict(list)
+            self.title_tag = ''
+
+            self.recording = False
+            self.recorded = []
+            
+            self.rmap_comment = {v:k for k, v in iteritems(COMMENT_NAMES)}
+            self.rmap_meta = {v:k for k, l in iteritems(META_NAMES) for v in l}
+
+            HTMLParser.__init__(self)
+
         def handle_starttag(self, tag, attrs):
             attr_dict = dict(attrs)
 
-            if tag == 'meta' and re.match(r'(?:dc|dcterms)[\.:]identifier', attr_dict.get('name', ''), flags=re.IGNORECASE):
-                content = attr_dict.get('content', '').strip()
-                scheme = attr_dict.get('scheme', '').strip()
-                if not scheme:
-                    elements = re.split(r'[\.:]', attr_dict['name'])
+            if tag == 'title':
+                self.recording = True
+                self.recorded = []
+
+            elif tag == 'meta' and re.match(r'(?:dc|dcterms)[.:]identifier(?:\.|$)', attr_dict.get('name', ''), flags=re.IGNORECASE):
+                scheme = None
+                if re.match(r'(?:dc|dcterms)[.:]identifier$', attr_dict.get('name', ''), flags=re.IGNORECASE):
+                    scheme = attr_dict.get('scheme', '').strip()
+                elif 'scheme' not in attr_dict:
+                    elements = re.split(r'[.:]', attr_dict['name'])
                     if len(elements) == 3:
-                        scheme = elements[2]
-                if content and scheme:
-                    meta_identifiers[scheme.lower()] = replace_entities(content)
+                        scheme = elements[2].strip()
+                if scheme:
+                    self.meta_tag_ids[scheme.lower()].append(attr_dict.get('content', ''))
 
-    MetadataParser().feed(src)
+            elif tag == 'meta':
+                x = attr_dict.get('name', '').lower()
+                field = None
+                try:
+                    field = self.rmap_meta[x]
+                except KeyError:
+                    try:
+                        field = self.rmap_meta[x.replace(':', '.')]
+                    except KeyError:
+                        pass
+                if field:
+                    self.meta_tags[field].append(attr_dict.get('content', ''))
 
-    return meta_identifiers
+        def handle_data(self, data):
+            if self.recording:
+                self.recorded.append(data)
 
-def parse_comment_tags(src):
-    all_names = '|'.join(itervalues(COMMENT_NAMES))
-    rmap = {v:k for k, v in iteritems(COMMENT_NAMES)}
-    ans = {}
-    for match in re.finditer(r'''<!--\s*(?P<name>%s)\s*=\s*%s''' % (all_names, attr_pat), src):
-        field = rmap[match.group('name')]
-        if field not in ans:
-            ans[field] = replace_entities(match.group('content'))
-        if len(ans) == len(COMMENT_NAMES):
-            break
-    return ans
+        def handle_charref(self, ref):
+            if self.recording:
+                self.recorded.append(replace_entities("&#%s;" % ref))
 
+        def handle_entityref(self, ref):
+            if self.recording:
+                self.recorded.append(replace_entities("&%s;" % ref))
+
+        def handle_endtag(self, tag):
+            if tag == 'title':
+                self.recording = False
+                self.title_tag = ''.join(self.recorded)
+
+        def handle_comment(self, data):
+            for match in re.finditer(r'''(?P<name>\S+)\s*=\s*%s''' % (attr_pat), data):
+                x = match.group('name')
+                field = None
+                try:
+                    field = self.rmap_comment[x]
+                except KeyError:
+                    pass
+                if field:
+                    self.comment_tags[field].append(replace_entities(match.group('content')))
+
+    parser = MetadataParser()
+    parser.feed(src)
+
+    return (parser.comment_tags, parser.meta_tags, parser.meta_tag_ids, parser.title_tag)
 
 def get_metadata_(src, encoding=None):
     # Meta data definitions as in
@@ -133,37 +150,44 @@ def get_metadata_(src, encoding=None):
         else:
             src = src.decode(encoding, 'replace')
     src = src[:150000]  # Searching shouldn't take too long
-    comment_tags = parse_comment_tags(src)
-    meta_tags = parse_meta_tags(src)
-    meta_tag_ids = parse_meta_tag_identifiers(src)
+    (comment_tags, meta_tags, meta_tag_ids, title_tag) = parse_metadata(src)
 
-    def get(field):
+    def get_all(field):
         ans = comment_tags.get(field, meta_tags.get(field, None))
         if ans:
-            ans = ans.strip()
+            ans = [x.strip() for x in ans if x.strip()]
         if not ans:
             ans = None
         return ans
 
+    def get(field):
+        ans = get_all(field)
+        if ans:
+            ans = ans[0]
+        return ans
+
     # Title
-    title = get('title')
-    if not title:
-        pat = re.compile('<title>([^<>]+?)</title>', re.IGNORECASE)
-        match = pat.search(src)
-        if match:
-            title = replace_entities(match.group(1))
+    title = get('title') or title_tag.strip() or _('Unknown')
 
     # Author
-    authors = get('authors') or _('Unknown')
+    authors = authors_to_string(get_all('authors')) or _('Unknown')
 
     # Create MetaInformation with Title and Author
-    mi = Metadata(title or _('Unknown'), string_to_authors(authors))
+    mi = Metadata(title, string_to_authors(authors))
 
-    for field in ('publisher', 'isbn', 'language', 'comments'):
+    # Single-value text fields
+    for field in ('publisher', 'isbn', 'comments'):
         val = get(field)
         if val:
             setattr(mi, field, val)
 
+    # Multi-value text fields
+    for field in ('languages',):
+        val = get_all(field)
+        if val:
+            setattr(mi, field, val)
+
+    # Date fields
     for field in ('pubdate', 'timestamp'):
         try:
             val = parse_date(get(field))
@@ -210,14 +234,16 @@ def get_metadata_(src, encoding=None):
             pass
 
     # TAGS
-    tags = get('tags')
+    tags = get_all('tags')
     if tags:
-        tags = [x.strip() for x in tags.split(',') if x.strip()]
+        tags = [x.strip() for s in tags for x in s.split(',') if x.strip()]
         if tags:
             mi.tags = tags
 
     # IDENTIFIERS
-    for (k,v) in meta_tag_ids.iteritems():
-        mi.set_identifier(k, v)
+    for (k,v) in iteritems(meta_tag_ids):
+        v = [x.strip() for x in v if x.strip()]
+        if v:
+            mi.set_identifier(k, v[0])
 
     return mi
