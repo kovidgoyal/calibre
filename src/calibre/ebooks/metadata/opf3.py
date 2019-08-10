@@ -382,7 +382,7 @@ def set_title(root, prefixes, refines, title, title_sort=None):
     main_title = find_main_title(root, refines, remove_blanks=True)
     if main_title is None:
         m = XPath('./opf:metadata')(root)[0]
-        main_title = m.makeelement('dc:title')
+        main_title = m.makeelement(DC('title'))
         m.insert(0, main_title)
     main_title.text = title or None
     ts = [refdef('file-as', title_sort)] if title_sort else ()
