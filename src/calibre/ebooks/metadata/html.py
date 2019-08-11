@@ -176,7 +176,7 @@ def get_metadata_(src, encoding=None):
     mi = Metadata(title, string_to_authors(authors))
 
     # Single-value text fields
-    for field in ('publisher', 'isbn', 'comments'):
+    for field in ('publisher', 'isbn'):
         val = get(field)
         if val:
             setattr(mi, field, val)
@@ -186,6 +186,12 @@ def get_metadata_(src, encoding=None):
         val = get_all(field)
         if val:
             setattr(mi, field, val)
+
+    # HTML fields
+    for field in ('comments',):
+        val = get(field)
+        if val:
+            setattr(mi, field, val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;'))
 
     # Date fields
     for field in ('pubdate', 'timestamp'):
