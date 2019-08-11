@@ -795,18 +795,24 @@ class Cache(object):
             nfmt = 'ORIGINAL_'+fmt
             return self.add_format(book_id, nfmt, fmtfile, run_hooks=False)
 
-    @api
+    @write_api
     def restore_original_format(self, book_id, original_fmt):
         ''' Restore the specified format from the previously saved
         ORIGINAL_FORMAT, if any. Return True on success. The ORIGINAL_FORMAT is
         deleted after a successful restore. '''
         original_fmt = original_fmt.upper()
-        fmtfile = self.format(book_id, original_fmt, as_file=True)
-        if fmtfile is not None:
-            fmt = original_fmt.partition('_')[2]
-            with fmtfile:
-                self.add_format(book_id, fmt, fmtfile, run_hooks=False)
-            self.remove_formats({book_id:(original_fmt,)})
+        fmt = original_fmt.partition('_')[2]
+        try:
+            ofmt_name = self.fields['formats'].format_fname(book_id, original_fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except Exception:
+            return False
+        if self.backend.is_format_accessible(book_id, original_fmt, ofmt_name, path):
+            self.add_format(book_id, fmt, BytesIO(), run_hooks=False)
+            fmt_name = self.fields['formats'].format_fname(book_id, fmt)
+            file_size = self.backend.rename_format_file(book_id, ofmt_name, original_fmt, fmt_name, fmt, path)
+            self.fields['formats'].table.update_fmt(book_id, fmt, fmt_name, file_size, self.backend)
+            self._remove_formats({book_id:(original_fmt,)})
             return True
         return False
 

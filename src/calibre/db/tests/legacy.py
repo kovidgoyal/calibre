@@ -793,20 +793,6 @@ class LegacyTest(BaseTest):
         self.assertEqual(ndb.new_api.field_for('#series_index', 1), 9)
     # }}}
 
-    def test_legacy_original_fmt(self):  # {{{
-        db, ndb = self.init_old(), self.init_legacy()
-        run_funcs(self, db, ndb, (
-            ('original_fmt', 1, 'FMT1'),
-            ('save_original_format', 1, 'FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('restore_original_format', 1, 'ORIGINAL_FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('%formats', 1, True),
-        ))
-        db.close()
-
-    # }}}
-
     def test_legacy_saved_search(self):  # {{{
         ' Test legacy saved search API '
         db, ndb = self.init_old(), self.init_legacy()
