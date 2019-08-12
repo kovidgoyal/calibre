@@ -1,15 +1,20 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from gettext import gettext as _
-from dom import svgicon, ensure_id, clear
 from elementmaker import E
+from gettext import gettext as _
+
 from book_list.item_list import build_list, create_item
-from read_book.prefs.colors import create_colors_panel, commit_colors
-from read_book.prefs.layout import create_layout_panel, commit_layout
-from read_book.prefs.user_stylesheet import create_user_stylesheet_panel, commit_user_stylesheet
-from read_book.prefs.head_foot import create_head_foot_panel, commit_head_foot
+from dom import clear, ensure_id, svgicon
+from read_book.globals import runtime
+from read_book.prefs.colors import commit_colors, create_colors_panel
+from read_book.prefs.fonts import commit_fonts, create_fonts_panel
+from read_book.prefs.head_foot import commit_head_foot, create_head_foot_panel
+from read_book.prefs.layout import commit_layout, create_layout_panel
+from read_book.prefs.user_stylesheet import (
+    commit_user_stylesheet, create_user_stylesheet_panel
+)
 
 
 class Prefs:
@@ -59,12 +64,23 @@ class Prefs:
         document.getElementById(self.title_id).textContent = _('Configure book reader')
         c = E.div()
         container.appendChild(c)
-        build_list(c, [
+        items = [
             create_item(_('Colors'), def():self.show_panel('colors');, _('Colors of the page and text')),
             create_item(_('Page layout'), def():self.show_panel('layout');, _('Page margins and number of pages per screen')),
             create_item(_('User style sheet'), def():self.show_panel('user_stylesheet');, _('Style rules for text')),
             create_item(_('Headers and footers'), def():self.show_panel('head_foot');, _('Customize the headers and footers')),
-        ])
+        ]
+        if runtime.is_standalone_viewer:
+            items.push(create_item(
+                _('Fonts'), def():self.show_panel('fonts');, _('Font choices')))
+        build_list(c, items)
+
+    def display_fonts(self, container):
+        document.getElementById(self.title_id).textContent = _('Fonts')
+        create_fonts_panel(container)
+
+    def close_fonts(self):
+        commit_fonts(self.onchange, self.container)
 
     def display_colors(self, container):
         document.getElementById(self.title_id).textContent = _('Colors')

@@ -9,8 +9,8 @@ import sys
 from itertools import count
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QHBoxLayout, QSize, Qt, QTimer, QUrl, QWidget,
-    pyqtSignal
+    QApplication, QBuffer, QByteArray, QFontDatabase, QHBoxLayout, QSize, Qt, QTimer,
+    QUrl, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -188,6 +188,35 @@ class ViewerBridge(Bridge):
     get_current_cfi = to_js()
 
 
+def apply_font_settings(page_or_view):
+    s = page_or_view.settings()
+    sd = vprefs['session_data']
+    fs = sd.get('standalone_font_settings', {})
+    if fs.get('serif_family'):
+        s.setFontFamily(s.SerifFont, fs.get('serif_family'))
+    else:
+        s.resetFontFamily(s.SerifFont)
+    if fs.get('sans_family'):
+        s.setFontFamily(s.SansSerifFont, fs.get('sans_family'))
+    else:
+        s.resetFontFamily(s.SansSerifFont)
+    if fs.get('mono_family'):
+        s.setFontFamily(s.FixedFont, fs.get('mono_family'))
+    else:
+        s.resetFontFamily(s.SansSerifFont)
+    sf = fs.get('standard_font') or 'serif'
+    sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
+    s.setFontFamily(s.StandardFont, s.fontFamily(sf))
+    mfs = fs.get('minimum_font_size')
+    if mfs is None:
+        s.resetFontSize(s.MinimumFontSize)
+    else:
+        s.setFontSize(s.MinimumFontSize, mfs)
+    s.setFontSize(s.DefaultFontSize, sd.get('base_font_size'))
+
+    return s
+
+
 class WebPage(QWebEnginePage):
 
     def __init__(self, parent):
@@ -195,6 +224,7 @@ class WebPage(QWebEnginePage):
         QWebEnginePage.__init__(self, profile, parent)
         profile.setParent(self)
         secure_webengine(self, for_viewer=True)
+        apply_font_settings(self)
         self.bridge = ViewerBridge(self)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
@@ -309,6 +339,11 @@ class WebView(RestartingWebEngineView):
         if ans is not None and not sip.isdeleted(ans):
             return ans
 
+    def change_zoom_by(self, steps=1):
+        ss = vprefs['session_data'].get('zoom_step_size') or 20
+        amt = (ss / 100) * steps
+        self._page.setZoomFactor(self._page.zoomFactor() + amt)
+
     def render_process_died(self):
         if self.dead_renderer_error_shown:
             return
@@ -339,7 +374,7 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        self.bridge.create_view(vprefs['session_data'])
+        self.bridge.create_view(vprefs['session_data'], QFontDatabase().families())
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
@@ -369,9 +404,12 @@ class WebView(RestartingWebEngineView):
     def set_session_data(self, key, val):
         if key == '*' and val is None:
             vprefs['session_data'] = {}
-        else:
+            apply_font_settings(self._page)
+        elif key != '*':
             sd = vprefs['session_data']
             sd[key] = val
+            if key == 'standalone_font_settings':
+                apply_font_settings(self._page)
             vprefs['session_data'] = sd
 
     def do_callback(self, func_name, callback):

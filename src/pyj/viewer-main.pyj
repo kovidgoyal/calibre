@@ -175,8 +175,9 @@ def create_session_data(prefs):
 
 
 @from_python
-def create_view(prefs):
+def create_view(prefs, all_font_families):
     nonlocal view
+    runtime.all_font_families = all_font_families
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
