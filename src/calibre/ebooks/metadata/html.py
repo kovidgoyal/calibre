@@ -12,7 +12,8 @@ import re
 import unittest
 
 from collections import defaultdict
-from HTMLParser import HTMLParser
+from html5_parser import parse
+from lxml.etree import Comment
 
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
@@ -56,91 +57,75 @@ META_NAMES = {
     'comments': ('comments', 'dc.description'),
     'tags': ('tags',),
 }
+rmap_comment = {v:k for k, v in iteritems(COMMENT_NAMES)}
+rmap_meta = {v:k for k, l in iteritems(META_NAMES) for v in l}
+
 
 # Extract an HTML attribute value, supports both single and double quotes and
 # single quotes inside double quotes and vice versa.
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
 
 
+def handle_comment(data, comment_tags):
+    if not hasattr(handle_comment, 'pat'):
+        handle_comment.pat = re.compile(r'''(?P<name>\S+)\s*=\s*%s''' % attr_pat)
+    for match in handle_comment.pat.finditer(data):
+        x = match.group('name')
+        field = None
+        try:
+            field = rmap_comment[x]
+        except KeyError:
+            pass
+        if field:
+            comment_tags[field].append(replace_entities(match.group('content')))
+
+
 def parse_metadata(src):
-    class MetadataParser(HTMLParser):
-        def __init__(self):
-            self.comment_tags = defaultdict(list)
-            self.meta_tag_ids = defaultdict(list)
-            self.meta_tags = defaultdict(list)
-            self.title_tag = ''
+    root = parse(src)
+    comment_tags = defaultdict(list)
+    meta_tags = defaultdict(list)
+    meta_tag_ids = defaultdict(list)
+    title = ''
+    identifier_pat = re.compile(r'(?:dc|dcterms)[.:]identifier(?:\.|$)', flags=re.IGNORECASE)
+    id_pat2 = re.compile(r'(?:dc|dcterms)[.:]identifier$', flags=re.IGNORECASE)
 
-            self.recording = False
-            self.recorded = []
+    for comment in root.iterdescendants(tag=Comment):
+        if comment.text:
+            handle_comment(comment.text, comment_tags)
 
-            self.rmap_comment = {v:k for k, v in iteritems(COMMENT_NAMES)}
-            self.rmap_meta = {v:k for k, l in iteritems(META_NAMES) for v in l}
+    for q in root.iterdescendants(tag='title'):
+        if q.text:
+            title = q.text
+            break
 
-            HTMLParser.__init__(self)
-
-        def handle_starttag(self, tag, attrs):
-            attr_dict = dict(attrs)
-
-            if tag == 'title':
-                self.recording = True
-                self.recorded = []
-
-            elif tag == 'meta' and re.match(r'(?:dc|dcterms)[.:]identifier(?:\.|$)', attr_dict.get('name', ''), flags=re.IGNORECASE):
-                scheme = None
-                if re.match(r'(?:dc|dcterms)[.:]identifier$', attr_dict.get('name', ''), flags=re.IGNORECASE):
-                    scheme = attr_dict.get('scheme', '').strip()
-                elif 'scheme' not in attr_dict:
-                    elements = re.split(r'[.:]', attr_dict['name'])
-                    if len(elements) == 3:
-                        scheme = elements[2].strip()
-                if scheme:
-                    self.meta_tag_ids[scheme.lower()].append(attr_dict.get('content', ''))
-
-            elif tag == 'meta':
-                x = attr_dict.get('name', '').lower()
-                field = None
+    for meta in root.iterdescendants(tag='meta'):
+        name, content = meta.get('name'), meta.get('content')
+        if not name or not content:
+            continue
+        if identifier_pat.match(name) is not None:
+            scheme = None
+            if id_pat2.match(name) is not None:
+                scheme = meta.get('scheme')
+            else:
+                elements = re.split(r'[.:]', name)
+                if len(elements) == 3 and not meta.get('scheme'):
+                    scheme = elements[2].strip()
+            if scheme:
+                meta_tag_ids[scheme.lower()].append(content)
+        else:
+            x = name.lower()
+            field = None
+            try:
+                field = rmap_meta[x]
+            except KeyError:
                 try:
-                    field = self.rmap_meta[x]
-                except KeyError:
-                    try:
-                        field = self.rmap_meta[x.replace(':', '.')]
-                    except KeyError:
-                        pass
-                if field:
-                    self.meta_tags[field].append(attr_dict.get('content', ''))
-
-        def handle_data(self, data):
-            if self.recording:
-                self.recorded.append(data)
-
-        def handle_charref(self, ref):
-            if self.recording:
-                self.recorded.append(replace_entities("&#%s;" % ref))
-
-        def handle_entityref(self, ref):
-            if self.recording:
-                self.recorded.append(replace_entities("&%s;" % ref))
-
-        def handle_endtag(self, tag):
-            if tag == 'title':
-                self.recording = False
-                self.title_tag = ''.join(self.recorded)
-
-        def handle_comment(self, data):
-            for match in re.finditer(r'''(?P<name>\S+)\s*=\s*%s''' % (attr_pat), data):
-                x = match.group('name')
-                field = None
-                try:
-                    field = self.rmap_comment[x]
+                    field = rmap_meta[x.replace(':', '.')]
                 except KeyError:
                     pass
-                if field:
-                    self.comment_tags[field].append(replace_entities(match.group('content')))
+            if field:
+                meta_tags[field].append(content)
 
-    parser = MetadataParser()
-    parser.feed(src)
-
-    return (parser.comment_tags, parser.meta_tags, parser.meta_tag_ids, parser.title_tag)
+    return comment_tags, meta_tags, meta_tag_ids, title
 
 
 def get_metadata_(src, encoding=None):
@@ -153,7 +138,7 @@ def get_metadata_(src, encoding=None):
         else:
             src = src.decode(encoding, 'replace')
     src = src[:150000]  # Searching shouldn't take too long
-    (comment_tags, meta_tags, meta_tag_ids, title_tag) = parse_metadata(src)
+    comment_tags, meta_tags, meta_tag_ids, title_tag = parse_metadata(src)
 
     def get_all(field):
         ans = comment_tags.get(field, meta_tags.get(field, None))
@@ -329,7 +314,7 @@ class MetadataHtmlTest(unittest.TestCase):
         <!-- SERIES="Comment Series" -->
         <!-- SERIESNUMBER="3" -->
         <!-- RATING="20" -->
-        <!-- COMMENTS="comment &quot;comments&quot; &#x2665; HTML too &amp;amp;" -->
+        <!-- COMMENTS="comment &quot;comments&quot; &#x2665; HTML -- too &amp;amp;" -->
         <!-- TAGS="tag d" -->
 '''
 
@@ -345,7 +330,7 @@ class MetadataHtmlTest(unittest.TestCase):
         <!-- SERIES="Comment Series 2" -->
         <!-- SERIESNUMBER="4" -->
         <!-- RATING="1" -->
-        <!-- COMMENTS="comment &quot;comments&quot; &#x2665; HTML too &amp;amp; for sure" -->
+        <!-- COMMENTS="comment &quot;comments&quot; &#x2665; HTML -- too &amp;amp; for sure" -->
         <!-- TAGS="tag e, tag f" -->
 '''
 
@@ -402,7 +387,7 @@ class MetadataHtmlTest(unittest.TestCase):
         canon_meta.series = 'Comment Series'
         canon_meta.series_index = float(3)
         canon_meta.rating = float(0)
-        canon_meta.comments = 'comment &quot;comments&quot; ♥ HTML too &amp;amp;'
+        canon_meta.comments = 'comment &quot;comments&quot; ♥ HTML -- too &amp;amp;'
         canon_meta.tags = ['tag d']
         canon_meta.set_identifiers({'isbn': '3456789012', 'url': 'http://google.com/search?q=calibre'})
         self.compare_metadata(stream_meta, canon_meta)
@@ -417,19 +402,11 @@ class MetadataHtmlTest(unittest.TestCase):
         canon_meta.series = 'Comment Series'
         canon_meta.series_index = float(3)
         canon_meta.rating = float(0)
-        canon_meta.comments = 'comment &quot;comments&quot; ♥ HTML too &amp;amp;'
+        canon_meta.comments = 'comment &quot;comments&quot; ♥ HTML -- too &amp;amp;'
         canon_meta.tags = ['tag d', 'tag e', 'tag f']
         canon_meta.set_identifiers({'isbn': '3456789012', 'url': 'http://google.com/search?q=calibre'})
         self.compare_metadata(stream_meta, canon_meta)
 
 
-def suite():
+def find_tests():
     return unittest.TestLoader().loadTestsFromTestCase(MetadataHtmlTest)
-
-
-def test():
-    unittest.TextTestRunner(verbosity=2).run(suite())
-
-
-if __name__ == '__main__':
-    test()
