@@ -114,7 +114,8 @@ class WSJ(BasicNewsRecipe):
                 '_intstate': 'deprecated',
             }
             for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
-                request_query[k] = query[k]
+                if k in query:
+                    request_query[k] = query[k]
             login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
             # you can get the version below from lib-min.js
             # search for: str: "x.x.x"
