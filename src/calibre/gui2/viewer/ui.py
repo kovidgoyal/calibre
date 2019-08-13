@@ -25,7 +25,9 @@ from calibre.gui2.viewer.annotations import (
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
-from calibre.gui2.viewer.web_view import WebView, set_book_path, vprefs
+from calibre.gui2.viewer.web_view import (
+    WebView, get_session_pref, set_book_path, vprefs
+)
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.serialize import json_loads
@@ -89,9 +91,7 @@ class EbookViewer(MainWindow):
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.setCentralWidget(self.web_view)
-        state = vprefs['main_window_state']
-        if state:
-            self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
+        self.restore_state()
 
     # IPC {{{
     def handle_commandline_arg(self, arg):
@@ -252,10 +252,24 @@ class EbookViewer(MainWindow):
                 update_book(path, before_stat, {'calibre-book-annotations.json': annots})
 
     def save_state(self):
-        vprefs['main_window_state'] = bytearray(self.saveState(self.MAIN_WINDOW_STATE_VERSION))
+        with vprefs:
+            vprefs['main_window_state'] = bytearray(self.saveState(self.MAIN_WINDOW_STATE_VERSION))
+            vprefs['main_window_geometry'] = bytearray(self.saveGeometry())
+
+    def restore_state(self):
+        state = vprefs['main_window_state']
+        geom = vprefs['main_window_geometry']
+        if geom and get_session_pref('remember_window_geometry'):
+            self.restoreGeometry(geom)
+        if state:
+            self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
 
     def closeEvent(self, ev):
-        self.save_annotations()
-        self.save_state()
+        try:
+            self.save_annotations()
+            self.save_state()
+        except Exception:
+            import traceback
+            traceback.print_exc()
         return MainWindow.closeEvent(self, ev)
     # }}}

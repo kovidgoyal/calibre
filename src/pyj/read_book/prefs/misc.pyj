@@ -32,19 +32,15 @@ def create_misc_panel(container):
     container = container.lastChild
     sd = get_session_data()
     settings = sd.get('standalone_misc_settings')
-    settings
 
     def cb(name, text):
         ans = E.input(type='checkbox', name=name)
-        if jstype(settings[name]) is 'boolean':
-            ans.checked = v'!!settings[name]'
-        else:
-            ans.checked = DEFAULTS[name]
+        ans.checked = settings[name] if jstype(settings[name]) is 'boolean' else DEFAULTS[name]
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
-    container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks inside the e-book file, for easy sharing')))
+    container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
 
     container.appendChild(E.div(
         style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)

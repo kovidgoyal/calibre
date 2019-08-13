@@ -39,6 +39,7 @@ except ImportError:
 vprefs = JSONConfig('viewer-webengine')
 vprefs.defaults['session_data'] = {}
 vprefs.defaults['main_window_state'] = None
+vprefs.defaults['main_window_geometry'] = None
 
 
 # Override network access to load data from the book {{{
@@ -145,6 +146,12 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 send_reply(rq, mt, raw)
 
 # }}}
+
+
+def get_session_pref(name, default=None, group='standalone_misc_settings'):
+    sd = vprefs['session_data']
+    g = sd.get(group, {})
+    return g.get(name, default)
 
 
 def create_profile():
@@ -340,6 +347,7 @@ class WebView(RestartingWebEngineView):
             return ans
 
     def change_zoom_by(self, steps=1):
+        # TODO: Add UI for this
         ss = vprefs['session_data'].get('zoom_step_size') or 20
         amt = (ss / 100) * steps
         self._page.setZoomFactor(self._page.zoomFactor() + amt)
