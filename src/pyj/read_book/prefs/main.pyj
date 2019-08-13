@@ -12,6 +12,7 @@ from read_book.prefs.colors import commit_colors, create_colors_panel
 from read_book.prefs.fonts import commit_fonts, create_fonts_panel
 from read_book.prefs.head_foot import commit_head_foot, create_head_foot_panel
 from read_book.prefs.layout import commit_layout, create_layout_panel
+from read_book.prefs.misc import commit_misc, create_misc_panel
 from read_book.prefs.user_stylesheet import (
     commit_user_stylesheet, create_user_stylesheet_panel
 )
@@ -73,6 +74,8 @@ class Prefs:
         if runtime.is_standalone_viewer:
             items.push(create_item(
                 _('Fonts'), def():self.show_panel('fonts');, _('Font choices')))
+            items.push(create_item(
+                _('Miscellaneous'), def():self.show_panel('misc');, _('Window size, last read position, etc.')))
         build_list(c, items)
 
     def display_fonts(self, container):
@@ -81,6 +84,13 @@ class Prefs:
 
     def close_fonts(self):
         commit_fonts(self.onchange, self.container)
+
+    def display_misc(self, container):
+        document.getElementById(self.title_id).textContent = _('Miscellaneous')
+        create_misc_panel(container)
+
+    def close_misc(self):
+        commit_misc(self.onchange, self.container)
 
     def display_colors(self, container):
         document.getElementById(self.title_id).textContent = _('Colors')

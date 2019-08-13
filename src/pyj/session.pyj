@@ -41,6 +41,7 @@ defaults = {
     'footer': {'right': 'progress'},
     'word_actions': v'[]',
     'standalone_font_settings': {},
+    'standalone_misc_settings': {},
 }
 
 is_local_setting = {
@@ -57,6 +58,7 @@ is_local_setting = {
     'base_font_size': True,
     'controls_help_shown_count': True,
     'standalone_font_settings': True,
+    'standalone_misc_settings': True,
 }
 
 
