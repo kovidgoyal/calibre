@@ -1,13 +1,14 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from gettext import gettext as _
-from dom import unique_id
 from elementmaker import E
-from book_list.globals import get_session_data
-from read_book.globals import runtime
+from gettext import gettext as _
 
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.globals import runtime
+from widgets import create_button
 
 CONTAINER = unique_id('standalone-font-settings')
 DEFAULT_STANDARD_FONT = 'serif'
@@ -57,6 +58,15 @@ def zoom_step_size(settings):
     return ans
 
 
+def restore_defaults():
+    container = get_container()
+    for q in ('serif_family', 'sans_family', 'mono_family'):
+        container.querySelector(f'[name={q}]').value = ''
+    container.querySelector('[name=zoom_step_size]').value = DEFAULT_ZOOM_STEP_SIZE + ''
+    container.querySelector('[name=minimum_font_size]').value = DEFAULT_MINIMUM_FONT_SIZE + ''
+    container.querySelector('[name=standard_font]').value = DEFAULT_STANDARD_FONT
+
+
 def get_container():
     return document.getElementById(CONTAINER)
 
@@ -82,6 +92,10 @@ def create_fonts_panel(container):
     container.append(E.table(style='margin-top: 1rem',
         row(_('Zoom step size (%s)'), zoom_step_size(settings)),
         row(_('Minimum font size (px)'), minimum_font_size(settings)),
+    ))
+
+    container.appendChild(E.div(
+        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)
     ))
 
 
