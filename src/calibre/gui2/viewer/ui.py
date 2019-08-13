@@ -224,7 +224,7 @@ class EbookViewer(MainWindow):
     # CFI management {{{
     def initial_cfi_for_current_book(self):
         lrp = self.current_book_data['annotations_map']['last-read']
-        if lrp:
+        if lrp and get_session_pref('remember_last_read', default=True):
             lrp = lrp[0]
             if lrp['pos_type'] == 'epubcfi':
                 return lrp['pos']
@@ -244,7 +244,8 @@ class EbookViewer(MainWindow):
         annots = as_bytes(serialize_annotations(amap))
         with open(os.path.join(annotations_dir, self.current_book_data['annotations_path_key']), 'wb') as f:
             f.write(annots)
-        if self.current_book_data.get('pathtoebook', '').lower().endswith('.epub'):
+        if self.current_book_data.get('pathtoebook', '').lower().endswith(
+                '.epub') and get_session_pref('save_annotations_in_ebook', default=True):
             path = self.current_book_data['pathtoebook']
             if os.access(path, os.W_OK):
                 before_stat = os.stat(path)
@@ -259,7 +260,7 @@ class EbookViewer(MainWindow):
     def restore_state(self):
         state = vprefs['main_window_state']
         geom = vprefs['main_window_geometry']
-        if geom and get_session_pref('remember_window_geometry'):
+        if geom and get_session_pref('remember_window_geometry', default=False):
             self.restoreGeometry(geom)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
