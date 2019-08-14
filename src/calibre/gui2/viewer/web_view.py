@@ -45,14 +45,14 @@ vprefs.defaults['main_window_geometry'] = None
 
 # Override network access to load data from the book {{{
 
-def set_book_path(path=None):
-    if path is not None:
-        set_book_path.path = os.path.abspath(path)
-        set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
-        set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
-        set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
-        set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
-        set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
+def set_book_path(path, pathtoebook):
+    set_book_path.pathtoebook = pathtoebook
+    set_book_path.path = os.path.abspath(path)
+    set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
+    set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
+    set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
+    set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
+    set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
 
 
 def get_data(name):
@@ -189,6 +189,7 @@ class ViewerBridge(Bridge):
     update_current_toc_nodes = from_js(object, object)
     toggle_full_screen = from_js()
     report_cfi = from_js(object, object)
+    ask_for_open = from_js(object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -305,6 +306,7 @@ class WebView(RestartingWebEngineView):
     toggle_bookmarks = pyqtSignal()
     update_current_toc_nodes = pyqtSignal(object, object)
     toggle_full_screen = pyqtSignal()
+    ask_for_open = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -324,6 +326,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
         self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
+        self.bridge.ask_for_open.connect(self.ask_for_open)
         self.bridge.report_cfi.connect(self.call_callback)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
@@ -392,7 +395,7 @@ class WebView(RestartingWebEngineView):
 
     def start_book_load(self, initial_cfi=None):
         key = (set_book_path.path,)
-        self.execute_when_ready('start_book_load', key, initial_cfi)
+        self.execute_when_ready('start_book_load', key, initial_cfi, set_book_path.pathtoebook)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

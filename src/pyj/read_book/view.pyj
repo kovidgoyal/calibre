@@ -18,6 +18,7 @@ from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
 from read_book.goto import get_next_section
+from read_book.open_book import add_book_to_recently_viewed
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
@@ -382,6 +383,8 @@ class View:
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)
         self.book = current_book.book = book
+        if runtime.is_standalone_viewer:
+            add_book_to_recently_viewed(book)
         if ui_operations.update_last_read_time:
             ui_operations.update_last_read_time(book)
         pos = {'replace_history':True}

@@ -10,8 +10,9 @@ from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
-from read_book.globals import ui_operations, runtime
+from read_book.globals import runtime, ui_operations
 from read_book.goto import create_goto_panel
+from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
@@ -220,7 +221,10 @@ class MainOverlay:
         back_action = ac(_('Back'), None, self.back, 'arrow-left')
         forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
         if runtime.is_standalone_viewer:
-            reload_actions = E.ul(reload_action)
+            reload_actions = E.ul(
+                ac(_('Open book'), _('Open a new book'), self.overlay.open_book, 'book'),
+                reload_action
+            )
             nav_actions = E.ul(back_action, forward_action)
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
@@ -384,6 +388,30 @@ class FontSizeOverlay:  # {{{
         create_font_size_panel(container, self.overlay.hide_current_panel)
 # }}}
 
+class OpenBook: # {{{
+
+    def __init__(self, overlay, closeable):
+        self.overlay = overlay
+        self.closeable = closeable
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def show(self, container):
+        container.style.backgroundColor = get_color('window-background')
+        close_button_style = '' if self.closeable else 'display: none'
+        container.appendChild(E.div(
+            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
+                E.h2(_('Open a new book')),
+                E.div(
+                    svgicon('close'), style=f'cursor:pointer; {close_button_style}',
+                    onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);,
+                    class_='simple-link'),
+            ))
+        create_open_book(container, self.overlay.view?.book)
+# }}}
+
+
 
 class Overlay:
 
@@ -456,6 +484,13 @@ class Overlay:
     def reload_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self, _('Are you sure you want to reload this book?'), 'refresh', _('Reload book'), True)]
+        self.show_current_panel()
+
+    def open_book(self, closeable):
+        self.hide_current_panel()
+        if jstype(closeable) is not 'boolean':
+            closeable = True
+        self.panels = [OpenBook(self, closeable)]
         self.show_current_panel()
 
     def sync_book(self):

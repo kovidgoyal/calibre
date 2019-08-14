@@ -156,7 +156,7 @@ def main(args=sys.argv):
     app.setWindowIcon(QIcon(I('viewer.png')))
     main = EbookViewer()
     main.set_exception_handler()
-    if args:
+    if len(args) > 1:
         acc.events.append(args[-1])
     acc.got_file.connect(main.handle_commandline_arg)
     main.show()

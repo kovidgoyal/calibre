@@ -42,6 +42,7 @@ defaults = {
     'word_actions': v'[]',
     'standalone_font_settings': {},
     'standalone_misc_settings': {},
+    'standalone_recently_opened': v'[]',
 }
 
 is_local_setting = {
@@ -59,6 +60,7 @@ is_local_setting = {
     'controls_help_shown_count': True,
     'standalone_font_settings': True,
     'standalone_misc_settings': True,
+    'standalone_recently_opened': True,
 }
 
 

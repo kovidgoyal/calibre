@@ -124,13 +124,14 @@ def show_error(title, msg, details):
     error_dialog(title, msg, details)
 
 
-def manifest_received(key, initial_cfi, end_type, xhr, ev):
+def manifest_received(key, initial_cfi, pathtoebook, end_type, xhr, ev):
     nonlocal book
     if end_type is 'load':
         book = new_book(key, {})
         data = xhr.response
         book.manifest = data[0]
         book.metadata = book.manifest.metadata = data[1]
+        book.manifest.pathtoebook = pathtoebook
         book.stored_files = {}
         book.is_complete = True
         v'delete book.manifest["metadata"]'
@@ -181,6 +182,7 @@ def create_view(prefs, all_font_families):
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
+        view.overlay.open_book(False)
 
 
 @from_python
@@ -189,8 +191,8 @@ def show_preparing_message(msg):
 
 
 @from_python
-def start_book_load(key, initial_cfi):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi), ok_code=0)
+def start_book_load(key, initial_cfi, pathtoebook):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, pathtoebook), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 
@@ -257,6 +259,8 @@ if window is window.top:
         to_python.toggle_full_screen()
     ui_operations.report_cfi = def(request_id, data):
         to_python.report_cfi(request_id, data)
+    ui_operations.ask_for_open = def(path):
+        to_python.ask_for_open(path)
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

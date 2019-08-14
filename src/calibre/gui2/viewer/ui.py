@@ -17,7 +17,8 @@ from PyQt5.Qt import (
 
 from calibre import prints
 from calibre.constants import config_dir
-from calibre.gui2 import error_dialog
+from calibre.customize.ui import available_input_formats
+from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
     merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
@@ -92,6 +93,7 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
+        self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.restore_state()
 
@@ -161,6 +163,17 @@ class EbookViewer(MainWindow):
 
     # Load book {{{
 
+    def ask_for_open(self, path=None):
+        if path is None:
+            files = choose_files(
+                self, 'ebook viewer open dialog',
+                _('Choose e-book'), [(_('E-books'), available_input_formats())],
+                all_files=False, select_only_single_file=True)
+            if not files:
+                return
+            path = files[0]
+        self.load_ebook(path)
+
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
         self.setWindowTitle(_('Loading book … — {}').format(self.base_window_title))
@@ -193,7 +206,7 @@ class EbookViewer(MainWindow):
                 'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
                 det_msg=data['tb'], show=True)
             return
-        set_book_path(data['base'])
+        set_book_path(data['base'], data['pathtoebook'])
         self.current_book_data = data
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
