@@ -125,7 +125,7 @@
        <item row="5" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_manual_add_auto_convert">
          <property name="text">
-          <string>Automatically &amp;convert added books to the current output format</string>
+          <string>Automatically &amp;convert added books to the preferred output format</string>
          </property>
         </widget>
        </item>
@@ -338,7 +338,7 @@ that have been explicitly ignored below.</string>
        <item row="4" column="0">
         <widget class="QCheckBox" name="opt_auto_add_auto_convert">
          <property name="text">
-          <string>Automatically &amp;convert added files to the current output format</string>
+          <string>Automatically &amp;convert added files to the preferred output format</string>
          </property>
         </widget>
        </item>
