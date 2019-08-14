@@ -29,6 +29,7 @@ from calibre.gui2.webengine import (
 )
 from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
+from calibre.utils.serialize import json_loads
 from polyglot.builtins import iteritems
 
 try:
@@ -44,9 +45,14 @@ vprefs.defaults['main_window_geometry'] = None
 
 # Override network access to load data from the book {{{
 
-
 def set_book_path(path=None):
-    set_book_path.path = os.path.abspath(path)
+    if path is not None:
+        set_book_path.path = os.path.abspath(path)
+        set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
+        set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
+        set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
+        set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
+        set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
 
 
 def get_data(name):
@@ -116,10 +122,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 traceback.print_exc()
                 rq.fail(rq.RequestFailed)
         elif name == 'manifest':
-            manifest, mime_type = get_data('calibre-book-manifest.json')
-            metadata = get_data('calibre-book-metadata.json')[0]
-            data = b'[' + manifest + b',' + metadata + b']'
-            send_reply(rq, mime_type, data)
+            data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
+            send_reply(rq, set_book_path.manifest_mime, data)
         elif name.startswith('mathjax/'):
             from calibre.gui2.viewer.mathjax import monkeypatch_mathjax
             if name == 'mathjax/manifest.json':

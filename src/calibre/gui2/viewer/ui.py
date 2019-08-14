@@ -48,6 +48,8 @@ class EbookViewer(MainWindow):
 
     def __init__(self):
         MainWindow.__init__(self, None)
+        self.base_window_title = _('E-book viewer')
+        self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
         try:
             os.makedirs(annotations_dir)
@@ -161,6 +163,7 @@ class EbookViewer(MainWindow):
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
+        self.setWindowTitle(_('Loading book … — {}').format(self.base_window_title))
         self.web_view.show_preparing_message()
         self.save_annotations()
         self.current_book_data = {}
@@ -185,6 +188,7 @@ class EbookViewer(MainWindow):
 
     def load_finished(self, ok, data):
         if not ok:
+            self.setWindowTitle(self.base_window_title)
             error_dialog(self, _('Loading book failed'), _(
                 'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
                 det_msg=data['tb'], show=True)
@@ -194,6 +198,7 @@ class EbookViewer(MainWindow):
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
         self.load_book_data()
+        self.update_window_title()
         self.web_view.start_book_load(initial_cfi=self.initial_cfi_for_current_book())
 
     def load_book_data(self):
@@ -206,6 +211,8 @@ class EbookViewer(MainWindow):
         self.toc_model = TOC(toc)
         self.toc.setModel(self.toc_model)
         self.bookmarks_widget.set_bookmarks(self.current_book_data['annotations_map']['bookmark'])
+        self.current_book_data['metadata'] = set_book_path.parsed_metadata
+        self.current_book_data['manifest'] = set_book_path.parsed_manifest
 
     def load_book_annotations(self):
         amap = self.current_book_data['annotations_map']
@@ -219,6 +226,12 @@ class EbookViewer(MainWindow):
             with open(path, 'rb') as f:
                 raw = f.read()
             merge_annotations(parse_annotations(raw), amap)
+
+    def update_window_title(self):
+        title = self.current_book_data['metadata']['title']
+        book_format = self.current_book_data['manifest']['book_format']
+        title = '{} [{}] — {}'.format(title, book_format, self.base_window_title)
+        self.setWindowTitle(title)
     # }}}
 
     # CFI management {{{

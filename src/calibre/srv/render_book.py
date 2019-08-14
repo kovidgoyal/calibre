@@ -201,6 +201,7 @@ class Container(ContainerBase):
         self.book_render_data = data = {
             'version': RENDER_VERSION,
             'toc':toc,
+            'book_format': book_fmt,
             'spine':spine,
             'link_uid': uuid4(),
             'book_hash': book_hash,
