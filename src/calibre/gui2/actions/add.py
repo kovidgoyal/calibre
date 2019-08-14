@@ -331,7 +331,8 @@ class AddAction(InterfaceAction):
                     create_book(mi, pt.name, fmt=empty_format)
                     fmts = [pt.name]
                 ids.append(db.import_book(mi, fmts))
-            tuple(map(os.remove, orig_fmts))
+            for path in orig_fmts:
+                os.remove(path)
             self.refresh_gui(num)
             if ids:
                 ids.reverse()
