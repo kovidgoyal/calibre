@@ -286,10 +286,10 @@ class ToolBar(QToolBar):  # {{{
             event.ignore()
 
     def dropEvent(self, event):
-        data = event.mimeData()
+        md = event.mimeData()
         mime = 'application/calibre+from_library'
-        if data.hasFormat(mime):
-            ids = list(map(int, str(data.data(mime)).split()))
+        if md.hasFormat(mime):
+            ids = list(map(int, md.data(mime).data().split()))
             tgt = None
             for ac in self.location_manager.available_actions:
                 w = self.widgetForAction(ac)
@@ -303,8 +303,8 @@ class ToolBar(QToolBar):  # {{{
                 return
 
         mime = 'application/calibre+from_device'
-        if data.hasFormat(mime):
-            paths = [unicode_type(u.toLocalFile()) for u in data.urls()]
+        if md.hasFormat(mime):
+            paths = [unicode_type(u.toLocalFile()) for u in md.urls()]
             if paths:
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
@@ -312,7 +312,7 @@ class ToolBar(QToolBar):  # {{{
                 return
 
         # Give added_actions an opportunity to process the drag&drop event
-        if self.check_iactions_for_drag(event, data, 'drop_event'):
+        if self.check_iactions_for_drag(event, md, 'drop_event'):
             event.accept()
         else:
             event.ignore()

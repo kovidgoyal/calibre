@@ -857,7 +857,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                                    fm['datatype'] == 'composite' and
                                                    fm['display'].get('make_category', False)))):
                     mime = 'application/calibre+from_library'
-                    ids = list(map(int, str(md.data(mime)).split()))
+                    ids = list(map(int, md.data(mime).data().split()))
                     self.handle_drop(node, ids)
                     return True
             elif node.type == TagTreeItem.CATEGORY:
@@ -871,7 +871,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                              (fm_src['datatype'] == 'composite' and
                               fm_src['display'].get('make_category', False))):
                         mime = 'application/calibre+from_library'
-                        ids = list(map(int, str(md.data(mime)).split()))
+                        ids = list(map(int, md.data(mime).data().split()))
                         self.handle_user_category_drop(node, ids, md.column_name)
                         return True
         return False
