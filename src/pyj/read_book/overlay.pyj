@@ -269,6 +269,12 @@ class MainOverlay:
         if full_screen_actions.length:
             actions_div.appendChild(E.ul(*full_screen_actions))
 
+        if runtime.is_standalone_viewer:
+            actions_div.appendChild(E.ul(
+                ac(_('Inspector'), _('Show the content inspector'),
+                   def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug')
+            ))
+
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 

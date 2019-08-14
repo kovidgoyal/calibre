@@ -187,6 +187,7 @@ class ViewerBridge(Bridge):
     reload_book = from_js()
     toggle_toc = from_js()
     toggle_bookmarks = from_js()
+    toggle_inspector = from_js()
     update_current_toc_nodes = from_js(object, object)
     toggle_full_screen = from_js()
     report_cfi = from_js(object, object)
@@ -305,6 +306,7 @@ class WebView(RestartingWebEngineView):
     reload_book = pyqtSignal()
     toggle_toc = pyqtSignal()
     toggle_bookmarks = pyqtSignal()
+    toggle_inspector = pyqtSignal()
     update_current_toc_nodes = pyqtSignal(object, object)
     toggle_full_screen = pyqtSignal()
     ask_for_open = pyqtSignal(object)
@@ -325,6 +327,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.reload_book.connect(self.reload_book)
         self.bridge.toggle_toc.connect(self.toggle_toc)
         self.bridge.toggle_bookmarks.connect(self.toggle_bookmarks)
+        self.bridge.toggle_inspector.connect(self.toggle_inspector)
         self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
         self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
         self.bridge.ask_for_open.connect(self.ask_for_open)
@@ -337,7 +340,6 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
-            # QTimer.singleShot(300, lambda: (parent.inspector_dock.setVisible(True), parent.inspector_dock.setMinimumWidth(650)))
 
     def url_changed(self, url):
         if url.hasFragment():

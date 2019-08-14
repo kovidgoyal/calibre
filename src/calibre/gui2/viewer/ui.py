@@ -85,17 +85,24 @@ class EbookViewer(MainWindow):
         self.bookmarks_widget.activated.connect(self.bookmark_activated)
         self.bookmarks_dock.setWidget(w)
 
-        self.inspector_dock = create_dock(_('Inspector'), 'inspector', Qt.RightDockWidgetArea)
+        self.inspector_dock = create_dock(
+            _('Inspector'), 'inspector', Qt.RightDockWidgetArea, areas=Qt.AllDockWidgetAreas)
+
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
+        self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.restore_state()
+
+    def toggle_inspector(self):
+        visible = self.inspector_dock.toggleViewAction().isChecked()
+        self.inspector_dock.setVisible(not visible)
 
     # IPC {{{
     def handle_commandline_arg(self, arg):
@@ -290,6 +297,7 @@ class EbookViewer(MainWindow):
             self.restoreGeometry(geom)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
+            self.inspector_dock.setVisible(False)
 
     def closeEvent(self, ev):
         try:
