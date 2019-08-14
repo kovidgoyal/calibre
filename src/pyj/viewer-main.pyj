@@ -10,6 +10,7 @@ import initialize  # noqa: unused-import
 from ajax import ajax
 from book_list.globals import set_session_data
 from book_list.theme import get_color, get_font_family
+from book_list.library_data import library_data
 from dom import get_widget_css, set_css
 from modals import create_modal_container, error_dialog
 from qt import from_python, to_python
@@ -176,9 +177,10 @@ def create_session_data(prefs):
 
 
 @from_python
-def create_view(prefs, all_font_families):
+def create_view(prefs, all_font_families, field_metadata):
     nonlocal view
     runtime.all_font_families = all_font_families
+    library_data.field_metadata = field_metadata
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))

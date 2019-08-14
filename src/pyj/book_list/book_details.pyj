@@ -248,7 +248,10 @@ def render_metadata(mi, table, book_id):  # {{{
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             td = table.lastChild.lastChild
             for k in val:
-                lang = mi.lang_names[k] or k
+                if mi.lang_names:
+                    lang = mi.lang_names[k] or k
+                else:
+                    lang = k
                 td.appendChild(E.a(lang,
                     title=_('Click to see books with language: {}').format(lang),
                     href=href_for_search(field, k)

@@ -21,6 +21,7 @@ from calibre import as_unicode, prints
 from calibre.constants import (
     FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
 )
+from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.webengine import (
@@ -389,7 +390,7 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        self.bridge.create_view(vprefs['session_data'], QFontDatabase().families())
+        self.bridge.create_view(vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata())
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
