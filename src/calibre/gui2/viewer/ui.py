@@ -47,7 +47,7 @@ class EbookViewer(MainWindow):
     book_prepared = pyqtSignal(object, object)
     MAIN_WINDOW_STATE_VERSION = 1
 
-    def __init__(self):
+    def __init__(self, open_at=None, continue_reading=None):
         MainWindow.__init__(self, None)
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
@@ -99,6 +99,8 @@ class EbookViewer(MainWindow):
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.restore_state()
+        if continue_reading:
+            self.continue_reading()
 
     def toggle_inspector(self):
         visible = self.inspector_dock.toggleViewAction().isChecked()
@@ -181,9 +183,15 @@ class EbookViewer(MainWindow):
             path = files[0]
         self.load_ebook(path)
 
+    def continue_reading(self):
+        rl = vprefs['session_data'].get('standalone_recently_opened')
+        if rl:
+            entry = rl[0]
+            self.load_ebook(entry['pathtoebook'])
+
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         # TODO: Implement open_at
-        self.setWindowTitle(_('Loading book … — {}').format(self.base_window_title))
+        self.setWindowTitle(_('Loading book… — {}').format(self.base_window_title))
         self.web_view.show_preparing_message()
         self.save_annotations()
         self.current_book_data = {}

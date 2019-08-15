@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-# TODO: --open-at and --continue command line options
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
@@ -112,7 +110,8 @@ View an e-book.
         'The position at which to open the specified book. The position is '
         'a location as displayed in the top left corner of the viewer. '
         'Alternately, you can use the form toc:something and it will open '
-        'at the location of the first Table of Contents entry that contains the string "something".'))
+        'at the location of the first Table of Contents entry that contains '
+        'the string "something".'))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading at the previously opened book'))
 
@@ -154,7 +153,7 @@ def main(args=sys.argv):
     app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
-    main = EbookViewer()
+    main = EbookViewer(open_at=open_at, continue_reading=opts.continue_reading)
     main.set_exception_handler()
     if len(args) > 1:
         acc.events.append(args[-1])
