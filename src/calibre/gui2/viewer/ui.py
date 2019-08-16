@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
+# TODO: Change the help screen for the standalone viewer
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
@@ -49,6 +51,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None):
         MainWindow.__init__(self, None)
+        self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
@@ -190,7 +193,8 @@ class EbookViewer(MainWindow):
             self.load_ebook(entry['pathtoebook'])
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
-        # TODO: Implement open_at
+        if open_at:
+            self.pending_open_at = open_at
         self.setWindowTitle(_('Loading book… — {}').format(self.base_window_title))
         self.web_view.show_preparing_message()
         self.save_annotations()
@@ -215,6 +219,7 @@ class EbookViewer(MainWindow):
             self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at})
 
     def load_finished(self, ok, data):
+        open_at, self.pending_open_at = self.pending_open_at, None
         if not ok:
             self.setWindowTitle(self.base_window_title)
             error_dialog(self, _('Loading book failed'), _(
@@ -227,7 +232,14 @@ class EbookViewer(MainWindow):
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
         self.load_book_data()
         self.update_window_title()
-        self.web_view.start_book_load(initial_cfi=self.initial_cfi_for_current_book())
+        initial_cfi = self.initial_cfi_for_current_book()
+        initial_toc_node = None
+        if open_at:
+            if open_at.startswith('toc:'):
+                initial_toc_node = self.toc_model.node_id_for_text(open_at[len('toc:'):])
+            elif open_at.startswith('epubcfi(/'):
+                initial_cfi = open_at
+        self.web_view.start_book_load(initial_cfi=initial_cfi, initial_toc_node=initial_toc_node)
 
     def load_book_data(self):
         self.load_book_annotations()

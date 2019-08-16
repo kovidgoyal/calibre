@@ -396,9 +396,9 @@ class WebView(RestartingWebEngineView):
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
-    def start_book_load(self, initial_cfi=None):
+    def start_book_load(self, initial_cfi=None, initial_toc_node=None):
         key = (set_book_path.path,)
-        self.execute_when_ready('start_book_load', key, initial_cfi, set_book_path.pathtoebook)
+        self.execute_when_ready('start_book_load', key, initial_cfi, initial_toc_node, set_book_path.pathtoebook)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

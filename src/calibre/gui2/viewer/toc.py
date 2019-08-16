@@ -205,6 +205,10 @@ class TOC(QStandardItemModel):
             if primary_contains(query, item.text()):
                 yield item
 
+    def node_id_for_text(self, query):
+        for item in self.find_items(query):
+            return item.node_id
+
     def search(self, query):
         cq = self.current_query
         if cq['items'] and -1 < cq['index'] < len(cq['items']):

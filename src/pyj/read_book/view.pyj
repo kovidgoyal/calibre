@@ -427,7 +427,7 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book, initial_cfi):
+    def display_book(self, book, initial_cfi, initial_toc_node):
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
@@ -445,17 +445,24 @@ class View:
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
-        cfi = initial_cfi or None
-        q = parse_url_params()
-        if q.bookpos and q.bookpos.startswith('epubcfi(/'):
-            cfi = q.bookpos
-        elif book.last_read_position and book.last_read_position[unkey]:
-            cfi = book.last_read_position[unkey]
+        cfi = None
+        if initial_cfi and initial_cfi.startswith('epubcfi(/'):
+            cfi = initial_cfi
+        else:
+            q = parse_url_params()
+            if q.bookpos and q.bookpos.startswith('epubcfi(/'):
+                cfi = q.bookpos
+            elif book.last_read_position and book.last_read_position[unkey]:
+                cfi = book.last_read_position[unkey]
         cfiname, internal_cfi = self.parse_cfi(cfi, book)
         if cfiname and internal_cfi:
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
-        self.show_name(name, initial_position=pos)
+        navigated = False
+        if jstype(initial_toc_node) is 'number':
+            navigated = self.goto_toc_node(initial_toc_node)
+        if not navigated:
+            self.show_name(name, initial_position=pos)
         sd = get_session_data()
         c = sd.get('controls_help_shown_count', 0)
         if c < 1:
@@ -533,20 +540,25 @@ class View:
             if idx is -1:
                 error_dialog(_('Destination does not exist'), _(
                     'The file {} does not exist in this book').format(name))
-                return
+                return False
             self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
+        return True
 
     def goto_toc_node(self, node_id):
         toc = self.book.manifest.toc
+        found = False
 
         def process_node(x):
+            nonlocal found
             if x.id is node_id:
                 self.goto_named_destination(x.dest or '', x.frag or '')
+                found = True
                 return
             for c in x.children:
                 process_node(c)
         if toc:
             process_node(toc)
+        return found
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine

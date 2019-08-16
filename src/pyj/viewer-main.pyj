@@ -125,7 +125,7 @@ def show_error(title, msg, details):
     error_dialog(title, msg, details)
 
 
-def manifest_received(key, initial_cfi, pathtoebook, end_type, xhr, ev):
+def manifest_received(key, initial_cfi, initial_toc_node, pathtoebook, end_type, xhr, ev):
     nonlocal book
     if end_type is 'load':
         book = new_book(key, {})
@@ -137,7 +137,7 @@ def manifest_received(key, initial_cfi, pathtoebook, end_type, xhr, ev):
         book.is_complete = True
         v'delete book.manifest["metadata"]'
         v'delete book.manifest["last_read_positions"]'
-        view.display_book(book, initial_cfi)
+        view.display_book(book, initial_cfi, initial_toc_node)
     else:
         error_dialog(_('Could not open book'), _(
             'Failed to load book manifest, click "Show details" for more info'),
@@ -193,8 +193,8 @@ def show_preparing_message(msg):
 
 
 @from_python
-def start_book_load(key, initial_cfi, pathtoebook):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, pathtoebook), ok_code=0)
+def start_book_load(key, initial_cfi, initial_toc_node, pathtoebook):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, initial_toc_node, pathtoebook), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 

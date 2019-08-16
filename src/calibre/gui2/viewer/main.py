@@ -108,7 +108,7 @@ View an e-book.
                'full screen when started.'))
     a('--open-at', default=None, help=_(
         'The position at which to open the specified book. The position is '
-        'a location as displayed in the top left corner of the viewer. '
+        'a location you can get by using the Goto action in the viewer controls. '
         'Alternately, you can use the form toc:something and it will open '
         'at the location of the first Table of Contents entry that contains '
         'the string "something".'))
@@ -133,17 +133,13 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
 
-    open_at = None
-    if opts.open_at is not None:
-        if opts.open_at.startswith('toc:'):
-            open_at = opts.open_at
-        else:
-            open_at = float(opts.open_at.replace(',', '.'))
+    if opts.open_at and not (opts.open_at.startswith('toc:') or opts.open_at.startswith('epubcfi(/')):
+        raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
     listener = None
     if vprefs['singleinstance']:
         try:
-            listener = ensure_single_instance(args, open_at)
+            listener = ensure_single_instance(args, opts.open_at)
         except Exception as e:
             import traceback
             error_dialog(None, _('Failed to start viewer'), as_unicode(e), det_msg=traceback.format_exc(), show=True)
@@ -153,7 +149,7 @@ def main(args=sys.argv):
     app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
-    main = EbookViewer(open_at=open_at, continue_reading=opts.continue_reading)
+    main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading)
     main.set_exception_handler()
     if len(args) > 1:
         acc.events.append(args[-1])
