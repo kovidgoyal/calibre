@@ -520,7 +520,7 @@ class Overlay:
 
     def show_goto(self):
         self.hide_current_panel()
-        self.panels.push(TOCOverlay(self, create_goto_panel, _('Go to…')))
+        self.panels.push(TOCOverlay(self, create_goto_panel.bind(None, self.view.currently_showing.bookpos), _('Go to…')))
         self.show_current_panel()
 
     def show_search(self):

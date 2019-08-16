@@ -30,6 +30,7 @@ from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import html_escape, is_ios, parse_url_params, username_key
+from widgets import create_button
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -73,14 +74,14 @@ def show_controls_help():
     ))
 
 
-def show_metadata_overlay(mi):
+def setup_metadata_overlay(title):
     container = document.getElementById('book-metadata-overlay')
     clear(container)
     container.style.display = 'block'
     container.style.backgroundColor = get_color('window-background')
     container.appendChild(E.div(
         style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between;',
-            E.h2(mi.title),
+            E.h2(title),
             E.div(svgicon('close'), style='cursor:pointer', class_='simple-link', onclick=def(event):
                   event.preventDefault()
                   event.stopPropagation()
@@ -88,10 +89,57 @@ def show_metadata_overlay(mi):
             )
         )
     )
+    return container
+
+
+def show_metadata_overlay(mi):
+    container = setup_metadata_overlay(mi.title)
     container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
     table = E.table(class_='metadata')
     container.lastChild.appendChild(table)
     render_metadata(mi, table)
+
+
+def show_location_overlay(current_cfi):
+    container = setup_metadata_overlay(_('Go to location…'))
+    container_id = container.id
+    if current_cfi:
+        container.appendChild(E.div(
+            style='margin: 1rem; display: flex; align-items: baseline',
+            E.input(
+                type='text', readonly='readonly', value=_('Currently at: {}').format(current_cfi), name='current_location',
+                style='border-width: 0; background-color: transparent; outline: none; flex-grow: 10; font-family: inherit'
+            ),
+            create_button(_('Copy'), action=def():
+                src = document.querySelector(f'#{container_id} [name=current_location]')
+                orig = src.value
+                src.value = current_cfi
+                src.focus()
+                src.select()
+                try:
+                    document.execCommand('copy')
+                finally:
+                    src.value = orig
+                    src.blur()
+            )
+        ))
+    container.appendChild(E.div(
+        style='margin: 1rem;',
+        E.div(
+            style='display: flex; align-items: baseline',
+            E.label(_('Go to:'), style='margin-right: 1rem'),
+            E.input(name='newloc', type='text', style='flex-grow: 10; margin-right: 1rem'), E.span(' '),
+            create_button(_('Go'), action=def():
+                src = document.querySelector(f'#{container_id} [name=newloc]')
+                if src.value:
+                    if ui_operations.goto_bookpos(src.value):
+                        document.getElementById(container_id).style.display = 'none'
+                    else:
+                        error_dialog(_('No such location'), _(
+                            'No location {} found').format(src.value))
+            )
+        )
+    ))
 
 # }}}
 
@@ -122,6 +170,8 @@ class View:
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
+        self.report_cfi_callbacks = {}
+        self.show_chrome_counter = 0
         self.clock_timer_id = 0
         sd = get_session_data()
         left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
@@ -269,7 +319,12 @@ class View:
         self.content_popup_overlay.hide()
 
     def show_chrome(self):
+        self.show_chrome_counter += 1
+        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome)
+
+    def do_show_chrome(self, request_id, cfi_data):
         self.hide_overlays()
+        self.on_update_cfi(cfi_data)
         self.overlay.show()
 
     def show_search(self):
@@ -451,6 +506,9 @@ class View:
         mi = self.book.metadata
         show_metadata_overlay(mi)
 
+    def ask_for_location(self):
+        show_location_overlay(self.currently_showing.bookpos)
+
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
@@ -463,6 +521,8 @@ class View:
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
             self.show_name(name, initial_position=pos)
+            return True
+        return False
 
     def goto_named_destination(self, name, frag):
         if self.currently_showing.name is name:
@@ -507,12 +567,15 @@ class View:
         if toc_node:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
-    def get_current_cfi(self, request_id):
+    def get_current_cfi(self, request_id, callback):
+        self.report_cfi_callbacks[request_id] = callback
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
     def on_report_cfi(self, data):
-        ui_operations.report_cfi(
-            data.request_id, {'cfi': data.cfi, 'progress_frac': data.progress_frac, 'file_progress_frac': data.file_progress_frac})
+        cb = self.report_cfi_callbacks[data.request_id]
+        if cb:
+            cb(data.request_id, {'cfi': data.cfi, 'progress_frac': data.progress_frac, 'file_progress_frac': data.file_progress_frac})
+            v'delete self.report_cfi_callbacks[data.request_id]'
 
     def on_update_cfi(self, data):
         overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible

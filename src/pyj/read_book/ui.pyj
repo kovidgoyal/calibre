@@ -65,6 +65,7 @@ class ReadUI:
         ui_operations.forward_gesture = self.forward_gesture.bind(self)
         ui_operations.update_color_scheme = self.update_color_scheme.bind(self)
         ui_operations.update_font_size = self.update_font_size.bind(self)
+        ui_operations.goto_bookpos = self.goto_bookpos.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -153,6 +154,9 @@ class ReadUI:
 
     def update_font_size(self):
         self.view.update_font_size()
+
+    def goto_bookpos(self, bookpos):
+        return self.view.goto_bookpos(bookpos)
 
     def update_color_scheme(self):
         self.view.update_color_scheme()

@@ -11,7 +11,7 @@ from read_book.toc import get_toc_maps, get_border_nodes
 from read_book.globals import current_book
 
 
-def create_goto_list(onclick):
+def create_goto_list(onclick, current_cfi):
     ans = E.div()
     items = v'[]'
     landmarks = current_book().manifest.landmarks
@@ -25,6 +25,7 @@ def create_goto_list(onclick):
     items.push(create_item(_('Document start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
     items.push(create_item(_('Document end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
     items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view): view.show_book_metadata();)))
+    items.push(create_item(_('Location'), subtitle=current_cfi or None, action=onclick.bind(None, def(view): view.ask_for_location();)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
@@ -38,8 +39,8 @@ def get_next_section(forward):
     return after if forward else before
 
 
-def create_goto_panel(book, container, onclick):
-    panel = create_goto_list(onclick)
+def create_goto_panel(current_cfi, book, container, onclick):
+    panel = create_goto_list(onclick, current_cfi)
     set_css(container, display='flex', flex_direction='column')
     set_css(panel, flex_grow='10')
     container.appendChild(panel)
