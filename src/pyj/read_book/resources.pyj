@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from elementmaker import E
 from encodings import base64decode, utf8_decode
 
-from dom import clear
+from dom import clear, remove_all_attributes
 from read_book.globals import ui_operations
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
@@ -228,9 +228,11 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     tree = serialized_data.tree
     ns_map = serialized_data.ns_map
     html = tag_map[0]
+    remove_all_attributes(document.documentElement)
     apply_attributes(html, document.documentElement, ns_map)
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
+    remove_all_attributes(document.head, document.body)
     # Default stylesheet
     document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
     resource_urls = {}

@@ -59,11 +59,20 @@ def build_rule(selector, **kw):
     ans.push('}')
     return ans.join('\n') + '\n'
 
+
 def clear():
     for v'var i = 0; i < arguments.length; i++':
         node = arguments[i]
         while node.firstChild:
             node.removeChild(node.firstChild)
+
+
+def remove_all_attributes():
+    for v'var i = 0; i < arguments.length; i++':
+        node = arguments[i]
+        while node.attributes.length > 0:
+            node.removeAttribute(node.attributes[0].name)
+
 
 def create_keyframes(animation_name, *frames):
     ans = v'[]'
