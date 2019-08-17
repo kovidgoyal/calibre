@@ -95,7 +95,7 @@ class DeleteBook:  # {{{
             return
         self.show_working()
         view = self.overlay.view
-        view.ui.db.delete_book(view.book, def(book, errmsg):
+        ui_operations.delete_book(view.book, def(book, errmsg):
             self.overlay.hide_current_panel()
             if errmsg:
                 view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
