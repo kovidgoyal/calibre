@@ -1,0 +1,1008 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2019
+# Works only with EPUB format !
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import lxml
+from cgi import escape as html_escape
+from tempfile import mkstemp
+
+from mechanize import Request
+
+from calibre import random_user_agent
+from calibre.web.feeds.news import BasicNewsRecipe
+from css_selectors import Select
+from lxml.html.builder import HEAD, TITLE, STYLE, TABLE, HR, A, TD, HTML, BODY, TR, DIV, BR
+
+from re import compile, IGNORECASE
+
+from calibre.web.feeds import templates
+
+class NavBarTemplate(templates.Template):
+
+    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
+                 two_levels, url, __appname__, prefix='', center=True,
+                 extra_css=None, style=None):
+        CLASS = templates.CLASS
+        head = HEAD(TITLE('navbar'))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
+
+        if prefix and not prefix.endswith('/'):
+            prefix += '/'
+        align = 'center' if center else 'left'
+
+        navbar = DIV(CLASS('calibre_navbar', 'calibre_rescale_70',
+            style='text-align:'+align))
+        if bottom:
+            if not url.startswith('file://'):
+                navbar.append(HR())
+                #text = 'This article was downloaded by '
+                #p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
+                #        style='text-align:left; max-width: 100%; overflow: hidden;')
+                #p[0].tail = ' from '
+                #navbar.append(p)
+                #navbar.append(BR())
+            navbar.append(BR())
+        else:
+            next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
+                    else 'article_%d'%(art+1)
+            up = '../..' if art == number_of_articles_in_feed - 1 else '..'
+            href = '%s%s/%s/index.html'%(prefix, up, next)
+            navbar.text = '| '
+            navbar.append(A(_('Next'), href=href))
+        href = '%s../index.html#article_%d'%(prefix, art)
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        navbar.append(A(_('Section menu'), href=href))
+        href = '%s../../index.html#feed_%d'%(prefix, feed)
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        navbar.append(A(_('Main menu'), href=href))
+        if art > 0 and not bottom:
+            href = '%s../article_%d/index.html'%(prefix, art-1)
+            navbar.iterchildren(reversed=True).next().tail = ' | '
+            navbar.append(A(_('Previous'), href=href))
+        navbar.iterchildren(reversed=True).next().tail = ' | '
+        if not bottom:
+            navbar.append(HR())
+
+        self.root = HTML(head, BODY(navbar))
+
+
+class TouchscreenNavBarTemplate(templates.Template):
+
+    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
+                 two_levels, url, __appname__, prefix='', center=True,
+                 extra_css=None, style=None):
+        CLASS = templates.CLASS
+        head = HEAD(TITLE('navbar'))
+        if style:
+            head.append(STYLE(style, type='text/css'))
+        if extra_css:
+            head.append(STYLE(extra_css, type='text/css'))
+
+        navbar = DIV()
+        navbar_t = TABLE(CLASS('touchscreen_navbar'))
+        navbar_tr = TR()
+
+        if bottom and not url.startswith('file://'):
+            navbar.append(HR())
+            #text = 'This article was downloaded by '
+            #p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
+            #        style='text-align:left; max-width: 100%; overflow: hidden;')
+            #p[0].tail = ' from '
+            #navbar.append(p)
+            #navbar.append(BR())
+        # | Previous
+        if art > 0:
+            link = A(CLASS('article_link'),_('Previous'),href='%s../article_%d/index.html'%(prefix, art-1))
+        else:
+            link = ''
+        navbar_tr.append(TD(CLASS('article_prev'),''))
+
+        # | Articles | Sections |
+        link = A(CLASS('articles_link'),_('Articles'), href='%s../index.html#article_%d'%(prefix, art))
+        navbar_tr.append(TD(CLASS('article_articles_list'),link))
+
+        link = A(CLASS('sections_link'),_('Sections'), href='%s../../index.html#feed_%d'%(prefix, feed))
+        navbar_tr.append(TD(CLASS('article_sections_list'),link))
+
+        # | Next
+        next = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
+                else 'article_%d'%(art+1)
+        up = '../..' if art == number_of_articles_in_feed - 1 else '..'
+
+        link = A(CLASS('article_link'), _('Next'), href='%s%s/%s/index.html'%(prefix, up, next))
+        navbar_tr.append(TD(CLASS('article_next'),link))
+        navbar_t.append(navbar_tr)
+        navbar.append(navbar_t)
+
+        self.root = HTML(head, BODY(navbar))
+
+prepositions = u'a aby bez beze dla do jako\
+                ku między mimo na nad nade niby\
+                o obok od ode około oprócz\
+                po pod podczas pode pomiędzy\
+                pomimo ponad poniżej poprzez\
+                pośród powyżej poza prócz\
+                przed przede przez przeze\
+                przy spod spode spośród spoza\
+                sprzed u w wbrew we wedle\
+                według wewnątrz wobec wokół\
+                wraz wskutek wśród wzdłuż\
+                względem z za ze znad znade zza\
+                oraz i nie np. że'.split()
+
+regex = compile(
+    ur'\b((' + u'|'.join(prepositions) + ur')\s+)',
+    flags=IGNORECASE,
+)
+
+def insert_nbsp(string):
+    return regex.sub(r'\2&nbsp;', string)
+
+def join_ts(elements):
+    result = []
+    was_text = False
+    for elem in elements:
+        tag = elem[0]
+        if tag == 'text':
+            if was_text:
+                if elem[1][0] in '.;,?!':
+                    to_add = elem[1]
+                else:
+                    to_add = ' ' + elem[1]
+                result[-1] = (result[-1][0], result[-1][1] + to_add, result[-1][2])
+                continue
+            was_text = True
+        else:
+            was_text = False
+        result.append(elem)
+    return result
+
+def map_to_tags(items):
+    mapping = {'text': 'span'}
+    result = [
+        (
+            mapping.get(item[0], item[0]),
+            item[1],
+            item[2],
+        ) for item in items
+    ]
+    return result
+
+class Bible(BasicNewsRecipe):
+
+    title = 'Biblia Tysiąclecia'
+    description = 'Pismo Święte Starego i Nowego Testamentu'
+    language = 'pl'
+
+    timefmt = ' '# [%a, %b %d, %Y]'
+    #no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    #remove_attributes = ['style', 'data-scrim']
+    simultaneous_downloads = 1
+
+    BASE_URL = 'http://biblia.deon.pl/'
+
+    remove_tags = [
+    ]
+    
+    errata = {  
+        'gi (<a href="otworz.php?skrot=Est 10,4">Est 10,4-16,24</a>)' : 'gi (<a href="otworz.php?skrot=Est 10,3l">Est 10,4-16,24</a>)',  
+        '<a href="otworz.php?skrot=Jl 3,15">Jl 3,15</a> ' : '<a href="otworz.php?skrot=Jl 3,5">Jl 3,5</a> ',
+        '<werset nr="50 />' : '<a name="W50"></a><span class="werset">50&nbsp;</span>',
+        '<werset nr=43"/>' : '<a name="W43"></a><span class="werset">43&nbsp;</span>',
+        'przed Panem. <div class="initial-letter">4</div><a name="W1"></a><span class="werset">1&nbsp;</span>16 Namaszczony' : 'przed Panem. <a name="W16"></a><span class="werset">16&nbsp;</span> Namaszczony',
+        '<werset nr="26" Kap' : '<a name="W26"></a><span class="werset">26&nbsp;</span>Kap',
+        '<werset nr="6" Wojsko' : '<a name="W6"></a><span class="werset">6&nbsp;</span>Wojsko',
+        'jeden drugiego. 12 Nie' : 'jeden drugiego. <a name="W12"></a><span class="werset">12&nbsp;</span> Nie',
+        '. 19 Ktokolwiek skaleczy' : '. <a name="W19"></a><span class="werset">19&nbsp;</span> Ktokolwiek skaleczy',
+        'usuniecie dawne [zapasy]. 11' : 'usuniecie dawne [zapasy]. <a name="W11"></a><span class="werset">11&nbsp;</span>',
+        'syn Enana. 28 Taki' : 'syn Enana. <a name="W28"></a><span class="werset">28&nbsp;</span> Taki',
+        '. 14 Cokolwiek' : '. <a name="W14"></a><span class="werset">14&nbsp;</span> Cokolwiek',
+        '<skrot cel="w. 34">'   :   '<a class="skrot" href="otworz.php?skrot=Lb 22,34">',
+        '<skrot cel="Ps 78[77],3n">Ps 78,3</a>' : 'Ps 78,3',
+        '<a href="otworz.php?skrot=Ps 77,25" class="skrot">Ps 77,25</a>' : 'Ps 77,25',
+        '<skrot cel="Wj 9,23n">Wj 9,23n</a>' : '<a class="skrot" href="otworz.php?skrot=Wj 9,23">Wj 9,23n</a>',
+        'Horebu do Kadesz-Barnea. <a name="W4"></a><span class="werset">4&nbsp;</span>'  : 'Horebu do Kadesz-Barnea. <a name="W3"></a><span class="werset">3&nbsp;</span>',
+        '<a name="W5"></a><span class="werset">5&nbsp;</span>Po pokonaniu Sichona' :   '<a name="W4"></a><span class="werset">4&nbsp;</span>Po pokonaniu Sichona',
+        ' sobie zbudujesz. 22 Nie postawisz steli' :  ' sobie zbudujesz. <a name="W22"></a><span class="werset">22&nbsp;</span> Nie postawisz steli',
+        '<skrot cel="Mk 2,13-17">' : '<a href="otworz.php?skrot=Mk 2,13" class="skrot">',
+        '<skrot cel="Łk 12,58n">Łk 12,58n</a>' : '<skrot cel="Łk 12,58">Łk 12,58n</a>',
+        '<przypis rozdzial="9" werset="" wyswietlanie="9,36">' : '<a class="przypis" href="/rozdzial.php?id=252#W36"><b>Mt 9, 36</b></a>',
+        'Ludzie z Niniwy<przypis nr="*" />' : 'Ludzie z Niniwy<sup><a href="/rozdzial.php?id=255#P15" class="przypis">15</a></sup>',
+        '<br />\r\nUzdrowienie w szabat<sup>' : '<div class=miedzytytul1>Uzdrowienie w szabat</div><sup>',
+        '<przypis rozdzial="13" werset="" wyswietlanie="13,3">' : '<a class="przypis" href="/rozdzial.php?id=256#W3"><b>Mt 13, 3</b></a>',
+        'braciom<sup><a href="/rozdzial.php?id=256#P17" class="przypis">17</a>' : 'braciom<sup><a href="/rozdzial.php?id=256#P16" class="przypis">16</a>',
+        'zmartwychwstania<sup><a href="/rozdzial.php?id=260#P11" class="przypis">11</a>' : 'zmartwychwstania<sup><a href="/rozdzial.php?id=260#P10" class="przypis">10</a>',
+        'i postem&gt;&raquo;<sup><a href="/rozdzial.php?id=260#P10" class="przypis">10</a>' : 'i postem&gt;&raquo;<sup><a href="/rozdzial.php?id=260#P9" class="przypis">9</a>',
+        '<przypis rozdzial="2" werset="" wyswietlanie="2,26">' : '<a class="przypis" href="/rozdzial.php?id=268#W26"><b>Mk 2, 26</b></a>',
+        'niebieskich<sup><a href="/rozdzial.php?id=269#P12" class="przypis">12</a>'  :   'niebieskich<sup><a href="/rozdzial.php?id=269#P11" class="przypis">11</a>',
+        '<a href="/rozdzial.php?id=269#P13" class="przypis">13</a></sup> o głosie' : '<a href="/rozdzial.php?id=269#P12" class="przypis">12</a></sup> o głosie',
+        'wybranych<sup><a href="/rozdzial.php?id=269#P13" class="przypis">13</a>'  :  'wybranych<sup><a href="/rozdzial.php?id=269#P12" class="przypis">12</a>',
+        'figowego<sup><a href="/rozdzial.php?id=269#P14" class="przypis">14</a>' :   'figowego<sup><a href="/rozdzial.php?id=269#P13" class="przypis">13</a>',
+        'stanie<sup><a href="/rozdzial.php?id=269#P15" class="przypis">15</a>'  :   'stanie<sup><a href="/rozdzial.php?id=269#P14" class="przypis">14</a>',
+        'cia<sup><a href="/rozdzial.php?id=269#P16" class="przypis">16</a>'   :   'cia<sup><a href="/rozdzial.php?id=269#P15" class="przypis">15</a>',
+        'ci<sup><a href="/rozdzial.php?id=269#P17" class="przypis">17</a>'  : 'ci<sup><a href="/rozdzial.php?id=269#P16" class="przypis">16</a>',
+        'niewiernym<sup><a href="/rozdzial.php?id=269#P18" class="przypis">18</a>'   : 'niewiernym<sup><a href="/rozdzial.php?id=269#P17" class="przypis">17</a>',
+        '<a href="/rozdzial.php?id=269#P19" class="przypis">19</a></sup> i z' :   '<a href="/rozdzial.php?id=269#P18" class="przypis">18</a></sup> i z',  
+        '<a href="otworz.php?skrot=Syr 16,15" class="skrot">Syr 16,15</a>' : '<a href="otworz.php?skrot=Syr 16,14" class="skrot">Syr 16,15</a>',     
+        'Bee<l>zebul' : 'Bee(l)zebul',
+        '<skrot cel="Iz 6,9n">' : '<a href="otworz.php?skrot=Iz 6,9" class="skrot">',
+        '<skrot cel=" Łk 9,18">' : '<a href="otworz.php?skrot=Łk 9,18" class="skrot">',
+        '<przypis rozdzial="2" werset="" wyswietlanie="2,7">' : '<a class="przypis" href="/rozdzial.php?id=317#W7"><b>Łk 2, 7</b></a>',
+        '<skrot cel="ADRES">Mt 3,1-6</a>' : '<a href="otworz.php?skrot=Mt 3,1" class="skrot">Mt 3, 1-6</a>',
+        '9 A gdy schodzili z g' : '<a name="W9"></a><span class="werset">9&nbsp;</span> A gdy schodzili z g',
+        '7, 27</b></a> -  Ml 3,1' :  '7, 27</b></a> -  <a href="otworz.php?skrot=Ml 3,1" class="skrot">Ml 3,1</a>',       
+        'Kobieta cierpiąca na krwotok<przypis nr="10*" />' : 'Kobieta cierpiąca na krwotok<sup><a href="/rozdzial.php?id=323#P10" class="przypis">10</a></sup>',
+        'Wybrany<przypis nr="*11" />, Jego' : 'Wybrany<sup><a href="/rozdzial.php?id=324#P11" class="przypis">11</a></sup>, Jego',
+        'blaskiem&raquo;<sup><a href="/rozdzial.php?id=326#P13" class="przypis">13</a>' : 'blaskiem&raquo;<sup><a href="/rozdzial.php?id=326#P12" class="przypis">12</a>',
+        'w<sup><a href="/rozdzial.php?id=326#P14" class="przypis">14</a>' : 'w<sup><a href="/rozdzial.php?id=326#P13" class="przypis">13</a>',
+        'z Prawa<sup><a href="/rozdzial.php?id=331#P9" class="przypis">9</a></sup>.' : 'z Prawa<sup><a href="/rozdzial.php?id=331#P8" class="przypis">8</a></sup>.',
+        'stwa<sup><a href="/rozdzial.php?id=331#P10" class="przypis">10</a>' : 'stwa<sup><a href="/rozdzial.php?id=331#P9" class="przypis">9</a>',
+        '<skrot cel="16,5">' : '<a href="otworz.php?skrot=Mt 16,5" class="skrot">',    
+        '<skrot cel="Łk 10,38-42">' : '<a class="skrot" href="otworz.php?skrot=Łk 10,38">',
+        'atem<przypis nr="1">' : 'atem<sup><a href="/rozdzial.php?id=338#P1" class="przypis">1</a></sup>',    
+        '<przypis rozdzial="23" werset="1" wyswietlanie="23,1-6.13-16">' : '<a class="przypis" href="/rozdzial.php?id=338#W1"><b>Łk 23,1-6.13-16</b></a>',
+        '<przypis rozdzial="1" werset="16" wyswietlanie=" 1,16"> Tzn.' : '<a class="przypis" href="/rozdzial.php?id=340#W16"><b>J 1,16</b></a> Tzn.',
+        '<a href="otworz.php?skrot=Iz 34,20" class="skrot">Iz 34,20</a>;' : '<a href="otworz.php?skrot=Iz 43,20" class="skrot">Iz 43,20</a>;',
+        'przebili<sup><a href="/rozdzial.php?id=358#P17" class="przypis">17</a>' : 'przebili<sup><a href="/rozdzial.php?id=358#P14" class="przypis">14</a>',
+        '<div class=miedzytytul1>Pogrzeb Jezusa<sup><a href="/rozdzial.php?id=358#P18" class="przypis">18</a>' : '<div class=miedzytytul1>Pogrzeb Jezusa<sup><a href="/rozdzial.php?id=358#P15" class="przypis">15</a>',
+        'wiemy <sup><a href="/rozdzial.php?id=359#P3" class="przypis">3</a></sup>' : 'wiemy ',
+        'miejscu<sup><a href="/rozdzial.php?id=359#P4" class="przypis">4</a>' : 'miejscu<sup><a href="/rozdzial.php?id=359#P3" class="przypis">3</a>', 
+        'martwych<sup><a href="/rozdzial.php?id=359#P5" class="przypis">5</a>' : 'martwych<sup><a href="/rozdzial.php?id=359#P4" class="przypis">4</a>',
+        '<a href="/rozdzial.php?id=359#P6" class="przypis">6</a></sup> Maria' : '<a href="/rozdzial.php?id=359#P5" class="przypis">5</a></sup> Maria',
+        '<a href="/rozdzial.php?id=359#P7" class="przypis">7</a></sup>,' : '<a href="/rozdzial.php?id=359#P6" class="przypis">6</a></sup>,',
+        '<a href="/rozdzial.php?id=359#P8" class="przypis">8</a>' : '<a href="/rozdzial.php?id=359#P7" class="przypis">7</a>',
+        'Pana i to mi<przypis nr="" /> powiedzia' : 'Pana i to mi<sup><a href="/rozdzial.php?id=359#P8" class="przypis">8</a></sup> powiedzia',
+        '<przypis rozdzial="18" werset="12" wyswietlanie="18,12nn.19-31">' : '<a class="przypis" href="/rozdzial.php?id=357#W12"><b>J 18, 12</b></a>',
+        'obietnicy<przypis nr="" /> Ojca' : 'obietnicy<sup><a href="/rozdzial.php?id=378#P4" class="przypis">4</a></sup> Ojca',
+        'i Juda, [brat] Jakuba<przypis nr="" />.' : 'i Juda, [brat] Jakuba<sup><a href="/rozdzial.php?id=378#P7" class="przypis">7</a></sup>.',
+        '<skrot cel=J 4,38">' : '<a href="otworz.php?skrot=J 4,38" class="skrot">',
+        '<skrot cel="J 7,19-23">' : '<a class="skrot" href="otworz.php?skrot=J 7,19">',
+        '<skrot cel="Por. Ga 3,8">' : '<a href="otworz.php?skrot=Ga 3,8" class="skrot">',
+        '<skrot cel="J 1,20.27">' : '<a href="otworz.php?skrot=J 1,20" class="skrot">',
+        '<skrot cel="Ps Oz 5,15">Ps Oz 5,15' : '<a href="otworz.php?skrot=Oz 5,15" class="skrot">Oz 5, 15',
+        '<przypis rozdzial="38" werset="1" wyswietlanie="38,1-41,26">' : '<a class="przypis" href="/rozdzial.php?id=468#W1"><b>Hi 38, 1</b></a>',
+        'syro-efraimskiej (\',' :  'syro-efraimskiej (735/4),',
+        '<a href="otworz.php?skrot=J 20,40" class="skrot">J 20,40</a>;' : '<a href="otworz.php?skrot=J 12,40" class="skrot">J 12,40</a>;',
+        '<a class="przypis" href="/rozdzial.php?id=480#W23a">' : '<a class="przypis" href="/rozdzial.php?id=480#W23">',
+        '<przypis rozdzial="9" werset="7" wyswietlanie="9,7-10,4">' : '<a class="przypis" href="/rozdzial.php?id=481#W7"><b>Iz 9, 7</b></a>',
+        '<skrot cel="Wg J 18,12">Wg J 18,12n' : 'Wg <a href="otworz.php?skrot=J 18,12" class="skrot">J 18, 12n',
+        'Teofilu<sup><a href="/rozdzial.php?id=378#P2" class="przypis">2</a></sup>' : 'Teofilu',
+        '<skrot cel="Iz 55,3>' : '<a href="otworz.php?skrot=Iz 55,3" class="skrot">',
+        '1 <a href="otworz.php?skrot=Kor 8,1" class="skrot">Kor 8,1-13</a>' : '<a href="otworz.php?skrot=1 Kor 8,1" class="skrot">1 Kor 8, 1-13</a>',
+        '<przypis rozdzial="37" werset="12" wyswietlanie="37,12n.">' : '<a class="przypis" href="/rozdzial.php?id=509#W11"><b>Iz 37, 12</b></a>',
+        '<span class="werset">41,6</span> Pomaga':'<a name="W41"></a><a name="W41,6"></a><span class="werset">41,6&nbsp;</span> Pomaga',
+        '<span class="werset">41,7</span> Ludwisarz' : '<a name="W41,7"></a><span class="werset">41,7&nbsp;</span> Ludwisarz',
+        '<a href="otworz.php?skrot=Iz 41,6" class="skrot">Iz 41,6n</a>' : '<a href="otworz.php?skrot=Iz 40,41" class="skrot">Iz 40,41,6n</a>',
+        '<skrot cel="96,1">96[95]' : '<a href="otworz.php?skrot=Ps 96,1" class="skrot">Ps 96[95]',
+        '<skrot cel="(Pnp 8,13">(Pnp 8,13n' : '(<a href="otworz.php?skrot=Pnp 8,13" class="skrot">Pnp 8,13n',
+        '<przypis rozdzial="22" werset="17" wyswietlanie="22,17-24,34">' : '<a class="przypis" href="/rozdzial.php?id=560#W17"><b>Prz 22, 17</b></a>',
+        '1 <a href="otworz.php?skrot=Krl 6,1" class="skrot">Krl 6,1</a>' : '<a href="otworz.php?skrot=1 Krl 6,1" class="skrot">1 Krl 6,1</a>',
+        '<skrot cel="Pnp 4,1 c">' : '<a href="otworz.php?skrot=Pnp 4,1" class="skrot">',
+        '(por<skrot cel="">. Pwt 22,29' : '(por. <a href="otworz.php?skrot=Pwt 22,29" class="skrot">Pwt 22, 29',
+        '<skrot cel="Hbr 11,34a">' : '<a href="otworz.php?skrot=Hbr 11,34" class="skrot">',
+        'oznaczenie: <a href="otworz.php?skrot=Syr 6,1" class="skrot">Syr 6,1</a>.' : ' oznaczenie: Syr 6,1.',
+        '<przypis rozdzial="31" werset="27" wyswietlanie="31,27 c">' : '<a class="przypis" href="/rozdzial.php?id=621#W27"><b>Syr 31, 27c</b></a>',
+        'syn Oniasza II (\',5"> Por.'  : 'syn Oniasza II (220-195)<br></p><p><a name="P2"></a><a class="przypis" href="/rozdzial.php?id=640#W5"><b>Syr 50, 5</b></a>  Por.',
+        '16,1</a>]. <br></p><p><a name="P2"></a>' :  '16,1</a>]. <br></p><p><a name="P3"></a>',
+        'Syr 50, 6</b></a> - Wyraz dodany wg hebr. <br></p><p><a name="P3"></a>' : 'Syr 50, 6</b></a> -  Wyraz dodany wg hebr. <br></p><p><a name="P4"></a>',       
+        'Zob. <a href="otworz.php?skrot=Prz 30,15" class="skrot">Prz 30,15</a>. <br></p><p><a name="P4"></a>' : 'Zob. <a href="otworz.php?skrot=Prz 30,15" class="skrot">Prz 30,15</a>. <br></p><p>', #640
+        'wypraw faraona Neko (\',4">' : 'wypraw faraona Neko (609/608 ?) lub Chofry. <br></p><p><a name="P2"></a><a class="przypis" href="/rozdzial.php?id=688#W4"><b>Jr 47, 4</b></a>​',
+        'miasta Aszdod. <br></p><p><a name="P3"></a>' : 'miasta Aszdod. <br></p><p>',
+        'd przybyli. <br></p><p><a name="P2"></a>' : 'd przybyli. <br></p><p><a name="P3"></a>',
+        '<a href="otworz.php?skrot=Iz 15,17" class="skrot">Iz 15,17</a>' : '<a href="otworz.php?skrot=Iz 15,7" class="skrot">Iz 15,7</a>',
+        'Iz <skrot cel="5,1">' : '<a href="otworz.php?skrot=Iz 5,1" class="skrot">Iz ',
+        '<a href="otworz.php?skrot=Hi 51,52" class="skrot">Hi 51,52</a>' : 'Hi 51,52',
+        '<przypis rozdzial="4" werset="1" wyswietlanie="4,1-5,17">' : '<a class="przypis" href="/rozdzial.php?id=708#W1"><b>Ez 4, 1-5,17</b></a>',
+        '<skrot cel="Ne 3,27n">' : '<a class="skrot" href="otworz.php?skrot=Ne 3,27">',
+        '<przypis rozdzial="1" werset="9c" wyswietlanie="1,9c">' : '<a class="przypis" href="/rozdzial.php?id=806#W9c"><b>Na 1, 9c</b></a>',
+        '[-><a href="otworz.php?skrot=Ezd 34,1" class="skrot">Ezd 34,1</a>]' : '',
+        '<a class="przypis" href="/rozdzial.php?id=810#W7"><b>Ha 2, 7</b></a>' : '<a class="przypis" href="/rozdzial.php?id=810#W6"><b>Ha 2, 6</b></a>', 
+        'na miejsce <a href="otworz.php?skrot=Ez 2,18" class="skrot">Ez 2,18</a>' : 'na miejsce <a href="otworz.php?skrot=Ha 2,18" class="skrot">Ha 2,18</a>',
+        'Pokoju - <a href="otworz.php?skrot=Za 3,14" class="skrot">Za 3,14-17</a>' : 'Pokoju - <a href="otworz.php?skrot=Za 2,14" class="skrot">Za 2,14-17</a>',
+        '<skrot cel="do Ps 17,12">do ' : '<a class="skrot" href="otworz.php?skrot=Ps 17,12">',
+        '<skrot cel="do Ps 22,4">do ' : '<a class="skrot" href="otworz.php?skrot=Ps 22,4">',
+        '<werset nr="[18]" />' : '',  '<werset nr="[19]" />' : '',  '<werset nr="[20]" />' : '',  '<werset nr="[21]" />' : '', 
+        '<werset nr="[22]" />' : '',  '<werset nr="[23]" />' : '',  '<werset nr="[24]" />' : '',  '<werset nr="[25]" />' : '', 
+        '<werset nr="[26]" />' : '',  '<werset nr="[27]" />' : '',  '<werset nr="[28]" />' : '',  '<werset nr="[29]" />' : '', '<werset nr="[30]" />' : '',  
+        '<a href="otworz.php?skrot=Iz 46,17" class="skrot">Iz 46,17n</a>' : 'Iz 46,17n',       
+        'Ps <skrot cel="72,1">' :  '<a href="otworz.php?skrot=Ps 72,1" class="skrot">Ps ',
+        '<a href="otworz.php?skrot=Ps 9,25" class="skrot">Ps 9,25.32</a>' : 'Ps 9,25.32',
+        '<a href="otworz.php?skrot=Ps 23,17" class="skrot">Ps 23[22],17</a>' : '<a href="otworz.php?skrot=Ps 23,1" class="skrot">Ps 23[22],1</a>',
+        'Ps <skrot cel="105,1">'  :'<a href="otworz.php?skrot=Ps 105,1" class="skrot">Ps ',
+        '<a href="otworz.php?skrot=1QS 6,6" class="skrot">1QS 6,6</a>' : '1QS 6,6',
+        'Ps <skrot cel="60,1">' : '<a href="otworz.php?skrot=Ps 60,1" class="skrot">Ps ',
+        '<a href="otworz.php?skrot=Ps 9,28" class="skrot">Ps 9,28</a>' : 'Ps 9,28',
+        '<a href="otworz.php?skrot=Wj 23,36" class="skrot">Wj 23,36</a>' : '<a href="otworz.php?skrot=Wj 23,26" class="skrot">Wj 23,26</a>',
+        '    20 Jeśliby ktoś'   : ' <a name="W20"></a><span class="werset">20&nbsp;</span> Jeśliby ktoś',
+        '<a class="przypis" href="/rozdzial.php?id=996#W21"><b>2 Kor 2, 12</b>' : '<a class="przypis" href="/rozdzial.php?id=996#W12"><b>2 Kor 2, 12</b>',
+        '<a href="otworz.php?skrot=Wj 3,34" class="skrot">Wj 3,34</a>' : '<a href="otworz.php?skrot=Wj 34,34" class="skrot">Wj 34,34</a>',
+        '<a href="otworz.php?skrot=2 Sm 12,35" class="skrot">' : '<a href="otworz.php?skrot=2 Sm 12,25" class="skrot">',
+        '<a href="otworz.php?skrot=Ag 1,7" class="skrot">Ag 1,7-11</a>' : '<a href="otworz.php?skrot=Ag 1,7a" class="skrot">Ag 1,7a-11</a>',
+        '<przypis rozdzial="1" werset="1" wyswietlanie="1,1">O źródle miłości</przypis>' : '<br><div class=miedzytytul1>O źródle miłości</div><br />',
+        '<przypis rozdzial="2" werset="11" wyswietlanie="2,11">' : '<a class="przypis" href="/rozdzial.php?id=1005#W11"><b>2 Tes 2, 11</b></a>',
+        '<przypis rozdzial="2" werset="13" yswietlanie="2,13">' : '<a class="przypis" href="/rozdzial.php?id=1005#W13"><b>2 Tes 2, 13</b></a>',
+        '<skrot cel="2 Tm 16">' : '<a href="otworz.php?skrot=2 Tm 2,16" class="skrot">',
+        '<skrot cel="2 Tes 2,9.11">':'<a href="otworz.php?skrot=2 Tes 2,9" class="skrot">',
+        '<werset nr=" 5" />':'<a name="W5"></a><span class="werset">5&nbsp;</span>',
+        '<skrot cel="Za 4,3>' : '<a href="otworz.php?skrot=Za 4,3" class="skrot">',
+        '<a href="otworz.php?skrot=Jr 5,14" class="skrot">Jr 5,14a</a>' : '<a href="otworz.php?skrot=Jr 5,14a" class="skrot">Jr 5,14a</a>',
+        '<a href="otworz.php?skrot=Jud 0,11" class="skrot">Jud 0,11</a>' : '<a href="otworz.php?skrot=Jud 1,11" class="skrot">Jud 11</a>',
+        '<skrot cel=" Ap 11,2.11">' : ' <a href="otworz.php?skrot=Ap 11,2" class="skrot">',        
+        '<skrot cel="13,5">Ap 13,5' : '<a href="otworz.php?skrot=Ap 13,5" class="skrot">Ap 13,5',
+        '<Oto przyjdę jak złodziej:' : '&lt;Oto przyjdę jak złodziej:',
+        '<werset nr="<a name=" W10"></a><span class="werset">10&nbsp;</span>"/>': '<a name="W10"></a><span class="werset">10&nbsp;</span>',
+        '<skrot cel="Oz 2,1]">' : '<a href="otworz.php?skrot=Oz 2,1" class="skrot" >',
+        ' stosujmy. 26 Nie szukajmy'  : ' stosujmy. <a name="W26"></a><span class="werset">26&nbsp;</span> Nie szukajmy',   
+        '<a href="otworz.php?skrot=2 Kor 5,24" class="skrot">2 Kor 5,24</a>;' : '<a href="otworz.php?skrot=2 Kor 5,21" class="skrot">2 Kor 5,21</a>; ',    
+        '<przypis rozdzial="21" werset="9" wyswietlanie="21,9-22,15">' : '<a class="przypis" href="/rozdzial.php?id=1109#W9"><b>Ap 21,9-22,15</b></a>',
+        '<przypis rozdzial="3" werset="1" wyswietlanie="3,1-4,18">' : '<a class="przypis" href="/rozdzial.php?id=1115#W1"><b>Joz 3,1-4,18</b></a>',
+        '<przypis rozdzial="14" werset="1" wyswietlanie="14,1-19,51">' : '<a class="przypis" href="/rozdzial.php?id=1126#W1"><b>Joz 14,1-19,51</b></a>',
+        '<przypis rozdzial="4" werset="1" wyswietlanie="4,1-5,31">' : '<a class="przypis" href="/rozdzial.php?id=1140#W1"><b>Sdz 4,1-5,31</b></a>',
+        '<przypis rozdzial="13" werset="1" wyswietlanie="13,1-16,31">' : '<a class="przypis" href="/rozdzial.php?id=1149#W1"><b>Sdz 13,1-16,31</b></a>',
+        '<przypis rozdzial="17" werset="1" wyswietlanie="17,1-18,26">' : '<a class="przypis" href="/rozdzial.php?id=1153#W1"><b>Sdz 17,1-18,26</b></a>',
+        '<przypis rozdzial="4" werset="1" wyswietlanie="4,1-7,1">' : '<a class="przypis" href="/rozdzial.php?id=1187#W1"><b>1 Sm 4,1-7,1</b></a>',
+        '<przypis rozdzial="21" werset="16" wyswietlanie="21,16.18.20">' : '<a class="przypis" href="/rozdzial.php?id=1206#W16"><b>2 Sm 21,16.18.20</b></a>',
+        '<skrot cel="5,7">' : '<a href="otworz.php?skrot=1 Krl 5,7" class="skrot">',
+        '<przypis rozdzial="18" werset="17" wyswietlanie="18,17-20,19">' : '<a class="przypis" href="/rozdzial.php?id=1248#W17"><b>2 Krl 18,17-20,19</b></a>',
+        '<przypis rozdzial="24" werset="18" wyswietlanie="24,18-25,30">' : '<a class="przypis" href="/rozdzial.php?id=1255#W18"><b>2 Krl 24,18-25,30</b></a>',
+        '<przypis rozdzial="34" werset="1" wyswietlanie="34,1-35,19">' : '<a class="przypis" href="/rozdzial.php?id=1294#W1"><b>2 Krn 34,1-35,19</b></a>',
+        '<skrot cel="Ne 10,18n">' : '<a href="otworz.php?skrot=Ne 10,18" class="skrot">' ,
+        '<przypis rozdzial="17" werset="1" wyswietlanie="17,1-20,37">' : '<a class="przypis" href="/rozdzial.php?id=1316#W1"><b>2 Krn 17,1-20,37</b></a>',
+        '<a href="otworz.php?skrot=Ezd 5,45" class="skrot">Ezd 5,45</a>' : 'Ezd 5,45',
+        '<a href="otworz.php?skrot=Ezd 5,26" class="skrot">Ezd 5,26</a>' : 'Ezd 5,26',
+        '<a href="otworz.php?skrot=Ezd 5,38" class="skrot">Ezd 5,38</a>' : 'Ezd 5,38',
+        '<a href="otworz.php?skrot=Ezd 8,54" class="skrot">Ezd 8,54</a>' : 'Ezd 8,54',
+        '<a href="otworz.php?skrot=Ezd 8,47" class="skrot">Ezd 8,47</a>' : 'Ezd 8,47',
+        '<a href="otworz.php?skrot=Ezd 8,63" class="skrot">Ezd 8,63</a>' : 'Ezd 8,63',
+        '<a href="otworz.php?skrot=Ezd 5,51" class="skrot">Ezd 5,51</a>' : 'Ezd 5,51',
+        '<a href="otworz.php?skrot=Ezd 8,40" class="skrot">Ezd 8,40</a>' : 'Ezd 8,40',
+        '<przypis rozdzial="4" werset="8" wyswietlanie="4,8-6,18">' : '<a class="przypis" href="/rozdzial.php?id=1336#W8"><b>Ezd 4,8-6,18</b></a>',
+        '<a href="otworz.php?skrot=Ezd 5,65" class="skrot">Ezd 5,65</a>' : 'Ezd 5,65',
+        '<a href="otworz.php?skrot=Ezd 9,16" class="skrot">Ezd 9,16</a>' : 'Ezd 9,16',
+        '<a href="otworz.php?skrot=Ezd 9,29" class="skrot">Ezd 9,29</a>' : 'Ezd 9,29',
+        '<a href="otworz.php?skrot=Ezd 9,20" class="skrot">Ezd 9,20</a>' : 'Ezd 9,20',
+        '<a href="otworz.php?skrot=Ezd 9,30" class="skrot">Ezd 9,30</a>' : 'Ezd 9,30',
+        '<a href="otworz.php?skrot=Ezd 9,34" class="skrot">Ezd 9,34</a>' : 'Ezd 9,34',
+        '<a href="otworz.php?skrot=Ezd 8,90" class="skrot">Ezd 8,90</a>' : 'Ezd 8,90',
+        '<przypis rozdzial="9" werset="5" wyswietlanie="9,5c">' : '<a class="przypis" href="/rozdzial.php?id=1340#W5"><b>Ne 9,5c</b></a>',
+        '<przypis rozdzial="4" werset="17k" wyswietlanie="4,17k">' : '<a class="przypis" href="/rozdzial.php?id=1385#W17k"><b>Est 4, 17k</b></a>',
+        '<przypis rozdzial="4" werset="17m" wyswietlanie="4,17m">' : '<a class="przypis" href="/rozdzial.php?id=1385#W17m"><b>Est 4, 17m</b></a>',
+        '<przypis rozdzial="4" werset="17o" wyswietlanie="4,17o">' : '<a class="przypis" href="/rozdzial.php?id=1385#W17o"><b>Est 4, 17o</b></a>',
+        '<przypis rozdzial="4" werset="17q" wyswietlanie="4,17q">' : '<a class="przypis" href="/rozdzial.php?id=1385#W17q"><b>Est 4, 17q</b></a>',
+        '<a href="otworz.php?skrot=Est 15,1" class="skrot">Est 15,1-3</a>' : 'Est 15,1-3',
+        '<a href="otworz.php?skrot=Est 13,8" class="skrot">Est 13,8-14,19</a>' : 'Est 13,8-14,19',
+        '<a href="otworz.php?skrot=Est 10,4" class="skrot">Est 10,4-11,1</a>' : 'Est 10,4-11,1',
+        '<przypis rozdzial="10" werset="3l" wyswietlanie="10,3l">' : '<a class="przypis" href="/rozdzial.php?id=1387#W3l"><b>Est 10, 3l</b></a>',
+        '<przypis rozdzial="0" werset="1c" wyswietlanie="0,1c">' : '<a class="przypis" href="/rozdzial.php?id=1388#W1c"><b>Est Prolog, 1c</b></a>',
+        '<przypis rozdzial="0" werset="1m" wyswietlanie="0,1m">' : '<a class="przypis" href="/rozdzial.php?id=1388#W1m"><b>Est Prolog, 1m</b></a>',
+        '<przypis rozdzial="0" werset="1r" wyswietlanie="0,1r">' : '<a class="przypis" href="/rozdzial.php?id=1388#W1r"><b>Est Prolog, 1r</b></a>',
+        '<przypis rozdzial="0" werset="1q" wyswietlanie="0,1q">' : '<a class="przypis" href="/rozdzial.php?id=1388#W1q"><b>Est Prolog, 1q</b></a>',
+        '<a href="otworz.php?skrot=Est 13,1" class="skrot">Est 13,1-7</a>' : 'Est 13,1-7',
+        '<przypis rozdzial="8" werset="12k" wyswietlanie="8,12k">' : '<a class="przypis" href="/rozdzial.php?id=1390#W12k"><b>Est 8, 12k</b></a>', 
+        '<a href="otworz.php?skrot=Est 16,1" class="skrot">Est 16,1-24</a>' : 'Est 16,1-24', 
+        '<przypis rozdzial="5" werset="1f" wyswietlanie="5,1f">' : '<a class="przypis" href="/rozdzial.php?id=1392#W1f"><b>Est 8, 1f</b></a>​',
+        '<a href="otworz.php?skrot=Est 15,4" class="skrot">Est 15,4-19</a>' : 'Est 15,4-19',
+        '<skrot cel="Ef 1,10.22">' :  '<a class="skrot" href="otworz.php?skrot=Ef 1,10" >',
+        '<skrot cel="może Hbr 2,14">' : '<a href="otworz.php?skrot=Hbr 2,14" >',
+        'Pana (Za <skrot cel="6,9">': 'Pana (<a href="otworz.php?skrot=Za 6,9"Za >',
+        '<sup>1</sup>' : '*'
+    }
+    bad_link = { 
+        '0_0_34_24' : '2', #34
+        '0_2_25_11' : '3', '0_2_25_25' : '4', '0_2_25_33' : '5', '0_2_25_35' : '6', '0_2_25_40' : '7', #117
+        '0_3_18_18' : '1', '0_3_18_19' : '2', '0_3_18_29' : '3', #157
+        '1_0_17_1': '2', '1_0_17_3': '3', '1_0_17_5' :  '4', '1_0_17_8' :  '5', '1_0_17_9' :  '6',  '1_0_17_13' :  '7', 
+        '1_0_17_17' :  '8', '1_0_17_24' :  '11',  '1_0_17_25' :  '12',   #260
+        '1_0_19_28':'12' , #262
+        '1_0_22_39': '9', '1_0_22_40': '10', '1_0_22_44' : '11', #265   
+        '1_1_1_44' : '16',  #267        
+        '1_6_15_23' : '6', '1_6_15_25' : '8', '1_6_15_27' : '9', '1_6_15_29' : '10', '1_6_15_31' : '11', '1_6_15_32' : '12', '1_6_15_33' : '13', 
+        '1_6_15_44' : '14', '1_6_15_45' : '15', '1_6_15_50' : '16', '1_6_15_51' : '17', '1_6_15_52' : '18', '1_6_15_54' : '19', '1_6_15_55' : '20', '1_6_15_56' : '21', #300 
+        '1_2_11_12' : '4','1_2_11_13' : '5','1_2_11_20' : '6', '1_2_11_23' : '7', '1_2_11_28' : '8', '1_2_11_30' : '9',  '1_2_11_33' : '10', 
+        '1_2_11_34' : '11', '1_2_11_41' : '14',  '1_2_11_44' : '15',  #326    
+        '1_2_15_21': '5', '1_2_15_25': '6', #330
+        '1_2_16_8' : '2', '1_2_16_9' : '3', '1_2_16_11' : '4', '1_2_16_12' : '5', '1_2_16_13' : '6', '1_2_16_15' : '7', '1_2_16_3' : '2', '1_2_16_31' : '10', #331
+        '1_3_3_7': '1', '1_3_3_8': '3', '1_3_3_11': '4',  '1_3_3_12': '5', '1_3_3_14': '6', 
+        '1_3_3_15': '7', '1_3_3_17': '8', '1_3_3_22': '9', '1_3_3_25': '10', '1_3_3_29': '11', '1_3_3_34': '12', #342
+        '1_3_19_28': '9', '1_3_19_29': '10', '1_3_19_30': '11', '1_3_19_31': '12', '1_3_19_34': '13', '1_3_19_31': '12', '1_3_19_36': '13', '1_3_19_39': '16', #358
+        '1_18_1_5' : '4', '1_18_1_6' : '5',  '1_18_1_7' : '6',  '1_18_1_8' : '7', '1_18_1_10' : '8',  '1_18_1_13' : '9',  '1_18_1_14' : '10', #365
+        '0_29_25_16' : '8', '0_29_25_20' : '9',  '0_29_25_22' : '10',  '0_29_25_23' : '11',   '0_29_25_25' : '12', 
+        '0_29_25_26' : '13',  '0_29_25_30' : '14',  '0_29_25_31' : '15',  '0_29_25_34' : '16',  '0_29_25_38' : '17',  #666
+        '0_41_2_8' : '4', '0_41_2_11' : '5',  '0_41_2_13' : '6', '0_41_2_15' : '7', '0_41_2_17' : '8',  '0_41_2_19' : '9',  '0_41_2_20' : '10', #810
+        '1_12_3_6' : '4', '1_12_3_13' : '5',  #993
+        '0_19_14_27':'8', '0_19_14_28':'9', '0_19_14_30':'10', '0_19_14_47':'11', #1067
+        '1_26_6_8': '6',  '1_26_6_9': '7',  '1_26_6_12': '8',  #1094		
+        '1_26_9_1': '1', '1_26_9_3': '2',  '1_26_9_7': '3', '1_26_9_11': '4', '1_26_9_13': '5', '1_26_9_14': '6', '1_26_9_17': '7', '1_26_9_20': '8',  #1097
+        '1_26_2_7': '3', '1_26_2_8': '4', '1_26_2_9': '5', '1_26_2_10': '6', '1_26_2_11': '7', '1_26_2_12': '8',
+        '1_26_2_13': '9', '1_26_2_14': '10', '1_26_2_17': '11', '1_26_2_18': '12', '1_26_2_20': '13', '1_26_2_22': '14',
+        '1_26_2_24': '15', '1_26_2_26': '16', '1_26_2_28': '17',  #1090
+        '1_26_3_7': '5', '1_26_3_8': '6',  '1_26_3_9': '7',   '1_26_3_10': '8', '1_26_3_12': '9', '1_26_3_14': '10', '1_26_3_16': '11',  #1091
+        '1_26_4_6': '5', '1_26_4_8': '6',   #1092
+        '1_26_11_2': '2',  '1_26_11_3' : '3', '1_26_11_7': '4', '1_26_11_8' : '5', '1_26_11_9' : '6', '1_26_11_10' : '7', #1099
+        '1_26_11_11' : '8', '1_26_11_12' : '9', '1_26_11_13' : '10', '1_26_11_19' : '11',  #1099
+        '1_26_12_1' : '1','1_26_12_3' : '2', '1_26_12_5' : '3', '1_26_12_6' : '4', '1_26_12_7' : '5', #1100
+        '1_26_12_9' : '6', '1_26_12_10' : '7', '1_26_12_13' : '8',  '1_26_12_14' : '9', '1_26_12_17' : '10', #1100
+        '1_26_16_13' : '6', '1_26_16_15' : '7', '1_26_16_16' : '8', '1_26_16_19' : '9',  #1104
+        '1_26_21_16' : '9', '1_26_21_19' : '10', '1_26_21_22' : '11', '1_26_21_25' : '12', #1109  
+        '0_9_21_2' : '2', '0_9_21_6' : '3', '0_9_21_9' : '4', '0_9_21_14' : '5', '0_9_21_16' : '6', '0_9_21_18' : '7', '0_9_21_19' : '8', '0_9_21_20' : '9',  '0_9_21_22' : '10',
+        '1_11_3_20' : '6' #1394
+    }
+    werset_re = compile(r'<werset nr="([0-9]+[a-z]*)\s?"\s*/>') 
+    tag_re = compile(r'<([^\b \n\r>/]+)')
+    extra_css = """
+        .werset {
+            font-size: smaller;
+            font-wight: bold;
+            vertical-align: super;
+        }
+        p {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+        .italic {
+            font-style: italic;
+        }
+        hr.endnotes_bar {
+            overflow: visible;
+            height: 30px;
+            border-style: solid;
+            border-color: black;
+            border-width: 1px 0 0 0;
+            border-radius: 20px;
+        }
+        hr.endnotes_bar:before {
+            display: block;
+            content: "";
+            height: 30px;
+            margin-top: -31px;
+            border-style: solid;
+            border-color: black;
+            border-width: 0 0 1px 0;
+            border-radius: 20px;
+        }
+        span.note_num {
+            font-size: smaller;
+        }
+        .endnote_inline {
+            vertical-align: super;
+            border: 0.03cm solid #000;
+            font-size: smaller;
+            margin: 0.05cm;
+        }
+    """
+
+    def __init__(self, options, log, progress_reporter):
+        super(Bible, self).__init__(options, log, progress_reporter)
+        if self.touchscreen:
+            self.navbar = TouchscreenNavBarTemplate()
+        else:
+            self.navbar = NavBarTemplate()
+        self.feed_nr = 0
+        self.article_nr = -1
+        self.book_mapping = {
+            'http://biblia.deon.pl/rozdzial.php?id=1': (0, 0, 1),
+        }
+        self.endnotes = {}
+
+    def get_cover_url(self):
+        return 'https://episkopat.pl/wp-content/uploads/2016/04/Biblia-Tysi%C4%85clecia.jpg'
+
+    def get_browser(self, *a, **kw):
+        kw['user_agent'] = random_user_agent(allow_ie=False)
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        self.index_page = br.open(self.BASE_URL).read()
+        self.browser = br
+        return br
+
+    def get_absolute_url(self, href):
+        if not href.startswith('http'):
+            href = self.BASE_URL + href.lstrip('/')
+        href = href.replace('ł', '%B3').replace('Ł', '%A3').replace(' ', '+')
+        if href == 'http://biblia.deon.pl/ksiega.php?id=3':
+            href = 'http://biblia.deon.pl/rozdzial.php?id=102'
+        elif href == 'http://biblia.deon.pl/ksiega.php?id=49':
+            href = 'http://biblia.deon.pl/rozdzial.php?id=316'  
+        elif href == 'http://biblia.deon.pl/ksiega.php?id=19':
+            href = 'http://biblia.deon.pl/rozdzial.php?id=1388'    
+        elif href == 'http://biblia.deon.pl/ksiega.php?id=28':
+            href = 'http://biblia.deon.pl/rozdzial.php?id=590'  
+        return href
+
+    def filter_tags(self, document):
+        # Here come workarounds for malformed HTML code...
+        #first specific      
+        for error in self.errata:
+            document = document.replace( error, self.errata[error])
+        #common changes, post specific, ordered
+        document = document.replace('<<a name="W', '&lt; <a name="W')
+        document = document.replace('</a></sup>>', '</a></sup> &gt;')
+        document = document.replace('<skrot cel="ADRES">','')
+        document = document.replace('<skrot cel="','<a class="skrot" href="otworz.php?skrot=')
+        document = document.replace('<a href="otworz.php?skrot=Kor ','<a href="otworz.php?skrot=1 Kor ') #TBC
+        document = document.replace('<a name=" W','<a name="W')
+        document = document.replace('<werset nr="<a name="W','<a name="W')
+        document = document.replace('</przypis>','') 
+        document = document.replace('Ab 0','Ab 1') 
+        document = document.replace('Flm 0','Flm 1') 
+        document = document.replace('2 J 0','2 J 1')
+        document = document.replace('href="otworz.php?skrot= ', 'href="otworz.php?skrot=')     
+        document = document.replace('<div class=miedzytytul1><br />','<div class=miedzytytul1>')
+        document = document.replace('<div class=tytul1><br />','<div class=tytul1>')
+        #regex multi match
+        document = self.werset_re.sub(r'<a name="W\1"></a><span class="werset">\1&nbsp;</span>', document)       
+
+        good = set(
+            'html body h1 p span a head '\
+            'b br div input option form '\
+            'script ![CDATA[ !-- !]] - '\
+            'select img sup meta title '\
+            'link !DOCTYPE '\
+            'werset przypis skrot'.split()
+        )
+        observed = set('werset przypis skrot'.split())
+        for tag in self.tag_re.findall(document):
+            if tag in observed:
+                print("BAD tag", tag)         
+            if tag not in good:
+                bad_fragment_re = compile(r'(<{}[^><]*>?)'.format(tag))
+                for bad_tag in bad_fragment_re.findall(document):
+                    good_tag = html_escape(bad_tag)
+                    document = document.replace(bad_tag, good_tag)
+        return document
+    
+    def repair_hi(self, document):
+        werset_re2 = compile(r'\n([0-9]+)\s') 
+        document = werset_re2.sub(r'<a name="W\1"></a><span class="werset">\1&nbsp;</span>', document)
+        return document
+
+    def get_page_root(self, url):
+        url = self.get_absolute_url(url)
+        document = self.browser.open(url).read().decode('iso-8859-2')
+        actual_url = self.browser.geturl()
+        coords = self.get_coords()
+        self.book_mapping[actual_url] = coords
+        document = self.filter_tags(document)
+        if (actual_url == 'http://biblia.deon.pl/rozdzial.php?id=688'):
+            print(document)
+        if (actual_url == 'http://biblia.deon.pl/rozdzial.php?id=439') or (actual_url == 'http://biblia.deon.pl/rozdzial.php?id=458'):
+            document = self.repair_hi(document)
+        return Select(
+            self.index_to_soup(
+                document,
+                as_tree=True,
+            )
+        )
+
+    def get_coords(self):
+        return (self.feed_nr, self.article_nr, self.chapter_nr)
+
+    def get_local_url(self, chapter=None, line=None, note=False, coords=None):
+        if coords:
+            result = []
+            for template, value in zip([
+                    '../../feed_{v}',
+                    '/article_{v}/index.html',
+                    '#{kind}_{v}',
+                    '_{v}'
+                ], coords):
+                    result.append(template.format(v=value, kind='LN'[note]))
+            return ''.join(result)
+        if chapter is not None and line is not None:
+            suffix = '#{kind}_{chapter}_{line}'.format(
+                chapter=chapter,
+                line=line,
+                kind='LN'[note],
+            )
+        else:
+            suffix = ''
+        return '/feed_{feed}/article_{art}/index.html{suffix}'.format(
+            feed=self.feed_nr,
+            art=self.article_nr,
+            suffix=suffix,
+        )
+
+    def get_footnotes(self, page_root, endnote_refs):
+        selector = 'div.footnotes-content > p'
+        result = []
+        for note in page_root(selector):
+            content_list = []
+            for elem in note.xpath('child::node()'):
+                if isinstance(elem, lxml.etree._ElementStringResult) or \
+                   isinstance(elem, lxml.etree._ElementUnicodeResult) and str(elem).strip():
+                    content_list.append(elem)
+                elif elem.tag == 'a':
+                    if elem.get('class') == 'przypis':
+                        dest = elem.get('href')
+                        if elem.getchildren() and len(elem.getchildren()):
+                            coord_name = elem.getchildren()[0].text
+                        else:
+                            print("ERROR no text in ", dest)
+                    elif elem.get('name') is not None:
+                        full_anchor = elem.get('name')
+                        assert full_anchor[0] == 'P'
+                        anchor = full_anchor[1:]
+                    else:
+                        ref = self.get_absolute_url(elem.get('href'))
+                        notetext = '<endnote address="{href}">{txt}</endnote>'.format(
+                                href=ref,
+                                txt=''.join(elem.xpath('child::text()')),
+                            )
+                        content_list.append(notetext)
+            if content_list:
+                assert coord_name, coord_name
+                coords = self.get_coords() + (anchor,)
+                note_address = self.get_local_url(
+                    coords=coords,
+                    note=True,
+                ).split('#')[1]
+                a_url = self.get_absolute_url(dest)
+                path, line = a_url.rsplit('#', 1)
+                endnote_url = path + '#' + str(full_anchor)
+                if endnote_url in endnote_refs: 
+                    endnote_p = """<p id="{note_coords}"><span class="note_num">[{num}]:</span>
+                    <anchor address="{note_coords}" />                                  
+                    <endnote address="{link_to}">{coord_name}</endnote>
+                    {content}</p>""".format(
+                        content=''.join(content_list),
+                        link_to=a_url,
+                        note_coords=note_address,
+                        coord_name=coord_name,
+                        num=self.bottom_endnote_num,
+                    )
+                    if (len(''.join(content_list)))<9:
+                         print("EMPTY ENDNOTE text:", a_url,''.join(content_list),self.bottom_endnote_num,note_address,coord_name,endnote_url)  
+                    result.append(endnote_p)
+                    self.endnotes[coords] = note_address
+                    self.bottom_endnote_num += 1
+        return result
+
+    def get_content_from_root_page(self, page_root):
+        content_selector = 'div.the-content > div.tresc'
+        for elem in next(page_root(content_selector)).xpath('child::node()'):
+            if isinstance(elem, lxml.etree._ElementStringResult) or \
+               isinstance(elem, lxml.etree._ElementUnicodeResult):
+                text = elem #.strip()
+                if text:
+                    yield ('text', html_escape(text), '')
+                continue
+            cls = elem.get('class')
+            if elem.tag == 'werset':
+                werset = elem.get('nr','').strip()
+                yield ('werset', werset, '')
+            elif elem.tag == 'sup':
+                address = self.get_absolute_url(elem.xpath('a/@href')[0])
+                yield ('endnote', None, address)
+                self.endnote_num += 1
+            elif elem.tag == 'a' and elem.get('href') and not elem.get('class'):
+                address = self.get_absolute_url(elem.get('href'))
+                yield ('endnote', elem.text, address)   
+            elif elem.text:
+                text = elem.text.strip()
+                if cls == 'tytul1':
+                    yield ('h3', text, 'bold')
+                if cls == 'tytul2':
+                    yield ('h2', text, '')
+                elif cls == 'miedzytytul1':
+                    yield ('h3', text, '')
+                elif cls == 'miedzytytul2':
+                    yield ('h4', text, 'italic')
+                elif cls == 'miedzytytul3':
+                    yield ('h5', text, 'italic')
+                elif cls == 'initial-letter':
+                    yield ('h4', text, '')
+                elif cls == 'werset':
+                    yield ('werset', text, '')
+            elif elem.tag == 'br':
+                yield ('break', '', '')
+            for endnote in elem.xpath('sup/a'):
+                address = self.get_absolute_url(endnote.get('href'))
+                yield ('endnote', None, address)
+                self.endnote_num += 1
+                
+    def repair_note_link(self, line, note_url):
+        address = ('{feed}_{article}_{chapter}_{line}'
+                    ).format(
+                        feed = self.feed_nr,
+                        article = self.article_nr,
+                        chapter=self.chapter_nr,
+                        line=line,
+                    )
+        correction = self.bad_link.get(address)
+        if correction is not None:
+            path, nr = note_url.rsplit('#P', 1) 
+            return path+"#P"+correction
+        return note_url   
+                
+
+    def get_html(self, page_root, is_preface = False):
+        elements = []
+        endnote_refs = []
+        line = 0
+        items = self.get_content_from_root_page(page_root)
+        for f in [
+            join_ts,
+            map_to_tags,
+        ]:
+            items = f(items)
+        if not is_preface:
+            elements.append(
+                    (
+                        '<anchor address="L_{chapter}" />'
+                    ).format(
+                        chapter=self.chapter_nr,
+                    )
+            )
+        for tag, text, cls in items:
+            if tag == 'break':
+                elements.append('</p><p>')
+            elif tag == 'werset':
+                anchor = 'L_{chapter}_{nr}'.format(
+                    chapter=self.chapter_nr,
+                    nr=text,
+                )
+                line = text
+                elements.append(
+                    (
+                        '<span class="werset"><anchor address="{anchor}" /> {chapter}.{nr}&nbsp;</span>'
+                    ).format(
+                        chapter=self.chapter_nr,
+                        nr=text,
+                        anchor=anchor,
+                    )
+                )
+            elif tag == 'endnote':
+                if text is None:
+                    text = "*"
+                    cls = self.repair_note_link(line,cls)
+                    endnote_refs.append(cls)  
+                note = '<endnote address="{address}" class="endnote_inline">{txt}</endnote>'.format(
+                    address=cls,
+                    txt = text
+                )
+                prev_elem = elements[-1]
+                start, end = prev_elem.rsplit('</', 1)
+                elements[-1] = start + note + '</' + end
+            elif text:
+                text = html_escape(text)
+                if cls:
+                    template = '<{tag} class="{cls}">{text}</{tag}>'
+                else:
+                    template = '<{tag}>{text}</{tag}>'
+                elements.append(
+                    template.format(
+                        tag=tag,
+                        text=text,
+                        cls=cls,
+                    )
+                )
+        result = []
+        in_p = False
+        for elem in elements:
+            if not in_p:
+                if elem.startswith('<span'):
+                    in_p = True
+                    result.append('<p>')
+            else: # in_p
+                if not elem.startswith('<span'):
+                    in_p = False
+                    result.append('</p>')
+            result.append(elem)
+        return result,endnote_refs
+
+    def get_preface(self, href):
+        if href == 'http://biblia.deon.pl/rozdzial.php?id=102':
+            href = 'http://biblia.deon.pl/ksiega.php?id=3&wstep=1'          
+        elif href == 'http://biblia.deon.pl/rozdzial.php?id=316' :
+            href = 'http://biblia.deon.pl/ksiega.php?id=49&wstep=1'        
+        elif href == 'http://biblia.deon.pl/rozdzial.php?id=1388':
+            href = 'http://biblia.deon.pl/ksiega.php?id=19&wstep=1'  
+        elif href == 'http://biblia.deon.pl/rozdzial.php?id=590':
+            href = 'http://biblia.deon.pl/ksiega.php?id=28&wstep=1' 
+        else:
+            href = href +'&wstep=1'      
+        return href
+    
+    def is_prolog(self, href):
+        return (href == 'http://biblia.deon.pl/rozdzial.php?id=1388') or  (href == 'http://biblia.deon.pl/rozdzial.php?id=590')
+
+    
+    def get_prev_link(self, url, page_root):
+        if url == 'http://biblia.deon.pl/rozdzial.php?id=1382':
+            return 'otworz.php?skrot=Est 0'
+        elif url == 'http://biblia.deon.pl/rozdzial.php?id=591':
+            return 'otworz.php?skrot=Syr 0'
+        prev_links = list(
+                page_root(
+                    'div.the-content > div.bottom-navi > a[title="poprzedni"]'
+                )
+            )
+        if prev_links:
+            return prev_links[0].get('href')
+        else:
+            return None
+        
+    def get_next_link(self, url, page_root):
+        if url == 'http://biblia.deon.pl/ksiega.php?id=19&wstep=1':
+            return 'otworz.php?skrot=Est 1'
+        elif url == 'http://biblia.deon.pl/ksiega.php?id=28&wstep=1':
+            return 'otworz.php?skrot=Syr 1'
+        links = list(page_root('div.the-content > div.bottom-navi > a[title="następny"]'))
+        if links:
+            return links[0].get('href')
+        else:
+            return None 
+        
+    def get_title_url(self, url):
+        if url == 'http://biblia.deon.pl/ksiega.php?id=64':
+            return 'http://biblia.deon.pl/otworz.php?skrot=Flm+1'  
+        elif url == 'http://biblia.deon.pl/ksiega.php?id=38':
+            return 'http://biblia.deon.pl/otworz.php?skrot=Ab+1' 
+        elif url == 'http://biblia.deon.pl/ksiega.php?id=70':
+            return 'http://biblia.deon.pl/otworz.php?skrot=2+J+1' 
+        elif url == 'http://biblia.deon.pl/ksiega.php?id=71':
+            return 'http://biblia.deon.pl/otworz.php?skrot=3+J+1'  
+        elif url == 'http://biblia.deon.pl/ksiega.php?id=72':
+            return 'http://biblia.deon.pl/otworz.php?skrot=Jud+1'  
+        print("WRONG url:",url)
+        return None     
+    
+    
+    articles_are_obfuscated = True
+    def get_obfuscated_article(self, url):
+        self.endnote_num = 1
+        self.bottom_endnote_num = 1
+        title = self.book_mapping[url]
+        self.feed_nr, self.article_nr = self.book_mapping[title]
+        if self.is_prolog(url):
+            self.chapter_nr = 0
+        else:
+            self.chapter_nr = 1
+        page_root = self.get_page_root(url)
+        title_selector = 'body > div.wrap > div.the-content > div.book-label'
+        stitle = next(page_root(title_selector))
+        atitle = stitle.text
+        endnotes = []
+        result = []
+        chapters = ''
+        page, endnote_refs = self.get_html(self.get_page_root(self.get_preface(url)), True)
+        result.append(''.join(page))
+        while page_root(title_selector) and next(page_root(title_selector)).text == atitle:
+            page, endnote_refs = self.get_html(page_root)
+            result.append(''.join(page))
+            try:
+                endnotes.extend(self.get_footnotes(page_root, endnote_refs))
+            except UnboundLocalError as e:
+                print(self.get_coords())
+            
+            chapter = '[<endnote address="{address}" class="endnote_inline">{txt}</endnote>] '.format(
+                    address=self.browser.geturl(),
+                    txt = str(self.chapter_nr)
+                )
+            chapters = chapters + chapter  
+            print(self.browser.geturl())
+            prev_link = self.get_prev_link(self.browser.geturl(), page_root)
+            if prev_link:
+                self.chapter_nr -= 1
+                actual_url = self.get_absolute_url(prev_link)
+                self.book_mapping[actual_url] = self.get_coords()
+                self.chapter_nr += 1
+
+            next_link = self.get_next_link(self.browser.geturl(), page_root)          
+            if next_link:
+                self.chapter_nr += 1
+                page_root = self.get_page_root(next_link)    
+                actual_url = self.get_absolute_url(next_link)
+                self.book_mapping[actual_url] = self.get_coords()
+            else:
+                if not prev_link:
+                    actual_url = self.get_title_url(url)
+                    self.book_mapping[actual_url] = self.get_coords()                   
+                break
+        result.extend(
+            ['<hr class="endnotes_bar"/>', '<div class="endnotes">'] + endnotes + ['</div>']
+        )
+        content = '\n'.join(result)
+        _, output_file = mkstemp(suffix='.html')
+        with open(output_file, 'w') as output:
+            output.write(
+                '<h1>{title}</h1>\n<div><h3>Rozdziały: {chapters}</h3></div><div>{content}</div>'.format(
+                    title=atitle,
+                    chapters=chapters,
+                    content=insert_nbsp(content),
+                )
+            )
+        return output_file
+
+    def parse_index(self):
+        root = Select(self.index_to_soup(self.index_page, as_tree=True))
+        feed = []
+        for title, selectors in [
+            (
+                'Stary Testament',
+                [
+                    'body > div.wrap > div:nth-child(6) a',
+                    'body > div.wrap > div:nth-child(7) a',
+                ],
+            ),
+            (
+                'Nowy Testament',
+                [
+                    'body > div.wrap > div:nth-child(9) a',
+                    'body > div.wrap > div:nth-child(10) a',
+                ],
+            ),
+        ]:
+            articles = []
+            for selector in selectors:
+                for a in root(selector):
+                    article = {
+                        'title': a.text,
+                        'url': self.get_absolute_url(a.get('href')),
+                    }
+                    articles.append(article)
+            feed.append(
+                (title, articles)
+            )
+        self.make_mappings(feed)
+        return feed
+
+    def make_mappings(self, feed):
+        mapping = self.book_mapping
+        for dnr, (division, books) in enumerate(feed):
+            for bnr, book in enumerate(books):
+                title = book['title']
+                mapping[title] = (dnr, bnr)
+                mapping[book['url']] = title
+
+    def get_mapped_url(self, url):
+        is_line = True
+        if not url.startswith('http'):
+            return url
+        if ',' in url:
+            path, line = url.rsplit(',', 1)
+        elif '#' in url:
+            path, line = url.rsplit('#', 1)
+            assert line[0] in 'WP'
+            is_line = line[0] == 'W'
+            line = line[1:]
+        else:
+            path = url
+            line = ''
+        if not path in self.book_mapping:
+            print("BAD PATH:", path)
+        while path in self.book_mapping:
+            path = self.book_mapping[path]
+        if isinstance(path, tuple):
+            if line:
+                return self.get_local_url(coords=path + (line,), note=(not is_line))
+            else:
+                return self.get_local_url(coords=path)
+        return path
+
+    def postprocess_book(self, oeb, opts, log):
+        for item in oeb.spine:
+            for elem in Select(item.data)('endnote'):
+                try:
+                    elem.tag = 'a'
+                    dest = elem.get('address')
+                    dest = self.get_mapped_url(dest)
+                    elem.set('href', dest)
+                    del elem.attrib['address']
+                except Exception as e:
+                    print(item.data)
+                    print(e)
+            for elem in Select(item.data)('anchor'):
+                elem.tag = 'a'
+                if elem.get('address') is None:
+                    print (str(item.data))
+                    print ("ELEM:",str(elem))
+                else:
+                    elem.set('name', elem.get('address'))
+                    del elem.attrib['address']
