@@ -61,6 +61,7 @@ class DerStandardRecipe(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
+        br.set_simple_cookie('DSGVO_Check', '', '.derstandard.at')
         headers = {
             'X-Requested-With': 'XMLHttpRequest',
             'Content-Type': 'application/json; charset=UTF-8',
@@ -69,12 +70,12 @@ class DerStandardRecipe(BasicNewsRecipe):
             'Cache-Control': 'no-cache'
         }
         import mechanize
-        req =   mechanize.Request(url='https://derstandard.at/privacyprotection/api/agree', data=None, headers=headers, method='POST')
+        req = mechanize.Request(url='https://apps.derstandard.at/privacyprotection/api/agree', data=None, headers=headers, method='POST')
         br.open(req)
         return br
 
     keep_only_tags = [
-        classes('artikel'),
+        classes('article-header article-body article-origins article-subtitle article-pubdate'),
     ]
 
     remove_tags = [
