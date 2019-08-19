@@ -164,8 +164,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     FRONTPAGE = INDEX + '/magazine'
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            set('article-header l-article-column'.split()))}),
+        classes('article-header article-body'),
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
@@ -199,8 +198,9 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         return html.tostring(root, encoding='unicode')
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'ng-src': True}):
-            img['src'] = img['ng-src']
+        for attr in ('ng-src', 'data-blazy'):
+            for img in soup.findAll('img', attrs={attr: True}):
+                img['src'] = img[attr]
         return soup
 
     def get_browser(self):
