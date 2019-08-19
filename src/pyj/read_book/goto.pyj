@@ -1,14 +1,16 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from dom import set_css
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.item_list import create_item, build_list
-from read_book.toc import get_toc_maps, get_border_nodes
-from read_book.globals import current_book
+from book_list.item_list import build_list, create_item
+from dom import ensure_id, set_css
+from modals import error_dialog
+from read_book.globals import current_book, ui_operations
+from read_book.toc import get_border_nodes, get_toc_maps
+from widgets import create_button
 
 
 def create_goto_list(onclick, current_cfi):
@@ -24,8 +26,10 @@ def create_goto_list(onclick, current_cfi):
         items.push(create_item(_('Previous section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
     items.push(create_item(_('Document start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
     items.push(create_item(_('Document end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
-    items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view): view.show_book_metadata();)))
-    items.push(create_item(_('Location'), subtitle=current_cfi or None, action=onclick.bind(None, def(view): view.ask_for_location();)))
+    items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view):
+        view.overlay.show_metadata()
+    )))
+    items.push(create_item(_('Location'), subtitle=current_cfi or None, action=onclick.bind(None, def(view): view.overlay.show_ask_for_location();)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
@@ -44,3 +48,45 @@ def create_goto_panel(current_cfi, book, container, onclick):
     set_css(container, display='flex', flex_direction='column')
     set_css(panel, flex_grow='10')
     container.appendChild(panel)
+
+
+def create_location_overlay(current_cfi, overlay, container):
+    container_id = ensure_id(container)
+    if current_cfi:
+        container.appendChild(E.div(
+            style='margin: 1rem; display: flex; align-items: baseline',
+            E.input(
+                type='text', readonly='readonly', value=_('Currently at: {}').format(current_cfi), name='current_location',
+                style='border-width: 0; background-color: transparent; outline: none; flex-grow: 10; font-family: inherit'
+            ),
+            create_button(_('Copy'), action=def():
+                src = document.querySelector(f'#{container_id} [name=current_location]')
+                orig = src.value
+                src.value = current_cfi
+                src.focus()
+                src.select()
+                try:
+                    document.execCommand('copy')
+                finally:
+                    src.value = orig
+                    src.blur()
+            )
+        ))
+
+    container.appendChild(E.div(
+        style='margin: 1rem;',
+        E.div(
+            style='display: flex; align-items: baseline',
+            E.label(_('Go to:'), style='margin-right: 1rem'),
+            E.input(name='newloc', type='text', style='flex-grow: 10; margin-right: 1rem'), E.span(' '),
+            create_button(_('Go'), action=def():
+                src = document.querySelector(f'#{container_id} [name=newloc]')
+                if src.value:
+                    if ui_operations.goto_bookpos(src.value):
+                        overlay.hide()
+                    else:
+                        error_dialog(_('No such location'), _(
+                            'No location {} found').format(src.value))
+            )
+        )
+    ))

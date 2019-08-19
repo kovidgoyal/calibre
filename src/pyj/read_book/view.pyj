@@ -7,10 +7,9 @@ from gettext import gettext as _
 
 import read_book.iframe  # noqa
 from ajax import ajax_send
-from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.theme import get_color
-from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from dom import add_extra_css, build_rule, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
@@ -30,7 +29,6 @@ from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import html_escape, is_ios, parse_url_params, username_key
-from widgets import create_button
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -73,73 +71,6 @@ def show_controls_help():
         )
     ))
 
-
-def setup_metadata_overlay(title):
-    container = document.getElementById('book-metadata-overlay')
-    clear(container)
-    container.style.display = 'block'
-    container.style.backgroundColor = get_color('window-background')
-    container.appendChild(E.div(
-        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between;',
-            E.h2(title),
-            E.div(svgicon('close'), style='cursor:pointer', class_='simple-link', onclick=def(event):
-                  event.preventDefault()
-                  event.stopPropagation()
-                  document.getElementById('book-metadata-overlay').style.display = 'none'
-            )
-        )
-    )
-    return container
-
-
-def show_metadata_overlay(mi):
-    container = setup_metadata_overlay(mi.title)
-    container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
-    table = E.table(class_='metadata')
-    container.lastChild.appendChild(table)
-    render_metadata(mi, table)
-
-
-def show_location_overlay(current_cfi):
-    container = setup_metadata_overlay(_('Go to location…'))
-    container_id = container.id
-    if current_cfi:
-        container.appendChild(E.div(
-            style='margin: 1rem; display: flex; align-items: baseline',
-            E.input(
-                type='text', readonly='readonly', value=_('Currently at: {}').format(current_cfi), name='current_location',
-                style='border-width: 0; background-color: transparent; outline: none; flex-grow: 10; font-family: inherit'
-            ),
-            create_button(_('Copy'), action=def():
-                src = document.querySelector(f'#{container_id} [name=current_location]')
-                orig = src.value
-                src.value = current_cfi
-                src.focus()
-                src.select()
-                try:
-                    document.execCommand('copy')
-                finally:
-                    src.value = orig
-                    src.blur()
-            )
-        ))
-    container.appendChild(E.div(
-        style='margin: 1rem;',
-        E.div(
-            style='display: flex; align-items: baseline',
-            E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newloc', type='text', style='flex-grow: 10; margin-right: 1rem'), E.span(' '),
-            create_button(_('Go'), action=def():
-                src = document.querySelector(f'#{container_id} [name=newloc]')
-                if src.value:
-                    if ui_operations.goto_bookpos(src.value):
-                        document.getElementById(container_id).style.display = 'none'
-                    else:
-                        error_dialog(_('No such location'), _(
-                            'No location {} found').format(src.value))
-            )
-        )
-    ))
 
 # }}}
 
@@ -193,7 +124,6 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; min-height: 100%; display:none', id='book-metadata-overlay'),  # book metadata overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
                 )
@@ -317,6 +247,10 @@ class View:
         self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
+        self.focus_iframe()
+
+    def focus_iframe(self):
+        self.iframe.contentWindow.focus()
 
     def show_chrome(self):
         self.show_chrome_counter += 1
@@ -508,13 +442,6 @@ class View:
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
         self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
-
-    def show_book_metadata(self):
-        mi = self.book.metadata
-        show_metadata_overlay(mi)
-
-    def ask_for_location(self):
-        show_location_overlay(self.currently_showing.bookpos)
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})

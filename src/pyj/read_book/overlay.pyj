@@ -5,13 +5,14 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.library_data import sync_library_books
 from book_list.router import home
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
 from read_book.globals import runtime, ui_operations
-from read_book.goto import create_goto_panel
+from read_book.goto import create_goto_panel, create_location_overlay
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
@@ -170,8 +171,7 @@ class SyncBook:  # {{{
 
 # }}}
 
-# MainOverlay {{{
-
+# CSS {{{
 MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
 MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
 
@@ -188,8 +188,22 @@ add_extra_css(def():
     style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
     return style
 )
+# }}}
 
-class MainOverlay:
+def simple_overlay_title(title, overlay, container):
+    container.style.backgroundColor = get_color('window-background')
+    container.appendChild(E.div(
+        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
+            E.h2(title),
+            E.div(svgicon('close'), style='cursor:pointer', onclick=def (event):
+                    event.preventDefault()
+                    event.stopPropagation()
+                    overlay.hide_current_panel(event)
+            , class_='simple-link'),
+        ))
+
+
+class MainOverlay:  # {{{
 
     def __init__(self, overlay):
         self.overlay = overlay
@@ -317,23 +331,30 @@ class MainOverlay:
 
 # }}}
 
-class TOCOverlay: # {{{
+class SimpleOverlay:  # {{{
+
+    def __init__(self, overlay, create_func, title):
+        self.overlay = overlay
+        self.create_func = create_func
+        self.title = title
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def show(self, container):
+        simple_overlay_title(self.title, self.overlay, container)
+        self.create_func(self.overlay, container)
+# }}}
+
+class TOCOverlay(SimpleOverlay): # {{{
 
     def __init__(self, overlay, create_func, title):
         self.overlay = overlay
         self.create_func = create_func or create_toc_panel
         self.title = title or _('Table of Contents')
 
-    def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
-
     def show(self, container):
-        container.style.backgroundColor = get_color('window-background')
-        container.appendChild(E.div(
-            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
-                E.h2(self.title),
-                E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
-            ))
+        simple_overlay_title(self.title, self.overlay, container)
         self.create_func(self.overlay.view.book, container, self.handle_activate)
 
     def handle_activate(self, dest, frag):
@@ -444,7 +465,11 @@ class Overlay:
         return self.container.style.display is not 'none'
 
     def update_visibility(self):
-        self.container.style.display = 'block' if self.panels.length else 'none'
+        if self.panels.length:
+            self.container.style.display = 'block'
+        elif self.container.style.display is 'block':
+            self.container.style.display = 'none'
+            self.view.focus_iframe()
 
     def container_clicked(self, evt):
         if self.panels.length and jstype(self.panels[-1].on_container_click) is 'function':
@@ -521,6 +546,24 @@ class Overlay:
     def show_goto(self):
         self.hide_current_panel()
         self.panels.push(TOCOverlay(self, create_goto_panel.bind(None, self.view.currently_showing.bookpos), _('Go to…')))
+        self.show_current_panel()
+
+    def show_metadata(self):
+        self.hide_current_panel()
+
+        def show_metadata_overlay(mi, overlay, container):
+            container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
+            table = E.table(class_='metadata')
+            container.lastChild.appendChild(table)
+            render_metadata(mi, table)
+
+        self.panels.push(SimpleOverlay(self, show_metadata_overlay.bind(None, self.view.book.metadata), self.view.book.metadata.title))
+        self.show_current_panel()
+
+    def show_ask_for_location(self):
+        self.hide_current_panel()
+        self.panels.push(SimpleOverlay(
+            self, create_location_overlay.bind(None, self.view.currently_showing.bookpos), _('Go to location…')))
         self.show_current_panel()
 
     def show_search(self):
