@@ -259,7 +259,7 @@ class View:
 
     def do_show_chrome(self, request_id, cfi_data):
         self.hide_overlays()
-        self.on_update_cfi(cfi_data)
+        self.update_cfi_data(cfi_data)
         self.overlay.show()
 
     def show_search(self):
@@ -511,10 +511,30 @@ class View:
         self.report_cfi_callbacks[request_id] = callback
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
+    def update_cfi_data(self, data):
+        self.currently_showing.bookpos = data.cfi
+        self.currently_showing.selected_text = data.selected_text
+        username = get_interface_data().username
+        unkey = username_key(username)
+        if not self.book.last_read_position:
+            self.book.last_read_position = {}
+        self.book.last_read_position[unkey] = data.cfi
+        self.current_progress_frac = data.progress_frac
+        self.current_file_progress_frac = data.file_progress_frac
+        self.update_header_footer()
+        if ui_operations.update_last_read_time:
+            ui_operations.update_last_read_time(self.book)
+        return username
+
     def on_report_cfi(self, data):
         cb = self.report_cfi_callbacks[data.request_id]
         if cb:
-            cb(data.request_id, {'cfi': data.cfi, 'progress_frac': data.progress_frac, 'file_progress_frac': data.file_progress_frac})
+            cb(data.request_id, {
+                'cfi': data.cfi,
+                'progress_frac': data.progress_frac,
+                'file_progress_frac': data.file_progress_frac,
+                'selected_text': data.selected_text,
+            })
             v'delete self.report_cfi_callbacks[data.request_id]'
 
     def on_update_cfi(self, data):
@@ -526,21 +546,11 @@ class View:
             # type anything into text boxes.
             # See https://bugs.chromium.org/p/chromium/issues/detail?id=404315
             return
-        self.currently_showing.bookpos = data.cfi
         ui_operations.update_url_state(data.replace_history)
-        username = get_interface_data().username
-        unkey = username_key(username)
-        if not self.book.last_read_position:
-            self.book.last_read_position = {}
-        self.book.last_read_position[unkey] = data.cfi
-        if ui_operations.update_last_read_time:
-            ui_operations.update_last_read_time(self.book)
-        lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
-        self.current_progress_frac = data.progress_frac
-        self.current_file_progress_frac = data.file_progress_frac
-        self.update_header_footer()
-        key = self.book.key
+        username = self.update_cfi_data(data)
         if username:
+            key = self.book.key
+            lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
                 library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
                     if end_type is not 'load':
