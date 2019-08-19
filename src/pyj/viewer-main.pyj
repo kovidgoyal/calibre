@@ -251,6 +251,8 @@ if window is window.top:
         view.update_color_scheme()
     ui_operations.update_font_size = def():
         view.update_font_size()
+    ui_operations.focus_iframe = def():
+        view.focus_iframe()
     ui_operations.goto_bookpos = def(cfi):
         return view.goto_bookpos(cfi)
     ui_operations.toggle_toc = def():
@@ -267,6 +269,7 @@ if window is window.top:
         to_python.report_cfi(request_id, data)
     ui_operations.ask_for_open = def(path):
         to_python.ask_for_open(path)
+
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

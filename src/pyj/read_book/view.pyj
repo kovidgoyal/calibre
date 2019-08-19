@@ -47,7 +47,8 @@ def show_controls_help():
     if not show_controls_help.listener_added:
         show_controls_help.listener_added = True
         container.addEventListener('click', def():
-                document.getElementById('controls-help-overlay').style.display = 'none'
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
         )
     def msg(txt):
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')

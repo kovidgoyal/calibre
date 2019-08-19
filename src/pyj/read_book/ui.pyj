@@ -67,6 +67,7 @@ class ReadUI:
         ui_operations.update_font_size = self.update_font_size.bind(self)
         ui_operations.goto_bookpos = self.goto_bookpos.bind(self)
         ui_operations.delete_book = self.delete_book.bind(self)
+        ui_operations.focus_iframe = self.focus_iframe.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -161,6 +162,9 @@ class ReadUI:
 
     def delete_book(self, book, proceed):
         self.db.delete_book(book, proceed)
+
+    def focus_iframe(self):
+        self.view.focus_iframe()
 
     def update_color_scheme(self):
         self.view.update_color_scheme()
