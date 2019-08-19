@@ -615,7 +615,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Populate the Presets combo box
         self.presets = JSONConfig("catalog_presets")
         self.preset_field.addItem("")
-        self.preset_field_values = sorted([p for p in self.presets], key=sort_key)
+        self.preset_field_values = sorted(self.presets, key=sort_key)
         self.preset_field.addItems(self.preset_field_values)
 
     def preset_change(self, item_name):
