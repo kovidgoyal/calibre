@@ -17,6 +17,10 @@ from polyglot.builtins import iteritems, map, unicode_type, getenv, native_strin
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
+try:
+    import unrardll
+except ModuleNotFoundError:
+    unrardll = None
 
 class BuildTest(unittest.TestCase):
 
@@ -236,6 +240,7 @@ class BuildTest(unittest.TestCase):
         from calibre.gui2.win_file_dialogs import test
         test()
 
+    @unittest.skipUnless(unrardll, 'Module unrardll is missing')
     def test_unrar(self):
         from calibre.utils.unrar import test_basic
         test_basic()
