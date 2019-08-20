@@ -8,8 +8,8 @@ import os
 import sys
 
 from PyQt5.Qt import (
-    QApplication, QComboBox, QHBoxLayout, QLabel, Qt, QTimer, QUrl, QVBoxLayout,
-    QWidget
+    QApplication, QComboBox, QDialog, QHBoxLayout, QIcon, QLabel, QPushButton, Qt,
+    QTimer, QUrl, QVBoxLayout, QWidget
 )
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineView
@@ -19,6 +19,7 @@ from calibre import prints, random_user_agent
 from calibre.constants import cache_dir
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
+from calibre.gui2.widgets2 import Dialog
 
 vprefs.defaults['lookup_locations'] = [
     {
@@ -40,6 +41,15 @@ vprefs.defaults['lookup_locations'] = [
     },
 ]
 vprefs.defaults['lookup_location'] = 'Google dictionary'
+
+
+class SourcesEditor(Dialog):
+
+    def __init__(self, parent):
+        Dialog.__init__(self, _('Edit lookup sources'), 'viewer-edit-lookup-sources', parent=parent)
+
+    def setup_ui(self):
+        pass
 
 
 def create_profile():
@@ -91,6 +101,14 @@ class Lookup(QWidget):
         self.source_box.currentIndexChanged.connect(self.source_changed)
         self.view.setHtml('<p>' + _('Double click on a word in the viewer window'
             ' to look it up.'))
+        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add more sources'))
+        b.clicked.connect(self.add_sources)
+        l.addWidget(b)
+
+    def add_sources(self):
+        if SourcesEditor(self).exec_() == QDialog.Accepted:
+            self.populate_sources()
+            self.update_query()
 
     def source_changed(self):
         vprefs['lookup_location'] = self.source['name']
@@ -99,11 +117,13 @@ class Lookup(QWidget):
     def populate_sources(self):
         sb = self.source_box
         sb.clear()
+        sb.blockSignals(True)
         for item in vprefs['lookup_locations']:
             sb.addItem(item['name'], item)
         idx = sb.findText(vprefs['lookup_location'], Qt.MatchExactly)
         if idx > -1:
             sb.setCurrentIndex(idx)
+        sb.blockSignals(False)
 
     def visibility_changed(self, is_visible):
         self.is_visible = is_visible
