@@ -127,7 +127,7 @@ class AddAction(InterfaceAction):
                     path = url.toLocalFile()
                     if os.access(path, os.R_OK):
                         mt = guess_type(path)[0]
-                        if mt.startswith('image/'):
+                        if mt and mt.startswith('image/'):
                             images.append(path)
                         else:
                             files_to_add.append(path)
