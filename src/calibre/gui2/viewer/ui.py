@@ -27,6 +27,7 @@ from calibre.gui2.viewer.annotations import (
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import prepare_book, update_book
+from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.web_view import (
     WebView, get_session_pref, set_book_path, vprefs
@@ -79,6 +80,11 @@ class EbookViewer(MainWindow):
         w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
         self.toc_dock.setWidget(w)
 
+        self.lookup_dock = create_dock(_('Lookup'), 'lookup-dock', Qt.RightDockWidgetArea)
+        self.lookup_widget = w = Lookup(self)
+        self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
+        self.lookup_dock.setWidget(w)
+
         self.bookmarks_dock = create_dock(_('Bookmarks'), 'bookmarks-dock', Qt.RightDockWidgetArea)
         self.bookmarks_widget = w = BookmarkManager(self)
         connect_lambda(
@@ -97,9 +103,11 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
+        self.web_view.toggle_lookup.connect(self.toggle_lookup)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
+        self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.restore_state()
         if continue_reading:
@@ -146,17 +154,15 @@ class EbookViewer(MainWindow):
     # }}}
 
     # ToC/Bookmarks {{{
+
     def toggle_toc(self):
-        if self.toc_dock.isVisible():
-            self.toc_dock.setVisible(False)
-        else:
-            self.toc_dock.setVisible(True)
+        self.toc_dock.setVisible(not self.toc_dock.isVisible())
 
     def toggle_bookmarks(self):
-        if self.bookmarks_dock.isVisible():
-            self.bookmarks_dock.setVisible(False)
-        else:
-            self.bookmarks_dock.setVisible(True)
+        self.bookmarks_dock.setVisible(not self.bookmarks_dock.isVisible())
+
+    def toggle_lookup(self):
+        self.lookup_dock.setVisible(not self.lookup_dock.isVisible())
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)

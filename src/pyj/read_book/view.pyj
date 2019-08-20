@@ -149,6 +149,7 @@ class View:
             'show_footnote': self.on_show_footnote,
             'print': self.on_print,
             'human_scroll': self.on_human_scroll,
+            'selectionchange': self.on_selection_change,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'), runtime.FAKE_PROTOCOL, runtime.FAKE_HOST)
@@ -164,6 +165,9 @@ class View:
         return self.iframe_wrapper.iframe
 
     def on_lookup_word(self, data):
+        if runtime.is_standalone_viewer:
+            ui_operations.selection_changed(data.word)
+            return
         self.overlay.show_word_actions(data.word)
 
     def left_margin_clicked(self, event):
@@ -210,6 +214,11 @@ class View:
             if length:
                 amt_scrolled = data.scrolled_by_frac * length
                 self.timers.on_human_scroll(amt_scrolled)
+
+    def on_selection_change(self, data):
+        self.currently_showing.selected_text = data.text
+        if ui_operations.selection_changed:
+            ui_operations.selection_changed(data.text)
 
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)

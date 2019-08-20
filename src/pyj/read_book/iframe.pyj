@@ -100,6 +100,7 @@ class IframeBoss:
         window.addEventListener('wheel', self.onwheel, {'passive': False})
         window.addEventListener('keydown', self.onkeydown, {'passive': False})
         document.documentElement.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
+        document.addEventListener('selectionchange', self.onselectionchange)
         self.color_scheme = data.color_scheme
         create_touch_handlers()
 
@@ -312,6 +313,10 @@ class IframeBoss:
                 # so we wait for the reply from request_size
                 return
             self.onresize_stage2()
+
+    def onselectionchange(self):
+        if self.content_ready:
+            self.send_message('selectionchange', text=document.getSelection().toString())
 
     def onresize_stage2(self):
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:

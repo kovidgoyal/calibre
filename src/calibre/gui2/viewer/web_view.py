@@ -188,10 +188,12 @@ class ViewerBridge(Bridge):
     toggle_toc = from_js()
     toggle_bookmarks = from_js()
     toggle_inspector = from_js()
+    toggle_lookup = from_js()
     update_current_toc_nodes = from_js(object, object)
     toggle_full_screen = from_js()
     report_cfi = from_js(object, object)
     ask_for_open = from_js(object)
+    selection_changed = from_js(object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -307,9 +309,11 @@ class WebView(RestartingWebEngineView):
     toggle_toc = pyqtSignal()
     toggle_bookmarks = pyqtSignal()
     toggle_inspector = pyqtSignal()
+    toggle_lookup = pyqtSignal()
     update_current_toc_nodes = pyqtSignal(object, object)
     toggle_full_screen = pyqtSignal()
     ask_for_open = pyqtSignal(object)
+    selection_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -328,9 +332,11 @@ class WebView(RestartingWebEngineView):
         self.bridge.toggle_toc.connect(self.toggle_toc)
         self.bridge.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.bridge.toggle_inspector.connect(self.toggle_inspector)
+        self.bridge.toggle_lookup.connect(self.toggle_lookup)
         self.bridge.update_current_toc_nodes.connect(self.update_current_toc_nodes)
         self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
         self.bridge.ask_for_open.connect(self.ask_for_open)
+        self.bridge.selection_changed.connect(self.selection_changed)
         self.bridge.report_cfi.connect(self.call_callback)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)

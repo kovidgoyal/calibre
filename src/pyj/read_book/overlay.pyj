@@ -285,6 +285,10 @@ class MainOverlay:  # {{{
 
         if runtime.is_standalone_viewer:
             actions_div.appendChild(E.ul(
+                ac(_('Lookup/search word'), _('Lookup or search for the currently selected word'),
+                   def(): self.overlay.hide(), ui_operations.toggle_lookup();, 'library')
+            ))
+            actions_div.appendChild(E.ul(
                 ac(_('Inspector'), _('Show the content inspector'),
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug')
             ))
@@ -293,8 +297,8 @@ class MainOverlay:  # {{{
             onclick=def (evt):evt.stopPropagation();,
 
             set_css(E.div(  # top row
-                    E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold'),
-                    E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis'),
+                          E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap'),
+            E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis; white-space: nowrap'),
                 ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'
             ),
             actions_div,
