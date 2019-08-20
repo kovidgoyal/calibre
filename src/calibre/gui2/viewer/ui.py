@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import sys
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from hashlib import sha256
 from threading import Thread
 
@@ -35,9 +35,23 @@ from calibre.gui2.viewer.web_view import (
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import as_bytes
+from polyglot.builtins import as_bytes, itervalues
 
 annotations_dir = os.path.join(config_dir, 'viewer', 'annots')
+
+
+def dock_defs():
+    Dock = namedtuple('Dock', 'name title initial_area allowed_areas')
+    ans = {}
+
+    def d(title, name, area, allowed=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
+        ans[name] = Dock(name + '-dock', title, area, allowed)
+
+    d(_('Table of Contents'), 'toc', Qt.LeftDockWidgetArea),
+    d(_('Lookup'), 'lookup', Qt.RightDockWidgetArea),
+    d(_('Bookmarks'), 'bookmarks', Qt.RightDockWidgetArea)
+    d(_('Inspector'), 'inspector', Qt.RightDockWidgetArea, Qt.AllDockWidgetAreas)
+    return ans
 
 
 def path_key(path):
@@ -62,6 +76,7 @@ class EbookViewer(MainWindow):
             pass
         self.current_book_data = {}
         self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
+        self.dock_defs = dock_defs()
 
         def create_dock(title, name, area, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
             ans = QDockWidget(title, self)
@@ -70,7 +85,10 @@ class EbookViewer(MainWindow):
             ans.setVisible(False)
             return ans
 
-        self.toc_dock = create_dock(_('Table of Contents'), 'toc-dock', Qt.LeftDockWidgetArea)
+        for dock_def in itervalues(self.dock_defs):
+            setattr(self, '{}_dock'.format(dock_def.name.partition('-')[0]), create_dock(
+                dock_def.title, dock_def.name, dock_def.initial_area, dock_def.allowed_areas))
+
         self.toc_container = w = QWidget(self)
         w.l = QVBoxLayout(w)
         self.toc = TOCView(w)
@@ -80,12 +98,10 @@ class EbookViewer(MainWindow):
         w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
         self.toc_dock.setWidget(w)
 
-        self.lookup_dock = create_dock(_('Lookup'), 'lookup-dock', Qt.RightDockWidgetArea)
         self.lookup_widget = w = Lookup(self)
         self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
         self.lookup_dock.setWidget(w)
 
-        self.bookmarks_dock = create_dock(_('Bookmarks'), 'bookmarks-dock', Qt.RightDockWidgetArea)
         self.bookmarks_widget = w = BookmarkManager(self)
         connect_lambda(
             w.create_requested, self,
@@ -93,9 +109,6 @@ class EbookViewer(MainWindow):
         self.bookmarks_widget.edited.connect(self.bookmarks_edited)
         self.bookmarks_widget.activated.connect(self.bookmark_activated)
         self.bookmarks_dock.setWidget(w)
-
-        self.inspector_dock = create_dock(
-            _('Inspector'), 'inspector', Qt.RightDockWidgetArea, areas=Qt.AllDockWidgetAreas)
 
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
@@ -153,7 +166,7 @@ class EbookViewer(MainWindow):
         self.set_full_screen(not self.isFullScreen())
     # }}}
 
-    # ToC/Bookmarks {{{
+    # Docks (ToC, Bookmarks, Lookup, etc.) {{{
 
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
