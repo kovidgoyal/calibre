@@ -364,10 +364,6 @@ def run_in_debug_mode():
         stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
 
 
-def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
-
-
 def run_gui(opts, args, listener, app, gui_debug=None):
     si = singleinstance('db')
     if not si:
@@ -400,12 +396,13 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         if getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None:
             run_in_debug_mode()
         else:
-            import subprocess
             if hasattr(sys, 'frameworks_dir'):
                 app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
+                from calibre.debug import run_calibre_debug
                 prints('Restarting with:', app)
-                subprocess.Popen('sleep 3s; open ' + shellquote(app), shell=True)
+                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", sys.argv[-1])', app)
             else:
+                import subprocess
                 os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
                 if iswindows and hasattr(winutil, 'prepare_for_restart'):
                     winutil.prepare_for_restart()
