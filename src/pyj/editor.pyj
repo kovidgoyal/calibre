@@ -119,7 +119,8 @@ def onclick(event):
             tn = e.tagName.toLowerCase() if e.tagName else ''
             href = e.getAttribute('href')
             e = e.parentNode
-        to_python.request_sync(tn, href, address)
+        if to_python.request_sync:
+            to_python.request_sync(tn, href, address)
     return False
 
 @from_python
@@ -130,7 +131,8 @@ def go_to_anchor(anchor):
     if elem:
         elem.scrollIntoView()
         address = get_sourceline_address(elem)
-        to_python.request_sync('', '', address)
+        if to_python.request_sync:
+            to_python.request_sync('', '', address)
 
 @from_python
 def live_css(editor_name, sourceline, tags):
