@@ -806,7 +806,7 @@ class PluginWidget(QWidget,Ui_Form):
             self.preset_field.blockSignals(True)
             self.preset_field.clear()
             self.preset_field.addItem('')
-            self.preset_field_values = sorted([q for q in self.presets], key=sort_key)
+            self.preset_field_values = sorted(self.presets, key=sort_key)
             self.preset_field.addItems(self.preset_field_values)
             self.preset_field.blockSignals(False)
         self.preset_field.setCurrentIndex(self.preset_field.findText(name))
