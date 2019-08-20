@@ -23,13 +23,13 @@ from calibre.gui2.webengine import create_script, insert_scripts, secure_webengi
 vprefs.defaults['lookup_locations'] = [
     {
         'name': 'Google dictionary',
-        'url': 'https://google.com/search?q=define:{word}',
+        'url': 'https://www.google.com/search?q=define:{word}',
         'langs': [],
     },
 
     {
         'name': 'Google search',
-        'url':  'https://google.com/search?q={word}',
+        'url':  'https://www.google.com/search?q={word}',
         'langs': [],
     },
 

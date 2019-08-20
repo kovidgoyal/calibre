@@ -13,10 +13,15 @@
         cc.style.marginLeft = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
-        ['sfcnt', 'top_nav', 'before-appbar', 'appbar', 'searchform', 'easter-egg'].forEach(function(id) {
-            var elem = document.getElementById(id);
-            if (elem) elem.style.display = 'none';
-        });
+        var params = new URLSearchParams(document.location.search.substring(1));
+        var q = params.get('q');
+        if (q && q.startsWith('define:')) {
+            var remove = ['sfcnt', 'top_nav', 'before-appbar', 'appbar', 'searchform', 'easter-egg'];
+            remove.forEach(function(id) {
+                var elem = document.getElementById(id);
+                if (elem) elem.style.display = 'none';
+            });
+        }
     }
 
     if (window.location.hostname === 'www.google.com') fix_google_markup();
