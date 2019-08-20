@@ -26,7 +26,7 @@ def parse_html(raw):
 class GoogleImages(Source):
 
     name = 'Google Images'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
@@ -72,7 +72,9 @@ class GoogleImages(Source):
         from collections import OrderedDict
         ans = OrderedDict()
         br = self.browser
-        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')}).decode('utf-8')
+        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')})
+        if isinstance(q, bytes):
+            q = q.decode('utf-8')
         sz = self.prefs['size']
         if sz == 'any':
             sz = ''
