@@ -46,11 +46,11 @@ class ProgressIndicator(QWidget):  # {{{
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
         if self.pos is None:
-            self.move(0, (pheight-self.size().height())/2)
+            self.move(0, int((pheight-self.size().height())/2))
         else:
             self.move(self.pos[0], self.pos[1])
         self.pi.resize(self.pi.sizeHint())
-        self.pi.move(int((self.size().width()-self.pi.size().width())//2), 0)
+        self.pi.move(int((self.size().width()-self.pi.size().width())/2), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
         self.status.move(0, self.pi.size().height()+10)
         self.status.setText('<h1>'+msg+'</h1>')
@@ -370,8 +370,8 @@ class ImageView(QWidget, ImageDropMixin):
             pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.IgnoreAspectRatio,
                     Qt.SmoothTransformation)
         w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
-        x = int(abs(cw - w)//2)
-        y = int(abs(ch - h)//2)
+        x = int(abs(cw - w)/2)
+        y = int(abs(ch - h)/2)
         target = QRect(x, y, w, h)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -543,7 +543,7 @@ class ItemsCompleter(QCompleter):  # {{{
         self.setModel(model)
 
         self.setCompletionPrefix(completion_prefix)
-        if completion_prefix.strip() != '':
+        if completion_prefix.strip():
             self.complete()
 
     def update_items_cache(self, items):
@@ -592,7 +592,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         text_items = []
         for t in all_text.split(self.separator):
             t1 = unicode_type(t).strip()
-            if t1 != '':
+            if t1:
                 text_items.append(t)
         text_items = list(set(text_items))
         self.completer.update(text_items, prefix)
