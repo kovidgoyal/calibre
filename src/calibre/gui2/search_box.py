@@ -292,7 +292,7 @@ class SearchBox2(QComboBox):  # {{{
         finally:
             if not store_in_history:
                 # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-                self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
+                self.activated[native_string_type].connect(self.history_selected, type=Qt.QueuedConnection)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -325,7 +325,7 @@ class SavedSearchBox(QComboBox):  # {{{
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
-        self.activated[str].connect(self.saved_search_selected)
+        self.activated[native_string_type].connect(self.saved_search_selected)
 
         # Turn off auto-completion so that it doesn't interfere with typing
         # names of new searches.
