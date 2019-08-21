@@ -702,7 +702,7 @@ class Metadata(object):
                 term = CALIBRE(local)
             self.term = term
             self.value = value
-            for attr, value in attrib.items():
+            for attr, value in tuple(iteritems(attrib)):
                 if isprefixname(value):
                     attrib[attr] = qname(value, nsmap)
                 nsattr = Metadata.OPF_ATTRS.get(attr, attr)
