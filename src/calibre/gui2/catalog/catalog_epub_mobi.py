@@ -297,7 +297,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         new_source = self.header_note_source_field.currentText()
         self.header_note_source_field_name = new_source
-        if new_source > '':
+        if new_source:
             header_note_source_spec = self.header_note_source_fields[unicode_type(new_source)]
             self.header_note_source_field_name = header_note_source_spec['field']
 
@@ -387,14 +387,14 @@ class PluginWidget(QWidget,Ui_Form):
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
         cs = unicode_type(self.merge_source_field.currentText())
-        if cs > '':
+        if cs:
             merge_source_spec = self.merge_source_fields[cs]
             self.merge_source_field_name = merge_source_spec['field']
 
         # Init self.header_note_source_field_name
         self.header_note_source_field_name = ''
         cs = unicode_type(self.header_note_source_field.currentText())
-        if cs > '':
+        if cs:
             header_note_source_spec = self.header_note_source_fields[cs]
             self.header_note_source_field_name = header_note_source_spec['field']
 
@@ -433,7 +433,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         new_source = self.merge_source_field.currentText()
         self.merge_source_field_name = new_source
-        if new_source > '':
+        if new_source:
             merge_source_spec = self.merge_source_fields[unicode_type(new_source)]
             self.merge_source_field_name = merge_source_spec['field']
             if not self.merge_before.isChecked() and not self.merge_after.isChecked():
