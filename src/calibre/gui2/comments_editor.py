@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -338,7 +339,7 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
 
     @property
     def html(self):
-        ans = u''
+        ans = ''
         try:
             if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
                 # Bypass cleanup if special meta tag exists
@@ -364,9 +365,9 @@ class EditorWidget(QWebView, LineEditECM):  # {{{
                     x.tag not in ('script', 'style')]
 
             if len(elems) > 1:
-                ans = u'<div>%s</div>'%(u''.join(elems))
+                ans = '<div>%s</div>'%(''.join(elems))
             else:
-                ans = u''.join(elems)
+                ans = ''.join(elems)
                 if not ans.startswith('<'):
                     ans = '<p>%s</p>'%ans
             ans = xml_replace_entities(ans)
@@ -482,7 +483,7 @@ class Highlighter(QSyntaxHighlighter):
             if state == State_Comment:
                 start = pos
                 while pos < len_:
-                    if text[pos:pos+3] == u"-->":
+                    if text[pos:pos+3] == "-->":
                         pos += 3
                         state = State_Text
                         break
@@ -495,7 +496,7 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     pos += 1
-                    if ch == u'>':
+                    if ch == '>':
                         state = State_Text
                         break
                 self.setFormat(start, pos - start, self.colors['doctype'])
@@ -506,7 +507,7 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     pos += 1
-                    if ch == u'>':
+                    if ch == '>':
                         state = State_Text
                         break
                     if not ch.isspace():
@@ -524,7 +525,7 @@ class Highlighter(QSyntaxHighlighter):
                         pos -= 1
                         state = State_InsideTag
                         break
-                    if ch == u'>':
+                    if ch == '>':
                         state = State_Text
                         break
                 self.setFormat(start, pos - start, self.colors['tag'])
@@ -537,10 +538,10 @@ class Highlighter(QSyntaxHighlighter):
                     ch = text[pos]
                     pos += 1
 
-                    if ch == u'/':
+                    if ch == '/':
                         continue
 
-                    if ch == u'>':
+                    if ch == '>':
                         state = State_Text
                         break
 
@@ -557,11 +558,11 @@ class Highlighter(QSyntaxHighlighter):
                     ch = text[pos]
                     pos += 1
 
-                    if ch == u'=':
+                    if ch == '=':
                         state = State_AttributeValue
                         break
 
-                    if ch in (u'>', u'/'):
+                    if ch in ('>', '/'):
                         state = State_InsideTag
                         break
 
@@ -577,12 +578,12 @@ class Highlighter(QSyntaxHighlighter):
                     pos += 1
 
                     # handle opening single quote
-                    if ch == u"'":
+                    if ch == "'":
                         state = State_SingleQuote
                         break
 
                     # handle opening double quote
-                    if ch == u'"':
+                    if ch == '"':
                         state = State_DoubleQuote
                         break
 
@@ -597,7 +598,7 @@ class Highlighter(QSyntaxHighlighter):
                         ch = text[pos]
                         if ch.isspace():
                             break
-                        if ch in (u'>', u'/'):
+                        if ch in ('>', '/'):
                             break
                         pos += 1
                     state = State_InsideTag
@@ -610,7 +611,7 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     pos += 1
-                    if ch == u"'":
+                    if ch == "'":
                         break
 
                 state = State_InsideTag
@@ -624,7 +625,7 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     pos += 1
-                    if ch == u'"':
+                    if ch == '"':
                         break
 
                 state = State_InsideTag
@@ -635,18 +636,18 @@ class Highlighter(QSyntaxHighlighter):
                 # State_Text and default
                 while pos < len_:
                     ch = text[pos]
-                    if ch == u'<':
-                        if text[pos:pos+4] == u"<!--":
+                    if ch == '<':
+                        if text[pos:pos+4] == "<!--":
                             state = State_Comment
                         else:
-                            if text[pos:pos+9].upper() == u"<!DOCTYPE":
+                            if text[pos:pos+9].upper() == "<!DOCTYPE":
                                 state = State_DocType
                             else:
                                 state = State_TagStart
                         break
-                    elif ch == u'&':
+                    elif ch == '&':
                         start = pos
-                        while pos < len_ and text[pos] != u';':
+                        while pos < len_ and text[pos] != ';':
                             self.setFormat(start, pos - start,
                                     self.colors['entity'])
                             pos += 1

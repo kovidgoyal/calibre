@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -166,7 +167,7 @@ class ViewAction(InterfaceAction):
         rows = [r.row() for r in rows]
         book_ids = [db.id(r) for r in rows]
         formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
-        all_fmts = set([])
+        all_fmts = set()
         for x in formats:
             if x:
                 for f in x:

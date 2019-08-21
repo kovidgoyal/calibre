@@ -96,7 +96,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.widgets = sorted(self.widgets, key=lambda x: x.TITLE)
 
         # Generate a sorted list of installed catalog formats/sync_enabled pairs
-        fmts = sorted([x[0] for x in self.fmts])
+        fmts = sorted((x[0] for x in self.fmts))
 
         self.sync_enabled_formats = []
         for fmt in self.fmts:

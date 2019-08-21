@@ -1,6 +1,10 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 """ The GUI """
+
 import glob
 import os
 import signal
@@ -354,7 +358,7 @@ def is_widescreen():
     global _is_widescreen
     if _is_widescreen is None:
         try:
-            _is_widescreen = float(available_width())/available_height() > 1.4
+            _is_widescreen = available_width()/available_height() > 1.4
         except:
             _is_widescreen = False
     return _is_widescreen
@@ -687,7 +691,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, format, quality=quality)
-    return bytes(ba.data())
+    return ba.data()
 
 
 def decouple(prefix):
@@ -736,7 +740,7 @@ class Translator(QTranslator):
         try:
             src = unicode_type(args[1])
         except:
-            return u''
+            return ''
         t = _
         return t(src)
 
@@ -766,8 +770,8 @@ def load_builtin_fonts():
                 if fid > -1:
                     fam = QFontDatabase.applicationFontFamilies(fid)
                     fam = set(map(unicode_type, fam))
-                    if u'calibre Symbols' in fam:
-                        _rating_font = u'calibre Symbols'
+                    if 'calibre Symbols' in fam:
+                        _rating_font = 'calibre Symbols'
 
 
 def setup_gui_option_parser(parser):
@@ -881,7 +885,7 @@ class Application(QApplication):
         self.line_height = max(12, QFontMetrics(self.font()).lineSpacing())
 
         dl = QLocale(get_lang())
-        if unicode_type(dl.bcp47Name()) != u'C':
+        if unicode_type(dl.bcp47Name()) != 'C':
             QLocale.setDefault(dl)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
@@ -903,7 +907,7 @@ class Application(QApplication):
                 'calibre versions newer than 2.0 do not run on Windows XP. This is'
                 ' because the graphics toolkit calibre uses (Qt 5) crashes a lot'
                 ' on Windows XP. We suggest you stay with <a href="%s">calibre 1.48</a>'
-                ' which works well on Windows XP.') % 'http://download.calibre-ebook.com/1.48.0/', show=True)
+                ' which works well on Windows XP.') % 'https://download.calibre-ebook.com/1.48.0/', show=True)
             raise SystemExit(1)
 
         if iswindows:
@@ -978,22 +982,22 @@ class Application(QApplication):
         icon_map = self.__icon_map_memory_ = {}
         pcache = {}
         for k, v in iteritems({
-            'DialogYesButton': u'ok.png',
-            'DialogNoButton': u'window-close.png',
-            'DialogCloseButton': u'window-close.png',
-            'DialogOkButton': u'ok.png',
-            'DialogCancelButton': u'window-close.png',
-            'DialogHelpButton': u'help.png',
-            'DialogOpenButton': u'document_open.png',
-            'DialogSaveButton': u'save.png',
-            'DialogApplyButton': u'ok.png',
-            'DialogDiscardButton': u'trash.png',
-            'MessageBoxInformation': u'dialog_information.png',
-            'MessageBoxWarning': u'dialog_warning.png',
-            'MessageBoxCritical': u'dialog_error.png',
-            'MessageBoxQuestion': u'dialog_question.png',
-            'BrowserReload': u'view-refresh.png',
-            'LineEditClearButton': u'clear_left.png',
+            'DialogYesButton': 'ok.png',
+            'DialogNoButton': 'window-close.png',
+            'DialogCloseButton': 'window-close.png',
+            'DialogOkButton': 'ok.png',
+            'DialogCancelButton': 'window-close.png',
+            'DialogHelpButton': 'help.png',
+            'DialogOpenButton': 'document_open.png',
+            'DialogSaveButton': 'save.png',
+            'DialogApplyButton': 'ok.png',
+            'DialogDiscardButton': 'trash.png',
+            'MessageBoxInformation': 'dialog_information.png',
+            'MessageBoxWarning': 'dialog_warning.png',
+            'MessageBoxCritical': 'dialog_error.png',
+            'MessageBoxQuestion': 'dialog_question.png',
+            'BrowserReload': 'view-refresh.png',
+            'LineEditClearButton': 'clear_left.png',
         }):
             if v not in pcache:
                 p = I(v)
@@ -1242,7 +1246,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     from PyQt5.Qt import QFontMetrics, QApplication
     fm = QApplication.fontMetrics() if font is None else (font if isinstance(font, QFontMetrics) else QFontMetrics(font))
     delta = 4
-    ellipsis = u'\u2026'
+    ellipsis = '\u2026'
 
     def remove_middle(x):
         mid = len(x) // 2
@@ -1361,7 +1365,7 @@ def set_app_uid(val):
     try:
         AppUserModelID(unicode_type(val))
     except Exception as err:
-        prints(u'Failed to set app uid with error:', as_unicode(err))
+        prints('Failed to set app uid with error:', as_unicode(err))
         return False
     return True
 

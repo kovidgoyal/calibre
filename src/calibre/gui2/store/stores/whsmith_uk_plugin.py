@@ -28,7 +28,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class WHSmithUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.whsmith.co.uk/'
+        url = 'https://www.whsmith.co.uk/'
         url_details = ''
 
         if external or self.config.get('open_external', False):
@@ -45,7 +45,7 @@ class WHSmithUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.whsmith.co.uk/search?keywordCategoryId=wc_dept_ebooks&results=60'
+        url = ('https://www.whsmith.co.uk/search?keywordCategoryId=wc_dept_ebooks&results=60'
                '&page=1&keywords=' + quote(query))
 
         br = browser()
@@ -59,7 +59,7 @@ class WHSmithUKStore(BasicStoreConfig, StorePlugin):
                 id_ = ''.join(data.xpath('./a[@class="product_image_wrap"]/@href'))
                 if not id_:
                     continue
-                id_ = 'http://www.whsmith.co.uk' + id_
+                id_ = 'https://www.whsmith.co.uk' + id_
                 cover_url = ''.join(data.xpath('.//img[@class="product_image"]/@src'))
                 title = ''.join(data.xpath('.//h4[@class="product_title"]/text()'))
                 author = ', '.join(data.xpath('.//span[@class="product_second"]/text()'))

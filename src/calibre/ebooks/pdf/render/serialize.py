@@ -464,7 +464,7 @@ class PDFStream(object):
         ba = QByteArray()
         buf = QBuffer(ba)
         image.save(buf, 'jpeg', 94)
-        data = bytes(ba.data())
+        data = ba.data()
 
         if has_alpha:
             soft_mask = self.write_image(tmask, w, h, 8)

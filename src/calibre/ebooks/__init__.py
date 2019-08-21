@@ -67,7 +67,7 @@ class HTMLRenderer(object):
             buf = QBuffer(ba)
             buf.open(QBuffer.WriteOnly)
             image.save(buf, 'JPEG')
-            self.data = bytes(ba.data())
+            self.data = ba.data()
         except Exception as e:
             self.exception = e
             self.traceback = traceback.format_exc()

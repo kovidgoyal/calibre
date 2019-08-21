@@ -743,7 +743,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.queries = JSONConfig("search_replace_queries")
         self.saved_search_name = ''
         self.query_field.addItem("")
-        self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+        self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
         self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
@@ -1323,7 +1323,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(True)
             self.query_field.clear()
             self.query_field.addItem('')
-            self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+            self.query_field_values = sorted(self.queries, key=sort_key)
             self.query_field.addItems(self.query_field_values)
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))

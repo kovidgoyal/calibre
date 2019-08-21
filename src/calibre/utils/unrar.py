@@ -90,10 +90,10 @@ def extract_member(
 
 def extract_first_alphabetically(stream):
     from calibre.libunzip import sort_key
-    names_ = sorted([
+    names_ = sorted((
         x for x in names(stream)
         if os.path.splitext(x)[1][1:].lower() in {
-            'png', 'jpg', 'jpeg', 'gif', 'webp'}],
+            'png', 'jpg', 'jpeg', 'gif', 'webp'}),
                     key=sort_key)
     return extract_member(stream, name=names_[0], match=None)
 

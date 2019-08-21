@@ -156,7 +156,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         formats = set(self.format_map())
         extra = formats - set(self.calibre_known_formats)
         if extra:
-            fmts = sorted([x.upper() for x in extra])
+            fmts = sorted((x.upper() for x in extra))
             if not question_dialog(self, _('Unknown formats'),
                     _('You have enabled the <b>{0}</b> formats for'
                         ' your {1}. The {1} may not support them.'

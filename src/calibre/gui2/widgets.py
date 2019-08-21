@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -23,7 +24,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndica
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     image_extensions, dnd_has_extension, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import native_string_type, unicode_type, range
 
 history = XMLConfig('history')
 
@@ -45,11 +46,11 @@ class ProgressIndicator(QWidget):  # {{{
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
         if self.pos is None:
-            self.move(0, (pheight-self.size().height())/2.)
+            self.move(0, (pheight-self.size().height())/2)
         else:
             self.move(self.pos[0], self.pos[1])
         self.pi.resize(self.pi.sizeHint())
-        self.pi.move(int((self.size().width()-self.pi.size().width())/2.), 0)
+        self.pi.move(int((self.size().width()-self.pi.size().width())//2), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
         self.status.move(0, self.pi.size().height()+10)
         self.status.setText('<h1>'+msg+'</h1>')
@@ -137,7 +138,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             self.series.setText(_('No match'))
 
         if mi.series_index is not None:
-            self.series_index.setText(str(mi.series_index))
+            self.series_index.setText(unicode_type(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
 
@@ -151,7 +152,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         else:
             self.pubdate.setText(_('No match'))
 
-        self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
+        self.isbn.setText(_('No match') if mi.isbn is None else unicode_type(mi.isbn))
         self.comments.setText(mi.comments if mi.comments else _('No match'))
 
     def pattern(self):
@@ -304,7 +305,7 @@ def draw_size(p, rect, w, h):
     f = p.font()
     f.setBold(True)
     p.setFont(f)
-    sz = u'\u00a0%d x %d\u00a0'%(w, h)
+    sz = '\u00a0%d x %d\u00a0'%(w, h)
     flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
     szrect = p.boundingRect(rect, flags, sz)
     p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
@@ -369,8 +370,8 @@ class ImageView(QWidget, ImageDropMixin):
             pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.IgnoreAspectRatio,
                     Qt.SmoothTransformation)
         w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
-        x = int(abs(cw - w)/2.)
-        y = int(abs(ch - h)/2.)
+        x = int(abs(cw - w)//2)
+        y = int(abs(ch - h)//2)
         target = QRect(x, y, w, h)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -570,7 +571,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
 
-        self.completer.activated[str].connect(self.complete_text)
+        self.completer.activated[native_string_type].connect(self.complete_text)
 
         self.completer.setWidget(self)
 
@@ -888,13 +889,13 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         self.setFormat(0, textLength,
                        PythonHighlighter.Formats["normal"])
 
-        if text.startswith(u"Traceback") or text.startswith(u"Error: "):
+        if text.startswith("Traceback") or text.startswith("Error: "):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
             return
         if prevState == ERROR and \
-           not (text.startswith(u'>>>') or text.startswith(u"#")):
+           not (text.startswith('>>>') or text.startswith("#")):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
@@ -913,18 +914,18 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         # PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
         if not text:
             pass
-        elif text[0] == u"#":
+        elif text[0] == "#":
             self.setFormat(0, len(text),
                            PythonHighlighter.Formats["comment"])
         else:
             stack = []
             for i, c in enumerate(text):
-                if c in (u'"', u"'"):
+                if c in ('"', "'"):
                     if stack and stack[-1] == c:
                         stack.pop()
                     else:
                         stack.append(c)
-                elif c == u"#" and len(stack) == 0:
+                elif c == "#" and len(stack) == 0:
                     self.setFormat(i, len(text),
                                    PythonHighlighter.Formats["comment"])
                     break
