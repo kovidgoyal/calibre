@@ -16,7 +16,7 @@ class ShowTemplateTesterAction(InterfaceAction):
 
     name = 'Template tester'
     action_spec = (_('Template tester'), 'debug.png', None, ())
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     def genesis(self):

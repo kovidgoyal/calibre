@@ -15,7 +15,7 @@ class OpenFolderAction(InterfaceAction):
     name = 'Open Folder'
     action_spec = (_('Open containing folder'), 'document_open.png',
                    _('Open the folder containing the current book\'s files'), _('O'))
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     def genesis(self):

@@ -15,7 +15,7 @@ class AddToLibraryAction(InterfaceAction):
     action_spec = (_('Add books to library'), 'add_book.png',
             _('Add books to your calibre library from the connected device'),
             ())
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
     action_type = 'current'
 
     def genesis(self):

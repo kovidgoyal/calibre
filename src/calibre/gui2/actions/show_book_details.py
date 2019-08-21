@@ -22,7 +22,7 @@ class ShowBookDetailsAction(InterfaceAction):
     name = 'Show Book Details'
     action_spec = (_('Show Book details'), 'dialog_information.png',
                    _('Show the detailed metadata for the current book in a separate window'), _('I'))
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     def genesis(self):

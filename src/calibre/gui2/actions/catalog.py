@@ -23,7 +23,7 @@ class GenerateCatalogAction(InterfaceAction):
     name = 'Generate Catalog'
     action_spec = (_('Create catalog'), 'catalog.png',
                    _('Create a catalog of the books in your calibre library in different formats'), ())
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
 
     def genesis(self):
         self.qaction.triggered.connect(self.generate_catalog)

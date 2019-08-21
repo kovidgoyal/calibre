@@ -61,7 +61,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     name = 'Quickview'
     action_spec = (_('Quickview'), 'quickview.png', None, None)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     current_instance = None

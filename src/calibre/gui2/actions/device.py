@@ -24,7 +24,7 @@ class ShareConnMenu(QMenu):  # {{{
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     server_state_changed_signal = pyqtSignal(object, object)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
 
     DEVICE_MSGS = [_('Start wireless device connection'),
             _('Stop wireless device connection')]
@@ -159,7 +159,7 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)

@@ -57,7 +57,7 @@ class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
     action_spec = (_('Edit book'), 'edit_book.png', _('Edit books in the EPUB or AZW formats'), _('T'))
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     accepts_drops = True

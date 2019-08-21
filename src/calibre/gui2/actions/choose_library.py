@@ -206,7 +206,7 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
     restore_view_state = pyqtSignal(object)
