@@ -159,12 +159,12 @@ class DeviceManager(Thread):  # {{{
         self.job_steps      = queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
-        self.reported_errors = set([])
+        self.reported_errors = set()
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
         self.connected_device_kind = None
-        self.ejected_devices  = set([])
+        self.ejected_devices  = set()
         self.mount_connection_requests = queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_only_once_seen = set()
@@ -1315,7 +1315,7 @@ class DeviceMixin(object):  # {{{
     def sync_catalogs(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             settings = self.device_manager.device.settings()
-            ids = list(dynamic.get('catalogs_to_be_synced', set([]))) if send_ids is None else send_ids
+            ids = list(dynamic.get('catalogs_to_be_synced', set())) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             with BusyCursor():
                 files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
@@ -1703,7 +1703,7 @@ class DeviceMixin(object):  # {{{
         the memory locations. The fifth is a set of paths to the
         matching books on the device.
         '''
-        loc = [None, None, None, 0, set([])]
+        loc = [None, None, None, 0, set()]
 
         if reset:
             self.book_db_id_cache = None
