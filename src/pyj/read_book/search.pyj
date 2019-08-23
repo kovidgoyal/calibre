@@ -8,7 +8,6 @@ from gettext import gettext as _
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon
-from keycodes import get_key
 from read_book.globals import ui_operations
 from read_book.resources import text_from_serialized_html
 
@@ -44,8 +43,7 @@ class SearchOverlay:
         c.firstChild.addEventListener('keydown', self.onkeydown)
 
     def onkeydown(self, event):
-        k = get_key(event)
-        if k is 'escape':
+        if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
             event.preventDefault(), event.stopPropagation()
 
