@@ -8,8 +8,8 @@ from gettext import gettext as _
 from iframe_comm import IframeClient
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
 from read_book.flow_mode import (
-    anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
-    flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
+    anchor_funcs as flow_anchor_funcs, flow_onwheel, flow_to_scroll_fraction,
+    handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
     layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
 from read_book.footnotes import is_footnote_link
@@ -20,17 +20,18 @@ from read_book.globals import (
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs, calc_columns_per_screen,
-    handle_gesture as paged_handle_gesture, jump_to_cfi as paged_jump_to_cfi,
-    layout as paged_layout, onkeydown as paged_onkeydown, onwheel as paged_onwheel,
-    progress_frac, reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page,
-    scroll_to_elem, scroll_to_fraction as paged_scroll_to_fraction,
-    snap_to_selection
+    handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
+    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
+    onwheel as paged_onwheel, progress_frac, reset_paged_mode_globals,
+    scroll_by_page as paged_scroll_by_page, scroll_to_elem,
+    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
     update_settings
 )
+from read_book.shortcuts import create_shortcut_map, shortcut_for_key_event
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.viewport import scroll_viewport
@@ -138,7 +139,7 @@ class IframeBoss:
         if current_layout_mode() is 'flow':
             self.do_layout = flow_layout
             self.handle_wheel = flow_onwheel
-            self.handle_keydown = flow_onkeydown
+            self.handle_navigation_shortcut = flow_handle_shortcut
             self._handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
@@ -146,12 +147,13 @@ class IframeBoss:
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
-            self.handle_keydown = paged_onkeydown
+            self.handle_navigation_shortcut = paged_handle_shortcut
             self.to_scroll_fraction = paged_scroll_to_fraction
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
         update_settings(data.settings)
+        self.keyboard_shortcut_map = create_shortcut_map()
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
         for name in self.blob_url_map:
@@ -343,8 +345,14 @@ class IframeBoss:
             self.handle_wheel(evt)
 
     def onkeydown(self, evt):
+        if current_layout_mode() is not 'flow' and evt.key is 'Tab':
+            # Prevent the TAB key from shifting focus as it causes partial scrolling
+            evt.preventDefault()
         if self.content_ready:
-            self.handle_keydown(evt)
+            sc_name = shortcut_for_key_event(evt, self.keyboard_shortcut_map)
+            if sc_name:
+                if self.handle_navigation_shortcut(sc_name, evt):
+                    evt.preventDefault()
 
     def oncontextmenu(self, evt):
         if self.content_ready:

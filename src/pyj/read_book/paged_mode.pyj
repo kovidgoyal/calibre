@@ -7,7 +7,6 @@ from elementmaker import E
 from select import word_at_point
 
 from dom import set_css
-from keycodes import get_key
 from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
@@ -210,15 +209,6 @@ def layout(is_single_page):
         is_full_screen_layout = (only_img or has_svg) and single_screen and (scroll_viewport.paged_content_width() < 2*ww + 10)
         if is_single_page:
             is_full_screen_layout = True
-
-        # Prevent the TAB key from shifting focus as it causes partial scrolling
-        document.documentElement.addEventListener(
-            'keydown',
-            def (evt):
-                if get_key(evt) is 'tab':
-                    evt.preventDefault()
-            , {'passive': False}
-        )
 
     # Some browser engine, WebKit at least, adjust column widths to please
     # themselves, unless the container width is an exact multiple, so we check
@@ -485,39 +475,44 @@ def scroll_by_page(backward, by_screen):
             get_boss().report_human_scroll()
         scroll_to_xpos(pos)
 
-def onkeydown(evt):
-    handled = False
-    key = get_key(evt)
-    if key is 'up' or key is 'down':
-        handled = True
-        if evt.ctrlKey:
-            get_boss().report_human_scroll()
-            scroll_to_offset(0 if key is 'left' else document_width())
-        else:
-            scroll_by_page(key is 'up', True)
-    elif (key is 'left' or key is 'right') and not evt.altKey:
-        handled = True
-        if evt.ctrlKey:
-            get_boss().report_human_scroll()
-            scroll_to_offset(0 if key is 'left' else document_width())
-        else:
-            scroll_by_page(key is 'left', False)
-    elif key is 'home' or key is 'end':
-        handled = True
-        if evt.ctrlKey:
-            get_boss().report_human_scroll()
-            get_boss().send_message('goto_doc_boundary', start=key is 'home')
-        else:
-            if key is 'home':
-                get_boss().report_human_scroll()
-                scroll_to_offset(0)
-            else:
-                scroll_to_offset(document_width())
-    elif key is 'pageup' or key is 'pagedown' or key is 'space':
-        handled = True
-        scroll_by_page(key is 'pageup', True)
-    if handled:
-        evt.preventDefault()
+
+def handle_shortcut(sc_name, evt):
+    if sc_name is 'up':
+        scroll_by_page(True, True)
+        return True
+    if sc_name is 'down':
+        scroll_by_page(False, True)
+        return True
+    if sc_name is 'start_of_file':
+        get_boss().report_human_scroll()
+        scroll_to_offset(0)
+        return True
+    if sc_name is 'end_of_file':
+        get_boss().report_human_scroll()
+        scroll_to_offset(document_width())
+        return True
+    if sc_name is 'left':
+        scroll_by_page(True, False)
+        return True
+    if sc_name is 'right':
+        scroll_by_page(False, False)
+        return True
+    if sc_name is 'start_of_book':
+        get_boss().report_human_scroll()
+        get_boss().send_message('goto_doc_boundary', start=True)
+        return True
+    if sc_name is 'end_of_book':
+        get_boss().report_human_scroll()
+        get_boss().send_message('goto_doc_boundary', start=False)
+        return True
+    if sc_name is 'pageup':
+        scroll_by_page(True, True)
+        return True
+    if sc_name is 'pagedown':
+        scroll_by_page(False, True)
+        return True
+    return False
+
 
 def handle_gesture(gesture):
     if gesture.type is 'swipe':

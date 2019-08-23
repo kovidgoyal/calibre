@@ -1,0 +1,139 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+
+
+def parse_key_repr(sc):
+    parts = sc.split('+')
+    if sc.endsWith('++'):
+        parts = parts[:-2]
+        parts.push('+')
+    key = parts[-1]
+    ans = {'key': key, 'altKey': False, 'ctrlKey': False, 'metaKey': False, 'shiftKey': False}
+    for modifier in parts[:-1]:
+        q = modifier.toLowerCase()
+        if q is 'ctrl':
+            ans.ctrlKey = True
+        elif q is 'alt':
+            ans.altKey = True
+        elif q is 'meta':
+            ans.metaKey = True
+        elif q is 'shift':
+            ans.shiftKey = True
+    return ans
+
+
+def desc(sc, group, short, long):
+    if jstype(sc) is 'string':
+        sc = v'[sc]'
+    pkey = v'[]'
+    for x in sc:
+        pkey.push(parse_key_repr(x))
+    return {'short': short, 'long': long, 'shortcuts': pkey}
+
+
+def serialize_keyevent(evt):
+    return {
+        'key': evt.key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
+        'metaKey': evt.metaKey, 'shiftKey': evt.shiftKey
+    }
+
+
+def unserialize_keyevent(sc):
+    return sc
+
+
+def keyevent_to_index(evt):
+    parts = v'[]'
+    for mod in v"['altKey', 'ctrlKey', 'metaKey', 'shiftKey']":
+        parts.push('y' if evt[mod] else 'n')
+    return parts.join('') + evt.key
+
+
+SHORTCUTS = {
+    'start_of_file': desc(
+        v"['Ctrl+ArrowUp', 'Ctrl+ArrowLeft', 'Home']",
+        'scroll',
+        _('Scroll to the beginning of the current file'),
+        _('When the e-book is made of of multiple individual files, scroll to the start of the current file.'),
+    ),
+
+    'start_of_book': desc(
+        'Ctrl+Home',
+        'scroll',
+        _('Scroll to the beginning of the book'),
+    ),
+
+    'end_of_book': desc(
+        'Ctrl+End',
+        'scroll',
+        _('Scroll to the end of the book'),
+    ),
+
+    'end_of_file': desc(
+        v"['Ctrl+ArrowDown', 'Ctrl+ArrowRight', 'End']",
+        'scroll',
+        _('Scroll to the end of the current file'),
+        _('When the e-book is made of of multiple individual files, scroll to the end of the current file.'),
+    ),
+
+    'up': desc(
+        'ArrowUp',
+        'scroll',
+        _('Scroll backwards smoothly (by screen-fulls in paged mode)'),
+        _('Scroll backwards, smoothly in flow mode and by screen fulls in paged mode'),
+    ),
+
+    'down': desc(
+        'ArrowDown',
+        'scroll',
+        _('Scroll forwards smoothly (by screen-fulls in paged mode)'),
+        _('Scroll forwards, smoothly in flow mode and by screen fulls in paged mode'),
+    ),
+
+    'left': desc(
+        'ArrowLeft',
+        'scroll',
+        _('Scroll left'),
+        _('Scroll leftwards by a little in flow mode and by a page in paged mode'),
+    ),
+
+    'right': desc(
+        'ArrowRight',
+        'scroll',
+        _('Scroll right'),
+        _('Scroll rightwards by a little in flow mode and by a page in paged mode'),
+    ),
+
+    'pageup': desc(
+        'PageUp',
+        'scroll',
+        _('Scroll backwards by screen-fulls'),
+    ),
+
+    'pagedown': desc(
+        v"[' ', 'PageDown']",
+        'scroll',
+        _('Scroll forwards by screen-fulls'),
+    ),
+
+}
+
+
+def create_shortcut_map(custom_shortcuts):
+    ans = {}
+    for sc_name in Object.keys(SHORTCUTS):
+        entry = SHORTCUTS[sc_name]
+        shortcuts = entry.shortcuts
+        if custom_shortcuts and custom_shortcuts[sc_name]:
+            shortcuts = custom_shortcuts[sc_name]
+        for sc in shortcuts:
+            ans[keyevent_to_index(sc)] = sc_name
+    return ans
+
+
+def shortcut_for_key_event(evt, shortcut_map):
+    idx = keyevent_to_index(evt)
+    return shortcut_map[idx]
