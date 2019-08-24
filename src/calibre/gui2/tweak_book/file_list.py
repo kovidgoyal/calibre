@@ -496,7 +496,7 @@ class FileList(QTreeWidget):
 
     def show_context_menu(self, point):
         item = self.itemAt(point)
-        if item is None or item in set(itervalues(self.categories)):
+        if item is None or item in tuple(itervalues(self.categories)):
             return
         m = QMenu(self)
         sel = self.selectedItems()
