@@ -11,6 +11,7 @@ from read_book.globals import runtime
 from read_book.prefs.colors import commit_colors, create_colors_panel
 from read_book.prefs.fonts import commit_fonts, create_fonts_panel
 from read_book.prefs.head_foot import commit_head_foot, create_head_foot_panel
+from read_book.prefs.keyboard import commit_keyboard, create_keyboard_panel
 from read_book.prefs.layout import commit_layout, create_layout_panel
 from read_book.prefs.misc import commit_misc, create_misc_panel
 from read_book.prefs.user_stylesheet import (
@@ -70,6 +71,7 @@ class Prefs:
             create_item(_('Page layout'), def():self.show_panel('layout');, _('Page margins and number of pages per screen')),
             create_item(_('User style sheet'), def():self.show_panel('user_stylesheet');, _('Style rules for text')),
             create_item(_('Headers and footers'), def():self.show_panel('head_foot');, _('Customize the headers and footers')),
+            create_item(_('Keyboard shortcuts'), def():self.show_panel('keyboard');, _('Customize the keyboard shortcuts')),
         ]
         if runtime.is_standalone_viewer:
             items.push(create_item(
@@ -119,6 +121,13 @@ class Prefs:
 
     def close_head_foot(self):
         commit_head_foot(self.onchange, self.container)
+
+    def display_keyboard(self, container):
+        document.getElementById(self.title_id).textContent = _('Keyboard shortcuts')
+        create_keyboard_panel(container)
+
+    def close_keyboard(self):
+        commit_keyboard(self.onchange, self.container)
 
 
 def create_prefs_panel(container, close_func, on_change):

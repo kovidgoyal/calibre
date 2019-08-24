@@ -1,0 +1,89 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list
+from dom import unique_id
+from read_book.shortcuts import GROUP_DESC, SHORTCUTS
+from widgets import create_button
+
+
+def get_container():
+    return document.getElementById(get_container.id)
+
+
+def restore_defaults():
+    pass
+
+
+def as_groups(shortcuts):
+    ans = {}
+    for sc_name in Object.keys(shortcuts):
+        sc = shortcuts[sc_name]
+        if not ans[sc.group]:
+            ans[sc.group] = {}
+        ans[sc.group][sc_name] = sc
+    return ans
+
+
+def sort_group_key(group, sc_name):
+    return group[sc_name].short.toLowerCase()
+
+
+def sc_as_item(sc_name, sc):
+    return create_item(sc.short, action=customize_shortcut.bind(None, sc_name), subtitle=sc.long, data=JSON.stringify({'name': sc_name, 'shortcuts': sc.shortcuts}))
+
+
+def customize_shortcut(sc_name):
+    container = get_container()
+    container.firstChild.style.display = 'none'
+    container.lastChild.style.display = 'block'
+    sc = SHORTCUTS[sc_name]
+    container.appendChild(E.h4(sc.short))
+    if sc.long:
+        container.appendChild(E.div(sc.long, style='font-style: italic; font-size: smaller; margin-top: 1ex'))
+    container.appendChild(E.div(_('Existing shortcuts:')))
+    for key in sc.shortcuts:
+        container.appendChild(E.div(style='margin-top: 1ex', key_widget(key)))
+    container.appendChild(E.div(style='margin-top:1ex; display:flex; justify-content: flex-end',
+        create_button(_('OK'), action=close_customize_shortcut.bind(None, True)),
+        E.span('\xa0'),
+        create_button(_('Cancel'), action=close_customize_shortcut.bind(None, False)),
+    ))
+
+
+
+def create_keyboard_panel(container):
+    container.appendChild(E.div(id=unique_id('keyboard-settings'), style='margin: 1rem'))
+    container = container.lastChild
+    get_container.id = container.id
+    container.appendChild(E.div())
+    container.appendChild(E.div(style='display: none'))
+    container = container.firstChild
+    groups = as_groups(SHORTCUTS)
+    items = []
+    for group_name in Object.keys(groups):
+        container.appendChild(E.h3(GROUP_DESC[group_name]))
+        group = groups[group_name]
+        for sc_name in sorted(Object.keys(group), key=sort_group_key.bind(None, group)):
+            sc = group[sc_name]
+            items.push(sc_as_item(sc_name, sc))
+        container.appendChild(E.div())
+        create_item_list(container.lastChild, items)
+
+    container.appendChild(E.div(
+        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)
+    ))
+
+
+develop = create_keyboard_panel
+
+
+def commit_keyboard(onchange):
+    sd = get_session_data()
+    vals = {}
+    sd.set('standalone_misc_settings', vals)

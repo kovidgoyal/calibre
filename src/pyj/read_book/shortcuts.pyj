@@ -31,18 +31,14 @@ def desc(sc, group, short, long):
     pkey = v'[]'
     for x in sc:
         pkey.push(parse_key_repr(x))
-    return {'short': short, 'long': long, 'shortcuts': pkey}
+    return {'group': group, 'short': short, 'long': long, 'shortcuts': pkey}
 
 
-def serialize_keyevent(evt):
+def keyevent_as_shortcut(evt):
     return {
         'key': evt.key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
         'metaKey': evt.metaKey, 'shiftKey': evt.shiftKey
     }
-
-
-def unserialize_keyevent(sc):
-    return sc
 
 
 def keyevent_to_index(evt):
@@ -50,6 +46,11 @@ def keyevent_to_index(evt):
     for mod in v"['altKey', 'ctrlKey', 'metaKey', 'shiftKey']":
         parts.push('y' if evt[mod] else 'n')
     return parts.join('') + evt.key
+
+
+GROUP_DESC = {
+    'scroll': _('Navigation')
+}
 
 
 SHORTCUTS = {

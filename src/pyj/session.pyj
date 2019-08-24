@@ -40,6 +40,7 @@ defaults = {
     'header': {},
     'footer': {'right': 'progress'},
     'word_actions': v'[]',
+    'keyboard_shortcuts': {},
     'standalone_font_settings': {},
     'standalone_misc_settings': {},
     'standalone_recently_opened': v'[]',

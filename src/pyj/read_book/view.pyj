@@ -426,6 +426,7 @@ class View:
             'color_scheme': self.get_color_scheme(True),
             'base_font_size': sd.get('base_font_size'),
             'user_stylesheet': sd.get('user_stylesheet'),
+            'keyboard_shortcuts': sd.get('keyboard_shortcuts'),
         }
 
     def show_name(self, name, initial_position=None):
