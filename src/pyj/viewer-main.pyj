@@ -20,7 +20,7 @@ from read_book.iframe import main as iframe_main
 from read_book.view import View
 from read_book.footnotes import main as footnotes_main
 from session import session_defaults
-from utils import encode_query_with_path
+from utils import encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
 
@@ -118,7 +118,17 @@ def update_url_state(replace):
         if bookpos:
             query = {'bookpos': bookpos}
             query = encode_query_with_path(query)
-            window.history.pushState(None, '', query)
+            if replace:
+                window.history.replaceState(None, '', query)
+            else:
+                window.history.pushState(None, '', query)
+
+
+def on_pop_state():
+    if view and view.currently_showing:
+        data = parse_url_params()
+        if data.bookpos and data.bookpos.startswith('epubcfi(/'):
+            view.goto_bookpos(data.bookpos)
 
 
 def show_error(title, msg, details):
@@ -280,6 +290,9 @@ if window is window.top:
     document.body.style.fontFamily = get_font_family()
     document.head.appendChild(E.style(get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    setTimeout(def():
+            window.onpopstate = on_pop_state
+        , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
 else:
     # iframe
     div = document.getElementById('calibre-viewer-footnote-iframe')
