@@ -153,7 +153,7 @@ class IframeBoss:
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
         update_settings(data.settings)
-        self.keyboard_shortcut_map = create_shortcut_map(data.keyboard_shortcuts)
+        self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
         for name in self.blob_url_map:
