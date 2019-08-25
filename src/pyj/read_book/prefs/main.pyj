@@ -124,7 +124,7 @@ class Prefs:
 
     def display_keyboard(self, container):
         document.getElementById(self.title_id).textContent = _('Keyboard shortcuts')
-        create_keyboard_panel(container)
+        create_keyboard_panel(container, self.onclose)
 
     def close_keyboard(self):
         commit_keyboard(self.onchange, self.container)

@@ -18,11 +18,13 @@ def get_container():
     return document.getElementById(get_container.id)
 
 
-def restore_defaults():
+def restore_defaults(close_func):
+    get_container().dataset.changed = 'true'
     for item in get_container().querySelectorAll('[data-user-data]'):
         q = JSON.parse(item.dataset.userData)
         q.shortcuts = SHORTCUTS[q.name].shortcuts
         item.dataset.userData = JSON.stringify(q)
+    close_func()
 
 
 def as_groups(shortcuts):
@@ -74,6 +76,7 @@ def close_customize_shortcut(apply_changes):
                 q.shortcuts = shortcuts
                 item.dataset.userData = JSON.stringify(q)
                 break
+        get_container().dataset.changed = 'true'
 
 
 def add_key_widget():
@@ -133,9 +136,10 @@ def customize_shortcut(sc_name):
 
 
 
-def create_keyboard_panel(container):
+def create_keyboard_panel(container, close_func):
     container.appendChild(E.div(id=unique_id('keyboard-settings'), style='margin: 1rem'))
     container = container.lastChild
+    container.dataset.changed = 'false'
     get_container.id = container.id
     container.appendChild(E.div())
     container.appendChild(E.div(style='display: none'))
@@ -154,7 +158,7 @@ def create_keyboard_panel(container):
         create_item_list(container.lastChild, items)
 
     container.appendChild(E.div(
-        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)
+        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults.bind(None, close_func))
     ))
 
 
@@ -178,3 +182,5 @@ def commit_keyboard(onchange):
         if shortcuts_differ(q.shortcuts, SHORTCUTS[q.name].shortcuts):
             vals[q.name] = q.shortcuts
     sd.set('keyboard_shortcuts', vals)
+    if get_container().dataset.changed is 'true':
+        onchange()
