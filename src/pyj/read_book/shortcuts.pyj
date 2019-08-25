@@ -67,7 +67,8 @@ def key_as_text(evt):
 
 
 GROUP_DESC = {
-    'scroll': _('Navigation')
+    'scroll': _('Navigation'),
+    'ui': _('Interface'),
 }
 
 
@@ -150,9 +151,33 @@ SHORTCUTS = {
         _('Forward'),
     ),
 
-
+    'toggle_toc': desc(
+        v"['Ctrl+t']",
+        'ui',
+        _('Show/hide Table of Contents'),
+    ),
 
 }
+
+
+def add_standalone_viewer_shortcuts():
+    SHORTCUTS['toggle_bookmarks'] = desc(
+        v"['Ctrl+b']",
+        'ui',
+        _('Show/hide bookmarks'),
+    )
+
+    SHORTCUTS['toggle_inspector'] = desc(
+        v"['Ctrl+i']",
+        'ui',
+        _('Show/hide Inspector'),
+    )
+
+    SHORTCUTS['toggle_lookup'] = desc(
+        v"['Ctrl+l']",
+        'ui',
+        _('Show/hide the word lookup panel'),
+    )
 
 
 def create_shortcut_map(custom_shortcuts):

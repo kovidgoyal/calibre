@@ -9,24 +9,25 @@ from gettext import gettext as _, install
 import initialize  # noqa: unused-import
 from ajax import ajax
 from book_list.globals import set_session_data
-from book_list.theme import get_color, get_font_family
 from book_list.library_data import library_data
+from book_list.theme import get_color, get_font_family
 from dom import get_widget_css, set_css
 from modals import create_modal_container, error_dialog
 from qt import from_python, to_python
 from read_book.db import new_book
+from read_book.footnotes import main as footnotes_main
 from read_book.globals import runtime, ui_operations
 from read_book.iframe import main as iframe_main
+from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
-from read_book.footnotes import main as footnotes_main
 from session import session_defaults
 from utils import encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 
-
 runtime.is_standalone_viewer = True
 runtime.FAKE_HOST = FAKE_HOST
 runtime.FAKE_PROTOCOL = FAKE_PROTOCOL
+add_standalone_viewer_shortcuts()
 book = None
 view = None
 

@@ -68,6 +68,7 @@ class ReadUI:
         ui_operations.goto_bookpos = self.goto_bookpos.bind(self)
         ui_operations.delete_book = self.delete_book.bind(self)
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
+        ui_operations.toggle_toc = self.toggle_toc.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -165,6 +166,9 @@ class ReadUI:
 
     def focus_iframe(self):
         self.view.focus_iframe()
+
+    def toggle_toc(self):
+        self.view.overlay.show_toc()
 
     def update_color_scheme(self):
         self.view.update_color_scheme()

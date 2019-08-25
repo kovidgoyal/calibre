@@ -221,6 +221,14 @@ class View:
             window.history.back()
         elif data.name is 'forward':
             window.history.forward()
+        elif data.name is 'toggle_toc':
+            ui_operations.toggle_toc()
+        elif data.name is 'toggle_bookmarks':
+            ui_operations.toggle_bookmarks()
+        elif data.name is 'toggle_inspector':
+            ui_operations.toggle_inspector()
+        elif data.name is 'toggle_lookup':
+            ui_operations.toggle_lookup()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

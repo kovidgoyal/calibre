@@ -147,10 +147,10 @@ def create_keyboard_panel(container, close_func):
     sd = get_session_data()
     custom_shortcuts = sd.get('keyboard_shortcuts')
     groups = as_groups(SHORTCUTS)
-    items = []
     for group_name in Object.keys(groups):
-        container.appendChild(E.h3(GROUP_DESC[group_name]))
+        container.appendChild(E.h3(style='margin-top: 1ex', GROUP_DESC[group_name]))
         group = groups[group_name]
+        items = []
         for sc_name in sorted(Object.keys(group), key=sort_group_key.bind(None, group)):
             sc = group[sc_name]
             items.push(sc_as_item(sc_name, sc, custom_shortcuts[sc_name]))
