@@ -138,6 +138,20 @@ SHORTCUTS = {
         _('Scroll forwards by screen-fulls'),
     ),
 
+    'back': desc(
+        v"['Alt+ArrowLeft', 'Shift+ArrowLeft']",
+        'scroll',
+        _('Back'),
+    ),
+
+    'forward': desc(
+        v"['Alt+ArrowRight', 'Shift+ArrowRight']",
+        'scroll',
+        _('Forward'),
+    ),
+
+
+
 }
 
 

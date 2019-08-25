@@ -256,6 +256,8 @@ class WebPage(QWebEnginePage):
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
         if req_type == self.NavigationTypeReload:
             return True
+        if req_type == self.NavigationTypeBackForward:
+            return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
         open_url(url)

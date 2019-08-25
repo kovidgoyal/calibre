@@ -353,6 +353,8 @@ class IframeBoss:
             if sc_name:
                 if self.handle_navigation_shortcut(sc_name, evt):
                     evt.preventDefault()
+                else:
+                    self.send_message('handle_shortcut', name=sc_name)
 
     def oncontextmenu(self, evt):
         if self.content_ready:
