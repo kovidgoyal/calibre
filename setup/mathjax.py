@@ -19,7 +19,7 @@ from setup import Command, download_securely
 class MathJax(Command):
 
     description = 'Create the MathJax bundle'
-    MATH_JAX_VERSION = '2.7.5'
+    MATH_JAX_VERSION = '2.7.6'
     MATH_JAX_URL = 'https://github.com/mathjax/MathJax/archive/%s.zip' % MATH_JAX_VERSION
     FONT_FAMILY = 'TeX'
 
