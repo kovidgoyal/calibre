@@ -241,6 +241,8 @@ class View:
             self.bump_font_size({'increase': True})
         elif data.name is 'decrease_font_size':
             self.bump_font_size({'increase': False})
+        elif data.name is 'toggle_full_screen':
+            ui_operations.toggle_full_screen()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

@@ -17,7 +17,7 @@ from modals import create_simple_dialog_markup, error_dialog
 from read_book.db import get_db
 from read_book.globals import ui_operations
 from read_book.view import View
-from utils import debounce, human_readable
+from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
 
 RENDER_VERSION = __RENDER_VERSION__
@@ -69,6 +69,7 @@ class ReadUI:
         ui_operations.delete_book = self.delete_book.bind(self)
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
+        ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -169,6 +170,12 @@ class ReadUI:
 
     def toggle_toc(self):
         self.view.overlay.show_toc()
+
+    def toggle_full_screen(self):
+        if full_screen_element():
+            document.exitFullscreen()
+        else:
+            request_full_screen(document.documentElement)
 
     def update_color_scheme(self):
         self.view.update_color_scheme()

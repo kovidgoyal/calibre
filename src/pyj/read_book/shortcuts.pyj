@@ -186,6 +186,12 @@ SHORTCUTS = {
         'ui',
         _('Decrease font size'),
     ),
+
+    'toggle_full_screen': desc(
+        v"['F11', 'Ctrl+Shift+F']",
+        'ui',
+        _('Toggle full screen'),
+    ),
 }
 
 

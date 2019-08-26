@@ -19,9 +19,7 @@ from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
 from session import get_device_uuid
-from utils import (
-    full_screen_element, is_ios, request_full_screen, safe_set_inner_html
-)
+from utils import full_screen_element, is_ios, safe_set_inner_html
 from widgets import create_button, create_spinner
 
 
@@ -278,7 +276,7 @@ class MainOverlay:  # {{{
             if not full_screen_element() and not is_ios:
                 # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen
                 full_screen_actions.push(
-                    ac(_('Full screen'), _('Enter full screen mode'), def(): request_full_screen(), self.overlay.hide();, 'full-screen')
+                    ac(_('Full screen'), _('Enter full screen mode'), def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen')
                 )
         if full_screen_actions.length:
             actions_div.appendChild(E.ul(*full_screen_actions))

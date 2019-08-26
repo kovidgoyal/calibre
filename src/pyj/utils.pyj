@@ -74,8 +74,9 @@ def encode_query_with_path(query, path):
 
 def request_full_screen(elem):
     elem = elem or document.documentElement
+    options = {'navigationUI': 'hide'}
     if elem.requestFullScreen:
-        elem.requestFullScreen()
+        elem.requestFullScreen(options)
     elif elem.webkitRequestFullScreen:
         elem.webkitRequestFullScreen()
     elif elem.mozRequestFullScreen:

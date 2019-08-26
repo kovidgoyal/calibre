@@ -82,4 +82,5 @@ ui_operations = {
     'delete_book': None,
     'focus_iframe': None,
     'toggle_toc': None,
+    'toggle_full_screen': None,
 }
