@@ -409,7 +409,7 @@ class IframeBoss:
     def find(self, data, from_load):
         if data.searched_in_spine:
             window.getSelection().removeAllRanges()
-        if window.find(data.text, False, data.backwards):
+        if window.find(data.text, False, data.backwards, from_load and data.backwards):
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
         else:
