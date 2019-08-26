@@ -60,7 +60,7 @@ def show_controls_help():
 
     def focus():
         if container.style.display is 'block':
-            container.lastChild.focus()
+            container.querySelector('input').focus()
             window.setTimeout(focus, 10)
 
     if runtime.is_standalone_viewer:
@@ -69,6 +69,8 @@ def show_controls_help():
             E.div(style='margin-top: 1rem'),
             E.div(style='margin-top: 1rem'),
             E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+            E.input(style='background: transparent; border-width: 0; outline: none', readonly='readonly'),
         ))
         div = container.lastChild.firstChild
         safe_set_inner_html(div, _('Welcome to the <b>calibre viewer</b>!'))
@@ -76,7 +78,8 @@ def show_controls_help():
         safe_set_inner_html(div, _('Use the <b>PageUp/PageDn</b> or <b>Arrow keys</b> to turn pages'))
         div = div.nextSibling
         safe_set_inner_html(div, _('Press the <b>Esc</b> key or <b>right click</b> to show the viewer controls'))
-        container.appendChild(E.input(style='background: transparent; border-width: 0; outline: none'))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Press any key to continue…'))
         focus()
         return
 
