@@ -31,7 +31,9 @@ from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
     update_settings
 )
-from read_book.shortcuts import create_shortcut_map, shortcut_for_key_event
+from read_book.shortcuts import (
+    create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
+)
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.viewport import scroll_viewport
@@ -76,6 +78,7 @@ class IframeBoss:
         self.resource_urls = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
+        self.forward_keypresses = False
         set_boss(self)
         handlers = {
             'initialize':self.initialize,
@@ -88,10 +91,14 @@ class IframeBoss:
             'find': self.find,
             'window_size': self.received_window_size,
             'get_current_cfi': self.get_current_cfi,
+            'set_forward_keypresses': self.set_forward_keypresses
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
+
+    def set_forward_keypresses(self, data):
+        self.forward_keypresses = data.forward
 
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
@@ -348,6 +355,10 @@ class IframeBoss:
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':
             # Prevent the TAB key from shifting focus as it causes partial scrolling
             evt.preventDefault()
+        if self.forward_keypresses:
+            self.send_message('handle_keypress', evt=keyevent_as_shortcut(evt))
+            evt.preventDefault(), evt.stopPropagation()
+            return
         if self.content_ready:
             sc_name = shortcut_for_key_event(evt, self.keyboard_shortcut_map)
             if sc_name:

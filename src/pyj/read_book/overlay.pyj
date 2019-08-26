@@ -455,7 +455,9 @@ class Overlay:
         clear(c)
         c.style.backgroundColor = 'transparent'
         c.style.color = get_color('window-foreground')
-        c.style.display = 'block'
+        if c.style.display is not 'block':
+            c.style.display = 'block'
+            self.view.overlay_visibility_changed(True)
         return c
 
     @property
@@ -469,9 +471,11 @@ class Overlay:
     def update_visibility(self):
         if self.panels.length:
             self.container.style.display = 'block'
+            self.view.overlay_visibility_changed(True)
         elif self.container.style.display is 'block':
             self.container.style.display = 'none'
             self.view.focus_iframe()
+            self.view.overlay_visibility_changed(False)
 
     def container_clicked(self, evt):
         if self.panels.length and jstype(self.panels[-1].on_container_click) is 'function':
