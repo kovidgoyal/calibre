@@ -10,6 +10,7 @@ from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon
 from read_book.globals import ui_operations
 from read_book.resources import text_from_serialized_html
+from read_book.shortcuts import shortcut_for_key_event
 
 CLASS_NAME = 'book-search-container'
 
@@ -40,12 +41,22 @@ class SearchOverlay:
             create_search_bar(self.find_next, 'search-in-book', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button, close_button]),
             '\xa0', next_button, '\xa0', prev_button, '\xa0', close_button
         ))
-        c.firstChild.addEventListener('keydown', self.onkeydown)
+        c.firstChild.addEventListener('keydown', self.onkeydown, {'passive': False})
 
     def onkeydown(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
             event.preventDefault(), event.stopPropagation()
+            return
+        sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
+        if sc_name is 'next_match':
+            self.find_next()
+            event.preventDefault(), event.stopPropagation()
+            return
+        if sc_name is 'previous_match':
+            self.find_previous()
+            event.preventDefault(), event.stopPropagation()
+            return
 
     @property
     def container(self):

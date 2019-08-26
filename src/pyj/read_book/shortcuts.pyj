@@ -157,6 +157,24 @@ SHORTCUTS = {
         _('Show/hide Table of Contents'),
     ),
 
+    'start_search': desc(
+        v"['/', 'Ctrl+f']",
+        'ui',
+        _('Start search'),
+    ),
+
+    'next_match': desc(
+        v"['F3']",
+        'ui',
+        _('Find next'),
+    ),
+
+    'previous_match': desc(
+        v"['Shift+F3']",
+        'ui',
+        _('Find previous'),
+    ),
+
 }
 
 

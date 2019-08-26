@@ -24,6 +24,7 @@ from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
+from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
@@ -106,6 +107,7 @@ class View:
         self.show_chrome_counter = 0
         self.clock_timer_id = 0
         sd = get_session_data()
+        self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
         set_left_margin_handler(left_margin)
         right_margin = E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked)
@@ -229,6 +231,12 @@ class View:
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
             ui_operations.toggle_lookup()
+        elif data.name is 'start_search':
+            self.show_search()
+        elif data.name is 'next_match':
+            self.search_overlay.find_next()
+        elif data.name is 'previous_match':
+            self.search_overlay.find_previous()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
@@ -429,6 +437,9 @@ class View:
             sd.set('controls_help_shown_count', c + 1)
 
     def redisplay_book(self):
+        # redisplay_book() is called when settings are changed
+        sd = get_session_data()
+        self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         self.display_book(self.book)
 
     def iframe_settings(self, name):
