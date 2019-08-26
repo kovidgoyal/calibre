@@ -70,6 +70,9 @@ class SearchOverlay:
     def is_visible(self):
         return self.container.style.display is not 'none'
 
+    def set_text(self, text):
+        self.container.querySelector('input').value = text or ''
+
     def hide(self):
         self.container.style.display = 'none'
 

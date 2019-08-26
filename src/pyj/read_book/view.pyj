@@ -243,6 +243,12 @@ class View:
             self.bump_font_size({'increase': False})
         elif data.name is 'toggle_full_screen':
             ui_operations.toggle_full_screen()
+        elif data.name is 'reload_book':
+            ui_operations.reload_book()
+        elif data.name is 'search_for_selection':
+            if self.currently_showing.selected_text:
+                self.search_overlay.set_text(self.currently_showing.selected_text)
+                self.search_overlay.find_next()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

@@ -192,6 +192,18 @@ SHORTCUTS = {
         'ui',
         _('Toggle full screen'),
     ),
+
+    'reload_book': desc(
+        v"['F5', 'Ctrl+r']",
+        'ui',
+        _('Reload book'),
+    ),
+
+    'search_for_selection': desc(
+        v"['Ctrl+s']",
+        'ui',
+        _('Search for next occurrence of selected text'),
+    ),
 }
 
 
