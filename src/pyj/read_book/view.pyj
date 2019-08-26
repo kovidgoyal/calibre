@@ -189,6 +189,8 @@ class View:
             'handle_keypress': self.on_handle_keypress,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
+        if runtime.is_standalone_viewer:
+            document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
         self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'), runtime.FAKE_PROTOCOL, runtime.FAKE_HOST)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
@@ -253,8 +255,13 @@ class View:
                 self.timers.on_human_scroll(amt_scrolled)
 
     def on_handle_keypress(self, data):
-        if self.overlay.is_visible and data.evt.key is 'Escape':
+        self.handle_keypress(data.evt)
+
+    def handle_keypress(self, evt):
+        if self.overlay.is_visible and evt.key is 'Escape':
             self.overlay.hide_current_panel()
+            if evt.preventDefault:
+                evt.preventDefault(), evt.stopPropagation()
             return
 
     def overlay_visibility_changed(self, visible):
