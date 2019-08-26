@@ -42,6 +42,7 @@ vprefs = JSONConfig('viewer-webengine')
 vprefs.defaults['session_data'] = {}
 vprefs.defaults['main_window_state'] = None
 vprefs.defaults['main_window_geometry'] = None
+vprefs.defaults['old_prefs_migrated'] = False
 
 
 # Override network access to load data from the book {{{
@@ -228,7 +229,9 @@ def apply_font_settings(page_or_view):
         s.resetFontSize(s.MinimumFontSize)
     else:
         s.setFontSize(s.MinimumFontSize, mfs)
-    s.setFontSize(s.DefaultFontSize, sd.get('base_font_size'))
+    bfs = sd.get('base_font_size')
+    if bfs is not None:
+        s.setFontSize(s.DefaultFontSize, bfs)
 
     return s
 

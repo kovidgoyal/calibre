@@ -24,6 +24,58 @@ vprefs.defaults['singleinstance'] = False
 singleinstance_name = 'calibre_viewer'
 
 
+def migrate_previous_viewer_prefs():
+    from calibre.gui2.viewer.web_view import vprefs as new_prefs
+    if new_prefs['old_prefs_migrated']:
+        return
+    old_prefs = JSONConfig('viewer.py')
+    with new_prefs:
+        sd = new_prefs['session_data']
+        fs = sd.get('standalone_font_settings', {})
+        for k in ('serif', 'sans', 'mono'):
+            defval = 'Liberation ' + k.capitalize()
+            k += '_family'
+            if old_prefs.get(k) and old_prefs[k] != defval:
+                fs[k] = old_prefs[k]
+        if old_prefs.get('standard_font') in ('serif', 'sans', 'mono'):
+            fs['standard_font'] = old_prefs['standard_font']
+        if old_prefs.get('minimum_font_size') is not None and old_prefs['minimum_font_size'] != 8:
+            fs['minimum_font_size'] = old_prefs['minimum_font_size']
+        sd['standalone_font_settings'] = fs
+
+        ms = sd.get('standalone_misc_settings', {})
+        ms['remember_window_geometry'] = bool(old_prefs.get('remember_window_size', False))
+        ms['remember_last_read'] = bool(old_prefs.get('remember_current_page', True))
+        ms['save_annotations_in_ebook'] = bool(old_prefs.get('copy_bookmarks_to_file', True))
+        sd['standalone_misc_settings'] = ms
+
+        for k in ('top', 'bottom'):
+            v = old_prefs.get(k + '_margin')
+            if v != 20:
+                sd['margin_' + k] = v
+        v = old_prefs.get('side_margin')
+        if v is not None and v != 40:
+            sd['margin_left'] = sd['margin_right'] = v // 2
+
+        if old_prefs.get('user_css'):
+            sd['user_stylesheet'] = old_prefs['user_css']
+
+        cps = {'portrait': 0, 'landscape': 0}
+        cp = old_prefs.get('cols_per_screen_portrait')
+        if cp > 1:
+            cps['portrait'] = cp
+        cl = old_prefs.get('cols_per_screen_landscape')
+        if cl > 1:
+            cps['landscape'] = cp
+        if cps['portrait'] or cps['landscape']:
+            sd['columns_per_screen'] = cps
+        if not vprefs['in_paged_mode']:
+            sd['read_mode'] = 'flow'
+
+        new_prefs.set('session_data', sd)
+        new_prefs.set('old_prefs_migrated', True)
+
+
 class EventAccumulator(QObject):
 
     got_file = pyqtSignal(object)
@@ -149,6 +201,7 @@ def main(args=sys.argv):
     app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
+    migrate_previous_viewer_prefs()
     main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading)
     main.set_exception_handler()
     if len(args) > 1:
