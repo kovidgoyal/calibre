@@ -29,7 +29,7 @@ from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
-from utils import html_escape, is_ios, parse_url_params, username_key
+from utils import html_escape, is_ios, parse_url_params, username_key, safe_set_inner_html
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -45,14 +45,44 @@ add_extra_css(def():
 def show_controls_help():
     container = document.getElementById('controls-help-overlay')
     container.style.display = 'block'
+    container.style.backgroundColor = get_color('window-background')
     if not show_controls_help.listener_added:
         show_controls_help.listener_added = True
         container.addEventListener('click', def():
             document.getElementById('controls-help-overlay').style.display = 'none'
             ui_operations.focus_iframe()
         )
+        container.addEventListener('keydown', def(event):
+            event.preventDefault(), event.stopPropagation()
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
+        , {'passive': False})
+
+    def focus():
+        if container.style.display is 'block':
+            container.lastChild.focus()
+            window.setTimeout(focus, 10)
+
+    if runtime.is_standalone_viewer:
+        container.appendChild(E.div(
+            style='margin: 1rem',
+            E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+        ))
+        div = container.lastChild.firstChild
+        safe_set_inner_html(div, _('Welcome to the <b>calibre viewer</b>!'))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Use the <b>PageUp/PageDn</b> or <b>Arrow keys</b> to turn pages'))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Press the <b>Esc</b> key or <b>right click</b> to show the viewer controls'))
+        container.appendChild(E.input(style='background: transparent; border-width: 0; outline: none'))
+        focus()
+        return
+
     def msg(txt):
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
+
     container.appendChild(E.div(
         style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
                 'display:flex; flex-direction: column; align-items: stretch',
@@ -223,6 +253,8 @@ class View:
             window.history.back()
         elif data.name is 'forward':
             window.history.forward()
+        elif data.name is 'show_chrome':
+            self.show_chrome()
         elif data.name is 'toggle_toc':
             ui_operations.toggle_toc()
         elif data.name is 'toggle_bookmarks':

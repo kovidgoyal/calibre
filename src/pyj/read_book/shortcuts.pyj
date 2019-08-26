@@ -204,6 +204,12 @@ SHORTCUTS = {
         'ui',
         _('Search for next occurrence of selected text'),
     ),
+
+    'show_chrome': desc(
+        v"['Escape']",
+        'ui',
+        _('Show the viewer controls'),
+    ),
 }
 
 
