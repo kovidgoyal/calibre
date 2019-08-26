@@ -81,4 +81,5 @@ ui_operations = {
     'goto_bookpos': None,
     'delete_book': None,
     'focus_iframe': None,
+    'toggle_toc': None,
 }

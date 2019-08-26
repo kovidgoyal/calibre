@@ -237,6 +237,10 @@ class View:
             self.search_overlay.find_next()
         elif data.name is 'previous_match':
             self.search_overlay.find_previous()
+        elif data.name is 'increase_font_size':
+            self.bump_font_size({'increase': True})
+        elif data.name is 'decrease_font_size':
+            self.bump_font_size({'increase': False})
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

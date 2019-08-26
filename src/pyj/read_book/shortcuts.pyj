@@ -175,6 +175,17 @@ SHORTCUTS = {
         _('Find previous'),
     ),
 
+    'increase_font_size': desc(
+        v"['Ctrl+=', 'Ctrl++', 'Ctrl+Shift++', 'Ctrl+Shift+=']",
+        'ui',
+        _('Increase font size'),
+    ),
+
+    'decrease_font_size': desc(
+        v"['Ctrl+-', 'Ctrl+_', 'Ctrl+Shift+-', 'Ctrl+Shift+_']",
+        'ui',
+        _('Decrease font size'),
+    ),
 }
 
 
