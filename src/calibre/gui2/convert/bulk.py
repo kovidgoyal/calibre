@@ -125,8 +125,7 @@ class BulkConfig(Config):
             preferred_output_format and preferred_output_format \
             in output_formats else sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.output_formats.addItems(list(map(unicode_type, [x.upper() for x in
-            output_formats])))
+        self.output_formats.addItems((unicode_type(x.upper()) for x in output_formats))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
     def accept(self):
