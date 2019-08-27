@@ -26,9 +26,10 @@ from calibre import force_unicode
 
 from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
+from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import get_library_data, http_date, Offsets
 from polyglot.builtins import iteritems, unicode_type, filter, as_bytes
-from polyglot.urllib import urlencode
+from polyglot.urllib import urlencode, unquote_plus
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
@@ -624,6 +625,11 @@ def opds_search(ctx, rd, query):
         raise HTTPNotFound('Not found')
 
     rc = RequestContext(ctx, rd)
+    if query:
+        path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
+        query = path[-1]
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
     try:
         ids = rc.search(query)
     except Exception:

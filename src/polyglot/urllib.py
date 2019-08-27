@@ -22,6 +22,7 @@ if is_py3:
         if binary:
             ans = ans.encode(encoding, errors)
         return ans
+
 else:
     from urllib import (getproxies, quote, unquote as uq, quote_plus, url2pathname,  # noqa
             urlencode)  # noqa
@@ -43,3 +44,9 @@ else:
         if not binary:
             ans = ans.decode(encoding, errors)
         return ans
+
+
+def unquote_plus(x, encoding='utf-8', errors='replace'):
+    q, repl = (b'+', b' ') if isinstance(x, bytes) else ('+', ' ')
+    x = x.replace(q, repl)
+    return unquote(x, encoding=encoding, errors=errors)

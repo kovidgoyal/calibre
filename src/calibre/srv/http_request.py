@@ -66,7 +66,7 @@ def parse_request_uri(uri):
         return None, uri, None
 
 
-def parse_uri(uri, parse_query=True):
+def parse_uri(uri, parse_query=True, unquote_func=unquote):
     scheme, authority, path = parse_request_uri(uri)
     if path is None:
         raise HTTPSimpleResponse(http_client.BAD_REQUEST, "No path component")
@@ -89,7 +89,7 @@ def parse_uri(uri, parse_query=True):
         query = None
 
     try:
-        path = '%2F'.join(unquote(x).decode('utf-8') for x in quoted_slash.split(path))
+        path = '%2F'.join(unquote_func(x).decode('utf-8') for x in quoted_slash.split(path))
     except ValueError as e:
         raise HTTPSimpleResponse(http_client.BAD_REQUEST, as_unicode(e))
     path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
@@ -212,6 +212,7 @@ class HTTPRequest(Connection):
         self.max_header_line_size = int(1024 * self.opts.max_header_line_size)
         self.max_request_body_size = int(1024 * 1024 * self.opts.max_request_body_size)
         self.forwarded_for = None
+        self.request_original_uri = None
 
     def read(self, buf, endpos):
         size = endpos - buf.tell()
@@ -279,6 +280,7 @@ class HTTPRequest(Connection):
         except KeyError:
             return self.simple_response(http_client.HTTP_VERSION_NOT_SUPPORTED)
         self.response_protocol = protocol_map[min((1, 1), rp)]
+        self.request_original_uri = uri
         try:
             self.scheme, self.path, self.query = parse_uri(uri)
         except HTTPSimpleResponse as e:
