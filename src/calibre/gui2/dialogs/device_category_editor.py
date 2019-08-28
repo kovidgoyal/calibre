@@ -60,7 +60,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         self.setWindowIcon(icon)
 
         self.to_rename = {}
-        self.to_delete = set([])
+        self.to_delete = set()
         self.original_names = {}
         self.all_tags = {}
 

@@ -81,7 +81,7 @@ class SelectFormats(QDialog):
         self.fview.setSpacing(2)
 
         self.resize(350, 500)
-        self.selected_formats = set([])
+        self.selected_formats = set()
 
     def accept(self, *args):
         for idx in self.fview.selectedIndexes():

@@ -587,7 +587,7 @@ class Scheduler(QObject):
         self.recipe_model = RecipeModel()
         self.db = db
         self.lock = QMutex(QMutex.Recursive)
-        self.download_queue = set([])
+        self.download_queue = set()
 
         self.news_menu = QMenu()
         self.news_icon = QIcon(I('news.png'))
