@@ -35,11 +35,11 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         except TypeError:
             self.device_name = getattr(device, 'gui_name', None) or _('Device')
         if device.USER_CAN_ADD_NEW_FORMATS:
-            all_formats = set(all_formats) | set(BOOK_EXTENSIONS)
+            all_formats = all_formats | set(BOOK_EXTENSIONS)
 
         format_map = settings.format_map
-        disabled_formats = list(set(all_formats).difference(format_map))
-        for format in format_map + list(sorted(disabled_formats)):
+        disabled_formats = all_formats.difference(format_map)
+        for format in format_map + sorted(disabled_formats):
             item = QListWidgetItem(format, self.columns)
             item.setData(Qt.UserRole, (format))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
