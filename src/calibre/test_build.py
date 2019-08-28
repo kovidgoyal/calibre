@@ -218,7 +218,25 @@ class BuildTest(unittest.TestCase):
         if iswindows:
             from PyQt5.Qt import QtWin
             QtWin
+        p = QWebEnginePage()
+
+        def callback(result):
+            callback.result = result
+            if hasattr(print_callback, 'result'):
+                Application.instance().quit()
+
+        def print_callback(result):
+            print_callback.result = result
+            if hasattr(callback, 'result'):
+                Application.instance().quit()
+
+        p.runJavaScript('1 + 1', callback)
+        p.printToPdf(print_callback)
+        app.exec_()
+        self.assertEqual(callback.result, 2)
+        self.assertIn(b'Skia/PDF', bytes(print_callback.result))
         del na
+        del p
         del app
         del QWebEnginePage
 
