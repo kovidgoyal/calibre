@@ -764,27 +764,27 @@
     {
         "name": "sip",
         "unix": {
-            "filename": "sip-4.19.16.tar.gz",
-            "hash": "sha256:184c790d58e9527fc6bdac2bbf8638f3d1b41dea922cad8eb83172b4ba70c620",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.16/{filename}"]
+            "filename": "sip-4.19.18.tar.gz",
+            "hash": "sha256:c0bd863800ed9b15dcad477c4017cdb73fa805c25908b0240564add74d697e1e",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.18/{filename}"]
         }
     },
 
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt5_gpl-5.12.1.tar.gz",
-            "hash": "sha256:3718ce847d824090fd5f95ff3f13847ee75c2507368d4cbaeb48338f506e59bf",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.12.1/{filename}"]
+            "filename": "PyQt5_gpl-5.13.0.tar.gz",
+            "hash": "sha256:0cdbffe5135926527b61cc3692dd301cd0328dd87eeaf1313e610787c46faff9",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.13.0/{filename}"]
         }
     },
 
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQtWebEngine_gpl-5.12.1.tar.gz",
-            "hash": "sha256:860704672ea1b616e1347be1f347bc1c749e64ed378370863fe209e84e9bd473",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.12.1/{filename}"]
+            "filename": "PyQtWebEngine_gpl-5.13.0.tar.gz",
+            "hash": "sha256:bb6cabcc454ed1394aedfb42eb35dbee3ca324cf582e8c0ca5e8c8af0b00e325",
+            "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.13.0/{filename}"]
         }
     },
 
