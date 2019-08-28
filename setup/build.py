@@ -53,6 +53,8 @@ class Extension(object):
 
             if not self.needs_cxx and kwargs.get('needs_c99'):
                 self.cflags.insert(0, '-std=c99')
+            if self.needs_cxx and kwargs.get('needs_c++11'):
+                self.cflags.insert(0, '-std=c++11')
 
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)

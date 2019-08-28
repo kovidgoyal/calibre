@@ -121,7 +121,8 @@
         "libraries": "podofo",
         "lib_dirs": "!podofo_lib",
         "inc_dirs": "!podofo_inc",
-        "error": "!podofo_error"
+        "error": "!podofo_error",
+		"needs_c++11": true
     },
     {
         "name": "pictureflow",
