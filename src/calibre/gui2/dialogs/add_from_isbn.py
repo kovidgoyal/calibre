@@ -24,7 +24,7 @@ class AddFromISBN(QDialog):
         QDialog.__init__(self, parent)
         self.setup_ui()
 
-        path = r'C:\Users\kovid\e-books\some_book.epub' if iswindows else \
+        path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else \
                 '/Users/kovid/e-books/some_book.epub'
         self.label.setText(unicode_type(self.label.text())%path)
 
