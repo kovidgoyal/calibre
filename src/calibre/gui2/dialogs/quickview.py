@@ -458,7 +458,7 @@ class Quickview(QDialog, Ui_Quickview):
                 if self.fm[key]['display'].get('allow_half_stars', False):
                     vals = unicode_type(vals/2.0)
                 else:
-                    vals = unicode_type(vals/2)
+                    vals = unicode_type(vals//2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)

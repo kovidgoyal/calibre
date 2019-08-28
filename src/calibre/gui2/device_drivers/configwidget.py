@@ -73,7 +73,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
-                    row_func = lambda x, y: ((x/2) * 2) + y
+                    row_func = lambda x, y: ((x//2) * 2) + y
                     col_func = lambda x: x%2
                 else:
                     row_func = lambda x, y: x*2 + y

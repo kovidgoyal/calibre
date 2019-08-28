@@ -255,7 +255,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         for i in range(0, self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
-            r = (self.start_find_pos/2)%self.table.rowCount()
+            r = (self.start_find_pos//2)%self.table.rowCount()
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
             text = icu_lower(unicode_type(item.text()))
