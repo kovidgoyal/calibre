@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re, numbers
 from collections import defaultdict, namedtuple
@@ -32,7 +32,9 @@ from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
-from polyglot.builtins import iteritems, itervalues, unicode_type, error_message, filter
+from polyglot.builtins import (
+    error_message, filter, iteritems, itervalues, native_string_type, unicode_type
+)
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -715,10 +717,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
-        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_func.currentIndexChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
@@ -745,7 +747,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.query_field.addItem("")
         self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
-        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
+        self.query_field.currentIndexChanged[native_string_type].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
         self.s_r_search_field_changed(0)
@@ -774,14 +776,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             else:
                 val = mi.get(field, None)
             if isinstance(val, (numbers.Number, bool)):
-                val = str(val)
+                val = unicode_type(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list
                 id_type = unicode_type(self.s_r_src_ident.currentText())
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(val)]
+                    val = ['%s:%s'%(t[0], t[1]) for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -959,7 +961,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
+                    dest_val = ['%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):

@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -20,7 +22,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import native_string_type, unicode_type
 
 
 class ParenPosition:
@@ -330,7 +332,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.addItem('')
         self.function.addItems(func_names)
         self.function.setCurrentIndex(0)
-        self.function.currentIndexChanged[str].connect(self.function_changed)
+        self.function.currentIndexChanged[native_string_type].connect(self.function_changed)
         self.textbox_changed()
         self.rule = (None, '')
 
