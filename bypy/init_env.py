@@ -90,7 +90,7 @@ PYQT_MODULES = (
     'QtWebEngine',
     'QtWebEngineCore',
     'QtWebEngineWidgets',
-    # 'QtWebChannel',
+    'QtWebChannel',
 )
 del dlls
 
