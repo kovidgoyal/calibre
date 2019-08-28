@@ -12,13 +12,15 @@ from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import (
-    QDockWidget, QEvent, QModelIndex, Qt, QVBoxLayout, QWidget, pyqtSignal
+    QDockWidget, QEvent, QModelIndex, QPixmap, Qt, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre import prints
 from calibre.constants import config_dir
 from calibre.customize.ui import available_input_formats
 from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
     merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
@@ -28,7 +30,7 @@ from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.web_view import (
-    WebView, get_session_pref, set_book_path, vprefs
+    WebView, get_path_for_name, get_session_pref, set_book_path, vprefs
 )
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
@@ -68,6 +70,7 @@ class EbookViewer(MainWindow):
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
+        self.image_popup = ImagePopup(self)
         try:
             os.makedirs(annotations_dir)
         except EnvironmentError:
@@ -119,6 +122,7 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
         self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
+        self.web_view.view_image.connect(self.view_image, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.restore_state()
         if continue_reading:
@@ -188,6 +192,21 @@ class EbookViewer(MainWindow):
 
     def bookmark_activated(self, cfi):
         self.web_view.goto_cfi(cfi)
+
+    def view_image(self, name):
+        path = get_path_for_name(name)
+        if path:
+            pmap = QPixmap()
+            if pmap.load(path):
+                self.image_popup.current_img = pmap
+                self.image_popup.current_url = QUrl.fromLocalFile(path)
+                self.image_popup()
+            else:
+                error_dialog(self, _('Invalid image'), _(
+                    "Failed to load the image {}").format(name), show=True)
+        else:
+            error_dialog(self, _('Image not found'), _(
+                    "Failed to find the image {}").format(name), show=True)
     # }}}
 
     # Load book {{{

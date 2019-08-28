@@ -57,12 +57,18 @@ def set_book_path(path, pathtoebook):
     set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
 
 
-def get_data(name):
+def get_path_for_name(name):
     bdir = getattr(set_book_path, 'path', None)
     if bdir is None:
-        return None, None
+        return
     path = os.path.abspath(os.path.join(bdir, name))
-    if not path.startswith(bdir):
+    if path.startswith(bdir):
+        return path
+
+
+def get_data(name):
+    path = get_path_for_name(name)
+    if path is None:
         return None, None
     try:
         with lopen(path, 'rb') as f:
@@ -195,6 +201,8 @@ class ViewerBridge(Bridge):
     report_cfi = from_js(object, object)
     ask_for_open = from_js(object)
     selection_changed = from_js(object)
+    copy_selection = from_js(object)
+    view_image = from_js(object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -245,6 +253,13 @@ class WebPage(QWebEnginePage):
         secure_webengine(self, for_viewer=True)
         apply_font_settings(self)
         self.bridge = ViewerBridge(self)
+        self.bridge.copy_selection.connect(self.trigger_copy)
+
+    def trigger_copy(self, what):
+        if what:
+            QApplication.instance().clipboard().setText(what)
+        else:
+            self.triggerAction(self.Copy)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         if level >= QWebEnginePage.ErrorMessageLevel and source_id == 'userscript:viewer.js':
@@ -319,6 +334,7 @@ class WebView(RestartingWebEngineView):
     toggle_full_screen = pyqtSignal()
     ask_for_open = pyqtSignal(object)
     selection_changed = pyqtSignal(object)
+    view_image = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -342,6 +358,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.toggle_full_screen.connect(self.toggle_full_screen)
         self.bridge.ask_for_open.connect(self.ask_for_open)
         self.bridge.selection_changed.connect(self.selection_changed)
+        self.bridge.view_image.connect(self.view_image)
         self.bridge.report_cfi.connect(self.call_callback)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)

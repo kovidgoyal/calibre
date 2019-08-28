@@ -284,6 +284,10 @@ if window is window.top:
         to_python.report_cfi(request_id, data)
     ui_operations.ask_for_open = def(path):
         to_python.ask_for_open(path)
+    ui_operations.copy_selection = def(text):
+        to_python.copy_selection(text or None)
+    ui_operations.view_image = def(name):
+        to_python.view_image(name)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

@@ -203,8 +203,9 @@ def simple_overlay_title(title, overlay, container):
 
 class MainOverlay:  # {{{
 
-    def __init__(self, overlay):
+    def __init__(self, overlay, elements):
         self.overlay = overlay
+        self.elements = elements or {}
         self.timer = None
         self.timer_id = unique_id()
         if window.Intl?.DateTimeFormat:
@@ -286,11 +287,26 @@ class MainOverlay:  # {{{
                 ac(_('Lookup/search word'), _('Lookup or search for the currently selected word'),
                    def(): self.overlay.hide(), ui_operations.toggle_lookup();, 'library')
             ))
+            copy_actions = E.ul()
+            if self.overlay.view.currently_showing.selected_text:
+                copy_actions.appendChild(ac(_('Copy selection'), _('Copy the current selection'), def():
+                    self.overlay.hide(), ui_operations.copy_selection()
+                , 'copy'))
+            if self.elements.link:
+                copy_actions.appendChild(ac(_('Copy link'), _('Copy the current link'), def():
+                    self.overlay.hide(), ui_operations.copy_selection(self.elements.link)
+                , 'link'))
+            if self.elements.img:
+                copy_actions.appendChild(ac(_('View image'), _('View the current image'), def():
+                    self.overlay.hide(), ui_operations.view_image(self.elements.img)
+                , 'image'))
+            if copy_actions.childNodes.length:
+                actions_div.appendChild(copy_actions)
+
             actions_div.appendChild(E.ul(
                 ac(_('Inspector'), _('Show the content inspector'),
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug')
             ))
-
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 
@@ -504,8 +520,8 @@ class Overlay:
             self.panels[-1].show(c)
         self.update_visibility()
 
-    def show(self):
-        self.panels = [MainOverlay(self)]
+    def show(self, elements):
+        self.panels = [MainOverlay(self, elements)]
         self.show_current_panel()
 
     def hide(self):

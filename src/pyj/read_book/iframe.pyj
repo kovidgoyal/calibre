@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from iframe_comm import IframeClient
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
+from read_book.extract import get_elements
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, flow_onwheel, flow_to_scroll_fraction,
     handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
@@ -91,7 +92,7 @@ class IframeBoss:
             'find': self.find,
             'window_size': self.received_window_size,
             'get_current_cfi': self.get_current_cfi,
-            'set_forward_keypresses': self.set_forward_keypresses
+            'set_forward_keypresses': self.set_forward_keypresses,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -370,7 +371,7 @@ class IframeBoss:
     def oncontextmenu(self, evt):
         if self.content_ready:
             evt.preventDefault()
-            self.send_message('show_chrome')
+            self.send_message('show_chrome', elements=get_elements(evt.clientX, evt.clientY))
 
     def send_message(self, action, **data):
         self.comm.send_message(action, data)

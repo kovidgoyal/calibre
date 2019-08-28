@@ -315,6 +315,7 @@ class Container(ContainerBase):
         resource_template = link_uid + '|{}|'
         xlink_xpath = XPath('//*[@xl:href]')
         link_xpath = XPath('//h:a[@href]')
+        img_xpath = XPath('//h:img[@src]')
         res_link_xpath = XPath('//h:link[@href]')
 
         def link_replacer(base, url):
@@ -354,6 +355,9 @@ class Container(ContainerBase):
             elif mt in OEB_DOCS:
                 self.virtualized_names.add(name)
                 root = self.parsed(name)
+                for img in img_xpath(root):
+                    img.set('data-calibre-src', self.href_to_name(img.get('src'), name))
+                    changed.add(name)
                 for link in res_link_xpath(root):
                     ltype = (link.get('type') or 'text/css').lower()
                     rel = (link.get('rel') or 'stylesheet').lower()

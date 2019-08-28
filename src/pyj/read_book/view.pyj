@@ -349,14 +349,17 @@ class View:
     def focus_iframe(self):
         self.iframe.contentWindow.focus()
 
-    def show_chrome(self):
+    def show_chrome(self, data):
         self.show_chrome_counter += 1
-        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome)
+        elements = {}
+        if data and data.elements:
+            elements = data.elements
+        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements))
 
-    def do_show_chrome(self, request_id, cfi_data):
+    def do_show_chrome(self, elements, request_id, cfi_data):
         self.hide_overlays()
         self.update_cfi_data(cfi_data)
-        self.overlay.show()
+        self.overlay.show(elements)
 
     def show_search(self):
         self.hide_overlays()
