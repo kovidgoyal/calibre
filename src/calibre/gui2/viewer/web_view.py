@@ -23,7 +23,7 @@ from calibre.constants import (
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.gui2 import error_dialog, open_url
+from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
@@ -279,7 +279,7 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        open_url(url)
+        safe_open_url(url)
         return False
 
     def go_to_anchor(self, anchor):
