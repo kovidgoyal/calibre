@@ -162,6 +162,10 @@ def copy_python(env, ext_dir):
         shutil.copy2(x, j(pdir, os.path.basename(x)))
 
     shutil.copytree(j(env.src_root, 'resources'), j(env.base, 'resources'))
+    for pak in glob.glob(j(QT_PREFIX, 'resources', '*.pak')):
+        shutil.copy2(pak, j(env.base, 'resources'))
+    os.mkdir(j(env.base, 'translations'))
+    shutil.copytree(j(QT_PREFIX, 'translations', 'qtwebengine_locales'), j(env.base, 'translations', 'qtwebengine_locales'))
     sitepy = j(self_dir, 'site.py')
     shutil.copy2(sitepy, j(env.py_dir, 'site.py'))
 
@@ -248,6 +252,7 @@ def strip_binaries(env):
         x = os.path.realpath(x)
         if x not in files and is_elf(x):
             files.add(x)
+    files.add(j(env.lib_dir, '..', 'libexec', 'QtWebEngineProcess'))
     print('Stripping %d files...' % len(files))
     before = sum(os.path.getsize(x) for x in files)
     strip_files(files)
