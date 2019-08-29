@@ -25,7 +25,7 @@ from calibre.ebooks.metadata.search_internet import (
 )
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    open_url, pixmap_to_data, rating_font
+    safe_open_url, pixmap_to_data, rating_font
 )
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
@@ -627,7 +627,7 @@ class BookInfo(QWebView):
     def link_activated(self, link):
         self._link_clicked = True
         if unicode_type(link.scheme()) in ('http', 'https'):
-            return open_url(link)
+            return safe_open_url(link)
         link = unicode_type(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
@@ -864,7 +864,7 @@ class BookDetails(QWidget):  # {{{
                 url = url_for_book_search(data.where, title=self.last_data['title'], author=self.last_data['authors'][0])
             else:
                 url = url_for_author_search(data.where, author=data.author)
-            open_url(url)
+            safe_open_url(url)
 
     def handle_click(self, link):
         typ, val = link.partition(':')[0::2]
@@ -879,7 +879,7 @@ class BookDetails(QWidget):  # {{{
             self.search_requested.emit(from_hex_unicode(val))
         else:
             try:
-                open_url(QUrl(link, QUrl.TolerantMode))
+                safe_open_url(QUrl(link, QUrl.TolerantMode))
             except:
                 import traceback
                 traceback.print_exc()

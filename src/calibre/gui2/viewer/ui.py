@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
     QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
 
-from calibre.gui2 import rating_font, error_dialog, open_url
+from calibre.gui2 import rating_font, error_dialog, safe_open_url
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
@@ -83,7 +83,7 @@ class Metadata(QWebView):  # {{{
 
     def link_clicked(self, qurl):
         if qurl.scheme() in ('http', 'https'):
-            return open_url(qurl)
+            return safe_open_url(qurl)
 
     def update_layout(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())

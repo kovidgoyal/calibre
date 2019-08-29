@@ -1144,6 +1144,16 @@ def open_url(qurl):
         QDesktopServices.openUrl(qurl)
 
 
+def safe_open_url(qurl):
+    if qurl.scheme() in ('', 'file'):
+        path = qurl.toLocalFile()
+        ext = os.path.splitext(path)[-1].lower()[1:]
+        if ext in ('exe', 'com', 'cmd', 'bat', 'sh', 'psh', 'ps1', 'vbs', 'js', 'wsf', 'vba', 'py', 'rb', 'pl'):
+            prints('Refusing to open file:', path)
+            return
+    open_url(qurl)
+
+
 def get_current_db():
     '''
     This method will try to return the current database in use by the user as

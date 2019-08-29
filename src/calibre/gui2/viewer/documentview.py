@@ -17,7 +17,7 @@ from PyQt5.QtWebKit import QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
-from calibre.gui2 import open_url, secure_web_page, error_dialog
+from calibre.gui2 import safe_open_url, secure_web_page, error_dialog
 from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -806,7 +806,7 @@ class DocumentView(QWebView):  # {{{
         url = self.document.search_online_url.replace('{text}', QUrl().toPercentEncoding(text))
         if not isinstance(url, bytes):
             url = url.encode('utf-8')
-        open_url(QUrl.fromEncoded(url))
+        safe_open_url(QUrl.fromEncoded(url))
 
     def set_manager(self, manager):
         self.manager = manager

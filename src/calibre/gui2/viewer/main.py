@@ -23,7 +23,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.gui2 import (
     Application, add_to_recent_docs, choose_files, error_dialog, info_dialog,
-    open_url, setup_gui_option_parser
+    safe_open_url, setup_gui_option_parser
 )
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -433,7 +433,7 @@ class EbookViewer(MainWindow):
                     'Failed to use the custom dictionary for language: %s Falling back to default dictionary.') % lang,
                              det_msg=traceback.format_exc(), show=True)
             url = default_lookup_website(lang).format(word=word)
-        open_url(url)
+        safe_open_url(url)
 
     def print_book(self):
         if self.iterator is None:
@@ -743,7 +743,7 @@ class EbookViewer(MainWindow):
                     # entry, since this one did not cause any scrolling at all.
                     QTimer.singleShot(10, self.update_indexing_state)
         else:
-            open_url(url)
+            safe_open_url(url)
 
     def load_started(self):
         self.open_progress_indicator(_('Loading flow...'))
