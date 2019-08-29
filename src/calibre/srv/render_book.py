@@ -356,8 +356,10 @@ class Container(ContainerBase):
                 self.virtualized_names.add(name)
                 root = self.parsed(name)
                 for img in img_xpath(root):
-                    img.set('data-calibre-src', self.href_to_name(img.get('src'), name))
-                    changed.add(name)
+                    img_name = self.href_to_name(img.get('src'), name)
+                    if img_name:
+                        img.set('data-calibre-src', )
+                        changed.add(name)
                 for link in res_link_xpath(root):
                     ltype = (link.get('type') or 'text/css').lower()
                     rel = (link.get('rel') or 'stylesheet').lower()
