@@ -358,7 +358,7 @@ class Container(ContainerBase):
                 for img in img_xpath(root):
                     img_name = self.href_to_name(img.get('src'), name)
                     if img_name:
-                        img.set('data-calibre-src', )
+                        img.set('data-calibre-src', img_name)
                         changed.add(name)
                 for link in res_link_xpath(root):
                     ltype = (link.get('type') or 'text/css').lower()
