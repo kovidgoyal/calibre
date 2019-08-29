@@ -115,11 +115,14 @@ def copy_libs(env):
             stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
     base = j(QT_PREFIX, 'plugins')
-    dest = j(env.lib_dir, 'qt_plugins')
+    dest = j(env.lib_dir, '..', 'plugins')
     os.mkdir(dest)
     for x in QT_PLUGINS:
         if x not in ('audio', 'printsupport'):
             shutil.copytree(j(base, x), j(dest, x))
+    dest = j(env.lib_dir, '..', 'libexec')
+    os.mkdir(dest)
+    shutil.copy2(os.path.join(QT_PREFIX, 'libexec', 'QtWebEngineProcess'), dest)
 
 
 def copy_python(env, ext_dir):

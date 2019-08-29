@@ -1110,7 +1110,7 @@ def sanitize_env_vars():
     is needed to prevent library conflicts when launching external utilities.'''
 
     if islinux and isfrozen:
-        env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins'}
+        env_vars = {'LD_LIBRARY_PATH':'/lib'}
     elif iswindows:
         env_vars = {k:None for k in 'QT_PLUGIN_PATH'.split()}
     elif isosx:
