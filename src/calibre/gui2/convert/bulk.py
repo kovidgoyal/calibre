@@ -29,7 +29,7 @@ class BulkConfig(Config):
     def __init__(self, parent, db, preferred_output_format=None,
             has_saved_settings=True):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi()
 
         self.setup_output_formats(db, preferred_output_format)
         self.db = db
