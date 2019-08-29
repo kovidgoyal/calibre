@@ -38,6 +38,7 @@ dlls = [
     # 'Multimedia',
     'OpenGL',
     'Quick',
+    'QuickWidgets',
     'Qml',
     # 'MultimediaWidgets',
     'Xml',
