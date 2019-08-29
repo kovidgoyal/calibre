@@ -22,7 +22,7 @@ class Catalog(QDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
 
     def __init__(self, parent, dbspec, ids, db):
-        import re, io
+        import re
         from calibre import prints as info
         from PyQt5.uic import compileUi
 
@@ -67,13 +67,14 @@ class Catalog(QDialog, Ui_Dialog):
 
                     # Compile the .ui form provided in plugin.zip
                     if not os.path.exists(compiled_form):
+                        from polyglot.io import PolyglotStringIO
                         # info('\tCompiling form', form)
-                        buf = io.BytesIO()
+                        buf = PolyglotStringIO()
                         compileUi(form, buf)
                         dat = buf.getvalue()
                         dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)',
                                          re.DOTALL).sub(r'_("\1")', dat)
-                        open(compiled_form, 'wb').write(dat)
+                        open(compiled_form, 'wb').write(dat.encode('utf-8'))
 
                     # Import the dynamic PluginWidget() from .py file provided in plugin.zip
                     try:
@@ -181,7 +182,7 @@ class Catalog(QDialog, Ui_Dialog):
         When title/format change, invalidate Preset in E-book options tab
         '''
         cf = unicode_type(self.format.currentText()).lower()
-        if cf in ['azw3', 'epub', 'mobi'] and hasattr(self.options_widget, 'settings_changed'):
+        if cf in ('azw3', 'epub', 'mobi') and hasattr(self.options_widget, 'settings_changed'):
             self.options_widget.settings_changed("title/format")
 
     @property

@@ -643,8 +643,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def restore_state(self):
         try:
-            geom = gprefs.get('jobs_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
+            geom = gprefs.get('jobs_dialog_geometry', None)
+            if geom:
+                self.restoreGeometry(QByteArray(geom))
             state = gprefs.get('jobs view column layout3', None)
             if state is not None:
                 self.jobs_view.horizontalHeader().restoreState(QByteArray(state))

@@ -18,7 +18,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, native_string_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -42,7 +42,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         self.cancelled = False
         self.button_box.accepted.connect(self.accept)
-        self.regex.textChanged[str].connect(self.regex_valid)
+        self.regex.textChanged[native_string_type].connect(self.regex_valid)
         for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
             'goto')):
             getattr(self, src).clicked.connect(getattr(self, '%s_%s'%(slot,

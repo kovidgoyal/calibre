@@ -39,9 +39,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         try:
             self.table_column_widths = \
                         gprefs.get('manage_authors_table_widths', None)
-            geom = gprefs.get('manage_authors_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
-        except:
+            geom = gprefs.get('manage_authors_dialog_geometry', None)
+            if geom:
+                self.restoreGeometry(QByteArray(geom))
+        except Exception:
             pass
 
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
@@ -159,7 +160,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
         self.save_state()

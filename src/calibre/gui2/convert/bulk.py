@@ -21,7 +21,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.ebooks.conversion.config import sort_formats_by_preference, get_output_formats
 from calibre.utils.config import prefs
 from calibre.utils.logging import Log
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, native_string_type
 
 
 class BulkConfig(Config):
@@ -45,7 +45,7 @@ class BulkConfig(Config):
             'values saved in a previous conversion (if they exist) instead '
             'of using the defaults specified in the Preferences'))
 
-        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.groups.setSpacing(5)
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
