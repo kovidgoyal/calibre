@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -458,7 +460,7 @@ class Quickview(QDialog, Ui_Quickview):
                 if self.fm[key]['display'].get('allow_half_stars', False):
                     vals = unicode_type(vals/2.0)
                 else:
-                    vals = unicode_type(vals/2)
+                    vals = unicode_type(vals//2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -101,7 +102,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.match_locs:
             self.next.setEnabled(True)
             self.previous.setEnabled(True)
-        self.occurrences.setText(str(len(self.match_locs)))
+        self.occurrences.setText(unicode_type(len(self.match_locs)))
 
     def goto_previous(self):
         pos = self.preview.textCursor().position()

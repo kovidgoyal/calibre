@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -477,7 +478,7 @@ class SchedulerDialog(QDialog):
             self.recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
-        keep_issues = u'0'
+        keep_issues = '0'
         if self.keep_issues.isEnabled():
             keep_issues = unicode_type(self.keep_issues.value())
         custom_tags = unicode_type(self.custom_tags.text()).strip()
@@ -556,7 +557,7 @@ class SchedulerDialog(QDialog):
         self.schedule_stack.currentWidget().initialize(typ, sch)
         add_title_tag, custom_tags, keep_issues = customize_info
         self.add_title_tag.setChecked(add_title_tag)
-        self.custom_tags.setText(u', '.join(custom_tags))
+        self.custom_tags.setText(', '.join(custom_tags))
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
         try:
             keep_issues = int(keep_issues)
@@ -587,7 +588,7 @@ class Scheduler(QObject):
         self.recipe_model = RecipeModel()
         self.db = db
         self.lock = QMutex(QMutex.Recursive)
-        self.download_queue = set([])
+        self.download_queue = set()
 
         self.news_menu = QMenu()
         self.news_icon = QIcon(I('news.png'))

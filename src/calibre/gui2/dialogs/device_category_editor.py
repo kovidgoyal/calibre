@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -60,7 +62,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         self.setWindowIcon(icon)
 
         self.to_rename = {}
-        self.to_delete = set([])
+        self.to_delete = set()
         self.original_names = {}
         self.all_tags = {}
 

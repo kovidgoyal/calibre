@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -200,7 +201,7 @@ def create_date_tab(self, db):
         dm.addItem(text, val)
     self.date_day = dd = add(_('&day'), QSpinBox(w))
     dd.setRange(0, 31)
-    dd.setSpecialValueText(u' \xa0')
+    dd.setSpecialValueText(' \xa0')
     h.addStretch(10)
 
     w.h3 = h = QHBoxLayout()

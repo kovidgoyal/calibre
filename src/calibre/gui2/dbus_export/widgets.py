@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication, Qt)
 
 from calibre.constants import iswindows, isosx
-from polyglot.builtins import range
+from polyglot.builtins import range, unicode_type
 
 UNITY_WINDOW_REGISTRAR = ('com.canonical.AppMenu.Registrar', '/com/canonical/AppMenu/Registrar', 'com.canonical.AppMenu.Registrar')
 STATUS_NOTIFIER = ("org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher")
@@ -124,7 +124,7 @@ class Factory(QObject):
                 import dbus
                 self.dbus = dbus
             except ImportError as err:
-                log('Failed to import dbus, with error:', str(err))
+                log('Failed to import dbus, with error:', unicode_type(err))
                 self.dbus = None
 
         self.menu_registrar = None
@@ -163,7 +163,7 @@ class Factory(QObject):
                 self._bus.watch_name_owner(UNITY_WINDOW_REGISTRAR[0], self.window_registrar_changed)
                 self._bus.watch_name_owner(STATUS_NOTIFIER[0], self.status_notifier_registrar_changed)
             except Exception as err:
-                log('Failed to connect to DBUS session bus, with error:', str(err))
+                log('Failed to connect to DBUS session bus, with error:', unicode_type(err))
                 self._bus = False
         return self._bus or None
 
@@ -177,7 +177,7 @@ class Factory(QObject):
                     self.detect_menu_registrar()
                 except Exception as err:
                     self.menu_registrar = False
-                    log('Failed to detect window menu registrar, with error:', str(err))
+                    log('Failed to detect window menu registrar, with error:', unicode_type(err))
         return bool(self.menu_registrar)
 
     def detect_menu_registrar(self):
@@ -195,7 +195,7 @@ class Factory(QObject):
                     self.detect_status_notifier()
                 except Exception as err:
                     self.status_notifier = False
-                    log('Failed to detect window status notifier, with error:', str(err))
+                    log('Failed to detect window status notifier, with error:', unicode_type(err))
         return bool(self.status_notifier)
 
     def detect_status_notifier(self):
