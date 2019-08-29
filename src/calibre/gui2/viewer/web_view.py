@@ -211,6 +211,7 @@ class ViewerBridge(Bridge):
     goto_cfi = to_js()
     full_screen_state_changed = to_js()
     get_current_cfi = to_js()
+    show_home_page = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -470,3 +471,6 @@ class WebView(RestartingWebEngineView):
 
     def get_current_cfi(self, callback):
         self.do_callback('get_current_cfi', callback)
+
+    def show_home_page(self):
+        self.execute_when_ready('show_home_page')

@@ -199,6 +199,11 @@ def create_view(prefs, all_font_families, field_metadata):
 
 
 @from_python
+def show_home_page():
+    view.overlay.open_book(False)
+
+
+@from_python
 def show_preparing_message(msg):
     view.show_loading_message(msg)
 
