@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title:
 
+- version: 3.47.0
+  date: 2019-08-30
+
+  new features:
+    - title: "HTML metadata: Support reading identifiers from HTML files"
+
+    - title: "Preferences->Ignored devices: Add a button to reset the list of devices that calibre is allowed to manage"
+
+  bug fixes:
+    - title: "macOS: Fix a regression that could cause a crash on exit if any books were deleted while calibre was running."
+      tickets: [1839044]
+
+    - title: "Content server OPDS: Handle form encoded search queries."
+      tickets: [1841464]
+
+    - title: "Fix an error when adding files from clipboard and file is of unknown type"
+
+    - title: "Speed up restoring original format by doing a rename rather than a copy and re-add."
+      tickets: [1839733]
+
+    - title: "EPUB 3: Fix setting metadata in EPUB 3 files without a title not working"
+
+    - title: "PML Input: Modernize the generated HTML a bit."
+      tickets: [1839689]
+
+    - title: "HTMLZ Output: Fix svg content from HTML files that contain only SVG being removed."
+      tickets: [1839522]
+
+    - title: "Content server: Fix OPDS feed for category based browsing listing restricted books, even though these books cannot be actually downloaded."
+      tickets: [1839173]
+
+    - title: "Preserve tag order when reading metadata from MOBI files"
+
+    - title: "Add missing 'language' field to ComicBookInfo metadata for .CBR files."
+
+    - title: "LIT Output: Fix regression in 3.41 caused by py3 porting that broke conversion of some files to LIT."
+      tickets: [1837561]
+
+  improved recipes:
+    - Esquire
+    - Foreign Affairs
+    - derStandaard
+    - Globe and Mail
+    - CNET News
+    - National Geographic
+    - New Yorker
+    - Chicago Tribune
+
+
 - version: 3.46.0
   date: 2019-07-19
 
