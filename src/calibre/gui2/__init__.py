@@ -1145,6 +1145,8 @@ def open_url(qurl):
 
 
 def safe_open_url(qurl):
+    if isinstance(qurl, string_or_bytes):
+        qurl = QUrl(qurl)
     if qurl.scheme() in ('', 'file'):
         path = qurl.toLocalFile()
         ext = os.path.splitext(path)[-1].lower()[1:]
