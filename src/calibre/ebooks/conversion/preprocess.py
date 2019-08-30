@@ -602,7 +602,7 @@ class HTMLPreProcessor(object):
                 end_rules.append(
                     # Un wrap using punctuation
                     (re.compile((
-                        r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IA\u00DF]'
+                        r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]'
                         r'|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?'
                         r'\s*[\w\d$(])') % length, re.UNICODE), wrap_lines),
                 )
