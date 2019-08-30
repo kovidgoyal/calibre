@@ -77,7 +77,7 @@ disable_cocoa_ui_elements(PyObject *self, PyObject *args) {
 	PyObject *tabbing = Py_True, *menu_items = Py_True;
 	if (!PyArg_ParseTuple(args, "|OO", &tabbing, &menu_items)) return NULL;
 	if (PyObject_IsTrue(tabbing)) disable_window_tabbing();
-	if (PyObject_IsTrue(menu_items) remove_cocoa_menu_items();
+	if (PyObject_IsTrue(menu_items)) remove_cocoa_menu_items();
 	Py_RETURN_NONE;
 }
 
