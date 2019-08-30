@@ -169,7 +169,6 @@ class Freeze(object):
         self.frameworks_dir = join(self.contents_dir, 'Frameworks')
         self.exe_dir = join(self.contents_dir, 'MacOS')
         self.helpers_dir = join(self.build_dir, 'Helpers', 'utils.app', 'Contents', 'MacOS')
-        self.webengine_dir = join(self.build_dir, 'Helpers', 'QtWebEngineProcess.app', 'Contents', 'MacOS')
         self.site_packages = join(self.resources_dir, 'Python', 'site-packages')
         self.to_strip = []
         self.warnings = []
@@ -328,6 +327,12 @@ class Freeze(object):
             self.fix_dependencies_in_lib(l)
             x = os.path.relpath(l, ddir)
             self.set_id(l, '@executable_path/' + x)
+        webengine_process = join(
+            self.frameworks_dir, 'QtWebEngineCore.framework/Versions/5/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess')
+        self.fix_dependencies_in_lib(webengine_process)
+        cdir = dirname(dirname(webengine_process))
+        dest = join(cdir, 'Frameworks')
+        os.symlink(os.path.relpath(self.frameworks_dir, cdir), dest)
 
     def add_qt_framework(self, f):
         libname = f
@@ -361,11 +366,14 @@ class Freeze(object):
             subprocess.check_call([
                 'iconutil', '-c', 'icns', x, '-o', join(
                     self.resources_dir, basename(x).partition('.')[0] + '.icns')])
-        for helpers in (self.helpers_dir, self.webengine_dir):
+        for helpers in (self.helpers_dir,):
             os.makedirs(helpers)
             cdir = dirname(helpers)
             dest = join(cdir, 'Frameworks')
             src = self.frameworks_dir
+            os.symlink(os.path.relpath(src, cdir), dest)
+            dest = join(cdir, 'Resources')
+            src = self.resources_dir
             os.symlink(os.path.relpath(src, cdir), dest)
 
     @flush
