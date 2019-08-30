@@ -15,7 +15,7 @@ from read_book.flow_mode import (
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
-    current_book, current_layout_mode, current_spine_item, set_boss,
+    current_book, current_layout_mode, current_spine_item, runtime, set_boss,
     set_current_spine_item, set_layout_mode
 )
 from read_book.mathjax import apply_mathjax
@@ -380,6 +380,10 @@ class IframeBoss:
         link_attr = 'data-' + self.book.manifest.link_uid
         for a in document.body.querySelectorAll('a[{}]'.format(link_attr)):
             a.addEventListener('click', self.link_activated)
+        if runtime.is_standalone_viewer:
+            # links with a target get turned into requests to open a new window by Qt
+            for a in document.body.querySelectorAll('a[target]'):
+                a.removeAttribute('target')
 
     def link_activated(self, evt):
         link_attr = 'data-' + self.book.manifest.link_uid

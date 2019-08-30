@@ -279,7 +279,8 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        safe_open_url(url)
+        if url.scheme() in ('http', 'https'):
+            safe_open_url(url)
         return False
 
     def go_to_anchor(self, anchor):
