@@ -109,9 +109,10 @@ def do_sign_app(appdir):
         # Sign everything in MacOS except the main executables of the various
         # app bundles which will be signed automatically by codesign when
         # signing the app bundles
-        with current_dir('MacOS'):
-            items = set(os.listdir('.')) - executables
-            codesign(expand_dirs(items))
+        for MacOS in ('MacOS', 'utils.app/Contents/MacOS'):
+            with current_dir(MacOS):
+                items = set(os.listdir('.')) - executables
+                codesign(expand_dirs(items))
 
         # Sign everything in Frameworks
         with current_dir('Frameworks'):

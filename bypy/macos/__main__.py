@@ -168,7 +168,7 @@ class Freeze(object):
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.frameworks_dir = join(self.contents_dir, 'Frameworks')
         self.exe_dir = join(self.contents_dir, 'MacOS')
-        self.helpers_dir = join(self.build_dir, 'Helpers', 'utils.app', 'Contents', 'MacOS')
+        self.helpers_dir = join(self.contents_dir, 'utils.app', 'Contents', 'MacOS')
         self.site_packages = join(self.resources_dir, 'Python', 'site-packages')
         self.to_strip = []
         self.warnings = []
@@ -375,6 +375,24 @@ class Freeze(object):
             dest = join(cdir, 'Resources')
             src = self.resources_dir
             os.symlink(os.path.relpath(src, cdir), dest)
+            pl = dict(
+                CFBundleDevelopmentRegion='English',
+                CFBundleDisplayName=APPNAME + ' - utils',
+                CFBundleName=APPNAME + '-utils',
+                CFBundleIdentifier='com.calibre-ebook.utils',
+                LSBackgroundOnly='1',
+                CFBundleVersion=VERSION,
+                CFBundleShortVersionString=VERSION,
+                CFBundlePackageType='APPL',
+                CFBundleSignature='????',
+                CFBundleExecutable='pdftohtml',
+                LSMinimumSystemVersion='10.14.0',
+                LSRequiresNativeExecution=True,
+                NSAppleScriptEnabled=False,
+                CFBundleIconFile='',
+            )
+            with open(join(cdir, 'Info.plist'), 'wb') as p:
+                plistlib.dump(pl, p)
 
     @flush
     def add_calibre_plugins(self):
@@ -412,7 +430,7 @@ class Freeze(object):
             CFBundleSignature='????',
             CFBundleExecutable='calibre',
             CFBundleDocumentTypes=docs,
-            LSMinimumSystemVersion='10.9.5',
+            LSMinimumSystemVersion='10.14.0',
             LSRequiresNativeExecution=True,
             NSAppleScriptEnabled=False,
             NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
