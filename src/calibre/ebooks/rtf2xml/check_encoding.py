@@ -5,6 +5,7 @@ import sys
 
 from polyglot.builtins import unicode_type
 
+
 class CheckEncoding:
 
     def __init__(self, bug_handler):

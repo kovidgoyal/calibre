@@ -82,9 +82,9 @@ class NewYorker(BasicNewsRecipe):
                     cover_url_width_index = self.cover_url.find("w_")
                     old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
                     self.cover_url = self.cover_url.replace(old_width, "w_560")
-                except Exception as e:
+                except Exception:
                     self.log('Failed enlarging cover img, using the original one')
-              
+
                 self.log('Found cover:', self.cover_url)
         stories = defaultdict(list)
         last_section = 'Unknown'

@@ -51,7 +51,7 @@ class Nature(BasicNewsRecipe):
             'img', attrs={'data-test': check_words('issue-cover-image')}
         )['src']
         try:
-            self.cover_url = self.cover_url.replace("w200","w500") # enlarge cover size resolution
+            self.cover_url = self.cover_url.replace("w200","w500")  # enlarge cover size resolution
         except:
             """
             failed, img src might have changed, use default width 200
