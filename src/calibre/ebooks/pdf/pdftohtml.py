@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 
-from calibre import CurrentDir, replace_entities, prints
+from calibre import CurrentDir, xml_replace_entities, prints
 from calibre.constants import (
     filesystem_encoding, isbsd, islinux, isosx, ispy3, iswindows
 )
@@ -106,7 +106,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(r'<a\s+name=(\d+)', r'<a id="\1"', raw, flags=re.I)
                 raw = re.sub(r'<a id="(\d+)"', r'<a id="p\1"', raw, flags=re.I)
                 raw = re.sub(r'<a href="index.html#(\d+)"', r'<a href="#p\1"', raw, flags=re.I)
-                raw = replace_entities(raw)
+                raw = xml_replace_entities(raw)
                 raw = raw.replace('\u00a0', ' ')
 
                 i.write(raw.encode('utf-8'))
