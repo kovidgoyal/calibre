@@ -182,6 +182,7 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
+        from PyQt5.QtCore import QTimer
         from PyQt5.QtWebEngineWidgets import QWebEnginePage
         from PyQt5.QtGui import QImageReader, QFontDatabase
         from PyQt5.QtNetwork import QNetworkAccessManager
@@ -232,6 +233,7 @@ class BuildTest(unittest.TestCase):
 
         p.runJavaScript('1 + 1', callback)
         p.printToPdf(print_callback)
+        QTimer.singleShot(5000, lambda: Application.instance().quit())
         app.exec_()
         self.assertEqual(callback.result, 2)
         self.assertIn(b'Skia/PDF', bytes(print_callback.result))
