@@ -400,7 +400,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
                 app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
                 from calibre.debug import run_calibre_debug
                 prints('Restarting with:', app)
-                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", sys.argv[-1])', app)
+                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
             else:
                 import subprocess
                 os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
