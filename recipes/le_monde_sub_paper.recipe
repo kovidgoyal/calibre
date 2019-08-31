@@ -10,7 +10,6 @@ import os, zipfile, re, time
 from calibre.constants import preferred_encoding
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryFile
 
 
@@ -128,8 +127,8 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         for i in range(nb_index_files):
             filename = os.path.join(path, "selection_%d.html" % (i + 1))
-            tmp = open(filename, 'r')
-            soup = BeautifulSoup(tmp, convertEntities=BeautifulSoup.HTML_ENTITIES)
+            with open(filename, 'rb') as tmp:
+                soup = self.index_to_soup(tmp.read())
             title = soup.find('span').contents[0]
             if title == "Une":
                 title = "À la une"
@@ -156,8 +155,8 @@ class LeMondeAbonne(BasicNewsRecipe):
             tmp.close()
 
             filename = os.path.join(path, "frame_gauche_%d.html" % (i + 1))
-            tmp = open(filename, 'r')
-            soup = BeautifulSoup(tmp)
+            with open(filename, 'rb') as tmp:
+                soup = self.index_to_soup(tmp.read())
             articles = []
             for link in soup.findAll("a"):
                 article_file = link['href']
