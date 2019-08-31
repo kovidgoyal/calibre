@@ -49,16 +49,6 @@ class Worker(object):
     exe_name = 'calibre-parallel'
 
     @property
-    def osx_interpreter(self):
-        exe = os.path.basename(sys.executable)
-        return exe if 'python' in exe else 'python'
-
-    @property
-    def osx_contents_dir(self):
-        fd = os.path.realpath(getattr(sys, 'frameworks_dir'))
-        return os.path.dirname(fd)
-
-    @property
     def executable(self):
         if hasattr(sys, 'running_from_setup'):
             return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
