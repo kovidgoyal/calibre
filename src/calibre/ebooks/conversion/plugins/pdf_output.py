@@ -234,6 +234,7 @@ class PDFOutput(OutputFormatPlugin):
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
+            oeb_dir = os.path.realpath(oeb_dir)
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
