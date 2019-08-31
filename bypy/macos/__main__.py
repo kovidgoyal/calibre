@@ -203,7 +203,6 @@ class Freeze(object):
         if not test_launchers and not self.dont_strip:
             self.strip_files()
         if not test_launchers:
-            self.create_console_app()
             self.create_gui_apps()
 
         self.run_tests()
@@ -213,8 +212,7 @@ class Freeze(object):
 
     @flush
     def run_tests(self):
-        cc_dir = join(self.contents_dir, 'calibre-debug.app', 'Contents')
-        self.test_runner(join(cc_dir, 'MacOS', 'calibre-debug'), self.contents_dir)
+        self.test_runner(join(self.contents_dir, 'MacOS', 'calibre-debug'), self.contents_dir)
 
     @flush
     def add_resources(self):
@@ -678,14 +676,6 @@ class Freeze(object):
                 os.symlink(join('../..', x), join(cc_dir, x))
 
     @flush
-    def create_console_app(self):
-        def specialise_plist(plist):
-            plist['LSBackgroundOnly'] = '1'
-            plist['CFBundleIdentifier'] = 'com.calibre-ebook.console'
-            plist['CFBundleExecutable'] = 'calibre-parallel'
-        self.create_app_clone('console.app', specialise_plist)
-
-    @flush
     def create_gui_apps(self):
         input_formats = sorted(set(json.loads(
             subprocess.check_output([
@@ -696,19 +686,17 @@ class Freeze(object):
 
         def specialise_plist(launcher, remove_types, plist):
             plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
-                'ebook-viewer': 'E-book Viewer', 'ebook-edit': 'Edit Book', 'calibre-debug': 'calibre (debug)',
+                'ebook-viewer': 'E-book Viewer', 'ebook-edit': 'Edit Book',
             }[launcher]
             plist['CFBundleExecutable'] = launcher
-            if launcher != 'calibre-debug':
-                plist['CFBundleIconFile'] = launcher + '.icns'
             plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
+            plist['CFBundleIconFile'] = launcher + '.icns'
             if not remove_types:
                 e = plist['CFBundleDocumentTypes'][0]
                 exts = 'epub azw3'.split() if launcher == 'ebook-edit' else input_formats
                 e['CFBundleTypeExtensions'] = exts
-        for launcher in ('ebook-viewer', 'ebook-edit', 'calibre-debug'):
-            remove_types = launcher == 'calibre-debug'
-            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher, remove_types), remove_doc_types=remove_types)
+        for launcher in ('ebook-viewer', 'ebook-edit'):
+            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher, False), remove_doc_types=False)
 
     @flush
     def copy_site(self):

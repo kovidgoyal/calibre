@@ -198,7 +198,7 @@ the previously checked out calibre code directory, for example::
 
 calibre is the directory that contains the src and resources sub-directories.
 The calibre command line tools are found inside the calibre app bundle, in
-:file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS`
+:file:`/Applications/calibre.app/Contents/MacOS`
 you should add this directory to your PATH environment variable, if you want to
 run the command line tools easily.
 

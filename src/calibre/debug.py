@@ -17,8 +17,6 @@ from polyglot.builtins import exec_path, raw_input, unicode_type, getcwd
 def get_debug_executable():
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
-        if 'calibre-debug.app' not in base:
-            base = os.path.join(base, 'calibre-debug.app', 'Contents')
         return os.path.join(base, 'MacOS', 'calibre-debug')
     if getattr(sys, 'frozen', False):
         return os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-debug' + ('.exe' if iswindows else ''))

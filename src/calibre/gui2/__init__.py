@@ -1201,6 +1201,8 @@ def ensure_app(headless=True):
             has_headless = isosx or islinux or isbsd
             if headless and has_headless:
                 args += ['-platformpluginpath', plugins_loc, '-platform', 'headless']
+                if isosx:
+                    os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
             _store_app = QApplication(args)
             if headless and has_headless:
                 _store_app.headless = True

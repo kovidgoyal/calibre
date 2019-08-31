@@ -37,7 +37,7 @@ the directory in which you created :file:`__init__.py`::
 .. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
+    are in :file:`/Applications/calibre.app/Contents/MacOS/`.
 
 You can download the Hello World plugin from
 `helloworld_plugin.zip  <https://calibre-ebook.com/downloads/helloworld_plugin.zip>`_.
@@ -325,4 +325,3 @@ Sharing your plugins with others
 
 If you would like to share the plugins you have created with other users of calibre, post your plugin in a new thread in the
 `calibre plugins forum <https://www.mobileread.com/forums/forumdisplay.php?f=237>`_.
-
