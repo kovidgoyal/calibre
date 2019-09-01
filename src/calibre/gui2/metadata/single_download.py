@@ -786,12 +786,19 @@ class CoversView(QListView):  # {{{
 
         self.delegate = CoverDelegate(self)
         self.setItemDelegate(self.delegate)
-        self.delegate.needs_redraw.connect(self.viewport().update,
+        self.delegate.needs_redraw.connect(self.redraw_spinners,
                 type=Qt.QueuedConnection)
 
         self.doubleClicked.connect(self.chosen, type=Qt.QueuedConnection)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def redraw_spinners(self):
+        m = self.model()
+        for r in range(m.rowCount()):
+            idx = m.index(r)
+            if bool(m.data(idx, Qt.UserRole)):
+                m.dataChanged.emit(idx, idx)
 
     def select(self, num):
         current = self.model().index(num)
