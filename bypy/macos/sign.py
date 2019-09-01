@@ -91,28 +91,40 @@ def get_executable(info_path):
         return plistlib.load(f)['CFBundleExecutable']
 
 
+def find_sub_apps(contents_dir='.'):
+    for app in glob(os.path.join(contents_dir, '*.app')):
+        cdir = os.path.join(app, 'Contents')
+        for sapp in find_sub_apps(cdir):
+            yield sapp
+        yield app
+
+
+def sign_MacOS(contents_dir='.'):
+    # Sign everything in MacOS except the main executable
+    # which will be signed automatically by codesign when
+    # signing the app bundles
+    with current_dir(os.path.join(contents_dir, 'MacOS')):
+        exe = get_executable('../Info.plist')
+        items = {x for x in os.listdir('.') if x != exe and not os.path.islink(x)}
+        if items:
+            codesign(items)
+
+
 def do_sign_app(appdir):
     appdir = os.path.abspath(appdir)
     with current_dir(os.path.join(appdir, 'Contents')):
-        executables = {get_executable('Info.plist')}
-
+        sign_MacOS()
         # Sign the sub application bundles
-        sub_apps = glob('*.app')
-        for sa in sub_apps:
-            exe = get_executable(sa + '/Contents/Info.plist')
-            if exe in executables:
-                raise ValueError('Multiple app bundles share the same executable: %s' % exe)
-            executables.add(exe)
+        sub_apps = list(find_sub_apps())
         sub_apps.append('Frameworks/QtWebEngineCore.framework/Versions/Current/Helpers/QtWebEngineProcess.app')
+        for sa in sub_apps:
+            sign_MacOS(os.path.join(sa, 'Contents'))
         codesign(sub_apps)
 
-        # Sign everything in MacOS except the main executables of the various
-        # app bundles which will be signed automatically by codesign when
-        # signing the app bundles
-        for MacOS in ('MacOS', 'utils.app/Contents/MacOS'):
-            with current_dir(MacOS):
-                items = set(os.listdir('.')) - executables
-                codesign(expand_dirs(items))
+        # Sign everything in PlugIns
+        with current_dir('PlugIns'):
+            items = set(os.listdir('.'))
+            codesign(expand_dirs(items))
 
         # Sign everything in Frameworks
         with current_dir('Frameworks'):
