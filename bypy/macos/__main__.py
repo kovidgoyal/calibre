@@ -645,9 +645,10 @@ class Freeze(object):
         base = join(self.resources_dir, 'Python')
         py_compile(base)
 
-    def create_app_clone(self, name, specialise_plist, remove_doc_types=True):
+    def create_app_clone(self, name, specialise_plist, remove_doc_types=False, base_dir=None):
         print('\nCreating ' + name)
-        cc_dir = join(self.contents_dir, name, 'Contents')
+        base_dir = base_dir or self.contents_dir
+        cc_dir = join(base_dir, name, 'Contents')
         exe_dir = join(cc_dir, 'MacOS')
         os.makedirs(exe_dir)
         for x in os.listdir(self.contents_dir):
@@ -671,32 +672,51 @@ class Freeze(object):
                     plistlib.dump(plist, p)
             elif x == 'MacOS':
                 for item in os.listdir(join(self.contents_dir, 'MacOS')):
-                    os.symlink('../../../MacOS/' + item, join(exe_dir, item))
+                    src = join(self.contents_dir, x, item)
+                    os.symlink(os.path.relpath(src, exe_dir), join(exe_dir, item))
             else:
-                os.symlink(join('../..', x), join(cc_dir, x))
+                src = join(self.contents_dir, x)
+                os.symlink(os.path.relpath(src, cc_dir), join(cc_dir, x))
 
     @flush
     def create_gui_apps(self):
-        input_formats = sorted(set(json.loads(
-            subprocess.check_output([
-                join(self.contents_dir, 'MacOS', 'calibre-debug'), '-c',
-                'from calibre.customize.ui import all_input_formats; import sys, json; sys.stdout.write(json.dumps(tuple(all_input_formats())))'
-            ])
-        )))
 
-        def specialise_plist(launcher, remove_types, plist):
+        def get_data(cmd):
+            return json.loads(subprocess.check_output([join(self.contents_dir, 'MacOS', 'calibre-debug'), '-c', cmd]))
+
+        data = get_data(
+            'from calibre.customize.ui import all_input_formats; import sys, json; from calibre.ebooks.oeb.polish.main import SUPPORTED;'
+            'sys.stdout.write(json.dumps({"i": tuple(all_input_formats()), "e": tuple(SUPPORTED)}))'
+        )
+        input_formats = sorted(set(data['i']))
+        edit_formats = sorted(set(data['e']))
+
+        def specialise_plist(launcher, formats, plist):
             plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
                 'ebook-viewer': 'E-book Viewer', 'ebook-edit': 'Edit Book',
             }[launcher]
             plist['CFBundleExecutable'] = launcher
             plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
             plist['CFBundleIconFile'] = launcher + '.icns'
-            if not remove_types:
-                e = plist['CFBundleDocumentTypes'][0]
-                exts = 'epub azw3'.split() if launcher == 'ebook-edit' else input_formats
-                e['CFBundleTypeExtensions'] = exts
-        for launcher in ('ebook-viewer', 'ebook-edit'):
-            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher, False), remove_doc_types=False)
+            e = plist['CFBundleDocumentTypes'][0]
+            e['CFBundleTypeExtensions'] = [x.lower() for x in formats]
+
+        self.create_app_clone('ebook-viewer.app', partial(specialise_plist, 'ebook-viewer', input_formats))
+        self.create_app_clone('ebook-edit.app', partial(specialise_plist, 'ebook-edit', edit_formats),
+                base_dir=join(self.contents_dir, 'ebook-viewer.app', 'Contents'))
+        # We need to move the webengine resources into the deepest sub-app
+        # because the sandbox gets set to the nearest enclosing app which
+        # means that WebEngine will fail to access its resources when running
+        # in the sub-apps unless they are present inside the sub app bundle
+        # somewhere
+        base_dest = join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents', 'SharedSupport')
+        os.mkdir(base_dest)
+        base_src = os.path.realpath(join(self.frameworks_dir, 'QtWebEngineCore.framework/Resources'))
+        items = [join(base_src, 'qtwebengine_locales')] + glob.glob(join(base_src, '*.pak')) + glob.glob(join(base_src, '*.dat'))
+        for src in items:
+            dest = join(base_dest, os.path.basename(src))
+            os.rename(src, dest)
+            os.symlink(os.path.relpath(dest, base_src), src)
 
     @flush
     def copy_site(self):

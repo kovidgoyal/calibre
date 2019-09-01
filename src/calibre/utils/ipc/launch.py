@@ -73,8 +73,13 @@ class Worker(object):
     @property
     def gui_executable(self):
         if isosx and not hasattr(sys, 'running_from_setup'):
-            if self.job_name in {'ebook-viewer', 'ebook-edit'}:
-                return self.executable.replace('/Contents/', '/Contents/%s.app/Contents/' % self.job_name)
+            if self.job_name == 'ebook-viewer':
+                base = os.path.dirname(sys.binaries_path)
+                return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/', self.exe_name)
+            if self.job_name == 'ebook-edit':
+                base = os.path.dirname(sys.binaries_path)
+                return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/', self.exe_name)
+
             return os.path.join(sys.binaries_path, self.exe_name)
 
         return self.executable
