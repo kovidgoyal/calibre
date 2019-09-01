@@ -557,7 +557,7 @@ class IdentifyWidget(QWidget):  # {{{
 class CoverWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
-        Thread.__init__(self)
+        Thread.__init__(self, name='CoverWorker')
         self.daemon = True
 
         self.log, self.abort = log, abort
@@ -813,6 +813,9 @@ class CoversView(QListView):  # {{{
         self.select(0)
         self.delegate.start_animation()
 
+    def stop(self):
+        self.delegate.stop_animation()
+
     def reset_covers(self):
         self.m.reset_covers()
 
@@ -937,6 +940,7 @@ class CoversWidget(QWidget):  # {{{
                             title=self.title)
         self.msg.setText(txt)
         self.msg.setWordWrap(True)
+        self.covers_view.stop()
 
         self.finished.emit()
 
@@ -1193,7 +1197,8 @@ class CoverFetch(QDialog):  # {{{
 
 
 if __name__ == '__main__':
+    from calibre.gui2 import Application
     DEBUG_DIALOG = True
-    app = QApplication([])
+    app = Application([])
     d = FullFetch()
-    d.start(title='great gatsby', authors=['fitzgerald'])
+    d.start(title='great gatsby', authors=['fitzgerald'], identifiers={})
