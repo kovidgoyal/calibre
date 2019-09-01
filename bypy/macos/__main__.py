@@ -39,7 +39,6 @@ QT_FRAMEWORKS = [x.replace('5', '') for x in QT_DLLS]
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-    QT_PLUGIN_PATH='@executable_path/../MacOS/qt-plugins',
     PYTHONIOENCODING='UTF-8',
     SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
 )
@@ -317,7 +316,7 @@ class Freeze(object):
         for f in QT_FRAMEWORKS:
             self.add_qt_framework(f)
         pdir = join(QT_PREFIX, 'plugins')
-        ddir = join(self.contents_dir, 'MacOS', 'qt-plugins')
+        ddir = join(self.contents_dir, 'PlugIns')
         os.mkdir(ddir)
         for x in QT_PLUGINS:
             shutil.copytree(join(pdir, x), join(ddir, x))

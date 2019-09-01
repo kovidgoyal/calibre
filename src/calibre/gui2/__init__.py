@@ -1115,7 +1115,7 @@ def sanitize_env_vars():
         env_vars = {k:None for k in 'QT_PLUGIN_PATH'.split()}
     elif isosx:
         env_vars = {k:None for k in (
-                    'FONTCONFIG_FILE FONTCONFIG_PATH QT_PLUGIN_PATH SSL_CERT_FILE').split()}
+                    'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE').split()}
     else:
         env_vars = {}
 
