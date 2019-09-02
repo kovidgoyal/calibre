@@ -64,7 +64,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             plugins.sort(key=lambda x: x.name.lower())
 
     def universal_set(self):
-        ans = set([])
+        ans = set()
         for c, category in enumerate(self.categories):
             ans.add((c, -1))
             for p, plugin in enumerate(self._data[category]):
@@ -74,7 +74,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
     def get_matches(self, location, query, candidates=None):
         if candidates is None:
             candidates = self.universal_set()
-        ans = set([])
+        ans = set()
         if not query:
             return ans
         query = lower(query)

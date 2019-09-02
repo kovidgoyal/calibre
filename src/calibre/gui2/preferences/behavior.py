@@ -108,7 +108,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             fmts = config['internally_viewed_formats']
         viewer = self.opt_internally_viewed_formats
         viewer.blockSignals(True)
-        exts = set([])
+        exts = set()
         for ext in BOOK_EXTENSIONS:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)

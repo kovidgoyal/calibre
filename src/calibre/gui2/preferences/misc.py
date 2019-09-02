@@ -9,7 +9,7 @@ import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
-from calibre.gui2 import (config, open_local_file, gprefs)
+from calibre.gui2 import config, open_local_file, gprefs
 from calibre import get_proxies
 from polyglot.builtins import iteritems
 
