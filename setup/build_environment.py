@@ -145,6 +145,8 @@ if iswindows:
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
     ft_inc_dirs = [os.path.join(sw_inc_dir, 'freetype2'), sw_inc_dir]
+    hunspell_inc_dirs = [os.path.join(sw_inc_dir, 'hunspell')]
+    hunspell_lib_dirs = [sw_lib_dir]
     zlib_inc_dirs = [sw_inc_dir]
     zlib_lib_dirs = [sw_lib_dir]
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')

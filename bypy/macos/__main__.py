@@ -504,7 +504,7 @@ class Freeze(object):
     @flush
     def add_misc_libraries(self):
         for x in (
-                'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0',
+                'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
                 'icudata.64', 'icui18n.64', 'icuio.64', 'icuuc.64',
                 'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar',
                 'crypto.1.0.0', 'ssl.1.0.0', 'iconv.2',  # 'ltdl.7'

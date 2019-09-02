@@ -4,7 +4,8 @@
         "sources": "calibre/utils/spell/hunspell_wrapper.cpp",
         "inc_dirs": "!hunspell_inc_dirs",
         "lib_dirs": "!hunspell_lib_dirs",
-        "libraries": "hunspell",
+        "libraries": "hunspell-1.7",
+        "windows_libraries": "libhunspell",
 		"needs_c++11": true
     },
     {
