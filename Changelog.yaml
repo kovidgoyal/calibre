@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 3.47.0
+- version: 3.47.1
   date: 2019-08-30
 
   new features:
@@ -57,6 +57,9 @@
 
     - title: "LIT Output: Fix regression in 3.41 caused by py3 porting that broke conversion of some files to LIT."
       tickets: [1837561]
+
+    - title: "Version 3.47.1 fixes an error when using internet lookup from the book details panel and the e-book viewer, and also the tweak to control number of columns in the edit metadata dialog not working"
+      tickets: [1842158,1842183,1842090,1842201]
 
   improved recipes:
     - Esquire
