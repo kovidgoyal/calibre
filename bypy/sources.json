@@ -385,6 +385,15 @@
     },
 
     {
+        "name": "hunspell",
+        "unix": {
+            "filename": "hunspell-1.7.0.tar.gz",
+            "hash": "sha256:57be4e03ae9dd62c3471f667a0d81a14513e314d4d92081292b90435944ff951",
+            "urls": ["https://github.com/hunspell/hunspell/files/2573619/{filename}"]
+        }
+    },
+
+    {
         "name": "qt-base",
         "version": "5.13.0",
         "hashes": {

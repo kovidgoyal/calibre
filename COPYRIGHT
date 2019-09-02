@@ -254,10 +254,6 @@ License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
 
-Files: src/hunspell/*
-Copyright: Various
-License: GPL-2+
-
 Files: src/calibre/gui2/tweak_book/diff/_patiencediff_c.c
 Copyright: Canonical
 License: GPL-2+

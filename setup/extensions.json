@@ -1,11 +1,11 @@
 [
     {
         "name": "hunspell",
-        "sources": "hunspell/affentry.cxx hunspell/affixmgr.cxx hunspell/csutil.cxx hunspell/dictmgr.cxx hunspell/filemgr.cxx hunspell/hashmgr.cxx hunspell/hunspell.cxx hunspell/phonet.cxx hunspell/replist.cxx hunspell/suggestmgr.cxx calibre/utils/spell/hunspell_wrapper.cpp",
-        "inc_dirs": "hunspell",
-        "defines": "HUNSPELL_STATIC",
-        "windows_defines": "HUNSPELL_STATIC _CRT_SECURE_NO_WARNINGS UNICODE _UNICODE",
-        "optimize_level": 2
+        "sources": "calibre/utils/spell/hunspell_wrapper.cpp",
+        "inc_dirs": "!hunspell_inc_dirs",
+        "lib_dirs": "!hunspell_lib_dirs",
+        "libraries": "hunspell",
+		"needs_c++11": true
     },
     {
         "name": "monotonic",

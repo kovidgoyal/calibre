@@ -126,6 +126,8 @@ icu_inc_dirs = []
 icu_lib_dirs = []
 zlib_inc_dirs = []
 zlib_lib_dirs = []
+hunspell_inc_dirs = []
+hunspell_lib_dirs = []
 openssl_inc_dirs, openssl_lib_dirs = [], []
 ICU = sw = ''
 
@@ -152,6 +154,7 @@ elif isosx:
     sw_inc_dir  = os.path.join(sw, 'include')
     sw_lib_dir  = os.path.join(sw, 'lib')
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
+    hunspell_inc_dirs = [os.path.join(sw_inc_dir, 'hunspell')]
     podofo_lib = sw_lib_dir
     ft_libs = ['freetype']
     ft_inc_dirs = [sw + '/include/freetype2']
@@ -163,6 +166,8 @@ else:
             '/usr/include/freetype2')
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
     ft_libs = pkgconfig_libs('freetype2', '', '')
+    hunspell_inc_dirs = pkgconfig_include_dirs('hunspell', 'HUNSPELL_INC_DIR', '/usr/include/hunspell')
+    hunspell_lib_dirs = pkgconfig_lib_dirs('hunspell', 'HUNSPELL_LIB_DIR', '/usr/lib')
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     podofo_inc = '/usr/include/podofo'
     podofo_lib = '/usr/lib'

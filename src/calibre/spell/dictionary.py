@@ -1,22 +1,27 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import os, glob, shutil, re, sys
-from collections import namedtuple, defaultdict
-from itertools import chain
+import glob
+import os
+import re
+import shutil
+import sys
+from collections import defaultdict, namedtuple
 from functools import partial
+from itertools import chain
 
 from calibre import prints
-from calibre.constants import plugins, config_dir
+from calibre.constants import (
+    config_dir, filesystem_encoding, ispy3, iswindows, plugins
+)
 from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import get_lang, get_system_locale
-from polyglot.builtins import iteritems, itervalues, unicode_type, filter
+from polyglot.builtins import filter, iteritems, itervalues, unicode_type
+
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
@@ -163,11 +168,18 @@ def get_dictionary(locale, exact_match=False):
 
 
 def load_dictionary(dictionary):
-    from calibre.spell.import_from import convert_to_utf8
-    with open(dictionary.dicpath, 'rb') as dic, open(dictionary.affpath, 'rb') as aff:
-        dic_data, aff_data = dic.read(), aff.read()
-        dic_data, aff_data = convert_to_utf8(dic_data, aff_data)
-        obj = hunspell.Dictionary(dic_data, aff_data)
+
+    def fix_path(path):
+        if isinstance(path, bytes):
+            path = path.decode(filesystem_encoding)
+        path = os.path.abspath(path)
+        if iswindows:
+            path = r'\\?\{}'.format(path)
+        if not ispy3:
+            path = path.encode('utf-8')
+        return path
+
+    obj = hunspell.Dictionary(fix_path(dictionary.dicpath), fix_path(dictionary.affpath))
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
 
@@ -414,6 +426,14 @@ class Dictionaries(object):
         return ans
 
 
+def build_test():
+    dictionaries = Dictionaries()
+    dictionaries.initialize()
+    eng = parse_lang_code('en')
+    if not dictionaries.recognized('recognized', locale=eng):
+        raise AssertionError('The word recognized was not recognized')
+
+
 def find_tests():
     import unittest
 
@@ -438,5 +458,6 @@ def find_tests():
             self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
             self.assertIn('adequately', self.suggestions('ade-quately'))
             self.assertIn('magic. Wand', self.suggestions('magic.wand'))
+            self.assertIn('List', self.suggestions('Lis𝑘t'))
 
     return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)
