@@ -1,18 +1,31 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 from calibre.srv.tests.base import BaseTest
+from polyglot.builtins import itervalues, filter
+
 
 class TestRouter(BaseTest):
+
+    def test_library_id_construction(self):
+        from calibre.srv.library_broker import library_id_from_path
+        self.ae(library_id_from_path('as'), 'as')
+        self.ae(library_id_from_path('as/'), 'as')
+        self.ae(library_id_from_path('as////'), 'as')
+        self.ae(library_id_from_path('/as/'), 'as')
+        if os.sep == '\\':
+            self.ae(library_id_from_path('as/' + os.sep), 'as')
+            self.ae(library_id_from_path('X:' + os.sep), 'X')
 
     def test_route_construction(self):
         ' Test route construction '
         from calibre.srv.routes import Route, endpoint, RouteError
+
         def makeroute(route, func=lambda c,d:None, **kwargs):
             return Route(endpoint(route, **kwargs)(func))
 
@@ -39,7 +52,7 @@ class TestRouter(BaseTest):
         router = Router()
 
         def find(path):
-            path = filter(None, path.split('/'))
+            path = list(filter(None, path.split('/')))
             ep, args = router.find_route(path)
             args = list(args)
             return ep, args
@@ -72,7 +85,7 @@ class TestRouter(BaseTest):
         def get(ctx, dest, a, b):
             pass
 
-        for x in locals().itervalues():
+        for x in itervalues(locals()):
             if getattr(x, 'is_endpoint', False):
                 router.add(x)
         router.finalize()

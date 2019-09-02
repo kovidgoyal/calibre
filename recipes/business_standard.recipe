@@ -7,6 +7,12 @@ www.business-standard.com
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class BusinessStandard(BasicNewsRecipe):
     title = 'Business Standard'
     __author__ = 'Darko Miletic'
@@ -15,36 +21,30 @@ class BusinessStandard(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    auto_cleanup = False
-    encoding = 'cp1252'
+    encoding = 'utf-8'
     publisher = 'Business Standard Limited'
     category = 'news, business, money, india, world'
     language = 'en_IN'
-    masthead_url = 'http://feeds.business-standard.com/images/logo_08.jpg'
 
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
     }
-    remove_tags = [
-        dict(name=['object', 'link', 'script', 'iframe', 'base', 'meta']), dict(
-            attrs={'class': 'rightDiv2'}), dict(name='table', attrs={'width': '450px'})
+    remove_attributes = ['width', 'height', 'style']
+    keep_only_tags = [
+            classes('headline alternativeHeadline full-img story-content pubDate'),
     ]
-    remove_attributes = ['width', 'height']
+    remove_tags = [
+            classes('also-read-panel')
+    ]
 
     feeds = [
-
-    (u'News Now', u'http://feeds.business-standard.com/rss/online.xml'),
-    (u'Banking & finance', u'http://feeds.business-standard.com/rss/3_0.xml'),
-    (u'Companies & Industry', u'http://feeds.business-standard.com/rss/2_0.xml'),
-    (u'Economy & Policy', u'http://feeds.business-standard.com/rss/4_0.xml'),
-    (u'Tech World', u'http://feeds.business-standard.com/rss/8_0.xml'),
-    (u'Life & Leisure', u'http://feeds.business-standard.com/rss/6_0.xml'),
-    (u'Markets & Investing', u'http://feeds.business-standard.com/rss/1_0.xml'),
-    (u'Management & Mktg', u'http://feeds.business-standard.com/rss/7_0.xml'),
-    (u'Opinion', u'http://feeds.business-standard.com/rss/5_0.xml')
+        (u'News Now', u'http://feeds.business-standard.com/rss/online.xml'),
+        (u'Banking & finance', u'http://feeds.business-standard.com/rss/3_0.xml'),
+        (u'Companies & Industry', u'http://feeds.business-standard.com/rss/2_0.xml'),
+        (u'Economy & Policy', u'http://feeds.business-standard.com/rss/4_0.xml'),
+        (u'Tech World', u'http://feeds.business-standard.com/rss/8_0.xml'),
+        (u'Life & Leisure', u'http://feeds.business-standard.com/rss/6_0.xml'),
+        (u'Markets & Investing', u'http://feeds.business-standard.com/rss/1_0.xml'),
+        (u'Management & Mktg', u'http://feeds.business-standard.com/rss/7_0.xml'),
+        (u'Opinion', u'http://feeds.business-standard.com/rss/5_0.xml')
     ]
-
-    def print_version(self, url):
-        l, s, tp = url.rpartition('/')
-        t, k, autono = l.rpartition('/')
-        return 'http://www.business-standard.com/india/printpage.php?autono=' + autono + '&tp=' + tp

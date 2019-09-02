@@ -12,6 +12,12 @@
 #include "private/qtextengine_p.h"
 #include "private/qfontengine_p.h"
 
+#if PY_MAJOR_VERSION > 2
+#define BYTES_FMT "y#"
+#else
+#define BYTES_FMT "s#"
+#endif
+
 PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
     const quint32 *tag = reinterpret_cast<const quint32 *>("name");
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
@@ -48,19 +54,23 @@ PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
     indices = PyTuple_New(glyphs.count());
     if (indices == NULL) { Py_DECREF(points); return PyErr_NoMemory(); }
     for (int i = 0; i < glyphs.count(); i++) {
+#if PY_MAJOR_VERSION >= 3
+        temp = PyLong_FromLong((long)glyphs[i]);
+#else
         temp = PyInt_FromLong((long)glyphs[i]);
+#endif
         if (temp == NULL) { Py_DECREF(indices); Py_DECREF(points); return PyErr_NoMemory(); }
         PyTuple_SET_ITEM(indices, i, temp); temp = NULL;
     }
     const QByteArray table(fe->getSfntTable(qToBigEndian(*tag)));
-    return Py_BuildValue("s#ffOO", table.constData(), table.size(), size, stretch, points, indices);
+    return Py_BuildValue(BYTES_FMT "ffOO", table.constData(), table.size(), size, stretch, points, indices);
 }
 
 PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
     const quint32 *tag = reinterpret_cast<const quint32 *>(tag_name);
     const QByteArray table(ti.fontEngine->getSfntTable(qToBigEndian(*tag)));
-    return Py_BuildValue("s#", table.constData(), table.size());
+    return Py_BuildValue(BYTES_FMT, table.constData(), table.size());
 }
 
 PyObject* get_glyph_map(const QTextItem &text_item) {
@@ -74,10 +84,13 @@ PyObject* get_glyph_map(const QTextItem &text_item) {
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
         ti.fontEngine->stringToCMap(&ch, 1, &glyphs, &nglyphs, QFontEngine::GlyphIndicesOnly);
+#if PY_MAJOR_VERSION >= 3
+        t = PyLong_FromLong(glyphs.glyphs[0]);
+#else
         t = PyInt_FromLong(glyphs.glyphs[0]);
+#endif
         if (t == NULL) { Py_DECREF(ans); return PyErr_NoMemory(); }
         PyTuple_SET_ITEM(ans, uc, t); t = NULL;
     }
     return ans;
 }
-

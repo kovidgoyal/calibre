@@ -2,10 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import socket, os, struct, errno
-from base64 import standard_b64encode
+from __future__ import absolute_import, division, print_function, unicode_literals
+import socket, os, struct, errno, numbers
 from collections import deque, namedtuple
 from functools import partial
 from hashlib import sha1
@@ -16,6 +14,8 @@ from calibre.srv.web_socket import (
     PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA, CONTROL_CODES)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
+from polyglot.builtins import range, unicode_type
+from polyglot.binary import as_base64_unicode
 
 HANDSHAKE_STR = '''\
 GET / HTTP/1.1\r
@@ -27,13 +27,14 @@ Sec-WebSocket-Version: 13\r
 
 Frame = namedtuple('Frame', 'fin opcode payload')
 
+
 class WSClient(object):
 
     def __init__(self, port, timeout=5):
         self.timeout = timeout
         self.socket = socket.create_connection(('localhost', port), timeout)
         set_socket_inherit(self.socket, False)
-        self.key = standard_b64encode(os.urandom(8))
+        self.key = as_base64_unicode(os.urandom(8))
         self.socket.sendall(HANDSHAKE_STR.format(self.key).encode('ascii'))
         self.read_buf = deque()
         self.read_upgrade_response()
@@ -62,9 +63,10 @@ class WSClient(object):
         if rl != b'HTTP/1.1 101 Switching Protocols\r\n':
             raise ValueError('Server did not respond with correct switching protocols line')
         headers = read_headers(partial(next, lines))
-        key = standard_b64encode(sha1(self.key + GUID_STR).digest())
+        key = as_base64_unicode(sha1((self.key + GUID_STR).encode('ascii')).digest())
         if headers.get('Sec-WebSocket-Accept') != key:
-            raise ValueError('Server did not respond with correct key in Sec-WebSocket-Accept')
+            raise ValueError('Server did not respond with correct key in Sec-WebSocket-Accept: {} != {}'.format(
+                key, headers.get('Sec-WebSocket-Accept')))
 
     def recv(self, max_amt):
         if self.read_buf:
@@ -164,6 +166,7 @@ class WSTestServer(TestServer):
     def connect(self):
         return WSClient(self.address[1])
 
+
 class WebSocketTest(BaseTest):
 
     def simple_test(self, server, msgs, expected=(), close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE', ignore_send_failures=False):
@@ -180,11 +183,11 @@ class WebSocketTest(BaseTest):
 
         expected_messages, expected_controls = [], []
         for ex in expected:
-            if isinstance(ex, type('')):
+            if isinstance(ex, unicode_type):
                 ex = TEXT, ex
             elif isinstance(ex, bytes):
                 ex = BINARY, ex
-            elif isinstance(ex, int):
+            elif isinstance(ex, numbers.Integral):
                 ex = ex, b''
             if ex[0] in CONTROL_CODES:
                 expected_controls.append(ex)
@@ -211,7 +214,7 @@ class WebSocketTest(BaseTest):
             for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
                 simple_test([q], [q])
 
-            for payload in ['', 'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
+            for payload in [b'', b'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
                 simple_test([(PING, payload)], [(PONG, payload)])
 
             with server.silence_log:
@@ -228,7 +231,7 @@ class WebSocketTest(BaseTest):
                 # connection before the client has finished sending all
                 # messages, so ignore failures to send packets.
                 isf_test = partial(simple_test, ignore_send_failures=True)
-                for rsv in xrange(1, 7):
+                for rsv in range(1, 7):
                     isf_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
                 for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
                     isf_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
@@ -256,7 +259,8 @@ class WebSocketTest(BaseTest):
                 isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
 
                 frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
-                for i, b in enumerate(q):
+                for i in range(len(q)):
+                    b = q[i:i+1]
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
                 isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False, ignore_send_failures=True)
 
@@ -285,9 +289,10 @@ class WebSocketTest(BaseTest):
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
 
-            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5',  "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
+            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
                 frags = []
-                for i, b in enumerate(q):
+                for i in range(len(q)):
+                    b = q[i:i+1]
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
                 simple_test(frags, [q.decode('utf-8')])
 

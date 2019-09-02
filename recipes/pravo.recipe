@@ -38,7 +38,8 @@ class pravo(BasicNewsRecipe):
             articles.append(self.parse_page(feed))
         return articles
 
-    def parse_page(self, (feed_title, url)):
+    def parse_page(self, title_and_url):
+        (feed_title, url) = title_and_url
         articles = []
 
         soup = self.index_to_soup(url)

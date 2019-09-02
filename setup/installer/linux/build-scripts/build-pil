@@ -1,7 +1,0 @@
-#!/bin/bash
-
-cd $SW/build/Pillow* && \
-    echo Disabling zip_safe && \
-    python -c "f = open('setup.py', 'r+b'); raw = f.read(); import re; raw = re.sub(r'zip_safe\s*=\s*True', 'zip_safe=False', raw); f.seek(0); f.truncate(0); f.write(raw)" && \
-    python setup.py install
-

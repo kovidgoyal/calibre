@@ -1,35 +1,39 @@
 # -*- encoding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 CSS property propagation class.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os, re, logging, copy, unicodedata
+import os, re, logging, copy, unicodedata, numbers
+from operator import itemgetter
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
-        cssproperties, CSSRule)
-from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
-        cssutils_log, CSSParser, profiles, replaceUrls)
+from css_parser.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
+        cssproperties)
+from css_parser import (profile as cssprofiles, parseString, parseStyle, log as
+        css_parser_log, CSSParser, profiles, replaceUrls)
 from calibre import force_unicode, as_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
+from polyglot.builtins import iteritems, unicode_type, filter
 from tinycss.media3 import CSSMedia3Parser
 
-cssutils_log.setLevel(logging.WARN)
+css_parser_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
+
 
 def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
-        html_css = open(P('templates/html.css'), 'rb').read()
+        with open(P('templates/html.css'), 'rb') as f:
+            html_css = f.read().decode('utf-8')
         _html_css_stylesheet = parseString(html_css, validate=False)
     return _html_css_stylesheet
 
@@ -53,6 +57,7 @@ FONT_SIZE_NAMES = {
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
 IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa
 
+
 def media_ok(raw):
     if not raw:
         return True
@@ -70,13 +75,14 @@ def media_ok(raw):
         return mq.negated ^ matched
 
     try:
-        for mq in CSSMedia3Parser().parse_stylesheet(u'@media %s {}' % raw).rules[0].media:
+        for mq in CSSMedia3Parser().parse_stylesheet('@media %s {}' % raw).rules[0].media:
             if query_ok(mq):
                 return True
         return False
     except Exception:
         pass
     return True
+
 
 def test_media_ok():
     assert media_ok(None)
@@ -89,6 +95,93 @@ def test_media_ok():
     assert not media_ok('(device-width:10px)')
     assert media_ok('screen, (device-width:10px)')
     assert not media_ok('screen and (device-width:10px)')
+
+
+class StylizerRules(object):
+
+    def __init__(self, opts, profile, stylesheets):
+        self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
+
+        index = 0
+        self.rules = []
+        self.page_rule = {}
+        self.font_face_rules = []
+        for sheet_index, stylesheet in enumerate(stylesheets):
+            href = stylesheet.href
+            for rule in stylesheet.cssRules:
+                if rule.type == rule.MEDIA_RULE:
+                    if media_ok(rule.media.mediaText):
+                        for subrule in rule.cssRules:
+                            self.rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
+                            index += 1
+                else:
+                    self.rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
+                    index = index + 1
+        self.rules.sort(key=itemgetter(0))  # sort by specificity
+
+    def flatten_rule(self, rule, href, index, is_user_agent_sheet=False):
+        results = []
+        sheet_index = 0 if is_user_agent_sheet else 1
+        if isinstance(rule, CSSStyleRule):
+            style = self.flatten_style(rule.style)
+            for selector in rule.selectorList:
+                specificity = (sheet_index,) + selector.specificity + (index,)
+                text = selector.selectorText
+                selector = list(selector.seq)
+                results.append((specificity, selector, style, text, href))
+        elif isinstance(rule, CSSPageRule):
+            style = self.flatten_style(rule.style)
+            self.page_rule.update(style)
+        elif isinstance(rule, CSSFontFaceRule):
+            if rule.style.length > 1:
+                # Ignore the meaningless font face rules generated by the
+                # benighted MS Word that contain only a font-family declaration
+                # and nothing else
+                self.font_face_rules.append(rule)
+        return results
+
+    def flatten_style(self, cssstyle):
+        style = {}
+        for prop in cssstyle:
+            name = prop.name
+            normalizer = normalizers.get(name, None)
+            if normalizer is not None:
+                style.update(normalizer(name, prop.cssValue))
+            elif name == 'text-align':
+                style['text-align'] = self._apply_text_align(prop.value)
+            else:
+                style[name] = prop.value
+        if 'font-size' in style:
+            size = style['font-size']
+            if size == 'normal':
+                size = 'medium'
+            if size == 'smallest':
+                size = 'xx-small'
+            if size in FONT_SIZE_NAMES:
+                style['font-size'] = "%.1frem" % (self.profile.fnames[size] / float(self.profile.fbase))
+        if '-epub-writing-mode' in style:
+            for x in ('-webkit-writing-mode', 'writing-mode'):
+                style[x] = style.get(x, style['-epub-writing-mode'])
+        return style
+
+    def _apply_text_align(self, text):
+        if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
+            text = self.opts.change_justification
+        return text
+
+    def same_rules(self, opts, profile, stylesheets):
+        if self.opts != opts:
+            # it's unlikely to happen, but better safe than sorry
+            return False
+        if self.profile != profile:
+            return False
+        if len(self.stylesheets) != len(stylesheets):
+            return False
+        for index, stylesheet in enumerate(self.stylesheets):
+            if stylesheet != stylesheets[index]:
+                return False
+        return True
+
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -119,7 +212,7 @@ class Stylizer(object):
             stylesheets.append(parseString(base_css, validate=False))
         style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
 
-        # Add cssutils parsing profiles from output_profile
+        # Add css_parser parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
             cssprofiles.addProfile(profile['name'],
                                         profile['props'],
@@ -127,18 +220,16 @@ class Stylizer(object):
 
         parser = CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
-        self.font_face_rules = []
         for elem in style_tags:
-            if (elem.tag == XHTML('style') and
-                elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
-                text = elem.text if elem.text else u''
+            if (elem.tag == XHTML('style') and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
+                text = elem.text if elem.text else ''
                 for x in elem:
                     t = getattr(x, 'text', None)
                     if t:
-                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                        text += '\n\n' + force_unicode(t, 'utf-8')
                     t = getattr(x, 'tail', None)
                     if t:
-                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                        text += '\n\n' + force_unicode(t, 'utf-8')
                 if text:
                     text = oeb.css_preprocessor(text)
                     # We handle @import rules separately
@@ -160,18 +251,15 @@ class Stylizer(object):
                                 self.logger.warn('CSS @import of non-CSS file %r' % rule.href)
                                 continue
                             stylesheets.append(sitem.data)
-                    for rule in tuple(stylesheet.cssRules.rulesOfType(CSSRule.PAGE_RULE)):
-                        stylesheet.cssRules.remove(rule)
                     # Make links to resources absolute, since these rules will
                     # be folded into a stylesheet at the root
                     replaceUrls(stylesheet, item.abshref,
                             ignoreImportRules=True)
                     stylesheets.append(stylesheet)
-            elif (elem.tag == XHTML('link') and elem.get('href') and
-                  elem.get('rel', 'stylesheet').lower() == 'stylesheet' and
-                  elem.get('type', CSS_MIME).lower() in OEB_STYLES and
-                  media_ok(elem.get('media'))
-                  ):
+            elif (elem.tag == XHTML('link') and elem.get('href') and elem.get(
+                    'rel', 'stylesheet').lower() == 'stylesheet' and elem.get(
+                    'type', CSS_MIME).lower() in OEB_STYLES and media_ok(elem.get('media'))
+                ):
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
                 sitem = oeb.manifest.hrefs.get(path, None)
@@ -194,33 +282,26 @@ class Stylizer(object):
                     stylesheet = parser.parseString(text, href=cssname,
                             validate=False)
                     stylesheets.append(stylesheet)
-                except:
+                except Exception:
                     self.logger.exception('Failed to parse %s, ignoring.'%w)
                     self.logger.debug('Bad css: ')
                     self.logger.debug(x)
-        rules = []
-        index = 0
-        self.stylesheets = set()
-        self.page_rule = {}
-        for sheet_index, stylesheet in enumerate(stylesheets):
-            href = stylesheet.href
-            self.stylesheets.add(href)
-            for rule in stylesheet.cssRules:
-                if rule.type == rule.MEDIA_RULE:
-                    if media_ok(rule.media.mediaText):
-                        for subrule in rule.cssRules:
-                            rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
-                            index += 1
-                else:
-                    rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
-                    index = index + 1
-        rules.sort()
-        self.rules = rules
+
+        # using oeb to store the rules, page rule and font face rules
+        # and generating them again if opts, profile or stylesheets are different
+        if (not hasattr(self.oeb, 'stylizer_rules')) \
+            or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
+            self.oeb.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
+        self.rules = self.oeb.stylizer_rules.rules
+        self.page_rule = self.oeb.stylizer_rules.page_rule
+        self.font_face_rules = self.oeb.stylizer_rules.font_face_rules
+        self.flatten_style = self.oeb.stylizer_rules.flatten_style
+
         self._styles = {}
-        pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        pseudo_pat = re.compile(':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
-        for _, _, cssdict, text, _ in rules:
+        for _, _, cssdict, text, _ in self.rules:
             fl = pseudo_pat.search(text)
             try:
                 matches = tuple(select(text))
@@ -231,15 +312,13 @@ class Stylizer(object):
             if fl is not None:
                 fl = fl.group(1)
                 if fl == 'first-letter' and getattr(self.oeb,
-                        'plumber_output_format', '').lower() in {u'mobi', u'docx'}:
+                        'plumber_output_format', '').lower() in {'mobi', 'docx'}:
                     # Fake first-letter
-                    from lxml.builder import ElementMaker
-                    E = ElementMaker(namespace=XHTML_NS)
                     for elem in matches:
                         for x in elem.iter('*'):
                             if x.text:
                                 punctuation_chars = []
-                                text = unicode(x.text)
+                                text = unicode_type(x.text)
                                 while text:
                                     category = unicodedata.category(text[0])
                                     if category[0] not in {'P', 'Z'}:
@@ -247,9 +326,10 @@ class Stylizer(object):
                                     punctuation_chars.append(text[0])
                                     text = text[1:]
 
-                                special_text = u''.join(punctuation_chars) + \
-                                        (text[0] if text else u'')
-                                span = E.span(special_text)
+                                special_text = ''.join(punctuation_chars) + \
+                                        (text[0] if text else '')
+                                span = x.makeelement('{%s}span' % XHTML_NS)
+                                span.text = special_text
                                 span.set('data-fake-first-letter', '1')
                                 span.tail = text[1:]
                                 x.text = None
@@ -296,54 +376,9 @@ class Stylizer(object):
             self.logger.warn('CSS import of non-CSS file %r' % path)
             return (None, None)
         data = item.data.cssText
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         return ('utf-8', data)
-
-    def flatten_rule(self, rule, href, index, is_user_agent_sheet=False):
-        results = []
-        sheet_index = 0 if is_user_agent_sheet else 1
-        if isinstance(rule, CSSStyleRule):
-            style = self.flatten_style(rule.style)
-            for selector in rule.selectorList:
-                specificity = (sheet_index,) + selector.specificity + (index,)
-                text = selector.selectorText
-                selector = list(selector.seq)
-                results.append((specificity, selector, style, text, href))
-        elif isinstance(rule, CSSPageRule):
-            style = self.flatten_style(rule.style)
-            self.page_rule.update(style)
-        elif isinstance(rule, CSSFontFaceRule):
-            if rule.style.length > 1:
-                # Ignore the meaningless font face rules generated by the
-                # benighted MS Word that contain only a font-family declaration
-                # and nothing else
-                self.font_face_rules.append(rule)
-        return results
-
-    def flatten_style(self, cssstyle):
-        style = {}
-        for prop in cssstyle:
-            name = prop.name
-            normalizer = normalizers.get(name, None)
-            if normalizer is not None:
-                style.update(normalizer(name, prop.cssValue))
-            elif name == 'text-align':
-                style['text-align'] = self._apply_text_align(prop.value)
-            else:
-                style[name] = prop.value
-        if 'font-size' in style:
-            size = style['font-size']
-            if size == 'normal':
-                size = 'medium'
-            if size == 'smallest':
-                size = 'xx-small'
-            if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%dpt" % self.profile.fnames[size]
-        return style
-
-    def _apply_text_align(self, text):
-        if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
-            text = self.opts.change_justification
-        return text
 
     def style(self, element):
         try:
@@ -414,7 +449,10 @@ class Style(object):
         self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
-        return (self._element.getparent() is not None)
+        try:
+            return self._element.getparent() is not None
+        except AttributeError:
+            return False  # self._element is None
 
     def _get_parent(self):
         elem = self._element.getparent()
@@ -451,7 +489,7 @@ class Style(object):
         return unit_convert(value, base, font, self._profile.dpi, body_font_size=self._stylizer.body_font_size)
 
     def pt_to_px(self, value):
-        return (self._profile.dpi / 72.0) * value
+        return (self._profile.dpi / 72) * value
 
     @property
     def backgroundColor(self):
@@ -484,6 +522,8 @@ class Style(object):
                             val = [val]
                         for c in val:
                             c = c.cssText
+                            if isinstance(c, bytes):
+                                c = c.decode('utf-8', 'replace')
                             if validate_color(c):
                                 col = c
                                 break
@@ -521,7 +561,7 @@ class Style(object):
                     result = size
             else:
                 result = self._unit_convert(value, base=base, font=base)
-                if not isinstance(result, (int, float, long)):
+                if not isinstance(result, numbers.Number):
                     return base
                 if result < 0:
                     result = normalize_fontsize("smaller", base)
@@ -553,23 +593,23 @@ class Style(object):
         x = self._style.get(attr)
         if x is not None:
             if x == 'auto':
-                ans = self._unit_convert(str(img_size) + 'px', base=base)
+                ans = self._unit_convert(unicode_type(img_size) + 'px', base=base)
             else:
                 x = self._unit_convert(x, base=base)
-                if isinstance(x, (float, int, long)):
+                if isinstance(x, numbers.Number):
                     ans = x
         if ans is None:
             x = self._element.get(attr)
             if x is not None:
                 x = self._unit_convert(x + 'px', base=base)
-                if isinstance(x, (float, int, long)):
+                if isinstance(x, numbers.Number):
                     ans = x
         if ans is None:
-            ans = self._unit_convert(str(img_size) + 'px', base=base)
+            ans = self._unit_convert(unicode_type(img_size) + 'px', base=base)
         maa = self._style.get('max-' + attr)
         if maa is not None:
             x = self._unit_convert(maa, base=base)
-            if isinstance(x, (int, float, long)) and (ans is None or x < ans):
+            if isinstance(x, numbers.Number) and (ans is None or x < ans):
                 ans = x
         return ans
 
@@ -601,12 +641,12 @@ class Style(object):
                 result = base
             else:
                 result = self._unit_convert(width, base=base)
-            if isinstance(result, (unicode, str, bytes)):
+            if isinstance(result, (unicode_type, bytes)):
                 result = self._profile.width
             self._width = result
             if 'max-width' in self._style:
                 result = self._unit_convert(self._style['max-width'], base=base)
-                if isinstance(result, (unicode, str, bytes)):
+                if isinstance(result, (unicode_type, bytes)):
                     result = self._width
                 if result < self._width:
                     self._width = result
@@ -638,12 +678,12 @@ class Style(object):
                 result = base
             else:
                 result = self._unit_convert(height, base=base)
-            if isinstance(result, (unicode, str, bytes)):
+            if isinstance(result, (unicode_type, bytes)):
                 result = self._profile.height
             self._height = result
             if 'max-height' in self._style:
                 result = self._unit_convert(self._style['max-height'], base=base)
-                if isinstance(result, (unicode, str, bytes)):
+                if isinstance(result, (unicode_type, bytes)):
                     result = self._height
                 if result < self._height:
                     self._height = result
@@ -747,7 +787,7 @@ class Style(object):
             self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
-        items = sorted(self._style.iteritems())
+        items = sorted(iteritems(self._style))
         return '; '.join("%s: %s" % (key, val) for key, val in items)
 
     def cssdict(self):
@@ -756,14 +796,13 @@ class Style(object):
     def pseudo_classes(self, filter_css):
         if filter_css:
             css = copy.deepcopy(self._pseudo_classes)
-            for psel, cssdict in css.iteritems():
+            for psel, cssdict in iteritems(css):
                 for k in filter_css:
                     cssdict.pop(k, None)
         else:
             css = self._pseudo_classes
-        return {k:v for k, v in css.iteritems() if v}
+        return {k:v for k, v in iteritems(css) if v}
 
     @property
     def is_hidden(self):
         return self._style.get('display') == 'none' or self._style.get('visibility') == 'hidden'
-

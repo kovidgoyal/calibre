@@ -58,10 +58,9 @@ class Politika(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('a', attrs={'class': 'category'}):
             item.name = 'span'
-            if item.has_key('href'):  # noqa
-                del item['href']
-            if item.has_key('title'):  # noqa
-                del item['title']
+            item['href'] = item['title'] = ''
+            del item['href']
+            del item['title']
         return soup
 
     def get_cover_url(self):

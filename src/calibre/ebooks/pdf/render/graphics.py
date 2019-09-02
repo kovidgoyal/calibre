@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +16,7 @@ from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
 from calibre.ebooks.pdf.render.serialize import Path
 from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
+
 
 def convert_path(path):  # {{{
     p = Path()
@@ -43,7 +43,9 @@ def convert_path(path):  # {{{
     return p
 # }}}
 
+
 Brush = namedtuple('Brush', 'origin brush color')
+
 
 class TilingPattern(Stream):
 
@@ -66,6 +68,7 @@ class TilingPattern(Stream):
         d['YStep'] = self.h
         d['Matrix'] = Array(self.matrix)
         d['Resources'] = self.resources
+
 
 class QtPattern(TilingPattern):
 
@@ -224,6 +227,7 @@ class QtPattern(TilingPattern):
         super(QtPattern, self).__init__(pattern_num, matrix)
         self.write(self.qt_patterns[pattern_num-2])
 
+
 class TexturePattern(TilingPattern):
 
     def __init__(self, pixmap, matrix, pdf, clone=None):
@@ -245,6 +249,7 @@ class TexturePattern(TilingPattern):
                 paint_type=clone.paint_type)
             self.resources['XObject'] = Dictionary(clone.resources['XObject'])
             self.write(clone.getvalue())
+
 
 class GraphicsState(object):
 
@@ -278,6 +283,7 @@ class GraphicsState(object):
         ans.clip_updated = self.clip_updated
         ans.do_fill, ans.do_stroke = self.do_fill, self.do_stroke
         return ans
+
 
 class Graphics(object):
 
@@ -424,9 +430,12 @@ class Graphics(object):
         pdf.current_page.write('%d j '%join)
 
         # Dash pattern
-        ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
-              Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
-        if ps:
+        if pen.style() == Qt.CustomDashLine:
+            pdf.serialize(Array(pen.dashPattern()))
+            pdf.current_page.write(' %d d ' % pen.dashOffset())
+        else:
+            ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
+                  Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
             pdf.serialize(Array(ps))
             pdf.current_page.write(' 0 d ')
 
@@ -476,5 +485,3 @@ class Graphics(object):
             pat = TexturePattern(None, matrix, self.pdf, clone=self.last_fill.brush)
             pattern = self.pdf.add_pattern(pat)
             self.pdf.apply_fill(self.last_fill.color, pattern)
-
-

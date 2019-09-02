@@ -43,7 +43,7 @@ class SmileZilla(BasicNewsRecipe):
             if img['src'].startswith('/'):
                 img['src'] = 'http://www.smilezilla.com' + img['src']
         pt = PersistentTemporaryFile('.html')
-        pt.write(str(soup.html).encode(self.encoding))
+        pt.write(type(u'')(soup.html).encode(self.encoding))
         pt.close()
         cache[url] = pt.name
         return soup
@@ -63,7 +63,7 @@ class SmileZilla(BasicNewsRecipe):
         section_title = self._get_section_title(soup)
         todays_jokes = []
         for hr in enumerate(jokes_entry.findAll('hr')):
-            title = 'Joke ' + str(hr[0] + 1)
+            title = 'Joke ' + type(u'')(hr[0] + 1)
             url = self.JOKES_INDEX
             todays_jokes.append({'title': title, 'url': url,
                                  'description': '', 'date': ''})
@@ -75,7 +75,7 @@ class SmileZilla(BasicNewsRecipe):
 
         todays_stories = []
         for hr in enumerate(entry.findAll('hr')):
-            title = 'Story ' + str(hr[0] + 1)
+            title = 'Story ' + type(u'')(hr[0] + 1)
             current = hr[1]
             while True:
                 current = current.findPrevious()
@@ -105,7 +105,7 @@ class SmileZilla(BasicNewsRecipe):
         entry = self._get_entry(soup)
         soup2 = BeautifulSoup('<html><head></head><body></body></html>')
         body = soup2.find('body')
-        entries = str(entry).split('<hr />')
+        entries = type(u'')(entry).split('<hr />')
         body.insert(0, entries[count - 1])
 
-        return str(soup2)
+        return type(u'')(soup2)

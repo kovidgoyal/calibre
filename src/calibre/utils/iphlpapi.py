@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import ctypes
 from ctypes import windll
 from ctypes import wintypes
@@ -14,6 +13,7 @@ from calibre.constants import is64bit
 
 # Wraps (part of) the IPHelper API, useful to enumerate the network routes and
 # adapters on the local machine
+
 
 class GUID(ctypes.Structure):
     _fields_ = [
@@ -35,11 +35,13 @@ class GUID(ctypes.Structure):
         self.data4[6] = b7
         self.data4[7] = b8
 
+
 class SOCKADDR(ctypes.Structure):
     _fields_ = [
         ('sa_family', wintypes.USHORT),
         ('sa_data', ctypes.c_char * 14),
     ]
+
 
 ERROR_SUCCESS = 0
 ERROR_INSUFFICIENT_BUFFER = 122
@@ -144,6 +146,7 @@ class IP_ADAPTER_PREFIX(ctypes.Structure):
         ('Address', SOCKET_ADDRESS),
         ('PrefixLength', wintypes.ULONG),
     ]
+
 
 class IP_ADAPTER_DNS_SUFFIX(ctypes.Structure):
     _fields_ = [
@@ -264,11 +267,13 @@ GAA_FLAG_INCLUDE_PREFIX = 0x0010
 Ws2_32 = windll.Ws2_32
 Ws2_32.inet_ntoa.restype = ctypes.c_char_p
 
+
 def _heap_alloc(heap, size):
     table_mem = HeapAlloc(heap, 0, ctypes.c_size_t(size.value))
     if not table_mem:
         raise MemoryError('Unable to allocate memory for the IP forward table')
     return table_mem
+
 
 @contextmanager
 def _get_forward_table():
@@ -298,6 +303,7 @@ def _get_forward_table():
         if p_forward_table is not None:
             HeapFree(heap, 0, p_forward_table)
 
+
 @contextmanager
 def _get_adapters():
     heap = GetProcessHeap()
@@ -326,7 +332,9 @@ def _get_adapters():
             HeapFree(heap, 0, addresses)
             addresses = None
 
+
 Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
+
 
 def adapters():
     ''' A list of adapters on this machine '''
@@ -352,6 +360,7 @@ def adapters():
 
 
 Route = namedtuple('Route', 'destination gateway netmask interface metric flags')
+
 
 def routes():
     ''' A list of routes on this machine '''
@@ -381,8 +390,8 @@ def routes():
 
     return ans
 
+
 if __name__ == '__main__':
     from pprint import pprint
     pprint(adapters())
     pprint(routes())
-

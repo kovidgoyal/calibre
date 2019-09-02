@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,14 +15,16 @@ from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe
 from calibre.gui2.actions import InterfaceAction
 
+
 class FetchNewsAction(InterfaceAction):
 
     name = 'Fetch News'
-    action_spec = (_('Fetch news'), 'news.png', _('Download news in ebook form from various websites all over the world'), _('F'))
+    action_spec = (_('Fetch news'), 'news.png', _('Download news in e-book form from various websites all over the world'), _('F'))
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def genesis(self):
         self.conversion_jobs = {}
@@ -84,5 +87,3 @@ class FetchNewsAction(InterfaceAction):
         self.gui.email_news(id)
         self.gui.sync_news()
         gc.collect()
-
-

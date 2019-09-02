@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
+from polyglot.builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
-from future_builtins import zip
+from polyglot.builtins import unicode_type, zip, range
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
@@ -25,6 +24,7 @@ EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 # could also be extended to 4 bit wide ones as well
 mask_to_bit_shifts = {1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
         128:7, 192: 6}
+
 
 class IndexHeader(Header):  # {{{
 
@@ -91,6 +91,7 @@ class IndexHeader(Header):  # {{{
     POSITIONS = {'idxt_offset':'idxt'}
 # }}}
 
+
 class Index(object):  # {{{
 
     control_byte_count = 1
@@ -144,7 +145,7 @@ class Index(object):  # {{{
         for i, (index_num, tags) in enumerate(self.entries):
             control_bytes = self.control_bytes[i]
             buf.seek(0), buf.truncate(0)
-            index_num = (index_num.encode('utf-8') if isinstance(index_num, unicode) else index_num)
+            index_num = (index_num.encode('utf-8') if isinstance(index_num, unicode_type) else index_num)
             raw = bytearray(index_num)
             raw.insert(0, len(index_num))
             buf.write(bytes(raw))
@@ -234,6 +235,7 @@ class Index(object):  # {{{
         return self.records
 # }}}
 
+
 class SkelIndex(Index):
 
     tag_types = tuple(map(TagMeta, (
@@ -274,6 +276,7 @@ class ChunkIndex(Index):
                     'geometry':(c.start_pos, c.length),
                     }) for c in chunk_table
         ]
+
 
 class GuideIndex(Index):
 
@@ -370,12 +373,13 @@ class NonLinearNCXIndex(NCXIndex):
         EndTagTable
     )))
 
+
 if __name__ == '__main__':
     # Generate a document with a large number of index entries using both
     # calibre and kindlegen and compare the output
     import os, subprocess
     os.chdir('/t')
-    paras = ['<p>%d</p>' % i for i in xrange(4000)]
+    paras = ['<p>%d</p>' % i for i in range(4000)]
     raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
 
     src = 'index.html'
@@ -389,4 +393,3 @@ if __name__ == '__main__':
 
     from calibre.gui2.tweak_book.diff.main import main
     main(['cdiff', 'decompiled_index/mobi8/ncx.record', 'x/ncx.record'])
-

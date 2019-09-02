@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -17,6 +17,8 @@ from calibre.gui2 import error_dialog, choose_dir
 from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
 from calibre import isbytestring, patheq, force_unicode
+from polyglot.builtins import unicode_type
+
 
 class ProgressDialog(PD):
 
@@ -39,6 +41,7 @@ class ProgressDialog(PD):
     def show_new_progress(self, *args):
         self.on_progress_update.emit(*args)
 
+
 class ChooseLibrary(QDialog, Ui_Dialog):
 
     def __init__(self, db, callback, parent):
@@ -52,7 +55,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         lp = db.library_path
         if isbytestring(lp):
             lp = lp.decode(filesystem_encoding)
-        loc = unicode(self.old_location.text()).format(lp)
+        loc = unicode_type(self.old_location.text()).format(lp)
         self.old_location.setText(loc)
         self.browse_button.clicked.connect(self.choose_loc)
         self.empty_library.toggled.connect(self.empty_library_toggled)
@@ -91,7 +94,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             aloc = os.path.normcase(os.path.abspath(loc))
             if (aloc.startswith(cal+os.sep) or aloc == cal):
                 error_dialog(self, _('Bad location'),
-                    _('You should not create a library inside the Calibre'
+                    _('You should not create a library inside the calibre'
                         ' folder as this folder is automatically deleted during upgrades.'),
                     show=True)
                 return False
@@ -136,6 +139,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             pd.canceled_signal.connect(abort_move.set)
             self.parent().library_view.model().stop_metadata_backup()
             move_error = []
+
             def do_move():
                 try:
                     self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.show_new_progress)
@@ -165,7 +169,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             action = 'existing'
         elif self.empty_library.isChecked():
             action = 'new'
-        text = unicode(self.location.text()).strip()
+        text = unicode_type(self.location.text()).strip()
         if not text:
             return error_dialog(self, _('No location'), _('No location selected'),
                     show=True)
@@ -177,8 +181,11 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                 if e.errno != errno.EEXIST:
                     raise
         if not loc or not os.path.exists(loc) or not os.path.isdir(loc):
-            return error_dialog(self, _('Bad location'),
-                    _('%s is not an existing folder')%loc, show=True)
+            if action == 'new' and not os.path.exists(loc):
+                os.makedirs(loc)
+            else:
+                return error_dialog(self, _('Bad location'),
+                        _('%s is not an existing folder')%loc, show=True)
         if not self.check_action(action, loc):
             return
         self.location.save_history()

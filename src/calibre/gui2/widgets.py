@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -15,15 +17,17 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image, strftime
+from calibre import fit_image, strftime, force_unicode
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
-    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
+    image_extensions, dnd_has_extension, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import native_string_type, unicode_type, range
 
 history = XMLConfig('history')
+
 
 class ProgressIndicator(QWidget):  # {{{
 
@@ -42,11 +46,11 @@ class ProgressIndicator(QWidget):  # {{{
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
         if self.pos is None:
-            self.move(0, (pheight-self.size().height())/2.)
+            self.move(0, int((pheight-self.size().height())/2))
         else:
             self.move(self.pos[0], self.pos[1])
         self.pi.resize(self.pi.sizeHint())
-        self.pi.move(int((self.size().width()-self.pi.size().width())/2.), 0)
+        self.pi.move(int((self.size().width()-self.pi.size().width())/2), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
         self.status.move(0, self.pi.size().height()+10)
         self.status.setText('<h1>'+msg+'</h1>')
@@ -57,6 +61,7 @@ class ProgressIndicator(QWidget):  # {{{
         self.pi.stopAnimation()
         self.setVisible(False)
 # }}}
+
 
 class FilenamePattern(QWidget, Ui_Form):  # {{{
 
@@ -74,13 +79,13 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.test_button.clicked.connect(self.do_test)
         self.re.lineEdit().returnPressed[()].connect(self.do_test)
         self.filename.returnPressed[()].connect(self.do_test)
-        self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
+        connect_lambda(self.re.lineEdit().textChanged, self, lambda self, x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
         # Get all items in the combobox. If we are reseting
         # to defaults we don't want to lose what the user
         # has added.
-        val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        val_hist = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
         self.re.clear()
 
         if defaults:
@@ -90,7 +95,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.re.lineEdit().setText(val)
 
         val_hist += gprefs.get('filename_pattern_history', [
-                               '(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
+                               '(?P<title>.+)', r'(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
         if val in val_hist:
             del val_hist[val_hist.index(val)]
         val_hist.insert(0, val)
@@ -103,12 +108,12 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
     def do_test(self):
         from calibre.ebooks.metadata import authors_to_string
         from calibre.ebooks.metadata.meta import metadata_from_filename
-        fname = unicode(self.filename.text())
+        fname = unicode_type(self.filename.text())
         ext = os.path.splitext(fname)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
-            return warning_dialog(self, _('Test name invalid'),
-                    _('The name <b>%s</b> does not appear to end with a'
-                        ' file extension. The name must end with a file '
+            return warning_dialog(self, _('Test file name invalid'),
+                    _('The file name <b>%s</b> does not appear to end with a'
+                        ' file extension. It must end with a file '
                         ' extension like .epub or .mobi')%fname, show=True)
 
         try:
@@ -133,7 +138,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             self.series.setText(_('No match'))
 
         if mi.series_index is not None:
-            self.series_index.setText(str(mi.series_index))
+            self.series_index.setText(unicode_type(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
 
@@ -147,11 +152,11 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         else:
             self.pubdate.setText(_('No match'))
 
-        self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
+        self.isbn.setText(_('No match') if mi.isbn is None else unicode_type(mi.isbn))
         self.comments.setText(mi.comments if mi.comments else _('No match'))
 
     def pattern(self):
-        pat = unicode(self.re.lineEdit().text())
+        pat = unicode_type(self.re.lineEdit().text())
         return re.compile(pat)
 
     def commit(self):
@@ -159,7 +164,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         prefs['filename_pattern'] = pat
 
         history = []
-        history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        history_pats = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
         for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
@@ -169,6 +174,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         return pat
 
 # }}}
+
 
 class FormatList(QListWidget):  # {{{
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
@@ -210,19 +216,21 @@ class FormatList(QListWidget):  # {{{
 
 # }}}
 
+
 class ImageDropMixin(object):  # {{{
     '''
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
     '''
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
+    DROPABBLE_EXTENSIONS = None
 
     def __init__(self):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+        exts = self.DROPABBLE_EXTENSIONS or image_extensions()
+        if dnd_has_extension(md, exts) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 
@@ -264,8 +272,8 @@ class ImageDropMixin(object):  # {{{
 
     def build_context_menu(self):
         cm = QMenu(self)
-        paste = cm.addAction(_('Paste Cover'))
-        copy = cm.addAction(_('Copy Cover'))
+        paste = cm.addAction(_('Paste cover'))
+        copy = cm.addAction(_('Copy cover'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
@@ -289,7 +297,23 @@ class ImageDropMixin(object):  # {{{
                     pixmap_to_data(pmap, format='PNG'))
 # }}}
 
-class ImageView(QWidget, ImageDropMixin):  # {{{
+
+# ImageView {{{
+
+def draw_size(p, rect, w, h):
+    rect = rect.adjusted(0, 0, 0, -4)
+    f = p.font()
+    f.setBold(True)
+    p.setFont(f)
+    sz = '\u00a0%d x %d\u00a0'%(w, h)
+    flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+    szrect = p.boundingRect(rect, flags, sz)
+    p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
+    p.setPen(QPen(QColor(255,255,255)))
+    p.drawText(rect, flags, sz)
+
+
+class ImageView(QWidget, ImageDropMixin):
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
@@ -343,11 +367,11 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
         cw, ch = self.rect().width(), self.rect().height()
         scaled, nw, nh = fit_image(w, h, cw, ch)
         if scaled:
-            pmap = pmap.scaled(nw, nh, Qt.IgnoreAspectRatio,
+            pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.IgnoreAspectRatio,
                     Qt.SmoothTransformation)
-        w, h = pmap.width(), pmap.height()
-        x = int(abs(cw - w)/2.)
-        y = int(abs(ch - h)/2.)
+        w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
+        x = int(abs(cw - w)/2)
+        y = int(abs(ch - h)/2)
         target = QRect(x, y, w, h)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -358,26 +382,22 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
             p.setPen(pen)
             p.drawRect(target)
         if self.show_size:
-            sztgt = target.adjusted(0, 0, 0, -4)
-            f = p.font()
-            f.setBold(True)
-            p.setFont(f)
-            sz = u'\u00a0%d x %d\u00a0'%(ow, oh)
-            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
-            szrect = p.boundingRect(sztgt, flags, sz)
-            p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
-            p.setPen(QPen(QColor(255,255,255)))
-            p.drawText(sztgt, flags, sz)
+            draw_size(p, target, ow, oh)
         p.end()
 # }}}
+
 
 class CoverView(QGraphicsView, ImageDropMixin):  # {{{
 
     cover_changed = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
+        self.show_size = kwargs.pop('show_size', False)
         QGraphicsView.__init__(self, *args, **kwargs)
         ImageDropMixin.__init__(self)
+        self.pixmap_size = 0, 0
+        if self.show_size:
+            self.setViewportUpdateMode(self.FullViewportUpdate)
 
     def get_pixmap(self):
         for item in self.scene.items():
@@ -389,9 +409,18 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
 
+    def paintEvent(self, ev):
+        QGraphicsView.paintEvent(self, ev)
+        if self.show_size:
+            v = self.viewport()
+            p = QPainter(v)
+            draw_size(p, v.rect(), *self.pixmap_size)
+
 # }}}
 
 # BasicList {{{
+
+
 class BasicListItem(QListWidgetItem):
 
     def __init__(self, text, user_data=None):
@@ -402,6 +431,7 @@ class BasicListItem(QListWidgetItem):
         if hasattr(other, 'text'):
             return self.text() == other.text()
         return False
+
 
 class BasicList(QListWidget):
 
@@ -426,21 +456,19 @@ class BasicList(QListWidget):
             yield self.item(i)
 # }}}
 
+
 class LineEditECM(object):  # {{{
 
     '''
     Extend the context menu of a QLineEdit to include more actions.
     '''
 
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        menu.addSeparator()
-
-        case_menu = QMenu(_('Change Case'))
-        action_upper_case = case_menu.addAction(_('Upper Case'))
-        action_lower_case = case_menu.addAction(_('Lower Case'))
-        action_swap_case = case_menu.addAction(_('Swap Case'))
-        action_title_case = case_menu.addAction(_('Title Case'))
+    def create_change_case_menu(self, menu):
+        case_menu = QMenu(_('Change case'), menu)
+        action_upper_case = case_menu.addAction(_('Upper case'))
+        action_lower_case = case_menu.addAction(_('Lower case'))
+        action_swap_case = case_menu.addAction(_('Swap case'))
+        action_title_case = case_menu.addAction(_('Title case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
 
         action_upper_case.triggered.connect(self.upper_case)
@@ -448,31 +476,37 @@ class LineEditECM(object):  # {{{
         action_swap_case.triggered.connect(self.swap_case)
         action_title_case.triggered.connect(self.title_case)
         action_capitalize.triggered.connect(self.capitalize)
-
         menu.addMenu(case_menu)
+        return case_menu
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+        self.create_change_case_menu(menu)
         menu.exec_(event.globalPos())
 
     def upper_case(self):
         from calibre.utils.icu import upper
-        self.setText(upper(unicode(self.text())))
+        self.setText(upper(unicode_type(self.text())))
 
     def lower_case(self):
         from calibre.utils.icu import lower
-        self.setText(lower(unicode(self.text())))
+        self.setText(lower(unicode_type(self.text())))
 
     def swap_case(self):
         from calibre.utils.icu import swapcase
-        self.setText(swapcase(unicode(self.text())))
+        self.setText(swapcase(unicode_type(self.text())))
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
-        self.setText(titlecase(unicode(self.text())))
+        self.setText(titlecase(unicode_type(self.text())))
 
     def capitalize(self):
         from calibre.utils.icu import capitalize
-        self.setText(capitalize(unicode(self.text())))
+        self.setText(capitalize(unicode_type(self.text())))
 
 # }}}
+
 
 class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
@@ -491,6 +525,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
 # }}}
 
+
 class ItemsCompleter(QCompleter):  # {{{
 
     '''
@@ -508,7 +543,7 @@ class ItemsCompleter(QCompleter):  # {{{
         self.setModel(model)
 
         self.setCompletionPrefix(completion_prefix)
-        if completion_prefix.strip() != '':
+        if completion_prefix.strip():
             self.complete()
 
     def update_items_cache(self, items):
@@ -517,6 +552,7 @@ class ItemsCompleter(QCompleter):  # {{{
         self.setModel(model)
 
 # }}}
+
 
 class CompleteLineEdit(EnLineEdit):  # {{{
 
@@ -535,7 +571,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
 
-        self.completer.activated[str].connect(self.complete_text)
+        self.completer.activated[native_string_type].connect(self.complete_text)
 
         self.completer.setWidget(self)
 
@@ -549,22 +585,22 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.space_before_sep = space_before
 
     def text_changed(self, text):
-        all_text = unicode(text)
+        all_text = unicode_type(text)
         text = all_text[:self.cursorPosition()]
         prefix = text.split(self.separator)[-1].strip()
 
         text_items = []
         for t in all_text.split(self.separator):
-            t1 = unicode(t).strip()
-            if t1 != '':
+            t1 = unicode_type(t).strip()
+            if t1:
                 text_items.append(t)
         text_items = list(set(text_items))
         self.completer.update(text_items, prefix)
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
-        before_text = unicode(self.text())[:cursor_pos]
-        after_text = unicode(self.text())[cursor_pos:]
+        before_text = unicode_type(self.text())[:cursor_pos]
+        after_text = unicode_type(self.text())[cursor_pos:]
         prefix_len = len(before_text.split(self.separator)[-1].lstrip())
         if self.space_before_sep:
             complete_text_pat = '%s%s %s %s'
@@ -576,6 +612,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.setCursorPosition(cursor_pos - prefix_len + len(text) + len_extra)
 
 # }}}
+
 
 class EnComboBox(QComboBox):  # {{{
 
@@ -592,7 +629,7 @@ class EnComboBox(QComboBox):  # {{{
         self.setMinimumContentsLength(20)
 
     def text(self):
-        return unicode(self.currentText())
+        return unicode_type(self.currentText())
 
     def setText(self, text):
         idx = self.findText(text, Qt.MatchFixedString|Qt.MatchCaseSensitive)
@@ -602,6 +639,7 @@ class EnComboBox(QComboBox):  # {{{
         self.setCurrentIndex(idx)
 
 # }}}
+
 
 class CompleteComboBox(EnComboBox):  # {{{
 
@@ -620,6 +658,7 @@ class CompleteComboBox(EnComboBox):  # {{{
 
 # }}}
 
+
 class HistoryLineEdit(QComboBox):  # {{{
 
     lost_focus = pyqtSignal()
@@ -629,6 +668,7 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.setEditable(True)
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(10)
+        self.setClearButtonEnabled = self.lineEdit().setClearButtonEnabled
 
     def setPlaceholderText(self, txt):
         return self.lineEdit().setPlaceholderText(txt)
@@ -645,11 +685,11 @@ class HistoryLineEdit(QComboBox):  # {{{
 
     def save_history(self):
         items = []
-        ct = unicode(self.currentText())
+        ct = unicode_type(self.currentText())
         if ct:
             items.append(ct)
         for i in range(self.count()):
-            item = unicode(self.itemText(i))
+            item = unicode_type(self.itemText(i))
             if item not in items:
                 items.append(item)
         self.blockSignals(True)
@@ -657,7 +697,15 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.addItems(items)
         self.setEditText(ct)
         self.blockSignals(False)
-        history.set(self.store_name, items)
+        try:
+            history.set(self.store_name, items)
+        except ValueError:
+            from calibre.utils.cleantext import clean_ascii_chars
+            items = [clean_ascii_chars(force_unicode(x)) for x in items]
+            try:
+                history.set(self.store_name, items)
+            except ValueError:
+                pass
 
     def setText(self, t):
         self.setEditText(t)
@@ -673,12 +721,14 @@ class HistoryLineEdit(QComboBox):  # {{{
 
 # }}}
 
+
 class ComboBoxWithHelp(QComboBox):  # {{{
     '''
     A combobox where item 0 is help text. CurrentText will return '' for item 0.
     Be sure to always fetch the text with currentText. Don't use the signals
     that pass a string, because they will not correct the text.
     '''
+
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
         self.currentIndexChanged[int].connect(self.index_changed)
@@ -722,6 +772,7 @@ class ComboBoxWithHelp(QComboBox):  # {{{
 
 # }}}
 
+
 class EncodingComboBox(QComboBox):  # {{{
     '''
     A combobox that holds text encodings support
@@ -746,6 +797,7 @@ class EncodingComboBox(QComboBox):  # {{{
             self.addItem(item)
 
 # }}}
+
 
 class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
@@ -837,13 +889,13 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         self.setFormat(0, textLength,
                        PythonHighlighter.Formats["normal"])
 
-        if text.startswith(u"Traceback") or text.startswith(u"Error: "):
+        if text.startswith("Traceback") or text.startswith("Error: "):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
             return
         if prevState == ERROR and \
-           not (text.startswith(u'>>>') or text.startswith(u"#")):
+           not (text.startswith('>>>') or text.startswith("#")):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
@@ -862,18 +914,18 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         # PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
         if not text:
             pass
-        elif text[0] == u"#":
+        elif text[0] == "#":
             self.setFormat(0, len(text),
                            PythonHighlighter.Formats["comment"])
         else:
             stack = []
             for i, c in enumerate(text):
-                if c in (u'"', u"'"):
+                if c in ('"', "'"):
                     if stack and stack[-1] == c:
                         stack.pop()
                     else:
                         stack.append(c)
-                elif c == u"#" and len(stack) == 0:
+                elif c == "#" and len(stack) == 0:
                     self.setFormat(i, len(text),
                                    PythonHighlighter.Formats["comment"])
                     break
@@ -906,6 +958,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 # }}}
 
 # Splitter {{{
+
+
 class SplitterHandle(QSplitterHandle):
 
     double_clicked = pyqtSignal(object)
@@ -928,6 +982,7 @@ class SplitterHandle(QSplitterHandle):
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
 
+
 class LayoutButton(QToolButton):
 
     def __init__(self, icon, text, splitter=None, parent=None, shortcut=None):
@@ -935,27 +990,36 @@ class LayoutButton(QToolButton):
         self.label = text
         self.setIcon(QIcon(icon))
         self.setCheckable(True)
+        self.icname = os.path.basename(icon).rpartition('.')[0]
 
         self.splitter = splitter
         if splitter is not None:
             splitter.state_changed.connect(self.update_state)
         self.setCursor(Qt.PointingHandCursor)
-        self.shortcut = ''
-        if shortcut:
-            self.shortcut = shortcut
+        self.shortcut = shortcut or ''
+
+    def update_shortcut(self, action_toggle=None):
+        action_toggle = action_toggle or getattr(self, 'action_toggle', None)
+        if action_toggle:
+            sc = ', '.join(sc.toString(sc.NativeText)
+                                for sc in action_toggle.shortcuts())
+            self.shortcut = sc or ''
+            self.update_text()
+
+    def update_text(self):
+        t = _('Hide {}') if self.isChecked() else _('Show {}')
+        t = t.format(self.label)
+        if self.shortcut:
+            t += ' [{}]'.format(self.shortcut)
+        self.setText(t), self.setToolTip(t), self.setStatusTip(t)
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
-        self.setText(_('Show %(label)s [%(shortcut)s]')%dict(label=self.label, shortcut=self.shortcut))
-        self.setToolTip(self.text())
-        self.setStatusTip(self.text())
+        self.update_text()
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
-        self.setText(_('Hide %(label)s [%(shortcut)s]')%dict(
-            label=self.label, shortcut=self.shortcut))
-        self.setToolTip(self.text())
-        self.setStatusTip(self.text())
+        self.update_text()
 
     def update_state(self, *args):
         if self.splitter.is_side_index_hidden:
@@ -963,14 +1027,36 @@ class LayoutButton(QToolButton):
         else:
             self.set_state_to_hide()
 
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.RightButton:
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            if self.icname == 'search':
+                gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
+                ev.accept()
+                return
+            tab_name = {'book':'book_details', 'grid':'cover_grid', 'cover_flow':'cover_browser',
+                        'tags':'tag_browser', 'quickview':'quickview'}.get(self.icname)
+            if tab_name:
+                if gui is not None:
+                    gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
+                    ev.accept()
+                    return
+        return QToolButton.mouseReleaseEvent(self, ev)
+
+
 class Splitter(QSplitter):
 
     state_changed = pyqtSignal(object)
 
     def __init__(self, name, label, icon, initial_show=True,
             initial_side_size=120, connect_button=True,
-            orientation=Qt.Horizontal, side_index=0, parent=None, shortcut=None):
+            orientation=Qt.Horizontal, side_index=0, parent=None,
+            shortcut=None, hide_handle_on_single_panel=True):
         QSplitter.__init__(self, parent)
+        if hide_handle_on_single_panel:
+            self.state_changed.connect(self.update_handle_width)
+        self.original_handle_width = self.handleWidth()
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         self.desired_side_size = initial_side_size
@@ -991,17 +1077,21 @@ class Splitter(QSplitter):
         if shortcut is not None:
             self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
                     self)
+            self.action_toggle.changed.connect(self.update_shortcut)
             self.action_toggle.triggered.connect(self.toggle_triggered)
             if parent is not None:
                 parent.addAction(self.action_toggle)
                 if hasattr(parent, 'keyboard'):
                     parent.keyboard.register_shortcut('splitter %s %s'%(name,
-                        label), unicode(self.action_toggle.text()),
+                        label), unicode_type(self.action_toggle.text()),
                         default_keys=(shortcut,), action=self.action_toggle)
                 else:
                     self.action_toggle.setShortcut(shortcut)
             else:
                 self.action_toggle.setShortcut(shortcut)
+
+    def update_shortcut(self):
+        self.button.update_shortcut(self.action_toggle)
 
     def toggle_triggered(self, *args):
         self.toggle_side_pane()
@@ -1020,6 +1110,9 @@ class Splitter(QSplitter):
         self.desired_side_size = self.side_index_size
         self.state_changed.emit(not self.is_side_index_hidden)
 
+    def update_handle_width(self, not_one_panel):
+        self.setHandleWidth(self.original_handle_width if not_one_panel else 0)
+
     @property
     def is_side_index_hidden(self):
         sizes = list(self.sizes())
@@ -1036,33 +1129,31 @@ class Splitter(QSplitter):
 
     def print_sizes(self):
         if self.count() > 1:
-            print self.save_name, 'side:', self.side_index_size, 'other:',
-            print list(self.sizes())[self.other_index]
+            print(self.save_name, 'side:', self.side_index_size, 'other:', end=' ')
+            print(list(self.sizes())[self.other_index])
 
-    @dynamic_property
+    @property
     def side_index_size(self):
-        def fget(self):
-            if self.count() < 2:
-                return 0
-            return self.sizes()[self.side_index]
+        if self.count() < 2:
+            return 0
+        return self.sizes()[self.side_index]
 
-        def fset(self, val):
-            if self.count() < 2:
-                return
-            if val == 0 and not self.is_side_index_hidden:
-                self.save_state()
-            sizes = list(self.sizes())
-            for i in range(len(sizes)):
-                sizes[i] = val if i == self.side_index else 10
-            self.setSizes(sizes)
-            total = sum(self.sizes())
-            sizes = list(self.sizes())
-            for i in range(len(sizes)):
-                sizes[i] = val if i == self.side_index else total-val
-            self.setSizes(sizes)
-            self.initialize()
-
-        return property(fget=fget, fset=fset)
+    @side_index_size.setter
+    def side_index_size(self, val):
+        if self.count() < 2:
+            return
+        if val == 0 and not self.is_side_index_hidden:
+            self.save_state()
+        sizes = list(self.sizes())
+        for i in range(len(sizes)):
+            sizes[i] = val if i == self.side_index else 10
+        self.setSizes(sizes)
+        total = sum(self.sizes())
+        sizes = list(self.sizes())
+        for i in range(len(sizes)):
+            sizes[i] = val if i == self.side_index else total-val
+        self.setSizes(sizes)
+        self.initialize()
 
     def do_resize(self, *args):
         orig = self.desired_side_size
@@ -1141,6 +1232,7 @@ class Splitter(QSplitter):
     # }}}
 
 # }}}
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QTextEdit

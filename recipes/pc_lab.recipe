@@ -1,4 +1,5 @@
 #!/usr/bin/env  python2
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 
@@ -75,9 +76,7 @@ class PCLab(BasicNewsRecipe):
             href = link.get('href', None)
             if href and href.startswith('/'):
                 link['href'] = 'http://pclab.pl' + href
-        # finally remove some tags
-        # for r in soup.findAll('div', attrs={'class':['tags', 'index',
-        # 'script_bxad_slot_display_list_bxad_slot', 'index first', 'zumi',
-        # 'navigation']})
+        for r in soup.findAll(name='a', href=re.compile(r'^https://www.skapiec.pl/')):
+            r.extract()
 
         return soup

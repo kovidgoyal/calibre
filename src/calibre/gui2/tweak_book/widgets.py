@@ -1,13 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, textwrap, unicodedata
-from itertools import izip
 from collections import OrderedDict
 
 from PyQt5.Qt import (
@@ -19,16 +17,21 @@ from PyQt5.Qt import (
     QPixmap, QRect, QPlainTextEdit, QMimeData)
 
 from calibre import prepare_string_for_xml, human_readable
+from calibre.constants import iswindows
+from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
-from calibre.gui2.widgets2 import Dialog as BaseDialog
-from calibre.utils.icu import primary_sort_key, sort_key, primary_contains
+from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
+from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
+from polyglot.builtins import iteritems, unicode_type, zip, getcwd, filter as ignore_me
 
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
+ignore_me
+
 
 class BusyCursor(object):
 
@@ -38,10 +41,12 @@ class BusyCursor(object):
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
 
+
 class Dialog(BaseDialog):
 
     def __init__(self, title, name, parent=None):
         BaseDialog.__init__(self, title, name, parent=parent, prefs=tprefs)
+
 
 class InsertTag(Dialog):  # {{{
 
@@ -66,15 +71,16 @@ class InsertTag(Dialog):  # {{{
 
     @property
     def tag(self):
-        return unicode(self.tag_input.text()).strip()
+        return unicode_type(self.tag_input.text()).strip()
 
     @classmethod
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.tag)
+            print(d.tag)
 
 # }}}
+
 
 class RationalizeFolders(Dialog):  # {{{
 
@@ -117,7 +123,7 @@ class RationalizeFolders(Dialog):  # {{{
             l.addWidget(le, i + 1, 1)
         self.la2 = la = QLabel(_(
             'Note that this will only arrange files inside the book,'
-            ' it will not affect how they are displayed in the Files Browser'))
+            ' it will not affect how they are displayed in the File browser'))
         la.setWordWrap(True)
         l.addWidget(la, i + 2, 0, 1, -1)
         l.addWidget(self.bb, i + 3, 0, 1, -1)
@@ -126,7 +132,7 @@ class RationalizeFolders(Dialog):  # {{{
     def folder_map(self):
         ans = {}
         for typ, x in self.TYPE_MAP:
-            val = unicode(getattr(self, '%s_folder' % typ).text()).strip().strip('/')
+            val = unicode_type(getattr(self, '%s_folder' % typ).text()).strip().strip('/')
             ans[typ] = val
         return ans
 
@@ -134,6 +140,7 @@ class RationalizeFolders(Dialog):  # {{{
         tprefs['folders_for_types'] = self.folder_map
         return Dialog.accept(self)
 # }}}
+
 
 class MultiSplit(Dialog):  # {{{
 
@@ -169,6 +176,7 @@ class MultiSplit(Dialog):  # {{{
 
 # }}}
 
+
 class ImportForeign(Dialog):  # {{{
 
     def __init__(self, parent=None):
@@ -181,6 +189,7 @@ class ImportForeign(Dialog):  # {{{
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         la = self.la = QLabel(_(
@@ -198,7 +207,7 @@ class ImportForeign(Dialog):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
         b.setText(_('Choose file'))
         h1.addWidget(b)
-        l.addRow(_('Source file'), h1)
+        l.addRow(_('Source file:'), h1)
         b.clicked.connect(self.choose_source)
         b.setFocus(Qt.OtherFocusReason)
 
@@ -210,7 +219,7 @@ class ImportForeign(Dialog):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
         b.setText(_('Choose file'))
         h1.addWidget(b)
-        l.addRow(_('Destination file'), h1)
+        l.addRow(_('Destination file:'), h1)
         b.clicked.connect(self.choose_destination)
 
         l.addRow(self.bb)
@@ -235,21 +244,22 @@ class ImportForeign(Dialog):  # {{{
             self.dest.setText(path)
 
     def accept(self):
-        if not unicode(self.src.text()):
+        if not unicode_type(self.src.text()):
             return error_dialog(self, _('Need document'), _(
                 'You must specify the source file that will be imported.'), show=True)
         Dialog.accept(self)
 
     @property
     def data(self):
-        src = unicode(self.src.text()).strip()
-        dest = unicode(self.dest.text()).strip()
+        src = unicode_type(self.src.text()).strip()
+        dest = unicode_type(self.dest.text()).strip()
         if not dest:
             dest = src.rpartition('.')[0] + '.epub'
         return src, dest
 # }}}
 
 # Quick Open {{{
+
 
 def make_highlighted_text(emph, text, positions):
     positions = sorted(set(positions) - {-1})
@@ -264,6 +274,7 @@ def make_highlighted_text(emph, text, positions):
         parts.append(prepare_string_for_xml(text[pos:]))
         return ''.join(parts)
     return text
+
 
 class Results(QWidget):
 
@@ -336,7 +347,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in izip(prefixes, results.iteritems()))
+                for prefix, (text, positions) in zip(prefixes, iteritems(results)))
         else:
             self.results = ()
             self.current_result = -1
@@ -395,6 +406,7 @@ class Results(QWidget):
         except IndexError:
             pass
 
+
 class QuickOpen(Dialog):
 
     def __init__(self, items, parent=None):
@@ -438,7 +450,7 @@ class QuickOpen(Dialog):
         l.addWidget(self.bb, alignment=Qt.AlignBottom)
 
     def update_matches(self, text):
-        text = unicode(text).strip()
+        text = unicode_type(text).strip()
         self.help_label.setVisible(False)
         self.results.setVisible(True)
         matches = self.matcher(text, limit=100)
@@ -458,16 +470,16 @@ class QuickOpen(Dialog):
 
     @classmethod
     def test(cls):
-        import os
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(getcwd(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
-        print (d.selected_result)
+        print(d.selected_result)
 
 # }}}
 
 # Filterable names list {{{
+
 
 class NamesDelegate(QStyledItemDelegate):
 
@@ -508,6 +520,7 @@ class NamesDelegate(QStyledItemDelegate):
             doc.drawContents(painter)
         painter.restore()
 
+
 class NamesModel(QAbstractListModel):
 
     filtered = pyqtSignal(object)
@@ -532,12 +545,12 @@ class NamesModel(QAbstractListModel):
             return '\xa0' * 20
 
     def filter(self, query):
-        query = unicode(query or '')
+        query = unicode_type(query or '')
         self.beginResetModel()
         if not query:
             self.items = tuple((text, None) for text in self.names)
         else:
-            self.items = tuple(self.matcher(query).iteritems())
+            self.items = tuple(iteritems(self.matcher(query)))
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
@@ -552,10 +565,11 @@ class NamesModel(QAbstractListModel):
         except IndexError:
             pass
 
+
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
     nl.m = m = model(names, parent=nl)
-    m.filtered.connect(lambda all_items: nl.scrollTo(m.index(0)))
+    connect_lambda(m.filtered, nl, lambda nl, all_items: nl.scrollTo(m.index(0)))
     nl.setModel(m)
     if model is NamesModel:
         nl.d = NamesDelegate(nl)
@@ -568,6 +582,7 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 # }}}
 
 # Insert Link {{{
+
 
 class AnchorsModel(QAbstractListModel):
 
@@ -595,11 +610,12 @@ class AnchorsModel(QAbstractListModel):
         self.filter('')
 
     def filter(self, query):
-        query = unicode(query or '')
+        query = unicode_type(query or '')
         self.beginResetModel()
         self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
         self.endResetModel()
         self.filtered.emit(not bool(query))
+
 
 class InsertLink(Dialog):
 
@@ -607,7 +623,7 @@ class InsertLink(Dialog):
         self.container = container
         self.source_name = source_name
         self.initial_text = initial_text
-        Dialog.__init__(self, _('Insert Hyperlink'), 'insert-hyperlink', parent=parent)
+        Dialog.__init__(self, _('Insert hyperlink'), 'insert-hyperlink', parent=parent)
         self.anchor_cache = {}
 
     def sizeHint(self):
@@ -642,6 +658,7 @@ class InsertLink(Dialog):
         h.addLayout(fnl), h.setStretch(1, 1)
 
         self.tl = tl = QFormLayout()
+        tl.setFieldGrowthPolicy(tl.AllNonFixedFieldsGrow)
         self.target = t = QLineEdit(self)
         t.setPlaceholderText(_('The destination (href) for the link'))
         tl.addRow(_('&Target:'), t)
@@ -653,7 +670,30 @@ class InsertLink(Dialog):
         t.setText(self.initial_text or '')
         t.setPlaceholderText(_('The (optional) text for the link'))
 
+        self.template_edit = t = HistoryComboBox(self)
+        t.lineEdit().setClearButtonEnabled(True)
+        t.initialize('edit_book_insert_link_template_history')
+        tl.addRow(_('Tem&plate:'), t)
+        from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
+        t.setText(tprefs.get('insert-hyperlink-template', None) or DEFAULT_LINK_TEMPLATE)
+        t.setToolTip('<p>' + _('''
+            The template to use for generating the link. In addition to {0} and {1}
+            you can also use {2}, {3} and {4} variables
+            in the template, they will be replaced by the source filename, the destination
+            filename and the anchor, respectively.
+        ''').format(
+            '_TITLE_', '_TARGET', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
+
         l.addWidget(self.bb)
+
+    def accept(self):
+        from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
+        t = self.template
+        if t:
+            if t == DEFAULT_LINK_TEMPLATE:
+                t = None
+            tprefs.set('insert-hyperlink-template', self.template)
+        return Dialog.accept(self)
 
     def selected_file_changed(self, *args):
         rows = list(self.file_names.selectionModel().selectedRows())
@@ -674,7 +714,7 @@ class InsertLink(Dialog):
                     continue
                 text = lead_text(item, num_words=4)
                 ac.append((text, frag))
-            ac.sort(key=lambda text_frag: primary_sort_key(text_frag[0]))
+            ac.sort(key=lambda text_frag: numeric_sort_key(text_frag[0]))
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
@@ -698,11 +738,31 @@ class InsertLink(Dialog):
 
     @property
     def href(self):
-        return unicode(self.target.text()).strip()
+        return unicode_type(self.target.text()).strip()
 
     @property
     def text(self):
-        return unicode(self.text_edit.text()).strip()
+        return unicode_type(self.text_edit.text()).strip()
+
+    @property
+    def template(self):
+        return self.template_edit.text().strip() or None
+
+    @property
+    def rendered_template(self):
+        ans = self.template
+        if ans:
+            target = self.href
+            frag = target.partition('#')[-1]
+            if target.startswith('#'):
+                target = ''
+            else:
+                target = target.split('#', 1)[0]
+                target = self.container.href_to_name(target)
+            ans = ans.replace('_SOURCE_FILENAME_', self.source_name or '')
+            ans = ans.replace('_DEST_FILENAME_', target or '')
+            ans = ans.replace('_ANCHOR_', frag or '')
+        return ans
 
     @classmethod
     def test(cls):
@@ -711,11 +771,12 @@ class InsertLink(Dialog):
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c, next(c.spine_names)[0])
         if d.exec_() == d.Accepted:
-            print (d.href, d.text)
+            print(d.href, d.text)
 
 # }}}
 
 # Insert Semantics {{{
+
 
 class InsertSemantics(Dialog):
 
@@ -726,7 +787,7 @@ class InsertSemantics(Dialog):
             for item in container.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
         self.final_type_map = self.original_type_map.copy()
         self.create_known_type_map()
-        Dialog.__init__(self, _('Set Semantics'), 'insert-semantics', parent=parent)
+        Dialog.__init__(self, _('Set semantics'), 'insert-semantics', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -745,8 +806,8 @@ class InsertSemantics(Dialog):
             'dedication': _('Dedication'),
             'epigraph': _('Epigraph'),
             'foreword': _('Foreword'),
-            'loi': _('List of Illustrations'),
-            'lot': _('List of Tables'),
+            'loi': _('List of illustrations'),
+            'lot': _('List of tables'),
             'notes': _('Notes'),
             'preface': _('Preface'),
             'text': _('Text'),
@@ -758,7 +819,7 @@ class InsertSemantics(Dialog):
             'text': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in self.known_type_map.iteritems()]
+        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
@@ -768,7 +829,7 @@ class InsertSemantics(Dialog):
 
         self.tl = tl = QFormLayout()
         self.semantic_type = QComboBox(self)
-        for key, val in self.all_types.iteritems():
+        for key, val in iteritems(self.all_types):
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
@@ -814,14 +875,14 @@ class InsertSemantics(Dialog):
         d = info_dialog(self, _('About semantics'), _(
             'Semantics refer to additional information about specific locations in the book.'
             ' For example, you can specify that a particular location is the dedication or the preface'
-            ' or the table of contents and so on.\n\nFirst choose the type of semantic information, then'
+            ' or the Table of Contents and so on.\n\nFirst choose the type of semantic information, then'
             ' choose a file and optionally a location within the file to point to.\n\nThe'
             ' semantic information will be written in the <guide> section of the opf file.'))
         d.resize(d.sizeHint())
         d.exec_()
 
     def semantic_type_changed(self):
-        item_type = unicode(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
+        item_type = unicode_type(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         name, frag = self.final_type_map.get(item_type, (None, None))
         self.show_type(name, frag)
 
@@ -846,8 +907,8 @@ class InsertSemantics(Dialog):
         self.target.blockSignals(False)
 
     def target_text_changed(self):
-        name, frag = unicode(self.target.text()).partition('#')[::2]
-        item_type = unicode(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
+        name, frag = unicode_type(self.target.text()).partition('#')[::2]
+        item_type = unicode_type(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         self.final_type_map[item_type] = (name, frag or None)
 
     def selected_file_changed(self, *args):
@@ -884,13 +945,13 @@ class InsertSemantics(Dialog):
 
     @property
     def changed_type_map(self):
-        return {k:v for k, v in self.final_type_map.iteritems() if v != self.original_type_map.get(k, None)}
+        return {k:v for k, v in iteritems(self.final_type_map) if v != self.original_type_map.get(k, None)}
 
     def apply_changes(self, container):
         from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
         from calibre.translations.dynamic import translate
         lang = get_book_language(container)
-        for item_type, (name, frag) in self.changed_type_map.iteritems():
+        for item_type, (name, frag) in iteritems(self.changed_type_map):
             title = self.known_type_map[item_type]
             if lang:
                 title = translate(lang, title)
@@ -909,11 +970,12 @@ class InsertSemantics(Dialog):
 
 # }}}
 
+
 class FilterCSS(Dialog):  # {{{
 
     def __init__(self, current_name=None, parent=None):
         self.current_name = current_name
-        Dialog.__init__(self, _('Filter Style Information'), 'filter-css', parent=parent)
+        Dialog.__init__(self, _('Filter style information'), 'filter-css', parent=parent)
 
     def setup_ui(self):
         from calibre.gui2.convert.look_and_feel_ui import Ui_Form
@@ -964,7 +1026,7 @@ class FilterCSS(Dialog):  # {{{
             a('float'), a('clear')
         if self.opt_colors.isChecked():
             a('color'), a('background-color')
-        for x in unicode(self.others.text()).split(','):
+        for x in unicode_type(self.others.text()).split(','):
             x = x.strip()
             if x:
                 a(x)
@@ -974,11 +1036,12 @@ class FilterCSS(Dialog):  # {{{
     def test(cls):
         d = cls()
         if d.exec_() == d.Accepted:
-            print (d.filtered_properties)
+            print(d.filtered_properties)
 
 # }}}
 
 # Add Cover {{{
+
 
 class CoverView(QWidget):
 
@@ -1017,6 +1080,7 @@ class CoverView(QWidget):
     def sizeHint(self):
         return QSize(300, 400)
 
+
 class AddCover(Dialog):
 
     import_requested = pyqtSignal(object, object)
@@ -1028,7 +1092,7 @@ class AddCover(Dialog):
     @property
     def image_names(self):
         img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
-        for name, mt in self.container.mime_map.iteritems():
+        for name, mt in iteritems(self.container.mime_map):
             if mt.lower() in img_types:
                 yield name
 
@@ -1060,7 +1124,11 @@ class AddCover(Dialog):
                        ' to the image.')))
         p.setChecked(tprefs['add_cover_preserve_aspect_ratio'])
         p.setVisible(self.container.book_type != 'azw3')
-        p.stateChanged.connect(lambda s:tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked))
+
+        def on_state_change(s):
+            tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked)
+
+        p.stateChanged.connect(on_state_change)
         self.info_label = il = QLabel('\xa0')
         h.addWidget(p), h.addStretch(1), h.addWidget(il)
         l.addLayout(h)
@@ -1071,6 +1139,11 @@ class AddCover(Dialog):
         b.setIcon(QIcon(I('document_open.png')))
         self.names.setFocus(Qt.OtherFocusReason)
         self.names.selectionModel().currentChanged.connect(self.current_image_changed)
+        cname = get_raster_cover_name(self.container)
+        if cname:
+            row = self.names.model().find_name(cname)
+            if row > -1:
+                self.names.setCurrentIndex(self.names.model().index(row))
 
     def double_clicked(self):
         self.accept()
@@ -1115,10 +1188,11 @@ class AddCover(Dialog):
 
 # }}}
 
+
 class PlainTextEdit(QPlainTextEdit):  # {{{
 
     ''' A class that overrides some methods from QPlainTextEdit to fix handling
-    of the nbsp unicode character. '''
+    of the nbsp unicode character and AltGr input method on windows. '''
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
@@ -1138,7 +1212,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         return ans.rstrip('\0')
 
     def selected_text_from_cursor(self, cursor):
-        return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+        return unicodedata.normalize('NFC', unicode_type(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
     @property
     def selected_text(self):
@@ -1148,7 +1222,33 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         ans = QMimeData()
         ans.setText(self.selected_text)
         return ans
+
+    def show_tooltip(self, ev):
+        pass
+
+    def override_shortcut(self, ev):
+        if iswindows and self.windows_ignore_altgr_shortcut(ev):
+            ev.accept()
+            return True
+
+    def windows_ignore_altgr_shortcut(self, ev):
+        import win32api, win32con
+        s = win32api.GetAsyncKeyState(win32con.VK_RMENU) & 0xffff  # VK_RMENU == R_ALT
+        return s & 0x8000
+
+    def event(self, ev):
+        et = ev.type()
+        if et == ev.ToolTip:
+            self.show_tooltip(ev)
+            return True
+        if et == ev.ShortcutOverride:
+            ret = self.override_shortcut(ev)
+            if ret:
+                return True
+        return QPlainTextEdit.event(self, ev)
+
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])

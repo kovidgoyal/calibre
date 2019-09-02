@@ -4,6 +4,7 @@ from __future__ import unicode_literals, division, absolute_import, print_functi
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1467571059(BasicNewsRecipe):
     title                 = 'De Standaard'
     __author__            = 'Darko Miletic, Aimylios, oCkz7bJ_'

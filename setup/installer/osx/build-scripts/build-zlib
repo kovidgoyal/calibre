@@ -1,4 +1,0 @@
-#!/bin/sh
-cd $SW/build/zlib-* && \
-./configure --prefix=$SW && make && \
-libtool -static -o libz.a *.o &&  make install

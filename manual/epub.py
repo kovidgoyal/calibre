@@ -8,13 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from sphinx.builders.epub import EpubBuilder
+from sphinx.builders.epub3 import Epub3Builder as EpubBuilder
 
-from calibre.ebooks.oeb.base import OPF, DC
+from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.container import get_container, OEB_DOCS
 from calibre.ebooks.oeb.polish.check.links import check_links, UnreferencedResource
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
 from calibre.utils.imghdr import identify
+from polyglot.builtins import iteritems
+
 
 class EPUBHelpBuilder(EpubBuilder):
     name = 'myepub'
@@ -27,7 +29,7 @@ class EPUBHelpBuilder(EpubBuilder):
 
     def fix_epub(self, container):
         ' Fix all the brokenness that sphinx\'s epub builder creates '
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_DOCS:
                 self.workaround_ade_quirks(container, name)
                 pretty_html_tree(container, container.parsed(name))
@@ -48,9 +50,9 @@ class EPUBHelpBuilder(EpubBuilder):
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}
         spine = container.opf_xpath('//opf:spine')[0]
-        rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
         # Add unreferenced text files to the spine
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_DOCS and name not in spine_names:
                 spine_names.add(name)
                 container.insert_into_xml(spine, spine.makeelement(OPF('itemref'), idref=rmap[name]))
@@ -62,18 +64,18 @@ class EPUBHelpBuilder(EpubBuilder):
                 container.remove_from_xml(item)
             seen.add(name)
 
-        # Ensure that the meta cover tag is correct
+        # Remove the <guide> which is not needed in EPUB 3
+        for guide in container.opf_xpath('//*[local-name()="guide"]'):
+            guide.getparent().remove(guide)
+
+        # Ensure that the cover-image property is set
         cover_id = rmap['_static/' + self.config.epub_cover[0]]
+        for item in container.opf_xpath('//opf:item[@id="{}"]'.format(cover_id)):
+            item.set('properties', 'cover-image')
+
+        # Remove any <meta cover> tag as it is not needed in epub 3
         for meta in container.opf_xpath('//opf:meta[@name="cover"]'):
-            meta.set('content', cover_id)
-
-        # Add description metadata
-        metadata = container.opf_xpath('//opf:metadata')[0]
-        container.insert_into_xml(metadata, metadata.makeelement(DC('description')))
-        metadata[-1].text = 'Comprehensive documentation for calibre'
-
-        # Remove search.html since it is useless in EPUB
-        container.remove_item('search.html')
+            meta.getparent().remove(meta)
 
         # Remove unreferenced files
         for error in check_links(container):
@@ -83,4 +85,3 @@ class EPUBHelpBuilder(EpubBuilder):
         # Pretty print the OPF
         pretty_opf(container.parsed(container.opf_name))
         container.dirty(container.opf_name)
-

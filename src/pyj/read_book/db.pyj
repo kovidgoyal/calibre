@@ -1,11 +1,17 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import bound_methods, hash_literals
 
+from encodings import base64decode, base64encode
 from gettext import gettext as _
-from encodings import base64encode, base64decode
 
-def upgrade_schema(idb, old_version, new_version):
+from book_list.router import is_reading_book
+from modals import error_dialog
+from session import get_interface_data
+from utils import username_key
+
+
+def upgrade_schema(idb, old_version, new_version, transaction):
     print('upgrade_schema:', old_version, new_version)
     if not idb.objectStoreNames.contains('books'):
         idb.createObjectStore('books', {'keyPath':'key'})
@@ -16,6 +22,11 @@ def upgrade_schema(idb, old_version, new_version):
     if not idb.objectStoreNames.contains('objects'):
         idb.createObjectStore('objects', {'keyPath':'key'})
 
+    # Create indices
+    books_store = transaction.objectStore('books')
+    if not books_store.indexNames.contains('recent_index'):
+        books_store.createIndex('recent_index', 'recent_date')
+
 def file_store_name(book, name):
     return book.book_hash + ' ' + name
 
@@ -25,19 +36,83 @@ def get_error_details(event):
         desc = desc.error.toString()
     elif desc.errorCode:
         desc = desc.errorCode
+    elif desc.error:
+        desc = desc.error
+        if desc.name is 'QuotaExceededError':
+            desc = _('Offline storage quota exceeded! Try deleting some stored books first.')
+        elif desc.name:
+            desc = desc.name
+    return desc or 'Unknown Error'
 
-DB_NAME = 'calibre-books-db-testing'  # TODO: Remove test suffix and change version back to 1
-DB_VERSION = 2
+DB_NAME = 'calibre'
+DB_VERSION = 1
 
 class DB:
 
-    def __init__(self, idb, ui, supports_blobs):
-        self.interface_data = ui.interface_data
+    def __init__(self, callback, show_read_book_error):
+        self.initialized = False
+        self.is_ok = False
+        self.initialize_error_msg = None
+        self.callback = callback
+        self.show_read_book_error = show_read_book_error
+        self.initialize_stage1()
+
+    def show_error(self, title, msg, det_msg):
+        if is_reading_book():
+            self.show_read_book_error(title, msg, det_msg)
+        else:
+            error_dialog(title, msg, det_msg)
+
+    def initialize_stage1(self):
+        if not window.indexedDB:
+            self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Chrome or Firefox.')
+            self.initialized = True
+            # Callers assume __init__ has finished before the callback is
+            # called, since we are called in __init__, only callback after
+            # event loop ticks over
+            window.setTimeout(self.callback, 0)
+            return
+
+        request = window.indexedDB.open(DB_NAME, DB_VERSION)
+
+        request.onupgradeneeded = def(event):
+            upgrade_schema(event.target.result, event.oldVersion, event.newVersion, event.target.transaction)
+
+        request.onblocked = def(event):
+            self.initialize_error_msg = _('Please close all other browser tabs with calibre open')
+            self.initialized = True
+            console.log(event)
+            self.callback()
+
+        request.onerror = def(event):
+            self.initialize_error_msg = _('You must allow calibre to use IndexedDB storage in your browser to read books')
+            self.initialized = True
+            console.log(event)
+            self.callback()
+
+        request.onsuccess = def(event):
+            blob = Blob(['test'], {'type':"text/plain"})
+            idb = event.target.result
+            store = idb.transaction(['files'], 'readwrite').objectStore('files')
+            try:
+                req = store.put(blob, ':-test-blob-:')
+            except:
+                self.initialize_stage2(idb, False)
+                return
+            req.onsuccess = def(event):
+                self.initialize_stage2(idb, True)
+            req.onerror = def(event):
+                # We use setTimeout as otherwise the idb.onerror handler is
+                # called with this error on Safari
+                setTimeout(self.initialize_stage2.bind(None, idb, False), 0)
+
+    def initialize_stage2(self, idb, supports_blobs):
         self.idb = idb
         self.supports_blobs = supports_blobs
+        self.initialized = True
+        self.is_ok = True
         if not supports_blobs:
-            print('IndexedDB does not support Blob storage, using base64 encoding instead')
-        self.show_error = ui.show_error.bind(ui)
+            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
 
         idb.onerror = def(event):
             self.display_error(None, event)
@@ -48,8 +123,9 @@ class DB:
 
         idb.onversionchange = def(event):
             idb.close()
-            ui.show_error(_('Database upgraded!'), _(
+            self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
+        self.callback()
 
     def display_error(self, msg, event):
         if event.already_displayed_by_calibre:
@@ -64,8 +140,21 @@ class DB:
         store = store or stores[0]
         if op is 'get':
             transaction = self.idb.transaction(stores)
-            req = transaction.objectStore(store).get(data)
-            req.onsuccess = def(event): proceed(req.result)
+            # Microsoft Edge currently does not support complex keys so the
+            # next line will throw a DataError in Edge when data is an
+            # object key like an array.
+            # https://gist.github.com/nolanlawson/a841ee23436410f37168
+            try:
+                req = transaction.objectStore(store).get(data)
+            except:
+                if /Edge\/\d+/.test(window.navigator.userAgent):
+                    self.show_error(_('Cannot read book'), _(
+                        'Reading of books is not supported on Microsoft Edge. Use a better'
+                        ' browser such as Google Chrome or Mozilla Firefox'))
+                    return
+                raise
+            req.onsuccess = def(event):
+                proceed(req.result)
         elif op is 'put':
             transaction = self.idb.transaction(stores, 'readwrite')
             req = transaction.objectStore(store).put(data)
@@ -73,23 +162,26 @@ class DB:
         req.onerror = def(event):
             self.display_error(error_msg, event)
 
-    def get_book(self, book_id, fmt, metadata, proceed):
+    def get_book(self, library_id, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
         # The key has to be a JavaScript array as otherwise it cannot be stored
         # into indexed db, because the RapydScript list has properties that
         # refer to non-serializable objects like functions.
-        key = v'[self.interface_data.library_id, book_id, fmt]'
+        book_id = int(book_id)
+        key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
             proceed(result or {
                 'key':key,
                 'is_complete':False,
                 'stored_files': {},
                 'book_hash':None,
-                'last_read': Date(),
                 'metadata': metadata,
                 'manifest': None,
                 'cover_width': None,
                 'cover_height': None,
+                'cover_name': None,
+                'recent_date': new Date(),
+                'last_read': {},
                 'last_read_position': {},
             })
         )
@@ -105,7 +197,19 @@ class DB:
         book.book_hash = manifest.book_hash.hash
         book.stored_files = {}
         book.is_complete = False
+        if get_interface_data().username:
+            newest_epoch = newest_pos = None
+            for pos in manifest.last_read_positions:
+                if newest_epoch is None or pos.epoch > newest_epoch:
+                    newest_epoch = pos.epoch
+                    newest_pos = pos.cfi
+            if newest_pos:
+                unkey = username_key(get_interface_data().username)
+                book.last_read[unkey] = new Date(newest_epoch * 1000)
+                book.last_read_position[unkey] = newest_pos
+
         v'delete manifest["metadata"]'
+        v'delete manifest["last_read_positions"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
     def store_file(self, book, name, xhr, proceed, is_cover):
@@ -124,6 +228,7 @@ class DB:
             blob = Blob([data], {'type':'image/jpeg'})
         url = window.URL.createObjectURL(blob)
         img = new Image()
+        book.cover_name = name
         proceeded = False
 
         def done():
@@ -147,7 +252,8 @@ class DB:
         if needs_encoding:
             data = base64encode(Uint8Array(data))
         req = self.idb.transaction(['files'], 'readwrite').objectStore('files').put(data, fname)
-        req.onsuccess = def(event): proceed()
+        req.onsuccess = def(event):
+            proceed()
         req.onerror = def(event):
             proceed(_('Failed to store book data ({0}) with error: {1}').format(name, get_error_details(event)))
 
@@ -171,16 +277,34 @@ class DB:
         self.do_op(['objects'], mathjax_info, _('Failed to write to the objects database'), proceed, op='put')
 
     def update_last_read_time(self, book):
-        book.last_read = Date()
+        unkey = username_key(get_interface_data().username)
+        now = new Date()
+        book.last_read[unkey] = book.recent_date = now
         self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+
+    def update_last_read_data_from_key(self, library_id, book_id, fmt, last_read, last_read_position):
+        unkey = username_key(get_interface_data().username)
+        self.get_book(library_id, book_id, fmt, None, def(book):
+            if book.metadata:  # book exists
+                book.last_read[unkey] = book.recent_date = last_read
+                book.last_read_position[unkey] = last_read_position
+                self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+        )
 
     def get_file(self, book, name, proceed):
         key = file_store_name(book, name)
         err = _(
-            'Failed to read the file {0} for the book {1} from the database').format(name, book.metadata.title)
+            'Failed to read the file {0} for the book {1} from the browser offline cache.'
+        ).format(name, book.metadata.title)
         self.do_op(['files'], key, err, def (result):
             if not result:
-                self.show_error(_('Cannot read book'), err)
+                # File was not found in the cache, this happens in Chrome if
+                # the Application Cache is full. IndexedDB put succeeds,
+                # but get fails. Browsers are a horrible travesty.
+                bad = err + _(
+                    ' This usually means the cache is close to full. Clear the browser'
+                    ' cache from the browser settings.')
+                self.show_error(_('Cannot read file from book'), bad)
                 return
             fdata = book.stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'
@@ -192,7 +316,7 @@ class DB:
     def get_mathjax_files(self, proceed):
         c = self.idb.transaction('mathjax').objectStore('mathjax').openCursor()
         c.onerror = def(event):
-            err = _('Failed to read the MathJax files from local storage')
+            err = _('Failed to read the MathJax files from the browser offline cache.')
             self.display_error(err, event)
         data = {}
         c.onsuccess = def(event):
@@ -206,6 +330,42 @@ class DB:
                 cursor.continue()
             else:
                 proceed(data)
+
+    def get_recently_read_books(self, proceed, limit):
+        limit = limit or 3
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        books = v'[]'
+        c.onerror = def(event):
+            err = _('Failed to read recent books from local storage')
+            self.display_error(err, event)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                books.push(cursor.value)
+            if books.length >= limit or not cursor:
+                proceed(books)
+                return
+            if cursor:
+                cursor.continue()
+
+    def has_book_matching(self, library_id, book_id, proceed):
+        # Should really be using a multiEntry index to avoid iterating over all
+        # books in JS, but since the number of stored books is not that large,
+        # I can't be bothered.
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            proceed(False)
+        book_id = int(book_id)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    proceed(True)
+                    return
+                cursor.continue()
+            else:
+                proceed(False)
 
     def delete_book(self, book, proceed):
         c = self.idb.transaction(['books', 'files'], 'readwrite')
@@ -225,31 +385,33 @@ class DB:
                 books.delete(book.key)
         next_step()
 
-def create_db(ui, interface_data):
-    if not window.indexedDB:
-        return ui.db_initialized(_('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.'))
+    def delete_books_matching(self, library_id, book_id, proceed):
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            pass
+        book_id = int(book_id)
+        matches = v'[]'
 
-    request = window.indexedDB.open(DB_NAME, DB_VERSION)
+        def delete_all():
+            if matches.length:
+                book = matches.pop()
+                self.delete_book(book, delete_all)
+            else:
+                if proceed:
+                    proceed()
 
-    request.onupgradeneeded = def(event):
-        upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    matches.push(book)
+                cursor.continue()
+            else:
+                delete_all()
 
-    request.onblocked = def(event):
-        alert(_('Please close all other tabs with a calibre book open'))
 
-    request.onerror = def(event):
-        ui.db_initialized(_('You must allow calibre to use IndexedDB storage in your browser to read books'))
-
-    request.onsuccess = def(event):
-        blob = Blob(['test'], {'type':"text/plain"})
-        idb = event.target.result
-        try:
-            req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
-        except Exception:
-            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            return ui.db_initialized(DB(idb, ui, False))
-        req.onsuccess = def(event):
-            ui.db_initialized(DB(idb, ui, True))
-        req.onerror = def(event):
-            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            ui.db_initialized(DB(idb, ui, False))
+def get_db(callback, show_read_book_error):
+    if not get_db.ans:
+        get_db.ans = DB(callback, show_read_book_error)
+    return get_db.ans

@@ -1,5 +1,21 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from calibre import random_user_agent
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class TheIndependentNew(BasicNewsRecipe):
@@ -25,17 +41,29 @@ class TheIndependentNew(BasicNewsRecipe):
     compress_news_images = True
 
     keep_only_tags = [
-        dict(itemprop=['articleBody', 'headline', 'contentUrl']),
-        dict(attrs={'class': ['intro', 'author']}),
+        classes('headline sub-headline breadcrumb author publish-date hero-image body-content'),
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and 'show-all' in x.split()}),
-        dict(attrs={'data-scald-gallery': True}),
+        classes('inline-related inline-readmore ad-wrapper icon-gallery i-gallery')
     ]
-
     remove_attributes = ['style']
 
+    def get_browser(self, *a, **kw):
+        # This site returns images in JPEG-XR format if the user agent is IE
+        if not hasattr(self, 'non_ie_ua'):
+            try:
+                self.non_ie_ua = random_user_agent(allow_ie=False)
+            except TypeError:
+                self.non_ie_ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36'
+        kw['user_agent'] = self.non_ie_ua
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        return br
+
     def preprocess_html(self, soup):
+        for img in soup.findAll('amp-img'):
+            img.name = 'img'
+            img['srcset'] = ''
+
         for div in soup.findAll(attrs={'class': 'full-gallery'}):
             imgs = {}
             for li in div.findAll('li', attrs={'data-gallery-item': True, 'data-original': True}):
@@ -44,7 +72,7 @@ class TheIndependentNew(BasicNewsRecipe):
             for li in div.findAll('li', attrs={'data-gallery-legend': True}):
                 src = imgs.get(li['data-gallery-legend'])
                 if src is not None:
-                    img = Tag(soup, 'img')
+                    img = new_tag(soup, 'img')
                     img['src'] = src
                     img['style'] = 'display:block'
                     li.append(img)
@@ -52,110 +80,106 @@ class TheIndependentNew(BasicNewsRecipe):
 
     feeds = [
         (u'News - UK',
-         u'http://www.independent.co.uk/news/uk/?service=rss'),
+         u'http://www.independent.co.uk/news/uk/rss'),
         (u'News - World',
-         u'http://www.independent.co.uk/news/world/?service=rss'),
+         u'http://www.independent.co.uk/news/world/rss'),
         (u'News - Business',
-         u'http://www.independent.co.uk/news/business/?service=rss'),
+         u'http://www.independent.co.uk/news/business/rss'),
         (u'News - People',
-         u'http://www.independent.co.uk/news/people/?service=rss'),
+         u'http://www.independent.co.uk/news/people/rss'),
         (u'News - Science',
-         u'http://www.independent.co.uk/news/science/?service=rss'),
+         u'http://www.independent.co.uk/news/science/rss'),
         (u'News - Media',
-         u'http://www.independent.co.uk/news/media/?service=rss'),
+         u'http://www.independent.co.uk/news/media/rss'),
         (u'News - Education',
-         u'http://www.independent.co.uk/news/education/?service=rss'),
+         u'http://www.independent.co.uk/news/education/rss'),
         (u'News - Obituaries',
-         u'http://www.independent.co.uk/news/obituaries/?service=rss'),
+         u'http://www.independent.co.uk/news/obituaries/rss'),
         (u'News - Corrections',
-         u'http://www.independent.co.uk/news/corrections/?service=rss'
+         u'http://www.independent.co.uk/news/corrections/rss'
          ),
-        (u'Opinion',
-         u'http://www.independent.co.uk/opinion/?service=rss'),
         (u'Voices',
-         u'http://www.independent.co.uk/voices/?service=rss'
+         u'http://www.independent.co.uk/voices/rss'
          ),
         (u'Environment',
-         u'http://www.independent.co.uk/environment/?service=rss'),
+         u'http://www.independent.co.uk/environment/rss'),
         (u'Sport - Athletics',
-         u'http://www.independent.co.uk/sport/general/athletics/?service=rss'
+         u'http://www.independent.co.uk/sport/general/athletics/rss'
          ),
         (u'Sport - Cricket',
-         u'http://www.independent.co.uk/sport/cricket/?service=rss'),
+         u'http://www.independent.co.uk/sport/cricket/rss'),
         (u'Sport - Football',
-         u'http://www.independent.co.uk/sport/football/?service=rss'),
+         u'http://www.independent.co.uk/sport/football/rss'),
         (u'Sport - Golf',
-         u'http://www.independent.co.uk/sport/golf/?service=rss'),
+         u'http://www.independent.co.uk/sport/golf/rss'),
         (u'Sport - Motor racing',
-         u'http://www.independent.co.uk/sport/motor-racing/?service=rss'
+         u'http://www.independent.co.uk/sport/motor-racing/rss'
          ),
         (u'Sport - Olympics',
-         u'http://www.independent.co.uk/sport/olympics/?service=rss'),
+         u'http://www.independent.co.uk/sport/olympics/rss'),
         (u'Sport - Racing',
-         u'http://www.independent.co.uk/sport/racing/?service=rss'),
+         u'http://www.independent.co.uk/sport/racing/rss'),
         (u'Sport - Rugby League',
-         u'http://www.independent.co.uk/sport/general/rugby-league/?service=rss'),
+         u'http://www.independent.co.uk/sport/general/rugby-league/rss'),
         (u'Sport - Rugby Union',
-         u'http://www.independent.co.uk/sport/rugby/rugby-union/?service=rss'
+         u'http://www.independent.co.uk/sport/rugby/rugby-union/rss'
          ),
         (u'Sport - Sailing',
-         u'http://www.independent.co.uk/sport/general/sailing/?service=rss'
+         u'http://www.independent.co.uk/sport/general/sailing/rss'
          ),
         (u'Sport - Tennis',
-         u'http://www.independent.co.uk/sport/tennis/?service=rss'),
+         u'http://www.independent.co.uk/sport/tennis/rss'),
         (u'Sport - Others',
-         u'http://www.independent.co.uk/sport/general/others/?service=rss'
+         u'http://www.independent.co.uk/sport/general/others/rss'
          ),
         (u'Life & Style - Fashion',
-         u'http://www.independent.co.uk/life-style/fashion/?service=rss'
+         u'http://www.independent.co.uk/life-style/fashion/rss'
          ),
         (u'Life & Style -Food & Drink',
-         u'http://www.independent.co.uk/life-style/food-and-drink/?service=rss'
+         u'http://www.independent.co.uk/life-style/food-and-drink/rss'
          ),
         (u'Life & Style - Health and Families',
-         u'http://www.independent.co.uk/life-style/health-and-families/?service=rss'
+         u'http://www.independent.co.uk/life-style/health-and-families/rss'
          ),
-        (u'Life & Style - House & Home',
-         u'http://www.independent.co.uk/life-style/house-and-home/'),
         (u'Life & Style - History',
-         u'http://www.independent.co.uk/life-style/history/?service=rss'
+         u'http://www.independent.co.uk/life-style/history/rss'
          ),
         (u'Life & Style - Gadgets & Tech',
-         u'http://www.independent.co.uk/life-style/gadgets-and-tech/?service=rss'
+         u'http://www.independent.co.uk/life-style/gadgets-and-tech/rss'
          ),
         (u'Life & Style - Motoring',
-         u'http://www.independent.co.uk/life-style/motoring/?service=rss'
+         u'http://www.independent.co.uk/life-style/motoring/rss'
          ),
         (u'Arts & Ents - Art',
-         u'http://www.independent.co.uk/arts-entertainment/art/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/art/rss'
          ),
         (u'Arts & Ents - Architecture',
-         u'http://www.independent.co.uk/arts-entertainment/architecture/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/architecture/rss'
          ),
         (u'Arts & Ents - Music',
-         u'http://www.independent.co.uk/arts-entertainment/music/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/music/rss'
          ),
         (u'Arts & Ents - Classical',
-         u'http://www.independent.co.uk/arts-entertainment/classical/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/classical/rss'
          ),
         (u'Arts & Ents - Films',
-         u'http://www.independent.co.uk/arts-entertainment/films/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/films/rss'
          ),
         (u'Arts & Ents - TV',
-         u'http://www.independent.co.uk/arts-entertainment/tv/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/tv/rss'
          ),
         (u'Arts & Ents - Theatre and Dance',
-         u'http://www.independent.co.uk/arts-entertainment/theatre-dance/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/theatre-dance/rss'
          ),
         (u'Arts & Ents - Comedy',
-         u'http://www.independent.co.uk/arts-entertainment/comedy/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/comedy/rss'
          ),
         (u'Arts & Ents - Books',
-         u'http://www.independent.co.uk/arts-entertainment/books/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/books/rss'
          ),
-        (u'Travel', u'http://www.independent.co.uk/travel/?service=rss'
+        (u'Travel', u'http://www.independent.co.uk/travel/rss'
          ),
-        (u'Money', u'http://www.independent.co.uk/money/?service=rss'),
+        (u'Money', u'http://www.independent.co.uk/money/rss'),
         (u'IndyBest',
-         u'http://www.independent.co.uk/extras/indybest/?service=rss'),
+         u'http://www.independent.co.uk/extras/indybest/rss'),
     ]

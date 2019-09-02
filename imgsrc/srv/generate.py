@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os, re, sys
 
 from lxml import etree
@@ -36,7 +35,7 @@ def merge():
         for child in svg.iterchildren('*'):
             clone_node(child, symbol)
         ans.append(symbol)
-    ans = etree.tostring(ans, encoding=unicode, pretty_print=True, with_tail=False)
+    ans = etree.tostring(ans, encoding='unicode', pretty_print=True, with_tail=False)
     ans = re.sub('<svg[^>]+>', '<svg style="display:none">', ans, count=1)
     return ans
 

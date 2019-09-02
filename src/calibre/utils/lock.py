@@ -1,255 +1,202 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-'''
-Secure access to locked files from multiple processes.
-'''
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from calibre.constants import iswindows, __appname__, islinux, win32api, win32event, winerror, fcntl
-import time, atexit, os, stat, errno
+import atexit
+import errno
+import os
+import stat
+import tempfile
+import time
+from functools import partial
 
-class LockError(Exception):
-    pass
+from calibre.constants import (
+    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins, ispy3
+)
+from calibre.utils.monotonic import monotonic
 
-class WindowsExclFile(object):
+speedup = plugins['speedup'][0]
+if iswindows:
+    import msvcrt, win32file, pywintypes, winerror, win32api, win32event
+    from calibre.constants import get_windows_username
+    excl_file_mode = stat.S_IREAD | stat.S_IWRITE
+else:
+    excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
 
-    def __init__(self, path, timeout=20):
-        self.name = path
-        import win32file as w
-        import pywintypes
-
-        while timeout > 0:
-            timeout -= 1
-            try:
-                self._handle = w.CreateFile(path,
-                    w.GENERIC_READ|w.GENERIC_WRITE,  # Open for reading and writing
-                    0,  # Open exclusive
-                    None,  # No security attributes, ensures handle is not inherited by children
-                    w.OPEN_ALWAYS,  # If file does not exist, create it
-                    w.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
-                    None,  # No template file
-                )
-                break
-            except pywintypes.error as err:
-                if getattr(err, 'args', [-1])[0] in (0x20, 0x21):
-                    time.sleep(1)
-                    continue
-                else:
-                    raise
-        if not hasattr(self, '_handle'):
-            raise LockError('Failed to open exclusive file: %s' % path)
-
-    def seek(self, amt, frm=0):
-        import win32file as w
-        if frm not in (0, 1, 2):
-            raise ValueError('Invalid from for seek: %s'%frm)
-        frm = {0:w.FILE_BEGIN, 1: w.FILE_CURRENT, 2:w.FILE_END}[frm]
-        if frm is w.FILE_END:
-            amt = 0 - amt
-        w.SetFilePointer(self._handle, amt, frm)
-
-    def tell(self):
-        import win32file as w
-        return w.SetFilePointer(self._handle, 0, w.FILE_CURRENT)
-
-    def flush(self):
-        import win32file as w
-        w.FlushFileBuffers(self._handle)
-
-    def close(self):
-        if self._handle is not None:
-            import win32file as w
-            self.flush()
-            w.CloseHandle(self._handle)
-            self._handle = None
-
-    def read(self, bytes=-1):
-        import win32file as w
-        sz = w.GetFileSize(self._handle)
-        max = sz - self.tell()
-        if bytes < 0:
-            bytes = max
-        bytes = min(max, bytes)
-        if bytes < 1:
-            return ''
-        hr, ans = w.ReadFile(self._handle, bytes, None)
-        if hr != 0:
-            raise IOError('Error reading file: %s'%hr)
-        return ans
-
-    def readlines(self, sizehint=-1):
-        return self.read().splitlines()
-
-    def write(self, bytes):
-        if isinstance(bytes, unicode):
-            bytes = bytes.encode('utf-8')
-        import win32file as w
-        w.WriteFile(self._handle, bytes, None)
-
-    def truncate(self, size=None):
-        import win32file as w
-        pos = self.tell()
-        if size is None:
-            size = pos
-        t = min(size, pos)
-        self.seek(t)
-        w.SetEndOfFile(self._handle)
-        self.seek(pos)
-
-    def isatty(self):
-        return False
-
-    @property
-    def closed(self):
-        return self._handle is None
 
 def unix_open(path):
-    # We cannot use open(a+b) directly because Fedora apparently ships with a
-    # broken libc that causes seek(0) followed by truncate() to not work for
-    # files with O_APPEND set. We also use O_CLOEXEC when it is available,
-    # to ensure there are no races.
     flags = os.O_RDWR | os.O_CREAT
-    from calibre.constants import plugins
-    speedup = plugins['speedup'][0]
     has_cloexec = False
     if hasattr(speedup, 'O_CLOEXEC'):
         try:
-            fd = os.open(path, flags | speedup.O_CLOEXEC, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+            fd = os.open(path, flags | speedup.O_CLOEXEC, excl_file_mode)
             has_cloexec = True
         except EnvironmentError as err:
-            if getattr(err, 'errno', None) == errno.EINVAL:  # Kernel does not support O_CLOEXEC
-                fd = os.open(path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
-            else:
+            # Kernel may not support O_CLOEXEC
+            if err.errno != errno.EINVAL:
                 raise
-    else:
-        fd = os.open(path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
 
     if not has_cloexec:
+        fd = os.open(path, flags, excl_file_mode)
         fcntl.fcntl(fd, fcntl.F_SETFD, fcntl.FD_CLOEXEC)
     return os.fdopen(fd, 'r+b')
 
+
+def unix_retry(err):
+    return err.errno in (errno.EACCES, errno.EAGAIN, errno.ENOLCK, errno.EINTR)
+
+
+def windows_open(path):
+    if isinstance(path, bytes):
+        path = path.decode('mbcs')
+    try:
+        h = win32file.CreateFileW(
+            path,
+            win32file.GENERIC_READ |
+            win32file.GENERIC_WRITE,  # Open for reading and writing
+            0,  # Open exclusive
+            None,  # No security attributes, ensures handle is not inherited by children
+            win32file.OPEN_ALWAYS,  # If file does not exist, create it
+            win32file.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
+            None,  # No template file
+        )
+    except pywintypes.error as err:
+        raise WindowsError(err[0], err[2], path)
+    fd = msvcrt.open_osfhandle(h.Detach(), 0)
+    return os.fdopen(fd, 'r+b')
+
+
+def windows_retry(err):
+    return err.winerror in (
+        winerror.ERROR_SHARING_VIOLATION, winerror.ERROR_LOCK_VIOLATION
+    )
+
+
+def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
+    limit = monotonic() + timeout
+    while True:
+        try:
+            return func(*args)
+        except EnvironmentError as err:
+            if not error_retry(err) or monotonic() > limit:
+                raise
+        time.sleep(sleep_time)
+
+
 class ExclusiveFile(object):
 
-    def __init__(self, path, timeout=15):
+    def __init__(self, path, timeout=15, sleep_time=0.2):
+        if iswindows and isinstance(path, bytes):
+            path = path.decode(filesystem_encoding)
         self.path = path
         self.timeout = timeout
+        self.sleep_time = sleep_time
 
     def __enter__(self):
-        self.file = WindowsExclFile(self.path, self.timeout) if iswindows else unix_open(self.path)
-        self.file.seek(0)
-        timeout = self.timeout
-        if not iswindows:
-            while self.timeout < 0 or timeout >= 0:
-                try:
-                    fcntl.flock(self.file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-                    break
-                except IOError:
-                    time.sleep(1)
-                    timeout -= 1
-            if timeout < 0 and self.timeout >= 0:
-                self.file.close()
-                raise LockError('Failed to lock')
+        if iswindows:
+            self.file = retry_for_a_time(
+                self.timeout, self.sleep_time, windows_open, windows_retry, self.path
+            )
+        else:
+            f = unix_open(self.path)
+            retry_for_a_time(
+                self.timeout, self.sleep_time, fcntl.flock, unix_retry,
+                f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+            )
+            self.file = f
         return self.file
 
     def __exit__(self, type, value, traceback):
         self.file.close()
 
-def test_exclusive_file(path=None):
-    if path is None:
-        import tempfile
-        f = os.path.join(tempfile.gettempdir(), 'test-exclusive-file')
-        with ExclusiveFile(f):
-            # Try same process lock
-            try:
-                with ExclusiveFile(f, timeout=1):
-                    raise LockError("ExclusiveFile failed to prevent multiple uses in the same process!")
-            except LockError:
-                pass
-            # Try different process lock
-            from calibre.utils.ipc.simple_worker import fork_job
-            err = fork_job('calibre.utils.lock', 'test_exclusive_file', (f,))['result']
-            if err is not None:
-                raise LockError('ExclusiveFile failed with error: %s' % err)
-    else:
-        try:
-            with ExclusiveFile(path, timeout=1):
-                raise Exception('ExclusiveFile failed to prevent multiple uses in different processes!')
-        except LockError:
-            pass
-        except Exception as err:
-            return str(err)
 
-def _clean_lock_file(file):
+def _clean_lock_file(file_obj):
     try:
-        file.close()
-    except:
+        os.remove(file_obj.name)
+    except EnvironmentError:
         pass
     try:
-        os.remove(file.name)
-    except:
+        file_obj.close()
+    except EnvironmentError:
         pass
+
 
 if iswindows:
-    def singleinstance(name):
-        mutexname = 'mutexforsingleinstanceof'+__appname__+name
-        mutex =  win32event.CreateMutex(None, False, mutexname)
+
+    def create_single_instance_mutex(name, per_user=True):
+        mutexname = '{}-singleinstance-{}-{}'.format(
+            __appname__, (get_windows_username() if per_user else ''), name
+        )
+        mutex = win32event.CreateMutex(None, False, mutexname)
+        if not mutex:
+            return
         err = win32api.GetLastError()
         if err == winerror.ERROR_ALREADY_EXISTS:
             # Close this handle other wise this handle will prevent the mutex
             # from being deleted when the process that created it exits.
             win32api.CloseHandle(mutex)
-        elif mutex and err != winerror.ERROR_INVALID_HANDLE:
-            atexit.register(win32api.CloseHandle, mutex)
-        return not err == winerror.ERROR_ALREADY_EXISTS
+            return
+        return partial(win32api.CloseHandle, mutex)
+
 elif islinux:
-    def singleinstance(name):
+
+    def create_single_instance_mutex(name, per_user=True):
         import socket
         from calibre.utils.ipc import eintr_retry_call
-        name = '%s-singleinstance-%s-%d' % (__appname__, name, os.geteuid())
-        if not isinstance(name, bytes):
-            name = name.encode('utf-8')
-        address = b'\0' + name.replace(b' ', b'_')
+        name = '%s-singleinstance-%s-%s' % (
+            __appname__, (os.geteuid() if per_user else ''), name
+        )
+        name = name
+        address = '\0' + name.replace(' ', '_')
+        if not ispy3:
+            address = address.encode('utf-8')
         sock = socket.socket(family=socket.AF_UNIX)
         try:
             eintr_retry_call(sock.bind, address)
         except socket.error as err:
             if getattr(err, 'errno', None) == errno.EADDRINUSE:
-                return False
+                return
             raise
         fd = sock.fileno()
         old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
         fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
-        atexit.register(sock.close)
-        return True
-else:
-    def singleinstance_path(name):
-        home = os.path.expanduser('~')
-        if os.access(home, os.W_OK|os.R_OK|os.X_OK):
-            basename = __appname__+'_'+name+'.lock'
-            return os.path.expanduser('~/.' + basename)
-        import tempfile
-        tdir = tempfile.gettempdir()
-        return os.path.join(tdir, '%s_%s_%s.lock' % (__appname__, name, os.geteuid()))
+        return sock.close
 
-    def singleinstance(name):
-        '''
-        Return True if no other instance of the application identified by name is running,
-        False otherwise.
-        @param name: The name to lock.
-        @type name: string
-        '''
+else:
+
+    def singleinstance_path(name, per_user=True):
+        name = '%s-singleinstance-%s-%s.lock' % (
+            __appname__, (os.geteuid() if per_user else ''), name
+        )
+        home = os.path.expanduser('~')
+        locs = ['/var/lock', home, tempfile.gettempdir()]
+        if isosx:
+            locs.insert(0, '/Library/Caches')
+        for loc in locs:
+            if os.access(loc, os.W_OK | os.R_OK | os.X_OK):
+                return os.path.join(loc, ('.' if loc is home else '') + name)
+        raise EnvironmentError(
+            'Failed to find a suitable filesystem location for the lock file'
+        )
+
+    def create_single_instance_mutex(name, per_user=True):
         from calibre.utils.ipc import eintr_retry_call
-        path = singleinstance_path(name)
-        f = open(path, 'w')
-        old_flags = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
-        fcntl.fcntl(f.fileno(), fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
+        path = singleinstance_path(name, per_user)
+        f = lopen(path, 'w')
         try:
-            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-            atexit.register(_clean_lock_file, f)
-            return True
-        except IOError as err:
-            if err.errno == errno.EAGAIN:
-                return False
-            raise
+            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return partial(_clean_lock_file, f)
+        except EnvironmentError as err:
+            if err.errno not in (errno.EAGAIN, errno.EACCES):
+                raise
+
+
+def singleinstance(name):
+    ' Ensure that only a single process holding exists with the specified mutex key '
+    release_mutex = create_single_instance_mutex(name)
+    if release_mutex is None:
         return False
+    atexit.register(release_mutex)
+    return True

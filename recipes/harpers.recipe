@@ -36,3 +36,8 @@ class Harpers(BasicNewsRecipe):
     remove_attributes = ['width', 'height']
 
     feeds = [(u"Harper's Magazine", u'http://harpers.org/feed/')]
+
+    def get_browser(self):
+        # harpers ssl certificate is broken as of Jul 2017
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+        return br

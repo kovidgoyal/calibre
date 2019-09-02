@@ -2,21 +2,26 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css
+from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
 from elementmaker import E
 
 from book_list.theme import get_color
 
 # Button {{{
 
-def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
+def create_button(text, icon=None, action=None, tooltip=None, highlight=False, download_filename=None):
     ic = ''
     if icon:
         ic = svgicon(icon)
         text = '\xa0' + text
     ans = E.a(ic, E.span(text), class_='calibre-push-button', href='javascript: void(0)', title=tooltip or '')
+    if download_filename and v'"download" in ans':
+        ans.setAttribute('download', download_filename)
     if action is not None:
-        ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
+        if jstype(action) is 'string':
+            ans.setAttribute('href', action)
+        else:
+            ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
     if highlight:
         set_css(ans, font_size='larger', font_weight='bold')
     return ans
@@ -25,7 +30,7 @@ create_button.style = build_rule('a.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image='linear-gradient(to bottom, {}, {})'.format(get_color('button-start'), get_color('button-end')),
     padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
-    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)',
+    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)', white_space='nowrap'
 )
 create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
 create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
@@ -44,8 +49,6 @@ create_spinner.style += create_keyframes('spin', 'from { transform: rotate(0deg)
 
 # Breadcrumbs {{{
 
-id_counter = 0
-
 class Breadcrumbs:
 
     STYLE_RULES =  build_rule(
@@ -60,9 +63,9 @@ class Breadcrumbs:
         padding='0.5ex 1rem', position='relative'
     )
 
-    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:hover', color='red')
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:hover', color=get_color('window-hover-foreground'))
 
-    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:active', color='red', transform='scale(1.5)')
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
 
     STYLE_RULES += build_rule(
         '.calibre-breadcrumbs > li:before, .calibre-breadcrumbs > li:after',
@@ -81,11 +84,9 @@ class Breadcrumbs:
 
 
     def __init__(self, container):
-        nonlocal id_counter id_counter += 1
-        container.setAttribute('id', container.getAttribute('id') or ('calibre-breadcrumbs-' + id_counter))
+        self.container_id = ensure_id(container, 'calibre-breadcrumbs-')
         container.classList.add('calibre-breadcrumbs')
         clear(container)
-        self.container_id = container.getAttribute('id')
 
     @property
     def container(self):
@@ -204,9 +205,9 @@ def scroll_tree_item_into_view(item):
 
 add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
-    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-link:active { transform: scale(1.5) }\n'
-    ans += create_button.style
-    ans += create_spinner.style
-    ans += Breadcrumbs.STYLE_RULES
+    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
+    ans += create_button.style + '\n'
+    ans += create_spinner.style + '\n'
+    ans += Breadcrumbs.STYLE_RULES + '\n'
     return ans
 )

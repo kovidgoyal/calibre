@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,10 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import (
-    QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty,
+    QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty, QSizePolicy,
     QWidget, QIcon, QPainter, QStyleOptionToolButton)
 
 from calibre.gui2 import config
+
 
 class ThrobbingButton(QToolButton):
 
@@ -26,6 +26,9 @@ class ThrobbingButton(QToolButton):
 
     def __init__(self, *args):
         QToolButton.__init__(self, *args)
+        # vertically size policy must be expanding for it to align inside a
+        # toolbar
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self._icon_size = -1
         QToolButton.setIcon(self, QIcon(I('donate.png')))
         self.setText('\xa0')
@@ -71,6 +74,7 @@ class ThrobbingButton(QToolButton):
         s = self.style()
         opt.iconSize = QSize(size, size)
         s.drawComplexControl(s.CC_ToolButton, opt, p, self)
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication, QHBoxLayout

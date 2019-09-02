@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -13,18 +15,23 @@ from lxml import etree
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
+
 def _read(f, at, amount):
     f.seek(at)
     return f.read(amount)
 
+
 def word_be(buf):
     return struct.unpack('>L', buf)[0]
+
 
 def word_le(buf):
     return struct.unpack('<L', buf)[0]
 
+
 def short_le(buf):
     return struct.unpack('<H', buf)[0]
+
 
 def short_be(buf):
     return struct.unpack('>H', buf)[0]
@@ -34,7 +41,7 @@ def get_metadata(f):
     read = lambda at, amount: _read(f, at, amount)
     f.seek(0)
     buf = f.read(12)
-    if buf[4:] == 'ftypLRX2':
+    if buf[4:] == b'ftypLRX2':
         offset = 0
         while True:
             offset += word_be(buf[:4])
@@ -42,7 +49,7 @@ def get_metadata(f):
                 buf = read(offset, 8)
             except:
                 raise ValueError('Not a valid LRX file')
-            if buf[4:] == 'bbeb':
+            if buf[4:] == b'bbeb':
                 break
         offset += 8
         buf = read(offset, 16)
@@ -75,8 +82,7 @@ def get_metadata(f):
         mi.language = root.find('DocInfo').find('Language').text
         return mi
 
-    elif buf[4:8] == 'LRX':
+    elif buf[4:8] == b'LRX':
         raise ValueError('Librie LRX format not supported')
     else:
         raise ValueError('Not a LRX file')
-

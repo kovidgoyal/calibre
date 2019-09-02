@@ -1,15 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 SVG rasterization transform.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
-from urlparse import urldefrag
 
-from lxml import etree
 from PyQt5.Qt import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
 from calibre.ebooks.oeb.base import XHTML, XLINK
@@ -19,14 +17,19 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urldefrag
 
-IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
-KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
+IMAGE_TAGS = {XHTML('img'), XHTML('object')}
+KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
+
 
 class Unavailable(Exception):
     pass
 
+
 class SVGRasterizer(object):
+
     def __init__(self, base_css=''):
         self.base_css = base_css
         from calibre.gui2 import must_use_qt
@@ -74,7 +77,7 @@ class SVGRasterizer(object):
                     logger.info('Found SVG image height in %, trying to convert...')
                     try:
                         h = float(image.get('height').replace('%', ''))/100.
-                        image.set('height', str(h*sizes[1]))
+                        image.set('height', unicode_type(h*sizes[1]))
                     except:
                         logger.exception('Failed to convert percentage height:',
                                 image.get('height'))
@@ -98,7 +101,7 @@ class SVGRasterizer(object):
         buffer = QBuffer(array)
         buffer.open(QIODevice.WriteOnly)
         image.save(buffer, format)
-        return str(array)
+        return array.data()
 
     def dataize_manifest(self):
         for item in self.oeb.manifest.values():
@@ -118,7 +121,7 @@ class SVGRasterizer(object):
             if abshref not in hrefs:
                 continue
             linkee = hrefs[abshref]
-            data = str(linkee)
+            data = linkee.bytes_representation
             ext = what(None, data) or 'jpg'
             with PersistentTemporaryFile(suffix='.'+ext) as pt:
                 pt.write(data)
@@ -168,7 +171,7 @@ class SVGRasterizer(object):
         href = os.path.splitext(item.href)[0] + '.png'
         id, href = manifest.generate(item.id, href)
         manifest.add(id, href, PNG_MIME, data=data)
-        img = etree.Element(XHTML('img'), src=item.relhref(href))
+        img = elem.makeelement(XHTML('img'), src=item.relhref(href))
         elem.getparent().replace(elem, img)
         for prop in ('width', 'height'):
             if prop in elem.attrib:
@@ -179,7 +182,7 @@ class SVGRasterizer(object):
         height = style['height']
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
-        data = QByteArray(str(svgitem))
+        data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
         size.scale(width, height, Qt.KeepAspectRatio)
@@ -199,7 +202,7 @@ class SVGRasterizer(object):
             buffer = QBuffer(array)
             buffer.open(QIODevice.WriteOnly)
             image.save(buffer, 'PNG')
-            data = str(array)
+            data = array.data()
             manifest = self.oeb.manifest
             href = os.path.splitext(svgitem.href)[0] + '.png'
             id, href = manifest.generate(svgitem.id, href)
@@ -220,11 +223,11 @@ class SVGRasterizer(object):
         covers = self.oeb.metadata.cover
         if not covers:
             return
-        if unicode(covers[0]) not in self.oeb.manifest.ids:
+        if unicode_type(covers[0]) not in self.oeb.manifest.ids:
             self.oeb.logger.warn('Cover not in manifest, skipping.')
             self.oeb.metadata.clear('cover')
             return
-        cover = self.oeb.manifest.ids[unicode(covers[0])]
+        cover = self.oeb.manifest.ids[unicode_type(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
         width = (self.profile.width / 72) * self.profile.dpi

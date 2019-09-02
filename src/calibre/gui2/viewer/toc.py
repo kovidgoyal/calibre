@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -19,6 +18,8 @@ from calibre.ebooks.metadata.toc import TOC as MTOC
 from calibre.gui2 import error_dialog
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
+from polyglot.builtins import iteritems
+
 
 class Delegate(QStyledItemDelegate):
 
@@ -34,6 +35,7 @@ class Delegate(QStyledItemDelegate):
                 QToolTip.showText(ev.globalPos(), tooltip, view)
                 return True
         return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
+
 
 class TOCView(QTreeView):
 
@@ -109,6 +111,7 @@ class TOCView(QTreeView):
         m = self.model()
         QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
 
+
 class TOCSearch(QWidget):
 
     def __init__(self, toc_view, parent=None):
@@ -146,6 +149,7 @@ class TOCItem(QStandardItem):
             text = re.sub(r'\s', ' ', text)
         self.title = text
         self.parent = parent
+        self.href = toc.href
         QStandardItem.__init__(self, text if text else '')
         self.abspath = toc.abspath if toc.href else None
         self.fragment = toc.fragment
@@ -208,7 +212,7 @@ class TOCItem(QStandardItem):
         # to count a partial line as being visible.
 
         # We only care about y position
-        anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
+        anchor_map = {k:v[1] for k, v in iteritems(anchor_map)}
 
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
             # The position at which this anchor is present in the document
@@ -307,6 +311,7 @@ class TOCItem(QStandardItem):
     def __str__(self):
         return repr(self)
 
+
 class TOC(QStandardItemModel):
 
     def __init__(self, spine, toc=None):
@@ -354,10 +359,10 @@ class TOC(QStandardItemModel):
 
         if in_paged_mode:
             start = viewport_rect[0]
-            anchor_map = {k:v[0] for k, v in anchor_map.iteritems()}
+            anchor_map = {k:v[0] for k, v in iteritems(anchor_map)}
         else:
             start = viewport_rect[1]
-            anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
+            anchor_map = {k:v[1] for k, v in iteritems(anchor_map)}
 
         for item in items:
             if found:
@@ -374,6 +379,14 @@ class TOC(QStandardItemModel):
         for item in self.all_items:
             if primary_contains(query, item.text()):
                 yield item
+
+    def find_indices_by_href(self, query):
+        for item in self.all_items:
+            q = (item.href or '')
+            if item.fragment:
+                q += '#' + item.fragment
+            if primary_contains(query, q):
+                yield self.indexFromItem(item)
 
     def search(self, query):
         cq = self.current_query

@@ -1,6 +1,0 @@
-#!/bin/bash
-
-export CPPFLAGS=$CFLAGS
-
-cd $SW/build/mozjpeg && \
-./configure --prefix=$SW/private/mozjpeg --disable-dependency-tracking --disable-shared --with-jpeg8 --without-turbojpeg && make && make install

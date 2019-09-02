@@ -10,6 +10,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class LentaRURecipe(BasicNewsRecipe):
     title = u'Lenta.ru: \u041d\u043e\u0432\u043e\u0441\u0442\u0438'
     __author__ = 'Nikolai Kotchetkov'
@@ -60,14 +67,9 @@ class LentaRURecipe(BasicNewsRecipe):
             if not feedData:
                 raise NotImplementedError
             self.log("parse_index: Feed loaded successfully.")
-            if feedData.feed.has_key('title'):  # noqa
-                self.title = feedData.feed.title
-                self.log("parse_index: Title updated to: ", self.title)
-            if feedData.feed.has_key('image'):  # noqa
-                self.log("HAS IMAGE!!!!")
 
             def get_virtual_feed_articles(feed):
-                if feeds.has_key(feed):  # noqa
+                if feed in feeds:
                     return feeds[feed][1]
                 self.log("Adding new feed: ", feed)
                 articles = []
@@ -84,7 +86,7 @@ class LentaRURecipe(BasicNewsRecipe):
                     continue
                 article = {'title': title, 'url': link, 'description': item.get(
                     'description', ''), 'date': item.get('date', ''), 'content': ''}
-                if not item.has_key('tags'):  # noqa
+                if not item.get('tags'):
                     get_virtual_feed_articles('_default').append(article)
                     continue
                 for tag in item.tags:
@@ -101,7 +103,7 @@ class LentaRURecipe(BasicNewsRecipe):
             # Select sorted feeds first of all
             result = []
             for feedName in self.sortOrder:
-                if (not feeds.has_key(feedName)):  # noqa
+                if (not feeds.get(feedName)):
                     continue
                 result.append(feeds[feedName])
                 del feeds[feedName]
@@ -109,7 +111,7 @@ class LentaRURecipe(BasicNewsRecipe):
 
             return result
 
-        except Exception, err:
+        except Exception as err:
             self.log(err)
             raise NotImplementedError
 
@@ -118,13 +120,13 @@ class LentaRURecipe(BasicNewsRecipe):
 
     def postprocess_html(self, soup, first_fetch):
 
-        contents = Tag(soup, 'div')
+        contents = new_tag(soup, 'div')
 
         # Extract tags with given attributes
         extractElements = {'div': [{'id': 'readers-block'}]}
 
         # Remove all elements that were not extracted before
-        for tag, attrs in extractElements.iteritems():
+        for tag, attrs in extractElements.items():
             for attr in attrs:
                 garbage = soup.findAll(tag, attr)
                 if garbage:
@@ -144,12 +146,12 @@ class LentaRURecipe(BasicNewsRecipe):
 
         # Place article date after header
         dates = soup.findAll(text=re.compile(
-            '\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
+            r'\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
         if dates:
             for date in dates:
                 for string in date:
                     parent = date.parent
-                    if (parent and isinstance(parent, Tag) and 'div' == parent.name and 'dt' == parent['class']):
+                    if (parent and isinstance(parent, Tag) and 'div' == parent.name and 'dt' == ''.join(parent['class'])):
                         # Date div found
                         parent.extract()
                         parent[
@@ -160,13 +162,13 @@ class LentaRURecipe(BasicNewsRecipe):
         # Place article picture after date
         pic = soup.find('img')
         if pic:
-            picDiv = Tag(soup, 'div')
+            picDiv = new_tag(soup, 'div')
             picDiv['style'] = 'width: 100%; text-align: center;'
             pic.extract()
             picDiv.insert(0, pic)
             title = pic.get('title', None)
             if title:
-                titleDiv = Tag(soup, 'div')
+                titleDiv = new_tag(soup, 'div')
                 titleDiv['style'] = 'font-size: 0.5em;'
                 titleDiv.insert(0, title)
                 picDiv.insert(1, titleDiv)

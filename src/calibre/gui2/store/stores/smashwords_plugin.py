@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -9,8 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -23,10 +26,15 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+
 def search(query, max_results=10, timeout=60):
-    url = 'http://www.smashwords.com/books/search?query=' + urllib2.quote(query)
+    url = 'https://www.smashwords.com/books/search?query=' + quote(query)
 
     br = browser()
+    try:
+        br.set_simple_cookie('adultOff', 'erotica', '.smashwords.com', path='/')
+    except AttributeError:
+        pass  # old version of mechanize
 
     counter = max_results
     with closing(br.open(url, timeout=timeout)) as f:
@@ -52,7 +60,7 @@ def search(query, max_results=10, timeout=60):
             if 'Price:' in price:
                 try:
                     price = price.partition('Price:')[2]
-                    price = re.sub('\s', ' ', price).strip()
+                    price = re.sub(r'\s', ' ', price).strip()
                     price = price.split(' ')[0].strip()
                 except Exception:
                     price = 'Unknown'
@@ -71,10 +79,11 @@ def search(query, max_results=10, timeout=60):
 
             yield s
 
+
 class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.smashwords.com/'
+        url = 'https://www.smashwords.com/'
 
         aff_id = '?ref=usernone'
         # Use Kovid's affiliate id 30% of the time.
@@ -99,7 +108,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
             yield a
 
     def get_details(self, search_result, timeout):
-        url = 'http://www.smashwords.com/'
+        url = 'https://www.smashwords.com/'
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
@@ -107,7 +116,8 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
             search_result.formats = ', '.join(list(set(idata.xpath('//p//abbr//text()'))))
         return True
 
+
 if __name__ == '__main__':
     import sys
-    for r in search(sys.argv[-1]):
+    for r in search(' '.join(sys.argv[1:])):
         print(r)

@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import print_function, unicode_literals, absolute_import, division
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -9,8 +9,8 @@ Convert an ODT file into a Open Ebook
 import os, logging
 
 from lxml import etree
-from cssutils import CSSParser
-from cssutils.css import CSSRule
+from css_parser import CSSParser
+from css_parser.css import CSSRule
 
 from odf.odf2xhtml import ODF2XHTML
 from odf.opendocument import load as odLoad
@@ -19,6 +19,8 @@ from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
+from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd, as_bytes
+
 
 class Extract(ODF2XHTML):
 
@@ -127,8 +129,8 @@ class Extract(ODF2XHTML):
             if (len(div1), len(div2)) != (1, 1):
                 continue
             cls = div1.get('class', '')
-            first_rules = filter(None, [self.get_css_for_class(x) for x in
-                cls.split()])
+            first_rules = list(filter(None, [self.get_css_for_class(x) for x in
+                cls.split()]))
             has_align = False
             for r in first_rules:
                 if r.style.getProperty(u'text-align') is not None:
@@ -137,8 +139,8 @@ class Extract(ODF2XHTML):
             if not has_align:
                 aval = None
                 cls = div2.get(u'class', u'')
-                rules = filter(None, [self.get_css_for_class(x) for x in
-                    cls.split()])
+                rules = list(filter(None, [self.get_css_for_class(x) for x in
+                    cls.split()]))
                 for r in rules:
                     ml = r.style.getPropertyCSSValue(u'margin-left') or ml
                     mr = r.style.getPropertyCSSValue(u'margin-right') or mr
@@ -171,7 +173,7 @@ class Extract(ODF2XHTML):
             css = style.text
             if css:
                 css, sel_map = self.do_filter_css(css)
-                if not isinstance(css, unicode):
+                if not isinstance(css, unicode_type):
                     css = css.decode('utf-8', 'ignore')
                 style.text = css
                 for x in root.xpath('//*[@class]'):
@@ -183,8 +185,8 @@ class Extract(ODF2XHTML):
                         x.set('class', orig + ' ' + ' '.join(extra))
 
     def do_filter_css(self, css):
-        from cssutils import parseString
-        from cssutils.css import CSSRule
+        from css_parser import parseString
+        from css_parser.css import CSSRule
         sheet = parseString(css, validate=False)
         rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
         sel_map = {}
@@ -247,7 +249,7 @@ class Extract(ODF2XHTML):
         # first load the odf structure
         self.lines = []
         self._wfunc = self._wlines
-        if isinstance(odffile, basestring) \
+        if isinstance(odffile, string_or_bytes) \
                 or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = odLoad(odffile)
         else:
@@ -290,17 +292,13 @@ class Extract(ODF2XHTML):
             except:
                 log.exception('Failed to filter CSS, conversion may be slow')
             with open('index.xhtml', 'wb') as f:
-                f.write(html.encode('utf-8'))
+                f.write(as_bytes(html))
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
-            opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
+            opf = OPFCreator(os.path.abspath(getcwd()), mi)
             opf.create_manifest([(os.path.abspath(f2), None) for f2 in
-                walk(os.getcwdu())])
+                walk(getcwd())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)
             return os.path.abspath('metadata.opf')
-
-
-
-

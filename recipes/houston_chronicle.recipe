@@ -1,17 +1,126 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-__license__ = 'GPL v3'
-__copyright__ = '2016, Dale Furrow dkfurrow@gmail.com'
+from __future__ import print_function
+__license__   = 'GPL v3'
+__copyright__ = '2018, Dale Furrow dkfurrow@gmail.com'
 '''
 chron.com
 '''
 import re
 import time
-from datetime import datetime, timedelta, date
-from lxml import html
+from datetime import datetime
+import traceback
+import sys
+from collections import OrderedDict
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.utils.cleantext import clean_ascii_chars
+from calibre.ebooks.BeautifulSoup import NavigableString
+from calibre.utils.date import dt_factory, local_tz
+
+regex_date_only = re.compile(r"""(?:January|February|March|April|
+ {8}May|June|July|August|September|October|November|
+ {8}December)\s[0-9]{1,2},\s20[01][0-9]""")
+regex_time_only = re.compile(r"""[0-9]{1,2}:[0-9]{1,2} \w{2}""")
+sentence_regex = re.compile(r"(\S.+?[.!?])(?=\s+|$)")
+blog_regex = re.compile(r'post-\d+')
+
+pages = OrderedDict([('news', ('/news/houston-texas/', ['business', 'sports'])),
+                     ('business', ('/business/', ['sports'])),
+                     ('sports', ('/sports/', ['business']))])
+
+base_url = "http://www.chron.com"
+
+# sports has 'core-package sports' class
+xpath_general = """//div[contains(@class, 'centerpiece-tabs') or
+                    contains(@class, 'wrapper') or
+                    contains(@class, 'contentGroups') or
+                    contains(@class, 'headline-list') or
+                    contains(@class, 'core-package sports') or
+                    contains(@class, 'news')]
+                   //a[contains(@class, 'hdn-analytics')]"""
+
+excluded_titles = ["Winning numbers", "TV-radio listings"]
 
 
+def validate_link(page, link, title):
+    other_category = page[1][1]
+    if not title or len(title.strip()) < 5:
+        print("{0} rejected, title too short".format(link))
+        return None
+    if link.split('/')[3] in other_category:
+        print("{0} rejected, covered in other section".format(link))
+        return None
+    for excluded_title in excluded_titles:
+        if title.find(excluded_title) != -1:
+            print("{0} rejected, excluded title".format(link))
+            return None
+    return link, title
+
+
+def get_article_parsed(index_to_soup, this_url):
+    return index_to_soup(this_url, as_tree=True)
+
+
+def sort_subject(element_list):
+    # priority of subjects
+    subjects = ['news', 'neighborhood', 'entertainment']
+    subjects.reverse()
+    subject_dict = OrderedDict(zip(subjects, range(len(subjects))))
+    rank_dict = OrderedDict([(rank, []) for rank in range(len(subjects) + 1)])
+    for element in element_list:
+        subj = element[0].split('/')[3]
+        if subject_dict.get(subj) is not None:
+            rank_dict[subject_dict[subj] + 1].append(element)
+        else:
+            rank_dict[0].append(element)
+    # now return in reverse order, sorted
+    combined_list = []
+    for rank in range(len(subjects), -1, -1):
+        article_list = rank_dict[rank]
+        article_list.sort()
+        combined_list.extend(article_list)
+    return combined_list
+
+
+def get_links_from_section_page(index_to_soup, page):
+    page_doc = get_article_parsed(index_to_soup, base_url + page[1][0])
+    els = page_doc.xpath(xpath_general)
+    element_list = []
+    for el in els:
+        link = el.get('href').split('?')[0]
+        title = el.text
+        if title is None or len(title.strip()) < 5:
+            link_id = link.split('/')[-1][:-3].split('-')[:-1]
+            title = ' '.join(link_id)
+        if link[:4] != 'http':
+            link = base_url + link
+        validated_link = validate_link(page=page, link=link, title=title)
+        if validated_link is not None:
+            element_list.append(validated_link)
+    sorted_element_list = sort_subject(element_list)
+    return [page[0], sorted_element_list]
+
+
+def get_all_links_from_sections(index_to_soup):
+    all_sections = []
+    article_set = set()
+    final_dict = OrderedDict()
+    for item in pages.items():
+        print("getting links from {0}".format(item[0]))
+        all_sections.append(get_links_from_section_page(index_to_soup, item))
+    for section in all_sections:
+        section_id = section[0]
+        article_list = section[1]
+        final_dict[section_id] = []
+        for article in article_list:
+            if article[0] not in article_set:
+                article_set.add(article[0])
+                final_dict[section_id].append(article)
+    return final_dict
+
+
+# noinspection PyAbstractClass
 class HoustonChronicle(BasicNewsRecipe):
     title = u'The Houston Chronicle'
     description = 'News from Houston, Texas'
@@ -22,196 +131,111 @@ class HoustonChronicle(BasicNewsRecipe):
     remove_empty_feeds = True
     timefmt = '[%a, %d %b %Y]'
     timestampfmt = '%Y%m%d%H%M%S'
-    ignore_duplicate_articles = {'url'}
+    # ignore_duplicate_articles = {'url'}  #  defaults to None
     extra_css = '.article_date {display: none}'
+    category = 'news, USA'
+    masthead_url = 'http://www.chron.com/apple-touch-icon-76x76.png'
+    keep_only_tags = [dict(name='div', attrs={'class': ['article-content', 'article-wrap']})]
+    remove_tags = [dict(name='div', attrs={'social-title': True}),
+                   dict(name='div', attrs={'class':
+                                           ['control-panel', 'gallery-overlay-inner',
+                                            'most-popular', 'asset-media mos-playlist',
+                                            'asset_media asset-media']}),
+                   dict(name='li', attrs={'class': ['hst-resgalleryitem taboola-frame hidden',
+                                                    'hst-resgalleryitem hidden']}),
+                   dict(name='ul', attrs={'class': 'clearfix'})]
 
-    oldest_web_article = 7.0
+    # max_articles_per_feed = 5  # for use in testing
 
-    if oldest_web_article is None:
-        earliest_date = date.today()
-    else:
-        earliest_date = date.today() - timedelta(days=oldest_web_article)
-
-    pages = [('news', '/news/houston-texas/'),
-             ('business', '/business/'),
-             ('sports', '/sports/')]
-
-    base_url = "http://www.chron.com"
-
-    xpath_str = """//div[contains(@class, 'news') or contains(@class, 'headline-list')]
-                  //*[self::h4 or self::h5]//a[contains(@class, 'hdn-analytics')]"""
-
-    def get_links_from_section_page(self, section_url):
-        page_doc = html.parse(self.base_url + section_url)
-        els = page_doc.xpath(self.xpath_str)
-        element_list = []
-        for el in els:
-            link = el.get('href')
-            title = el.text
-            if link[:4] != 'http':
-                link = self.base_url + link
-            if title is not None:
-                element_list.append((link, el.text))
-        return element_list
-
-    def get_article_description_from_doc(self, page_doc):
+    def get_article_description_from_doc(self, soup):
         description_chars_break = 140
         description_max_chars = 300
-        desc_xpath = """//div[contains(@class, 'article-body') or
-        contains(@class, 'resource-content') or contains(@class, 'post')]//p"""
-        sentence_regex = re.compile("(\S.+?[.!?])(?=\s+|$)")
-
-        def stringify_children(node):
-            return ''.join([x for x in node.itertext()])
-
         try:
-            els = page_doc.xpath(desc_xpath)
-            out_text = ""
-            ellipsis = ""
-            for el in els:
-                sentences = re.findall(sentence_regex, stringify_children(el))
-                for sentence in sentences:
-                    if len(out_text) < description_chars_break:
-                        out_text += sentence + " "
-                    else:
-                        if len(out_text) > description_max_chars:
-                            ellipsis = "..."
-                        return out_text[:description_max_chars] + ellipsis
-            return out_text
-        except:
+            els = soup.findAll('p')
+            if len(els) > 0:
+                out_text = ""
+                this_ellipsis = ""
+                for el in els:
+                    if el is not None:
+                        result = []
+                        for descendant in el.contents:
+                            if isinstance(descendant, NavigableString):
+                                result.append(type(u'')(descendant).strip())
+                        all_text = u' '.join(result).encode('utf-8')
+                        if len(all_text) > 1:
+                            sentences = re.findall(sentence_regex, all_text)
+                            if sentences is not None and len(sentences) > 0:
+                                for sentence in sentences:
+                                    if len(out_text) < description_chars_break:
+                                        out_text += sentence + " "
+                                    else:
+                                        if len(out_text) > description_max_chars:
+                                            this_ellipsis = "..."
+                                        return out_text[:description_max_chars] + this_ellipsis
+                return out_text
+            else:
+                return "No Article description returned"
+        except Exception as ex:
             self.log('Error on Article Description')
+            traceback.print_exc(file=sys.stdout)
+            print(str(ex))
             return ""
 
-    def get_published_time_from_doc(self, page_doc):
-        regex_date_only = re.compile("""(?:January|February|March|April|
-        May|June|July|August|September|October|November|
-        December)\s[0-9]{1,2},\s20[01][0-9]""")
-        regex_time_only = re.compile("""[0-9]{1,2}:[0-9]{1,2} \w{2}""")
+    @staticmethod
+    def get_published_time_from_doc(page_doc):
 
         def get_regular_timestamp(date_string):
             try:
                 out_date = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
                 return out_date
-            except:
+            except ValueError:
                 return None
 
-        def get_date_from_string(in_text):
-            match = re.findall(regex_date_only, in_text)
-            if match:
-                try:
-                    out_date = datetime.strptime(match[0], "%B %d, %Y")
-                    match = re.findall(regex_time_only, in_text)
-                    if match:
-                        out_time = datetime.strptime(match[0], "%I:%M %p")
-                        return datetime.combine(out_date.date(), out_time.time())
-                    return out_date
-                except:
-                    return None
-
-        el = page_doc.xpath("//*[@class='timestamp'][1]")
+        el = page_doc.findAll(
+                lambda this_tag: this_tag.name == "time" and ('itemprop', 'datePublished') in this_tag.attrs)
         if len(el) == 1:
-            return get_regular_timestamp(el[0].get('title'))
+            return get_regular_timestamp(el[0].get('datetime'))
         else:
-            el = page_doc.xpath(
-                "//*[@class='entry-date' or @class='post-date'][1]")
-            if len(el) == 1:
-                return get_date_from_string(el[0].text_content())
-            else:
-                return None
+            return None
 
-    def get_all_data_feeds_from_page(self, page):
-        articles = []
-        exclude_titles_with = ['Winning numbers']
+    def populate_article_metadata(self, article, soup, first):
+        """
+        Called when each HTML page belonging to article is downloaded.
+        Intended to be used to get article metadata like author/summary/etc.
+        from the parsed HTML (soup).
 
-        def title_excluded(title):
-            for text in exclude_titles_with:
-                if title.find(text) != -1:
-                    return True
-            return False
-
-        link_list = self.get_links_from_section_page(page[1])
-        self.log('from section: ', page[0],
-                 " found ", len(link_list), " links")
-        for link in link_list:
-            try:
-                article_doc = html.parse(link[0])
-                description = self.get_article_description_from_doc(
-                    article_doc)
-                parsed_date = self.get_published_time_from_doc(article_doc)
-                if parsed_date is not None and description is not None and \
-                        parsed_date.date() > self.earliest_date and \
-                        not title_excluded(link[1]):
-                    intro_date = parsed_date.strftime('%d %b %H:%M') + " - "
-                    articles.append({'title': link[1], 'url': link[0],
-                                     'description': intro_date + description,
-                                     'date': ""})
-                    self.log(page[0] + ": " + link[1] + ', from ' + intro_date +
-                             " description of " + str(len(description)) + ' characters at ' + link[0])
-                else:
-                    if parsed_date is None:
-                        msg = " No Timestamp Found"
-                    elif title_excluded(link[1]):
-                        msg = " Title Excluded"
-                    else:
-                        msg = " article older than " + \
-                            str(self.oldest_web_article) + ' days...'
-                    self.log("Skipping article: ", link[0], msg)
-            except:
-                print 'error on fetching ' + link[0]
-                continue
-        return articles
+        :param article: A object of class :class:`calibre.web.feeds.Article`.
+            If you change the summary, remember to also change the text_summary
+        :param soup: Parsed HTML belonging to this article
+        :param first: True iff the parsed HTML is the first page of the article.
+        """
+        summary = self.get_article_description_from_doc(soup)
+        article_date = self.get_published_time_from_doc(soup)
+        if article_date is not None:
+            article_timestamp = float((article_date - datetime.utcfromtimestamp(0)).total_seconds())
+            article.date = article_timestamp
+            article.utctime = dt_factory(article_date.timetuple(), assume_utc=True, as_utc=True)
+            article.localtime = article.utctime.astimezone(local_tz)
+        summary_date = article.localtime.strftime("%Y-%m-%d %H:%M") if article_date is not None else "No Date"
+        article.summary = "{0}: {1}".format(summary_date, summary)
+        article.text_summary = clean_ascii_chars(article.summary)
 
     def parse_index(self):
-
         self.timefmt = ' [%a, %d %b, %Y]'
         self.log('starting parse_index: ', time.strftime(self.timestampfmt))
         feeds = []
-        for page in self.pages:
-            articles = self.get_all_data_feeds_from_page(page)
-            if articles:
-                feeds.append((page[0], articles))
+        sections = get_all_links_from_sections(self.index_to_soup)
+        for section_id, article_list in sections.items():
+            self.log("Getting {0} section, {1:d} articles".format(section_id, len(article_list)))
+            articles = []
+            for article_info in article_list:
+                self.log("Adding {0} to feed".format(article_info[0]))
+                articles.append({'title': article_info[1], 'url': article_info[0],
+                                 'description': '', 'date': ""})
+            self.log("Appending {0:d} articles for {1}".format(len(articles), section_id))
+            feeds.append((section_id, articles))
         self.log('finished parse_index: ', time.strftime(self.timestampfmt))
         return feeds
 
     def preprocess_html(self, soup):
-        tags_to_exclude = [('class', "caption  staged"),
-                           ('style', "display:none")]
-        story_tag = soup.find(
-            name='div', attrs={'class': ['article-content', 'article-body']})
-        blog_tag = soup.find(name='div', attrs={'id': re.compile('post-\d+')})
-
-        def is_excluded(tag_to_check):
-            for attr in tag_to_check.attrs:
-                if attr in tags_to_exclude:
-                    return True
-            return False
-
-        def get_attr_startswith(attrs, this_key, this_valuestart):
-            starts_with = False
-            for attr in attrs:
-                if attr[0] == this_key:
-                    if attr[1].startswith(this_valuestart):
-                        starts_with = True
-            return starts_with
-
-        base_tags = []
-        if story_tag is not None:
-            base_tags = story_tag.findAll(lambda this_tag: (this_tag.name == "p" and not ('class', 'open') in this_tag.attrs and not ('class', 'close') in this_tag.attrs) or this_tag.name.startswith('h') or this_tag.name == 'table' or (this_tag.name == 'li' and ('class', 'hst-resgalleryitem') in this_tag.attrs))  # noqa
-        if blog_tag is not None:
-            base_tags = blog_tag.findAll(lambda this_tag: (this_tag.name == "p" or this_tag.name.startswith('h')) or (this_tag.name == "span" and get_attr_startswith(this_tag.attrs, 'class', 'post')) or (this_tag.name == 'img' and ('lazy-state', 'loaded') in this_tag.attrs))  # noqa
-
-        self.log('content tags: ' + str(type(base_tags)) + str(len(base_tags)))
-        all_tags = []
-        all_tags.extend(base_tags)
-        if len(base_tags) > 0:
-            for tag in base_tags:
-                all_tags.extend(tag.findAll(True))
-
-        for tag in base_tags:
-            while tag.parent is not None and not is_excluded(tag):
-                all_tags.append(tag)
-                tag = tag.parent
-        for tag in soup.findAll(True):
-            if tag not in all_tags:
-                tag.extract()
         return soup

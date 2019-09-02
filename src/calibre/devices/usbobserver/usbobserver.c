@@ -12,14 +12,14 @@
  *    You should have received a copy of the GNU General Public License along
  *    with this program; if not, write to the Free Software Foundation, Inc.,
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Python extension to scan the system for USB devices on OS X machines.
  * To use
  * >>> import usbobserver
  * >>> usbobserver.get_devices()
  */
 
-
+#define _DARWIN_USE_64_BIT_INODE
 #include <Python.h>
 
 #include <stdio.h>
@@ -53,27 +53,6 @@
 
 #define NUKE(x) Py_XDECREF(x); x = NULL;
 
-/* This function only works on 10.5 and later. Pass in a unicode object as path */
-static PyObject* usbobserver_send2trash(PyObject *self, PyObject *args)
-{
-    UInt8 *utf8_chars;
-    FSRef fp;
-    OSStatus op_result;
-
-    if (!PyArg_ParseTuple(args, "es", "utf-8", &utf8_chars)) {
-        return NULL;
-    }
-
-    FSPathMakeRefWithOptions(utf8_chars, kFSPathMakeRefDoNotFollowLeafSymlink, &fp, NULL);
-    op_result = FSMoveObjectToTrashSync(&fp, NULL, kFSFileOperationDefaultOptions);
-    PyMem_Free(utf8_chars);
-    if (op_result != noErr) {
-        PyErr_SetString(PyExc_OSError, GetMacOSStatusCommentString(op_result));
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
 
 static PyObject*
 usbobserver_get_iokit_string_property(io_service_t dev, CFStringRef prop) {
@@ -98,7 +77,7 @@ usbobserver_get_iokit_number_property(io_service_t dev, CFStringRef prop) {
     if (PropRef) {
         CFNumberGetValue((CFNumberRef)PropRef, kCFNumberLongType, &val);
         CFRelease(PropRef);
-    } 
+    }
 
     return PyLong_FromLong(val);
 }
@@ -106,7 +85,7 @@ usbobserver_get_iokit_number_property(io_service_t dev, CFStringRef prop) {
 
 static PyObject *
 usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
-  
+
     CFMutableDictionaryRef matchingDict;
     kern_return_t kr;
     PyObject *devices, *device;
@@ -164,7 +143,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
         NUKE(vendor); NUKE(product); NUKE(bcd); NUKE(manufacturer);
         NUKE(productn); NUKE(serial);
     }
-    
+
     if (iter) IOObjectRelease(iter);
 
     return devices;
@@ -184,14 +163,14 @@ usbobserver_get_bsd_path(io_object_t dev) {
 
     if (!CFStringGetCString(PropRef,
                         cpath + dev_path_length,
-                        MAXPATHLEN - dev_path_length, 
+                        MAXPATHLEN - dev_path_length,
                         kCFStringEncodingUTF8)) return NULL;
 
     return PyUnicode_DecodeUTF8(cpath, strlen(cpath), "replace");
 
 }
 
-static PyObject* 
+static PyObject*
 usbobserver_find_prop(io_registry_entry_t e, CFStringRef key, int is_string )
 {
     char buf[500]; long val = 0;
@@ -212,7 +191,7 @@ usbobserver_find_prop(io_registry_entry_t e, CFStringRef key, int is_string )
 
     CFRelease(PropRef);
     return ans;
-} 
+}
 
 static PyObject*
 usbobserver_get_usb_drives(PyObject *self, PyObject *args) {
@@ -274,40 +253,41 @@ usbobserver_get_usb_drives(PyObject *self, PyObject *args) {
     return ans;
 }
 
+typedef struct statfs fsstat;
+
 static PyObject*
 usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
-    struct statfs *buf, t;
+    fsstat *buf = NULL;
     int num, i;
-    PyObject *ans, *key, *val;
+    PyObject *ans = NULL, *val;
 
     num = getfsstat(NULL, 0, MNT_NOWAIT);
     if (num == -1) {
-        PyErr_SetString(PyExc_RuntimeError, "Initial call to getfsstat failed");
+        PyErr_SetFromErrno(PyExc_OSError);
         return NULL;
     }
-    ans = PyDict_New();
-    if (ans == NULL) return PyErr_NoMemory();
-
-    buf = (struct statfs*)calloc(num, sizeof(struct statfs));
+	num += 10;  // In case the number of volumes has increased
+    buf = PyMem_New(fsstat, num);
     if (buf == NULL) return PyErr_NoMemory();
 
-    num = getfsstat(buf, num*sizeof(struct statfs), MNT_NOWAIT);
+    num = getfsstat(buf, num*sizeof(fsstat), MNT_NOWAIT);
     if (num == -1) {
-        PyErr_SetString(PyExc_RuntimeError, "Call to getfsstat failed");
-        return NULL;
+        PyErr_SetFromErrno(PyExc_OSError);
+		goto end;
     }
+
+    ans = PyDict_New();
+	if (ans == NULL) { goto end; }
 
     for (i = 0 ; i < num; i++) {
-        t = buf[i];
-        key = PyBytes_FromString(t.f_mntfromname);
-        val = PyBytes_FromString(t.f_mntonname);
-        if (key != NULL && val != NULL) {
-            PyDict_SetItem(ans, key, val);
-        }
-        NUKE(key); NUKE(val);
+        val = PyBytes_FromString(buf[i].f_mntonname);
+		if (!val) { NUKE(ans); goto end; }
+		if (PyDict_SetItemString(ans, buf[i].f_mntfromname, val) != 0) { NUKE(ans); NUKE(val); goto end; }
+        NUKE(val);
     }
 
-    free(buf);
+end:
+    PyMem_Del(buf);
 
     return ans;
 
@@ -456,33 +436,56 @@ end:
     return ans;
 }
 
+static char usbobserver_doc[] = "USB interface glue for OSX.";
+
 static PyMethodDef usbobserver_methods[] = {
-    {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
+    {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS,
      "Get list of connected USB devices. Returns a list of tuples. Each tuple is of the form (vendor_id, product_id, bcd, manufacturer, product, serial number)."
     },
-    {"get_usb_drives", usbobserver_get_usb_drives, METH_VARARGS, 
+    {"get_usb_drives", usbobserver_get_usb_drives, METH_VARARGS,
      "Get list of mounted drives. Returns a list of tuples, each of the form (name, bsd_path)."
     },
-    {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS, 
+    {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS,
      "Get mapping of mounted filesystems. Mapping is from BSD name to mount point."
     },
-    {"send2trash", usbobserver_send2trash, METH_VARARGS, 
-     "send2trash(unicode object) -> Send specified file/dir to trash"
-    },
-    {"user_locale", usbobserver_user_locale, METH_VARARGS, 
+    {"user_locale", usbobserver_user_locale, METH_VARARGS,
      "user_locale() -> The name of the current user's locale or None if an error occurred"
     },
-    {"date_format", usbobserver_date_fmt, METH_VARARGS, 
+    {"date_format", usbobserver_date_fmt, METH_VARARGS,
      "date_format() -> The (short) date format used by the user's current locale"
     },
-    {"is_mtp_device", usbobserver_is_mtp, METH_VARARGS, 
+    {"is_mtp_device", usbobserver_is_mtp, METH_VARARGS,
      "is_mtp_device(vendor_id, product_id, bcd, serial) -> Return True if the specified device has an MTP interface"
     },
 
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initusbobserver(void) {
-    (void) Py_InitModule("usbobserver", usbobserver_methods);
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&usbobserver_module)
+static struct PyModuleDef usbobserver_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "usbobserver",
+    /* m_doc      */ usbobserver_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ usbobserver_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_usbobserver(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("usbobserver", usbobserver_methods, usbobserver_doc)
+CALIBRE_MODINIT_FUNC initusbobserver(void) {
+#endif
+
+    PyObject *m = NULL;
+    m = INITMODULE;
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

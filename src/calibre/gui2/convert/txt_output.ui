@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>346</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Output &amp;Encoding:</string>
+         <string>Output &amp;encoding:</string>
         </property>
         <property name="buddy">
          <cstring>opt_txt_output_encoding</cstring>
@@ -88,7 +88,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_force_max_line_length">
         <property name="text">
-         <string>Force maximum line length</string>
+         <string>Force maximum line &amp;length</string>
         </property>
        </widget>
       </item>
@@ -118,19 +118,32 @@
       <item>
        <widget class="QCheckBox" name="opt_keep_image_references">
         <property name="text">
-         <string>Do not remove image references before processing</string>
+         <string>Do not remove image &amp;references before processing</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="opt_keep_color">
         <property name="text">
-         <string>Keep text color, when possible</string>
+         <string>Keep text &amp;color, when possible</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

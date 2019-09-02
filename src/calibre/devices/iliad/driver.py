@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -10,10 +11,11 @@ Device driver for IRex Iliad
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class ILIAD(USBMS):
 
     name           = 'IRex Iliad Device Interface'
-    description    = _('Communicate with the IRex Iliad eBook reader.')
+    description    = _('Communicate with the IRex Iliad e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 

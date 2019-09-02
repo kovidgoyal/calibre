@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
 PyTextile
@@ -62,9 +63,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
-from urlparse import urlparse
 
 from calibre.utils.smartypants import smartyPants
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urlopen, urlparse
+
 
 def _normalize_newlines(string):
     out = re.sub(r'\r\n', '\n', string)
@@ -72,6 +75,7 @@ def _normalize_newlines(string):
     out = re.sub(r'\n\s*\n', '\n\n', out)
     out = re.sub(r'"$', '" ', out)
     return out
+
 
 def getimagesize(url):
     """
@@ -94,13 +98,8 @@ def getimagesize(url):
             return None
 
     try:
-        import urllib2
-    except ImportError:
-        return None
-
-    try:
         p = ImageFile.Parser()
-        f = urllib2.urlopen(url)
+        f = urlopen(url)
         while True:
             s = f.read(1024)
             if not s:
@@ -110,6 +109,7 @@ def getimagesize(url):
                 return 'width="%i" height="%i"' % p.image.size
     except (IOError, ValueError):
         return None
+
 
 class Textile(object):
     hlgn = r'(?:\<(?!>)|(?<!<)\>|\<\>|\=|[()]+(?! ))'
@@ -125,11 +125,11 @@ class Textile(object):
 
     pnct = r'[-!"#$%&()*+,/:;<=>?@\'\[\\\]\.^_`{|}~]'
     # urlch = r'[\w"$\-_.+!*\'(),";/?:@=&%#{}|\\^~\[\]`]'
-    urlch = '[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
+    urlch = r'[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
 
     url_schemes = ('http', 'https', 'ftp', 'mailto')
 
-    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', 'fn\d+', 'p')
+    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', r'fn\d+', 'p')
     btag_lite = ('bq', 'bc', 'p')
 
     macro_defaults = [
@@ -289,7 +289,7 @@ class Textile(object):
         """
         self.html_type = html_type
 
-        # text = unicode(text)
+        # text = type(u'')(text)
         text = _normalize_newlines(text)
 
         if self.restricted:
@@ -696,7 +696,7 @@ class Textile(object):
     def footnoteID(self, match):
         id, t = match.groups()
         if id not in self.fn:
-            self.fn[id] = str(uuid.uuid4())
+            self.fn[id] = unicode_type(uuid.uuid4())
         fnid = self.fn[id]
         if not t:
             t = ''
@@ -801,7 +801,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4()) + 'c'
+        id = unicode_type(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 
@@ -1073,6 +1073,7 @@ def textile(text, head_offset=0, html_type='xhtml', encoding=None, output=None):
     """
     return Textile().textile(text, head_offset=head_offset,
                              html_type=html_type)
+
 
 def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     """

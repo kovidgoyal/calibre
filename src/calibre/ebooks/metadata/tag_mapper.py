@@ -2,14 +2,16 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import deque
+from polyglot.builtins import filter
+
 
 def compile_pat(pat):
     import regex
     REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
+
 
 def matcher(rule):
     mt = rule['match_type']
@@ -79,6 +81,10 @@ def apply_rules(tag, rules):
                 if ac == 'capitalize':
                     ans.append(tag.capitalize())
                     break
+                if ac == 'titlecase':
+                    from calibre.utils.titlecase import titlecase
+                    ans.append(titlecase(tag))
+                    break
                 if ac == 'lower':
                     ans.append(icu_lower(tag))
                     break
@@ -86,7 +92,7 @@ def apply_rules(tag, rules):
                     ans.append(icu_upper(tag))
                     break
                 if ac == 'split':
-                    stags = filter(None, [x.strip() for x in tag.split(rule['replace'])])
+                    stags = list(filter(None, (x.strip() for x in tag.split(rule['replace']))))
                     if stags:
                         if stags[0] == tag:
                             ans.append(tag)
@@ -98,6 +104,7 @@ def apply_rules(tag, rules):
 
     ans.extend(tags)
     return ans
+
 
 def uniq(vals, kmap=icu_lower):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -118,10 +125,12 @@ def map_tags(tags, rules=()):
     ans = []
     for t in tags:
         ans.extend(apply_rules(t, rules))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
+
 
 def find_tests():
     import unittest
+
     class TestTagMapper(unittest.TestCase):
 
         def test_tag_mapper(self):
@@ -143,6 +152,7 @@ def find_tests():
                 self.assertEqual(ans, expected)
 
             run(rule('capitalize', 't1,t2'), 't1,x1', 'T1,x1')
+            run(rule('titlecase', 'some tag'), 'some tag,x1', 'Some Tag,x1')
             run(rule('upper', 'ta,t2'), 'ta,x1', 'TA,x1')
             run(rule('lower', 'ta,x1'), 'TA,X1', 'ta,x1')
             run(rule('replace', 't1', 't2'), 't1,x1', 't2,x1')
@@ -161,6 +171,7 @@ def find_tests():
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
             run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
+
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli

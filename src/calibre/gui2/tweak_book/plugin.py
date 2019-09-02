@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,8 @@ from calibre import prints
 from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.boss import get_boss
+from polyglot.builtins import itervalues, unicode_type
+
 
 class Tool(object):
 
@@ -81,9 +82,9 @@ class Tool(object):
         :param description: An optional longer description of this action, it
             will be used in the preferences entry for this shortcut.
         '''
-        short_text = short_text or unicode(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
+        short_text = short_text or unicode_type(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
         self.gui.keyboard.register_shortcut(
-            self.name + '_' + unique_name, short_text, default_keys=default_keys,
+            self.name + '_' + unique_name, short_text, default_keys=default_keys, action=qaction,
             description=description or '', group=_('Plugins'))
 
     def create_action(self, for_toolbar=True):
@@ -110,23 +111,27 @@ class Tool(object):
         '''
         raise NotImplementedError()
 
+
 def load_plugin_tools(plugin):
     try:
         main = importlib.import_module(plugin.__class__.__module__+'.main')
     except ImportError:
         import traceback
-        traceback.print_stack()
+        traceback.print_exc()
     else:
-        for x in vars(main).itervalues():
+        for x in itervalues(vars(main)):
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
                 ans = x()
                 ans.plugin = plugin
                 yield ans
 
+
 def plugin_action_sid(plugin, tool, for_toolbar=True):
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
 
+
 plugin_toolbar_actions = []
+
 
 def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_actions=None, plugin_menu_actions=None):
     try:
@@ -156,7 +161,9 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
                 plugin_menu_actions.append(ac)
     return ac
 
+
 _tool_memory = []  # Needed to prevent the tool object from being garbage collected
+
 
 def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
     del _tool_memory[:]
@@ -170,10 +177,10 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
             if tool.allowed_in_menu:
                 create_plugin_action(plugin, tool, False, actions, toolbar_actions, plugin_menu_actions)
 
+
 def install_plugin(plugin):
     for tool in load_plugin_tools(plugin):
         if tool.allowed_in_toolbar:
             sid = plugin_action_sid(plugin, tool, True)
             if sid not in tprefs['global_plugins_toolbar']:
                 tprefs['global_plugins_toolbar'] = tprefs['global_plugins_toolbar'] + [sid]
-

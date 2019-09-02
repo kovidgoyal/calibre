@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>588</width>
-    <height>378</height>
+    <height>399</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,10 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Paragraph style:</string>
+         <string>&amp;Paragraph style:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_paragraph_type</cstring>
         </property>
        </widget>
       </item>
@@ -52,7 +55,10 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Formatting style:</string>
+         <string>&amp;Formatting style:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_formatting_type</cstring>
         </property>
        </widget>
       </item>
@@ -85,7 +91,7 @@
       <item>
        <widget class="QCheckBox" name="opt_txt_in_remove_indents">
         <property name="text">
-         <string>Remove indents at the beginning of lines</string>
+         <string>Remove &amp;indents at the beginning of lines</string>
         </property>
        </widget>
       </item>
@@ -101,7 +107,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;http://daringfireball.net/projects/markdown&quot;&gt;markdown&lt;/a&gt;.</string>
+         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;https://daringfireball.net/projects/markdown&quot;&gt;Markdown&lt;/a&gt;.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -114,7 +120,7 @@
       <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>You can optionally enable various extensions to the base markdown syntax, below.</string>
+         <string>You can optionally enable various extensions to the base Markdown syntax, below.</string>
         </property>
        </widget>
       </item>
@@ -124,7 +130,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>More information on &lt;a href=&quot;http://pythonhosted.org/Markdown/extensions/index.html&quot;&gt;markdown extensions&lt;/a&gt;</string>
+         <string>More information on &lt;a href=&quot;https://python-markdown.github.io/extensions/&quot;&gt;Markdown extensions&lt;/a&gt;</string>
         </property>
         <property name="openExternalLinks">
          <bool>true</bool>

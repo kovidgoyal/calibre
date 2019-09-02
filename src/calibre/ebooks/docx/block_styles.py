@@ -1,16 +1,42 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from collections import OrderedDict
+from polyglot.builtins import iteritems
 
-class Inherit:
-    pass
+
+class Inherit(object):
+
+    def __eq__(self, other):
+        return other is self
+
+    def __hash__(self):
+        return id(self)
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return other is not self
+
+    def __ge__(self, other):
+        if self is other:
+            return True
+        return True
+
+    def __le__(self, other):
+        if self is other:
+            return True
+        return False
+
+
 inherit = Inherit()
+
 
 def binary_property(parent, name, XPath, get):
     vals = XPath('./w:%s' % name)(parent)
@@ -19,16 +45,19 @@ def binary_property(parent, name, XPath, get):
     val = get(vals[0], 'w:val', 'on')
     return True if val in {'on', '1', 'true'} else False
 
+
 def simple_color(col, auto='black'):
     if not col or col == 'auto' or len(col) != 6:
         return auto
     return '#'+col
+
 
 def simple_float(val, mult=1.0):
     try:
         return float(val) * mult
     except (ValueError, TypeError, AttributeError, KeyError):
         pass
+
 
 def twips(val, mult=0.05):
     ''' Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts.'''
@@ -76,6 +105,7 @@ LINE_STYLES = {  # {{{
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 border_edges = ('left', 'top', 'right', 'bottom', 'between')
 
+
 def read_single_border(parent, edge, XPath, get):
     color = style = width = padding = None
     for elem in XPath('./w:%s' % edge)(parent):
@@ -100,23 +130,25 @@ def read_single_border(parent, edge, XPath, get):
                 pass
     return {p:v for p, v in zip(border_props, (padding, width, style, color))}
 
+
 def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'):
     vals = {k % edge:inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
-            for prop, val in read_single_border(border, edge, XPath, get).iteritems():
+            for prop, val in iteritems(read_single_border(border, edge, XPath, get)):
                 if val is not None:
                     vals[prop % edge] = val
 
-    for key, val in vals.iteritems():
+    for key, val in iteritems(vals):
         setattr(dest, key, val)
+
 
 def border_to_css(edge, style, css):
     bs = getattr(style, 'border_%s_style' % edge)
     bc = getattr(style, 'border_%s_color' % edge)
     bw = getattr(style, 'border_%s_width' % edge)
-    if isinstance(bw, (float, int, long)):
+    if isinstance(bw, numbers.Number):
         # WebKit needs at least 1pt to render borders and 3pt to render double borders
         bw = max(bw, (3 if bs == 'double' else 1))
     if bs is not inherit and bs is not None:
@@ -124,9 +156,10 @@ def border_to_css(edge, style, css):
     if bc is not inherit and bc is not None:
         css['border-%s-color' % edge] = bc
     if bw is not inherit and bw is not None:
-        if isinstance(bw, (int, float, long)):
+        if isinstance(bw, numbers.Number):
             bw = '%.3gpt' % bw
         css['border-%s-width' % edge] = bw
+
 
 def read_indent(parent, dest, XPath, get):
     padding_left = padding_right = text_indent = inherit
@@ -154,6 +187,7 @@ def read_indent(parent, dest, XPath, get):
     setattr(dest, 'margin_right', padding_right)
     setattr(dest, 'text_indent', text_indent)
 
+
 def read_justification(parent, dest, XPath, get):
     ans = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
@@ -167,6 +201,7 @@ def read_justification(parent, dest, XPath, get):
         elif val in {'start', 'end'}:
             ans = {'start':'left'}.get(val, 'right')
     setattr(dest, 'text_align', ans)
+
 
 def read_spacing(parent, dest, XPath, get):
     padding_top = padding_bottom = line_height = inherit
@@ -191,6 +226,7 @@ def read_spacing(parent, dest, XPath, get):
     setattr(dest, 'margin_bottom', padding_bottom)
     setattr(dest, 'line_height', line_height)
 
+
 def read_shd(parent, dest, XPath, get):
     ans = inherit
     for shd in XPath('./w:shd[@w:fill]')(parent):
@@ -198,6 +234,7 @@ def read_shd(parent, dest, XPath, get):
         if val:
             ans = simple_color(val, auto='transparent')
     setattr(dest, 'background_color', ans)
+
 
 def read_numbering(parent, dest, XPath, get):
     lvl = num_id = None
@@ -211,6 +248,7 @@ def read_numbering(parent, dest, XPath, get):
             num_id = get(num, 'w:val')
     val = (num_id, lvl) if num_id is not None or lvl is not None else inherit
     setattr(dest, 'numbering', val)
+
 
 class Frame(object):
 
@@ -289,6 +327,7 @@ class Frame(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+
 def read_frame(parent, dest, XPath, get):
     ans = inherit
     for fp in XPath('./w:framePr')(parent):
@@ -296,6 +335,7 @@ def read_frame(parent, dest, XPath, get):
     setattr(dest, 'frame', ans)
 
 # }}}
+
 
 class ParagraphStyle(object):
 
@@ -316,6 +356,7 @@ class ParagraphStyle(object):
         # Misc.
         'text_indent', 'text_align', 'line_height', 'background_color',
         'numbering', 'font_family', 'font_size', 'color', 'frame',
+        'cs_font_size', 'cs_font_family',
     )
 
     def __init__(self, namespace, pPr=None):
@@ -340,7 +381,7 @@ class ParagraphStyle(object):
             for s in namespace.XPath('./w:pStyle[@w:val]')(pPr):
                 self.linked_style = namespace.get(s, 'w:val')
 
-            self.font_family = self.font_size = self.color = inherit
+            self.font_family = self.font_size = self.color = self.cs_font_size = self.cs_font_family = inherit
 
         self._css = None
         self._border_key = None
@@ -388,9 +429,10 @@ class ParagraphStyle(object):
                         val = '%.3gpt' % val
                     c[x.replace('_', '-')] = val
             ta = self.text_align
-            if self.bidi:
-                ta = {'left':'right', 'right':'left'}.get(ta, ta)
-            c['text-align'] = ta
+            if ta is not inherit:
+                if self.bidi is True:
+                    ta = {'left':'right', 'right':'left'}.get(ta, ta)
+                c['text-align'] = ta
 
         return self._css
 

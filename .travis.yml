@@ -1,6 +1,6 @@
 language: node_js
 nodejs:
-    - 6
+    - node
 cache:
   directories:
     - node_modules
@@ -10,17 +10,18 @@ matrix:
     include:
         - os: linux
           sudo: false
-          env:
-            - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
+          addons:
+              apt:
+                  packages: libgl1-mesa-dev
         - os: osx
-          env:
-            # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
-            - SWBASE=/Users/kovid SW=$SWBASE/sw PATH=$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins SSL_CERT_FILE=$PWD/resources/mozilla-ca-certs.pem
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SWBASE && sudo chown $USER $SWBASE; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://download.calibre-ebook.com/travis/sw-osx.tar.bz2 | tar xj -C $SWBASE; fi
-    - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
-    - python setup.py bootstrap --ephemeral
-script: python setup.py test
+    - python setup/unix-ci.py install
+    - python setup/unix-ci.py bootstrap
+
+script: python setup/unix-ci.py test
+
+notifications:
+    email:
+        on_success: change
+        on_failure: change

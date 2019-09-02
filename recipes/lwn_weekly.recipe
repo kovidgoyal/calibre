@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-__license__ = 'GPL v3'
+from __future__ import print_function
+__license__   = 'GPL v3'
 __copyright__ = '2011, Davide Cavalca <davide125 at tiscali.it>'
 '''
 lwn.net
@@ -83,7 +84,7 @@ class WeeklyLWN(BasicNewsRecipe):
         articles = {}
         ans = []
 
-        section = soup.title.string
+        section = self.tag_to_string(soup.title)
         subsection = None
 
         while True:
@@ -93,17 +94,20 @@ class WeeklyLWN(BasicNewsRecipe):
             if curr is None:
                 break
 
-            text = curr.contents[0].string
+            text = self.tag_to_string(curr.contents[0])
+            cclass = ''.join(curr['class'])
 
-            if 'Cat2HL' in curr.attrMap['class']:
+            if 'Cat2HL' in cclass:
                 subsection = text
 
-            elif 'Cat1HL' in curr.attrMap['class']:
+            elif 'Cat1HL' in cclass:
                 section = text
                 subsection = None
 
-            elif 'SummaryHL' in curr.attrMap['class']:
+            elif 'SummaryHL' in cclass:
                 article_title = text
+                if not article_title:
+                    article_title = _('Undefined article title')
 
                 if subsection:
                     section_title = "%s: %s" % (section, subsection)
@@ -112,18 +116,18 @@ class WeeklyLWN(BasicNewsRecipe):
 
                 # Most articles have anchors in their titles, *except* the
                 # security vulnerabilities
-                article_anchor = curr.findNext(
+                article_anchor = curr.find(
                     name='a', attrs={'href': re.compile('^/Articles/')})
 
                 if article_anchor:
                     article_url = article_anchor.get('href')
                     if not article_url:
-                        print >>sys.stderr, 'article_url is None for article_anchor "%s": "%s"' \
-                            % (str(article_anchor), article_title)
+                        print('article_url is None for article_anchor "%s": "%s"'
+                            % (str(article_anchor), article_title), file=sys.stderr)
                         continue
 
                 else:
-                    print >>sys.stderr, 'article_anchor is None for "%s"; skipping' % article_title
+                    self.log.warn('article_anchor is None for "%s"; skipping' % article_title)
                     article_url = None
                     continue
 
@@ -139,7 +143,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 })
 
             else:
-                print >>sys.stderr, "lwn_weekly.recipe: something bad happened; should not be able to reach this"
+                self.log.error("lwn_weekly.recipe: something bad happened; should not be able to reach this")
 
         ans = [(section2, articles[section2])
                for section2 in ans if section2 in articles]

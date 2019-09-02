@@ -1,25 +1,26 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import prepare_string_for_xml
 from calibre.gui2.tweak_book import current_container, tprefs
+from polyglot.builtins import iteritems
 
 DEFAULT_TEMPLATES = {
     'html':
 '''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{TITLE}</title>
-    </head>
-    <body>
-        %CURSOR%
-    </body>
+<head>
+    <title>{TITLE}</title>
+</head>
+
+<body>
+    %CURSOR%
+</body>
 </html>
 ''',
 
@@ -33,8 +34,10 @@ DEFAULT_TEMPLATES = {
 
 }
 
+
 def raw_template_for(syntax):
     return tprefs['templates'].get(syntax, DEFAULT_TEMPLATES.get(syntax, ''))
+
 
 def template_for(syntax):
     mi = current_container().mi
@@ -43,5 +46,4 @@ def template_for(syntax):
         'AUTHOR': ' & '.join(mi.authors),
     }
     return raw_template_for(syntax).format(
-        **{k:prepare_string_for_xml(v, True) for k, v in data.iteritems()})
-
+        **{k:prepare_string_for_xml(v, True) for k, v in iteritems(data)})

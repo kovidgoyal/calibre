@@ -19,14 +19,6 @@ class OldNewThing(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     publication_type = 'blog'
-    extra_css = ' body{font-family: Verdana,Arial,Helvetica,sans-serif} .code{font-family: "Lucida Console",monospace} '
+    auto_cleanup = True
 
-    conversion_options = {
-        'comment': description, 'tags': 'blog, windows, microsoft, programming', 'publisher': 'Raymond Chen', 'language': language
-    }
-
-    remove_attributes = ['width', 'height']
-    keep_only_tags = [dict(attrs={'class': 'full-post'})]
-    remove_tags = [
-        dict(attrs={'class': ['post-attributes', 'post-tags', 'post-actions']})]
-    feeds = [(u'Posts', u'http://blogs.msdn.com/oldnewthing/rss.xml')]
+    feeds = [(u'Posts', u'https://blogs.msdn.microsoft.com/oldnewthing/feed')]

@@ -10,6 +10,13 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class SarajevoX(BasicNewsRecipe):
     title = 'Sarajevo-x.com'
     __author__ = 'Darko Miletic'
@@ -57,7 +64,7 @@ class SarajevoX(BasicNewsRecipe):
             if sp:
                 sp
             else:
-                mtag = Tag(soup, 'div', [
+                mtag = new_tag(soup, 'div', [
                            ("id", "opisslike"), ("class", "opscitech")])
                 mopis = NavigableString("Opis")
                 mtag.insert(0, mopis)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,6 +15,8 @@ from calibre import prints, prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
+from polyglot.builtins import iteritems
+
 
 class ChoosePopupWidget(QWidget):
 
@@ -234,6 +235,7 @@ class ChoosePopupWidget(QWidget):
             self.ensure_index_visible(self.current_index)
             self.update()
 
+
 class CompletionPopup(ChoosePopupWidget):
 
     def __init__(self, parent, max_height=1000):
@@ -244,7 +246,7 @@ class CompletionPopup(ChoosePopupWidget):
 
     def set_items(self, items, descriptions=None, query=None):
         self.current_query = query
-        ChoosePopupWidget.set_items(self, tuple(items.iteritems()), descriptions=descriptions)
+        ChoosePopupWidget.set_items(self, tuple(iteritems(items)), descriptions=descriptions)
 
     def choose_next_result(self, previous=False):
         ChoosePopupWidget.choose_next_result(self, previous=previous)
@@ -292,6 +294,7 @@ class CompletionPopup(ChoosePopupWidget):
 
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
+
     def test(editor):
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()

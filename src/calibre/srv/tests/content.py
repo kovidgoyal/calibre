@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, zlib, json, binascii, time, os
+import zlib, json, time, os
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
@@ -14,11 +13,15 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
 from calibre.utils.shared_file import share_open
+from polyglot import http_client
+from polyglot.binary import from_hex_unicode
+
 
 def setUpModule():
     # Needed for cover generation
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
+
 
 class ContentTest(LibraryBaseTest):
 
@@ -30,7 +33,7 @@ class ContentTest(LibraryBaseTest):
             def missing(url, body=b''):
                 conn.request('GET', url)
                 r = conn.getresponse()
-                self.ae(r.status, httplib.NOT_FOUND)
+                self.ae(r.status, http_client.NOT_FOUND)
                 self.ae(r.read(), body)
 
             for prefix in ('static', 'icon'):
@@ -39,8 +42,8 @@ class ContentTest(LibraryBaseTest):
                 missing('/%s/C:/out.html' % prefix, b'Naughty, naughty!')
 
             def test_response(r):
-                self.assertIn(b'max-age=', r.getheader('Cache-Control'))
-                self.assertIn(b'public', r.getheader('Cache-Control'))
+                self.assertIn('max-age=', r.getheader('Cache-Control'))
+                self.assertIn('public', r.getheader('Cache-Control'))
                 self.assertIsNotNone(r.getheader('Expires'))
                 self.assertIsNotNone(r.getheader('ETag'))
                 self.assertIsNotNone(r.getheader('Content-Type'))
@@ -49,7 +52,7 @@ class ContentTest(LibraryBaseTest):
                 raw = P(src, data=True)
                 conn.request('GET', url)
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
+                self.ae(r.status, http_client.OK)
                 data = r.read()
                 if sz is None:
                     self.ae(data, raw)
@@ -58,7 +61,7 @@ class ContentTest(LibraryBaseTest):
                 test_response(r)
                 conn.request('GET', url, headers={'If-None-Match':r.getheader('ETag')})
                 r = conn.getresponse()
-                self.ae(r.status, httplib.NOT_MODIFIED)
+                self.ae(r.status, http_client.NOT_MODIFIED)
                 self.ae(b'', r.read())
 
             test('content-server/empty.html', '/static/empty.html')
@@ -83,7 +86,7 @@ class ContentTest(LibraryBaseTest):
             # Test various invalid parameters
             def bad(*args):
                 r, data = get(*args)
-                self.ae(r.status, httplib.NOT_FOUND)
+                self.ae(r.status, http_client.NOT_FOUND)
             bad('xxx', 1)
             bad('fmt1', 10)
             bad('fmt1', 1, 'zzzz')
@@ -101,7 +104,7 @@ class ContentTest(LibraryBaseTest):
             # Test fetching of format with metadata update
             raw = P('quick_start/eng.epub', data=True)
             r, data = get('epub', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             etag = r.getheader('ETag')
             self.assertIsNotNone(etag)
             self.ae(r.getheader('Used-Cache'), 'no')
@@ -143,55 +146,55 @@ class ContentTest(LibraryBaseTest):
                 os.utime(cpath, (t, t))
 
             r, data = get('cover', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(1))
             self.ae(r.getheader('Used-Cache'), 'no')
             self.ae(r.getheader('Content-Type'), 'image/jpeg')
             r, data = get('cover', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(1))
             self.ae(r.getheader('Used-Cache'), 'yes')
             r, data = get('cover', 3)
-            self.ae(r.status, httplib.OK)  # Auto generated cover
+            self.ae(r.status, http_client.OK)  # Auto generated cover
             r, data = get('thumb', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(identify(data), ('jpeg', 60, 60))
             self.ae(r.getheader('Used-Cache'), 'no')
             r, data = get('thumb', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
             r, data = get('thumb', 1, q='sz=100')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(identify(data), ('jpeg', 100, 100))
             self.ae(r.getheader('Used-Cache'), 'no')
             r, data = get('thumb', 1, q='sz=100x100')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
             change_cover(1, 1)
             r, data = get('thumb', 1, q='sz=100')
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(identify(data), ('jpeg', 100, 100))
             self.ae(r.getheader('Used-Cache'), 'no')
 
             # Test file sharing in cache
             r, data = get('cover', 2)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(2))
             self.ae(r.getheader('Used-Cache'), 'no')
-            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            path = from_hex_unicode(r.getheader('Tempfile'))
             f, fdata = share_open(path, 'rb'), data
             # Now force an update
             change_cover(1)
             r, data = get('cover', 2)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(2))
             self.ae(r.getheader('Used-Cache'), 'no')
-            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            path = from_hex_unicode(r.getheader('Tempfile'))
             f2, f2data = share_open(path, 'rb'), data
             # Do it again
             change_cover(2)
             r, data = get('cover', 2)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(2))
             self.ae(r.getheader('Used-Cache'), 'no')
             self.ae(f.read(), fdata)
@@ -199,7 +202,7 @@ class ContentTest(LibraryBaseTest):
 
             # Test serving of metadata as opf
             r, data = get('opf', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.getheader('Content-Type'), 'application/oebps-package+xml; charset=UTF-8')
             self.assertIsNotNone(r.getheader('Last-Modified'))
             opf = OPF(BytesIO(data), populate_spine=False, try_to_guess_cover=False)
@@ -207,17 +210,17 @@ class ContentTest(LibraryBaseTest):
             self.ae(db.field_for('authors', 1), tuple(opf.authors))
             conn.request('GET', '/get/opf/1', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
+            self.ae(r.status, http_client.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
             raw = r.read()
             self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
 
             # Test serving metadata as json
             r, data = get('json', 1)
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(db.field_for('title', 1), json.loads(data)['title'])
             conn.request('GET', '/get/json/1', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
+            self.ae(r.status, http_client.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
             raw = r.read()
             self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
 

@@ -2,17 +2,65 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import os
 import unittest
 
-from setup import Command
+from setup import Command, islinux, isosx, iswindows, SRC
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
+
+
+class TestImports(unittest.TestCase):
+
+    def base_check(self, base, exclude_packages, exclude_modules):
+        import importlib
+        import_base = os.path.dirname(base)
+        count = 0
+        for root, dirs, files in os.walk(base):
+            for d in tuple(dirs):
+                if not os.path.isfile(os.path.join(root, d, '__init__.py')):
+                    dirs.remove(d)
+            for fname in files:
+                module_name, ext = os.path.splitext(fname)
+                if ext != '.py':
+                    continue
+                path = os.path.join(root, module_name)
+                relpath = os.path.relpath(path, import_base).replace(os.sep, '/')
+                full_module_name = '.'.join(relpath.split('/'))
+                if full_module_name.endswith('.__init__'):
+                    full_module_name = full_module_name.rpartition('.')[0]
+                if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
+                    continue
+                importlib.import_module(full_module_name)
+                count += 1
+        return count
+
+    def test_import_of_all_python_modules(self):
+        exclude_modules = {'calibre.gui2.dbus_export.demo', 'calibre.gui2.dbus_export.gtk'}
+        exclude_packages = {'calibre.devices.mtp.unix.upstream'}
+        if not iswindows:
+            exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
+            exclude_packages |= {'calibre.utils.winreg'}
+        if not isosx:
+            exclude_modules.add('calibre.utils.open_with.osx')
+        if not islinux:
+            exclude_modules |= {
+                    'calibre.utils.dbus_service', 'calibre.linux',
+                    'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
+                    'calibre.gui2.linux_file_dialogs'
+            }
+            exclude_packages.add('calibre.gui2.dbus_export')
+        self.assertGreater(self.base_check(os.path.join(SRC, 'odf'), exclude_packages, exclude_modules), 10)
+        base = os.path.join(SRC, 'calibre')
+        self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)
+
 
 def find_tests(which_tests=None):
     ans = []
     a = ans.append
+
     def ok(x):
         return not which_tests or x in which_tests
 
@@ -59,14 +107,40 @@ def find_tests(which_tests=None):
     if ok('smartypants'):
         from calibre.utils.smartypants import run_tests
         a(run_tests(return_tests=True))
+    if ok('ebooks'):
+        from calibre.ebooks.metadata.rtf import find_tests
+        a(find_tests())
+        from calibre.ebooks.metadata.html import find_tests
+        a(find_tests())
     if ok('misc'):
         from calibre.ebooks.metadata.tag_mapper import find_tests
         a(find_tests())
+        from calibre.ebooks.metadata.author_mapper import find_tests
+        a(find_tests())
         from calibre.utils.shared_file import find_tests
+        a(find_tests())
+        from calibre.utils.test_lock import find_tests
+        a(find_tests())
+        from calibre.utils.search_query_parser_test import find_tests
+        a(find_tests())
+        from calibre.utils.html2text import find_tests
+        a(find_tests())
+        from calibre.library.comments import find_tests
+        a(find_tests())
+        from calibre.ebooks.compression.palmdoc import find_tests
+        a(find_tests())
+        if iswindows:
+            from calibre.utils.windows.wintest import find_tests
+            a(find_tests())
+
+        a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
+    if ok('dbcli'):
+        from calibre.db.cli.tests import find_tests
         a(find_tests())
 
     tests = unittest.TestSuite(ans)
     return tests
+
 
 class Test(Command):
 

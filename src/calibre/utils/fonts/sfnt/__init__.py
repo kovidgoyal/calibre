@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from datetime import datetime, timedelta
+
 
 def align_block(raw, multiple=4, pad=b'\0'):
     '''
@@ -19,6 +19,7 @@ def align_block(raw, multiple=4, pad=b'\0'):
         return raw
     return raw + pad*(multiple - extra)
 
+
 class UnknownTable(object):
 
     def __init__(self, raw):
@@ -29,6 +30,7 @@ class UnknownTable(object):
 
     def __len__(self):
         return len(self.raw)
+
 
 class DateTimeProperty(object):
 
@@ -43,6 +45,7 @@ class DateTimeProperty(object):
         td = val - datetime(1904, 1, 1)
         setattr(obj, self.name, int(td.total_seconds()))
 
+
 class FixedProperty(object):
 
     def __init__(self, name):
@@ -55,6 +58,7 @@ class FixedProperty(object):
     def __set__(self, obj, val):
         return int(round(val*(0x10000)))
 
+
 def max_power_of_two(x):
     """
 Return the highest exponent of two, so that
@@ -65,6 +69,7 @@ Return the highest exponent of two, so that
         x = x >> 1
         exponent += 1
     return max(exponent - 1, 0)
+
 
 def load_font(stream_or_path):
     raw = stream_or_path

@@ -1,5 +1,5 @@
 /* Compiler.h
-2015-03-25 : Igor Pavlov : Public domain */
+2015-08-02 : Igor Pavlov : Public domain */
 
 #ifndef __7Z_COMPILER_H
 #define __7Z_COMPILER_H
@@ -18,6 +18,7 @@
   #else
     #pragma warning(disable : 4511) // copy constructor could not be generated
     #pragma warning(disable : 4512) // assignment operator could not be generated
+    #pragma warning(disable : 4514) // unreferenced inline function has been removed
     #pragma warning(disable : 4702) // unreachable code
     #pragma warning(disable : 4710) // not inlined
     #pragma warning(disable : 4786) // identifier was truncated to '255' characters in the debug information

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-SSLDIR=$SW/private/ssl
-
-cd $SW/build/openssl-* && \
-    rm -rf $SSLDIR && \
-    ./Configure darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 --openssldir=$SSLDIR && make && make install

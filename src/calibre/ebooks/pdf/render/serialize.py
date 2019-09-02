@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib
-from future_builtins import map
+import hashlib, numbers
+from polyglot.builtins import map, iteritems
 
 from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
@@ -19,8 +18,10 @@ from calibre.ebooks.pdf.render.common import (
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
+from polyglot.builtins import as_unicode
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
+
 
 class IndirectObjects(object):
 
@@ -55,7 +56,7 @@ class IndirectObjects(object):
 
     def __getitem__(self, o):
         try:
-            return self._map[id(self._list[o] if isinstance(o, int) else o)]
+            return self._map[id(self._list[o] if isinstance(o, numbers.Integral) else o)]
         except (KeyError, IndexError):
             raise KeyError('The object %r was not found'%o)
 
@@ -77,6 +78,7 @@ class IndirectObjects(object):
             line = '%010d 00000 n '%offset
             stream.write(line.encode('ascii') + EOL)
         return self.xref_offset
+
 
 class Page(Stream):
 
@@ -117,24 +119,24 @@ class Page(Stream):
         r = Dictionary()
         if self.opacities:
             extgs = Dictionary()
-            for opref, name in self.opacities.iteritems():
+            for opref, name in iteritems(self.opacities):
                 extgs[name] = opref
             r['ExtGState'] = extgs
         if self.fonts:
             fonts = Dictionary()
-            for ref, name in self.fonts.iteritems():
+            for ref, name in iteritems(self.fonts):
                 fonts[name] = ref
             r['Font'] = fonts
         if self.xobjects:
             xobjects = Dictionary()
-            for ref, name in self.xobjects.iteritems():
+            for ref, name in iteritems(self.xobjects):
                 xobjects[name] = ref
             r['XObject'] = xobjects
         if self.patterns:
             r['ColorSpace'] = Dictionary({'PCSp':Array(
                 [Name('Pattern'), Name('DeviceRGB')])})
             patterns = Dictionary()
-            for ref, name in self.patterns.iteritems():
+            for ref, name in iteritems(self.patterns):
                 patterns[name] = ref
             r['Pattern'] = patterns
         if r:
@@ -148,6 +150,7 @@ class Page(Stream):
         ret = objects.add(self.page_dict)
         # objects.commit(ret, stream)
         return ret
+
 
 class Path(object):
 
@@ -166,11 +169,13 @@ class Path(object):
     def close(self):
         self.ops.append(('h',))
 
+
 class Catalog(Dictionary):
 
     def __init__(self, pagetree):
         super(Catalog, self).__init__({'Type':Name('Catalog'),
             'Pages': pagetree})
+
 
 class PageTree(Dictionary):
 
@@ -193,6 +198,7 @@ class PageTree(Dictionary):
         except ValueError:
             return -1
 
+
 class HashingStream(object):
 
     def __init__(self, f):
@@ -209,6 +215,7 @@ class HashingStream(object):
         self.hashobj.update(raw)
         if raw:
             self.last_char = raw[-1]
+
 
 class Image(Stream):
 
@@ -239,6 +246,7 @@ class Image(Stream):
         if self.soft_mask is not None:
             d['SMask'] = self.soft_mask
 
+
 class Metadata(Stream):
 
     def __init__(self, mi):
@@ -249,6 +257,7 @@ class Metadata(Stream):
     def add_extra_keys(self, d):
         d['Type'] = Name('Metadata')
         d['Subtype'] = Name('XML')
+
 
 class PDFStream(object):
 
@@ -269,7 +278,7 @@ class PDFStream(object):
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
-        self.write_line(b'%íì¦"')
+        self.write_line(u'%íì¦"'.encode('utf-8'))
         creator = ('%s %s [https://calibre-ebook.com]'%(__appname__,
                                     __version__))
         self.write_line('%% Created by %s'%creator)
@@ -346,7 +355,7 @@ class PDFStream(object):
                 self.current_page.write_line()
             for x in op:
                 self.current_page.write(
-                (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
+                (fmtnum(x) if isinstance(x, numbers.Number) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
         if not path.ops:
@@ -455,7 +464,7 @@ class PDFStream(object):
         ba = QByteArray()
         buf = QBuffer(ba)
         image.save(buf, 'jpeg', 94)
-        data = bytes(ba.data())
+        data = ba.data()
 
         if has_alpha:
             soft_mask = self.write_image(tmask, w, h, 8)
@@ -511,7 +520,7 @@ class PDFStream(object):
         self.objects.pdf_serialize(self.stream)
         self.write_line()
         startxref = self.objects.write_xref(self.stream)
-        file_id = String(self.stream.hashobj.hexdigest().decode('ascii'))
+        file_id = String(as_unicode(self.stream.hashobj.hexdigest()))
         self.write_line('trailer')
         trailer = Dictionary({'Root':self.catalog, 'Size':len(self.objects)+1,
                               'ID':Array([file_id, file_id]), 'Info':inforef})
@@ -519,5 +528,3 @@ class PDFStream(object):
         self.write_line('startxref')
         self.write_line('%d'%startxref)
         self.stream.write('%%EOF')
-
-

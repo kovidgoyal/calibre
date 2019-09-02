@@ -33,6 +33,8 @@ class IndianExpress(BasicNewsRecipe):
          'http://indianexpress.com/section/opinion/feed/'),
         ('Lifestyle',
          'http://indianexpress.com/section/lifestyle/feed/'),
+        ('Science & Technology',
+         'http://indianexpress.com/section/technology/feed/'),
         ('Bollywood',
          'http://indianexpress.com/section/entertainment/bollywood/feed/'),
     ]

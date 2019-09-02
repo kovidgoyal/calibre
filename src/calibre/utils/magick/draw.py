@@ -12,6 +12,7 @@ from calibre.utils.img import save_cover_data_to as _save_cover_data_to, image_t
 from calibre.utils.imghdr import identify as _identify
 from calibre import fit_image
 
+
 def _data_to_image(data):
     if isinstance(data, Image):
         img = data
@@ -19,6 +20,7 @@ def _data_to_image(data):
         img = Image()
         img.load(data)
     return img
+
 
 def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
     '''
@@ -39,6 +41,7 @@ def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
     img.size = (nwidth, nheight)
     return img
+
 
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         return_data=False, compression_quality=90, minify_to=None,
@@ -69,6 +72,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     return _save_cover_data_to(
         data, path, bgcolor=bgcolor, resize_to=resize_to, compression_quality=compression_quality, minify_to=minify_to, grayscale=grayscale, data_fmt=fmt)
 
+
 def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
               preserve_aspect_ratio=True, compression_quality=70):
     img = Image()
@@ -91,6 +95,7 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
     data = image_to_data(canvas.img, compression_quality=compression_quality)
     return (canvas.size[0], canvas.size[1], data)
 
+
 def identify_data(data):
     '''
     Identify the image in data. Returns a 3-tuple
@@ -99,6 +104,7 @@ def identify_data(data):
     '''
     fmt, width, height = _identify(data)
     return width, height, fmt
+
 
 def identify(path):
     '''
@@ -109,6 +115,7 @@ def identify(path):
     with lopen(path, 'rb') as f:
         fmt, width, height = _identify(f)
     return width, height, fmt
+
 
 def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
         border_color='#ffffff', fmt='jpg'):

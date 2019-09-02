@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cssutils.css import CSSRule
+from css_parser.css import CSSRule
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
@@ -14,13 +13,16 @@ from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
-from calibre.utils.fonts.utils import get_all_font_names
+from calibre.utils.fonts.utils import get_all_font_names, is_font_embeddable, UnsupportedFont
 from tinycss.fonts3 import parse_font_family
+from polyglot.builtins import iteritems
+
 
 class InvalidFont(BaseError):
 
     HELP = _('This font could not be processed. It most likely will'
-             ' not work in an ebook reader, either')
+             ' not work in an e-book reader, either')
+
 
 def fix_sheet(sheet, css_name, font_name):
     changed = False
@@ -28,6 +30,18 @@ def fix_sheet(sheet, css_name, font_name):
         if rule.type in (CSSRule.FONT_FACE_RULE, CSSRule.STYLE_RULE):
             changed = change_font_in_declaration(rule.style, css_name, font_name) or changed
     return changed
+
+
+class NotEmbeddable(BaseError):
+
+    level = WARN
+
+    def __init__(self, name, fs_type):
+        BaseError.__init__(self, _('The font {} is not allowed to be embedded').format(name), name)
+        self.HELP = _('The font has a flag in its metadata ({:09b}) set indicating that it is'
+                      ' not licensed for embedding. You can ignore this warning, if you are'
+                      ' sure you have permission to embed this font.').format(fs_type)
+
 
 class FontAliasing(BaseError):
 
@@ -44,7 +58,7 @@ class FontAliasing(BaseError):
 
     def __call__(self, container):
         changed = False
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if fix_sheet(sheet, self.css_name, self.font_name):
@@ -67,10 +81,11 @@ class FontAliasing(BaseError):
                         changed = True
         return changed
 
+
 def check_fonts(container):
     font_map = {}
     errors = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_FONTS:
             raw = container.raw_data(name)
             try:
@@ -79,9 +94,15 @@ def check_fonts(container):
                 errors.append(InvalidFont(_('Not a valid font: %s') % e, name))
                 continue
             font_map[name] = name_map.get('family_name', None) or name_map.get('preferred_family_name', None) or name_map.get('wws_family_name', None)
+            try:
+                embeddable, fs_type = is_font_embeddable(raw)
+            except UnsupportedFont:
+                embeddable = True
+            if not embeddable:
+                errors.append(NotEmbeddable(name, fs_type))
 
     sheets = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_STYLES:
             try:
                 sheets.append((name, container.parsed(name), None))

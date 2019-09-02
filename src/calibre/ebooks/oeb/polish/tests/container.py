@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,14 +11,17 @@ from zipfile import ZipFile
 from calibre import CurrentDir
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
-from calibre.ebooks.oeb.polish.replace import rename_files
+from calibre.ebooks.oeb.polish.replace import rename_files, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
+from polyglot.builtins import iteritems, itervalues, unicode_type
+
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     return _gc(*args, **kwargs)
+
 
 class ContainerTests(BaseTest):
 
@@ -36,7 +38,7 @@ class ContainerTests(BaseTest):
             c2 = clone_container(c1, tdir)
 
             for c in (c1, c2):
-                for name, path in c.name_path_map.iteritems():
+                for name, path in iteritems(c.name_path_map):
                     self.assertEqual(2, nlinks_file(path), 'The file %s is not linked' % name)
 
             for name in c1.name_path_map:
@@ -81,11 +83,11 @@ class ContainerTests(BaseTest):
         for x in files:
             self.assertNotIn(x, raw)
 
-    def run_external_tools(self, container, gvim=False, epubcheck=True):
+    def run_external_tools(self, container, vim=False, epubcheck=True):
         with TemporaryFile(suffix='.epub', dir=self.tdir) as f:
             container.commit(outpath=f)
-            if gvim:
-                subprocess.Popen(['gvim', '-f', f]).wait()
+            if vim:
+                subprocess.Popen(['vim', '-f', f]).wait()
             if epubcheck:
                 subprocess.Popen(['epubcheck', f]).wait()
 
@@ -93,9 +95,10 @@ class ContainerTests(BaseTest):
         ' Test renaming of files '
         book = get_simple_book()
         count = [0]
+
         def new_container():
             count[0] += 1
-            tdir = os.mkdir(os.path.join(self.tdir, str(count[0])))
+            tdir = os.mkdir(os.path.join(self.tdir, unicode_type(count[0])))
             return get_container(book, tdir=tdir)
 
         # Test simple opf rename
@@ -166,7 +169,7 @@ class ContainerTests(BaseTest):
         rename_files(c, {'index_split_000.html':'Index_split_000.html'})
         self.check_links(c)
 
-        # self.run_external_tools(c, gvim=True)
+        # self.run_external_tools(c, vim=True)
 
     def test_file_add(self):
         ' Test adding of files '
@@ -175,14 +178,17 @@ class ContainerTests(BaseTest):
         name = 'folder/added file.html'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertIn(name, set(itervalues(c.manifest_id_map)))
         self.assertIn(name, {x[0] for x in c.spine_names})
 
         name = 'added.css'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertIn(name, set(itervalues(c.manifest_id_map)))
         self.assertNotIn(name, {x[0] for x in c.spine_names})
+        self.assertEqual(c.make_name_unique(name), 'added-1.css')
+        c.add_file('added-1.css', b'xxx')
+        self.assertEqual(c.make_name_unique(name.upper()), 'added-2.css'.upper())
 
         self.check_links(c)
 
@@ -261,3 +267,12 @@ class ContainerTests(BaseTest):
                 self.assertTrue(os.path.exists('.git/xxx'))
                 self.assertTrue(os.path.exists('images/test-container.xyz'))
                 self.assertFalse(os.path.exists('images/cover.jpg'))
+
+    def test_folder_type_map_case(self):
+        book = get_simple_book()
+        c = get_container(book)
+        c.add_file('Image/testcase.png', b'xxx')
+        rationalize_folders(c, {'image':'image'})
+        self.assertTrue(c.has_name('Image/testcase.png'))
+        self.assertTrue(c.exists('Image/testcase.png'))
+        self.assertFalse(c.has_name('image/testcase.png'))

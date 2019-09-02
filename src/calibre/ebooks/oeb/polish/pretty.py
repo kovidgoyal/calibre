@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
-from future_builtins import map
+from polyglot.builtins import iteritems, map
 
 # from lxml.etree import Element
 
@@ -18,8 +17,10 @@ from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.icu import sort_key
 
+
 def isspace(x):
     return not x.strip('\u0009\u000a\u000c\u000d\u0020')
+
 
 def pretty_xml_tree(elem, level=0, indent='  '):
     ''' XML beautifier, assumes that elements that have children do not have
@@ -36,6 +37,7 @@ def pretty_xml_tree(elem, level=0, indent='  '):
             if i == len(elem) - 1:
                 l -= 1
             child.tail = '\n' + (indent * l)
+
 
 def pretty_opf(root):
     # Put all dc: tags first starting with title and author. Preserve order for
@@ -86,14 +88,14 @@ def pretty_opf(root):
         for x in reversed(children):
             manifest.insert(0, x)
 
-SVG_TAG = SVG('svg')
 
+SVG_TAG = SVG('svg')
 BLOCK_TAGS = frozenset(map(XHTML, (
-    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'dd',
+    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'col', 'colgroup', 'dd',
     'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li',
     'noscript', 'ol', 'output', 'p', 'pre', 'script', 'section', 'style', 'table', 'tbody', 'td',
-    'tfoot', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
+    'tfoot', 'th', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
 
 
 def isblock(x):
@@ -102,6 +104,7 @@ def isblock(x):
     if x.tag in BLOCK_TAGS:
         return True
     return False
+
 
 def has_only_blocks(x):
     if hasattr(x.tag, 'split') and len(x) == 0:
@@ -114,6 +117,7 @@ def has_only_blocks(x):
             return False
     return True
 
+
 def indent_for_tag(x):
     prev = x.getprevious()
     x = x.getparent().text if prev is None else prev.tail
@@ -121,6 +125,7 @@ def indent_for_tag(x):
         return ''
     s = x.rpartition('\n')[-1]
     return s if isspace(s) else ''
+
 
 def set_indent(elem, attr, indent):
     x = getattr(elem, attr)
@@ -134,6 +139,7 @@ def set_indent(elem, attr, indent):
             lines.append(indent)
         x = '\n'.join(lines)
     setattr(elem, attr, x)
+
 
 def pretty_block(parent, level=1, indent='  '):
     ''' Surround block tags with blank lines and recurse into child block tags
@@ -164,6 +170,7 @@ def pretty_script_or_style(container, child):
         child.text = '\n' + '\n'.join([(indent + x) if x else '' for x in child.text.splitlines()])
         set_indent(child, 'text', indent)
 
+
 def pretty_html_tree(container, root):
     root.text = '\n\n'
     for child in root:
@@ -175,8 +182,8 @@ def pretty_html_tree(container, root):
         # Special case the handling of a body that contains a single block tag
         # with all content. In this case we prettify the containing block tag
         # even if it has non block children.
-        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and
-                not has_only_blocks(body[0]) and barename(body[0].tag) not in (
+        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and not has_only_blocks(
+            body[0]) and barename(body[0].tag) not in (
                     'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6') and len(body[0]) > 0):
             pretty_block(body[0], level=2)
 
@@ -185,10 +192,12 @@ def pretty_html_tree(container, root):
         for child in root.xpath('//*[local-name()="script" or local-name()="style"]'):
             pretty_script_or_style(container, child)
 
+
 def fix_html(container, raw):
     ' Fix any parsing errors in the HTML represented as a string in raw. Fixing is done using the HTML5 parsing algorithm. '
     root = container.parse_xhtml(raw)
     return serialize(root, 'text/html')
+
 
 def pretty_html(container, name, raw):
     ' Pretty print the HTML represented as a string in raw '
@@ -196,10 +205,12 @@ def pretty_html(container, name, raw):
     pretty_html_tree(container, root)
     return serialize(root, 'text/html')
 
+
 def pretty_css(container, name, raw):
     ' Pretty print the CSS represented as a string in raw '
     sheet = container.parse_css(raw)
     return serialize(sheet, 'text/css')
+
 
 def pretty_xml(container, name, raw):
     ' Pretty print the XML represented as a string in raw. If ``name`` is the name of the OPF, extra OPF-specific prettying is performed. '
@@ -209,16 +220,19 @@ def pretty_xml(container, name, raw):
     pretty_xml_tree(root)
     return serialize(root, 'text/xml')
 
+
 def fix_all_html(container):
     ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             container.parsed(name)
             container.dirty(name)
 
+
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
-    for name, mt in container.mime_map.iteritems():
+    xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
+    for name, mt in iteritems(container.mime_map):
         prettied = False
         if mt in OEB_DOCS:
             pretty_html_tree(container, container.parsed(name))
@@ -231,10 +245,8 @@ def pretty_all(container):
             pretty_opf(root)
             pretty_xml_tree(root)
             prettied = True
-        elif mt in {guess_type('a.ncx'), guess_type('a.xml')}:
+        elif mt in xml_types:
             pretty_xml_tree(container.parsed(name))
             prettied = True
         if prettied:
             container.dirty(name)
-
-

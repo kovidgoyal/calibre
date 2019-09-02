@@ -1,4 +1,7 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __author__ = "stackoverflow community"
 __docformat__ = 'restructuredtext en'
 """
@@ -12,6 +15,7 @@ http://stackoverflow.com/questions/493174/is-there-a-way-to-convert-number-words
 import re
 
 numwords = {}
+
 
 def text2int(textnum):
     if not numwords:

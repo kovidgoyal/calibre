@@ -1,12 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time
-from base64 import b64decode
 from datetime import date
 
 from calibre import prints, guess_type, isbytestring, fsync
@@ -16,9 +16,11 @@ from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
+from polyglot.binary import from_base64_bytes
+from polyglot.builtins import unicode_type, zip
 
 '''
-cahceExt.xml
+cacheExt.xml
 
 Periodical identifier sample from a PRS-650:
 
@@ -34,13 +36,13 @@ Periodical identifier sample from a PRS-650:
 '''
 
 # Utility functions {{{
-EMPTY_CARD_CACHE = '''\
+EMPTY_CARD_CACHE = b'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
 </cache>
 '''
 
-EMPTY_EXT_CACHE = '''\
+EMPTY_EXT_CACHE = b'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cacheExt xmlns="http://www.sony.com/xmlns/product/prs/device/1">
 </cacheExt>
@@ -60,12 +62,14 @@ MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, 
 INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
 INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 
+
 def strptime(src):
     src = src.strip()
     src = src.split()
-    src[0] = str(DAY_MAP[src[0][:-1]])+','
-    src[2] = str(MONTH_MAP[src[2]])
+    src[0] = unicode_type(DAY_MAP[src[0][:-1]])+','
+    src[2] = unicode_type(MONTH_MAP[src[2]])
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+
 
 def strftime(epoch, zone=time.localtime):
     try:
@@ -77,11 +81,13 @@ def strftime(epoch, zone=time.localtime):
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
 
+
 def uuid():
     from uuid import uuid4
-    return str(uuid4()).replace('-', '', 1).upper()
+    return unicode_type(uuid4()).replace('-', '', 1).upper()
 
 # }}}
+
 
 class XMLCache(object):
 
@@ -156,7 +162,7 @@ class XMLCache(object):
     def purge_broken_playlist_items(self, root):
         id_map = self.build_id_map(root)
         for pl in root.xpath('//*[local-name()="playlist"]'):
-            seen = set([])
+            seen = set()
             for item in list(pl):
                 id_ = item.get('id', None)
                 if id_ is None or id_ in seen or id_map.get(id_, None) is None:
@@ -194,8 +200,8 @@ class XMLCache(object):
                     playlist.set('title', title)
                 if title in seen:
                     for i in range(2, 1000):
-                        if title+str(i) not in seen:
-                            title = title+str(i)
+                        if title+unicode_type(i) not in seen:
+                            title = title+unicode_type(i)
                             playlist.set('title', title)
                             seen.add(title)
                             break
@@ -268,7 +274,7 @@ class XMLCache(object):
                 nsmap=root.nsmap, attrib={
                     'uuid' : uuid(),
                     'title': title,
-                    'id'   : str(self.max_id(root)+1),
+                    'id'   : unicode_type(self.max_id(root)+1),
                     'sourceid': '1'
                     })
         root.append(ans)
@@ -307,24 +313,24 @@ class XMLCache(object):
         def ensure_media_xml_base_ids(root):
             for num, tag in enumerate(('library', 'watchSpecial')):
                 for x in root.xpath('//*[local-name()="%s"]'%tag):
-                    x.set('id', str(num))
+                    x.set('id', unicode_type(num))
 
         def rebase_ids(root, base, sourceid, pl_sourceid):
             'Rebase all ids and also make them consecutive'
             for item in root.xpath('//*[@sourceid]'):
                 sid = pl_sourceid if item.tag.endswith('playlist') else sourceid
-                item.set('sourceid', str(sid))
+                item.set('sourceid', unicode_type(sid))
             # Only rebase ids of nodes that are immediate children of the
             # record root (that way playlist/itemnodes are unaffected
             items = root.xpath('child::*[@id]')
-            items.sort(cmp=lambda x,y:cmp(int(x.get('id')), int(y.get('id'))))
+            items.sort(key=lambda x: int(x.get('id')))
             idmap = {}
             for i, item in enumerate(items):
                 old = int(item.get('id'))
                 new = base + i
                 if old != new:
-                    item.set('id', str(new))
-                    idmap[str(old)] = str(new)
+                    item.set('id', unicode_type(new))
+                    idmap[unicode_type(old)] = unicode_type(new)
             return idmap
 
         self.prune_empty_playlists()
@@ -353,7 +359,7 @@ class XMLCache(object):
 
         last_bl = max(self.roots.keys())
         max_id = self.max_id(self.roots[last_bl])
-        self.roots[0].set('nextID', str(max_id+1))
+        self.roots[0].set('nextID', unicode_type(max_id+1))
         debug_print('Finished running fix_ids()')
 
     # }}}
@@ -376,8 +382,8 @@ class XMLCache(object):
                             'descendant::*[local-name()="png"]'):
                         if img.text:
                             try:
-                                raw = b64decode(img.text.strip())
-                            except:
+                                raw = from_base64_bytes(img.text.strip())
+                            except Exception:
                                 continue
                             book.thumbnail = raw
                             break
@@ -510,7 +516,7 @@ class XMLCache(object):
             # Ensure each book has an ID.
             for rec in records:
                 if rec.get('id', None) is None:
-                    rec.set('id', str(self.max_id(root)+1))
+                    rec.set('id', unicode_type(self.max_id(root)+1))
             ids = [x.get('id', None) for x in records]
             # Given that we set the ids, there shouldn't be any None's. But
             # better to be safe...
@@ -567,7 +573,7 @@ class XMLCache(object):
         id_ = self.max_id(root)+1
         attrib = {
                 'page':'0', 'part':'0','pageOffset':'0','scale':'0',
-                'id':str(id_), 'sourceid':'1', 'path':lpath}
+                'id':unicode_type(id_), 'sourceid':'1', 'path':lpath}
         ans = root.makeelement('{%s}text'%namespace, attrib=attrib, nsmap=root.nsmap)
         root.append(ans)
         return ans
@@ -586,7 +592,7 @@ class XMLCache(object):
         if thumbnail and thumbnail[-1]:
             ans.text = '\n' + '\t\t'
             t = root.makeelement('{%s}thumbnail'%namespace,
-                attrib={'width':str(thumbnail[0]), 'height':str(thumbnail[1])},
+                attrib={'width':unicode_type(thumbnail[0]), 'height':unicode_type(thumbnail[1])},
                 nsmap=root.nsmap)
             t.text = 'main_thumbnail.jpg'
             ans.append(t)
@@ -624,7 +630,7 @@ class XMLCache(object):
         def clean(x):
             if isbytestring(x):
                 x = x.decode(preferred_encoding, 'replace')
-            x.replace(u'\0', '')
+            x.replace('\0', '')
             return x
 
         def record_set(k, v):
@@ -655,7 +661,7 @@ class XMLCache(object):
             date = strftime(timestamp, zone=tz)
             record.set('date', clean(date))
         try:
-            record.set('size', clean(str(os.stat(path).st_size)))
+            record.set('size', clean(unicode_type(os.stat(path).st_size)))
         except:
             record.set('size', '0')
         title = book.title if book.title else _('Unknown')
@@ -685,7 +691,7 @@ class XMLCache(object):
             record.set('sourceid', '1')
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
-            record.set('id', str(num+1))
+            record.set('id', unicode_type(num+1))
         return (gtz_count, ltz_count, use_tz_var)
     # }}}
 
@@ -701,8 +707,8 @@ class XMLCache(object):
                     child.text = '\n'+'\t'*(level+1)
                     for gc in child:
                         gc.tail = '\n'+'\t'*(level+1)
-                    child.iterchildren(reversed=True).next().tail = '\n'+'\t'*level
-            root.iterchildren(reversed=True).next().tail = '\n'+'\t'*(level-1)
+                    next(child.iterchildren(reversed=True)).tail = '\n'+'\t'*level
+            next(root.iterchildren(reversed=True)).tail = '\n'+'\t'*(level-1)
 
     def move_playlists_to_bottom(self):
         for root in self.record_roots.values():
@@ -721,8 +727,8 @@ class XMLCache(object):
             self.cleanup_whitespace(i)
             raw = etree.tostring(self.roots[i], encoding='UTF-8',
                     xml_declaration=True)
-            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
-                    '<?xml version="1.0" encoding="UTF-8"?>')
+            raw = raw.replace(b"<?xml version='1.0' encoding='UTF-8'?>",
+                    b'<?xml version="1.0" encoding="UTF-8"?>')
             with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)
@@ -733,8 +739,8 @@ class XMLCache(object):
                     xml_declaration=True)
             except:
                 continue
-            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
-                    '<?xml version="1.0" encoding="UTF-8"?>')
+            raw = raw.replace(b"<?xml version='1.0' encoding='UTF-8'?>",
+                    b'<?xml version="1.0" encoding="UTF-8"?>')
             with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)
@@ -795,4 +801,3 @@ class XMLCache(object):
                 self.namespaces[i] = ns
 
     # }}}
-

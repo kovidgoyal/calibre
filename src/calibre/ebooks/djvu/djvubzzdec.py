@@ -1,7 +1,8 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 # coding: utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from polyglot.builtins import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
@@ -78,12 +79,16 @@ CTXIDS = 3
 MAXLEN = 1024 ** 2
 
 # Exception classes used by this module.
+
+
 class BZZDecoderError(Exception):
 
     """This exception is raised when BZZDecode runs into trouble
     """
+
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return "BZZDecoderError: %s" % (self.msg)
 
@@ -387,6 +392,7 @@ xmtf = (
 )
 # }}}
 
+
 class BZZDecoder():
 
     def __init__(self, infile, outfile):
@@ -500,7 +506,7 @@ class BZZDecoder():
         markerpos = -1
         zc = lambda i: self.zpcodec_decode(self.ctx, i)
         dc = lambda i, bits: self.decode_binary(self.ctx, i, bits)
-        for i in xrange(self.xsize):
+        for i in range(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:
                 ctxid = mtfno
@@ -728,9 +734,11 @@ class BZZDecoder():
 def main():
     import sys
     from calibre.constants import plugins
-    raw = file(sys.argv[1], "rb").read()
+    with open(sys.argv[1], "rb") as f:
+        raw = f.read()
     d = plugins['bzzdec'][0]
-    print (d.decompress(raw))
+    print(d.decompress(raw))
+
 
 if __name__ == "__main__":
     main()

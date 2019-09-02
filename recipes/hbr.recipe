@@ -5,8 +5,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 from mechanize import Request
-from urllib import urlencode
 import json
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 
 class HBR(BasicNewsRecipe):
@@ -34,12 +37,14 @@ class HBR(BasicNewsRecipe):
         rq = Request('https://hbr.org/authenticate', headers={
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Referer': 'https://hbr.org/sign-in',
+            'Origin': 'https://hbr.org',
             'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
         }, data=urlencode({'username': self.username, 'password': self.password}))
         r = br.open(rq)
         raw = r.read()
         data = json.loads(raw)
-        if data['code'] != 200 or data["message"] != "Authentication Successful":
+        if data['code'] != 200 or data["message"] != "Authentication Successful.":
             raise ValueError('Failed to log in check username/password')
         return br
 

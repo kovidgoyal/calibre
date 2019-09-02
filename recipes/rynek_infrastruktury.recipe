@@ -17,26 +17,22 @@ class prawica_recipe(BasicNewsRecipe):
     description = u'Portal "Rynek Infrastruktury" to źródło informacji o kluczowych elementach polskiej gospodarki: drogach, kolei, lotniskach, portach, telekomunikacji, energetyce, prawie i polityce, wzmocnione eksperckimi komentarzami kluczowych analityków.'  # noqa
     remove_empty_feeds = True
     oldest_article = 1
-    max_articles_per_feed = 100
+    max_articles_per_feed = 50
     remove_javascript = True
     no_stylesheets = True
 
     feeds = [
-        (u'Drogi', u'http://www.rynekinfrastruktury.pl/rss/41'),
-        (u'Lotniska', u'http://www.rynekinfrastruktury.pl/rss/42'),
-        (u'Kolej', u'http://www.rynekinfrastruktury.pl/rss/37'),
-        (u'Energetyka', u'http://www.rynekinfrastruktury.pl/rss/30'),
-        (u'Telekomunikacja', u'http://www.rynekinfrastruktury.pl/rss/31'),
-        (u'Porty', u'http://www.rynekinfrastruktury.pl/rss/32'),
-        (u'Prawo i polityka', u'http://www.rynekinfrastruktury.pl/rss/47'),
-        (u'Komentarze', u'http://www.rynekinfrastruktury.pl/rss/38'),
+        (u'Drogi', u'http://www.rynekinfrastruktury.pl/rss/drogi.xml'),
+        (u'Kolej', u'http://www.rynekinfrastruktury.pl/rss/kolej.xml'),
+        (u'Energetyka', u'http://www.rynekinfrastruktury.pl/rss/energetyka.xml')
+        # no news in these feeds since 4 years:
+        # (u'Porty i lotniska', u'http://www.rynekinfrastruktury.pl/rss/porty-i-lotniska.xml'),
+        # (u'Komentarze', u'http://www.rynekinfrastruktury.pl/rss/komentarze-i-felietony.xml'),
     ]
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'class': 'articleContent'}))
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'wiadTit'}),
+        dict(name='div', attrs={'class': ['wiadSzczegol', 'multimediaWiadomosci', 'wiadTresc']})
+    ]
 
-    remove_tags = []
-    remove_tags.append(dict(name='span', attrs={'class': 'date'}))
-
-    def print_version(self, url):
-        return url.replace('http://www.rynekinfrastruktury.pl/artykul/', 'http://www.rynekinfrastruktury.pl/artykul/drukuj/')
+    remove_tags = [dict(name='span', attrs={'class': 'kom'})]

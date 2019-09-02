@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -19,8 +18,10 @@ get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(
 
 tw = 4  # The tab width (hardcoded to the pep8 value)
 
+
 def expand_tabs(text):
     return text.replace('\t', ' ' * tw)
+
 
 class Smarts(NullSmarts):
 
@@ -67,6 +68,7 @@ class Smarts(NullSmarts):
 
         if key == Qt.Key_Home and smart_home(editor, ev):
             return True
+
 
 if __name__ == '__main__':
     import os

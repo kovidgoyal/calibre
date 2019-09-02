@@ -14,6 +14,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class TheSouthernStar(BasicNewsRecipe):
 
     title = 'The Southern Star'
@@ -117,10 +124,10 @@ class TheSouthernStar(BasicNewsRecipe):
             if img is not None:
                 img.extract()
                 caption = self.tag_to_string(table).strip()
-                div = Tag(soup, 'div')
+                div = new_tag(soup, 'div')
                 div['style'] = 'text-align:center'
                 div.insert(0, img)
-                div.insert(1, Tag(soup, 'br'))
+                div.insert(1, new_tag(soup, 'br'))
                 if caption:
                     div.insert(2, NavigableString(caption))
                 table.replaceWith(div)

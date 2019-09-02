@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,10 +12,13 @@ from PyQt5.Qt import Qt
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
+from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import iteritems, unicode_type
+
 
 class LookAndFeelWidget(Widget, Ui_Form):
 
-    TITLE = _('Look & Feel')
+    TITLE = _('Look & feel')
     ICON  = I('lookfeel.png')
     HELP  = _('Control the look and feel of the output')
     COMMIT_NAME = 'look_and_feel'
@@ -31,19 +34,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
     }
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['change_justification', 'extra_css', 'base_font_size',
-                    'font_size_mapping', 'line_height', 'minimum_line_height',
-                    'embed_font_family', 'embed_all_fonts', 'subset_embedded_fonts',
-                    'smarten_punctuation', 'unsmarten_punctuation',
-                    'disable_font_rescaling', 'insert_blank_line',
-                    'remove_paragraph_spacing',
-                    'remove_paragraph_spacing_indent_size',
-                    'insert_blank_line_size',
-                    'input_encoding', 'filter_css', 'expand_css',
-                    'asciiize', 'keep_ligatures',
-                    'linearize_tables', 'transform_css_rules']
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['look_and_feel'])
         for val, text in [
                 ('original', _('Original')),
                 ('left', _('Left align')),
@@ -57,28 +48,26 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.button_font_key.clicked.connect(self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
-        self.opt_smarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and
-                self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
-        self.opt_unsmarten_punctuation.stateChanged.connect(
-                lambda state: state != Qt.Unchecked and
-                self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
+        connect_lambda(self.opt_smarten_punctuation.stateChanged, self, lambda self, state:
+                state != Qt.Unchecked and self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
+        connect_lambda(self.opt_unsmarten_punctuation.stateChanged, self, lambda self, state:
+                state != Qt.Unchecked and self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
-            ans = unicode(g.itemData(g.currentIndex()) or '')
+            ans = unicode_type(g.itemData(g.currentIndex()) or '')
             return ans
         if g is self.opt_filter_css:
             ans = set()
-            for key, item in self.FILTER_CSS.iteritems():
+            for key, item in iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if w.isChecked():
                     ans = ans.union(item)
-            ans = ans.union(set([x.strip().lower() for x in
-                unicode(self.filter_css_others.text()).split(',')]))
+            ans = ans.union({x.strip().lower() for x in
+                unicode_type(self.filter_css_others.text()).split(',')})
             return ','.join(ans) if ans else None
         if g is self.opt_font_size_mapping:
-            val = unicode(g.text()).strip()
+            val = unicode_type(g.text()).strip()
             val = [x.strip() for x in val.split(',' if ',' in val else ' ') if x.strip()]
             return ', '.join(val) or None
         if g is self.opt_transform_css_rules:
@@ -88,7 +77,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
     def set_value_handler(self, g, val):
         if g is self.opt_change_justification:
             for i in range(g.count()):
-                c = unicode(g.itemData(i) or '')
+                c = unicode_type(g.itemData(i) or '')
                 if val == c:
                     g.setCurrentIndex(i)
                     break
@@ -97,7 +86,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             if not val:
                 val = ''
             items = frozenset([x.strip().lower() for x in val.split(',')])
-            for key, vals in self.FILTER_CSS.iteritems():
+            for key, vals in iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if not vals - items:
                     items = items - vals
@@ -125,10 +114,8 @@ class LookAndFeelWidget(Widget, Ui_Form):
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser
         d = FontKeyChooser(self, self.opt_base_font_size.value(),
-                unicode(self.opt_font_size_mapping.text()).strip())
+                unicode_type(self.opt_font_size_mapping.text()).strip())
         if d.exec_() == d.Accepted:
             self.opt_font_size_mapping.setText(', '.join(['%.1f'%x for x in
                 d.fsizes]))
             self.opt_base_font_size.setValue(d.dbase)
-
-

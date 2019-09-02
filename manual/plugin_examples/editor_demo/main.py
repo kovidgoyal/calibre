@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 from PyQt5.Qt import QAction, QInputDialog
-from cssutils.css import CSSRule
+from css_parser.css import CSSRule
 
 # The base class that all tools must inherit from
 from calibre.gui2.tweak_book.plugin import Tool
@@ -16,6 +15,7 @@ from calibre.gui2.tweak_book.plugin import Tool
 from calibre import force_unicode
 from calibre.gui2 import error_dialog
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, serialize
+
 
 class DemoTool(Tool):
 
@@ -77,9 +77,9 @@ class DemoTool(Tool):
 
         # Iterate over all style declarations in the book, this means css
         # stylesheets, <style> tags and style="" attributes
-        for name, media_type in container.mime_map.iteritems():
+        for name, media_type in container.mime_map.items():
             if media_type in OEB_STYLES:
-                # A stylesheet. Parsed stylesheets are cssutils CSSStylesheet
+                # A stylesheet. Parsed stylesheets are css_parser CSSStylesheet
                 # objects.
                 self.magnify_stylesheet(container.parsed(name), factor)
                 container.dirty(name)  # Tell the container that we have changed the stylesheet

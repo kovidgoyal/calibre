@@ -1,13 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 from contextlib import closing
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from lxml import html
 
@@ -18,12 +20,17 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-SEARCH_BASE_URL = 'http://www.amazon.ca/s/'
+SEARCH_BASE_URL = 'https://www.amazon.ca/s/'
 SEARCH_BASE_QUERY = {'url': 'search-alias=digital-text'}
-DETAILS_URL = 'http://amazon.ca/dp/'
-STORE_LINK =  'http://www.amazon.ca'
+DETAILS_URL = 'https://amazon.ca/dp/'
+STORE_LINK =  'https://www.amazon.ca'
 DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
 DRM_FREE_TEXT = 'Unlimited'
+
+
+def get_user_agent():
+    return 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+
 
 def search_amazon(query, max_results=10, timeout=60,
                   write_html_to=None,
@@ -33,13 +40,14 @@ def search_amazon(query, max_results=10, timeout=60,
                   ):
     uquery = base_query.copy()
     uquery[field_keywords] = query
+
     def asbytes(x):
         if isinstance(x, type('')):
             x = x.encode('utf-8')
         return x
-    uquery = {asbytes(k):asbytes(v) for k, v in uquery.iteritems()}
-    url = base_url + '?' + urllib.urlencode(uquery).decode('ascii')
-    br = browser()
+    uquery = {asbytes(k):asbytes(v) for k, v in uquery.items()}
+    url = base_url + '?' + urlencode(uquery)
+    br = browser(user_agent=get_user_agent())
 
     counter = max_results
     with closing(br.open(url, timeout=timeout)) as f:
@@ -60,7 +68,8 @@ def search_amazon(query, max_results=10, timeout=60,
             cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
             title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
             author_xpath = './/span[starts-with(text(), "by ")]/following-sibling::span//text()'
-            price_xpath = '(.//span[contains(@class, " s-price ")])[last()]//text()'
+            price_xpath = ('descendant::div[@class="a-row a-spacing-none" and'
+                           ' not(span[contains(@class, "kindle-unlimited")])]//span[contains(@class, "s-price")]//text()')
         else:
             return
 
@@ -107,6 +116,7 @@ def search_amazon(query, max_results=10, timeout=60,
 
             yield s
 
+
 class AmazonKindleStore(StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -120,7 +130,7 @@ class AmazonKindleStore(StorePlugin):
     def get_details(self, search_result, timeout):
         url = DETAILS_URL
 
-        br = browser()
+        br = browser(user_agent=get_user_agent())
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
@@ -135,7 +145,8 @@ class AmazonKindleStore(StorePlugin):
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
 
+
 if __name__ == '__main__':
     import sys
     for result in search_amazon(' '.join(sys.argv[1:]), write_html_to='/t/amazon.html'):
-        print (result)
+        print(result)

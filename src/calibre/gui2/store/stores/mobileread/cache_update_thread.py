@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -17,11 +17,12 @@ from PyQt5.Qt import (pyqtSignal, QObject)
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult
 
+
 class CacheUpdateThread(Thread, QObject):
 
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
-    update_details = pyqtSignal(unicode)
+    update_details = pyqtSignal(type(u''))
 
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)
@@ -37,7 +38,7 @@ class CacheUpdateThread(Thread, QObject):
         self._run = False
 
     def run(self):
-        url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
+        url = 'https://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
 
         self.update_details.emit(_('Checking last download date.'))
         last_download = self.config.get('last_download', None)

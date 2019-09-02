@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from future_builtins import map
+from polyglot.builtins import iteritems, map, range, filter
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -29,22 +28,25 @@ from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_web_page
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, numeric_sort_key, character_name_from_code
+from calibre.utils.icu import primary_contains, numeric_sort_key
+from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 # Utils {{{
 
 ROOT = QModelIndex()
 
+
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
     if data is None:
         tprefs['reports-ui-state'] = data = {}
     return data.get(name, default)
+
 
 def save_state(name, val):
     data = tprefs.get('reports-ui-state')
@@ -54,7 +56,9 @@ def save_state(name, val):
         tprefs['reports-ui-state'] = data = {}
     data[name] = val
 
+
 SORT_ROLE = Qt.UserRole + 1
+
 
 class ProxyModel(QSortFilterProxyModel):
 
@@ -71,7 +75,7 @@ class ProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        for item in (sm.data(sm.index(row, c, parent)) or '' for c in xrange(sm.columnCount())):
+        for item in (sm.data(sm.index(row, c, parent)) or '' for c in range(sm.columnCount())):
             if item and primary_contains(self._filter_text, item):
                 return True
         return False
@@ -80,6 +84,7 @@ class ProxyModel(QSortFilterProxyModel):
         if orientation == Qt.Vertical and role == Qt.DisplayRole:
             return section + 1
         return QSortFilterProxyModel.headerData(self, section, orientation, role)
+
 
 class FileCollection(QAbstractTableModel):
 
@@ -107,8 +112,9 @@ class FileCollection(QAbstractTableModel):
     def location(self, index):
         try:
             return self.files[index.row()].name
-        except IndexError:
+        except (IndexError, AttributeError):
             pass
+
 
 class FilesView(QTableView):
 
@@ -140,7 +146,7 @@ class FilesView(QTableView):
         if self.model().rowCount() > 0:
             num = min(5, self.model().rowCount())
             h = 1000000
-            for i in xrange(num):
+            for i in range(num):
                 self.resizeRowToContents(i)
                 h = min(h, self.rowHeight(i))
             self.verticalHeader().setDefaultSectionSize(h)
@@ -159,7 +165,7 @@ class FilesView(QTableView):
 
     @property
     def selected_locations(self):
-        return filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes()))
+        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes())))
 
     @property
     def current_location(self):
@@ -191,8 +197,8 @@ class FilesView(QTableView):
         w = csv_writer(buf)
         w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
         cols = self.proxy.columnCount()
-        for r in xrange(self.proxy.rowCount()):
-            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in xrange(cols)]
+        for r in range(self.proxy.rowCount()):
+            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in range(cols)]
             w.writerow(items)
         return buf.getvalue()
 
@@ -212,6 +218,7 @@ class FilesView(QTableView):
 # }}}
 
 # Files {{{
+
 
 class FilesModel(FileCollection):
 
@@ -262,6 +269,7 @@ class FilesModel(FileCollection):
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
 
+
 class FilesWidget(QWidget):
 
     edit_requested = pyqtSignal(object)
@@ -274,6 +282,7 @@ class FilesWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = FilesModel(self)
         self.files = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -307,6 +316,7 @@ class FilesWidget(QWidget):
 
 # Jump {{{
 
+
 def jump_to_location(loc):
     from calibre.gui2.tweak_book.boss import get_boss
     boss = get_boss()
@@ -327,6 +337,7 @@ def jump_to_location(loc):
         if loc.text_on_line is not None:
             editor.find(regex.compile(regex.escape(loc.text_on_line)))
 
+
 class Jump(object):
 
     def __init__(self):
@@ -341,9 +352,11 @@ class Jump(object):
             loc = locations[self.pos_map[key]]
             jump_to_location(loc)
 
+
 jump = Jump()  # }}}
 
 # Images {{{
+
 
 class ImagesDelegate(QStyledItemDelegate):
 
@@ -459,6 +472,7 @@ class ImagesWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = ImagesModel(self)
         self.files = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -496,9 +510,10 @@ class ImagesWidget(QWidget):
 
 # Links {{{
 
+
 class LinksModel(FileCollection):
 
-    COLUMN_HEADERS = ['✓ ', _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
+    COLUMN_HEADERS = ['✓', _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
 
     def __init__(self, parent=None):
         FileCollection.__init__(self, parent)
@@ -528,7 +543,7 @@ class LinksModel(FileCollection):
             except IndexError:
                 return None
             if col == 0:
-                return {True:'✓ ', False:'✗'}.get(link.ok)
+                return {True:'✓', False:'✗'}.get(link.ok)
             if col == 1:
                 return link.location.name
             if col == 2:
@@ -560,10 +575,12 @@ class LinksModel(FileCollection):
             except IndexError:
                 pass
 
+
 class WebView(QWebView):
 
     def sizeHint(self):
         return QSize(600, 200)
+
 
 class LinksWidget(QWidget):
 
@@ -576,6 +593,7 @@ class LinksWidget(QWidget):
         self.splitter = s = QSplitter(Qt.Vertical, self)
         l.addWidget(s)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = LinksModel(self)
         self.links = f = FilesView(m, self)
         f.DELETE_POSSIBLE = False
@@ -585,6 +603,9 @@ class LinksWidget(QWidget):
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
         self.view = WebView(self)
+        secure_web_page(self.view.page())
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.view.setContextMenuPolicy(Qt.NoContextMenu)
         s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
@@ -649,6 +670,7 @@ class LinksWidget(QWidget):
 
 # Words {{{
 
+
 class WordsModel(FileCollection):
 
     COLUMN_HEADERS = (_('Word'), _('Language'), _('Times used'))
@@ -660,11 +682,12 @@ class WordsModel(FileCollection):
         self.total_size = len({entry.locale for entry in self.files})
         psk = numeric_sort_key
         lsk_cache = {}
+
         def locale_sort_key(loc):
             try:
                 return lsk_cache[loc]
             except KeyError:
-                lsk_cache[loc] = (psk(calibre_langcode_to_name(canonicalize_lang(loc[0]))), psk(loc[1] or ''))
+                lsk_cache[loc] = psk(calibre_langcode_to_name(canonicalize_lang(loc[0])) + (loc[1] or ''))
             return lsk_cache[loc]
 
         self.sort_keys = tuple((psk(entry.word), locale_sort_key(entry.locale), len(entry.usage)) for entry in self.files)
@@ -700,6 +723,7 @@ class WordsModel(FileCollection):
     def location(self, index):
         return None
 
+
 class WordsWidget(QWidget):
 
     def __init__(self, parent=None):
@@ -709,6 +733,7 @@ class WordsWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = WordsModel(self)
         self.words = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -741,6 +766,7 @@ class WordsWidget(QWidget):
 # }}}
 
 # Characters {{{
+
 
 class CharsModel(FileCollection):
 
@@ -786,6 +812,7 @@ class CharsModel(FileCollection):
     def location(self, index):
         return None
 
+
 class CharsWidget(QWidget):
 
     def __init__(self, parent=None):
@@ -795,6 +822,7 @@ class CharsWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = CharsModel(self)
         self.chars = f = FilesView(m, self)
         self.to_csv = f.to_csv
@@ -846,7 +874,7 @@ class CharsWidget(QWidget):
             ed = boss.edit_file_requested(file_name)
             if ed is None:
                 return
-            if ed.editor.find(pat, complete=not from_cursor):
+            if ed.editor.find_text(pat, complete=not from_cursor):
                 boss.show_editor(file_name)
                 return True
         return False
@@ -854,6 +882,7 @@ class CharsWidget(QWidget):
 # }}}
 
 # CSS {{{
+
 
 class CSSRulesModel(QAbstractItemModel):
 
@@ -957,6 +986,7 @@ class CSSRulesModel(QAbstractItemModel):
         self.build_maps()
         self.endResetModel()
 
+
 class CSSProxyModel(QSortFilterProxyModel):
 
     def __init__(self, parent=None):
@@ -976,6 +1006,7 @@ class CSSProxyModel(QSortFilterProxyModel):
         if not isinstance(entry, CSSEntry):
             return True
         return primary_contains(self._filter_text, entry.rule.selector)
+
 
 class CSSWidget(QWidget):
 
@@ -997,6 +1028,7 @@ class CSSWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
+        e.setClearButtonEnabled(True)
         self.model = m = self.MODEL(self)
         self.proxy = p = self.PROXY(self)
         p.setSourceModel(m)
@@ -1028,13 +1060,13 @@ class CSSWidget(QWidget):
         self.summary = la = QLabel('\xa0')
         h.addWidget(la)
 
-    @dynamic_property
+    @property
     def sort_order(self):
-        def fget(self):
-            return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
-        def fset(self, val):
-            self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
-        return property(fget=fget, fset=fset)
+        return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+
+    @sort_order.setter
+    def sort_order(self, val):
+        self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
 
     def update_summary(self):
         self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
@@ -1058,7 +1090,7 @@ class CSSWidget(QWidget):
         buf = BytesIO()
         w = csv_writer(buf)
         w.writerow([_('Style Rule'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.rule.selector, entry.count])
         return buf.getvalue()
@@ -1099,6 +1131,7 @@ class CSSWidget(QWidget):
 # }}}
 
 # Classes {{{
+
 
 class ClassesModel(CSSRulesModel):
 
@@ -1177,6 +1210,7 @@ class ClassesModel(CSSRulesModel):
         self.build_maps()
         self.endResetModel()
 
+
 class ClassProxyModel(CSSProxyModel):
 
     def filterAcceptsRow(self, row, parent):
@@ -1187,6 +1221,7 @@ class ClassProxyModel(CSSProxyModel):
         if not isinstance(entry, ClassEntry):
             return True
         return primary_contains(self._filter_text, entry.cls)
+
 
 class ClassesWidget(CSSWidget):
 
@@ -1201,7 +1236,7 @@ class ClassesWidget(CSSWidget):
         buf = BytesIO()
         w = csv_writer(buf)
         w.writerow([_('Class'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.cls, entry.num_of_matches])
         return buf.getvalue()
@@ -1231,6 +1266,8 @@ class ClassesWidget(CSSWidget):
 # }}}
 
 # Wrapper UI {{{
+
+
 class ReportsWidget(QWidget):
 
     edit_requested = pyqtSignal(object)
@@ -1266,11 +1303,11 @@ class ReportsWidget(QWidget):
 
         self.css = c = CSSWidget(self)
         s.addWidget(c)
-        QListWidgetItem(_('Style Rules'), r)
+        QListWidgetItem(_('Style rules'), r)
 
         self.css = c = ClassesWidget(self)
         s.addWidget(c)
-        QListWidgetItem(_('Style Classes'), r)
+        QListWidgetItem(_('Style classes'), r)
 
         self.chars = c = CharsWidget(self)
         s.addWidget(c)
@@ -1289,22 +1326,22 @@ class ReportsWidget(QWidget):
         if current_page is not None:
             self.reports.setCurrentRow(current_page)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).layout().setContentsMargins(0, 0, 0, 0)
 
     def __call__(self, data):
         jump.clear()
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             st = time.time()
             self.stack.widget(i)(data)
             if DEBUG:
                 category = self.reports.item(i).data(Qt.DisplayRole)
-                print ('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
+                print('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
 
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
         save_state('report-page', self.reports.currentRow())
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).save()
 
     def to_csv(self):
@@ -1319,6 +1356,7 @@ class ReportsWidget(QWidget):
         if fname:
             with open(fname, 'wb') as f:
                 f.write(data)
+
 
 class Reports(Dialog):
 
@@ -1399,8 +1437,8 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
-                print ('Time for %6s data: %.3f seconds' % (x, t))
+            for x, t in sorted(iteritems(timing), key=itemgetter(1)):
+                print('Time for %6s data: %.3f seconds' % (x, t))
         self.reports(data)
 
     def accept(self):
@@ -1412,6 +1450,7 @@ class Reports(Dialog):
         self.reports.save()
         Dialog.reject(self)
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

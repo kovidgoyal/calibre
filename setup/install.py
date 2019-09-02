@@ -1,18 +1,26 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, glob
+import atexit
+import glob
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import textwrap
+import time
 
-from setup import (Command, islinux, isbsd, basenames, modules, functions,
-        __appname__, __version__)
+from setup import (
+    Command, __appname__, __version__, basenames, functions,
+    isbsd, ishaiku, islinux, modules
+)
 
 HEADER = '''\
-#!/usr/bin/env python2
+#!/usr/bin/env python{py_major_version}
 
 """
 This is the standard runscript for all of calibre's tools.
@@ -43,6 +51,7 @@ sys.path = sys.path[1:]
 
 sys.exit(complete.main())
 '''
+
 
 class Develop(Command):
 
@@ -115,7 +124,7 @@ class Develop(Command):
             self.info('\tSHARE:', self.staging_sharedir)
 
     def pre_sub_commands(self, opts):
-        if not (islinux or isbsd):
+        if not (islinux or isbsd or ishaiku):
             self.info('\nSetting up a source based development environment is only '
                     'supported on linux. On other platforms, see the User Manual'
                     ' for help with setting up a development environment.')
@@ -136,8 +145,8 @@ class Develop(Command):
         self.opts = opts
         self.regain_privileges()
         self.consolidate_paths()
-        self.write_templates()
         self.install_files()
+        self.write_templates()
         self.run_postinstall()
         self.install_env_module()
         self.success()
@@ -154,7 +163,7 @@ class Develop(Command):
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
-                f.write(HEADER.format(**self.template_args()))
+                f.write(HEADER.format(**self.template_args()).encode('utf-8'))
 
     def install_files(self):
         pass
@@ -176,6 +185,7 @@ class Develop(Command):
 
     def template_args(self):
         return {
+            'py_major_version': sys.version_info.major,
             'path':self.libdir,
             'resources':self.sharedir,
             'executables':self.bindir,
@@ -194,7 +204,8 @@ class Develop(Command):
         self.info('Installing binary:', path)
         if os.path.lexists(path) and not os.path.exists(path):
             os.remove(path)
-        open(path, 'wb').write(script)
+        with open(path, 'wb') as f:
+            f.write(script.encode('utf-8'))
         os.chmod(path, self.MODE)
         self.manifest.append(path)
 
@@ -213,6 +224,8 @@ class Install(Develop):
             the environment variables:
             XDG_DATA_DIRS=/usr/share equivalent
             XDG_UTILS_INSTALL_MODE=system
+            For staged installs this will be automatically set to:
+            <staging_root>/share
     ''')
     short_description = 'Install calibre from source'
 
@@ -258,12 +271,13 @@ class Install(Develop):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         self.info('Installing resources to', dest)
-        shutil.copytree(self.RESOURCES, dest)
+        shutil.copytree(self.RESOURCES, dest, symlinks=True)
         self.manifest.append(dest)
 
     def success(self):
         self.info('\n\ncalibre successfully installed. You can start'
                 ' it by running the command calibre')
+
 
 class Sdist(Command):
 
@@ -310,6 +324,7 @@ class Sdist(Command):
                 if not os.path.exists(dest):
                     shutil.copy2(y, dest)
         shutil.copytree(self.j(tbase, 'manual'), self.j(tdir, 'translations', 'manual'))
+        self.add_man_pages(self.j(tdir, 'man-pages'))
 
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
@@ -319,15 +334,20 @@ class Sdist(Command):
             os.remove(self.a(self.DEST))
         subprocess.check_call(['xz', '-9', self.a(dest)])
 
+    def add_man_pages(self, dest):
+        from setup.commands import man_pages
+        man_pages.build_man_pages(dest)
+
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
 
+
 class Bootstrap(Command):
 
     description = 'Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers'
-    TRANSLATIONS_REPO = 'https://github.com/kovidgoyal/calibre-translations.git'
-    sub_commands = 'build iso639 iso3166 translations gui resources cacerts recent_uas mathjax'.split()
+    TRANSLATIONS_REPO = 'kovidgoyal/calibre-translations'
+    sub_commands = 'build iso639 iso3166 translations gui resources cacerts recent_uas'.split()
 
     def add_options(self, parser):
         parser.add_option('--ephemeral', default=False, action='store_true',
@@ -335,15 +355,21 @@ class Bootstrap(Command):
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
+        clone_cmd = [
+            'git', 'clone', 'https://github.com/{}.git'.format(self.TRANSLATIONS_REPO), 'translations']
         if opts.ephemeral:
             if os.path.exists(tdir):
                 shutil.rmtree(tdir)
-            subprocess.check_call(['git', 'clone', '--depth=1', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+
+            st = time.time()
+            clone_cmd.insert(2, '--depth=1')
+            subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
+            print('Downloaded translations in %d seconds' % int(time.time() - st))
         else:
             if os.path.exists(tdir):
                 subprocess.check_call(['git', 'pull'], cwd=tdir)
             else:
-                subprocess.check_call(['git', 'clone', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+                subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
 
     def run(self, opts):
         self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)

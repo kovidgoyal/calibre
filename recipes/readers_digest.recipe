@@ -7,6 +7,12 @@ import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class ReadersDigest(BasicNewsRecipe):
 
     title = 'Readers Digest'
@@ -20,6 +26,7 @@ class ReadersDigest(BasicNewsRecipe):
 
     language = 'en'
     remove_javascript = True
+    remove_attributes = ['style']
 
     extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
                         .mainHd{font-family:georgia,serif;color:#000000;}
@@ -51,7 +58,10 @@ class ReadersDigest(BasicNewsRecipe):
 
     # cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
 
-    keep_only_tags = dict(id='main')
+    keep_only_tags = [
+            classes('entry-header rd-article-dek'),
+            dict(name='article', attrs={'class': lambda x: x and 'post-' in x}),
+    ]
     remove_tags = [
         dict(attrs={'class': re.compile('rd-article--sidebar.*')}),
         dict(attrs={'class': ['rd-article--footer', 'rd-article--sharing']}),

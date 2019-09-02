@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -8,11 +9,13 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 
+
 class FB2Output(OutputFormatPlugin):
 
     name = 'FB2 Output'
     author = 'John Schember'
     file_type = 'fb2'
+    commit_name = 'fb2_output'
 
     FB2_GENRES = [
         # Science Fiction & Fantasy
@@ -65,98 +68,107 @@ class FB2Output(OutputFormatPlugin):
         # Children's
         'child_tale',  # Fairy Tales
         'child_verse',  # Verses
-    'child_prose',  # Prose
-    'child_sf',  # Science Fiction
-    'child_det',  # Detectives & Thrillers
-    'child_adv',  # Adventures
-    'child_education',  # Educational
-    'children',  # Other
-    # Poetry & Dramaturgy
-    'poetry',  # Poetry
-    'dramaturgy',  # Dramaturgy
-    # Antique literature
-    'antique_ant',  # Antique
-    'antique_european',  # European
-    'antique_russian',  # Old russian
-    'antique_east',  # Old east
-    'antique_myths',  # Myths. Legends. Epos
-    'antique',  # Other
-    # Scientific#educational
-    'sci_history',  # History
-    'sci_psychology',  # Psychology
-    'sci_culture',  # Cultural science
-    'sci_religion',  # Religious studies
-    'sci_philosophy',  # Philosophy
-    'sci_politics',  # Politics
-    'sci_business',  # Business literature
-    'sci_juris',  # Jurisprudence
-    'sci_linguistic',  # Linguistics
-    'sci_medicine',  # Medicine
-    'sci_phys',  # Physics
-    'sci_math',  # Mathematics
-    'sci_chem',  # Chemistry
-    'sci_biology',  # Biology
-    'sci_tech',  # Technical
-    'science',  # Other
-    # Computers & Internet
-    'comp_www',  # Internet
-    'comp_programming',  # Programming
-    'comp_hard',  # Hardware
-    'comp_soft',  # Software
-    'comp_db',  # Databases
-    'comp_osnet',  # OS & Networking
-    'computers',  # Other
-    # Reference
-    'ref_encyc',  # Encyclopedias
-    'ref_dict',  # Dictionaries
-    'ref_ref',  # Reference
-    'ref_guide',  # Guidebooks
-    'reference',  # Other
-    # Nonfiction
-    'nonf_biography',  # Biography & Memoirs
-    'nonf_publicism',  # Publicism
-    'nonf_criticism',  # Criticism
-    'design',  # Art & design
-    'nonfiction',  # Other
-    # Religion & Inspiration
-    'religion_rel',  # Religion
-    'religion_esoterics',  # Esoterics
-    'religion_self',  # Self#improvement
-    'religion',  # Other
-    # Humor
-    'humor_anecdote',  # Anecdote (funny stories)
-    'humor_prose',  # Prose
-    'humor_verse',  # Verses
-    'humor',  # Other
-    # Home & Family
-    'home_cooking',  # Cooking
-    'home_pets',  # Pets
-    'home_crafts',  # Hobbies & Crafts
-    'home_entertain',  # Entertaining
-    'home_health',  # Health
-    'home_garden',  # Garden
-    'home_diy',  # Do it yourself
-    'home_sport',  # Sports
-    'home_sex',  # Erotica & sex
-    'home',  # Other
+        'child_prose',  # Prose
+        'child_sf',  # Science Fiction
+        'child_det',  # Detectives & Thrillers
+        'child_adv',  # Adventures
+        'child_education',  # Educational
+        'children',  # Other
+        # Poetry & Dramaturgy
+        'poetry',  # Poetry
+        'dramaturgy',  # Dramaturgy
+        # Antique literature
+        'antique_ant',  # Antique
+        'antique_european',  # European
+        'antique_russian',  # Old russian
+        'antique_east',  # Old east
+        'antique_myths',  # Myths. Legends. Epos
+        'antique',  # Other
+        # Scientific#educational
+        'sci_history',  # History
+        'sci_psychology',  # Psychology
+        'sci_culture',  # Cultural science
+        'sci_religion',  # Religious studies
+        'sci_philosophy',  # Philosophy
+        'sci_politics',  # Politics
+        'sci_business',  # Business literature
+        'sci_juris',  # Jurisprudence
+        'sci_linguistic',  # Linguistics
+        'sci_medicine',  # Medicine
+        'sci_phys',  # Physics
+        'sci_math',  # Mathematics
+        'sci_chem',  # Chemistry
+        'sci_biology',  # Biology
+        'sci_tech',  # Technical
+        'science',  # Other
+        # Computers & Internet
+        'comp_www',  # Internet
+        'comp_programming',  # Programming
+        'comp_hard',  # Hardware
+        'comp_soft',  # Software
+        'comp_db',  # Databases
+        'comp_osnet',  # OS & Networking
+        'computers',  # Other
+        # Reference
+        'ref_encyc',  # Encyclopedias
+        'ref_dict',  # Dictionaries
+        'ref_ref',  # Reference
+        'ref_guide',  # Guidebooks
+        'reference',  # Other
+        # Nonfiction
+        'nonf_biography',  # Biography & Memoirs
+        'nonf_publicism',  # Publicism
+        'nonf_criticism',  # Criticism
+        'design',  # Art & design
+        'nonfiction',  # Other
+        # Religion & Inspiration
+        'religion_rel',  # Religion
+        'religion_esoterics',  # Esoterics
+        'religion_self',  # Self#improvement
+        'religion',  # Other
+        # Humor
+        'humor_anecdote',  # Anecdote (funny stories)
+        'humor_prose',  # Prose
+        'humor_verse',  # Verses
+        'humor',  # Other
+        # Home & Family
+        'home_cooking',  # Cooking
+        'home_pets',  # Pets
+        'home_crafts',  # Hobbies & Crafts
+        'home_entertain',  # Entertaining
+        'home_health',  # Health
+        'home_garden',  # Garden
+        'home_diy',  # Do it yourself
+        'home_sport',  # Sports
+        'home_sex',  # Erotica & sex
+        'home',  # Other
     ]
+    ui_data = {
+        'sectionize': {
+            'toc': _('Section per entry in the ToC'),
+            'files': _('Section per file'),
+            'nothing': _('A single section')
+        },
+        'genres': FB2_GENRES,
+    }
 
-    options = set([
+    options = {
         OptionRecommendation(name='sectionize',
             recommended_value='files', level=OptionRecommendation.LOW,
-            choices=['toc', 'files', 'nothing'],
-            help=_('Specify the sectionization of elements. '
-                'A value of "nothing" turns the book into a single section. '
-                'A value of "files" turns each file into a separate section; use this if your device is having trouble. '
-                'A value of "Table of Contents" turns the entries in the Table of Contents into titles and creates sections; '
-                'if it fails, adjust the "Structure Detection" and/or "Table of Contents" settings '
-                '(turn on "Force use of auto-generated Table of Contents").')),
+            choices=list(ui_data['sectionize']),
+            help=_('Specify how sections are created:\n'
+                ' * nothing: {nothing}\n'
+                ' * files: {files}\n'
+                ' * toc: {toc}\n'
+                'If ToC based generation fails, adjust the "Structure detection" and/or "Table of Contents" settings '
+                '(turn on "Force use of auto-generated Table of Contents").').format(**ui_data['sectionize'])
+        ),
         OptionRecommendation(name='fb2_genre',
             recommended_value='antique', level=OptionRecommendation.LOW,
             choices=FB2_GENRES,
-            help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES)) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' +
-                             _('for a complete list with descriptions.')),
-    ])
+            help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES)
+                ) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' + _('for a complete list with descriptions.')),
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
@@ -179,7 +191,7 @@ class FB2Output(OutputFormatPlugin):
             close = True
             if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
                 os.makedirs(os.path.dirname(output_path))
-            out_stream = open(output_path, 'wb')
+            out_stream = lopen(output_path, 'wb')
         else:
             out_stream = output_path
 
@@ -189,4 +201,3 @@ class FB2Output(OutputFormatPlugin):
 
         if close:
             out_stream.close()
-

@@ -17,20 +17,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Query:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="adv_search_builder">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="HistoryLineEdit" name="query">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -38,12 +24,22 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="placeholderText">
+        <string>Query</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="search">
        <property name="text">
         <string>Search</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../../../resources/images.qrc">
+         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
        </property>
       </widget>
      </item>
@@ -85,28 +81,28 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Enable</string>
+        <string>Enable:</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="enable_all">
        <property name="text">
-        <string>All</string>
+        <string>&amp;All</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="enable_none">
        <property name="text">
-        <string>None</string>
+        <string>&amp;None</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="enable_invert">
        <property name="text">
-        <string>Invert</string>
+        <string>&amp;Invert</string>
        </property>
       </widget>
      </item>
@@ -131,7 +127,7 @@
   <customwidget>
    <class>ResultsView</class>
    <extends>QTreeView</extends>
-   <header>results_view.h</header>
+   <header>calibre/gui2/store/config/chooser/results_view.h</header>
   </customwidget>
   <customwidget>
    <class>HistoryLineEdit</class>
@@ -139,6 +135,8 @@
    <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

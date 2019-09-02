@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'BuckMasters In The Kitchen'
     language = 'en'
@@ -28,15 +35,15 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         for img_tag in soup.findAll('img'):
             parent_tag = img_tag.parent
             if parent_tag.name == 'a':
-                new_tag = Tag(soup, 'p')
-                new_tag.insert(0, img_tag)
-                parent_tag.replaceWith(new_tag)
+                ntag = new_tag(soup, 'p')
+                ntag.insert(0, img_tag)
+                parent_tag.replaceWith(ntag)
             elif parent_tag.name == 'p':
                 if not self.tag_to_string(parent_tag) == '':
-                    new_div = Tag(soup, 'div')
-                    new_tag = Tag(soup, 'p')
-                    new_tag.insert(0, img_tag)
+                    new_div = new_tag(soup, 'div')
+                    ntag = new_tag(soup, 'p')
+                    ntag.insert(0, img_tag)
                     parent_tag.replaceWith(new_div)
-                    new_div.insert(0, new_tag)
+                    new_div.insert(0, ntag)
                     new_div.insert(1, parent_tag)
         return soup

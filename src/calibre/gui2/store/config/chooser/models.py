@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -13,6 +13,7 @@ from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
+from polyglot.builtins import unicode_type, range
 
 
 class Matches(QAbstractItemModel):
@@ -55,19 +56,19 @@ class Matches(QAbstractItemModel):
         self.sort(self.sort_col, self.sort_order)
 
     def enable_all(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             data = (True)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_none(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             data = (False)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_invert(self):
-        for i in xrange(len(self.matches)):
+        for i in range(len(self.matches)):
             self.toggle_plugin(self.createIndex(i, 0))
 
     def toggle_plugin(self, index):
@@ -132,16 +133,16 @@ class Matches(QAbstractItemModel):
                 return ('<p>%s</p>' % result.description)
             elif col == 2:
                 if result.drm_free_only:
-                    return ('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
+                    return ('<p>' + _('This store only distributes e-books without DRM.') + '</p>')
                 else:
-                    return ('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa
+                    return ('<p>' + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa
             elif col == 3:
                 return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')  # noqa
             elif col == 4:
                 if result.affiliate:
                     return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
             elif col == 5:
-                return ('<p>' + _('This store distributes ebooks in the following formats: %s') % ', '.join(result.formats) + '</p>')
+                return ('<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>')
         return None
 
     def setData(self, index, data, role):
@@ -182,7 +183,7 @@ class Matches(QAbstractItemModel):
             return
         descending = order == Qt.DescendingOrder
         self.matches.sort(None,
-            lambda x: sort_key(unicode(self.data_as_text(x, col))),
+            lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
             descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
@@ -230,7 +231,7 @@ class SearchFilter(SearchQueryParser):
         if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
+        all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
              'affiliate': lambda x: x.affiliate,

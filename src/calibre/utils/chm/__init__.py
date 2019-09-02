@@ -26,4 +26,3 @@
 __all__ = ["chm", "chmlib", "_chmlib", "extra"]
 __version__ = "0.8.4"
 __revision__ = "$Id: __init__.py,v 1.8 2006/06/18 10:50:43 rubensr Exp $"
-

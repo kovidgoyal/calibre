@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,20 +8,28 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
+from polyglot.builtins import unicode_type, as_unicode
+
+
 def node_mountpoint(node):
 
-    def de_mangle(raw):
-        return raw.replace('\\040', ' ').replace('\\011', '\t').replace('\\012',
-                '\n').replace('\\0134', '\\')
+    if isinstance(node, unicode_type):
+        node = node.encode('utf-8')
 
-    for line in open('/proc/mounts').readlines():
+    def de_mangle(raw):
+        return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012',
+                b'\n').replace(b'\\0134', b'\\').decode('utf-8')
+
+    for line in open('/proc/mounts', 'rb').readlines():
         line = line.split()
         if line[0] == node:
             return de_mangle(line[1])
     return None
 
+
 class NoUDisks1(Exception):
     pass
+
 
 class UDisks(object):
 
@@ -44,12 +53,12 @@ class UDisks(object):
     def mount(self, device_node_path):
         d = self.device(device_node_path)
         try:
-            return unicode(d.FilesystemMount('',
+            return unicode_type(d.FilesystemMount('',
                 ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
                  'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
-        except:
+        except Exception:
             # May be already mounted, check
-            mp = node_mountpoint(str(device_node_path))
+            mp = node_mountpoint(unicode_type(device_node_path))
             if mp is None:
                 raise
             return mp
@@ -65,8 +74,10 @@ class UDisks(object):
         d = self.device(parent)
         d.DriveEject([])
 
+
 class NoUDisks2(Exception):
     pass
+
 
 class UDisks2(object):
 
@@ -96,7 +107,7 @@ class UDisks2(object):
             device = bd.Get(self.BLOCK, 'Device',
                 dbus_interface='org.freedesktop.DBus.Properties')
             device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
-        except:
+        except Exception:
             device = None
 
         if device == device_node_path:
@@ -105,15 +116,15 @@ class UDisks2(object):
         # Enumerate all devices known to UDisks
         devs = self.bus.get_object('org.freedesktop.UDisks2',
                         '/org/freedesktop/UDisks2/block_devices')
-        xml = devs.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable')
-        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', type(u'')(xml)):
+        xml = unicode_type(devs.Introspect(dbus_interface='org.freedesktop.DBus.Introspectable'))
+        for dev in re.finditer(r'name=[\'"](.+?)[\'"]', xml):
             bd = self.bus.get_object('org.freedesktop.UDisks2',
-                '/org/freedesktop/UDisks2/block_devices/%s2'%dev.group(1))
+                '/org/freedesktop/UDisks2/block_devices/%s'%dev.group(1))
             try:
                 device = bd.Get(self.BLOCK, 'Device',
                     dbus_interface='org.freedesktop.DBus.Properties')
                 device = bytearray(device).replace(b'\x00', b'').decode('utf-8')
-            except:
+            except Exception:
                 device = None
             if device == device_node_path:
                 return bd
@@ -125,15 +136,15 @@ class UDisks2(object):
         mount_options = ['rw', 'noexec', 'nosuid',
                 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
         try:
-            return unicode(d.Mount(
+            return as_unicode(d.Mount(
                 {
                     'auth.no_user_interaction':True,
                     'options':','.join(mount_options)
                 },
                 dbus_interface=self.FILESYSTEM))
-        except:
+        except Exception:
             # May be already mounted, check
-            mp = node_mountpoint(str(device_node_path))
+            mp = node_mountpoint(unicode_type(device_node_path))
             if mp is None:
                 raise
             return mp
@@ -153,6 +164,7 @@ class UDisks2(object):
         drive.Eject({'auth.no_user_interaction':True},
                 dbus_interface=self.DRIVE)
 
+
 def get_udisks(ver=None):
     if ver is None:
         try:
@@ -161,6 +173,7 @@ def get_udisks(ver=None):
             u = UDisks()
         return u
     return UDisks2() if ver == 2 else UDisks()
+
 
 def get_udisks1():
     u = None
@@ -175,31 +188,34 @@ def get_udisks1():
         raise EnvironmentError('UDisks not available on your system')
     return u
 
+
 def mount(node_path):
     u = get_udisks1()
     u.mount(node_path)
+
 
 def eject(node_path):
     u = get_udisks1()
     u.eject(node_path)
 
+
 def umount(node_path):
     u = get_udisks1()
     u.unmount(node_path)
 
+
 def test_udisks(ver=None):
     import sys
     dev = sys.argv[1]
-    print 'Testing with node', dev
+    print('Testing with node', dev)
     u = get_udisks(ver=ver)
-    print 'Using Udisks:', u.__class__.__name__
-    print 'Mounted at:', u.mount(dev)
-    print 'Unmounting'
+    print('Using Udisks:', u.__class__.__name__)
+    print('Mounted at:', u.mount(dev))
+    print('Unmounting')
     u.unmount(dev)
-    print 'Ejecting:'
+    print('Ejecting:')
     u.eject(dev)
+
 
 if __name__ == '__main__':
     test_udisks()
-
-

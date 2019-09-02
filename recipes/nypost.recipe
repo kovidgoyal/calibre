@@ -1,33 +1,71 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-nypost.com
-'''
-
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class NYPost(BasicNewsRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class NewYorkPost(BasicNewsRecipe):
     title = 'New York Post'
     __author__ = 'Darko Miletic'
     description = 'Daily newspaper'
     publisher = 'NYP Holdings, Inc.'
     category = 'news, politics, USA'
     oldest_article = 2
-    max_articles_per_feed = 200
+    max_articles_per_feed = 20
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
-    auto_cleanup = True
     language = 'en'
-    masthead_url = 'http://www.nypost.com/rw/SysConfig/WebPortal/nypost/images/nyp_logo_230x32.gif'
     extra_css = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
+    ignore_duplicate_articles = {'title', 'url'}
 
-    feeds = [(u'Articles', u'http://www.nypost.com/rss/all_section.xml')]
+    keep_only_tags = [
+        dict(itemprop=['headline', 'articleBody']),
+        dict(name='h1'),
+        classes('byline byline-date source article-info entry-content entry-content-read-more featured-image'),
+    ]
+
+    remove_tags	=	[
+        dict(itemprop=['sharebar-trigger-desktop', ]),
+        classes('floating-share sharedaddy sd-sharing-enabled tag-list module-wrapper'),
+        dict(name=['link', 'meta']),
+    ]
+
+    feeds = [
+        ('All Stories','https://nypost.com/feed'),
+        ('News','https://nypost.com/news/feed'),
+        ('Metro', 'http://nypost.com/metro/feed/'),
+        ('Business', 'http://nypost.com/business/feed/'),
+        ('Opinion', 'http://nypost.com/opinion/feed/'),
+        ('Technology', 'http://nypost.com/tech/feed/'),
+        ('Media', 'http://nypost.com/media/feed/'),
+        ('Entertainment', 'http://nypost.com/entertainment/feed/'),
+        ('Living', 'http://nypost.com/living/feed/'),
+        ('Page 6', 'http://pagesix.com/feed/'),
+    ]
 
     def print_version(self, url):
         return url.replace('nypost.com/p/', 'nypost.com/f/print/')
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split()[0]
+        for pic in soup.findAll('picture'):
+            source = pic.find('source', srcset=True)
+            if source is not None:
+                img = pic.find('img')
+                if img is not None:
+                    img['src'] = source['srcset'].split()[0]
+            for source in pic.findAll('source'):
+                source.extract()
+        return soup

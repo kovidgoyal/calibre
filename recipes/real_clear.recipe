@@ -1,10 +1,14 @@
+from __future__ import print_function
 # Test with "\Program Files\Calibre2\ebook-convert.exe" RealClear.recipe
 # .epub --test -vv --debug-pipeline debug
 import re
 import time
-from urlparse import urlparse
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 
 class RealClear(BasicNewsRecipe):

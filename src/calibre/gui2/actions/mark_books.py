@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,8 @@ from PyQt5.Qt import QTimer, QApplication, Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
+
 
 class MarkBooksAction(InterfaceAction):
 
@@ -38,7 +39,7 @@ class MarkBooksAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -60,14 +61,14 @@ class MarkBooksAction(InterfaceAction):
         a.triggered.connect(self.clear_all_marked)
         m.addSeparator()
         self.mark_author_action = a = ma('mark-author', _('Mark all books by selected author(s)'), icon='plus.png')
-        a.triggered.connect(partial(self.mark_field, 'authors', True))
+        connect_lambda(a.triggered, self, lambda self: self.mark_field('authors', True))
         self.mark_series_action = a = ma('mark-series', _('Mark all books in the selected series'), icon='plus.png')
-        a.triggered.connect(partial(self.mark_field, 'series', True))
+        connect_lambda(a.triggered, self, lambda self: self.mark_field('series', True))
         m.addSeparator()
         self.unmark_author_action = a = ma('unmark-author', _('Clear all books by selected author(s)'), icon='minus.png')
-        a.triggered.connect(partial(self.mark_field, 'authors', False))
+        connect_lambda(a.triggered, self, lambda self: self.mark_field('authors', False))
         self.unmark_series_action = a = ma('unmark-series', _('Clear all books in the selected series'), icon='minus.png')
-        a.triggered.connect(partial(self.mark_field, 'series', False))
+        connect_lambda(a.triggered, self, lambda self: self.mark_field('series', False))
 
     def gui_layout_complete(self):
         for x in self.gui.bars_manager.main_bars + self.gui.bars_manager.child_bars:
@@ -94,6 +95,9 @@ class MarkBooksAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
+        for action in self.menu.actions():
+            action.setEnabled(enabled)
 
     def toggle_selected(self):
         book_ids = self._get_selected_ids()
@@ -116,7 +120,7 @@ class MarkBooksAction(InterfaceAction):
 
     def clear_all_marked(self):
         self.gui.current_db.data.set_marked_ids(())
-        if unicode(self.gui.search.text()).startswith('marked:'):
+        if unicode_type(self.gui.search.text()).startswith('marked:'):
             self.gui.search.set_search_string('')
 
     def mark_field(self, field, add):
@@ -137,4 +141,3 @@ class MarkBooksAction(InterfaceAction):
             else:
                 mids.pop(book_id, None)
         db.data.set_marked_ids(mids)
-

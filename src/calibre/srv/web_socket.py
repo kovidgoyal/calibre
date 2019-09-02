@@ -2,23 +2,28 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import httplib, os, weakref, socket
-from base64 import standard_b64encode
+import os
+import socket
+import weakref
 from collections import deque
 from hashlib import sha1
-from Queue import Queue, Empty
-from struct import unpack_from, pack, error as struct_error
+from struct import error as struct_error, pack, unpack_from
 from threading import Lock
 
 from calibre import as_unicode
 from calibre.constants import plugins
-from calibre.srv.loop import ServerLoop, HandleInterrupt, WRITE, READ, RDWR, Connection
 from calibre.srv.http_response import HTTPConnection, create_http_handler
+from calibre.srv.loop import (
+    RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
+)
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from polyglot import http_client
+from polyglot.binary import as_base64_unicode
+from polyglot.queue import Empty, Queue
+
 speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError('Failed to load speedup module with error: ' + err)
@@ -55,6 +60,7 @@ MESSAGE_TOO_BIG = 1009
 UNEXPECTED_ERROR = 1011
 
 RESERVED_CLOSE_CODES = (1004,1005,1006,)
+
 
 class ReadFrame(object):  # {{{
 
@@ -176,6 +182,7 @@ class ReadFrame(object):  # {{{
 
 # Sending frames {{{
 
+
 def create_frame(fin, opcode, payload, mask=None, rsv=0):
     if isinstance(payload, type('')):
         payload = payload.encode('utf-8')
@@ -233,7 +240,9 @@ class MessageWriter(object):
         return ReadOnlyFileBuffer(create_frame(fin, opcode, raw, self.mask))
 # }}}
 
+
 conn_id = 0
+
 
 class UTF8Decoder(object):  # {{{
 
@@ -248,6 +257,7 @@ class UTF8Decoder(object):  # {{{
         self.state = 0
         self.codep = 0
 # }}}
+
 
 class WebSocketConnection(HTTPConnection):
 
@@ -281,11 +291,11 @@ class WebSocketConnection(HTTPConnection):
         except Exception:
             ver_ok = False
         if not ver_ok:
-            return self.simple_response(httplib.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
+            return self.simple_response(http_client.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
         if self.method != 'GET':
-            return self.simple_response(httplib.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
+            return self.simple_response(http_client.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
 
-        response = HANDSHAKE_STR % standard_b64encode(sha1(key + GUID_STR).digest())
+        response = HANDSHAKE_STR % as_base64_unicode(sha1((key + GUID_STR).encode('utf-8')).digest())
         self.optimize_for_sending_packet()
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.set_state(WRITE, self.upgrade_connection_to_ws, ReadOnlyFileBuffer(response.encode('ascii')), inheaders)
@@ -528,6 +538,7 @@ class DummyHandler(object):
 # Run this file with calibre-debug and use wstest to run the Autobahn test
 # suite
 
+
 class EchoHandler(object):
 
     def __init__(self, *args, **kwargs):
@@ -551,10 +562,12 @@ class EchoHandler(object):
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
 
+
 def run_echo_server():
     s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))
     with HandleInterrupt(s.wakeup):
         s.serve_forever()
+
 
 if __name__ == '__main__':
     # import cProfile

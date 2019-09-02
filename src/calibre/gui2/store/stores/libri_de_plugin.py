@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -21,12 +24,13 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+
 class LibreDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://ad.zanox.com/ppc/?18817073C15644254T'
-        url_details = ('http://ad.zanox.com/ppc/?18848208C1197627693T&ULP=[['
-                       'http://www.ebook.de/shop/action/productDetails?artiId={0}]]')
+        url = 'https://www.awin1.com/awclick.php?mid=9359&awinaffid=397537&clickref=gbhome'
+        url_details = ('https://www.awin1.com/cread.php?awinmid=9359&awinaffid=397537&clickref=gbdetails&p='
+                       'http%3A//www.ebook.de/shop/action/productDetails%3FartiId%3D{0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -42,7 +46,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + urllib2.quote(query))
+        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + quote(query))
         br = browser()
 
         counter = max_results

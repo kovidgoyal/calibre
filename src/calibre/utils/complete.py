@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,45 +12,51 @@ BASH completion for calibre commands that are too complex for simple
 completion.
 '''
 
-import sys, os, shlex, glob, re, cPickle
+import sys, os, shlex, glob, re
 
-def prints(*args, **kwargs):
-    '''
-    Print unicode arguments safely by encoding them to preferred_encoding
-    Has the same signature as the print function from Python 3, except for the
-    additional keyword argument safe_encode, which if set to True will cause the
-    function to use repr when encoding fails.
-    '''
-    file = kwargs.get('file', sys.stdout)
-    sep  = kwargs.get('sep', ' ')
-    end  = kwargs.get('end', '\n')
-    enc = 'utf-8'
-    safe_encode = kwargs.get('safe_encode', False)
-    for i, arg in enumerate(args):
-        if isinstance(arg, unicode):
-            try:
-                arg = arg.encode(enc)
-            except UnicodeEncodeError:
-                if not safe_encode:
-                    raise
-                arg = repr(arg)
-        if not isinstance(arg, str):
-            try:
-                arg = str(arg)
-            except ValueError:
-                arg = unicode(arg)
-            if isinstance(arg, unicode):
+from polyglot.builtins import is_py3, unicode_type
+
+
+if is_py3:
+    prints = print
+else:
+    def prints(*args, **kwargs):
+        '''
+        Print unicode arguments safely by encoding them to preferred_encoding
+        Has the same signature as the print function from Python 3, except for the
+        additional keyword argument safe_encode, which if set to True will cause the
+        function to use repr when encoding fails.
+        '''
+        file = kwargs.get('file', sys.stdout)
+        sep  = kwargs.get('sep', ' ')
+        end  = kwargs.get('end', '\n')
+        enc = 'utf-8'
+        safe_encode = kwargs.get('safe_encode', False)
+        for i, arg in enumerate(args):
+            if isinstance(arg, unicode_type):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:
                     if not safe_encode:
                         raise
                     arg = repr(arg)
+            if not isinstance(arg, bytes):
+                try:
+                    arg = str(arg)
+                except ValueError:
+                    arg = unicode_type(arg)
+                if isinstance(arg, unicode_type):
+                    try:
+                        arg = arg.encode(enc)
+                    except UnicodeEncodeError:
+                        if not safe_encode:
+                            raise
+                        arg = repr(arg)
 
-        file.write(arg)
-        if i != len(args)-1:
-            file.write(sep)
-    file.write(end)
+            file.write(arg)
+            if i != len(args)-1:
+                file.write(sep)
+        file.write(end)
 
 
 def split(src):
@@ -73,6 +79,7 @@ def files_and_dirs(prefix, allowed_exts=[]):
         elif allowed_exts is None or ext in allowed_exts:
             yield i+' '
 
+
 def get_opts_from_parser(parser, prefix):
     def do_opt(opt):
         for x in opt._long_opts:
@@ -88,6 +95,7 @@ def get_opts_from_parser(parser, prefix):
         for o in g.option_list:
             for x in do_opt(o):
                 yield x+' '
+
 
 def send(ans):
     pat = re.compile('([^0-9a-zA-Z_./-])')
@@ -110,8 +118,9 @@ class EbookConvert(object):
         self.words = words
         self.prefix = prefix
         self.previous = words[-2 if prefix else -1]
-        self.cache = cPickle.load(open(os.path.join(sys.resources_location,
-            'ebook-convert-complete.pickle'), 'rb'))
+        from calibre.utils.serialize import msgpack_loads
+        self.cache = msgpack_loads(open(os.path.join(sys.resources_location,
+            'ebook-convert-complete.calibre_msgpack'), 'rb').read(), use_list=False)
         self.complete(wc)
 
     def complete(self, wc):

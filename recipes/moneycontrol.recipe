@@ -1,4 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class MoneyControlRecipe(BasicNewsRecipe):
@@ -37,18 +45,17 @@ class MoneyControlRecipe(BasicNewsRecipe):
 
         headline = soup.find('td', attrs = {'class': 'heading'})
         if headline:
-            h1 = Tag(freshSoup, 'h1')
+            h1 = new_tag(freshSoup, 'h1')
             # Convert to string before adding it to the document!
             h1.append(self.tag_to_string(headline))
             freshSoup.body.append(h1)
 
-        for p in soup.findAll('p'):
-            if p.has_key('class'):
-                if p['class'] == 'MsoNormal':
-                    # We have some weird pagebreak marker here; it will not find all of them however
-                    continue
+        for p in soup.findAll('p', attrs={'class': true}):
+            if ''.join(p['class']) == 'MsoNormal':
+                # We have some weird pagebreak marker here; it will not find all of them however
+                continue
 
-            para = Tag(freshSoup, 'p')
+            para = new_tag(freshSoup, 'p')
             # Convert to string; this will loose all formatting but also all illegal markup
             para.append(self.tag_to_string(p))
 

@@ -30,7 +30,7 @@ class AntywebRecipe(BasicNewsRecipe):
 
     keep_only_tags = []
     keep_only_tags.append(dict(name='h1'))
-    keep_only_tags.append(dict(name='article', attrs={'class': 'article'}))
+    keep_only_tags.append(dict(name='section', attrs={'class': 'article'}))
     remove_tags = []
     remove_tags.append(dict(name='div', attrs={'class': 'ac-footer group'}))
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-# from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,16 +13,20 @@ from functools import partial
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
 from calibre.db.utils import force_to_bool, atof
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort, rating_to_stars
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.localization import calibre_langcode_to_name
+from polyglot.builtins import iteritems, unicode_type
+
 
 def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
+
 IDENTITY = lambda x: x
+
 
 class InvalidLinkTable(Exception):
 
@@ -32,13 +34,14 @@ class InvalidLinkTable(Exception):
         Exception.__init__(self, name)
         self.field_name = name
 
+
 class Field(object):
 
     is_many = False
     is_many_many = False
     is_composite = False
 
-    def __init__(self, name, table, bools_are_tristate):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
         self.name, self.table = name, table
         dt = self.metadata['datatype']
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
@@ -65,6 +68,8 @@ class Field(object):
                 elif self.metadata['is_custom']:
                     fmt = self.metadata.get('display', {}).get('date_format', None)
                 self._sort_key = partial(clean_date_for_sort, fmt=fmt)
+        elif dt == 'comments' or name == 'identifiers':
+            self._default_sort_key = ''
 
         if self.name == 'languages':
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
@@ -75,13 +80,17 @@ class Field(object):
             self._sort_key = lambda x: sort_key(author_to_author_sort(x))
             self.sort_sort_key = False
         self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
-        self.category_formatter = type(u'')
+        self.category_formatter = unicode_type
         if dt == 'rating':
-            self.category_formatter = lambda x:'\u2605'*int(x/2)
+            if self.metadata['display'].get('allow_half_stars', False):
+                self.category_formatter = lambda x: rating_to_stars(x, True)
+            else:
+                self.category_formatter = rating_to_stars
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
         self.writer = Writer(self)
         self.series_field = None
+        self.get_template_functions = get_template_functions
 
     @property
     def metadata(self):
@@ -142,7 +151,7 @@ class Field(object):
 
         id_map = self.table.id_map
         special_sort = hasattr(self, 'category_sort_value')
-        for item_id, item_book_ids in self.table.col_book_map.iteritems():
+        for item_id, item_book_ids in iteritems(self.table.col_book_map):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -163,6 +172,7 @@ class Field(object):
                 ans.append(c)
         return ans
 
+
 class OneToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
@@ -175,7 +185,7 @@ class OneToOneField(Field):
         return {item_id}
 
     def __iter__(self):
-        return self.table.book_col_map.iterkeys()
+        return iter(self.table.book_col_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         bcmg = self.table.book_col_map.get
@@ -190,13 +200,14 @@ class OneToOneField(Field):
         for book_id in candidates:
             yield cbm.get(book_id, default_value), {book_id}
 
+
 class CompositeField(OneToOneField):
 
     is_composite = True
     SIZE_SUFFIX_MAP = {suffix:i for i, suffix in enumerate(('', 'K', 'M', 'G', 'T', 'P', 'E'))}
 
-    def __init__(self, name, table, bools_are_tristate):
-        OneToOneField.__init__(self, name, table, bools_are_tristate)
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
+        OneToOneField.__init__(self, name, table, bools_are_tristate, get_template_functions)
 
         self._render_cache = {}
         self._lock = Lock()
@@ -256,7 +267,8 @@ class CompositeField(OneToOneField):
         ' INTERNAL USE ONLY. DO NOT USE THIS OUTSIDE THIS CLASS! '
         ans = formatter.safe_format(
             self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
-            mi, column_name=self._composite_name, template_cache=template_cache).strip()
+            mi, column_name=self._composite_name, template_cache=template_cache,
+            template_functions=self.get_template_functions()).strip()
         with self._lock:
             self._render_cache[book_id] = ans
         return ans
@@ -304,7 +316,7 @@ class CompositeField(OneToOneField):
             for v in vals:
                 if v:
                     val_map[v].add(book_id)
-        for val, book_ids in val_map.iteritems():
+        for val, book_ids in iteritems(val_map):
             yield val, book_ids
 
     def get_composite_categories(self, tag_class, book_rating_map, book_ids,
@@ -317,7 +329,7 @@ class CompositeField(OneToOneField):
             for val in vals:
                 if val:
                     id_map[val].add(book_id)
-        for item_id, item_book_ids in id_map.iteritems():
+        for item_id, item_book_ids in iteritems(id_map):
             ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                         book_id in item_book_ids) if r > 0)
             avg = sum(ratings)/len(ratings) if ratings else 0
@@ -336,9 +348,10 @@ class CompositeField(OneToOneField):
                 ans.add(book_id)
         return ans
 
+
 class OnDeviceField(OneToOneField):
 
-    def __init__(self, name, table, bools_are_tristate):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions):
         self.name = name
         self.book_on_device_func = None
         self.is_multiple = False
@@ -397,8 +410,9 @@ class OnDeviceField(OneToOneField):
         val_map = defaultdict(set)
         for book_id in candidates:
             val_map[self.for_book(book_id, default_value=default_value)].add(book_id)
-        for val, book_ids in val_map.iteritems():
+        for val, book_ids in iteritems(val_map):
             yield val, book_ids
+
 
 class LazySortMap(object):
 
@@ -443,7 +457,7 @@ class ManyToOneField(Field):
         return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
-        return self.table.id_map.iterkeys()
+        return iter(self.table.id_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
@@ -453,7 +467,7 @@ class ManyToOneField(Field):
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
         empty = set()
-        for item_id, val in self.table.id_map.iteritems():
+        for item_id, val in iteritems(self.table.id_map):
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
@@ -462,9 +476,10 @@ class ManyToOneField(Field):
     def book_value_map(self):
         try:
             return {book_id:self.table.id_map[item_id] for book_id, item_id in
-                self.table.book_col_map.iteritems()}
+                iteritems(self.table.book_col_map)}
         except KeyError:
             raise InvalidLinkTable(self.name)
+
 
 class ManyToManyField(Field):
 
@@ -493,7 +508,7 @@ class ManyToManyField(Field):
         return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
-        return self.table.id_map.iterkeys()
+        return iter(self.table.id_map)
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
@@ -510,7 +525,7 @@ class ManyToManyField(Field):
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
         empty = set()
-        for item_id, val in self.table.id_map.iteritems():
+        for item_id, val in iteritems(self.table.id_map):
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
@@ -520,16 +535,17 @@ class ManyToManyField(Field):
         cbm = self.table.book_col_map
         for book_id in candidates:
             val_map[len(cbm.get(book_id, ()))].add(book_id)
-        for count, book_ids in val_map.iteritems():
+        for count, book_ids in iteritems(val_map):
             yield count, book_ids
 
     @property
     def book_value_map(self):
         try:
             return {book_id:tuple(self.table.id_map[item_id] for item_id in item_ids)
-                for book_id, item_ids in self.table.book_col_map.iteritems()}
+                for book_id, item_ids in iteritems(self.table.book_col_map)}
         except KeyError:
             raise InvalidLinkTable(self.name)
+
 
 class IdentifiersField(ManyToManyField):
 
@@ -546,7 +562,7 @@ class IdentifiersField(ManyToManyField):
         'Sort by identifier keys'
         bcmg = self.table.book_col_map.get
         dv = {self._default_sort_key:None}
-        return lambda book_id: tuple(sorted(bcmg(book_id, dv).iterkeys()))
+        return lambda book_id: tuple(sorted(bcmg(book_id, dv)))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=()):
         bcm = self.table.book_col_map
@@ -558,13 +574,14 @@ class IdentifiersField(ManyToManyField):
     def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
         ans = []
 
-        for id_key, item_book_ids in self.table.col_book_map.iteritems():
+        for id_key, item_book_ids in iteritems(self.table.col_book_map):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
                 c = tag_class(id_key, id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)
         return ans
+
 
 class AuthorsField(ManyToManyField):
 
@@ -585,6 +602,7 @@ class AuthorsField(ManyToManyField):
         return ' & '.join(self.table.asort_map[k] for k in
                           self.table.book_col_map[book_id])
 
+
 class FormatsField(ManyToManyField):
 
     def for_book(self, book_id, default_value=None):
@@ -601,19 +619,20 @@ class FormatsField(ManyToManyField):
             for val in vals:
                 val_map[val].add(book_id)
 
-        for val, book_ids in val_map.iteritems():
+        for val, book_ids in iteritems(val_map):
             yield val, book_ids
 
     def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
         ans = []
 
-        for fmt, item_book_ids in self.table.col_book_map.iteritems():
+        for fmt, item_book_ids in iteritems(self.table.col_book_map):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
                 c = tag_class(fmt, id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)
         return ans
+
 
 class LazySeriesSortMap(object):
 
@@ -635,17 +654,19 @@ class LazySeriesSortMap(object):
                 val = self.cache[(item_id, lang)] = self.default_sort_key
             return val
 
+
 class SeriesField(ManyToOneField):
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         sso = tweaks['title_series_sorting']
         ssk = self._sort_key
         ts = title_sort
+
         def sk(val, lang):
             return ssk(ts(val, order=sso, lang=lang))
         sk_map = LazySeriesSortMap(self._default_sort_key, sk, self.table.id_map)
         bcmg = self.table.book_col_map.get
-        lang_map = {k:v[0] if v else None for k, v in lang_map.iteritems()}
+        lang_map = {k:v[0] if v else None for k, v in iteritems(lang_map)}
 
         def key(book_id):
             lang = lang_map.get(book_id, None)
@@ -674,8 +695,8 @@ class SeriesField(ManyToOneField):
         sso = tweaks['title_series_sorting']
         ts = title_sort
         empty = set()
-        lang_map = {k:v[0] if v else None for k, v in lang_map.iteritems()}
-        for item_id, val in self.table.id_map.iteritems():
+        lang_map = {k:v[0] if v else None for k, v in iteritems(lang_map)}
+        for item_id, val in iteritems(self.table.id_map):
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 lang_counts = Counter()
@@ -692,7 +713,7 @@ class TagsField(ManyToManyField):
     def get_news_category(self, tag_class, book_ids=None):
         news_id = None
         ans = []
-        for item_id, val in self.table.id_map.iteritems():
+        for item_id, val in iteritems(self.table.id_map):
             if val == _('News'):
                 news_id = item_id
                 break
@@ -704,7 +725,7 @@ class TagsField(ManyToManyField):
             news_books = news_books.intersection(book_ids)
         if not news_books:
             return ans
-        for item_id, item_book_ids in self.table.col_book_map.iteritems():
+        for item_id, item_book_ids in iteritems(self.table.col_book_map):
             item_book_ids = item_book_ids.intersection(news_books)
             if item_book_ids:
                 name = self.category_formatter(self.table.id_map[item_id])
@@ -715,7 +736,8 @@ class TagsField(ManyToManyField):
                 ans.append(c)
         return ans
 
-def create_field(name, table, bools_are_tristate):
+
+def create_field(name, table, bools_are_tristate, get_template_functions):
     cls = {
             ONE_ONE: OneToOneField,
             MANY_ONE: ManyToOneField,
@@ -735,5 +757,4 @@ def create_field(name, table, bools_are_tristate):
         cls = CompositeField
     elif table.metadata['datatype'] == 'series':
         cls = SeriesField
-    return cls(name, table, bools_are_tristate)
-
+    return cls(name, table, bools_are_tristate, get_template_functions)

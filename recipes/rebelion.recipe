@@ -32,5 +32,5 @@ class RebelionRecipe (BasicNewsRecipe):
 
     # See http://www.mobileread.com/forums/showthread.php?t=174501
     def print_version(self, url):
-        id = re.compile('\d*$').search(url).group()
+        id = re.compile(r'\d*$').search(url).group()
         return u'http://www.rebelion.org/noticia.php?id=%s' % id

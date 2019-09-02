@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
 import os
-from cStringIO import StringIO
+import io
 from struct import unpack
+
 
 class Bookmark():  # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific
     '''
+
     def __init__(self, path, id, book_format, bookmark_extension):
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
@@ -48,13 +52,13 @@ class Bookmark():  # {{{
         if self.bookmark_extension == 'mbp':
             MAGIC_MOBI_CONSTANT = 150
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.timestamp, = unpack('>I', data[0x24:0x28])
                 bpar_offset, = unpack('>I', data[0x4e:0x52])
                 lrlo = bpar_offset + 0x0c
                 self.last_read = int(unpack('>I', data[lrlo:lrlo+4])[0])
-                self.last_read_location = self.last_read/MAGIC_MOBI_CONSTANT + 1
+                self.last_read_location = self.last_read // MAGIC_MOBI_CONSTANT + 1
                 entries, = unpack('>I', data[0x4a:0x4e])
 
                 # Store the annotations/locations
@@ -70,13 +74,13 @@ class Bookmark():  # {{{
                 sig = data[eo:eo+4]
                 previous_block = None
 
-                while sig == 'DATA':
+                while sig == b'DATA':
                     text = None
                     entry_type = None
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     if rec_len == 0:
                         current_block = "empty_data"
-                    elif data[eo+8:eo+12] == "EBAR":
+                    elif data[eo+8:eo+12] == b"EBAR":
                         current_block = "data_header"
                         # entry_type = "data_header"
                         location, = unpack('>I', data[eo+0x34:eo+0x38])
@@ -90,7 +94,7 @@ class Bookmark():  # {{{
                         text = data[eo+8:eo+8+rec_len].decode('utf-16-be')
 
                     if entry_type:
-                        displayed_location = location/MAGIC_MOBI_CONSTANT + 1
+                        displayed_location = location // MAGIC_MOBI_CONSTANT + 1
                         user_notes[location] = dict(id=self.id,
                                                     displayed_location=displayed_location,
                                                     type=entry_type,
@@ -101,7 +105,7 @@ class Bookmark():  # {{{
                     previous_block = current_block
                     sig = data[eo:eo+4]
 
-                while sig == 'BKMK':
+                while sig == b'BKMK':
                     # Fix start location for Highlights using BKMK data
                     end_loc, = unpack('>I', data[eo+0x10:eo+0x14])
 
@@ -118,7 +122,7 @@ class Bookmark():  # {{{
                                                                     start,
                                                                     start//MAGIC_MOBI_CONSTANT + 1)
                         '''
-                        user_notes[start]['displayed_location'] = start/MAGIC_MOBI_CONSTANT + 1
+                        user_notes[start]['displayed_location'] = start // MAGIC_MOBI_CONSTANT + 1
                         user_notes.pop(end_loc)
                     else:
                         # If a bookmark coincides with a user annotation, the locs could
@@ -126,7 +130,7 @@ class Bookmark():  # {{{
                         # Skip bookmark for last_read_location
                         if end_loc != self.last_read:
                             # print " adding Bookmark at 0x%x (%d)" % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1)
-                            displayed_location = end_loc/MAGIC_MOBI_CONSTANT + 1
+                            displayed_location = end_loc // MAGIC_MOBI_CONSTANT + 1
                             user_notes[end_loc - 1] = dict(id=self.id,
                                                            displayed_location=displayed_location,
                                                            type='Bookmark',
@@ -145,13 +149,13 @@ class Bookmark():  # {{{
                 # This will find the first instance of a clipping only
                 book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
                 with lopen(book_fs,'rb') as f2:
-                    stream = StringIO(f2.read())
+                    stream = io.BytesIO(f2.read())
                     mi = get_topaz_metadata(stream)
                 my_clippings = self.path
                 split = my_clippings.find('documents') + len('documents/')
                 my_clippings = my_clippings[:split] + "My Clippings.txt"
                 try:
-                    with lopen(my_clippings, 'r') as f2:
+                    with io.open(my_clippings, encoding='utf-8', errors='replace') as f2:
                         marker_found = 0
                         text = ''
                         search_str1 = '%s' % (mi.title)
@@ -176,7 +180,7 @@ class Bookmark():  # {{{
             MAGIC_TOPAZ_CONSTANT = 33.33
             self.timestamp = os.path.getmtime(self.path)
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
                 self.last_read_location = self.last_read/MAGIC_TOPAZ_CONSTANT + 1
@@ -217,7 +221,7 @@ class Bookmark():  # {{{
         elif self.bookmark_extension == 'pdr':
             self.timestamp = os.path.getmtime(self.path)
             with lopen(self.path,'rb') as f:
-                stream = StringIO(f.read())
+                stream = io.BytesIO(f.read())
                 data = StreamSlicer(stream)
                 self.last_read = int(unpack('>I', data[5:9])[0])
                 entries, = unpack('>I', data[9:13])
@@ -274,7 +278,7 @@ class Bookmark():  # {{{
                 self.last_read_location = self.last_read - self.pdf_page_offset
 
         else:
-            print "unsupported bookmark_extension: %s" % self.bookmark_extension
+            print("unsupported bookmark_extension: %s" % self.bookmark_extension)
         self.user_notes = user_notes
 
     def get_book_length(self):
@@ -286,7 +290,7 @@ class Bookmark():  # {{{
             # Read the book len from the header
             try:
                 with lopen(book_fs,'rb') as f:
-                    self.stream = StringIO(f.read())
+                    self.stream = io.BytesIO(f.read())
                     self.data = StreamSlicer(self.stream)
                     self.nrecs, = unpack('>H', self.data[76:78])
                     record0 = self.record(0)
@@ -306,10 +310,10 @@ class Bookmark():  # {{{
             from calibre import plugins
             try:
                 self.book_length = plugins['pdfreflow'][0].get_numpages(open(book_fs).read())
-            except:
+            except :
                 pass
 
         else:
-            print "unsupported bookmark_extension: %s" % self.bookmark_extension
+            print("unsupported bookmark_extension: %s" % self.bookmark_extension)
 
 # }}}

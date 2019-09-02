@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,7 +13,7 @@ from PyQt5.Qt import (
     QFont, QDialog, Qt, QColor, QColorDialog, QMenu, QInputDialog,
     QListWidgetItem, QFormLayout, QLabel, QLineEdit, QDialogButtonBox)
 
-from calibre.constants import iswindows, isxp
+from calibre.constants import isxp
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import get_language, calibre_langcode_to_name
@@ -22,9 +21,11 @@ from calibre.gui2 import min_available_height, error_dialog
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
+from polyglot.builtins import iteritems, unicode_type
+
 
 def config(defaults=None):
-    desc = _('Options to customize the ebook viewer')
+    desc = _('Options to customize the e-book viewer')
     if defaults is None:
         c = Config('viewer', desc)
     else:
@@ -52,7 +53,7 @@ def config(defaults=None):
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
     c.add_opt('copy_bookmarks_to_file', default=True,
-            help=_('Copy bookmarks to the ebook file for easy sharing, if possible'))
+            help=_('Copy bookmarks to the e-book file for easy sharing, if possible'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
     c.add_opt('wheel_scroll_fraction', default=100,
@@ -95,14 +96,14 @@ def config(defaults=None):
     c.add_opt('page_indicator_opts', default=0)
 
     fonts = c.add_group('FONTS', _('Font options'))
-    fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
+    fonts('serif_family', default='Liberation Serif',
           help=_('The serif font family'))
-    fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans',
+    fonts('sans_family', default='Liberation Sans',
           help=_('The sans-serif font family'))
-    fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono',
-          help=_('The monospaced font family'))
+    fonts('mono_family', default='Liberation Mono',
+          help=_('The monospace font family'))
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
-    fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
+    fonts('mono_font_size', default=16, help=_('The monospace font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
     fonts('minimum_font_size', default=8, help=_('The minimum font size in px'))
 
@@ -117,8 +118,10 @@ def config(defaults=None):
 
     return c
 
+
 def load_themes():
     return JSONConfig('viewer_themes')
+
 
 class ConfigDialog(QDialog, Ui_Dialog):
 
@@ -146,6 +149,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             'el_monoton': get_language('el').partition(';')[0] + _(' monotone'), 'el_polyton':get_language('el').partition(';')[0] + _(' polytone'),
             'sr_cyrl': get_language('sr') + _(' cyrillic'), 'sr_latn': get_language('sr') + _(' latin'),
         }
+
         def gl(pat):
             return lang_pats.get(pat, get_language(pat))
         names = list(map(gl, pats))
@@ -194,7 +198,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 _('Choose a name for this theme'))
         if not ok:
             return
-        themename = unicode(themename).strip()
+        themename = unicode_type(themename).strip()
         if not themename:
             return
         c = config('')
@@ -209,7 +213,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('load', 'delete'):
             m = getattr(self, '%s_theme_button'%x).menu()
             m.clear()
-            for x in self.themes.iterkeys():
+            for x in self.themes:
                 title = x[len('theme_'):]
                 ac = m.addAction(title)
                 ac.theme_id = x
@@ -232,16 +236,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
         from calibre.gui2.viewer.main import dprefs
         self.word_lookups = dprefs['word_lookups']
 
-    @dynamic_property
+    @property
     def word_lookups(self):
-        def fget(self):
-            return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
-        def fset(self, wl):
-            self.dictionary_list.clear()
-            for langcode, url in sorted(wl.iteritems(), key=lambda (lc, url):sort_key(calibre_langcode_to_name(lc))):
-                i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
-                i.setData(Qt.UserRole, (langcode, url))
-        return property(fget=fget, fset=fset)
+        return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
+
+    @word_lookups.setter
+    def word_lookups(self, wl):
+        self.dictionary_list.clear()
+        for langcode, url in sorted(iteritems(wl), key=lambda lc_url:sort_key(calibre_langcode_to_name(lc_url[0]))):
+            i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
+            i.setData(Qt.UserRole, (langcode, url))
 
     def add_dictionary_website(self):
         class AD(QDialog):
@@ -260,7 +264,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 l.addRow(_('&Language:'), self.le)
                 self.url = u = QLineEdit(self)
                 u.setMinimumWidth(350)
-                u.setPlaceholderText(_('For example: %s') % 'http://dictionary.com/{word}')
+                u.setPlaceholderText(_('For example: %s') % 'https://dictionary.com/{word}')
                 l.addRow(_('&URL:'), u)
                 self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
                 l.addRow(bb)
@@ -377,7 +381,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             col = QColorDialog.getColor(initial, self,
                     title, QColorDialog.ShowAlphaChannel)
             if col.isValid():
-                name = unicode(col.name())
+                name = unicode_type(col.name())
                 setattr(self, 'current_%s_color'%which, name)
         self.update_sample_colors()
 
@@ -394,23 +398,23 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if self.shortcut_config.is_editing:
             from calibre.gui2 import info_dialog
             info_dialog(self, _('Still editing'),
-                    _('You are in the middle of editing a keyboard shortcut'
-                        ' first complete that, by clicking outside the '
+                    _('You are in the middle of editing a keyboard shortcut.'
+                        ' First complete that by clicking outside the'
                         ' shortcut editing box.'), show=True)
             return
         self.save_options(config())
         return QDialog.accept(self, *args)
 
     def save_options(self, c):
-        c.set('serif_family', unicode(self.serif_family.currentFont().family()))
-        c.set('sans_family', unicode(self.sans_family.currentFont().family()))
-        c.set('mono_family', unicode(self.mono_family.currentFont().family()))
+        c.set('serif_family', unicode_type(self.serif_family.currentFont().family()))
+        c.set('sans_family', unicode_type(self.sans_family.currentFont().family()))
+        c.set('mono_family', unicode_type(self.mono_family.currentFont().family()))
         c.set('default_font_size', self.default_font_size.value())
         c.set('minimum_font_size', self.minimum_font_size.value())
         c.set('mono_font_size', self.mono_font_size.value())
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[
             self.standard_font.currentIndex()])
-        c.set('user_css', unicode(self.css.toPlainText()))
+        c.set('user_css', unicode_type(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('fit_images', self.opt_fit_images.isChecked())
         c.set('max_fs_width', int(self.max_fs_width.value()))

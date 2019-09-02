@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -20,6 +20,9 @@ from calibre.gui2.convert import Widget
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
+from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type
+
 
 def create_opf_file(db, book_id, opf_file=None):
     mi = db.get_metadata(book_id, index_is_id=True)
@@ -34,6 +37,7 @@ def create_opf_file(db, book_id, opf_file=None):
     opf_file.close()
     return mi, opf_file
 
+
 def create_cover_file(db, book_id):
     cover = db.cover(book_id, index_is_id=True)
     cf = None
@@ -42,6 +46,7 @@ def create_cover_file(db, book_id):
         cf.write(cover)
         cf.close()
     return cf
+
 
 class MetadataWidget(Widget, Ui_Form):
 
@@ -52,7 +57,7 @@ class MetadataWidget(Widget, Ui_Form):
     COMMIT_NAME = 'metadata'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['prefer_metadata_cover'])
+        Widget.__init__(self, parent, OPTIONS['pipe']['metadata'])
         self.db, self.book_id = db, book_id
         self.cover_changed = False
         self.cover_data = None
@@ -69,7 +74,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.cover_data = data
 
     def deduce_author_sort(self, *args):
-        au = unicode(self.author.currentText())
+        au = unicode_type(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
@@ -97,11 +102,14 @@ class MetadataWidget(Widget, Ui_Form):
             pm = QPixmap()
             pm.loadFromData(cover)
             if not pm.isNull():
+                pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
                 self.set_cover_tooltip(pm)
         else:
-            self.cover.setPixmap(QPixmap(I('default_cover.png')))
+            pm = QPixmap(I('default_cover.png'))
+            pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+            self.cover.setPixmap(pm)
             self.cover.setToolTip(_('This book has no cover'))
         for x in ('author', 'series', 'publisher'):
             x = getattr(self, x)
@@ -148,30 +156,30 @@ class MetadataWidget(Widget, Ui_Form):
         self.publisher.update_items_cache([x[1] for x in all_publishers])
 
     def get_title_and_authors(self):
-        title = unicode(self.title.text()).strip()
+        title = unicode_type(self.title.text()).strip()
         if not title:
             title = _('Unknown')
-        authors = unicode(self.author.text()).strip()
+        authors = unicode_type(self.author.text()).strip()
         authors = string_to_authors(authors) if authors else [_('Unknown')]
         return title, authors
 
     def get_metadata(self):
         title, authors = self.get_title_and_authors()
         mi = MetaInformation(title, authors)
-        publisher = unicode(self.publisher.text()).strip()
+        publisher = unicode_type(self.publisher.text()).strip()
         if publisher:
             mi.publisher = publisher
-        author_sort = unicode(self.author_sort.text()).strip()
+        author_sort = unicode_type(self.author_sort.text()).strip()
         if author_sort:
             mi.author_sort = author_sort
         comments = self.comment.html
         if comments:
             mi.comments = comments
         mi.series_index = float(self.series_index.value())
-        series = unicode(self.series.currentText()).strip()
+        series = unicode_type(self.series.currentText()).strip()
         if series:
             mi.series = series
-        tags = [t.strip() for t in unicode(self.tags.text()).strip().split(',')]
+        tags = [t.strip() for t in unicode_type(self.tags.text()).strip().split(',')]
         if tags:
             mi.tags = tags
 
@@ -179,7 +187,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def select_cover(self):
         files = choose_images(self, 'change cover dialog',
-                             _('Choose cover for ') + unicode(self.title.text()))
+                             _('Choose cover for ') + unicode_type(self.title.text()))
         if not files:
             return
         _file = files[0]
@@ -190,17 +198,18 @@ class MetadataWidget(Widget, Ui_Form):
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
-            cf, cover = None, None
+            cover = None
             try:
-                cf = open(_file, "rb")
-                cover = cf.read()
+                with open(_file, "rb") as f:
+                    cover = f.read()
             except IOError as e:
                 d = error_dialog(self.parent(), _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+unicode_type(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
+                pix.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 if pix.isNull():
                     d = error_dialog(self.parent(), _('Error reading file'),
                                       _file + _(" is not a valid picture"))

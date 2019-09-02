@@ -7,7 +7,6 @@ class DziennikBaltycki(BasicNewsRecipe):
     description = u'Gazeta Regionalna Dziennik Bałtycki. Najnowsze Wiadomości Trójmiasto i Wiadomości Pomorskie. Czytaj!'
     category = 'newspaper'
     language = 'pl'
-    encoding = 'iso-8859-2'
     masthead_url = 'http://s.polskatimes.pl/g/logo_naglowek/dziennikbaltycki.png?24'
     oldest_article = 7
     max_articles_per_feed = 100
@@ -15,8 +14,10 @@ class DziennikBaltycki(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
-    remove_tags_after = dict(attrs={'src': 'http://nm.dz.com.pl/dz.png'})
-    remove_tags = [dict(id='mat-podobne'), dict(name='a', attrs={
+    keep_only_tags = [dict(name='section', attrs={'class': 'zajawka'}),
+        dict(name='section', attrs={'id': 'tresc'})
+]
+    remove_tags = [dict(name='div', attrs={'class':['materialyZKategorii','materialyPodobne']}), dict(name='a', attrs={
         'class': 'czytajDalej'}), dict(attrs={'src': 'http://nm.dz.com.pl/dz.png'})]
 
     feeds = [

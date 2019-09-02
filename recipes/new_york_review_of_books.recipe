@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def find_header(tag):
-    return tag.name == 'header' and tag.parent['class'] == 'article'
+    return tag.name == 'header' and ''.join(tag.parent['class']) == 'article'
 
 
 def absurl(url):
@@ -64,6 +64,11 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         header.find('div', attrs={'class': 'details'}).extract()
         for i in soup.findAll('input'):
             i.extract()
+        return soup
+
+    def postprocess_html(self, soup, first):
+        for img in soup.findAll('img', srcset=True):
+            del img['srcset']
         return soup
 
     def parse_index(self):

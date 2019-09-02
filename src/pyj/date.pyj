@@ -2,14 +2,15 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-UNDEFINED_DATE = Date('0101-01-01T00:00:00+00:00')
+UNDEFINED_DATE_ISO = '0101-01-01T00:00:00+00:00'
+UNDEFINED_DATE = Date(UNDEFINED_DATE_ISO)
 
 def is_date_undefined(date):
     dy, uy = date.getUTCFullYear(), UNDEFINED_DATE.getUTCFullYear()
     return dy < uy or (
             dy is uy and
             date.getUTCMonth() is UNDEFINED_DATE.getUTCMonth() and
-            date.getUTCDate() is UNDEFINED_DATE.getUTCDate())
+            date.getUTCDate() <= UNDEFINED_DATE.getUTCDate() + 1)
 
 # format_date() {{{
 
@@ -64,7 +65,7 @@ def fd_format_day(dt, ampm, dy, as_utc):
         options = {'weekday': ('short' if dy.length is 3 else 'long')}
         if as_utc:
             options['timeZone'] = 'UTC'
-        return dt.toLocaleString(undefined, options)
+        return dt.toLocaleString(window.navigator.language, options)
     w = dt.getUTCDay() if as_utc else dt.getDay()
     return lcdata['abday' if dy.length is 3 else 'day'][(w + 1) % 7]
 
@@ -78,7 +79,7 @@ def fd_format_month(dt, ampm, mo, as_utc):
         options = {'month': {1:'numeric', 2:'2-digit', 3:'short', 4:'long'}[mo.length] or 'long'}
         if as_utc:
             options['timeZone'] = 'UTC'
-        return dt.toLocaleString(undefined, options)
+        return dt.toLocaleString(window.navigator.language, options)
     return lcdata['abmon' if mo.length is 3 else 'mon'][m]
 
 def fd_format_year(dt, ampm, yr, as_utc):
@@ -106,7 +107,7 @@ def test_fd(date, fmt, ans):
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
     ampm = 'ap' in fmt.toLowerCase()
-    if type(date) is 'string':
+    if jstype(date) is 'string':
         date = Date(date)
     date = date or Date()
     if is_date_undefined(date):

@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit,
@@ -19,6 +18,8 @@ from calibre.gui2.tag_mapper import (
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import iteritems, unicode_type
+
 
 class RuleEdit(QWidget):  # {{{
 
@@ -48,7 +49,7 @@ class RuleEdit(QWidget):  # {{{
                                'For instance use margin-top, not margin.'))
             elif clause == '{match_type}':
                 self.match_type = w = QComboBox(self)
-                for action, text in MATCH_TYPE_MAP.iteritems():
+                for action, text in iteritems(MATCH_TYPE_MAP):
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{query}':
@@ -68,7 +69,7 @@ class RuleEdit(QWidget):  # {{{
         for clause in parts:
             if clause == '{action}':
                 self.action = w = QComboBox(self)
-                for action, text in ACTION_MAP.iteritems():
+                for action, text in iteritems(ACTION_MAP):
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{action_data}':
@@ -132,14 +133,14 @@ class RuleEdit(QWidget):  # {{{
     def rule(self, rule):
         def sc(name):
             c = getattr(self, name)
-            idx = c.findData(unicode(rule.get(name, '')))
+            idx = c.findData(unicode_type(rule.get(name, '')))
             if idx < 0:
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.property.setText(unicode(rule.get('property', '')).strip())
-        self.query.setText(unicode(rule.get('query', '')).strip())
-        self.action_data.setText(unicode(rule.get('action_data', '')).strip())
+        self.property.setText(unicode_type(rule.get('property', '')).strip())
+        self.query.setText(unicode_type(rule.get('query', '')).strip())
+        self.action_data.setText(unicode_type(rule.get('action_data', '')).strip())
         self.update_state()
 
     def validate(self):
@@ -151,12 +152,14 @@ class RuleEdit(QWidget):  # {{{
         return True
 # }}}
 
+
 class RuleEditDialog(RuleEditDialogBase):  # {{{
 
     PREFS_NAME = 'edit-css-transform-rule'
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
 # }}}
+
 
 class RuleItem(RuleItemBase):  # {{{
 
@@ -178,14 +181,16 @@ class RuleItem(RuleItemBase):  # {{{
         return text
 # }}}
 
+
 class Rules(RulesBase):  # {{{
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
 
-    MSG = _('You can specify rules to transform styles here. Click the "Add Rule" button'
+    MSG = _('You can specify rules to transform styles here. Click the "Add rule" button'
             ' below to get started.')
 # }}}
+
 
 class Tester(Dialog):  # {{{
 
@@ -204,7 +209,7 @@ class Tester(Dialog):  # {{{
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.css = t = TextEdit(self)
-        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the Test button'), 'css')
+        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the "Test" button'), 'css')
         la.setBuddy(t)
         c = t.textCursor()
         c.movePosition(c.End)
@@ -227,11 +232,15 @@ class Tester(Dialog):  # {{{
     def do_test(self):
         decl = safe_parser().parseString(self.value)
         transform_sheet(self.rules, decl)
-        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), decl.cssText), 'css')
+        css = decl.cssText
+        if isinstance(css, bytes):
+            css = css.decode('utf-8')
+        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), css), 'css')
 
     def sizeHint(self):
         return QSize(800, 600)
 # }}}
+
 
 class RulesDialog(RulesDialogBase):  # {{{
 
@@ -246,6 +255,7 @@ class RulesDialog(RulesDialogBase):  # {{{
         self.PREFS_OBJECT = JSONConfig('style-transform-rules')
         RulesDialogBase.__init__(self, *args, **kw)
 # }}}
+
 
 class RulesWidget(QWidget, SaveLoadMixin):  # {{{
 
@@ -324,6 +334,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             traceback.print_exc()
             self.rules_widget.rules = []
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

@@ -43,8 +43,8 @@ class Gram_pl(BasicNewsRecipe):
                 tag.p.img.extract()
                 tag.p.insert(len(tag.p.contents) - 2,
                              BeautifulSoup('<h2>Ocena: {0}</h2>'.format(rate)).h2)
-        for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+        for a in soup.findAll('a', href=True):
+            if 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
                 a['href'] = self.index + a['href']
         tag = soup.find(name='span', attrs={'class': 'platforma'})
         if tag:

@@ -31,7 +31,7 @@
      </property>
      <property name="text">
       <string>&lt;p&gt;Start wireless device connections. Currently used only
-       by &lt;a href="http://www.multipie.co.uk/calibre-companion/"&gt;Calibre Companion&lt;/a&gt;.
+       by &lt;a href="https://calibrecompanion.co?utm_source=Calibre&amp;utm_medium=Software&amp;utm_campaign=Main&amp;utm_term=WirelessDeviceDialog"&gt;Calibre Companion&lt;/a&gt;.
        &lt;p&gt;You may see some messages from your computer's firewall or anti-virus manager asking you if it is OK for calibre to connect to the network. &lt;b&gt;Please answer yes&lt;/b&gt;. If you do not, wireless connections will not work.</string>
      </property>
      <property name="wordWrap">
@@ -46,7 +46,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_23">
      <property name="text">
-      <string>Calibre IP addresses:</string>
+      <string>calibre IP addresses:</string>
      </property>
     </widget>
    </item>

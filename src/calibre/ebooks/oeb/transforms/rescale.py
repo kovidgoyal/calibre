@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre import fit_image
+
 
 class RescaleImages(object):
 
@@ -29,8 +30,8 @@ class RescaleImages(object):
             page_width, page_height = self.opts.dest.comic_screen_size
         else:
             page_width, page_height = self.opts.dest.width, self.opts.dest.height
-            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72.
-            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
+            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72
+            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72
 
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
@@ -65,12 +66,16 @@ class RescaleImages(object):
                     new_height = max(1, new_height)
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
-                    img = img.resize((new_width, new_height))
+                    try:
+                        img = img.resize((new_width, new_height))
+                    except Exception:
+                        self.log.exception('Failed to rescale image: %s' % item.href)
+                        continue
                     buf = BytesIO()
                     try:
                         img.save(buf, ext)
                     except Exception:
-                        self.log.exception('Failed to rescale image')
+                        self.log.exception('Failed to rescale image: %s' % item.href)
                     else:
                         item.data = buf.getvalue()
                         item.unload_data_from_memory()

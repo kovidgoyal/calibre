@@ -1,21 +1,24 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
+from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
+
 
 class NameTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self, txt):
-        QTableWidgetItem.__init__(self, txt)
-        self.initial_value = txt
-        self.current_value = txt
-        self.previous_value = txt
+    def __init__(self):
+        QTableWidgetItem.__init__(self)
+        self.initial_value = ''
+        self.current_value = ''
         self.is_deleted = False
 
     def data(self, role):
@@ -33,38 +36,38 @@ class NameTableWidgetItem(QTableWidgetItem):
             self.setIcon(QIcon(I('trash.png')))
         else:
             self.setIcon(QIcon(None))
-            self.current_value = self.previous_value = self.initial_value
+            self.current_value = self.initial_value
         self.is_deleted = to_what
 
     def setData(self, role, data):
         if role == Qt.EditRole:
-            self.previous_value = self.current_value
             self.current_value = data
         QTableWidgetItem.setData(self, role, data)
 
-    def text(self):
-        return self.current_value
+    def set_initial_text(self, txt):
+        self.initial_value = txt
 
     def initial_text(self):
         return self.initial_value
 
-    def previous_text(self):
-        return self.previous_value
+    def text(self):
+        return self.current_value
 
     def setText(self, txt):
         self.current_value = txt
         QTableWidgetItem.setText(self, txt)
 
     def __ge__(self, other):
-        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
 
     def __lt__(self, other):
-        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
+
 
 class CountTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, count):
-        QTableWidgetItem.__init__(self, str(count))
+        QTableWidgetItem.__init__(self, unicode_type(count))
         self._count = count
 
     def __ge__(self, other):
@@ -72,6 +75,7 @@ class CountTableWidgetItem(QTableWidgetItem):
 
     def __lt__(self, other):
         return self._count < other._count
+
 
 class EditColumnDelegate(QItemDelegate):
 
@@ -86,18 +90,11 @@ class EditColumnDelegate(QItemDelegate):
             if item.is_deleted:
                 return None
             return QItemDelegate.createEditor(self, parent, option, index)
-        if not confirm(
-                _('Do you want to undo your changes?'),
-                'tag_list_editor_undo'):
-                return
-        item.setText(item.initial_text())
-        self.table.blockSignals(True)
-        self.table.item(index.row(), 2).setData(Qt.DisplayRole, '')
-        self.table.blockSignals(False)
+
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, cat_name, tag_to_match, data, sorter):
+    def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -120,31 +117,18 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         # initialization
         self.to_rename = {}
-        self.to_delete = set([])
-        self.original_names = {}
+        self.to_delete = set()
         self.all_tags = {}
-        self.counts = {}
+        self.original_names = {}
 
-        for k,v,count in data:
-            self.all_tags[v] = k
-            self.counts[v] = count
-            self.original_names[k] = v
+        self.ordered_tags = []
+        self.sorter = sorter
+        self.get_book_ids = get_book_ids
 
         # Set up the column headings
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
         self.up_arrow_icon = QIcon(I('arrow-up.png'))
         self.blank_icon = QIcon(I('blank.png'))
-
-        self.table.setColumnCount(3)
-        self.name_col = QTableWidgetItem(_('Tag'))
-        self.table.setHorizontalHeaderItem(0, self.name_col)
-        self.name_col.setIcon(self.up_arrow_icon)
-        self.count_col = QTableWidgetItem(_('Count'))
-        self.table.setHorizontalHeaderItem(1, self.count_col)
-        self.count_col.setIcon(self.blank_icon)
-        self.was_col = QTableWidgetItem(_('Was'))
-        self.table.setHorizontalHeaderItem(2, self.was_col)
-        self.count_col.setIcon(self.blank_icon)
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.table.horizontalHeader()
@@ -158,23 +142,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setItemDelegate(EditColumnDelegate(self.table))
 
         # Add the data
-        select_item = None
-        self.table.setRowCount(len(self.all_tags))
-        for row,tag in enumerate(sorted(self.all_tags.keys(), key=sorter)):
-            item = NameTableWidgetItem(tag)
-            item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
-            self.table.setItem(row, 0, item)
-            if tag == tag_to_match:
-                select_item = item
-            item = CountTableWidgetItem(self.counts[tag])
-            # only the name column can be selected
-            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
-            self.table.setItem(row, 1, item)
-            item = QTableWidgetItem()
-#             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
-            item.setFlags((item.flags() | Qt.ItemIsEditable) & ~Qt.ItemIsSelectable)
-            self.table.setItem(row, 2, item)
+        select_item = self.fill_in_table(None, tag_to_match)
 
         # Scroll to the selected item if there is one
         if select_item is not None:
@@ -182,6 +150,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.delete_button.clicked.connect(self.delete_tags)
         self.rename_button.clicked.connect(self.rename_tag)
+        self.undo_button.clicked.connect(self.undo_edit)
         self.table.itemDoubleClicked.connect(self._rename_tag)
         self.table.itemChanged.connect(self.finish_editing)
 
@@ -190,13 +159,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.buttonBox.accepted.connect(self.accepted)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
-        self.search_box.editTextChanged.connect(self.find_text_changed)
-        self.search_button.clicked.connect(self.search_clicked)
+        self.search_button.clicked.connect(self.all_matching_clicked)
         self.search_button.setDefault(True)
 
-        self.table.setEditTriggers(QTableWidget.EditKeyPressed)
+        self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
 
-        self.start_find_pos = -1
+        self.table.setEditTriggers(QTableWidget.EditKeyPressed)
 
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)
@@ -207,25 +175,82 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         except:
             pass
 
-    def find_text_changed(self):
-        self.start_find_pos = -1
+    def vl_box_changed(self):
+        self.fill_in_table(None, None)
 
-    def search_clicked(self):
-        search_for = icu_lower(unicode(self.search_box.text()))
-        if not search_for:
-            error_dialog(self, _('Find'), _('You must enter some text to search for'),
-                         show=True, show_copy_button=False)
-            return
-        rows = self.table.rowCount()
-        for i in range(0, rows):
-            self.start_find_pos += 1
-            if self.start_find_pos >= rows:
-                self.start_find_pos = 0
-            item = self.table.item(self.start_find_pos, 0)
-            if search_for in icu_lower(unicode(item.text())):
-                self.table.setCurrentItem(item)
-                return
-        info_dialog(self, _('Find'), _('No tag found'), show=True, show_copy_button=False)
+    def fill_in_table(self, tags, tag_to_match):
+        data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
+        self.all_tags = {}
+        for k,v,count in data:
+            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
+                                'is_deleted': k in self.to_delete}
+            self.original_names[k] = v
+        self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
+        if tags is None:
+            tags = self.ordered_tags
+
+        select_item = None
+        self.table.blockSignals(True)
+        self.table.clear()
+        self.table.setColumnCount(3)
+        self.name_col = QTableWidgetItem(_('Tag'))
+        self.table.setHorizontalHeaderItem(0, self.name_col)
+        self.name_col.setIcon(self.up_arrow_icon)
+        self.count_col = QTableWidgetItem(_('Count'))
+        self.table.setHorizontalHeaderItem(1, self.count_col)
+        self.count_col.setIcon(self.blank_icon)
+        self.was_col = QTableWidgetItem(_('Was'))
+        self.table.setHorizontalHeaderItem(2, self.was_col)
+        self.count_col.setIcon(self.blank_icon)
+
+        self.table.setRowCount(len(tags))
+
+        for row,tag in enumerate(tags):
+            item = NameTableWidgetItem()
+            item.set_is_deleted(self.all_tags[tag]['is_deleted'])
+            _id = self.all_tags[tag]['key']
+            item.setData(Qt.UserRole, _id)
+            item.set_initial_text(tag)
+            if _id in self.to_rename:
+                item.setText(self.to_rename[_id])
+            else:
+                item.setText(tag)
+            item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            self.table.setItem(row, 0, item)
+            if tag == tag_to_match:
+                select_item = item
+
+            item = CountTableWidgetItem(self.all_tags[tag]['count'])
+            # only the name column can be selected
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            self.table.setItem(row, 1, item)
+
+            item = QTableWidgetItem()
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            if _id in self.to_rename or _id in self.to_delete:
+                item.setData(Qt.DisplayRole, tag)
+            self.table.setItem(row, 2, item)
+        self.table.blockSignals(False)
+        return select_item
+
+    def all_matching_clicked(self):
+        for i in range(0, self.table.rowCount()):
+            item = self.table.item(i, 0)
+            tag = item.initial_text()
+            self.all_tags[tag]['cur_name'] = item.text()
+            self.all_tags[tag]['is_deleted'] = item.is_deleted
+        search_for = icu_lower(unicode_type(self.search_box.text()))
+        if len(search_for) == 0:
+            self.fill_in_table(None, None)
+        result = []
+        for k in self.ordered_tags:
+            tag = self.all_tags[k]
+            if (
+                search_for in icu_lower(unicode_type(tag['cur_name'])) or
+                search_for in icu_lower(unicode_type(self.original_names.get(tag['key'], '')))
+            ):
+                result.append(k)
+        self.fill_in_table(result, None)
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
@@ -242,7 +267,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
@@ -252,17 +277,39 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, _('Item is blank'),
-                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.initial_text())
-                return
+            error_dialog(self, _('Item is blank'), _(
+                'An item cannot be set to nothing. Delete it instead.'), show=True)
+            item.setText(item.initial_text())
+            return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode(item.text())
+            self.to_rename[id_] = unicode_type(item.text())
             orig = self.table.item(item.row(), 2)
             self.table.blockSignals(True)
             orig.setData(Qt.DisplayRole, item.initial_text())
             self.table.blockSignals(False)
+
+    def undo_edit(self):
+        indexes = self.table.selectionModel().selectedRows()
+        if not indexes:
+            error_dialog(self, _('No item selected'),
+                         _('You must select one item from the list of Available items.')).exec_()
+            return
+
+        if not confirm(
+            _('Do you really want to undo your changes?'),
+            'tag_list_editor_undo'):
+            return
+        self.table.blockSignals(True)
+        for idx in indexes:
+            row = idx.row()
+            item = self.table.item(row, 0)
+            item.setText(item.initial_text())
+            item.set_is_deleted(False)
+            self.to_delete.discard(int(item.data(Qt.UserRole)))
+            self.to_rename.pop(int(item.data(Qt.UserRole)), None)
+            self.table.item(row, 2).setData(Qt.DisplayRole, '')
+        self.table.blockSignals(False)
 
     def rename_tag(self):
         item = self.table.item(self.table.currentRow(), 0)
@@ -302,13 +349,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             else:
                 to_del.append(item)
         if to_del:
-            ct = ', '.join([unicode(item.text()) for item in to_del])
+            ct = ', '.join([unicode_type(item.text()) for item in to_del])
             if not confirm(
                 '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct,
                 'tag_list_editor_delete'):
                 return
         if to_undel:
-            ct = ', '.join([unicode(item.text()) for item in to_undel])
+            ct = ', '.join([unicode_type(item.text()) for item in to_undel])
             if not confirm(
                 '<p>'+_('Are you sure you want to undelete the following items?')+'<br>'+ct,
                 'tag_list_editor_undelete'):

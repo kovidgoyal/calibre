@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from future_builtins import zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, map
 from itertools import cycle
 
 from calibre import force_unicode
@@ -15,7 +14,7 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.content import get as get_content, icon as get_icon
 from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name, get_db
@@ -23,10 +22,12 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
 
+
 def ensure_val(x, *allowed):
     if x not in allowed:
         x = allowed[0]
     return x
+
 
 def get_pagination(query, num=100, offset=0):
     try:
@@ -38,6 +39,7 @@ def get_pagination(query, num=100, offset=0):
     except:
         raise HTTPNotFound("Invalid offset")
     return num, offset
+
 
 def category_icon(category, meta):  # {{{
     if category in category_icon_map:
@@ -52,6 +54,7 @@ def category_icon(category, meta):  # {{{
 # }}}
 
 # Book metadata {{{
+
 
 def book_to_json(ctx, rd, db, book_id,
                  get_category_urls=True, device_compatible=False, device_for_template=None):
@@ -73,13 +76,13 @@ def book_to_json(ctx, rd, db, book_id,
 
     if not device_compatible:
         mi.format_metadata = {k.lower():dict(v) for k, v in
-                mi.format_metadata.iteritems()}
-        for v in mi.format_metadata.itervalues():
+                iteritems(mi.format_metadata)}
+        for v in itervalues(mi.format_metadata):
             mtime = v.get('mtime', None)
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
+        fmts = set(x.lower() for x in mi.format_metadata)
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:
@@ -103,7 +106,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, basestring):
+                    if isinstance(categories, string_or_bytes):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:
@@ -112,7 +115,7 @@ def book_to_json(ctx, rd, db, book_id,
                                 dbtags[category] = ctx.url_for(
                                     books_in,
                                     encoded_category=encode_name(tag.category if tag.category else key),
-                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode(tag.id)),
+                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode_type(tag.id)),
                                     library_id=db.server_library_id
                                 )
                                 break
@@ -131,11 +134,12 @@ def book_to_json(ctx, rd, db, book_id,
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:
                     template = device_class.save_template()
-                    data['_filename_'] = create_upload_path(mi, book_id,
+                    data['_filename_'] = create_upload_path(mi, unicode_type(book_id),
                             template, sanitize, path_type=posixpath)
                     break
 
     return data, mi.last_modified
+
 
 @endpoint('/ajax/book/{book_id}/{library_id=None}', postprocess=json)
 def book(ctx, rd, book_id, library_id):
@@ -163,8 +167,8 @@ def book(ctx, rd, book_id, library_id):
                     book_id = None
             except Exception:
                 book_id = None
-        if book_id is None or book_id not in ctx.allowed_book_ids(rd, db):
-            raise HTTPNotFound('Book with id %r does not exist' % oid)
+        if book_id is None or not ctx.has_id(rd, db, book_id):
+            raise BookNotFound(oid, db)
         category_urls = rd.query.get('category_urls', 'true').lower()
         device_compatible = rd.query.get('device_compatible', 'false').lower()
         device_for_template = rd.query.get('device_for_template', None)
@@ -175,6 +179,7 @@ def book(ctx, rd, book_id, library_id):
                 device_for_template=device_for_template)
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     return data
+
 
 @endpoint('/ajax/books/{library_id=None}', postprocess=json)
 def books(ctx, rd, library_id):
@@ -210,9 +215,9 @@ def books(ctx, rd, library_id):
         device_compatible = rd.query.get('device_compatible', 'false').lower() == 'true'
         device_for_template = rd.query.get('device_for_template', None)
         ans = {}
-        restricted_to = ctx.allowed_book_ids(rd, db)
+        allowed_book_ids = ctx.allowed_book_ids(rd, db)
         for book_id in ids:
-            if book_id not in restricted_to:
+            if book_id not in allowed_book_ids:
                 ans[book_id] = None
                 continue
             data, lm = book_to_json(
@@ -227,6 +232,8 @@ def books(ctx, rd, library_id):
 # }}}
 
 # Categories (Tag Browser)  {{{
+
+
 @endpoint('/ajax/categories/{library_id=None}', postprocess=json)
 def categories(ctx, rd, library_id):
     '''
@@ -243,9 +250,10 @@ def categories(ctx, rd, library_id):
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         ans = {}
-        categories = ctx.get_categories(rd, db)
+        categories = ctx.get_categories(rd, db, vl=rd.query.get('vl') or '')
         category_meta = db.field_metadata
         library_id = db.server_library_id
+
         def getter(x):
             return category_meta[x]['name']
 
@@ -271,7 +279,7 @@ def categories(ctx, rd, library_id):
             ans[url] = (display_name, icon)
 
         ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
-                for k, v in ans.iteritems()]
+                for k, v in iteritems(ans)]
         ans.sort(key=lambda x: sort_key(x['name']))
         for name, url, icon in [
                 (_('All books'), 'allbooks', 'book.png'),
@@ -437,7 +445,7 @@ def category(ctx, rd, encoded_name, library_id):
             'average_rating': x.avg_rating,
             'count': x.count,
             'url': ctx.url_for(books_in, encoded_category=encode_name(x.category if x.category else toplevel),
-                               encoded_item=encode_name(x.original_name if x.id is None else unicode(x.id)),
+                               encoded_item=encode_name(x.original_name if x.id is None else unicode_type(x.id)),
                                library_id=db.server_library_id
                                ),
             'has_children': x.original_name in children,
@@ -466,7 +474,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
         try:
             dname, ditem = map(decode_name, (encoded_category, encoded_item))
         except:
-            raise HTTPNotFound('Invalid encoded param: %r' % (encoded_category, encoded_item))
+            raise HTTPNotFound('Invalid encoded param: %r (%r)' % (encoded_category, encoded_item))
         num, offset = get_pagination(rd.query)
         sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
         sort_order = ensure_val(sort_order, 'asc', 'desc')
@@ -489,7 +497,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
             if dname == 'news':
                 dname = 'tags'
-            ids = db.get_books_for_category(dname, cid).intersection(ctx.allowed_book_ids(rd, db))
+            ids = db.get_books_for_category(dname, cid) & ctx.allowed_book_ids(rd, db)
 
         ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
         total_num = len(ids)
@@ -517,7 +525,9 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 # }}}
 
 # Search {{{
-def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
+
+
+def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
     skeys = db.field_metadata.sortable_field_keys()
@@ -525,35 +535,42 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
         if sfield not in skeys:
             raise HTTPNotFound('%s is not a valid sort field'%sort)
 
-    if not query:
-        ids = ctx.allowed_book_ids(rd, db)
-    else:
-        ids = ctx.search(rd, db, query)
+    ids, parse_error = ctx.search(rd, db, query, vl=vl, report_restriction_errors=True)
     ids = db.multisort(fields=multisort, ids_to_sort=ids)
     total_num = len(ids)
     ids = ids[offset:offset+num]
-    return {
-            'total_num': total_num, 'sort_order':sort_order,
-            'offset':offset, 'num':len(ids), 'sort':sort,
-            'base_url':ctx.url_for(search, library_id=db.server_library_id),
-            'query': query,
-            'book_ids':ids
+    ans = {
+        'total_num': total_num, 'sort_order':sort_order,
+        'offset':offset, 'num':len(ids), 'sort':sort,
+        'base_url':ctx.url_for(search, library_id=db.server_library_id),
+        'query': query,
+        'library_id': db.server_library_id,
+        'book_ids':ids,
+        'vl': vl,
     }
+    if parse_error is not None:
+        ans['bad_restriction'] = unicode_type(parse_error)
+    return ans
+
 
 @endpoint('/ajax/search/{library_id=None}', postprocess=json)
 def search(ctx, rd, library_id):
     '''
-    Return the books (as list of ids) matching the specified search query.
+    Return the books matching the specified search query.
+    The returned object is a dict with the field book_ids which
+    is a list of matched book ids. For all the other fields in the object, see
+    :func:`search_result`.
 
-    Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=
+    Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=&vl=
     '''
     db = get_db(ctx, rd, library_id)
     query = rd.query.get('query')
     num, offset = get_pagination(rd.query)
     with db.safe_read_lock:
-        return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
+        return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'), rd.query.get('vl') or '')
 
 # }}}
+
 
 @endpoint('/ajax/library-info', postprocess=json)
 def library_info(ctx, rd):

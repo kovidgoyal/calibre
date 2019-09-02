@@ -1,5 +1,5 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__license__   = 'GPL v3'
+__copyright__ = '2009-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
 eluniversal.com.mx
 '''
@@ -8,46 +8,42 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElUniversal(BasicNewsRecipe):
-    title = 'El Universal'
-    __author__ = 'Darko Miletic and Sujata Raman'
-    description = 'News from Mexico'
-    oldest_article = 1
+    title                 = 'El Universal'
+    __author__            = 'Darko Miletic'
+    description           = ('Sitio líder de noticias minuto x minuto de México y el mundo, con información sobre política,'
+                             ' ciudad; videos, interactividad, opinión, blogs')
+    oldest_article        = 1
     max_articles_per_feed = 100
-    publisher = 'El Universal'
-    category = 'news, politics, Mexico'
-    no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf8'
-    remove_javascript = True
-    remove_empty_feeds = True
-    publication_type = 'newspaper'
-    language = 'es_MX'
-
+    publisher             = 'El Universal'
+    category              = 'news, politics, Mexico'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf8'
+    auto_cleanup          = True
+    auto_cleanup_keep     = ("//div[contains(concat(' ', normalize-space(@class), ' '),"
+                             " ' field-name-field-resumen ')] | //div[@class='fechap'] |"
+                             " //div[@class='hora'] | //div[contains(concat(' ', normalize-space(@class), ' '), ' field-name-field-fuente ')]")
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    ignore_duplicate_articles = {'url'}
+    publication_type      = 'newspaper'
+    language              = 'es_MX'
     extra_css = '''
-                    body{font-family:Arial,Helvetica,sans-serif}
-                    .noteTitle{font-family: Georgia,"Times New Roman",Times,serif; color: #336699; font-size: xx-large; font-weight: bold}
-                    .noteInfo{display: block; color: gray}
+                    body{font-family: Roboto, sans-serif}
+                    .h1{font-family: "Duplicate Ionic Bold", serif}
+                    .field-name-field-resumen{font-family: "Duplicate Ionic Light", serif; display: block; font-size: large;}
                 '''
-    keep_only_tags = [dict(name='div', attrs={'id': 'noteContent'})]
-    remove_tags_after = dict(attrs={'class': 'noteText'})
-    remove_tags = [
-        dict(attrs={'class': 'noteExtras'}),
-        dict(name=['meta', 'iframe', 'base', 'embed', 'object']),
-        dict(attrs={'id': 'tm_box'})
-    ]
-    remove_attributes = ['lang', 'onclick']
-
     feeds = [
+              (u'Nacion', u'http://www.eluniversal.com.mx/seccion/1/rss.xml'),
+              (u'Mundo', u'http://www.eluniversal.com.mx/seccion/5/rss.xml'),
+              (u'Metropoli', u'http://www.eluniversal.com.mx/seccion/6/rss.xml'),
+              (u'Estados', u'http://www.eluniversal.com.mx/seccion/13/rss.xml'),
+              (u'Cartera', u'http://www.eluniversal.com.mx/seccion/14/rss.xml'),
+              (u'Deportes', u'http://www.eluniversal.com.mx/seccion/15/rss.xml'),
+              (u'Espectaculos', u'http://www.eluniversal.com.mx/seccion/133/rss.xml'),
+              (u'Cultura', u'http://www.eluniversal.com.mx/seccion/17/rss.xml'),
+              (u'Ciencia y salud', u'http://www.eluniversal.com.mx/seccion/16/rss.xml'),
+              (u'Techbit', u'http://www.eluniversal.com.mx/seccion/5782/rss.xml'),
+              (u'Periodismo de investigacion', u'http://www.eluniversal.com.mx/seccion/11363/rss.xml')
+            ]
 
-    (u'Minuto por Minuto', u'http://www.eluniversal.com.mx/rss/universalmxm.xml'),
-    (u'Mundo', u'http://www.eluniversal.com.mx/rss/mundo.xml'),
-    (u'Mexico', u'http://www.eluniversal.com.mx/rss/mexico.xml'),
-    (u'Estados', u'http://www.eluniversal.com.mx/rss/estados.xml'),
-    (u'Finanzas', u'http://www.eluniversal.com.mx/rss/finanzas.xml'),
-    (u'Deportes', u'http://www.eluniversal.com.mx/rss/deportes.xml'),
-    (u'Espectaculos', u'http://www.eluniversal.com.mx/rss/espectaculos.xml'),
-    (u'Cultura', u'http://www.eluniversal.com.mx/rss/cultura.xml'),
-    (u'Ciencia', u'http://www.eluniversal.com.mx/rss/ciencia.xml'),
-    (u'Computacion', u'http://www.eluniversal.com.mx/rss/computo.xml'),
-    (u'Sociedad', u'http://www.eluniversal.com.mx/rss/sociedad.xml')
-    ]

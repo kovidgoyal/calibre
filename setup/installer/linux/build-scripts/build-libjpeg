@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd $SW/build/libjpeg-turbo* && \
-./configure --disable-dependency-tracking --enable-shared --with-jpeg8 --prefix=$SW && make && make install

@@ -17,37 +17,14 @@ class AdvancedUserRecipe1283666183(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
-    keep_only_tags = [dict(name='div', attrs={'id': 'mainContent'})]
-    extra_css = '#copyinfo { font-size: 6 ;} \n #photocredit { font-size: 6 ;} \n  .pubinfo { font-size: 6 ;}'
-    masthead_url = 'http://www.journalgazette.net/img/icons/jgmini.gif'
-#    cover_url = 'http://www.journalgazette.net/img/icons/jgmini.gif'
-    encoding = 'cp1252'
+    auto_cleanup = True
 
-    feeds = [(u'Opinion', u'http://journalgazette.net/apps/pbcs.dll/section?Category=EDIT&template=blogrss&mime=xml'),
-             (u'Local News', u'http://journalgazette.net/apps/pbcs.dll/section?Category=LOCAL&template=blogrss&mime=xml'),
-             (u'Sports', u'http://journalgazette.net/apps/pbcs.dll/section?Category=SPORTS&template=blogrss&mime=xml'),
-             (u'Features', u'http://journalgazette.net/apps/pbcs.dll/section?Category=FEAT&template=blogrss&mime=xml'),
-             (u'Business', u'http://journalgazette.net/apps/pbcs.dll/section?Category=BIZ&template=blogrss&mime=xml'),
-             (u'Ice Chips', u'http://journalgazette.net/apps/pbcs.dll/section?Category=BLOGS11&template=blogrss&mime=xml '),
-             (u'Entertainment', u'http://journalgazette.net/apps/pbcs.dll/section?Category=ENT&template=blogrss&mime=xml'),
-             (u'Food', u'http://journalgazette.net/apps/pbcs.dll/section?Category=FOOD&template=blogrss&mime=xml')
+    feeds = [(u'Opinion', u'http://www.journalgazette.net/opinion/rss/'),
+             (u'Local News', u'http://www.journalgazette.net/news/local/rss/'),
+             (u'Sports', u'http://www.journalgazette.net/sports/rss/'),
+             (u'Business', u'http://www.journalgazette.net/business/rss/'),
+             (u'Entertainment',
+              u'http://www.journalgazette.net/entertainment/rss/'),
+             (u'Food', u'http://www.journalgazette.net/food/'),
+             (u'Blogs', u'http://www.journalgazette.net/blog/rss/'),
              ]
-
-    def print_version(self, url):
-        split1 = url.split("/")
-        # print 'THE SPLIT IS: ', split1
-        url3 = split1[2]
-        url5 = split1[4]
-        url6 = split1[5]
-        url7 = split1[6]
-
-        print_url = 'http://' + url3 + '/apps/pbcs.dll/article?AID=/' + \
-            url5 + '/' + url6 + '/' + url7 + '/-1/EDIT01&template=printart'
-        # print 'THIS URL WILL PRINT: ', print_url # this is a test string to
-        # see what the url is it will return
-        return print_url
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup

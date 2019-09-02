@@ -8,13 +8,131 @@ from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
 from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
+from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, current_book
+from read_book.viewport import scroll_viewport
+
+
+def update_visible_toc_nodes(visible_anchors):
+    update_visible_toc_nodes.data = visible_anchors
+update_visible_toc_nodes.data = {}
+
+
+def iter_toc_descendants(node, callback):
+    for child in node.children:
+        if callback(child):
+            return
+        iter_toc_descendants(child, callback)
+
+
+def get_border_nodes(toc, id_map):
+    data = update_visible_toc_nodes.data
+    before, after = data.before, data.after
+    if before:
+        before = id_map[before]
+    if after:
+        after = id_map[after]
+    if before and after:
+        # Both border nodes are in the current spine item
+        return before, after
+    # Find the ToC entries that point to the closest files on either side of the
+    # current spine item
+    spine = current_book().manifest.spine
+    spine_before, spine_after = {}, {}
+    which = spine_before
+    csi = current_spine_item()
+    for name in spine:
+        if name is csi:
+            which = spine_after
+        else:
+            which[name] = True
+    prev = None
+    iter_toc_descendants(toc, def(node):
+        nonlocal prev, before, after
+        if node.dest:
+            if spine_before[node.dest]:
+                prev = node
+            elif spine_after[node.dest]:
+                if not before:
+                    before = prev
+                if not after:
+                    after = node
+                return True
+    )
+    return before, after
+
+
+def get_current_toc_nodes():
+    toc = current_book().manifest.toc
+    parent_map, id_map = get_toc_maps(toc)
+    data = update_visible_toc_nodes.data
+    ans = {}
+    if data.has_visible:
+        ans = data.visible_anchors
+    else:
+        if data.before:
+            ans[data.before] = True
+        else:
+            before = get_border_nodes(toc, id_map)[0]
+            if before:
+                ans[before.id] = True
+    ans = Object.keys(ans)
+    if ans.length:
+        pid = node_id = ans[0]
+        p = parent_map[pid]
+        while p and p.title:
+            pid = p.id
+            p = parent_map[pid]
+        p = id_map[pid]
+        return id_map[node_id], p if p and p.title else None
+
+    return None, None
+
+
+def get_highlighted_toc_nodes(toc, parent_map, id_map):
+    data = update_visible_toc_nodes.data
+    ans = {}
+    if data.has_visible:
+        ans = data.visible_anchors
+    else:
+        if data.before:
+            ans[data.before] = True
+        else:
+            before = get_border_nodes(toc, id_map)[0]
+            if before:
+                ans[before.id] = True
+    for node_id in Object.keys(ans):
+        p = parent_map[node_id]
+        while p and p.title:
+            ans[p.id] = True
+            p = parent_map[p.id]
+    return ans
+
+def get_toc_maps(toc):
+    if not toc:
+        toc = current_book().manifest.toc
+    parent_map, id_map = {}, {}
+
+    def process_node(node, parent):
+        id_map[node.id] = node
+        parent_map[node.id] = parent
+        for c in node.children:
+            process_node(c, node)
+
+    process_node(toc)
+    return parent_map, id_map
 
 def create_toc_tree(toc, onclick):
+    parent_map, id_map = get_toc_maps(toc)
+    highlighted_toc_nodes = get_highlighted_toc_nodes(toc, parent_map, id_map)
 
     def populate_data(node, li, a):
         li.dataset.tocDest = node.dest or ''
         li.dataset.tocFrag = node.frag or ''
-        a.textContent = node.title or ''
+        title = node.title or ''
+        if highlighted_toc_nodes[node.id]:
+            a.appendChild(E.b(E.i(title)))
+        else:
+            a.textContent = title
 
     return create_tree(toc, populate_data, onclick)
 
@@ -28,12 +146,7 @@ def do_search(text):
             'The text "{}" was not found in the Table of Contents').format(text))
     scroll_tree_item_into_view(a)
 
-def create_toc_panel(book, container, onclick, onclose):
-    container.appendChild(E.div(
-        style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
-        E.h2(_('Table of Contents')),
-        E.div(svgicon('close'), onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
-    ))
+def create_toc_panel(book, container, onclick):
     def handle_click(event, li):
         if event.button is 0:
             onclick(li.dataset.tocDest, li.dataset.tocFrag)
@@ -47,3 +160,48 @@ def create_toc_panel(book, container, onclick, onclose):
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
     container.appendChild(E.div(style='margin: 1ex 1em; display: flex;', search_bar, search_button))
+
+
+def current_toc_anchor_map(tam, anchor_funcs):
+    current_map = toc_anchor_map()
+    if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
+        name = current_spine_item().name
+        am = {}
+        anchors = v'[]'
+        pos_map = {}
+        for i, anchor in enumerate(tam[name] or v'[]'):
+            val = anchor_funcs.pos_for_elem()
+            if anchor.frag:
+                elem = document.getElementById(anchor.frag)
+                if elem:
+                    val = anchor_funcs.pos_for_elem(elem)
+            am[anchor.id] = val
+            anchors.push(anchor.id)
+            pos_map[anchor.id] = i
+        # stable sort by position in document
+        anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
+
+        current_map = {'layout_mode': current_layout_mode, 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
+        set_toc_anchor_map(current_map)
+    return current_map
+
+
+def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
+    tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
+    before = after = None
+    visible_anchors = {}
+    has_visible = False
+
+    for anchor_id in tam.sorted_anchors:
+        pos = tam.pos_map[anchor_id]
+        visibility = anchor_funcs.visibility(pos)
+        if visibility < 0:
+            before = anchor_id
+        elif visibility is 0:
+            has_visible = True
+            visible_anchors[anchor_id] = True
+        elif visibility > 0:
+            after = anchor_id
+            break
+
+    return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}

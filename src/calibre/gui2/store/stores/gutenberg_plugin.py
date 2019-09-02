@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -10,8 +10,11 @@ __docformat__ = 'restructuredtext en'
 import base64
 import mimetypes
 import re
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import etree
 
@@ -23,13 +26,15 @@ from calibre.gui2.store.search_result import SearchResult
 
 web_url = 'http://m.gutenberg.org/'
 
+
 def fix_url(url):
     if url and url.startswith('//'):
         url = 'http:' + url
     return url
 
+
 def search(query, max_results=10, timeout=60, write_raw_to=None):
-    url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
+    url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + quote_plus(query)
 
     counter = max_results
     br = browser(user_agent='calibre/'+__version__)
@@ -50,7 +55,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
             # We could use the <link rel="alternate" type="text/html" ...> tag from the
             # detail odps page but this is easier.
             id = fix_url(''.join(data.xpath('./*[local-name() = "id"]/text()')).strip())
-            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id)))
+            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub(r'[^\d]', '', id)))
             s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
             s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
             if not s.title or not s.author:
@@ -81,9 +86,13 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
                     href = fix_url(href)
                     if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
                         if href.startswith('data:image/png;base64,'):
-                            s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
+                            cdata = href.replace('data:image/png;base64,', '')
+                            if not isinstance(cdata, bytes):
+                                cdata = cdata.encode('ascii')
+                            s.cover_data = base64.b64decode(cdata)
 
             yield s
+
 
 class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 
@@ -120,7 +129,8 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
         for result in search(query, max_results, timeout):
             yield result
 
+
 if __name__ == '__main__':
     import sys
     for result in search(' '.join(sys.argv[1:]), write_raw_to='/t/gutenberg.html'):
-        print (result)
+        print(result)

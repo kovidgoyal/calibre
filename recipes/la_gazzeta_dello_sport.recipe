@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
-__license__ = 'GPL v3'
+from __future__ import print_function
+__license__   = 'GPL v3'
 __author__ = 'Lorenzo Vigentini'
 __copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
 __version__ = 'v1.02'
@@ -77,5 +78,5 @@ class laGazzetta(BasicNewsRecipe):
         myArticle = myArticleSegs[0]
         printVerString = myArticle + '_print.html'
         myURL = basename + subPath + printVerString
-        print 'this is the url: ' + myURL
+        print('this is the url: ' + myURL)
         return basename + subPath + printVerString

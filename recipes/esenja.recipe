@@ -45,7 +45,7 @@ class Esensja(BasicNewsRecipe):
 
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
                           (re.compile(
-                              ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                              u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
                           ]
 
     def parse_index(self):
@@ -79,7 +79,7 @@ class Esensja(BasicNewsRecipe):
                         section += ' - ' + subchapter
                     feeds.append((section, articles))
                     articles = []
-                if tag['class'] == 'chapter':
+                if ''.join(tag['class']) == 'chapter':
                     chapter = self.tag_to_string(tag).capitalize()
                     subchapter = ''
                 else:

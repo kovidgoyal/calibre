@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1336226255(BasicNewsRecipe):
 
-    title = u'National Geographic'
+    title = u'National Geographic (es)'
     publisher = u'National Geographic'
     __author__ = 'Vakya'
     description = 'Revista National Geographic - Últimas noticias'

@@ -18,10 +18,13 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type, range
+
 
 class OutputFormatSetting(Setting):
 
     CHOICES_SEARCH_FLAGS = Qt.MatchFixedString
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -47,7 +50,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
-        restrictions = sorted(db.prefs['virtual_libraries'].iterkeys(), key=sort_key)
+        restrictions = sorted(db.prefs['virtual_libraries'], key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
         # check that the virtual library still exists
         vls = db.prefs['virtual_lib_on_startup']
@@ -81,7 +84,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         input_map = prefs['input_format_order']
-        input_cols = [unicode(self.opt_input_order.item(i).data(Qt.UserRole) or '') for
+        input_cols = [unicode_type(self.opt_input_order.item(i).data(Qt.UserRole) or '') for
                 i in range(self.opt_input_order.count())]
         if input_map != input_cols:
             prefs['input_format_order'] = input_cols
@@ -126,7 +129,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer = self.opt_internally_viewed_formats
         for i in range(viewer.count()):
             if viewer.item(i).checkState() == Qt.Checked:
-                fmts.append(unicode(viewer.item(i).text()))
+                fmts.append(unicode_type(viewer.item(i).text()))
         return fmts
     # }}}
 
@@ -138,7 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             input_map = prefs['input_format_order']
         all_formats = set()
         self.opt_input_order.clear()
-        for fmt in all_input_formats().union(set(['ZIP', 'RAR'])):
+        for fmt in all_input_formats().union({'ZIP', 'RAR'}):
             all_formats.add(fmt.upper())
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.opt_input_order)
@@ -169,8 +172,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         info_dialog(self, _('Done'),
                 _('Confirmation dialogs have all been reset'), show=True)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Behavior')
-

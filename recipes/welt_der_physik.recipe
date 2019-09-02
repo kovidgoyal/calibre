@@ -1,4 +1,5 @@
-__license__ = 'GPL v3'
+#!/usr/bin/env python2
+__license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -13,19 +14,17 @@ class WeltDerPhysikDe(BasicNewsRecipe):
     title = 'Welt der Physik'
     description = 'Welt der Physik - heute schon geforscht?'
     __author__ = 'Bernd Kunze'
-    use_embedded_content = False
+    use_embedded_content   = False
     language = 'de'
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 100
     no_stylesheets = True
     oldest_article = 7
 
-    remove_tags = [
-        dict(name='div', attrs={'id': 'header-top'}),
-        dict(name='div', attrs={'id': 'logos'}),
-        dict(name='div', attrs={'id': 'breadcrumb'}),
-        dict(name='nav', attrs={'id': 'main-menu'}),
-        dict(name='footer')
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'row content'}),
     ]
 
-    feeds = [('Welt der Physik', 'http://www.weltderphysik.de/RSS-alles/')]
+    feeds          = [
+        ('Welt der Physik', 'http://www.weltderphysik.de/RSS-alles/'),
+    ]

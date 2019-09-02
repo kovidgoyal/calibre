@@ -30,28 +30,28 @@
    <item row="3" column="0">
     <widget class="QCheckBox" name="opt_snb_hide_chapter_name">
      <property name="text">
-      <string>Hide chapter name</string>
+      <string>Hide &amp;chapter name</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0">
     <widget class="QCheckBox" name="opt_snb_dont_indent_first_line">
      <property name="text">
-      <string>Don't indent the first line for each paragraph</string>
+      <string>Don't indent the &amp;first line for each paragraph</string>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QCheckBox" name="opt_snb_insert_empty_line">
      <property name="text">
-      <string>Insert empty line between paragraphs</string>
+      <string>Insert &amp;empty line between paragraphs</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0">
     <widget class="QCheckBox" name="opt_snb_full_screen">
      <property name="text">
-      <string>Optimize for full-sceen view </string>
+      <string>Optimize for full-&amp;screen view </string>
      </property>
     </widget>
    </item>

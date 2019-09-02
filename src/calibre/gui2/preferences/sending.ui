@@ -71,9 +71,9 @@
    <item row="1" column="0" colspan="3">
     <widget class="QLabel" name="label_41">
      <property name="text">
-      <string>&lt;li&gt;&lt;b&gt;Manual management&lt;/b&gt;: Calibre updates the metadata and adds collections only when a book is sent. With this option, calibre will never remove a collection.&lt;/li&gt;
-&lt;li&gt;&lt;b&gt;Only on send&lt;/b&gt;: Calibre updates metadata and adds/removes collections for a book only when it is sent to the device. &lt;/li&gt;
-&lt;li&gt;&lt;b&gt;Automatic management&lt;/b&gt;: Calibre automatically keeps metadata on the device in sync with the calibre library, on every connect&lt;/li&gt;&lt;/ul&gt;</string>
+      <string>&lt;li&gt;&lt;b&gt;Manual management&lt;/b&gt;: calibre updates the metadata and adds collections only when a book is sent. With this option, calibre will never remove a collection.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Only on send&lt;/b&gt;: calibre updates metadata and adds/removes collections for a book only when it is sent to the device. &lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Automatic management&lt;/b&gt;: calibre automatically keeps metadata on the device in sync with the calibre library, on every connect&lt;/li&gt;&lt;/ul&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

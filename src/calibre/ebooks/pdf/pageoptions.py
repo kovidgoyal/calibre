@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -15,8 +17,10 @@ UNITS = {
             'devicepixel' : QPrinter.DevicePixel,
         }
 
+
 def unit(unit):
     return UNITS.get(unit, QPrinter.Inch)
+
 
 PAPER_SIZES = {
                 'a0' : QPrinter.A0,  # 841 x 1189 mm
@@ -52,19 +56,23 @@ PAPER_SIZES = {
                 # 'custom' : QPrinter.Custom, # Unknown, or a user defined size.
              }
 
+
 def paper_size(size):
     return PAPER_SIZES.get(size, QPrinter.Letter)
+
 
 ORIENTATIONS = {
                 'portrait' : QPrinter.Portrait,
                 'landscape' : QPrinter.Landscape,
                }
 
+
 def orientation(orientation):
     return ORIENTATIONS.get(orientation, QPrinter.Portrait)
+
 
 def size(size):
     try:
         return int(size)
-    except:
+    except Exception:
         return 1

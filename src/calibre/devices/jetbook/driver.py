@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, James Ralston <jralston at mindspring.com>'
@@ -10,14 +11,16 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 
 import os
 import re
-import sys
 
+from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
+from polyglot.builtins import unicode_type, map
+
 
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
-    description    = _('Communicate with the JetBook eBook reader.')
+    description    = _('Communicate with the JetBook e-book reader.')
     author         = 'James Ralston'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -62,10 +65,9 @@ class JETBOOK(USBMS):
     def metadata_from_path(cls, path):
 
         def check_unicode(txt):
+            if not isinstance(txt, unicode_type):
+                txt = txt.decode(filesystem_encoding, 'replace')
             txt = txt.replace('_', ' ')
-            if not isinstance(txt, unicode):
-                return txt.decode(sys.getfilesystemencoding(), 'replace')
-
             return txt
 
         mi = cls.metadata_from_formats([path])
@@ -77,9 +79,10 @@ class JETBOOK(USBMS):
             if match is not None:
                 mi.title = check_unicode(match.group('title'))
                 authors = string_to_authors(match.group('authors'))
-                mi.authors = map(check_unicode, authors)
+                mi.authors = list(map(check_unicode, authors))
 
         return mi
+
 
 class MIBUK(USBMS):
 
@@ -97,6 +100,7 @@ class MIBUK(USBMS):
 
     VENDOR_NAME      = ['LINUX', 'FILE_BAC']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['WOLDERMIBUK', 'KED_STORAGE_GADG']
+
 
 class JETBOOK_MINI(USBMS):
 
@@ -124,6 +128,7 @@ class JETBOOK_MINI(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
+
 class JETBOOK_COLOR(USBMS):
 
     '''
@@ -148,5 +153,3 @@ set([(u'0x951',
     EBOOK_DIR_MAIN = 'My Books'
 
     SUPPORTS_SUB_DIRS = True
-
-

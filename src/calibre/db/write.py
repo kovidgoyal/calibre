@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,32 +9,33 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
-from future_builtins import zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip
 
-from calibre.constants import preferred_encoding, ispy3
+from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import (
     parse_only_date, parse_date, UNDEFINED_DATE, isoformat, is_date_undefined)
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
 
-if ispy3:
-    unicode = str
-
 # Convert data into values suitable for the db {{{
+
 
 def sqlite_datetime(x):
     return isoformat(x, sep=' ') if isinstance(x, datetime) else x
 
+
 def single_text(x):
     if x is None:
         return x
-    if not isinstance(x, unicode):
+    if not isinstance(x, unicode_type):
         x = x.decode(preferred_encoding, 'replace')
     x = x.strip()
     return x if x else None
 
+
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+
 
 def get_series_values(val):
     if not val:
@@ -50,12 +50,13 @@ def get_series_values(val):
             pass
     return (val, None)
 
+
 def multiple_text(sep, ui_sep, x):
     if not x:
         return ()
     if isinstance(x, bytes):
-        x = x.decode(preferred_encoding, 'replce')
-    if isinstance(x, unicode):
+        x = x.decode(preferred_encoding, 'replace')
+    if isinstance(x, unicode_type):
         x = x.split(sep)
     else:
         x = (y.decode(preferred_encoding, 'replace') if isinstance(y, bytes)
@@ -65,30 +66,38 @@ def multiple_text(sep, ui_sep, x):
     x = (y.strip().replace(ui_sep, repsep) for y in x if y.strip())
     return tuple(' '.join(y.split()) for y in x if y)
 
+
 def adapt_datetime(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
     if x and is_date_undefined(x):
         x = UNDEFINED_DATE
     return x
 
+
 def adapt_date(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
         x = parse_only_date(x)
     if x is None or is_date_undefined(x):
         x = UNDEFINED_DATE
     return x
 
+
 def adapt_number(typ, x):
     if x is None:
         return None
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
+        if isinstance(x, bytes):
+            x = x.decode(preferred_encoding, 'replace')
         if not x or x.lower() == 'none':
             return None
     return typ(x)
 
+
 def adapt_bool(x):
-    if isinstance(x, (unicode, bytes)):
+    if isinstance(x, (unicode_type, bytes)):
+        if isinstance(x, bytes):
+            x = x.decode(preferred_encoding, 'replace')
         x = x.lower()
         if x == 'true':
             x = True
@@ -100,6 +109,7 @@ def adapt_bool(x):
             x = bool(int(x))
     return x if x is None else bool(x)
 
+
 def adapt_languages(to_tuple, x):
     ans = []
     for lang in to_tuple(x):
@@ -109,24 +119,28 @@ def adapt_languages(to_tuple, x):
         ans.append(lc)
     return tuple(ans)
 
+
 def clean_identifier(typ, val):
     typ = icu_lower(typ or '').strip().replace(':', '').replace(',', '')
     val = (val or '').strip().replace(',', '|')
     return typ, val
 
+
 def adapt_identifiers(to_tuple, x):
     if not isinstance(x, dict):
         x = {k:v for k, v in (y.partition(':')[0::2] for y in to_tuple(x))}
     ans = {}
-    for k, v in x.iteritems():
+    for k, v in iteritems(x):
         k, v = clean_identifier(k, v)
         if k and v:
             ans[k] = v
     return ans
 
+
 def adapt_series_index(x):
     ret = adapt_number(float, x)
     return 1.0 if ret is None else ret
+
 
 def get_adapter(name, metadata):
     dt = metadata['datatype']
@@ -174,46 +188,52 @@ def get_adapter(name, metadata):
 # }}}
 
 # One-One fields {{{
+
+
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
     if book_id_val_map:
-        sequence = ((sqlite_datetime(v), k) for k, v in book_id_val_map.iteritems())
+        sequence = ((sqlite_datetime(v), k) for k, v in iteritems(book_id_val_map))
         db.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
     return set(book_id_val_map)
 
+
 def set_uuid(book_id_val_map, db, field, *args):
     field.table.update_uuid_cache(book_id_val_map)
     return one_one_in_books(book_id_val_map, db, field, *args)
+
 
 def set_title(book_id_val_map, db, field, *args):
     ans = one_one_in_books(book_id_val_map, db, field, *args)
     # Set the title sort field
     field.title_sort_field.writer.set_books(
-        {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
+        {k:title_sort(v) for k, v in iteritems(book_id_val_map)}, db)
     return ans
+
 
 def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
-    deleted = tuple((k,) for k, v in book_id_val_map.iteritems() if v is None)
+    deleted = tuple((k,) for k, v in iteritems(book_id_val_map) if v is None)
     if deleted:
         db.executemany('DELETE FROM %s WHERE book=?'%field.metadata['table'],
                         deleted)
         for book_id in deleted:
             field.table.book_col_map.pop(book_id[0], None)
-    updated = {k:v for k, v in book_id_val_map.iteritems() if v is not None}
+    updated = {k:v for k, v in iteritems(book_id_val_map) if v is not None}
     if updated:
         db.executemany('INSERT OR REPLACE INTO %s(book,%s) VALUES (?,?)'%(
             field.metadata['table'], field.metadata['column']),
-            ((k, sqlite_datetime(v)) for k, v in updated.iteritems()))
+            ((k, sqlite_datetime(v)) for k, v in iteritems(updated)))
         field.table.book_col_map.update(updated)
     return set(book_id_val_map)
+
 
 def custom_series_index(book_id_val_map, db, field, *args):
     series_field = field.series_field
     sequence = []
-    for book_id, sidx in book_id_val_map.iteritems():
+    for book_id, sidx in iteritems(book_id_val_map):
         if sidx is None:
             sidx = 1.0
         ids = series_field.ids_for_book(book_id)
@@ -228,11 +248,13 @@ def custom_series_index(book_id_val_map, db, field, *args):
 
 # Many-One fields {{{
 
+
 def safe_lower(x):
     try:
         return icu_lower(x)
     except (TypeError, ValueError, KeyError, AttributeError):
         return x
+
 
 def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
               case_changes, val_map, is_authors=False):
@@ -258,19 +280,21 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
         case_changes[item_id] = val
     val_map[val] = item_id
 
+
 def change_case(case_changes, dirtied, db, table, m, is_authors=False):
     if is_authors:
         vals = ((val.replace(',', '|'), item_id) for item_id, val in
-                case_changes.iteritems())
+                iteritems(case_changes))
     else:
-        vals = ((val, item_id) for item_id, val in case_changes.iteritems())
+        vals = ((val, item_id) for item_id, val in iteritems(case_changes))
     db.executemany(
         'UPDATE %s SET %s=? WHERE id=?'%(m['table'], m['column']), vals)
-    for item_id, val in case_changes.iteritems():
+    for item_id, val in iteritems(case_changes):
         table.id_map[item_id] = val
         dirtied.update(table.col_book_map[item_id])
         if is_authors:
             table.asort_map[item_id] = author_to_author_sort(val)
+
 
 def many_one(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -281,14 +305,14 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
     # Map values to db ids, including any new values
     kmap = safe_lower if dt in {'text', 'series'} else lambda x:x
-    rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    rid_map = {kmap(item):item_id for item_id, item in iteritems(table.id_map)}
     if len(rid_map) != len(table.id_map):
         # table has some entries that differ only in case, fix it
         table.fix_case_duplicates(db)
-        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+        rid_map = {kmap(item):item_id for item_id, item in iteritems(table.id_map)}
     val_map = {None:None}
     case_changes = {}
-    for val in book_id_val_map.itervalues():
+    for val in itervalues(book_id_val_map):
         if val is not None:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
                     case_changes, val_map)
@@ -296,17 +320,17 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     if case_changes:
         change_case(case_changes, dirtied, db, table, m)
 
-    book_id_item_id_map = {k:val_map[v] for k, v in book_id_val_map.iteritems()}
+    book_id_item_id_map = {k:val_map[v] for k, v in iteritems(book_id_val_map)}
 
     # Ignore those items whose value is the same as the current value
-    book_id_item_id_map = {k:v for k, v in book_id_item_id_map.iteritems()
+    book_id_item_id_map = {k:v for k, v in iteritems(book_id_item_id_map)
         if v != table.book_col_map.get(k, None)}
     dirtied |= set(book_id_item_id_map)
 
     # Update the book->col and col->book maps
     deleted = set()
     updated = {}
-    for book_id, item_id in book_id_item_id_map.iteritems():
+    for book_id, item_id in iteritems(book_id_item_id_map):
         old_item_id = table.book_col_map.get(book_id, None)
         if old_item_id is not None:
             table.col_book_map[old_item_id].discard(book_id)
@@ -330,7 +354,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
         )
         db.executemany(sql.format(table.link_table, m['link_column']),
             ((book_id, book_id, item_id) for book_id, item_id in
-                    updated.iteritems()))
+                    iteritems(updated)))
 
     # Remove no longer used items
     remove = {item_id for item_id in table.id_map if not
@@ -347,6 +371,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
 # Many-Many fields {{{
 
+
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals '''
@@ -355,6 +380,7 @@ def uniq(vals, kmap=lambda x:x):
     seen = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 
 def many_many(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -365,15 +391,15 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
     # Map values to db ids, including any new values
     kmap = safe_lower if dt == 'text' else lambda x:x
-    rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    rid_map = {kmap(item):item_id for item_id, item in iteritems(table.id_map)}
     if len(rid_map) != len(table.id_map):
         # table has some entries that differ only in case, fix it
         table.fix_case_duplicates(db)
-        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+        rid_map = {kmap(item):item_id for item_id, item in iteritems(table.id_map)}
     val_map = {}
     case_changes = {}
-    book_id_val_map = {k:uniq(vals, kmap) for k, vals in book_id_val_map.iteritems()}
-    for vals in book_id_val_map.itervalues():
+    book_id_val_map = {k:uniq(vals, kmap) for k, vals in iteritems(book_id_val_map)}
+    for vals in itervalues(book_id_val_map):
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
                       case_changes, val_map, is_authors=is_authors)
@@ -381,7 +407,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     if case_changes:
         change_case(case_changes, dirtied, db, table, m, is_authors=is_authors)
         if is_authors:
-            for item_id, val in case_changes.iteritems():
+            for item_id, val in iteritems(case_changes):
                 for book_id in table.col_book_map[item_id]:
                     current_sort = field.db_author_sort_for_book(book_id)
                     new_sort = field.author_sort_for_book(book_id)
@@ -391,17 +417,17 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
                         field.author_sort_field.writer.set_books({book_id:new_sort}, db)
 
     book_id_item_id_map = {k:tuple(val_map[v] for v in vals)
-                           for k, vals in book_id_val_map.iteritems()}
+                           for k, vals in iteritems(book_id_val_map)}
 
     # Ignore those items whose value is the same as the current value
-    book_id_item_id_map = {k:v for k, v in book_id_item_id_map.iteritems()
+    book_id_item_id_map = {k:v for k, v in iteritems(book_id_item_id_map)
         if v != table.book_col_map.get(k, None)}
     dirtied |= set(book_id_item_id_map)
 
     # Update the book->col and col->book maps
     deleted = set()
     updated = {}
-    for book_id, item_ids in book_id_item_id_map.iteritems():
+    for book_id, item_ids in iteritems(book_id_item_id_map):
         old_item_ids = table.book_col_map.get(book_id, None)
         if old_item_ids:
             for old_item_id in old_item_ids:
@@ -421,7 +447,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
                             ((k,) for k in deleted))
     if updated:
         vals = (
-            (book_id, val) for book_id, vals in updated.iteritems()
+            (book_id, val) for book_id, vals in iteritems(updated)
             for val in vals
         )
         db.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
@@ -450,10 +476,11 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 # }}}
 
+
 def identifiers(book_id_val_map, db, field, *args):  # {{{
     table = field.table
     updates = set()
-    for book_id, identifiers in book_id_val_map.iteritems():
+    for book_id, identifiers in iteritems(book_id_val_map):
         if book_id not in table.book_col_map:
             table.book_col_map[book_id] = {}
         current_ids = table.book_col_map[book_id]
@@ -462,7 +489,7 @@ def identifiers(book_id_val_map, db, field, *args):  # {{{
             table.col_book_map.get(key, set()).discard(book_id)
             current_ids.pop(key, None)
         current_ids.update(identifiers)
-        for key, val in identifiers.iteritems():
+        for key, val in iteritems(identifiers):
             if key not in table.col_book_map:
                 table.col_book_map[key] = set()
             table.col_book_map[key].add(book_id)
@@ -475,8 +502,10 @@ def identifiers(book_id_val_map, db, field, *args):  # {{{
     return set(book_id_val_map)
 # }}}
 
+
 def dummy(book_id_val_map, *args):
     return set()
+
 
 class Writer(object):
 
@@ -500,8 +529,7 @@ class Writer(object):
         elif field.is_many_many:
             self.set_books_func = many_many
         elif field.is_many:
-            self.set_books_func = (self.set_books_for_enum if dt ==
-                                   'enumeration' else many_one)
+            self.set_books_func = (self.set_books_for_enum if dt == 'enumeration' else many_one)
         else:
             self.set_books_func = (one_one_in_books if field.metadata['table'] == 'books' else one_one_in_other)
             if self.name in {'timestamp', 'uuid', 'sort'}:
@@ -509,7 +537,7 @@ class Writer(object):
 
     def set_books(self, book_id_val_map, db, allow_case_change=True):
         book_id_val_map = {k:self.adapter(v) for k, v in
-                           book_id_val_map.iteritems() if self.accept_vals(v)}
+                           iteritems(book_id_val_map) if self.accept_vals(v)}
         if not book_id_val_map:
             return set()
         dirtied = self.set_books_func(book_id_val_map, db, self.field,
@@ -519,10 +547,8 @@ class Writer(object):
     def set_books_for_enum(self, book_id_val_map, db, field,
                            allow_case_change):
         allowed = set(field.metadata['display']['enum_values'])
-        book_id_val_map = {k:v for k, v in book_id_val_map.iteritems() if v is
+        book_id_val_map = {k:v for k, v in iteritems(book_id_val_map) if v is
                            None or v in allowed}
         if not book_id_val_map:
             return set()
         return many_one(book_id_val_map, db, field, False)
-
-

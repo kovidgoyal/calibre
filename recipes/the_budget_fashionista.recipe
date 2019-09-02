@@ -22,20 +22,8 @@ class TheBudgetFashionista(BasicNewsRecipe):
     category = 'news, fashion, comsetics, women'
     lang = 'en-US'
     language = 'en'
+    auto_cleanup = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': lang
-    }
-
-    keep_only_tags = [dict(name='div', attrs={'class': 'columnLeft'})]
-    remove_tags_after = dict(name='div', attrs={'class': 'postDetails'})
-    remove_tags = [dict(name=['object', 'link', 'script',
-                              'iframe', 'form', 'login-button'])]
-
-    feeds = [(u'Articles', u'http://www.thebudgetfashionista.com/feeds/atom/')]
-
-    def preprocess_html(self, soup):
-        for it in soup.findAll('img'):
-            if it.parent.name == 'a':
-                it.parent.name = 'div'
-        return soup
+    feeds = [(u'Articles',
+              u'http://feeds.feedburner.com/TheBudgetFashionista')
+    ]

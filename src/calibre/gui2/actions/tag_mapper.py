@@ -2,17 +2,17 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
+from polyglot.builtins import iteritems, map, range
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 
+
 class TagMapAction(InterfaceAction):
 
     name = 'Tag Mapper'
-    action_spec = (_('Tag Mapper'), 'tags.png', _('Filter/transform the tags for books in the library'), None)
+    action_spec = (_('Tag mapper'), 'tags.png', _('Filter/transform the tags for books in the library'), None)
     action_type = 'current'
 
     def genesis(self):
@@ -23,7 +23,7 @@ class TagMapAction(InterfaceAction):
         selected = True
         if not rows or len(rows) < 2:
             selected = False
-            rows = xrange(self.gui.library_view.model().rowCount(None))
+            rows = range(self.gui.library_view.model().rowCount(None))
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 
@@ -32,11 +32,16 @@ class TagMapAction(InterfaceAction):
         from calibre.gui2.tag_mapper import RulesDialog
         from calibre.gui2.device import BusyCursor
         d = RulesDialog(self.gui)
-        d.setWindowTitle(_('Map tags for %d books in the library') % len(book_ids))
+        d.setWindowTitle(ngettext(
+            'Map tags for one book in the library',
+            'Map tags for {} books in the library', len(book_ids)).format(len(book_ids)))
         d.rules = gprefs.get('library-tag-mapper-ruleset', ())
-        txt = _('The changes will be applied to the <b>%d selected books</b>') if selected else _(
-            'The changes will be applied to <b>%d books in the library</b>')
-        d.edit_widget.msg_label.setText(d.edit_widget.msg_label.text() + '<p>' + txt % len(book_ids))
+        txt = ngettext(
+            'The changes will be applied to the <b>selected book</b>',
+            'The changes will be applied to the <b>{} selected books</b>', len(book_ids)) if selected else ngettext(
+            'The changes will be applied to <b>one book in the library</b>',
+            'The changes will be applied to <b>{} books in the library</b>', len(book_ids))
+        d.edit_widget.msg_label.setText(d.edit_widget.msg_label.text() + '<p>' + txt.format(len(book_ids)))
         if d.exec_() != d.Accepted:
             return
         with BusyCursor():
@@ -45,7 +50,7 @@ class TagMapAction(InterfaceAction):
             db = self.gui.current_db.new_api
             tag_map = db.all_field_for('tags', book_ids)
             changed_tag_map = {}
-            for book_id, tags in tag_map.iteritems():
+            for book_id, tags in iteritems(tag_map):
                 tags = list(tags)
                 new_tags = map_tags(tags, rules)
                 if tags != new_tags:

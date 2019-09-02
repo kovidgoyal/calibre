@@ -1,7 +1,0 @@
-#!/bin/sh
-cd $HOME
-rm sw-osx*;
-echo "[Paths]\nPrefix = .." > ~/sw/qt/bin/qt.conf && cat ~/sw/qt/bin/qt.conf
-echo "[Paths]\nPrefix = ../qt" > ~/sw/bin/qt.conf && cat ~/sw/bin/qt.conf
-tar cf sw-osx.tar --exclude sw/build --exclude sw/sources --exclude sw/man --exclude '*.pyc' --exclude '*.pyo' --exclude 'sw/share/doc' --exclude sw/share/gtk-doc --exclude sw/share/man --exclude sw/share/info sw && bzip2 --best sw-osx.tar
-rm ~/sw/qt/bin/qt.conf ~/sw/bin/qt.conf

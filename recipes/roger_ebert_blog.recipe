@@ -1,8 +1,6 @@
 import re
-import urllib2
 import time
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, SoupStrainer
 from calibre import strftime
 
 '''
@@ -69,7 +67,7 @@ class Ebert(BasicNewsRecipe):
             self.report_progress(0, _('Fetching feed') + ' %s...' %
                                  (feedtitle if feedtitle else feedurl))
             articles = []
-            page = urllib2.urlopen(feedurl).read()
+            page = self.index_to_soup(feedurl, raw=True)
 
             if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
                 pattern = self.patternReviews
@@ -94,8 +92,9 @@ class Ebert(BasicNewsRecipe):
                     description = match.group(2)
 
                 self.log(thislink)
+                soup = self.index_to_soup(thislink)
 
-                for link in BeautifulSoup(thislink, parseOnlyThese=SoupStrainer('a')):
+                for link in soup.findAll('a', href=True):
                     thisurl = self.PREFIX + link['href']
                     thislinktext = self.tag_to_string(link)
 

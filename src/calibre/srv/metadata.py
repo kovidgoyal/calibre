@@ -2,17 +2,14 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 from copy import copy
 from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
-from urllib import quote
 
-from calibre import prepare_string_for_xml
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
@@ -24,8 +21,11 @@ from calibre.utils.icu import collation_order
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
+from polyglot.builtins import iteritems, itervalues, range, filter, unicode_type
+from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
+
 
 def encode_datetime(dateval):
     if dateval is None:
@@ -38,7 +38,10 @@ def encode_datetime(dateval):
         return None
     return isoformat(dateval)
 
+
 empty_val = ((), '', {})
+passthrough_comment_types = {'long-text', 'short-text'}
+
 
 def add_field(field, db, book_id, ans, field_metadata):
     datatype = field_metadata.get('datatype')
@@ -52,21 +55,27 @@ def add_field(field, db, book_id, ans, field_metadata):
             elif datatype == 'comments' or field == 'comments':
                 ctype = field_metadata.get('display', {}).get('interpret_as', 'html')
                 if ctype == 'markdown':
+                    ans[field + '#markdown#'] = val
                     val = markdown(val)
-                elif ctype == 'long-text':
-                    val = '<pre style="white-space:pre-wrap">%s</pre>' % prepare_string_for_xml(val)
-                elif ctype == 'short-text':
-                    val = '<span">%s</span>' % prepare_string_for_xml(val)
-                else:
+                elif ctype not in passthrough_comment_types:
                     val = comments_to_html(val)
             elif datatype == 'composite' and field_metadata['display'].get('contains_html'):
                 val = comments_to_html(val)
             ans[field] = val
 
+
 def book_as_json(db, book_id):
     db = db.new_api
     with db.safe_read_lock:
-        ans = {'formats':db._formats(book_id)}
+        fmts = db._formats(book_id, verify_formats=False)
+        ans = []
+        fm = {}
+        for fmt in fmts:
+            m = db.format_metadata(book_id, fmt)
+            if m and m.get('size', 0) > 0:
+                ans.append(fmt)
+                fm[fmt] = m['size']
+        ans = {'formats': ans, 'format_sizes': fm}
         if not ans['formats'] and not db.has_id(book_id):
             return None
         fm = db.field_metadata
@@ -81,9 +90,11 @@ def book_as_json(db, book_id):
             ans['lang_names'] = {l:calibre_langcode_to_name(l) for l in langs}
     return ans
 
+
 _include_fields = frozenset(Tag.__slots__) - frozenset({
     'state', 'is_editable', 'is_searchable', 'original_name', 'use_sort_as_name', 'is_hierarchical'
 })
+
 
 def category_as_json(items, category, display_name, count, tooltip=None, parent=None,
         is_editable=True, is_gst=False, is_hierarchical=False, is_searchable=True,
@@ -105,9 +116,10 @@ def category_as_json(items, category, display_name, count, tooltip=None, parent=
         ans['is_user_category'] = True
     if is_first_letter:
         ans['is_first_letter'] = True
-    item_id = 'c' + str(len(items))
+    item_id = 'c' + unicode_type(len(items))
     items[item_id] = ans
     return item_id
+
 
 def category_item_as_json(x, clear_rating=False):
     ans = {}
@@ -128,9 +140,11 @@ def category_item_as_json(x, clear_rating=False):
         del ans['avg_rating']
     return ans
 
+
 CategoriesSettings = namedtuple(
     'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by'
     ' template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories')
+
 
 class GroupedSearchTerms(object):
 
@@ -156,8 +170,10 @@ class GroupedSearchTerms(object):
         except AttributeError:
             return False
 
+
 _icon_map = None
 _icon_map_lock = Lock()
+
 
 def icon_map():
     global _icon_map
@@ -166,15 +182,16 @@ def icon_map():
             from calibre.gui2 import gprefs
             _icon_map = category_icon_map.copy()
             custom_icons = gprefs.get('tags_browser_category_icons', {})
-            for k, v in custom_icons.iteritems():
+            for k, v in iteritems(custom_icons):
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + quote(v)
             _icon_map['file_type_icons'] = {
-                k:'mimetypes/%s.png' % v for k, v in EXT_MAP.iteritems()
+                k:'mimetypes/%s.png' % v for k, v in iteritems(EXT_MAP)
             }
         return _icon_map
 
-def categories_settings(query, db):
+
+def categories_settings(query, db, gst_container=GroupedSearchTerms):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
     partition_method = query.get('partition_method', 'first letter')
     if partition_method not in {'first letter', 'disable', 'partition'}:
@@ -196,8 +213,9 @@ def categories_settings(query, db):
     hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     return CategoriesSettings(
         dont_collapse, collapse_model, collapse_at, sort_by, template,
-        using_hierarchy, GroupedSearchTerms(db.pref('grouped_search_terms', {})),
+        using_hierarchy, gst_container(db.pref('grouped_search_terms', {})),
         hidden_categories, query.get('hide_empty_categories') == 'yes')
+
 
 def create_toplevel_tree(category_data, items, field_metadata, opts):
     # Create the basic tree, containing all top level categories , user
@@ -260,6 +278,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
 
     return root, node_id_map, category_nodes, recount_nodes
 
+
 def build_first_letter_list(category_items):
     # Build a list of 'equal' first letters by noticing changes
     # in ICU's 'ordinal' for the first letter. In this case, the
@@ -279,13 +298,16 @@ def build_first_letter_list(category_items):
         cl_list[idx] = last_c
     return cl_list
 
+
 categories_with_ratings = {'authors', 'series', 'publisher', 'tags'}
 
+
 def get_name_components(name):
-    components = filter(None, [t.strip() for t in name.split('.')])
+    components = list(filter(None, [t.strip() for t in name.split('.')]))
     if not components or '.'.join(components) != name:
         components = [name]
     return components
+
 
 def collapse_partition(collapse_nodes, items, category_node, idx, tag, opts, top_level_component,
     cat_len, category_is_hierarchical, category_items, eval_formatter, is_gst,
@@ -320,6 +342,7 @@ def collapse_partition(collapse_nodes, items, category_node, idx, tag, opts, top
         last_idx = idx  # remember where we last partitioned
     return last_idx, node_parent
 
+
 def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is_gst, category_is_hierarchical, collapse_letter, node_parent):
     cl = cl_list[idx]
     if cl != collapse_letter:
@@ -332,6 +355,7 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
         category_node['children'].append(node_parent)
         collapse_nodes.append(node_parent)
     return collapse_letter, node_parent
+
 
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
@@ -448,11 +472,13 @@ def process_category_node(
                 items[node_parent['id']]['id_set'] |= tag.id_set
             node_parent = orig_node_parent
 
+
 def iternode_descendants(node):
     for child in node['children']:
         yield child
         for x in iternode_descendants(child):
             yield x
+
 
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map):
     eval_formatter = EvalFormatter()
@@ -485,7 +511,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
                 count += 1
         item['avg_rating'] = float(total)/count if count else 0
 
-    for item_id, item in tag_map.itervalues():
+    for item_id, item in itervalues(tag_map):
         id_len = len(item.pop('id_set', ()))
         if id_len:
             item['count'] = id_len
@@ -493,6 +519,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
     for node in collapse_nodes:
         item = items[node['id']]
         item['count'] = sum(1 for _ in iternode_descendants(node))
+
 
 def render_categories(opts, db, category_data):
     items = {}
@@ -505,20 +532,22 @@ def render_categories(opts, db, category_data):
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
-        root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
+        root['children'] = list(filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children']))
     if opts.hide_empty_categories:
-        root['children'] = filter((lambda child:items[child['id']]['count'] > 0), root['children'])
+        root['children'] = list(filter((lambda child:items[child['id']]['count'] > 0), root['children']))
     return {'root':root, 'item_map': items}
 
-def categories_as_json(ctx, rd, db):
-    opts = categories_settings(rd.query, db)
-    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts))
+
+def categories_as_json(ctx, rd, db, opts, vl):
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl=vl)
 
 # Test tag browser {{{
+
 
 def dump_categories_tree(data):
     root, items = data['root'], data['item_map']
     ans, indent = [], '  '
+
     def dump_node(node, level=0):
         item = items[node['id']]
         rating = item.get('avg_rating', None) or 0
@@ -536,18 +565,21 @@ def dump_categories_tree(data):
     [dump_node(c) for c in root['children']]
     return '\n'.join(ans)
 
+
 def dump_tags_model(m):
     from PyQt5.Qt import QModelIndex, Qt
     ans, indent = [], '  '
+
     def dump_node(index, level=-1):
         if level > -1:
             ans.append(indent*level + index.data(Qt.UserRole).dump_data())
-        for i in xrange(m.rowCount(index)):
+        for i in range(m.rowCount(index)):
             dump_node(m.index(i, 0, index), level + 1)
         if level == 0:
             ans.append('')
     dump_node(QModelIndex())
     return '\n'.join(ans)
+
 
 def test_tag_browser(library_path=None):
     ' Compare output of server and GUI tag browsers '

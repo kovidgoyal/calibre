@@ -101,10 +101,7 @@ class CSMonitor(BasicNewsRecipe):
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)
-        for item in soup.findAll('img'):
+        for item in soup.findAll('img', src=True):
             if 'scorecardresearch' in item['src']:
                 item.extract()
-            else:
-                if not item.has_key('alt'):  # noqa
-                    item['alt'] = 'image'
         return soup

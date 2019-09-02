@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
@@ -14,6 +15,7 @@ from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 from calibre.ebooks.unihandecode.krcodepoints import CODEPOINTS as HANCODES
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 
+
 class Krdecoder(Unidecoder):
 
     codepoints = {}
@@ -21,4 +23,3 @@ class Krdecoder(Unidecoder):
     def __init__(self):
         self.codepoints = CODEPOINTS
         self.codepoints.update(HANCODES)
-

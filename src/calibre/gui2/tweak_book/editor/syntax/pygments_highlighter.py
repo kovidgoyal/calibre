@@ -1,11 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from functools import partial
 
 from PyQt5.Qt import QTextBlockUserData
@@ -15,6 +15,7 @@ from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
 
 NORMAL = 0
+
 
 def create_lexer(base_class):
     '''
@@ -47,7 +48,7 @@ def create_lexer(base_class):
                                     statestack.append(statestack[-1])
                                 else:
                                     statestack.append(state)
-                        elif isinstance(new_state, int):
+                        elif isinstance(new_state, numbers.Integral):
                             # pop
                             del statestack[new_state:]
                         elif new_state == '#push':
@@ -91,10 +92,13 @@ def create_lexer(base_class):
         state.pygments_stack = statestack
         return formats
 
-    return type(str('Qt'+base_class.__name__), (base_class,), {
+    name_type = type(base_class.__name__)
+
+    return type(name_type('Qt'+base_class.__name__), (base_class,), {
         'get_tokens_unprocessed': get_tokens_unprocessed,
         'lex_a_line':lex_a_line,
     })
+
 
 class State(object):
 
@@ -132,14 +136,17 @@ class PygmentsUserData(QTextBlockUserData):
         self.state = State() if state is None else state
         self.doc_name = doc_name
 
+
 def create_formats(highlighter):
     cache = {}
     theme = highlighter.theme.copy()
     theme[None] = NULL_FMT
     return partial(format_for_pygments_token, theme, cache)
 
+
 def create_highlighter(name, lexer_class):
-    return type(str(name), (SyntaxHighlighter,), {
+    name_type = type(lexer_class.__name__)
+    return type(name_type(name), (SyntaxHighlighter,), {
         'state_map': {NORMAL:create_lexer(lexer_class)().lex_a_line},
         'create_formats_func': create_formats,
         'user_data_factory': PygmentsUserData,

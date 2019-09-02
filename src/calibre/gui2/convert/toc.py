@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,21 +11,18 @@ from calibre.gui2.convert.toc_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
 from calibre.utils.localization import localize_user_manual_link
+from calibre.ebooks.conversion.config import OPTIONS
+
 
 class TOCWidget(Widget, Ui_Form):
 
     TITLE = _('Table of\nContents')
-    ICON  = I('series.png')
+    ICON  = I('toc.png')
     HELP  = _('Control the creation/conversion of the Table of Contents.')
     COMMIT_NAME = 'toc'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent,
-                ['level1_toc', 'level2_toc', 'level3_toc',
-                'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
-                'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',
-                ]
-                )
+        Widget.__init__(self, parent, OPTIONS['pipe']['toc'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_level1_toc.set_msg(_('Level &1 TOC (XPath expression):'))

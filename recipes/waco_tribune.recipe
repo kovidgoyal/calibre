@@ -11,10 +11,10 @@ class AdvancedUserRecipe1278773519(BasicNewsRecipe):
     max_articles_per_feed = 100
 
     feeds = [
-        (u'News', u'http://www.wacotrib.com/news/index.rss2'),
-        (u'Sports', u'http://www.wacotrib.com/sports/index.rss2'),
-        (u'AccessWaco', u'http://www.wacotrib.com/accesswaco/index.rss2'),
-        (u'Opinions', u'http://www.wacotrib.com/opinion/index.rss2')
+        (u'News', u'http://www.wacotrib.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=news/ap_nation,news/ap_nation/*&f=rss'),
+        (u'Sports', u'http://www.wacotrib.com/search/?q=&t=article&l=25&d=&d1=&d2=&s=start_time&sd=desc&c[]=sports*&f=rss'),
+        (u'AccessWaco', u'http://www.wacotrib.com/search/?q=&t=article&l=25&d=&d1=&d2=&s=start_time&sd=desc&c[]=entertainment/accesswaco*&f=rss'),
+        (u'Opinions', u'http://www.wacotrib.com/search/?q=&t=article&l=25&d=&d1=&d2=&s=start_time&sd=desc&c[]=opinion*&f=rss')
     ]
 
     remove_javascript = True
@@ -23,13 +23,4 @@ class AdvancedUserRecipe1278773519(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf-8'
     conversion_options = {'linearize_tables': True}
-    masthead_url = 'http://media.wacotrib.com/designimages/wacotrib_logo.jpg'
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'twoColumn left'}),
-    ]
-    remove_tags = [
-        dict(name='div', attrs={'class': 'right blueLinks'}),
-    ]
-    remove_tags_after = [
-        dict(name='div', attrs={'class': 'dottedRule'}),
-    ]
+    auto_cleanup = True

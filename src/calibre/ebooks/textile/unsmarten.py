@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Leigh Parry <leighparry@blueyonder.co.uk>'
 __docformat__ = 'restructuredtext en'
 
 import re
+
 
 def unsmarten(txt):
     txt = re.sub(u'&#162;|&cent;|¢',     r'{c\}',  txt)  # cent

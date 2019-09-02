@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import threading, re, json
 
 from calibre import browser
+
 
 class xISBN(object):
 
@@ -30,6 +32,9 @@ class xISBN(object):
         return self.isbn_pat.sub('', isbn.upper())
 
     def fetch_data(self, isbn):
+        # xisbn service has been de-comissioned see
+        # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
+        return []
         url = self.QUERY%isbn
         data = browser().open_novisit(url).read()
         data = json.loads(data)
@@ -100,8 +105,6 @@ xisbn = xISBN()
 if __name__ == '__main__':
     import sys, pprint
     isbn = sys.argv[-1]
-    print pprint.pprint(xisbn.get_data(isbn))
-    print
-    print xisbn.get_associated_isbns(isbn)
-
-
+    print(pprint.pprint(xisbn.get_data(isbn)))
+    print()
+    print(xisbn.get_associated_isbns(isbn))

@@ -2,20 +2,22 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from struct import unpack, error
 import os
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from calibre.constants import ispy3
+from polyglot.builtins import string_or_bytes
 
 """ Recognize image file formats and sizes based on their first few bytes."""
 
 HSIZE = 120
 
+
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
-        if isinstance(file, basestring):
+        if isinstance(file, string_or_bytes):
             with lopen(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:
@@ -33,6 +35,7 @@ def what(file, h=None):
     if h[:2] == b'\xff\xd8':
         return 'jpeg'
     return None
+
 
 def identify(src):
     ''' Recognize file format and sizes. Returns format, width, height. width
@@ -88,9 +91,17 @@ def identify(src):
 # Subroutines per image file type #
 # ---------------------------------#
 
+
 tests = []
 
-def test_jpeg(h):
+
+def test(f):
+    tests.append(f)
+    return f
+
+
+@test
+def jpeg(h):
     """JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
     the original code was failing with some jpegs that included ICC_PROFILE
     data, for example: http://nationalpostnews.files.wordpress.com/2013/03/budget.jpeg?w=300&h=1571)"""
@@ -100,6 +111,7 @@ def test_jpeg(h):
         q = h[:32].tobytes()
         if b'JFIF' in q or b'8BIM' in q:
             return 'jpeg'
+
 
 def jpeg_dimensions(stream):
     # A JPEG marker is two bytes of the form 0xff x where 0 < x < 0xff
@@ -113,16 +125,23 @@ def jpeg_dimensions(stream):
             raise ValueError('Truncated JPEG data')
         return ans
 
-    x = b''
+    if ispy3:
+        def read_byte():
+            return read(1)[0]
+    else:
+        def read_byte():
+            return ord(read(1)[0])
+
+    x = None
     while True:
         # Find next marker
-        while x != b'\xff':
-            x = read(1)
+        while x != 0xff:
+            x = read_byte()
         # Soak up padding
-        marker = b'\xff'
-        while marker == b'\xff':
-            marker = read(1)
-        q = ord(marker[0])  # [0] needed for memoryview
+        marker = 0xff
+        while marker == 0xff:
+            marker = read_byte()
+        q = marker
         if 0xc0 <= q <= 0xcf and q != 0xc4 and q != 0xcc:
             # SOFn marker
             stream.seek(3, os.SEEK_CUR)
@@ -142,101 +161,103 @@ def jpeg_dimensions(stream):
 
     return -1, -1
 
-tests.append(test_jpeg)
 
-def test_png(h):
+@test
+def png(h):
     if h[:8] == b"\211PNG\r\n\032\n":
         return 'png'
 
-tests.append(test_png)
 
-def test_gif(h):
+@test
+def gif(h):
     """GIF ('87 and '89 variants)"""
     if h[:6] in (b'GIF87a', b'GIF89a'):
         return 'gif'
 
-tests.append(test_gif)
 
-def test_tiff(h):
+@test
+def tiff(h):
     """TIFF (can be in Motorola or Intel byte order)"""
     if h[:2] in (b'MM', b'II'):
+        if h[2:4] == b'\xbc\x01':
+            return 'jxr'
         return 'tiff'
 
-tests.append(test_tiff)
 
-def test_webp(h):
+@test
+def webp(h):
     if h[:4] == b'RIFF' and h[8:12] == b'WEBP':
         return 'webp'
 
-tests.append(test_webp)
 
-def test_rgb(h):
+@test
+def rgb(h):
     """SGI image library"""
     if h[:2] == b'\001\332':
         return 'rgb'
 
-tests.append(test_rgb)
 
-def test_pbm(h):
+@test
+def pbm(h):
     """PBM (portable bitmap)"""
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'14' and h[2] in b' \t\n\r':
         return 'pbm'
 
-tests.append(test_pbm)
 
-def test_pgm(h):
+@test
+def pgm(h):
     """PGM (portable graymap)"""
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'25' and h[2] in b' \t\n\r':
         return 'pgm'
 
-tests.append(test_pgm)
 
-def test_ppm(h):
+@test
+def ppm(h):
     """PPM (portable pixmap)"""
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'36' and h[2] in b' \t\n\r':
         return 'ppm'
 
-tests.append(test_ppm)
 
-def test_rast(h):
+@test
+def rast(h):
     """Sun raster file"""
     if h[:4] == b'\x59\xA6\x6A\x95':
         return 'rast'
 
-tests.append(test_rast)
 
-def test_xbm(h):
+@test
+def xbm(h):
     """X bitmap (X10 or X11)"""
     s = b'#define '
     if h[:len(s)] == s:
         return 'xbm'
 
-tests.append(test_xbm)
 
-def test_bmp(h):
+@test
+def bmp(h):
     if h[:2] == b'BM':
         return 'bmp'
 
-tests.append(test_bmp)
 
-def test_emf(h):
+@test
+def emf(h):
     if h[:4] == b'\x01\0\0\0' and h[40:44] == b' EMF':
         return 'emf'
 
-tests.append(test_emf)
 
-def test_jpeg2000(h):
+@test
+def jpeg2000(h):
     if h[:12] == b'\x00\x00\x00\x0cjP  \r\n\x87\n':
         return 'jpeg2000'
 
-tests.append(test_jpeg2000)
 
-def test_svg(h):
+@test
+def svg(h):
     if h[:4] == b'<svg' or (h[:2] == b'<?' and h[2:5].tobytes().lower() == b'xml' and b'<svg' in h.tobytes()):
         return 'svg'
 
-tests.append(test_svg)
 
+tests = tuple(tests)

@@ -1,0 +1,11 @@
+{%- if pagename != "search" and builder != "singlehtml" %}
+<div id="searchbox" role="search">
+    <form class="search" action="{{ pathto('search') }}" method="get">
+      <div>
+          <input type="text" name="q" placeholder="{{ search_box_text }}" />&nbsp;
+          <input type="submit" value="{{ _('Go') }}" />
+      </div>
+    </form>
+</div>
+{%- endif %}
+

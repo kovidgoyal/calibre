@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
+from polyglot.builtins import unicode_type, range
+
 
 def update_internal_links(mobi8_reader, log):
     # need to update all links that are internal which
@@ -29,7 +30,7 @@ def update_internal_links(mobi8_reader, log):
     parts = []
     for part in mr.parts:
         srcpieces = posfid_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith(b'<'):
                 for m in posfid_index_pattern.finditer(tag):
@@ -58,6 +59,7 @@ def update_internal_links(mobi8_reader, log):
     # All parts are now unicode and have no internal links
     return parts
 
+
 def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
 
     # we can safely remove all of the Kindlegen generated aid attributes and
@@ -66,7 +68,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
             re.IGNORECASE)
     within_tag_aid_position_pattern = re.compile(r'''\s[ac]id\s*=['"]([^'"]*)['"]''')
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = find_tag_with_aid_pattern.split(part)
         for j in range(len(srcpieces)):
@@ -92,7 +94,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
     within_tag_AmznPageBreak_position_pattern = re.compile(
             r'''\sdata-AmznPageBreak=['"]([^'"]*)['"]''')
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = find_tag_with_AmznPageBreak_pattern.split(part)
         for j in range(len(srcpieces)):
@@ -102,6 +104,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
                     lambda m:' style="page-break-after:%s"'%m.group(1), tag)
         part = "".join(srcpieces)
         parts[i] = part
+
 
 def update_flow_links(mobi8_reader, resource_map, log):
     #   kindle:embed:XXXX?mime=image/gif (png, jpeg, etc) (used for images)
@@ -127,7 +130,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
             flows.append(flow)
             continue
 
-        if not isinstance(flow, unicode):
+        if not isinstance(flow, unicode_type):
             try:
                 flow = flow.decode(mr.header.codec)
             except UnicodeDecodeError:
@@ -197,14 +200,19 @@ def update_flow_links(mobi8_reader, resource_map, log):
             tag = srcpieces[j]
             if tag.startswith('<'):
                 for m in re.finditer(flow_pattern, tag):
-                    num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        flowtext = mr.flows[num]
-                        tag = flowtext
+                    try:
+                        num = int(m.group(1), 32)
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference in tag', tag)
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            flowtext = mr.flows[num]
+                            tag = flowtext
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         flow = "".join(srcpieces)
 
@@ -213,13 +221,14 @@ def update_flow_links(mobi8_reader, resource_map, log):
     # All flows are now unicode and have links resolved
     return flows
 
+
 def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
     tag_pattern = re.compile(r'''(<[^>]*>)''')
     flow_pattern = re.compile(r'''['"]kindle:flow:([0-9|A-V]+)\?mime=([^'"]+)['"]''', re.IGNORECASE)
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
 
         # flow pattern
@@ -245,6 +254,7 @@ def insert_flows_into_markup(parts, flows, mobi8_reader, log):
         # store away modified version
         parts[i] = part
 
+
 def insert_images_into_markup(parts, resource_map, log):
     # Handle any embedded raster images links in the xhtml text
     # kindle:embed:XXXX?mime=image/gif (png, jpeg, etc) (used for images)
@@ -254,10 +264,10 @@ def insert_images_into_markup(parts, resource_map, log):
     style_pattern = re.compile(r'''(<[a-zA-Z0-9]+\s[^>]*style\s*=\s*[^>]*>)''',
             re.IGNORECASE)
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = img_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith('<im'):
                 for m in img_index_pattern.finditer(tag):
@@ -275,10 +285,10 @@ def insert_images_into_markup(parts, resource_map, log):
         parts[i] = part
 
     # Replace urls used in style attributes
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
         srcpieces = style_pattern.split(part)
-        for j in xrange(1, len(srcpieces), 2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if 'kindle:embed' in tag:
                 for m in img_index_pattern.finditer(tag):
@@ -301,7 +311,7 @@ def insert_images_into_markup(parts, resource_map, log):
 def upshift_markup(parts):
     tag_pattern = re.compile(r'''(<(?:svg)[^>]*>)''', re.IGNORECASE)
 
-    for i in xrange(len(parts)):
+    for i in range(len(parts)):
         part = parts[i]
 
         # tag pattern
@@ -316,25 +326,6 @@ def upshift_markup(parts):
         # store away modified version
         parts[i] = part
 
-def handle_media_queries(raw):
-    # cssutils cannot handle CSS 3 media queries. We look for media queries
-    # that use amzn-mobi or amzn-kf8 and map them to a simple @media screen
-    # rule. See https://bugs.launchpad.net/bugs/1406708 for an example
-    import tinycss
-    parser = tinycss.make_full_parser()
-    def replace(m):
-        sheet = parser.parse_stylesheet(m.group() + '}')
-        if len(sheet.rules) > 0:
-            for mq in sheet.rules[0].media:
-                # Only accept KF8 media types
-                if (mq.media_type, mq.negated) in {('amzn-mobi', True), ('amzn-kf8', False)}:
-                    return '@media screen {'
-        else:
-            # Empty sheet, doesn't matter what we use
-            return '@media screen {'
-        return m.group()
-
-    return re.sub(r'@media\s[^{;]*?[{;]', replace, raw)
 
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
@@ -377,9 +368,6 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
             if not os.path.exists(fi.dir):
                 os.mkdir(fi.dir)
             with open(os.path.join(fi.dir, fi.fname), 'wb') as f:
-                if fi.fname.endswith('.css') and '@media' in flow:
-                    flow = handle_media_queries(flow)
                 f.write(flow.encode('utf-8'))
 
     return spine
-

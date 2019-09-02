@@ -3,95 +3,136 @@
 from __python__ import bound_methods, hash_literals
 
 import traceback
-from aes import GCM
-from gettext import install, gettext as _
+from gettext import gettext as _
+
+from iframe_comm import IframeClient
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
-from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
-from read_book.mathjax import apply_mathjax
-from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import (
-    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture,
-    scroll_by_page as flow_scroll_by_page
+    anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
+    flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
+from read_book.footnotes import is_footnote_link
+from read_book.globals import (
+    current_book, current_layout_mode, current_spine_item, set_boss,
+    set_current_spine_item, set_layout_mode
+)
+from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
-    onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
-    jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
-    scroll_by_page as paged_scroll_by_page
+    anchor_funcs as paged_anchor_funcs, calc_columns_per_screen,
+    handle_gesture as paged_handle_gesture, jump_to_cfi as paged_jump_to_cfi,
+    layout as paged_layout, onkeydown as paged_onkeydown, onwheel as paged_onwheel,
+    progress_frac, reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page,
+    scroll_to_elem, scroll_to_fraction as paged_scroll_to_fraction,
+    snap_to_selection
 )
-from read_book.settings import apply_settings
+from read_book.resources import finalize_resources, unserialize_html
+from read_book.settings import (
+    apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
+    update_settings
+)
+from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
-from utils import debounce
+from read_book.viewport import scroll_viewport
+from utils import debounce, html_escape, is_ios
 
 FORCE_FLOW_MODE = False
+CALIBRE_VERSION = '__CALIBRE_VERSION__'
+ERS_SUPPORTED_FEATURES = {'dom-manipulation', 'layout-changes', 'touch-events', 'mouse-events', 'keyboard-events', 'spine-scripting'}
+
+
+class EPUBReadingSystem:
+
+    @property
+    def name(self):
+        return 'calibre'
+
+    @property
+    def version(self):
+        return CALIBRE_VERSION
+
+    @property
+    def layoutStyle(self):
+        return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
+
+    def hasFeature(self, feature, version):
+        return feature in ERS_SUPPORTED_FEATURES
+
+    def __repr__(self):
+        return f'{{name:{self.name}, version:{self.version}, layoutStyle:{self.layoutStyle}}}'
+
+    def __str__(self):
+        return self.__repr__()
+
 
 class IframeBoss:
 
     def __init__(self):
-        self.ready_sent = False
+        window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
         self.encrypted_communications = False
-        window.addEventListener('message', self.handle_message, False)
-        window.addEventListener('load', def():
-            if not self.ready_sent:
-                self.send_message('ready')
-                self.ready_sent = True
-        )
+        self.blob_url_map = {}
+        self.resource_urls = {}
+        self.content_ready = False
+        self.last_window_width = self.last_window_height = -1
         set_boss(self)
-        self.handlers = {
+        handlers = {
             'initialize':self.initialize,
             'display': self.display,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'next_screen': self.on_next_screen,
+            'change_font_size': self.change_font_size,
+            'change_color_scheme': self.change_color_scheme,
+            'gesture_from_margin': self.gesture_from_margin,
+            'find': self.find,
+            'window_size': self.received_window_size,
         }
+        self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
-
-    def handle_message(self, event):
-        if event.source is not window.parent:
-            return
-        data = event.data
-        if self.encrypted_communications:
-            try:
-                data = JSON.parse(self.gcm_from_parent.decrypt(data))
-            except Exception as e:
-                print('Could not process message from parent:')
-                console.log(e)
-                return
-        func = self.handlers[data.action]
-        if func:
-            try:
-                func(data)
-            except Exception as e:
-                console.log('Error in iframe message handler:')
-                console.log(e)
-                self.send_message('error', title=_('Error in message handler'), details=traceback.format_exc(), msg=e.toString())
-        else:
-            print('Unknown action in message to iframe from parent: ' + data.action)
+        self.length_before = None
 
     def initialize(self, data):
-        self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
-        if data.translations:
-            install(data.translations)
+        scroll_viewport.update_window_size(data.width, data.height)
         window.onerror = self.onerror
+        window.addEventListener('scroll', debounce(self.onscroll, 1000))
+        window.addEventListener('resize', debounce(self.onresize, 500))
+        window.addEventListener('wheel', self.onwheel)
+        window.addEventListener('keydown', self.onkeydown)
+        document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
+        self.color_scheme = data.color_scheme
         create_touch_handlers()
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
-        console.log(error_object)
-        try:
-            fname = script_url.rpartition('/')[-1] or script_url
-            msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-            details = traceback.format_exception(error_object).join('') if error_object else ''
-            self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
-            return True
-        except:
-            console.log('There was an error in the iframe unhandled exception handler')
+        if error_object is None:
+            # This happens for cross-domain errors (probably javascript injected
+            # into the browser via extensions/ userscripts and the like). It also
+            # happens all the time when using Chrome on Safari, so ignore this
+            # type of error
+            console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
+            return
+        is_internal_error = not self.resource_urls[script_url]
+        if is_internal_error:  # dont report errors from scripts in the book itself
+            console.log(error_object)
+            try:
+                fname = script_url.rpartition('/')[-1] or script_url
+                msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+                details = traceback.format_exception(error_object).join('') if error_object else ''
+                self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
+                return True
+            except:
+                console.log('There was an error in the iframe unhandled exception handler')
+        else:
+            (console.error or console.log)('There was an error in the JavaScript from within the book')
 
     def display(self, data):
-        self.encrypted_communications = True
-        self.book = data.book
+        self.length_before = None
+        self.content_ready = False
+        self.replace_history_on_next_cfi_update = True
+        self.book = current_book.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
+        reset_paged_mode_globals()
         set_layout_mode('flow' if FORCE_FLOW_MODE else data.settings.read_mode)
         if current_layout_mode() is 'flow':
             self.do_layout = flow_layout
@@ -100,6 +141,7 @@ class IframeBoss:
             self._handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
+            self.anchor_funcs = flow_anchor_funcs
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
@@ -107,17 +149,29 @@ class IframeBoss:
             self.to_scroll_fraction = paged_scroll_to_fraction
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
-        apply_settings(data.settings)
+            self.anchor_funcs = paged_anchor_funcs
+        update_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
-        root_data, self.mathjax = finalize_resources(self.book, data.name, data.resource_data)
-        unserialize_html(root_data, self.content_loaded)
+        for name in self.blob_url_map:
+            window.URL.revokeObjectURL(self.blob_url_map[name])
+        document.body.style.removeProperty('font-family')
+        root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
+        self.resource_urls = unserialize_html(root_data, self.content_loaded)
 
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
             self.send_message('show_chrome')
+        elif gesture.type is 'pinch':
+            self.send_message('bump_font_size', increase=gesture.direction is 'out')
         else:
             self._handle_gesture(gesture)
+
+    def gesture_from_margin(self, data):
+        self.handle_gesture(data.gesture)
+
+    def report_human_scroll(self, scrolled_by_frac):
+        self.send_message('human_scroll', scrolled_by_frac=scrolled_by_frac or None)
 
     def on_scroll_to_anchor(self, data):
         frag = data.frag
@@ -133,8 +187,27 @@ class IframeBoss:
         else:
             paged_scroll_by_page(backwards, True)
 
+    def change_font_size(self, data):
+        if data.base_font_size? and data.base_font_size != opts.base_font_size:
+            opts.base_font_size = data.base_font_size
+            apply_font_size()
+
+    def change_stylesheet(self, data):
+        opts.user_stylesheet = data.sheet or ''
+        apply_stylesheet()
+
+    def change_color_scheme(self, data):
+        if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
+            opts.color_scheme = data.color_scheme
+            apply_colors()
+
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
+        # document.body.appendChild(
+        #     E.style()  # TODO: User style sheet
+        # )
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
+        apply_settings()
         self.do_layout()
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
@@ -142,52 +215,120 @@ class IframeBoss:
 
     def content_loaded_stage2(self):
         self.connect_links()
-        window.addEventListener('scroll', debounce(self.update_cfi, 1000))
-        window.addEventListener('resize', debounce(self.onresize, 500))
-        window.addEventListener('wheel', self.onwheel)
-        window.addEventListener('keydown', self.onkeydown)
+        self.content_ready = True
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
-            self.replace_history_on_next_cfi_update = ipos.replace_history
+            self.replace_history_on_next_cfi_update = ipos.replace_history or False
             if ipos.type is 'frac':
                 self.to_scroll_fraction(ipos.frac)
             elif ipos.type is 'anchor':
                 self.scroll_to_anchor(ipos.anchor)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
-        self.update_cfi()
-        self.send_message('content_loaded')
+            elif ipos.type is 'search':
+                self.find(ipos.search_data, True)
+        spine = self.book.manifest.spine
+        files = self.book.manifest.files
+        current_name = current_spine_item().name
+        spine_index = spine.indexOf(current_name)
+        self.length_before = 0
+        if spine_index > -1:
+            for i in range(spine_index):
+                si = spine[i]
+                if si:
+                    self.length_before += files[si]?.length or 0
+        self.onscroll()
+        self.send_message('content_loaded', progress_frac=self.get_progress_frac())
+        self.last_cfi = None
+        window.setTimeout(self.update_cfi, 0)
+        window.setTimeout(self.update_toc_position, 0)
+
+
+    def calculate_progress_frac(self, current_name, spine_index):
+        files = self.book.manifest.files
+        file_length = files[current_name]?.length or 0
+        if self.length_before is None:
+            return 0
+        frac = progress_frac()
+        ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
+        return ans
+
+    def get_progress_frac(self):
+        spine = self.book.manifest.spine
+        current_name = current_spine_item().name
+        index = spine.indexOf(current_name)
+        if index < 0:
+            return 0
+        return self.calculate_progress_frac(current_name, index)
 
     def update_cfi(self):
         cfi = at_current()
         if cfi:
             spine = self.book.manifest.spine
-            index = spine.indexOf(current_spine_item().name)
+            current_name = current_spine_item().name
+            index = spine.indexOf(current_name)
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 if cfi != self.last_cfi:
                     self.last_cfi = cfi
-                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update)
+                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
+                                      progress_frac=self.calculate_progress_frac(current_name, index), file_progress_frac=progress_frac())
                     self.replace_history_on_next_cfi_update = True
 
+    def update_toc_position(self):
+        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
+        self.send_message('update_toc_position', visible_anchors=visible_anchors)
+
+    def onscroll(self):
+        if self.content_ready:
+            self.update_cfi()
+            self.update_toc_position()
+
     def onresize(self):
+        self.send_message('request_size')
+        if self.content_ready:
+            if is_ios:
+                # On iOS window.innerWidth/Height are wrong inside the iframe,
+                # so we wait for the reply from request_size
+                return
+            self.onresize_stage2()
+
+    def onresize_stage2(self):
+        if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
+            # Safari at least, generates lots of spurious resize events
+            return
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if current_layout_mode() is not 'flow':
             self.do_layout()
+        if self.last_cfi:
+            cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+            if cfi:
+                paged_jump_to_cfi('/' + cfi)
         self.update_cfi()
+        self.update_toc_position()
+
+    def received_window_size(self, data):
+        scroll_viewport.update_window_size(data.width, data.height)
+        if self.content_ready:
+            self.onresize_stage2()
 
     def onwheel(self, evt):
-        evt.preventDefault()
-        self.handle_wheel(evt)
+        if self.content_ready:
+            evt.preventDefault()
+            self.handle_wheel(evt)
 
     def onkeydown(self, evt):
-        self.handle_keydown(evt)
+        if self.content_ready:
+            self.handle_keydown(evt)
+
+    def oncontextmenu(self, evt):
+        if self.content_ready:
+            evt.preventDefault()
+            self.send_message('show_chrome')
 
     def send_message(self, action, **data):
-        data.action = action
-        if self.encrypted_communications:
-            data = self.gcm_to_parent.encrypt(JSON.stringify(data))
-        window.parent.postMessage(data, '*')
+        self.comm.send_message(action, data)
 
     def connect_links(self):
         link_attr = 'data-' + self.book.manifest.link_uid
@@ -204,6 +345,15 @@ class IframeBoss:
         name, frag = data.name, data.frag
         if not name:
             name = current_spine_item().name
+        try:
+            is_popup = is_footnote_link(evt.currentTarget, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
+        except:
+            import traceback
+            traceback.print_exc()
+            is_popup = False
+        if is_popup:
+            self.send_message('show_footnote', name=name, frag=frag, title=evt.currentTarget.textContent, cols_per_screen=calc_columns_per_screen())
+            return
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)
@@ -219,8 +369,22 @@ class IframeBoss:
                     elem = c[0]
             if elem:
                 scroll_to_elem(elem)
+        else:
+            scroll_viewport.scroll_to(0, 0)
 
-def init():
-    script = document.getElementById('bootstrap')
-    script.parentNode.removeChild(script)  # free up some memory
-    IframeBoss()
+    def find(self, data, from_load):
+        if data.searched_in_spine:
+            window.getSelection().removeAllRanges()
+        if window.find(data.text, False, data.backwards):
+            if current_layout_mode() is not 'flow':
+                snap_to_selection()
+        else:
+            if from_load:
+                self.send_message('error', title=_('Invisible text'), msg=_(
+                    'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
+            else:
+                self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
+
+
+def main():
+    main.boss = IframeBoss()

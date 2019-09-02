@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -11,6 +13,7 @@ import os
 from io import BytesIO
 
 from calibre.utils.unrar import extract_member, names
+
 
 def get_metadata(stream):
     from calibre.ebooks.metadata.archive import is_comic
@@ -33,5 +36,3 @@ def get_metadata(stream):
                 mi.timestamp = None
                 return mi
     raise ValueError('No ebook found in RAR archive')
-
-

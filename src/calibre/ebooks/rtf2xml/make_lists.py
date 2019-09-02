@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,8 +12,13 @@
 #                                                                       #
 #########################################################################
 import sys, os, re
+
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
+
 
 class MakeLists:
     """
@@ -21,6 +27,7 @@ class MakeLists:
     list.
     Use indents to determine items and how lists are nested.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -50,6 +57,7 @@ class MakeLists:
         self.__write_to = better_mktemp()
         self.__list_of_lists = list_of_lists
         self.__write_list_info = write_list_info
+
     def __initiate_values(self):
         """
         Required:
@@ -104,6 +112,7 @@ class MakeLists:
         self.__lv_regex = re.compile(r'\<list-level\>(\d+)')
         self.__found_appt = 0
         self.__line_num = 0
+
     def __in_pard_func(self, line):
         """
         Required:
@@ -117,6 +126,7 @@ class MakeLists:
         if self.__token_info == 'mi<mk<pard-end__':
             self.__state = 'after_pard'
         self.__write_obj.write(line)
+
     def __after_pard_func(self, line):
         """
         Required:
@@ -176,6 +186,7 @@ class MakeLists:
             self.__write_obj.write(line)
         else:
             self.__list_chunk += line
+
     def __list_after_par_def_func(self, line, id):
         """
         Required:
@@ -209,6 +220,7 @@ class MakeLists:
                 self.__write_obj.write(self.__list_chunk)
                 self.__write_start_item()
             self.__list_chunk = ''
+
     def __close_lists(self):
         """
         Required:
@@ -239,6 +251,7 @@ class MakeLists:
                 num_levels_closed += 1
         self.__all_lists = self.__all_lists[num_levels_closed:]
         self.__all_lists.reverse()
+
     def __write_end_list(self):
         """
         Required:
@@ -250,6 +263,7 @@ class MakeLists:
         """
         self.__write_obj.write('mi<tg<close_____<list\n')
         self.__write_obj.write('mi<mk<list_close\n')
+
     def __write_start_list(self, id):
         """
         Required:
@@ -276,7 +290,7 @@ class MakeLists:
             'mi<mk<list_start\n'
                 )
         # bogus levels are sometimes written for empty paragraphs
-        if str(self.__level) not in self.__allow_levels:
+        if unicode_type(self.__level) not in self.__allow_levels:
             lev_num = '0'
         else:
             lev_num = self.__level
@@ -325,6 +339,7 @@ class MakeLists:
             'mi<mk<liststart_\n'
                 )
         self.__write_start_item()
+
     def __get_index_of_list(self, id):
         """
         Requires:
@@ -359,14 +374,17 @@ class MakeLists:
 #        if self.__run_level > 3:
 #            msg = 'level is "%s"\n' % self.__run_level
 #            self.__bug_handler
+
     def __write_start_item(self):
         self.__write_obj.write('mi<mk<item_start\n')
         self.__write_obj.write('mi<tg<open______<item\n')
         self.__write_obj.write('mi<mk<itemstart_\n')
+
     def __write_end_item(self):
         self.__write_obj.write('mi<tg<item_end__\n')
         self.__write_obj.write('mi<tg<close_____<item\n')
         self.__write_obj.write('mi<tg<item__end_\n')
+
     def __default_func(self, line):
         """
         Required:
@@ -390,6 +408,7 @@ class MakeLists:
                         self.__level = search_obj_lv.group(1)
                     self.__write_start_list(num)
         self.__write_obj.write(line)
+
     def __is_a_heading(self):
         if self.__style_name in self.__headings:
             if self.__headings_to_sections:
@@ -401,17 +420,21 @@ class MakeLists:
                     return 0
         else:
             return 0
+
     def __get_indent(self, line):
         if self.__token_info == 'mi<mk<left_inden':
             self.__left_indent = float(line[17:-1])
+
     def __get_list_type(self, line):
         if self.__token_info == 'mi<mk<list-type_':  # <ordered
             self.__list_type = line[17:-1]
             if self.__list_type == 'item':
                 self.__list_type = "unordered"
+
     def __get_style_name(self, line):
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
+
     def make_lists(self):
         """
         Required:
@@ -421,8 +444,8 @@ class MakeLists:
         Logic:
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

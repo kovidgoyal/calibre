@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,18 +8,19 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import (QIcon, Qt, QWidget, QSize,
-    pyqtSignal, QToolButton, QMenu, QAction, QCoreApplication,
+from PyQt5.Qt import (QIcon, Qt, QWidget, QSize, QFrame,
+    pyqtSignal, QToolButton, QMenu, QLineEdit, QCoreApplication,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
 from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
-from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
+from polyglot.builtins import unicode_type
+
 
 class LocationManager(QObject):  # {{{
 
@@ -128,7 +130,7 @@ class LocationManager(QObject):  # {{{
         had_device = self.has_device
         if cp is None:
             cp = (None, None)
-        if isinstance(cp, (str, unicode)):
+        if isinstance(cp, (bytes, unicode_type)):
             cp = (cp, None)
         if len(fs) < 3:
             fs = list(fs) + [0]
@@ -149,7 +151,7 @@ class LocationManager(QObject):  # {{{
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             t = self.tooltips[loc]
             if self.free[i] > -1:
-                t += u'\n\n%s '%human_readable(self.free[i]) + _('available')
+                t += '\n\n%s '%human_readable(self.free[i]) + _('available')
             ac = getattr(self, 'location_'+loc)
             ac.setToolTip(t)
             ac.setWhatsThis(t)
@@ -169,46 +171,55 @@ class LocationManager(QObject):  # {{{
 
 # }}}
 
-class SearchBar(QWidget):  # {{{
+
+class SearchBar(QFrame):  # {{{
 
     def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        self._layout = l = QHBoxLayout()
-        self.setLayout(self._layout)
-        self._layout.setContentsMargins(0,5,0,0)
+        QFrame.__init__(self, parent)
+        self.setFrameStyle(QFrame.NoFrame)
+        self.setObjectName('search_bar')
+        self._layout = l = QHBoxLayout(self)
+        l.setContentsMargins(0, 4, 0, 4)
 
-        x = QToolButton(self)
-        x.setText(_('Vi&rtual Library'))
-        x.setIcon(QIcon(I('lt.png')))
+        x = parent.virtual_library = QToolButton(self)
+        x.setCursor(Qt.PointingHandCursor)
+        x.setPopupMode(x.InstantPopup)
+        x.setText(_('Virtual library'))
+        x.setAutoRaise(True)
+        x.setIcon(QIcon(I('vl.png')))
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(x)
-        parent.virtual_library = x
 
         x = QToolButton(self)
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setAutoRaise(True)
         x.setIcon(QIcon(I('minus.png')))
         x.setObjectName('clear_vl')
         l.addWidget(x)
         x.setVisible(False)
-        x.setToolTip(_('Close the Virtual Library'))
+        x.setToolTip(_('Close the Virtual library'))
         parent.clear_vl = x
+        self.vl_sep = QFrame(self)
+        self.vl_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        l.addWidget(self.vl_sep)
 
-        x = QLabel(self)
-        x.setObjectName("search_count")
-        l.addWidget(x)
-        parent.search_count = x
-        x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-
-        parent.advanced_search_button = x = QToolButton(self)
-        parent.advanced_search_toggle_action = ac = QAction(parent)
-        parent.addAction(ac)
-        parent.keyboard.register_shortcut('advanced search toggle',
-                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
-                action=ac)
-        ac.triggered.connect(x.click)
-        x.setIcon(QIcon(I('search.png')))
-        l.addWidget(x)
-        x.setToolTip(_("Advanced search"))
+        parent.sort_sep = QFrame(self)
+        parent.sort_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        parent.sort_sep.setVisible(False)
+        parent.sort_button = self.sort_button = sb = QToolButton(self)
+        sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        sb.setToolTip(_('Change how the displayed books are sorted'))
+        sb.setCursor(Qt.PointingHandCursor)
+        sb.setPopupMode(QToolButton.InstantPopup)
+        sb.setAutoRaise(True)
+        sb.setText(_('Sort'))
+        sb.setIcon(QIcon(I('sort.png')))
+        sb.setMenu(QMenu())
+        sb.menu().aboutToShow.connect(self.populate_sort_menu)
+        sb.setVisible(False)
+        l.addWidget(sb)
+        l.addWidget(parent.sort_sep)
 
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -218,9 +229,20 @@ class SearchBar(QWidget):  # {{{
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
+        parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.LeadingPosition)
+        parent.addAction(ac)
+        ac.setToolTip(_('Advanced search'))
+        parent.keyboard.register_shortcut('advanced search toggle',
+                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
+                action=ac)
+
         self.search_button = QToolButton()
         self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.search_button.setText(_('&Go!'))
+        self.search_button.setIcon(QIcon(I('search.png')))
+        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.search_button.setText(_('Search'))
+        self.search_button.setAutoRaise(True)
+        self.search_button.setCursor(Qt.PointingHandCursor)
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
                 QSizePolicy.Minimum)
@@ -228,13 +250,11 @@ class SearchBar(QWidget):  # {{{
         self.search_button.setToolTip(
             _('Do Quick Search (you can also press the Enter key)'))
 
-        x = parent.clear_button = QToolButton(self)
-        x.setIcon(QIcon(I('clear_left.png')))
-        x.setObjectName("clear_button")
-        l.addWidget(x)
-        x.setToolTip(_("Reset Quick Search"))
-
         x = parent.highlight_only_button = QToolButton(self)
+        x.setAutoRaise(True)
+        x.setText(_('Highlight'))
+        x.setCursor(Qt.PointingHandCursor)
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
 
@@ -243,19 +263,44 @@ class SearchBar(QWidget):  # {{{
         x.setMinimumContentsLength(10)
         x.setObjectName("saved_search")
         l.addWidget(x)
+        x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.copy_search_button = QToolButton(self)
+        x.setAutoRaise(True)
+        x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
         x.setToolTip(_("Copy current search text (instead of search name)"))
+        x.setVisible(tweaks['show_saved_search_box'])
 
         x = parent.save_search_button = RightClickButton(self)
+        x.setAutoRaise(True)
+        x.setCursor(Qt.PointingHandCursor)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
+        x.setVisible(tweaks['show_saved_search_box'])
+
+        x = parent.add_saved_search_button = RightClickButton(self)
+        x.setToolTip(_(
+            'Use an existing Saved search or create a new one'
+        ))
+        x.setText(_('Saved search'))
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setCursor(Qt.PointingHandCursor)
+        x.setPopupMode(x.InstantPopup)
+        x.setAutoRaise(True)
+        x.setIcon(QIcon(I("bookmarks.png")))
+        l.addWidget(x)
+        x.setVisible(not tweaks['show_saved_search_box'])
+
+    def populate_sort_menu(self):
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['Sort By'].update_menu(self.sort_button.menu())
 
 # }}}
+
 
 class Spacer(QWidget):  # {{{
 
@@ -265,6 +310,7 @@ class Spacer(QWidget):  # {{{
         self.setLayout(self.l)
         self.l.addStretch(10)
 # }}}
+
 
 class MainWindowMixin(object):  # {{{
 
@@ -279,21 +325,23 @@ class MainWindowMixin(object):  # {{{
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.centralwidget = QWidget(self)
         self.setCentralWidget(self.centralwidget)
-        self._central_widget_layout = QVBoxLayout()
-        self.centralwidget.setLayout(self._central_widget_layout)
+        self._central_widget_layout = l = QVBoxLayout(self.centralwidget)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.setSpacing(0)
         self.resize(1012, 740)
-        self.donate_button = ThrobbingButton()
         self.location_manager = LocationManager(self)
 
         self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
-        self.bars_manager = BarsManager(self.donate_button,
+        self.bars_manager = BarsManager(self.donate_action,
                 self.location_manager, self)
         for bar in self.bars_manager.main_bars:
             self.addToolBar(Qt.TopToolBarArea, bar)
+            bar.setStyleSheet('QToolBar { border: 0px }')
         for bar in self.bars_manager.child_bars:
             self.addToolBar(Qt.BottomToolBarArea, bar)
+            bar.setStyleSheet('QToolBar { border: 0px }')
         self.bars_manager.update_bars()
         # This is disabled because it introduces various toolbar related bugs
         # The width of the toolbar becomes the sum of both toolbars
@@ -302,8 +350,6 @@ class MainWindowMixin(object):  # {{{
                 self.setUnifiedTitleAndToolBarOnMac(True)
             except AttributeError:
                 pass  # PyQt5 seems to be missing this property
-
-        l = self.centralwidget.layout()
 
         # And now, start adding the real widgets
         l.addWidget(self.search_bar)

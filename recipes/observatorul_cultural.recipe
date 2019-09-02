@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 coverpage = None
@@ -28,9 +29,9 @@ class ObservatorulCultural(BasicNewsRecipe):
         soup = self.index_to_soup(
             'http://www.observatorcultural.ro/Arhiva*-archive.html')
         issueTag = soup.find('a', href=re.compile(
-            "observatorcultural.ro\/Numarul"))
+            "observatorcultural.ro\\/Numarul"))
         issueURL = issueTag['href']
-        print issueURL
+        print(issueURL)
         issueSoup = self.index_to_soup(issueURL)
         feeds = []
         stories = []
@@ -59,7 +60,7 @@ class ObservatorulCultural(BasicNewsRecipe):
                     coverpage = title[1]['href']
             feeds.append((categ, stories))
             stories = []
-        print feeds
+        print(feeds)
         return feeds
 # procedura de luat coperta
 

@@ -1,43 +1,54 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, struct, repr as reprlib, time
+import os, hashlib, uuid, struct
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
-from itertools import chain, repeat, izip_longest
+from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
-from future_builtins import map
+
+from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3, unicode_type, string_or_bytes
 
 from calibre import guess_type, force_unicode
-from calibre.constants import __version__, plugins
+from calibre.constants import __version__, plugins, ispy3
 from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import (
     MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
-    sort_q_values, get_translator_for_lang, Cookie)
+    sort_q_values, get_translator_for_lang, Cookie, fast_now_strftime)
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
+from polyglot import http_client, reprlib
+from polyglot.builtins import error_message
 
 Range = namedtuple('Range', 'start stop size')
-MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
+MULTIPART_SEPARATOR = uuid.uuid4().hex
+if isinstance(MULTIPART_SEPARATOR, bytes):
+    MULTIPART_SEPARATOR = MULTIPART_SEPARATOR.decode('ascii')
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
-zlib, zlib2_err = plugins['zlib2']
-if zlib2_err:
-    raise RuntimeError('Failed to laod the zlib2 module with error: ' + zlib2_err)
-del zlib2_err
+if is_py3:
+    import zlib
+    from itertools import zip_longest
+else:
+    zlib, zlib2_err = plugins['zlib2']
+    if zlib2_err:
+        raise RuntimeError('Failed to load the zlib2 module with error: ' + zlib2_err)
+    del zlib2_err
+    from itertools import izip_longest as zip_longest
+
 
 def header_list_to_file(buf):  # {{{
     buf.append('')
     return ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf))
 # }}}
+
 
 def parse_multipart_byterange(buf, content_type):  # {{{
     sep = (content_type.rsplit('=', 1)[-1]).encode('utf-8')
@@ -75,9 +86,11 @@ def parse_multipart_byterange(buf, content_type):  # {{{
     return ans
 # }}}
 
+
 def parse_if_none_match(val):  # {{{
     return {x.strip() for x in val.split(',')}
 # }}}
+
 
 def acceptable_encoding(val, allowed=frozenset({'gzip'})):  # {{{
     for x in sort_q_values(val):
@@ -85,6 +98,7 @@ def acceptable_encoding(val, allowed=frozenset({'gzip'})):  # {{{
         if x in allowed:
             return x
 # }}}
+
 
 def preferred_lang(val, get_translator_for_lang):  # {{{
     for x in sort_q_values(val):
@@ -94,6 +108,7 @@ def preferred_lang(val, get_translator_for_lang):  # {{{
             return x
     return 'en'
 # }}}
+
 
 def get_ranges(headervalue, content_length):  # {{{
     ''' Return a list of ranges from the Range header. If this function returns
@@ -139,6 +154,8 @@ def get_ranges(headervalue, content_length):  # {{{
 # }}}
 
 # gzip transfer encoding  {{{
+
+
 def gzip_prefix():
     # See http://www.gzip.org/zlib/rfc-gzip.html
     return b''.join((
@@ -150,6 +167,7 @@ def gzip_prefix():
         b'\x02',           # XFL: max compression, slowest algo
         b'\xff',           # OS: unknown
     ))
+
 
 def compress_readable_output(src_file, compress_level=6):
     crc = zlib.crc32(b"")
@@ -169,8 +187,9 @@ def compress_readable_output(src_file, compress_level=6):
             prefix_written = True
             data = gzip_prefix() + data
         yield data
-    yield zobj.flush() + struct.pack(b"<L", crc) + struct.pack(b"<L", size)
+    yield zobj.flush() + struct.pack(b"<L", crc & 0xffffffff) + struct.pack(b"<L", size)
 # }}}
+
 
 def get_range_parts(ranges, content_type, content_length):  # {{{
 
@@ -183,6 +202,7 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
     return list(map(part, ranges)) + [('--%s--' % MULTIPART_SEPARATOR).encode('ascii')]
 # }}}
 
+
 class ETaggedFile(object):  # {{{
 
     def __init__(self, output, etag):
@@ -192,27 +212,31 @@ class ETaggedFile(object):  # {{{
         return self.output.fileno()
 # }}}
 
+
 class RequestData(object):  # {{{
 
     cookies = {}
     username = None
 
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, translator_cache, tdir):
+                 static_cache, opts, remote_addr, remote_port, is_local_connection, translator_cache,
+                 tdir, forwarded_for, request_original_uri=None):
 
         (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
          self.response_protocol, self.static_cache, self.translator_cache) = (
             method, path, query, inheaders, request_body_file, outheaders,
             response_protocol, static_cache, translator_cache
         )
-        self.remote_addr, self.remote_port = remote_addr, remote_port
+
+        self.remote_addr, self.remote_port, self.is_local_connection = remote_addr, remote_port, is_local_connection
+        self.forwarded_for = forwarded_for
+        self.request_original_uri = request_original_uri
         self.opts = opts
-        self.status_code = httplib.OK
+        self.status_code = http_client.OK
         self.outcookie = Cookie()
         self.lang_code = self.gettext_func = self.ngettext_func = None
         self.set_translator(self.get_preferred_language())
         self.tdir = tdir
-        self.allowed_book_ids = {}
 
     def generate_static_output(self, name, generator, content_type='text/html; charset=UTF-8'):
         ans = self.static_cache.get(name)
@@ -225,8 +249,7 @@ class RequestData(object):  # {{{
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):
         etag = hashlib.sha1()
-        string = type('')
-        tuple(map(lambda x:etag.update(string(x)), etag_parts))
+        tuple(map(lambda x:etag.update(unicode_type(x).encode('utf-8')), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
     def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):
@@ -267,9 +290,10 @@ class RequestData(object):  # {{{
         if lang_code != self.lang_code:
             found, lang, t = self.get_translator(lang_code)
             self.lang_code = lang
-            self.gettext_func = t.ugettext
-            self.ngettext_func = t.ungettext
+            self.gettext_func = getattr(t, 'gettext' if ispy3 else 'ugettext')
+            self.ngettext_func = getattr(t, 'ngettext' if ispy3 else 'ungettext')
 # }}}
+
 
 class ReadableOutput(object):
 
@@ -285,10 +309,14 @@ class ReadableOutput(object):
         self.use_sendfile = False
         self.src_file.seek(0)
 
+
 def filesystem_file_output(output, outheaders, stat_result):
     etag = getattr(output, 'etag', None)
     if etag is None:
-        etag = hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+        oname = output.name or ''
+        if not isinstance(oname, string_or_bytes):
+            oname = unicode_type(oname)
+        etag = hashlib.sha1((unicode_type(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
         output = output.output
     etag = '"%s"' % etag
@@ -296,6 +324,7 @@ def filesystem_file_output(output, outheaders, stat_result):
     self.name = output.name
     self.use_sendfile = True
     return self
+
 
 def dynamic_output(output, outheaders, etag=None):
     if isinstance(output, bytes):
@@ -309,6 +338,7 @@ def dynamic_output(output, outheaders, etag=None):
     ans.accept_ranges = False
     return ans
 
+
 class ETaggedDynamicOutput(object):
 
     def __init__(self, func, etag):
@@ -316,6 +346,7 @@ class ETaggedDynamicOutput(object):
 
     def __call__(self):
         return self.func()
+
 
 class GeneratedOutput(object):
 
@@ -325,14 +356,16 @@ class GeneratedOutput(object):
         self.etag = etag
         self.accept_ranges = False
 
+
 class StaticOutput(object):
 
     def __init__(self, data):
-        if isinstance(data, type('')):
+        if isinstance(data, unicode_type):
             data = data.encode('utf-8')
         self.data = data
         self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
         self.content_length = len(data)
+
 
 class HTTPConnection(HTTPRequest):
 
@@ -345,7 +378,7 @@ class HTTPConnection(HTTPRequest):
             end = buf.tell()
             buf.seek(pos)
         limit = end - pos
-        if limit == 0:
+        if limit <= 0:
             return True
         if self.use_sendfile and not isinstance(buf, (BytesIO, ReadOnlyFileBuffer)):
             try:
@@ -368,24 +401,25 @@ class HTTPConnection(HTTPRequest):
                 self.use_sendfile = self.ready = False
                 raise IOError('sendfile() failed to write any bytes to the socket')
         else:
-            sent = self.send(buf.read(min(limit, self.send_bufsize)))
+            data = buf.read(min(limit, self.send_bufsize))
+            sent = self.send(data)
         buf.seek(pos + sent)
-        return buf.tell() == end
+        return buf.tell() >= end
 
     def simple_response(self, status_code, msg='', close_after_response=True, extra_headers=None):
         if self.response_protocol is HTTP1:
             # HTTP/1.0 has no 413/414/303 codes
             status_code = {
-                httplib.REQUEST_ENTITY_TOO_LARGE:httplib.BAD_REQUEST,
-                httplib.REQUEST_URI_TOO_LONG:httplib.BAD_REQUEST,
-                httplib.SEE_OTHER:httplib.FOUND
+                http_client.REQUEST_ENTITY_TOO_LARGE:http_client.BAD_REQUEST,
+                http_client.REQUEST_URI_TOO_LONG:http_client.BAD_REQUEST,
+                http_client.SEE_OTHER:http_client.FOUND
             }.get(status_code, status_code)
 
         self.close_after_response = close_after_response
         msg = msg.encode('utf-8')
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
-            '%s %d %s' % (self.response_protocol, status_code, httplib.responses[status_code]),
+            '%s %d %s' % (self.response_protocol, status_code, http_client.responses[status_code]),
             "Content-Length: %s" % len(msg),
             "Content-Type: text/%s; charset=UTF-8" % ct,
             "Date: " + http_date(),
@@ -393,7 +427,7 @@ class HTTPConnection(HTTPRequest):
         if self.close_after_response and self.response_protocol is HTTP11:
             buf.append("Connection: close")
         if extra_headers is not None:
-            for h, v in extra_headers.iteritems():
+            for h, v in iteritems(extra_headers):
                 buf.append('%s: %s' % (h, v))
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
@@ -406,13 +440,14 @@ class HTTPConnection(HTTPRequest):
     def prepare_response(self, inheaders, request_body_file):
         if self.method == 'TRACE':
             msg = force_unicode(self.request_line, 'utf-8') + '\n' + inheaders.pretty()
-            return self.simple_response(httplib.OK, msg, close_after_response=False)
+            return self.simple_response(http_client.OK, msg, close_after_response=False)
         request_body_file.seek(0)
         outheaders = MultiDict()
         data = RequestData(
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port, self.translator_cache, self.tdir
+            self.remote_addr, self.remote_port, self.is_local_connection,
+            self.translator_cache, self.tdir, self.forwarded_for, self.request_original_uri
         )
         self.queue_job(self.run_request_handler, data)
 
@@ -422,28 +457,31 @@ class HTTPConnection(HTTPRequest):
 
     def send_range_not_satisfiable(self, content_length):
         buf = [
-            '%s %d %s' % (self.response_protocol, httplib.REQUESTED_RANGE_NOT_SATISFIABLE, httplib.responses[httplib.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            '%s %d %s' % (
+                self.response_protocol,
+                http_client.REQUESTED_RANGE_NOT_SATISFIABLE,
+                http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
             "Date: " + http_date(),
             "Content-Range: bytes */%d" % content_length,
         ]
         response_data = header_list_to_file(buf)
-        self.log_access(status_code=httplib.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
+        self.log_access(status_code=http_client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
         self.response_ready(response_data)
 
     def send_not_modified(self, etag=None):
         buf = [
-            '%s %d %s' % (self.response_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
+            '%s %d %s' % (self.response_protocol, http_client.NOT_MODIFIED, http_client.responses[http_client.NOT_MODIFIED]),
             "Content-Length: 0",
             "Date: " + http_date(),
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)
         response_data = header_list_to_file(buf)
-        self.log_access(status_code=httplib.NOT_MODIFIED, response_size=response_data.sz)
+        self.log_access(status_code=http_client.NOT_MODIFIED, response_size=response_data.sz)
         self.response_ready(response_data)
 
     def report_busy(self):
-        self.simple_response(httplib.SERVICE_UNAVAILABLE)
+        self.simple_response(http_client.SERVICE_UNAVAILABLE)
 
     def job_done(self, ok, result):
         if not ok:
@@ -456,8 +494,8 @@ class HTTPConnection(HTTPRequest):
                     eh['WWW-Authenticate'] = e.authenticate
                 if e.log:
                     self.log.warn(e.log)
-                return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
-            raise etype, e, tb
+                return self.simple_response(e.http_code, msg=error_message(e) or '', close_after_response=e.close_connection, extra_headers=eh)
+            reraise(etype, e, tb)
 
         data, output = result
         output = self.finalize_output(output, data, self.method is HTTP1)
@@ -480,12 +518,12 @@ class HTTPConnection(HTTPRequest):
 
         ct = outheaders.get('Content-Type', '')
         if ct.startswith('text/') and 'charset=' not in ct:
-            outheaders.set('Content-Type', ct + '; charset=UTF-8')
+            outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
-        buf = [HTTP11 + (' %d ' % data.status_code) + httplib.responses[data.status_code]]
-        for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
+        buf = [HTTP11 + (' %d ' % data.status_code) + http_client.responses[data.status_code]]
+        for header, value in sorted(iteritems(outheaders), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
-        for morsel in data.outcookie.itervalues():
+        for morsel in itervalues(data.outcookie):
             morsel['version'] = '1'
             x = morsel.output()
             if isinstance(x, bytes):
@@ -503,11 +541,14 @@ class HTTPConnection(HTTPRequest):
     def log_access(self, status_code, response_size=None, username=None):
         if self.access_log is None:
             return
-        if not self.opts.log_not_found and status_code == httplib.NOT_FOUND:
+        if not self.opts.log_not_found and status_code == http_client.NOT_FOUND:
             return
-        line = '%s port-%s %s %s "%s" %s %s' % (
-            self.remote_addr, self.remote_port, username or '-',
-            time.strftime('%d/%b/%Y:%H:%M:%S %z'),
+        ff = self.forwarded_for
+        if ff:
+            ff = '[%s] ' % ff
+        line = '%s port-%s %s%s %s "%s" %s %s' % (
+            self.remote_addr, self.remote_port, ff or '', username or '-',
+            fast_now_strftime('%d/%b/%Y:%H:%M:%S %z'),
             force_unicode(self.request_line or '', 'utf-8'),
             status_code, ('-' if response_size is None else response_size))
         self.access_log(line)
@@ -527,7 +568,9 @@ class HTTPConnection(HTTPRequest):
             self.reset_state()
             return
         if isinstance(output, ReadableOutput):
-            self.use_sendfile = output.use_sendfile and self.opts.use_sendfile and sendfile_to_socket_async is not None
+            self.use_sendfile = output.use_sendfile and self.opts.use_sendfile and sendfile_to_socket_async is not None and self.ssl_context is None
+            # sendfile() does not work with SSL sockets since encryption has to
+            # be done in userspace
             if output.ranges is not None:
                 if isinstance(output.ranges, Range):
                     r = output.ranges
@@ -585,12 +628,13 @@ class HTTPConnection(HTTPRequest):
                 self.set_state(WRITE, self.write_iter, output)
 
     def reset_state(self):
-        self.connection_ready()
-        self.ready = not self.close_after_response
+        ready = not self.close_after_response
         self.end_send_optimization()
+        self.connection_ready()
+        self.ready = ready
 
     def report_unhandled_exception(self, e, formatted_traceback):
-        self.simple_response(httplib.INTERNAL_SERVER_ERROR)
+        self.simple_response(http_client.INTERNAL_SERVER_ERROR)
 
     def finalize_output(self, output, request, is_http1):
         none_match = parse_if_none_match(request.inheaders.get('If-None-Match', ''))
@@ -600,7 +644,7 @@ class HTTPConnection(HTTPRequest):
                 if self.method in ('GET', 'HEAD'):
                     self.send_not_modified(output.etag)
                 else:
-                    self.simple_response(httplib.PRECONDITION_FAILED)
+                    self.simple_response(http_client.PRECONDITION_FAILED)
                 return
 
         opts = self.opts
@@ -609,12 +653,17 @@ class HTTPConnection(HTTPRequest):
         if stat_result is not None:
             output = filesystem_file_output(output, outheaders, stat_result)
             if 'Content-Type' not in outheaders:
-                mt = guess_type(output.name)[0]
+                output_name = output.name
+                if not isinstance(output_name, string_or_bytes):
+                    output_name = unicode_type(output_name)
+                mt = guess_type(output_name)[0]
                 if mt:
                     if mt in {'text/plain', 'text/html', 'application/javascript', 'text/css'}:
                         mt += '; charset=UTF-8'
                     outheaders['Content-Type'] = mt
-        elif isinstance(output, (bytes, type(''))):
+                else:
+                    outheaders['Content-Type'] = 'application/octet-stream'
+        elif isinstance(output, string_or_bytes):
             output = dynamic_output(output, outheaders)
         elif hasattr(output, 'read'):
             output = ReadableOutput(output)
@@ -627,10 +676,10 @@ class HTTPConnection(HTTPRequest):
         ct = outheaders.get('Content-Type', '').partition(';')[0]
         compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
                         ct.partition(';')[0] in COMPRESSIBLE_TYPES)
-        compressible = (compressible and request.status_code == httplib.OK and
+        compressible = (compressible and request.status_code == http_client.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)
-        accept_ranges = (not compressible and output.accept_ranges is not None and request.status_code == httplib.OK and
+        accept_ranges = (not compressible and output.accept_ranges is not None and request.status_code == http_client.OK and
                         not is_http1)
         ranges = get_ranges(request.inheaders.get('Range'), output.content_length) if output.accept_ranges and self.method in ('GET', 'HEAD') else None
         if_range = (request.inheaders.get('If-Range') or '').strip()
@@ -647,7 +696,7 @@ class HTTPConnection(HTTPRequest):
             if self.method in ('GET', 'HEAD'):
                 self.send_not_modified(output.etag)
             else:
-                self.simple_response(httplib.PRECONDITION_FAILED)
+                self.simple_response(http_client.PRECONDITION_FAILED)
             return
 
         output.ranges = None
@@ -678,9 +727,10 @@ class HTTPConnection(HTTPRequest):
                 size = sum(map(len, range_parts)) + sum(r.size + 4 for r in ranges)
                 outheaders.set('Content-Length', '%d' % size, replace_all=True)
                 outheaders.set('Content-Type', 'multipart/byteranges; boundary=' + MULTIPART_SEPARATOR, replace_all=True)
-                output.ranges = izip_longest(ranges, range_parts)
-            request.status_code = httplib.PARTIAL_CONTENT
+                output.ranges = zip_longest(ranges, range_parts)
+            request.status_code = http_client.PARTIAL_CONTENT
         return output
+
 
 def create_http_handler(handler=None, websocket_handler=None):
     from calibre.srv.web_socket import WebSocketConnection
@@ -690,6 +740,7 @@ def create_http_handler(handler=None, websocket_handler=None):
         def dummy_http_handler(data):
             return 'Hello'
         handler = dummy_http_handler
+
     @wraps(handler)
     def wrapper(*args, **kwargs):
         ans = WebSocketConnection(*args, **kwargs)

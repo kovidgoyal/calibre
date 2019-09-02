@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import shutil, os, errno
 from threading import Thread
-from Queue import LifoQueue, Empty
 
 from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
 
@@ -18,6 +16,8 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.ipc import RC
+from polyglot.queue import LifoQueue, Empty
+
 
 def save_dir_container(container, path):
     if not os.path.exists(path):
@@ -25,6 +25,7 @@ def save_dir_container(container, path):
     if not os.path.isdir(path):
         raise ValueError('%s is not a folder, cannot save a directory based container to it' % path)
     container.commit(path)
+
 
 def save_container(container, path):
     if container.is_dir:
@@ -74,6 +75,7 @@ def save_container(container, path):
         if os.path.exists(temp):
             os.remove(temp)
 
+
 def send_message(msg=''):
     if msg:
         t = RC(print_error=False)
@@ -83,6 +85,7 @@ def send_message(msg=''):
             t.conn.send('bookedited:'+msg)
             t.conn.close()
 
+
 def find_first_existing_ancestor(path):
     while path and not os.path.exists(path):
         npath = os.path.dirname(path)
@@ -90,6 +93,7 @@ def find_first_existing_ancestor(path):
             break
         path = npath
     return path
+
 
 class SaveWidget(QWidget):
 
@@ -115,6 +119,7 @@ class SaveWidget(QWidget):
         self.pi.setVisible(False)
         self.pi.stopAnimation()
         self.label.setText('')
+
 
 class SaveManager(QObject):
 

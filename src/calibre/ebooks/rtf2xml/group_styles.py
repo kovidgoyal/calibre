@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,6 +14,8 @@
 import sys, os,  re
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
+
 
 class GroupStyles:
     """
@@ -21,6 +24,7 @@ class GroupStyles:
     list.
     Use indents to determine items and how lists are nested.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -44,6 +48,7 @@ class GroupStyles:
         self.__run_level = run_level
         self.__write_to =  better_mktemp()
         self.__wrap = wrap
+
     def __initiate_values(self):
         """
         Required:
@@ -102,6 +107,7 @@ class GroupStyles:
         self.__name_regex = re.compile(r'<name>')
         self.__found_appt = 0
         self.__line_num = 0
+
     def __in_pard_func(self, line):
         """
         Required:
@@ -117,6 +123,7 @@ class GroupStyles:
             self.__state = 'after_pard'
         else:
             self.__write_obj.write(line)
+
     def __after_pard_func(self, line):
         """
         Required:
@@ -134,7 +141,7 @@ class GroupStyles:
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
                 msg =  'wrong flag'
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
         elif self.__token_info in self.__end_list:
             self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
             self.__write_end_wrap()
@@ -144,22 +151,26 @@ class GroupStyles:
             self.__write_obj.write(line)
         else:
             self.__list_chunk += line
+
     def __close_pard_(self, line):
         self.__write_obj.write(self.__list_chunk)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_end_wrap()
         self.__list_chunk = ''
         self.__state = 'default'
+
     def __write_start_wrap(self, name):
         if self.__wrap:
             self.__write_obj.write('mi<mk<style-grp_<%s\n' % name)
             self.__write_obj.write('mi<tg<open-att__<style-group<name>%s\n' % name)
             self.__write_obj.write('mi<mk<style_grp_<%s\n' % name)
+
     def __write_end_wrap(self):
         if self.__wrap:
             self.__write_obj.write('mi<mk<style_gend\n')
             self.__write_obj.write('mi<tg<close_____<style-group\n')
             self.__write_obj.write('mi<mk<stylegend_\n')
+
     def __pard_after_par_def_func(self, line):
         """
         Required:
@@ -188,6 +199,7 @@ class GroupStyles:
             self.__state = 'in_pard'
             self.__last_style_name = self.__style_name
             self.__list_chunk = ''
+
     def __default_func(self, line):
         """
         Required:
@@ -207,9 +219,11 @@ class GroupStyles:
             self.__write_obj.write(line)
         else:
             self.__write_obj.write(line)
+
     def __get_style_name(self, line):
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
+
     def group_styles(self):
         """
         Required:
@@ -219,8 +233,8 @@ class GroupStyles:
         Logic:
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

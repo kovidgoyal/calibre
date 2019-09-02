@@ -1,7 +1,7 @@
 # Calibre recipe for Instapaper.com (Stable version)
 #
 # Homepage: http://khromov.wordpress.com/projects/instapaper-calibre-recipe/
-# Code Repository: https://bitbucket.org/khromov/calibre-instapaper
+# Source: https://github.com/kovidgoyal/calibre/blob/master/recipes/instapaper.recipe
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -30,6 +30,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'evernote_confirm'}),
         dict(name='div', attrs={'id': 'controlbar_container'}),
         dict(name='div', attrs={'id': 'footer'}),
+        dict(name='div', attrs={'id': 'speedRead'}),
         dict(name='label')
     ]
     use_embedded_content = False

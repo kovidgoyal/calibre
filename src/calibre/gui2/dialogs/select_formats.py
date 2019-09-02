@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +11,7 @@ from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
         QAbstractListModel, QListView, QSize
 
 from calibre.gui2 import file_icon_provider
+
 
 class Formats(QAbstractListModel):
 
@@ -34,9 +35,9 @@ class Formats(QAbstractListModel):
         if role == Qt.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return (
-                _('There are %(count)d book(s) with the %(fmt)s format')%dict(
-                    count=count, fmt=fmt.upper()))
+            return _('There is one book with the {} format').format(fmt.upper()) if count == 1 else _(
+                'There are {count} books with the {fmt} format').format(
+                                count=count, fmt=fmt.upper())
         return None
 
     def flags(self, index):
@@ -44,6 +45,7 @@ class Formats(QAbstractListModel):
 
     def fmt(self, idx):
         return self.fmts[idx.row()]
+
 
 class SelectFormats(QDialog):
 
@@ -78,7 +80,7 @@ class SelectFormats(QDialog):
         self.fview.setSpacing(2)
 
         self.resize(350, 500)
-        self.selected_formats = set([])
+        self.selected_formats = set()
 
     def accept(self, *args):
         for idx in self.fview.selectedIndexes():
@@ -95,4 +97,4 @@ if __name__ == '__main__':
     app = QApplication([])
     d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
     d.exec_()
-    print d.selected_formats
+    print(d.selected_formats)

@@ -1,0 +1,50 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2017, Darko Miletic <darko.miletic at gmail.com>'
+'''
+http://balkanist.net/magazine
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Pagina12(BasicNewsRecipe):
+    title = 'Balkanist'
+    __author__ = 'Darko Miletic'
+    description = 'Balkanist is an experimental, bilingual platform featuring politics, analysis, culture, and criticism for a smart international audience underwhelmed by what is currently on offer. Our aim is to provide bold, uncompromising coverage of the Balkan region and everything to its East. We are currently entirely independent, self- and reader-funded, and are not affiliated with any organization, company, or government institution.'  # noqa
+    publisher = 'Balkanist'
+    category = 'news, politics, Balkans'
+    oldest_article = 30
+    no_stylesheets = True
+    encoding = 'utf8'
+    use_embedded_content = False
+    language = 'en'
+    remove_empty_feeds = True
+    publication_type = 'magazine'
+    auto_cleanup = True
+    masthead_url = 'http://media.balkanist.net/2013/07/Balkanist-Magazine-cover.png'
+    ignore_duplicate_articles = {'url'}
+    extra_css = """
+                               body{font-family: Lora,serif}
+                               img{margin-top:1em; margin-bottom: 1em; display:block}
+                           """
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    remove_tags = [
+        dict(name=['meta', 'link']),
+    ]
+
+    feeds = [
+        (u'Magazine', u'http://balkanist.net/magazine/feed/'),
+        (u'News', u'http://balkanist.net/news/feed/'),
+        (u'Commentary', u'http://balkanist.net/commentary/feed/'),
+        (u'Arts and Culture', u'http://balkanist.net/arts-and-culture/feed/'),
+        (u'Politics', u'http://balkanist.net/politics/feed/'),
+    ]

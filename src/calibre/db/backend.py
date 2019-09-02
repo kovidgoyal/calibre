@@ -1,21 +1,22 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, cPickle, hashlib, errno, sys
+import os, shutil, uuid, json, glob, time, hashlib, errno, sys
 from functools import partial
 
 import apsw
+from polyglot.builtins import (iteritems, itervalues,
+        unicode_type, reraise, string_or_bytes, cmp, native_string_type)
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
-        preferred_encoding)
+        preferred_encoding, ispy3)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
@@ -23,6 +24,7 @@ from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
@@ -31,7 +33,10 @@ from calibre.utils.filenames import (
     WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
     copytree_using_links, copyfile_using_links)
 from calibre.utils.img import save_cover_data_to
-from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.utils.formatter_functions import (load_user_template_functions,
+            unload_user_template_functions,
+            compile_user_template_functions,
+            formatter_functions)
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, UUIDTable, RatingTable)
@@ -41,12 +46,12 @@ from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
 Differences in semantics from pysqlite:
 
     1. execute/executemany operate in autocommit mode
-    2. There is no fetchone() method on cursor objects, instead use next()
+    2. There is no fetchone() method on cursor objects, instead use next(cursor)
     3. There is no executescript
 
 '''
-CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-    'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
+CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
+    'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
 
 
@@ -64,6 +69,7 @@ class DynamicFilter(object):  # {{{
     def change(self, ids):
         self.ids = frozenset(ids)
 # }}}
+
 
 class DBPrefs(dict):  # {{{
 
@@ -87,7 +93,7 @@ class DBPrefs(dict):  # {{{
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
-        if not isinstance(raw, unicode):
+        if not isinstance(raw, unicode_type):
             raw = raw.decode(preferred_encoding)
         return json.loads(raw, object_hook=from_json)
 
@@ -114,7 +120,7 @@ class DBPrefs(dict):  # {{{
             raw = self.to_raw(val)
             with self.db.conn:
                 try:
-                    dbraw = self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)).next()
+                    dbraw = next(self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)))
                 except StopIteration:
                     dbraw = None
                 if dbraw is None or dbraw[1] != raw:
@@ -145,8 +151,11 @@ class DBPrefs(dict):  # {{{
     def write_serialized(self, library_path):
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
+            data = json.dumps(self, indent=2, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with open(to_filename, "wb") as f:
-                f.write(json.dumps(self, indent=2, default=to_json))
+                f.write(data)
         except:
             import traceback
             traceback.print_exc()
@@ -160,6 +169,8 @@ class DBPrefs(dict):  # {{{
 # }}}
 
 # Extra collators {{{
+
+
 def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
         try:
@@ -173,10 +184,12 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+
 def _author_to_author_sort(x):
     if not x:
         return ''
     return author_to_author_sort(x.replace('|', ','))
+
 
 def icu_collator(s1, s2):
     return cmp(sort_key(force_unicode(s1, 'utf-8')),
@@ -185,6 +198,8 @@ def icu_collator(s1, s2):
 # }}}
 
 # Unused aggregators {{{
+
+
 def Concatenate(sep=','):
     '''String concatenation aggregator for sqlite'''
 
@@ -193,11 +208,17 @@ def Concatenate(sep=','):
             ctxt.append(value)
 
     def finalize(ctxt):
-        if not ctxt:
-            return None
-        return sep.join(ctxt)
+        try:
+            if not ctxt:
+                return None
+            return sep.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
+
 
 def SortedConcatenate(sep=','):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
@@ -207,11 +228,17 @@ def SortedConcatenate(sep=','):
             ctxt[ndx] = value
 
     def finalize(ctxt):
-        if len(ctxt) == 0:
-            return None
-        return sep.join(map(ctxt.get, sorted(ctxt.iterkeys())))
+        try:
+            if len(ctxt) == 0:
+                return None
+            return sep.join(map(ctxt.get, sorted(ctxt)))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
+
 
 def IdentifiersConcat():
     '''String concatenation aggregator for the identifiers map'''
@@ -220,9 +247,15 @@ def IdentifiersConcat():
         ctxt.append(u'%s:%s'%(key, val))
 
     def finalize(ctxt):
-        return ','.join(ctxt)
+        try:
+            return ','.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
+
 
 def AumSortedConcatenate():
     '''String concatenation aggregator for the author sort map'''
@@ -232,17 +265,23 @@ def AumSortedConcatenate():
             ctxt[ndx] = ':::'.join((author, sort, link))
 
     def finalize(ctxt):
-        keys = list(ctxt.iterkeys())
-        l = len(keys)
-        if l == 0:
-            return None
-        if l == 1:
-            return ctxt[keys[0]]
-        return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        try:
+            keys = list(ctxt)
+            l = len(keys)
+            if l == 0:
+                return None
+            if l == 1:
+                return ctxt[keys[0]]
+            return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
 
 # }}}
+
 
 class Connection(apsw.Connection):  # {{{
 
@@ -252,17 +291,17 @@ class Connection(apsw.Connection):  # {{{
         apsw.Connection.__init__(self, path)
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
-        self.execute('pragma cache_size=5000')
+        self.execute('pragma cache_size=-5000')
         self.execute('pragma temp_store=2')
 
-        encoding = self.execute('pragma encoding').next()[0]
+        encoding = next(self.execute('pragma encoding'))[0]
         self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: unicode_type(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -290,7 +329,7 @@ class Connection(apsw.Connection):  # {{{
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 
@@ -303,6 +342,12 @@ class Connection(apsw.Connection):  # {{{
             return self.cursor().executemany(sql, sequence_of_bindings)
 
 # }}}
+
+
+def set_global_state(backend):
+    load_user_template_functions(
+        backend.library_id, (), precompiled_user_functions=backend.get_user_template_functions())
+
 
 class DB(object):
 
@@ -336,8 +381,7 @@ class DB(object):
         if not exists:
             # Be more strict when creating new libraries as the old calculation
             # allowed for max path lengths of 265 chars.
-            if (iswindows and len(self.library_path) >
-                    self.WINDOWS_LIBRARY_PATH_LIMIT):
+            if (iswindows and len(self.library_path) > self.WINDOWS_LIBRARY_PATH_LIMIT):
                 raise ValueError(_(
                     'Path to library too long. Must be less than'
                     ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
@@ -389,9 +433,21 @@ class DB(object):
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
+        self.set_user_template_functions(compile_user_template_functions(
+                                 self.prefs.get('user_template_functions', [])))
         if load_user_formatter_functions:
-            load_user_template_functions(self.library_id,
-                                        self.prefs.get('user_template_functions', []))
+            set_global_state(self)
+
+    def get_template_functions(self):
+        return self._template_functions
+
+    def get_user_template_functions(self):
+        return self._user_template_functions
+
+    def set_user_template_functions(self, user_formatter_functions):
+        self._user_template_functions = user_formatter_functions
+        self._template_functions = formatter_functions().get_builtins().copy()
+        self._template_functions.update(user_formatter_functions)
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)
@@ -412,8 +468,7 @@ class DB(object):
                     progress_callback(_('creating custom column ') + f['label'], i)
                     self.create_custom_column(f['label'], f['name'],
                             f['datatype'],
-                            (f['is_multiple'] is not None and
-                                len(f['is_multiple']) > 0),
+                            (f['is_multiple'] is not None and len(f['is_multiple']) > 0),
                             f['is_editable'], f['display'])
 
         defs = self.prefs.defaults
@@ -432,19 +487,23 @@ class DB(object):
         defs['similar_series_search_key'] = 'series'
         defs['similar_series_match_kind'] = 'match_any'
         defs['book_display_fields'] = [
-        ('title', False), ('authors', True), ('formats', True),
-        ('series', True), ('identifiers', True), ('tags', True),
+        ('title', False), ('authors', True), ('series', True),
+        ('identifiers', True), ('tags', True), ('formats', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False), ('languages', False),
         ]
+        defs['popup_book_display_fields'] = [('title', True)] + [(f[0], True) for f in defs['book_display_fields'] if f[0] != 'title']
+        defs['qv_display_fields'] = [('title', True), ('authors', True), ('series', True)]
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
         defs['update_all_last_mod_dates_on_start'] = False
         defs['field_under_covers_in_grid'] = 'title'
         defs['cover_browser_title_template'] = '{title}'
+        defs['cover_browser_subtitle_field'] = 'rating'
+        defs['styled_columns'] = {}
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -457,11 +516,11 @@ class DB(object):
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
             for i in range(1, 6):
-                col = self.prefs.get('column_color_name_'+str(i), None)
-                templ = self.prefs.get('column_color_template_'+str(i), None)
+                col = self.prefs.get('column_color_name_%d' % i, None)
+                templ = self.prefs.get('column_color_template_%d' % i, None)
                 if col and templ:
                     try:
-                        del self.prefs['column_color_name_'+str(i)]
+                        del self.prefs['column_color_name_%d' % i]
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
@@ -525,10 +584,10 @@ class DB(object):
                 prints('found user category case overlap', catmap[uc])
                 cat = catmap[uc][0]
                 suffix = 1
-                while icu_lower((cat + unicode(suffix))) in catmap:
+                while icu_lower((cat + unicode_type(suffix))) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+unicode(suffix)))
-                user_cats[cat + unicode(suffix)] = user_cats[cat]
+                prints('Renaming user category %s to %s'%(cat, cat+unicode_type(suffix)))
+                user_cats[cat + unicode_type(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
         if cats_changed:
@@ -634,23 +693,27 @@ class DB(object):
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, unicode, bytes)):
+                if isinstance(x, (unicode_type, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode) else y for y in x]
+                    unicode_type) else y for y in x]
                 return [u' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode) else \
+                return x if x is None or isinstance(x, unicode_type) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 x = x.lower()
                 if x == 'true':
                     x = True
@@ -671,7 +734,9 @@ class DB(object):
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
                 if x.lower() == 'none':
                     return None
             if d['datatype'] == 'int':
@@ -691,7 +756,7 @@ class DB(object):
         }
 
         # Create Tag Browser categories for custom columns
-        for k in sorted(self.custom_column_label_map.iterkeys()):
+        for k in sorted(self.custom_column_label_map):
             v = self.custom_column_label_map[k]
             if v['normalized']:
                 is_category = True
@@ -744,10 +809,10 @@ class DB(object):
             'last_modified':19, 'identifiers':20, 'languages':21,
         }
 
-        for k,v in self.FIELD_MAP.iteritems():
+        for k,v in iteritems(self.FIELD_MAP):
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
-        base = max(self.FIELD_MAP.itervalues())
+        base = max(itervalues(self.FIELD_MAP))
 
         for label_ in sorted(self.custom_column_label_map):
             data = self.custom_column_label_map[label_]
@@ -761,7 +826,7 @@ class DB(object):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
+                self.FIELD_MAP[unicode_type(data['num'])+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(label_+'_index', base,
                             prefer_custom=True)
 
@@ -833,7 +898,7 @@ class DB(object):
         if kw.get('all', True):
             return ans.fetchall()
         try:
-            return ans.next()[0]
+            return next(ans)[0]
         except (StopIteration, IndexError):
             return None
 
@@ -872,7 +937,7 @@ class DB(object):
         import re
         if not label:
             raise ValueError(_('No label was provided'))
-        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+        if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
@@ -1030,19 +1095,24 @@ class DB(object):
         data = self.custom_field_metadata(label, num)
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
 
-    def close(self, force=False):
+    def close(self, force=False, unload_formatter_functions=True):
         if getattr(self, '_conn', None) is not None:
+            if unload_formatter_functions:
+                try:
+                    unload_user_template_functions(self.library_id)
+                except Exception:
+                    pass
             self._conn.close(force)
             del self._conn
 
     def reopen(self, force=False):
-        self.close(force)
+        self.close(force=force, unload_formatter_functions=False)
         self._conn = None
         self.conn
 
     def dump_and_restore(self, callback=None, sql=None):
         import codecs
-        from calibre.utils.apsw_shell import Shell
+        from apsw import Shell
         from contextlib import closing
         if callback is None:
             callback = lambda x: x
@@ -1055,7 +1125,7 @@ class DB(object):
                     shell = Shell(db=self.conn, stdout=buf)
                     shell.process_command('.dump')
             else:
-                with open(fname, 'wb') as buf:
+                with lopen(fname, 'wb') as buf:
                     buf.write(sql if isinstance(sql, bytes) else sql.encode('utf-8'))
 
             with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
@@ -1065,7 +1135,7 @@ class DB(object):
                     shell.process_command('.read ' + fname.replace(os.sep, '/'))
                     conn.execute('PRAGMA user_version=%d;'%uv)
 
-                self.close()
+                self.close(unload_formatter_functions=False)
                 try:
                     atomic_rename(tmpdb, self.dbpath)
                 finally:
@@ -1074,17 +1144,14 @@ class DB(object):
     def vacuum(self):
         self.execute('VACUUM')
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
+        '''The user version of this database'''
+        return self.conn.get('pragma user_version;', all=False)
 
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
-
-        def fset(self, val):
-            self.execute('pragma user_version=%d'%int(val))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @user_version.setter
+    def user_version(self, val):
+        self.execute('pragma user_version=%d'%int(val))
 
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
@@ -1128,8 +1195,8 @@ class DB(object):
         '''
         book_id = ' (%d)' % book_id
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
-        author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        author = ascii_filename(author)[:l]
+        title  = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
         try:
@@ -1138,8 +1205,7 @@ class DB(object):
         except IndexError:
             author = ''
         if not author:
-            author = ascii_filename(_('Unknown')).decode(
-                    'ascii', 'replace')
+            author = ascii_filename(_('Unknown'))
         if author.upper() in WINDOWS_RESERVED_NAMES:
             author += 'w'
         return '%s/%s%s' % (author, title, book_id)
@@ -1156,15 +1222,15 @@ class DB(object):
         l = (self.PATH_LIMIT - (extlen // 2) - 2) if iswindows else ((self.PATH_LIMIT - extlen - 2) // 2)
         if l < 5:
             raise ValueError('Extension length too long: %d' % extlen)
-        author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        author = ascii_filename(author)[:l]
+        title  = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
         if not name:
-            name = ascii_filename(_('Unknown')).decode('ascii', 'replace')
+            name = ascii_filename(_('Unknown'))
         return name
 
     # Database layer API {{{
@@ -1174,37 +1240,34 @@ class DB(object):
 
     @property
     def custom_tables(self):
-        return set([x[0] for x in self.conn.get(
+        return {x[0] for x in self.conn.get(
             'SELECT name FROM sqlite_master WHERE type="table" AND '
-            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')])
+            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')}
 
     @classmethod
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    @dynamic_property
+    @property
     def library_id(self):
-        doc = ('The UUID for this library. As long as the user only operates'
-                ' on libraries with calibre, it will be unique')
+        '''The UUID for this library. As long as the user only operates  on libraries with calibre, it will be unique'''
 
-        def fget(self):
-            if getattr(self, '_library_id_', None) is None:
-                ans = self.conn.get('SELECT uuid FROM library_id', all=False)
-                if ans is None:
-                    ans = str(uuid.uuid4())
-                    self.library_id = ans
-                else:
-                    self._library_id_ = ans
-            return self._library_id_
+        if getattr(self, '_library_id_', None) is None:
+            ans = self.conn.get('SELECT uuid FROM library_id', all=False)
+            if ans is None:
+                ans = unicode_type(uuid.uuid4())
+                self.library_id = ans
+            else:
+                self._library_id_ = ans
+        return self._library_id_
 
-        def fset(self, val):
-            self._library_id_ = unicode(val)
-            self.execute('''
-                    DELETE FROM library_id;
-                    INSERT INTO library_id (uuid) VALUES (?);
-                    ''', (self._library_id_,))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @library_id.setter
+    def library_id(self, val):
+        self._library_id_ = unicode_type(val)
+        self.execute('''
+                DELETE FROM library_id;
+                INSERT INTO library_id (uuid) VALUES (?);
+                ''', (self._library_id_,))
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object '''
@@ -1216,7 +1279,7 @@ class DB(object):
         '''
 
         with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
-            for table in self.tables.itervalues():
+            for table in itervalues(self.tables):
                 try:
                     table.read(self)
                 except:
@@ -1278,9 +1341,19 @@ class DB(object):
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
 
+    def is_format_accessible(self, book_id, fmt, fname, path):
+        fpath = self.format_abspath(book_id, fmt, fname, path)
+        return fpath and os.access(fpath, os.R_OK | os.W_OK)
+
+    def rename_format_file(self, book_id, src_fname, src_fmt, dest_fname, dest_fmt, path):
+        src_path = self.format_abspath(book_id, src_fmt, src_fname, path)
+        dest_path = self.format_abspath(book_id, dest_fmt, dest_fname, path)
+        atomic_rename(src_path, dest_path)
+        return os.path.getsize(dest_path)
+
     def remove_formats(self, remove_map):
         paths = []
-        for book_id, removals in remove_map.iteritems():
+        for book_id, removals in iteritems(remove_map):
             for fmt, fname, path in removals:
                 path = self.format_abspath(book_id, fmt, fname, path)
                 if path is not None:
@@ -1301,7 +1374,7 @@ class DB(object):
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, string_or_bytes):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
@@ -1391,7 +1464,7 @@ class DB(object):
         if path is None:
             return False
         if windows_atomic_move is not None:
-            if not isinstance(dest, basestring):
+            if not isinstance(dest, string_or_bytes):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
             if dest:
@@ -1538,7 +1611,7 @@ class DB(object):
                     if samefile(spath, tpath):
                         # The format filenames may have changed while the folder
                         # name remains the same
-                        for fmt, opath in original_format_map.iteritems():
+                        for fmt, opath in iteritems(original_format_map):
                             npath = format_map.get(fmt, None)
                             if npath and os.path.abspath(npath.lower()) != os.path.abspath(opath.lower()) and samefile(opath, npath):
                                 # opath and npath are different hard links to the same file
@@ -1586,7 +1659,7 @@ class DB(object):
             except EnvironmentError as err:
                 if err.errno == errno.EEXIST:
                     # Parent directory already exists, re-raise original exception
-                    raise exc_info[0], exc_info[1], exc_info[2]
+                    reraise(*exc_info)
                 raise
             finally:
                 del exc_info
@@ -1601,7 +1674,7 @@ class DB(object):
     def remove_books(self, path_map, permanent=False):
         self.executemany(
             'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
-        paths = {os.path.join(self.library_path, x) for x in path_map.itervalues() if x}
+        paths = {os.path.join(self.library_path, x) for x in itervalues(path_map) if x}
         paths = {x for x in paths if os.path.exists(x) and self.is_deletable(x)}
         if permanent:
             for path in paths:
@@ -1616,10 +1689,11 @@ class DB(object):
         self.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
             [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in val_map.iteritems()])
+                    for book_id, val in iteritems(val_map)])
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)
+
         def safe_load(val):
             try:
                 return json.loads(val, object_hook=from_json)
@@ -1653,7 +1727,10 @@ class DB(object):
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
             if data:
-                return cPickle.loads(bytes(data))
+                try:
+                    return unpickle_binary_string(bytes(data))
+                except Exception:
+                    pass
 
     def has_conversion_options(self, ids, fmt='PIPE'):
         ids = frozenset(ids)
@@ -1670,7 +1747,15 @@ class DB(object):
             [(book_id, fmt.upper()) for book_id in book_ids])
 
     def set_conversion_options(self, options, fmt):
-        options = [(book_id, fmt.upper(), buffer(cPickle.dumps(data, -1))) for book_id, data in options.iteritems()]
+        def map_data(x):
+            if not isinstance(x, string_or_bytes):
+                x = native_string_type(x)
+            x = x.encode('utf-8') if isinstance(x, unicode_type) else x
+            x = pickle_binary_string(x)
+            if not ispy3:
+                x = buffer(x)  # noqa
+            return x
+        options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
     def get_top_level_move_items(self, all_paths):
@@ -1708,7 +1793,7 @@ class DB(object):
                 copyfile_using_links(src, dest, dest_is_dir=False)
                 old_files.add(src)
             x = path_map[x]
-            if not isinstance(x, unicode):
+            if not isinstance(x, unicode_type):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x, i+1, total)
 
@@ -1744,14 +1829,13 @@ class DB(object):
         self.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
 
     def backup_database(self, path):
-        # We have to open a new connection to self.dbpath, until this issue is fixed:
-        # https://github.com/rogerbinns/apsw/issues/199
         dest_db = apsw.Connection(path)
-        source = apsw.Connection(self.dbpath)
-        with dest_db.backup('main', source, 'main') as b:
+        with dest_db.backup('main', self.conn, 'main') as b:
             while not b.done:
-                b.step(100)
-        source.close()
+                try:
+                    b.step(100)
+                except apsw.BusyError:
+                    pass
         dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
         dest_db.close()
 

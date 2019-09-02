@@ -1,17 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from functools import partial
 
 from PyQt5.Qt import QTimer, QDialog, QDialogButtonBox, QCheckBox, QVBoxLayout, QLabel, Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
+
 
 class Choose(QDialog):
 
@@ -36,7 +37,8 @@ class Choose(QDialog):
         self.buts = buts = []
         for fmt in fmts:
             b = bb.addButton(fmt.upper(), bb.AcceptRole)
-            b.clicked.connect(partial(self.chosen, fmt))
+            b.setObjectName(fmt)
+            connect_lambda(b.clicked, self, lambda self: self.chosen(self.sender().objectName()))
             buts.append(b)
 
         self.fmt = None
@@ -54,8 +56,8 @@ class Choose(QDialog):
 class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
-    action_spec = (_('Edit book'), 'tweak.png', _('Edit books in the EPUB or AZW formats'), _('T'))
-    dont_add_to = frozenset(['context-menu-device'])
+    action_spec = (_('Edit book'), 'edit_book.png', _('Edit books in the EPUB or AZW formats'), _('T'))
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     accepts_drops = True
@@ -73,7 +75,7 @@ class TweakEpubAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -90,7 +92,7 @@ class TweakEpubAction(InterfaceAction):
     def tweak_book(self):
         row = self.gui.library_view.currentIndex()
         if not row.isValid():
-            return error_dialog(self.gui, _('Cannot Edit Book'),
+            return error_dialog(self.gui, _('Cannot Edit book'),
                     _('No book selected'), show=True)
 
         book_id = self.gui.library_view.model().id(row)
@@ -98,7 +100,7 @@ class TweakEpubAction(InterfaceAction):
 
     def do_tweak(self, book_id):
         if self.gui.current_view() is not self.gui.library_view:
-            return error_dialog(self.gui, _('Cannot Edit Book'), _(
+            return error_dialog(self.gui, _('Cannot edit book'), _(
                 'Editing of books on the device is not supported'), show=True)
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         db = self.gui.library_view.model().db
@@ -106,9 +108,9 @@ class TweakEpubAction(InterfaceAction):
         fmts = [x.upper().strip() for x in fmts.split(',')]
         tweakable_fmts = set(fmts).intersection(SUPPORTED)
         if not tweakable_fmts:
-            return error_dialog(self.gui, _('Cannot Edit Book'),
+            return error_dialog(self.gui, _('Cannot edit book'),
                     _('The book must be in the %s formats to edit.'
-                        '\n\nFirst convert the book to one of these formats.') % (_(' or '.join(SUPPORTED))),
+                        '\n\nFirst convert the book to one of these formats.') % (_(' or ').join(SUPPORTED)),
                     show=True)
         from calibre.gui2.tweak_book import tprefs
         tprefs.refresh()  # In case they were changed in a Tweak Book process
@@ -125,6 +127,16 @@ class TweakEpubAction(InterfaceAction):
                 tweakable_fmts = {fmts[0]}
 
         fmt = tuple(tweakable_fmts)[0]
+        self.ebook_edit_format(book_id, fmt)
+
+    def ebook_edit_format(self, book_id, fmt):
+        '''
+        Also called from edit_metadata formats list.  In that context,
+        SUPPORTED check was already done.
+        '''
+        db = self.gui.library_view.model().db
+        from calibre.gui2.tweak_book import tprefs
+        tprefs.refresh()  # In case they were changed in a Tweak Book process
         path = db.new_api.format_abspath(book_id, fmt)
         if path is None:
             return error_dialog(self.gui, _('File missing'), _(

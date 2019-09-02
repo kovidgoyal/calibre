@@ -1,26 +1,27 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, operator
+import weakref, operator, numbers
 from functools import partial
-from itertools import izip, imap
-from future_builtins import map
+from polyglot.builtins import (iteritems, itervalues, map,
+        unicode_type, range)
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
 from calibre.db.write import uniq
+
 
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
     # translate some fields to their hidden equivalent
     field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
     return field
+
 
 class MarkedVirtualField(object):
 
@@ -33,7 +34,8 @@ class MarkedVirtualField(object):
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         g = self.marked_ids.get
-        return lambda book_id:g(book_id, None)
+        return lambda book_id:g(book_id, '')
+
 
 class TableRow(object):
 
@@ -46,7 +48,7 @@ class TableRow(object):
         view = self.view()
         if isinstance(obj, slice):
             return [view._field_getters[c](self.book_id)
-                    for c in xrange(*obj.indices(len(view._field_getters)))]
+                    for c in range(*obj.indices(len(view._field_getters)))]
         else:
             return view._field_getters[obj](self.book_id)
 
@@ -54,8 +56,9 @@ class TableRow(object):
         return self.column_count
 
     def __iter__(self):
-        for i in xrange(self.column_count):
+        for i in range(self.column_count):
             yield self[i]
+
 
 def format_is_multiple(x, sep=',', repl=None):
     if not x:
@@ -64,10 +67,12 @@ def format_is_multiple(x, sep=',', repl=None):
         x = (y.replace(sep, repl) for y in x)
     return sep.join(x)
 
+
 def format_identifiers(x):
     if not x:
         return None
-    return ','.join('%s:%s'%(k, v) for k, v in x.iteritems())
+    return ','.join('%s:%s'%(k, v) for k, v in iteritems(x))
+
 
 class View(object):
 
@@ -83,7 +88,7 @@ class View(object):
         self.search_restriction_name = self.base_restriction_name = ''
         self._field_getters = {}
         self.column_count = len(cache.backend.FIELD_MAP)
-        for col, idx in cache.backend.FIELD_MAP.iteritems():
+        for col, idx in iteritems(cache.backend.FIELD_MAP):
             label, fmt = col, lambda x:x
             func = {
                     'id': self._get_id,
@@ -92,7 +97,7 @@ class View(object):
                     'marked': self.get_marked,
                     'series_sort':self.get_series_sort,
                 }.get(col, self._get)
-            if isinstance(col, int):
+            if isinstance(col, numbers.Integral):
                 label = self.cache.backend.custom_column_num_map[col]['label']
                 label = (self.cache.backend.field_metadata.custom_field_prefix + label)
             if label.endswith('_index'):
@@ -368,14 +373,13 @@ class View(object):
             self.marked_ids = dict.fromkeys(id_dict, u'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
-                id_dict.itervalues())))
+            self.marked_ids = {k: unicode_type(v) for k, v in iteritems(id_dict)}
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)
         self.cache.clear_search_caches(old_marked_ids | cmids)
         if old_marked_ids != cmids:
-            for funcref in self.marked_listeners.itervalues():
+            for funcref in itervalues(self.marked_listeners):
                 func = funcref()
                 if func is not None:
                     func(old_marked_ids, cmids)
@@ -426,4 +430,3 @@ class View(object):
         self._map_filtered = ids + self._map_filtered
         if prefs['mark_new_books']:
             self.toggle_marked_ids(ids)
-

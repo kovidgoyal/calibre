@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Match Books</string>
+   <string>Match books</string>
   </property>
   <layout class="QGridLayout">
    <item row="0" column="0">

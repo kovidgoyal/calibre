@@ -1,37 +1,39 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, socket, select, os
-from Cookie import SimpleCookie
+import errno, socket, select, os, time
 from contextlib import closing
-from urlparse import parse_qs
-import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from future_builtins import map
-from urllib import quote as urlquote
-from binascii import hexlify, unhexlify
 
 from calibre import prints
-from calibre.constants import iswindows
+from calibre.constants import iswindows, ispy3
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
+from polyglot.builtins import iteritems, map, range
+from polyglot import reprlib
+from polyglot.http_cookie import SimpleCookie
+from polyglot.builtins import is_py3, unicode_type, as_bytes, as_unicode
+from polyglot.urllib import parse_qs, quote as urlquote
+from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
+encode_name, decode_name
+
 
 def http_date(timeval=None):
     return type('')(formatdate(timeval=timeval, usegmt=True))
+
 
 class MultiDict(dict):  # {{{
 
@@ -46,17 +48,18 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
+        for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
             dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in ld.iteritems():
+        for key, values in iteritems(ld):
             for val in values:
                 self[key] = val
 
     def items(self, duplicates=True):
-        for k, v in dict.iteritems(self):
+        f = dict.items if ispy3 else dict.iteritems
+        for k, v in f(self):
             if duplicates:
                 for x in v:
                     yield k, x
@@ -65,7 +68,8 @@ class MultiDict(dict):  # {{{
     iteritems = items
 
     def values(self, duplicates=True):
-        for v in dict.itervalues(self):
+        f = dict.values if ispy3 else dict.itervalues
+        for v in f(self):
             if duplicates:
                 for x in v:
                     yield x
@@ -97,7 +101,7 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in iteritems(self)) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
@@ -105,11 +109,13 @@ class MultiDict(dict):  # {{{
             '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(self.items(), key=itemgetter(0)))
 # }}}
 
+
 def error_codes(*errnames):
     ''' Return error numbers for error names, ignoring non-existent names '''
     ans = {getattr(errno, x, None) for x in errnames}
     ans.discard(None)
     return ans
+
 
 socket_errors_eintr = error_codes("EINTR", "WSAEINTR")
 
@@ -129,13 +135,16 @@ socket_errors_socket_closed = error_codes(  # errors indicating a disconnected c
 socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
+
 def start_cork(sock):
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
+
 def stop_cork(sock):
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+
 
 def create_sock_pair(port=0):
     '''Create socket pair. Works also on windows by using an ephemeral TCP port.'''
@@ -173,6 +182,7 @@ def create_sock_pair(port=0):
         client_sock.setblocking(True)
 
     return client_sock, srv_sock
+
 
 def parse_http_list(header_val):
     """Parse lists as described by RFC 2068 Section 2.
@@ -219,6 +229,7 @@ def parse_http_list(header_val):
     if part:
         yield part.strip()
 
+
 def parse_http_dict(header_val):
     'Parse an HTTP comma separated header with items of the form a=1, b="xxx" into a dictionary'
     if not header_val:
@@ -233,10 +244,12 @@ def parse_http_dict(header_val):
             ans[k] = v
     return ans
 
+
 def sort_q_values(header_val):
     'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
     if not header_val:
         return []
+
     def item(x):
         e, r = x.partition(';')[::2]
         p, v = r.partition('=')[::2]
@@ -249,6 +262,7 @@ def sort_q_values(header_val):
         return e.strip(), q
     return tuple(map(itemgetter(0), sorted(map(item, parse_http_list(header_val)), key=itemgetter(1), reverse=True)))
 
+
 def eintr_retry_call(func, *args, **kwargs):
     while True:
         try:
@@ -258,6 +272,7 @@ def eintr_retry_call(func, *args, **kwargs):
                 continue
             raise
 
+
 def get_translator_for_lang(cache, bcp_47_code):
     try:
         return cache[bcp_47_code]
@@ -266,25 +281,19 @@ def get_translator_for_lang(cache, bcp_47_code):
     cache[bcp_47_code] = ans = get_translator(bcp_47_code)
     return ans
 
+
 def encode_path(*components):
     'Encode the path specified as a list of path components using URL encoding'
-    return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
+    return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
-def encode_name(name):
-    'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
-    if isinstance(name, unicode):
-        name = name.encode('utf-8')
-    return hexlify(name)
-
-def decode_name(name):
-    return unhexlify(name).decode('utf-8')
 
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        if not isinstance(key, bytes):
+        if not ispy3 and not isinstance(key, bytes):
             key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
+
 
 def custom_fields_to_display(db):
     ckeys = set(db.field_metadata.ignorable_field_keys())
@@ -298,8 +307,10 @@ def custom_fields_to_display(db):
 
 # Logging {{{
 
+
 class ServerLog(ThreadSafeLog):
     exception_traceback_level = ThreadSafeLog.WARN
+
 
 class RotatingStream(object):
 
@@ -310,7 +321,14 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
+        if ispy3:
+            if iswindows:
+                self.stream = share_open(self.filename, 'ab')
+            else:
+                # see https://bugs.python.org/issue27805
+                self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
+        else:
+            self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
@@ -325,9 +343,12 @@ class RotatingStream(object):
         kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
-        if iswindows:
+        if iswindows or ispy3:
             # For some reason line buffering does not work on windows
+            # and in python 3 it only works with text mode streams
             end = kwargs.get('end', b'\n')
+            if isinstance(end, unicode_type):
+                end = end.encode('utf-8')
             if b'\n' in end:
                 self.flush()
         self.rollover()
@@ -350,11 +371,30 @@ class RotatingStream(object):
         if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
-        for i in xrange(self.history - 1, 0, -1):
+        for i in range(self.history - 1, 0, -1):
             src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
             self.rename(src, dest)
         self.rename(self.filename, '%s.%d' % (self.filename, 1))
         self.set_output()
+
+    def clear(self):
+        if self.filename in ('/dev/stdout', '/dev/stderr'):
+            return
+        self.stream.close()
+        failed = {}
+        try:
+            os.remove(self.filename)
+        except EnvironmentError as e:
+            failed[self.filename] = e
+        import glob
+        for f in glob.glob(self.filename + '.*'):
+            try:
+                os.remove(f)
+            except EnvironmentError as e:
+                failed[f] = e
+        self.set_output()
+        return failed
+
 
 class RotatingLog(ServerLog):
 
@@ -366,6 +406,7 @@ class RotatingLog(ServerLog):
         for o in self.outputs:
             o.flush()
 # }}}
+
 
 class HandleInterrupt(object):  # {{{
 
@@ -415,6 +456,7 @@ class HandleInterrupt(object):  # {{{
                 raise WindowsError()
 # }}}
 
+
 class Accumulator(object):  # {{{
 
     'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
@@ -434,19 +476,24 @@ class Accumulator(object):  # {{{
         return ans
 # }}}
 
+
 def get_db(ctx, rd, library_id):
     db = ctx.get_library(rd, library_id)
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
     return db
 
-def get_library_data(ctx, rd):
+
+def get_library_data(ctx, rd, strict_library_id=False):
     library_id = rd.query.get('library_id')
     library_map, default_library = ctx.library_info(rd)
     if library_id not in library_map:
+        if strict_library_id and library_id:
+            raise HTTPNotFound('No library with id: {}'.format(library_id))
         library_id = default_library
     db = get_db(ctx, rd, library_id)
     return db, library_id, library_map, default_library
+
 
 class Offsets(object):
     'Calculate offsets for a paginated view'
@@ -470,7 +517,9 @@ class Offsets(object):
         if self.last_offset < 0:
             self.last_offset = 0
 
+
 _use_roman = None
+
 
 def get_use_roman():
     global _use_roman
@@ -478,3 +527,12 @@ def get_use_roman():
         from calibre.gui2 import config
         _use_roman = config['use_roman_numerals_for_series_number']
     return _use_roman
+
+
+if iswindows and not is_py3:
+    def fast_now_strftime(fmt):
+        fmt = as_bytes(fmt, encoding='mbcs')
+        return time.strftime(fmt).decode('mbcs', 'replace')
+else:
+    def fast_now_strftime(fmt):
+        return as_unicode(time.strftime(fmt), errors='replace')

@@ -1,10 +1,15 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+
 def save_to_file(text, filename):
-    f = open(filename, 'wt')
-    f.write('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
-    f.write(text.encode('utf-8'))
-    f.close()
+    with open(filename, 'wb') as f:
+        f.write(b'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
+        f.write(text.encode('utf-8'))
+
 
 uids = {}
+
+
 def describe(node, depth=2):
     if not hasattr(node, 'tag'):
         return "[%s]" % type(node)

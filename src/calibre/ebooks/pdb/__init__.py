@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+
 class PDBError(Exception):
     pass
 
+
 FORMAT_READERS = None
+
 
 def _import_readers():
     global FORMAT_READERS
@@ -29,8 +33,11 @@ def _import_readers():
         'BOOKMTIU': haodoo_reader,
     }
 
+
 ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
 FORMAT_WRITERS = None
+
+
 def _import_writers():
     global FORMAT_WRITERS
     from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
@@ -42,6 +49,7 @@ def _import_writers():
         'ztxt': ztxt_writer,
         'ereader': ereader_writer,
     }
+
 
 IDENTITY_TO_NAME = {
     'PNPdPPrs': 'eReader',
@@ -77,6 +85,7 @@ IDENTITY_TO_NAME = {
     'BDOCWrdS': 'WordSmith',
 }
 
+
 def get_reader(identity):
     '''
     Returns None if no reader is found for the identity.
@@ -86,6 +95,7 @@ def get_reader(identity):
         _import_readers()
     return FORMAT_READERS.get(identity, None)
 
+
 def get_writer(extension):
     '''
     Returns None if no writer is found for extension.
@@ -94,4 +104,3 @@ def get_writer(extension):
     if FORMAT_WRITERS is None:
         _import_writers()
     return FORMAT_WRITERS.get(extension, None)
-

@@ -2,8 +2,10 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import clear
+from elementmaker import E
 from encodings import base64decode, utf8_decode
+
+from dom import clear
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -34,7 +36,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             return setTimeout(do_one, 0)
         if previous_resources[name]:
             ans[name] = data = previous_resources[name]
-            if type(data[0]) is 'string':
+            if jstype(data[0]) is 'string':
                 find_virtualized_resources(data[0])
             return setTimeout(do_one, 0)
         db.get_file(book, name, got_one)
@@ -42,9 +44,9 @@ def load_resources(db, book, root_name, previous_resources, proceed):
     def got_one(data, name, mimetype):
         if False and name is book.manifest.title_page_name:
             # Enable to have cover image not preserve aspect ratio
-            data = data.replace('width: auto', 'width: 100%')
+            data = data.replace('width: auto; height: auto', 'width: 100vw; height: 100vh')
         ans[name] = v'[data, mimetype]'
-        if type(data) is 'string':
+        if jstype(data) is 'string':
             find_virtualized_resources(data)
         return setTimeout(do_one, 0)
 
@@ -88,7 +90,7 @@ def finalize_resources(book, root_name, resource_data):
     # Resolve the non virtualized resources immediately
     for name in resource_data:
         data, mimetype = resource_data[name]
-        if type(data) is not 'string':
+        if jstype(data) is not 'string':
             blob_url_map[name] = window.URL.createObjectURL(data)
     for name in blob_url_map:
         v'delete resource_data[name]'
@@ -159,7 +161,7 @@ def finalize_resources(book, root_name, resource_data):
         for name in resolved:
             v'delete resource_data[name]'
 
-    return root_data, mathjax
+    return root_data, mathjax, blob_url_map
 
 js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
@@ -185,7 +187,7 @@ def apply_attributes(src, elem, ns_map):
         else:
             elem.setAttribute(a[0], a[1])
 
-def process_stack(stack, tag_map, ns_map, load_required, onload):
+def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
     while stack.length:
         node, parent = stack.pop()
         src = tag_map[node[0]]
@@ -194,13 +196,14 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
         else:
             elem = document.createElement(src.n)
         loadable = False
-        if src.n in resource_tag_names:
-            attr = resource_tag_names[src.n]
+        attr = resource_tag_names[src.n]
+        if attr:
             if attr.indexOf(':') != -1:
                 attr = attr.replace('xlink:', '')
             for a in (src.a or v'[]'):
                 if a[0] is attr:
                     loadable = a[1].startswith('blob:')
+                    resource_urls[a[1]] = True
                     break
         if loadable:
             load_required.add(node[0])
@@ -219,7 +222,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
         for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
             stack.push(v'[node[i], elem]')
 
-def unserialize_html(serialized_data, proceed):
+def unserialize_html(serialized_data, proceed, postprocess_dom):
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
     ns_map = serialized_data.ns_map
@@ -227,6 +230,9 @@ def unserialize_html(serialized_data, proceed):
     apply_attributes(html, document.documentElement, ns_map)
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
+    # Default stylesheet
+    document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+    resource_urls = {}
     load_required = set()
     proceeded = False
     hang_timeout = 5
@@ -248,14 +254,16 @@ def unserialize_html(serialized_data, proceed):
     stack = v'[]'
     for v'var i = head.length - 1; i >= 1; i--':
         stack.push(v'[head[i], document.head]')
-    process_stack(stack, tag_map, ns_map, load_required, onload)
+    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
     bnode = tag_map[body[0]]
     apply_attributes(bnode, document.body, ns_map)
     if bnode.x:
         document.body.appendChild(document.createTextNode(bnode.x))
     for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
         stack.push(v'[body[i], document.body]')
-    process_stack(stack, tag_map, ns_map, load_required, onload)
+    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
+    if postprocess_dom:
+        postprocess_dom()
     ev = document.createEvent('Event')
     ev.initEvent('DOMContentLoaded', True, True)
     document.dispatchEvent(ev)
@@ -264,3 +272,24 @@ def unserialize_html(serialized_data, proceed):
     else:
         proceeded = True
         proceed()
+    return resource_urls
+
+def text_from_serialized_html(data):
+    serialized_data = JSON.parse(data)
+    tag_map = serialized_data.tag_map
+    ans = v'[]'
+    stack = v'[serialized_data.tree[2]]'
+    ignore_text = {'script':True, 'style':True}
+    while stack.length:
+        node = stack.pop()
+        if jstype(node) is 'string':
+            ans.push(node)
+            continue
+        src = tag_map[node[0]]
+        if not ignore_text[src.n] and src.x:
+            ans.push(src.x)
+        if src.l:
+            stack.push(src.l)
+        for v'var i = node.length - 1; i >= 1; i--':
+            stack.push(node[i])
+    return ans.join('')

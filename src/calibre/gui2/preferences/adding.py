@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QVBoxLayout, QFormLayout
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
     CommaSeparatedList, AbortCommit
@@ -16,6 +16,8 @@ from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.auto_add import AUTO_ADDED
 from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
+from polyglot.builtins import unicode_type
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -44,15 +46,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('auto_convert_same_fmt', gprefs)
 
         self.filename_pattern = FilenamePattern(self)
+        self.metadata_box.l = QVBoxLayout(self.metadata_box)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
         self.filename_pattern.changed_signal.connect(self.changed_signal.emit)
         self.auto_add_browse_button.clicked.connect(self.choose_aa_path)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_blocked_auto_formats, 'item'+signal)
             signal.connect(self.blocked_auto_formats_changed)
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
+        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
+        self.tabWidget.setCurrentIndex(0)
+        self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
 
     def change_tag_map_rules(self):
         from calibre.gui2.tag_mapper import RulesDialog
@@ -61,6 +67,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             d.rules = gprefs['tag_map_on_add_rules']
         if d.exec_() == d.Accepted:
             self.tag_map_rules = d.rules
+            self.changed_signal.emit()
+
+    def change_author_map_rules(self):
+        from calibre.gui2.author_mapper import RulesDialog
+        d = RulesDialog(self)
+        if gprefs.get('author_map_on_add_rules'):
+            d.rules = gprefs['author_map_on_add_rules']
+        if d.exec_() == d.Accepted:
+            self.author_map_rules = d.rules
             self.changed_signal.emit()
 
     def change_add_filter_rules(self):
@@ -85,7 +100,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.blockSignals(False)
         self.init_blocked_auto_formats()
         self.opt_automerge.setEnabled(self.opt_add_formats_to_existing.isChecked())
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
 
     # Blocked auto formats {{{
     def blocked_auto_formats_changed(self, *args):
@@ -117,7 +132,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
             if viewer.item(i).checkState() == Qt.Checked:
-                fmts.append(unicode(viewer.item(i).text()))
+                fmts.append(unicode_type(viewer.item(i).text()))
         return fmts
     # }}}
 
@@ -126,10 +141,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
         self.tag_map_rules = []
+        self.author_map_rules = []
         self.add_filter_rules = []
 
     def commit(self):
-        path = unicode(self.opt_auto_add_path.text()).strip()
+        path = unicode_type(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:
                 path = os.path.abspath(path)
@@ -144,6 +160,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     error_dialog(self, _('Invalid folder'),
                             _('You do not have read/write permissions for '
                                 'the folder: %s')%path, show=True)
+                    raise AbortCommit('invalid auto-add folder')
+                if os.path.basename(path)[0] in '._':
+                    error_dialog(self, _('Invalid folder'),
+                            _('Cannot use folders whose names start with a '
+                                'period or underscore: %s')%os.path.basename(path), show=True)
                     raise AbortCommit('invalid auto-add folder')
                 if not question_dialog(self, _('Are you sure?'),
                         _('<b>WARNING:</b> Any files you place in %s will be '
@@ -162,6 +183,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 gprefs['tag_map_on_add_rules'] = self.tag_map_rules
             else:
                 gprefs.pop('tag_map_on_add_rules', None)
+        if self.author_map_rules is not None:
+            if self.author_map_rules:
+                gprefs['author_map_on_add_rules'] = self.author_map_rules
+            else:
+                gprefs.pop('author_map_on_add_rules', None)
         if self.add_filter_rules is not None:
             if self.add_filter_rules:
                 gprefs['add_filter_rules'] = self.add_filter_rules
@@ -176,8 +202,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         # Update rules used int he auto adder
         gui.auto_adder.read_rules()
 
-if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
-    test_widget('Import/Export', 'Adding')
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    test_widget('Import/Export', 'Adding')

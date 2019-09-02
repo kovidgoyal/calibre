@@ -10,6 +10,8 @@ import json, os
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
 from calibre import prints
+from polyglot.builtins import iteritems, unicode_type
+
 
 class DBPrefs(dict):
 
@@ -27,7 +29,7 @@ class DBPrefs(dict):
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
-        if not isinstance(raw, unicode):
+        if not isinstance(raw, unicode_type):
             raw = raw.decode(preferred_encoding)
         return json.loads(raw, object_hook=from_json)
 
@@ -79,8 +81,11 @@ class DBPrefs(dict):
     def write_serialized(self, library_path):
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
+            data = json.dumps(self, indent=2, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with open(to_filename, "wb") as f:
-                f.write(json.dumps(self, indent=2, default=to_json))
+                f.write(data)
         except:
             import traceback
             traceback.print_exc()
@@ -96,7 +101,7 @@ class DBPrefs(dict):
                     return d
                 cls.clear()
                 cls.db.conn.execute('DELETE FROM preferences')
-                for k,v in d.iteritems():
+                for k,v in iteritems(d):
                     raw = cls.to_raw(v)
                     cls.db.conn.execute(
                         'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))

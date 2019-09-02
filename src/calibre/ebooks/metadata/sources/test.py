@@ -1,21 +1,21 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, time
-from Queue import Queue, Empty
 from threading import Event
 
 from calibre.customize.ui import all_metadata_plugins
-from calibre import prints, sanitize_file_name2
+from calibre import prints, sanitize_file_name
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log, get_cached_cover_urls
 from calibre.ebooks.metadata.sources.prefs import msprefs
+from polyglot.queue import Queue, Empty
+
 
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)
@@ -28,6 +28,7 @@ def isbn_test(isbn):
         return False
 
     return test
+
 
 def title_test(title, exact=False):
 
@@ -43,11 +44,12 @@ def title_test(title, exact=False):
 
     return test
 
+
 def authors_test(authors):
-    authors = set([x.lower() for x in authors])
+    authors = {x.lower() for x in authors}
 
     def test(mi):
-        au = set([x.lower() for x in mi.authors])
+        au = {x.lower() for x in mi.authors}
         if msprefs['swap_author_names']:
             def revert_to_fn_ln(a):
                 if ',' not in a:
@@ -58,7 +60,7 @@ def authors_test(authors):
                 parts.insert(0, t)
                 return ' '.join(parts)
 
-            au = set([revert_to_fn_ln(x) for x in au])
+            au = {revert_to_fn_ln(x) for x in au}
 
         if au == authors:
             return True
@@ -67,17 +69,19 @@ def authors_test(authors):
 
     return test
 
+
 def tags_test(tags):
-    tags = set([x.lower() for x in tags])
+    tags = {x.lower() for x in tags}
 
     def test(mi):
-        t = set([x.lower() for x in mi.tags])
+        t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
         prints('Tags test failed. Expected: \'%s\' found \'%s\''%(tags, t))
         return False
 
     return test
+
 
 def series_test(series, series_index):
     series = series.lower()
@@ -96,6 +100,7 @@ def series_test(series, series_index):
 
     return test
 
+
 def comments_test(sentinel):
 
     def test(mi):
@@ -105,6 +110,7 @@ def comments_test(sentinel):
         prints('comments test failed. %s not in comments'%sentinel)
         return False
     return test
+
 
 def pubdate_test(year, month, day):
 
@@ -116,12 +122,18 @@ def pubdate_test(year, month, day):
 
     return test
 
+
 def init_test(tdir_name):
     tdir = tempfile.gettempdir()
     lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')
     log = create_log(open(lf, 'wb'))
     abort = Event()
     return tdir, lf, log, abort
+
+
+def dump_log(lf):
+    prints(open(lf, 'rb').read().decode('utf-8'))
+
 
 def test_identify(tests):  # {{{
     '''
@@ -139,6 +151,7 @@ def test_identify(tests):  # {{{
     times = []
 
     for kwargs, test_funcs in tests:
+        log('')
         log('#'*80)
         log('### Running test with:', kwargs)
         log('#'*80)
@@ -157,6 +170,8 @@ def test_identify(tests):  # {{{
 
         for i, mi in enumerate(results):
             prints('*'*30, 'Relevance:', i, '*'*30)
+            if mi.rating:
+                mi.rating *= 2
             prints(mi)
             prints('\nCached cover URLs    :',
                     [x[0].name for x in get_cached_cover_urls(mi)])
@@ -175,6 +190,8 @@ def test_identify(tests):  # {{{
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            log.close()
+            dump_log(lf)
             raise SystemExit(1)
 
         if results[0] is not possibles[0]:
@@ -189,8 +206,9 @@ def test_identify(tests):  # {{{
 
 # }}}
 
-def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
-        fail_missing_meta=True):  # {{{
+
+def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
+        fail_missing_meta=True):
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -213,6 +231,10 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
 
     times = []
     for kwargs, test_funcs in tests:
+        log('')
+        log('#'*80)
+        log('### Running test with:', kwargs)
+        log('#'*80)
         prints('Running test with:', kwargs)
         rq = Queue()
         args = (log, rq, abort)
@@ -245,6 +267,8 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
 
         for i, mi in enumerate(results):
             prints('*'*30, 'Relevance:', i, '*'*30)
+            if mi.rating:
+                mi.rating *= 2
             prints(mi)
             prints('\nCached cover URL    :',
                     plugin.get_cached_cover_url(mi.identifiers))
@@ -263,6 +287,8 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
         if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            log.close()
+            dump_log(lf)
             raise SystemExit(1)
 
         good = [x for x in possibles if plugin.test_fields(x) is
@@ -293,7 +319,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
             elif results:
                 cdata = results[0]
                 cover = os.path.join(tdir, plugin.name.replace(' ',
-                    '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
+                    '')+'-%s-cover.jpg'%sanitize_file_name(mi.title.replace(' ',
                         '_')))
                 with open(cover, 'wb') as f:
                     f.write(cdata[-1])
@@ -309,4 +335,3 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
     if os.stat(lf).st_size > 10:
         prints('There were some errors/warnings, see log', lf)
 # }}}
-

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,7 +13,7 @@ from PyQt5.Qt import (
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
     QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
 
-from calibre.gui2 import rating_font, error_dialog
+from calibre.gui2 import rating_font, error_dialog, safe_open_url
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
@@ -22,6 +21,8 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOCView, TOCSearch
 from calibre.gui2.viewer.footnote import FootnotesView
 from calibre.utils.localization import is_rtl
+from polyglot.builtins import unicode_type, range
+
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
 
@@ -44,6 +45,7 @@ class DoubleSpinBox(QDoubleSpinBox):  # {{{
         self.value_changed.emit(self.value(), self.maximum())
 # }}}
 
+
 class Reference(QLineEdit):  # {{{
 
     goto = pyqtSignal(object)
@@ -59,10 +61,11 @@ class Reference(QLineEdit):  # {{{
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
-        text = unicode(self.text())
+        text = unicode_type(self.text())
         self.setText('')
         self.goto.emit(text)
 # }}}
+
 
 class Metadata(QWebView):  # {{{
 
@@ -71,21 +74,30 @@ class Metadata(QWebView):  # {{{
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, False)
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+        self.page().linkClicked.connect(self.link_clicked)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.setVisible(False)
 
+    def link_clicked(self, qurl):
+        if qurl.scheme() in ('http', 'https'):
+            return safe_open_url(qurl)
+
     def update_layout(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
 
     def show_metadata(self, mi, ext=''):
+        from calibre.gui2 import default_author_link
         from calibre.gui2.book_details import render_html, css
         from calibre.ebooks.metadata.book.render import mi_to_html
 
-        def render_data(mi, use_roman_numbers=True, all_fields=False):
-            return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl())
+        def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_display_fields'):
+            return mi_to_html(
+                mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl(),
+                default_author_link=default_author_link()
+            )
 
         html = render_html(mi, css(), True, self, render_data_func=render_data)
         self.setHtml(html)
@@ -97,10 +109,11 @@ class Metadata(QWebView):  # {{{
 
     def paintEvent(self, ev):
         p = QPainter(self)
-        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 220), Qt.SolidPattern))
+        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 247), Qt.SolidPattern))
         p.end()
         QWebView.paintEvent(self, ev)
 # }}}
+
 
 class History(list):  # {{{
 
@@ -170,9 +183,10 @@ class History(list):  # {{{
     def __str__(self):
         return 'History: Items=%s back_pos=%s insert_pos=%s forward_pos=%s' % (tuple(self), self.back_pos, self.insert_pos, self.forward_pos)
 
+
 def test_history():
     h = History()
-    for i in xrange(4):
+    for i in range(4):
         h.add(i)
     for i in reversed(h):
         h.back(i)
@@ -180,6 +194,7 @@ def test_history():
     h.add(9)
     assert h == [0, 9]
 # }}}
+
 
 class ToolBar(QToolBar):  # {{{
 
@@ -194,12 +209,13 @@ class ToolBar(QToolBar):  # {{{
             sm()
 # }}}
 
+
 class Main(MainWindow):
 
     def __init__(self, debug_javascript):
         MainWindow.__init__(self, None)
         self.setWindowTitle(_('E-book viewer'))
-        self.base_window_title = unicode(self.windowTitle())
+        self.base_window_title = unicode_type(self.windowTitle())
         self.setObjectName('EbookViewer')
         self.setWindowIcon(QIcon(I('viewer.png')))
         self.setDockOptions(self.AnimatedDocks | self.AllowTabbedDocks)
@@ -367,7 +383,7 @@ class Main(MainWindow):
             ac.setObjectName(name)
             (tb or self.tool_bar).addAction(ac)
             if sc_name:
-                ac.setToolTip(unicode(ac.text()) + (' [%s]' % _(' or ').join(self.view.shortcuts.get_shortcuts(sc_name))))
+                ac.setToolTip(unicode_type(ac.text()) + (' [%s]' % _(' or ').join(self.view.shortcuts.get_shortcuts(sc_name))))
             if menu_name is not None:
                 menu_name += '_menu'
                 m = QMenu()
@@ -381,7 +397,7 @@ class Main(MainWindow):
         a('forward', _('Forward'), 'forward.png')
         self.tool_bar.addSeparator()
 
-        a('open_ebook', _('Open ebook'), 'document_open.png', menu_name='open_history')
+        a('open_ebook', _('Open e-book'), 'document_open.png', menu_name='open_history')
         a('copy', _('Copy to clipboard'), 'edit-copy.png').setDisabled(True)
         a('font_size_larger', _('Increase font size'), 'font_size_larger.png')
         a('font_size_smaller', _('Decrease font size'), 'font_size_smaller.png')

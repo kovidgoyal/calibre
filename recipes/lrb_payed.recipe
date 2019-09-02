@@ -20,30 +20,36 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     delay = 1
     use_embedded_content = False
     encoding = 'utf-8'
-    INDEX = 'http://www.lrb.co.uk'
+    INDEX = 'https://www.lrb.co.uk'
     LOGIN = INDEX + '/login'
     masthead_url = INDEX + '/assets/images/lrb_logo_big.gif'
     needs_subscription = True
     publication_type = 'magazine'
+    requires_version = (3, 0, 0)
     extra_css = ' body{font-family: Georgia,Palatino,"Palatino Linotype",serif} '
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
-            br.select_form(nr=1)
+            br.select_form(action='/login')
             br['username'] = self.username
             br['password'] = self.password
-            br.submit()
+            raw = br.submit().read()
+            if b'You are logged in as' not in raw:
+                raise ValueError('Failed to log in, check username and password')
         return br
 
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
         cover_item = soup.find('p', attrs={'class': 'cover'})
-        dates = str(soup.find('span', attrs={'class': 'coverdate'}))
-        newdates = re.sub('\<.*\>', '', re.split('<br />', dates)[1])
-        self.timefmt = ' [%s]' % newdates
+        dates = type(u'')(soup.find('span', attrs={'class': 'coverdate'}))
+        try:
+            newdates = re.sub(r'\<.*\>', '', re.split(r'<br\s*/>', dates)[1])
+            self.timefmt = ' [%s]' % newdates
+        except Exception:
+            pass
         lrbtitle = self.title
         if cover_item:
             self.cover_url = re.sub('/m/', '/l/', cover_item.a.img['src'])
@@ -55,13 +61,13 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
                 description = u''
                 title_prefix = u''
                 feed_link = item
-                if feed_link.has_key('href'):  # noqa
+                if feed_link.get('href'):
                     url = self.INDEX + feed_link['href']
                     title_link = re.split('<br />', str(feed_link))
                     if len(title_link) > 1:
                         title = title_prefix + \
                             re.sub(
-                                '\<.*\>', '', title_link[0]) + ' - ' + re.sub('\<.*\>', '', title_link[1])
+                                r'\<.*\>', '', title_link[0]) + ' - ' + re.sub(r'\<.*\>', '', title_link[1])
                     else:
                         title = title_prefix + self.tag_to_string(feed_link)
                     desc = item.findNext('li')

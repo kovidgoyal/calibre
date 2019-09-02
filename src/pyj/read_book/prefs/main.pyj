@@ -1,0 +1,99 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from gettext import gettext as _
+from dom import svgicon, ensure_id, clear
+from elementmaker import E
+from book_list.item_list import build_list, create_item
+from read_book.prefs.colors import create_colors_panel, commit_colors
+from read_book.prefs.layout import create_layout_panel, commit_layout
+from read_book.prefs.user_stylesheet import create_user_stylesheet_panel, commit_user_stylesheet
+from read_book.prefs.head_foot import create_head_foot_panel, commit_head_foot
+
+
+class Prefs:
+
+    def __init__(self, container, close_func, on_change):
+        self.close_func = close_func
+        self.on_change = on_change
+        title = E.h2()
+        self.title_id = ensure_id(title)
+        container.appendChild(E.div(
+            style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+            title,
+            E.div(svgicon('close'), onclick=self.onclose, style='cursor:pointer'),
+        ))
+        container.appendChild(E.div())
+        self.container_id = ensure_id(container.lastChild)
+        self.stack = v'["top"]'
+        self.display_top(container.lastChild)
+
+    def onchange(self):
+        self.on_change()
+
+    def onclose(self):
+        if self.stack.length > 1:
+            which = self.stack.pop()
+            close_func = getattr(self, 'close_' + which, None)
+            if close_func:
+                close_func.bind(self)()
+            self.display_panel(self.stack[-1])
+        else:
+            self.close_func()
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    def display_panel(self, which):
+        container = self.container
+        clear(container)
+        getattr(self, 'display_' + which)(container)
+
+    def show_panel(self, which):
+        self.stack.push(which)
+        self.display_panel(which)
+
+    def display_top(self, container):
+        document.getElementById(self.title_id).textContent = _('Configure book reader')
+        c = E.div()
+        container.appendChild(c)
+        build_list(c, [
+            create_item(_('Colors'), def():self.show_panel('colors');, _('Colors of the page and text')),
+            create_item(_('Page layout'), def():self.show_panel('layout');, _('Page margins and number of pages per screen')),
+            create_item(_('User style sheet'), def():self.show_panel('user_stylesheet');, _('Style rules for text')),
+            create_item(_('Headers and footers'), def():self.show_panel('head_foot');, _('Customize the headers and footers')),
+        ])
+
+    def display_colors(self, container):
+        document.getElementById(self.title_id).textContent = _('Colors')
+        create_colors_panel(container)
+
+    def close_colors(self):
+        commit_colors(self.onchange, self.container)
+
+    def display_layout(self, container):
+        document.getElementById(self.title_id).textContent = _('Page layout')
+        create_layout_panel(container)
+
+    def close_layout(self):
+        commit_layout(self.onchange, self.container)
+
+    def display_user_stylesheet(self, container):
+        document.getElementById(self.title_id).textContent = _('User style sheet')
+        create_user_stylesheet_panel(container)
+
+    def close_user_stylesheet(self):
+        commit_user_stylesheet(self.onchange, self.container)
+
+    def display_head_foot(self, container):
+        document.getElementById(self.title_id).textContent = _('Headers and footers')
+        create_head_foot_panel(container)
+
+    def close_head_foot(self):
+        commit_head_foot(self.onchange, self.container)
+
+
+def create_prefs_panel(container, close_func, on_change):
+    Prefs(container, close_func, on_change)

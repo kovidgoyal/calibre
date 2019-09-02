@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
+from polyglot.builtins import iteritems, unicode_type, cmp
 
 
 @contextmanager
@@ -20,6 +20,7 @@ def make_collation_func(name, locale, numeric=True, template='_sort_key_template
     c.numeric = numeric
     yield icu._make_func(getattr(icu, template), name, collator=cname, collator_func='not_used_xxx', func=func)
     delattr(icu, cname)
+
 
 class TestICU(unittest.TestCase):
 
@@ -64,7 +65,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -98,7 +99,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))
@@ -132,6 +133,8 @@ class TestICU(unittest.TestCase):
         ' Test roundtripping '
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
+        self.ae(icu._icu.roundtrip('\ud8e81'), '\ufffd1')
+        self.ae(icu._icu.roundtrip('\udc01\ud8e8'), '\ufffd\ufffd')
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 1)]:
             self.ae(icu._icu.string_length(x), l)
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 2)]:
@@ -142,7 +145,12 @@ class TestICU(unittest.TestCase):
 
     def test_character_name(self):
         ' Test character naming '
-        self.ae(icu.character_name('\U0001f431'), 'CAT FACE')
+        from calibre.utils.unicode_names import character_name_from_code
+        for q, e in {
+                '\U0001f431': 'CAT FACE'
+                }.items():
+            self.ae(icu.character_name(q), e)
+            self.ae(character_name_from_code(icu.ord_string(q)[0]), e)
 
     def test_contractions(self):
         ' Test contractions '
@@ -156,7 +164,7 @@ class TestICU(unittest.TestCase):
         ' Test the break iterator '
         from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
-            self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+            self.ae(split(unicode_type(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
         self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
         self.ae(split(u'-one two-'), ['-one', 'two-'])
@@ -197,22 +205,26 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
+
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestICU)
+
 
 class TestRunner(unittest.main):
 
     def createTests(self):
         self.test = find_tests()
 
+
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)
+
 
 def test_build():
     result = TestRunner(verbosity=0, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result
     if not result.wasSuccessful():
         raise SystemExit(1)
 
+
 if __name__ == '__main__':
     run(verbosity=4)
-

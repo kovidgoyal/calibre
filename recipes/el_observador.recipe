@@ -1,6 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 ##
-# Last Edited:  2016-01-11 Carlos Alves <carlos@carlosalves.info>
+# Last Edited:  2018-02-13 Carlos Alves <carlosalves90@gmail.com>
 ##
 
 __license__ = 'GPL v3'
@@ -44,17 +44,20 @@ class Noticias(BasicNewsRecipe):
     remove_attributes = ['width', 'height', 'style', 'font', 'color']
 
     extra_css = '''
-                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
-                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
-                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
-                p {font-family:Arial,Helvetica,sans-serif;}
+                h1{font-family: Georgia,"Times New Roman",Times,serif}
+                h3{font-family: Georgia,"Times New Roman",Times,serif}
+                h2{font-family: Georgia,"Times New Roman",Times,serif}
+                p{font-family: Verdana,Arial,Helvetica,sans-serif}
+                body{font-family: Verdana,Arial,Helvetica,sans-serif}
+                img{margin-bottom: 0.4em; display:block;}
                 '''
+
     feeds = [
         (u'Portada', u'http://www.elobservador.com.uy/rss/home.xml'),
     ]
 
     def get_cover_url(self):
-        return 'http://css.elobservador.com.uy/css/181/images/logo.svg'
+        return None
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

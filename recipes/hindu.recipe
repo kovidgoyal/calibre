@@ -6,6 +6,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import string
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheHindu(BasicNewsRecipe):
     title = u'The Hindu'
     language = 'en_IN'
@@ -14,14 +20,48 @@ class TheHindu(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
     no_stylesheets = True
+    remove_attributes = ['style']
 
-    auto_cleanup = True
+    ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': ['title', 'special-article-heading']}),
+        classes('author-nm lead-img-cont mobile-author-cont photo-collage intro'),
+        dict(id=lambda x: x and x.startswith('content-body-')),
+    ]
 
-    extra_css = '.photo-caption { font-size: smaller }'
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src-template': True}):
+            img['src'] = img['data-src-template'].replace('BINARY/thumbnail', 'alternates/FREE_660')
+        return soup
+
+    def articles_from_soup(self, soup):
+        ans = []
+        div = soup.find('section', attrs={'id': 'section_'})
+        if div is None:
+            return ans
+        ul = div.find('ul', attrs={'class': 'archive-list'})
+        if ul is not None:
+            for x in ul.findAll(['a']):
+                title = self.tag_to_string(x)
+                url = x.get('href', False)
+                if not url or not title:
+                    continue
+                self.log('\t\tFound article:', title)
+                self.log('\t\t\t', url)
+                ans.append({
+                    'title': title,
+                    'url': url,
+                    'description': '',
+                    'date': ''})
+        return ans
 
     def parse_index(self):
+        # return [('xxx', [
+        #     {'title':'xxx', 'url':'http://www.thehindu.com/opinion/op-ed/rohingya-bangladeshs-burden-to-bear/article19694058.ece'},
+        #     {'title':'yyy', 'url':'http://www.thehindu.com/sci-tech/energy-and-environment/on-river-washed-antique-plains/article19699327.ece'}
+        # ])]
         soup = self.index_to_soup('http://www.thehindu.com/todays-paper/')
-        nav_div = soup.find(id='tpnav-bar')
+        nav_div = soup.find(id='subnav-tpbar-latest')
         section_list = []
 
         # Finding all the section titles that are acceptable
@@ -29,49 +69,27 @@ class TheHindu(BasicNewsRecipe):
             if self.is_accepted_entry(x):
                 section_list.append(
                     (string.capwords(self.tag_to_string(x)), x['href']))
+        feeds = []
 
         # For each section title, fetch the article urls
-        feeds = []
         for section in section_list:
             section_title = section[0]
             section_url = section[1]
+            self.log('Found section:', section_title, section_url)
             soup = self.index_to_soup(section_url)
-            current_articles = []
-
-            div = soup.find('div', attrs={'id': 'left-column'})
-            try:
-                soup.find('span', attrs={
-                          'class': 'newsection-title'}).extract()
-            except AttributeError:
-                continue  # empty section
-            soup.find('div', attrs={'id': 'tpnav-bar'}).extract()
-
-            for x in div.findAll(['a']):
-                title = self.tag_to_string(x)
-                url = x.get('href', False)
-                if not url or not title:
-                    continue
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url': url,
-                                         'description': '', 'date': ''})
-
-            feeds.append((section_title, current_articles))
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
 
         return feeds
 
     def is_accepted_entry(self, entry):
         # Those sections in the top nav bar that we will omit
-        omit_list = ['tp-tamilnadu',
-                     'tp-karnataka',
-                     'tp-kerala',
-                     'tp-andhrapradesh',
-                     'tp-newdelhi',
-                     'tp-otherstates',
-                     'tp-miscellaneous',
-                     'tp-in-school',
-                     'tp-metroplus',
-                     'tp-bookreview']
+        omit_list = [
+            'tp-tamilnadu', 'tp-karnataka', 'tp-kerala', 'tp-andhrapradesh',
+            'tp-telangana', 'tp-newdelhi', 'tp-mumbai', 'tp-otherstates',
+            'tp-in-school', 'tp-metroplus', 'tp-youngworld', 'tp-fridayreview',
+            'tp-downtown', 'tp-bookreview', 'tp-others']
 
         is_accepted = True
         for omit_entry in omit_list:

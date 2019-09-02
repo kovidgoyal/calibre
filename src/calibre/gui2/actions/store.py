@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -14,12 +14,13 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', _('Search dozens of online ebook retailers for the cheapest books'), _('G'))
+    action_spec = (_('Get books'), 'store.png', _('Search dozens of online e-book retailers for the cheapest books'), _('G'))
     action_add_menu = True
-    action_menu_clone_qaction = _('Search for ebooks')
+    action_menu_clone_qaction = _('Search for e-books')
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
@@ -123,7 +124,7 @@ class StoreAction(InterfaceAction):
 
     def open_store(self, store_plugin_name):
         self.gui.istores.check_for_updates()
-        self.show_disclaimer()
+        # self.show_disclaimer()
         # It's not too important that the updated plugin have finished loading
         # at this point
         self.gui.istores.join(1.0)
@@ -131,7 +132,7 @@ class StoreAction(InterfaceAction):
 
     def show_disclaimer(self):
         confirm(('<p>' +
-            _('Calibre helps you find the ebooks you want by searching '
+            _('calibre helps you find the e-books you want by searching '
             'the websites of various commercial and public domain '
             'book sources for you.') +
             '<p>' +
@@ -140,14 +141,13 @@ class StoreAction(InterfaceAction):
             'You also get DRM status and other useful information.') + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
             'you and the book seller. '
-            'Calibre is not part of this process and any issues related '
+            'calibre is not part of this process and any issues related '
             'to a purchase should be directed to the website you are '
             'buying from. Be sure to double check that any books you get '
             'will work with your e-book reader, especially if the book you '
             'are buying has '
-            '<a href="http://drmfree.calibre-ebook.com/about#drm">DRM</a>.'
+            '<a href="https://drmfree.calibre-ebook.com/about#drm">DRM</a>.'
             )), 'about_get_books_msg',
             parent=self.gui, show_cancel_button=False,
             confirm_msg=_('Show this message again'),
-            pixmap='dialog_information.png', title=_('About Get Books'))
-
+            pixmap='dialog_information.png', title=_('About Get books'))

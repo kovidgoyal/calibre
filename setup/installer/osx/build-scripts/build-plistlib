@@ -1,8 +1,0 @@
-#!/bin/sh
-
-export libxml2_CFLAGS="-I/usr/include/libxml2"
-export libxml2_LIBS="-L/usr/lib -lxml2"
-
-cd $SW/build/libplist-* && \
-./configure --without-cython --disable-dependency-tracking --prefix=$SW && \
-make && make install

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -27,6 +26,7 @@ from calibre.utils.fonts.sfnt.gsub import GSUBTable
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
+
 
 class Sfnt(object):
 
@@ -82,13 +82,13 @@ class Sfnt(object):
 
     def __iter__(self):
         '''Iterate over the table tags in order.'''
-        for x in sorted(self.tables.iterkeys()):
+        for x in sorted(self.tables):
             yield x
         # Although the optimal order is not alphabetical, the OTF spec says
         # they should be alphabetical, so we stick with that. See
         # http://partners.adobe.com/public/developer/opentype/index_recs.html
         # for optimal order.
-        # keys = list(self.tables.iterkeys())
+        # keys = list(self.tables)
         # order = {x:i for i, x in enumerate((b'head', b'hhea', b'maxp', b'OS/2',
         #     b'hmtx', b'LTSH', b'VDMX', b'hdmx', b'cmap', b'fpgm', b'prep',
         #     b'cvt ', b'loca', b'glyf', b'CFF ', b'kern', b'name', b'post',
@@ -150,6 +150,7 @@ class Sfnt(object):
 
         return stream.getvalue(), sizes
 
+
 def test_roundtrip(ff=None):
     if ff is None:
         data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
@@ -164,7 +165,7 @@ def test_roundtrip(ff=None):
         raise ValueError('Roundtripping failed, size different (%d vs. %d)'%
                          (len(data), len(rd)))
 
+
 if __name__ == '__main__':
     import sys
     test_roundtrip(sys.argv[-1])
-

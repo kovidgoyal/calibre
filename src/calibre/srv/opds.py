@@ -1,49 +1,50 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib, binascii
+import hashlib
 from functools import partial
-from itertools import repeat
 from collections import OrderedDict, namedtuple
-from urllib import urlencode
 
 from lxml import etree, html
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string, rating_to_stars
 from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
-from calibre.utils.date import as_utc, timestampfromdt
+from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
+from calibre.utils.search_query_parser import ParseException
+from calibre.utils.config import prefs
+from calibre import force_unicode
 
-from calibre.srv.errors import HTTPNotFound
+from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
 from calibre.srv.routes import endpoint
+from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import get_library_data, http_date, Offsets
+from polyglot.builtins import iteritems, unicode_type, filter, as_bytes
+from polyglot.urllib import urlencode, unquote_plus
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 
-def hexlify(x):
-    if isinstance(x, unicode):
-        x = x.encode('utf-8')
-    return binascii.hexlify(x)
-
-def unhexlify(x):
-    return binascii.unhexlify(x).decode('utf-8')
 
 def atom(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
+    rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
-    elif isinstance(output, type('')):
+    elif isinstance(output, unicode_type):
         ans = output.encode('utf-8')
     else:
         from lxml import etree
         ans = etree.tostring(output, encoding='utf-8', xml_declaration=True, pretty_print=True)
     return ans
+
 
 def format_tag_string(tags, sep, joinval=', '):
     if tags:
@@ -53,11 +54,13 @@ def format_tag_string(tags, sep, joinval=', '):
     tlist.sort(key=sort_key)
     return joinval.join(tlist) if tlist else ''
 
+
 # Vocabulary for building OPDS feeds {{{
+DC_NS = 'http://purl.org/dc/terms/'
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
                  nsmap={
                      None   : 'http://www.w3.org/2005/Atom',
-                     'dc'   : 'http://purl.org/dc/terms/',
+                     'dc'   : DC_NS,
                      'opds' : 'http://opds-spec.org/2010/catalog',
                      })
 
@@ -67,12 +70,15 @@ TITLE   = E.title
 ID      = E.id
 ICON    = E.icon
 
+
 def UPDATED(dt, *args, **kwargs):
     return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
+
 
 LINK = partial(E.link, type='application/atom+xml')
 NAVLINK = partial(E.link,
         type='application/atom+xml;type=feed;profile=opds-catalog')
+
 
 def SEARCH_LINK(url_for, *args, **kwargs):
     kwargs['rel'] = 'search'
@@ -80,17 +86,20 @@ def SEARCH_LINK(url_for, *args, **kwargs):
     kwargs['href'] = url_for('/opds/search', query='XXX').replace('XXX', '{searchTerms}')
     return LINK(*args, **kwargs)
 
+
 def AUTHOR(name, uri=None):
     args = [E.name(name)]
     if uri is not None:
         args.append(E.uri(uri))
     return E.author(*args)
 
+
 SUBTITLE = E.subtitle
 
+
 def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
-    href = url_for('/opds/navcatalog', which=hexlify(query))
-    id_ = 'calibre-navcatalog:'+str(hashlib.sha1(href).hexdigest())
+    href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
+    id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
     return E.entry(
         TITLE(title),
         ID(id_),
@@ -99,6 +108,7 @@ def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
         NAVLINK(href=href)
     )
 
+
 START_LINK = partial(NAVLINK, rel='start')
 UP_LINK = partial(NAVLINK, rel='up')
 FIRST_LINK = partial(NAVLINK, rel='first')
@@ -106,8 +116,9 @@ LAST_LINK  = partial(NAVLINK, rel='last')
 NEXT_LINK  = partial(NAVLINK, rel='next', title='Next')
 PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
+
 def html_to_lxml(raw):
-    raw = u'<div>%s</div>'%raw
+    raw = '<div>%s</div>'%raw
     root = html.fragment_fromstring(raw)
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
@@ -128,18 +139,20 @@ def html_to_lxml(raw):
             from calibre.ebooks.oeb.parse_utils import _html4_parse
             return _html4_parse(raw)
 
+
 def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
                   ignore_count=False, add_kind=False):
     id_ = 'calibre:category:'+item.name
     iid = 'N' + item.name
     if item.id is not None:
-        iid = 'I' + str(item.id)
+        iid = 'I' + unicode_type(item.id)
         iid += ':'+item_kind
-    href = request_context.url_for('/opds/category', category=hexlify(catalog_name), which=hexlify(iid))
+    href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
     link = NAVLINK(href=href)
-    count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
+    else:
+        count = ngettext('one book', '{} books', item.count).format(item.count)
     if item.use_sort_as_name:
         name = item.sort
     else:
@@ -152,24 +165,26 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
             link
             )
 
+
 def CATALOG_GROUP_ENTRY(item, category, request_context, updated):
     id_ = 'calibre:category-group:'+category+':'+item.text
     iid = item.text
-    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=hexlify(category), which=hexlify(iid)))
+    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
     return E.entry(
         TITLE(item.text),
         ID(id_),
         UPDATED(updated),
-        E.content(_('%d items')%item.count, type='text'),
+        E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'),
         link
     )
+
 
 def ACQUISITION_ENTRY(book_id, updated, request_context):
     field_metadata = request_context.db.field_metadata
     mi = request_context.db.get_metadata(book_id)
     extra = []
-    if mi.rating > 0:
-        rating = u''.join(repeat(u'\u2605', int(mi.rating/2.)))
+    if (mi.rating or 0) > 0:
+        rating = rating_to_stars(mi.rating)
         extra.append(_('RATING: %s<br />')%rating)
     if mi.tags:
         extra.append(_('TAGS: %s<br />')%xml(format_tag_string(mi.tags, None)))
@@ -188,26 +203,35 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                               xml(format_tag_string(val,
                                     fm['is_multiple']['ui_to_list'],
                                     joinval=fm['is_multiple']['list_to_ui']))))
-            elif datatype == 'comments' or (fm['datatype'] == 'composite' and
-                            fm['display'].get('contains_html', False)):
-                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
+            elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode_type(val))))
             else:
-                extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
+                extra.append('%s: %s<br />'%(xml(name), xml(unicode_type(val))))
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
     if extra:
         extra = html_to_lxml('\n'.join(extra))
-    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(updated))
+    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(mi.last_modified),
+                  E.published(mi.timestamp.isoformat()))
+    if mi.pubdate and not is_date_undefined(mi.pubdate):
+        ans.append(ans.makeelement('{%s}date' % DC_NS))
+        ans[-1].text = mi.pubdate.isoformat()
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
     if mi.formats:
+        fm = mi.format_metadata
         for fmt in mi.formats:
             fmt = fmt.lower()
             mt = guess_type('a.'+fmt)[0]
             if mt:
-                ans.append(E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition"))
+                link = E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition")
+                ffm = fm.get(fmt.upper())
+                if ffm:
+                    link.set('length', unicode_type(ffm['size']))
+                    link.set('mtime', ffm['mtime'].isoformat())
+                ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
 
@@ -217,6 +241,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
 # }}}
 
 default_feed_title = __appname__ + ' ' + _('Library')
+
 
 class Feed(object):  # {{{
 
@@ -251,6 +276,7 @@ class Feed(object):  # {{{
 
     # }}}
 
+
 class TopLevel(Feed):  # {{{
 
     def __init__(self,
@@ -268,7 +294,7 @@ class TopLevel(Feed):  # {{{
             categories]
         for x in subcatalogs:
             self.root.append(x)
-        for library_id, library_name in request_context.library_map.iteritems():
+        for library_id, library_name in sorted(iteritems(request_context.library_map), key=lambda item: sort_key(item[1])):
             id_ = 'calibre-library:' + library_id
             self.root.append(E.entry(
                 TITLE(_('Library:') + ' ' + library_name),
@@ -278,6 +304,7 @@ class TopLevel(Feed):  # {{{
                 NAVLINK(href=request_context.url_for('/opds', library_id=library_id))
             ))
 # }}}
+
 
 class NavFeed(Feed):
 
@@ -295,12 +322,14 @@ class NavFeed(Feed):
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, request_context, **kwargs)
 
+
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, id_, updated, request_context, items, offsets, page_url, up_url, title=None):
         NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
         for book_id in items:
             self.root.append(ACQUISITION_ENTRY(book_id, updated, request_context))
+
 
 class CategoryFeed(NavFeed):
 
@@ -313,12 +342,14 @@ class CategoryFeed(NavFeed):
             self.root.append(CATALOG_ENTRY(
                 item, item.category, request_context, updated, which, ignore_count=ignore_count, add_kind=which != item.category))
 
+
 class CategoryGroupFeed(NavFeed):
 
     def __init__(self, items, which, id_, updated, request_context, offsets, page_url, up_url, title=None):
         NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
         for item in items:
             self.root.append(CATALOG_GROUP_ENTRY(item, which, request_context, updated))
+
 
 class RequestContext(object):
 
@@ -347,11 +378,13 @@ class RequestContext(object):
     def last_modified(self):
         return self.db.last_modified()
 
-    def get_categories(self):
-        return self.ctx.get_categories(self.rd, self.db)
+    def get_categories(self, report_parse_errors=False):
+        return self.ctx.get_categories(self.rd, self.db,
+                                       report_parse_errors=report_parse_errors)
 
     def search(self, query):
         return self.ctx.search(self.rd, self.db, query)
+
 
 def get_acquisition_feed(rc, ids, offset, page_url, up_url, id_,
         sort_by='title', ascending=True, feed_title=None):
@@ -366,6 +399,7 @@ def get_acquisition_feed(rc, ids, offset, page_url, up_url, id_,
         lm = rc.last_modified()
         rc.outheaders['Last-Modified'] = http_date(timestampfromdt(lm))
         return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title).root
+
 
 def get_all_books(rc, which, page_url, up_url, offset=0):
     try:
@@ -417,7 +451,7 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
         category_groups = OrderedDict()
         for x in sorted(starts, key=sort_key):
             category_groups[x] = len([y for y in items if
-                getattr(y, 'sort', y.name).startswith(x)])
+                getattr(y, 'sort', y.name).upper().startswith(x)])
         items = [Group(x, y) for x, y in category_groups.items()]
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
@@ -429,11 +463,16 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
 
     return ans.root
 
+
 @endpoint('/opds', postprocess=atom)
 def opds(ctx, rd):
     rc = RequestContext(ctx, rd)
     db = rc.db
-    categories = rc.get_categories()
+    try:
+        categories = rc.get_categories(report_parse_errors=True)
+    except ParseException as p:
+        raise HTTPInternalServerError(p.msg)
+
     category_meta = db.field_metadata
     cats = [
         (_('Newest'), _('Date'), 'Onewest'),
@@ -446,7 +485,10 @@ def opds(ctx, rd):
         except KeyError:
             return x
 
+    fm = rc.db.field_metadata
     for category in sorted(categories, key=lambda x: sort_key(getter(x))):
+        if fm.is_ignorable_field(category) and not rc.ctx.is_field_displayable(category):
+            continue
         if len(categories[category]) == 0:
             continue
         if category in ('formats', 'identifiers'):
@@ -459,6 +501,7 @@ def opds(ctx, rd):
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     return TopLevel(last_modified, cats, rc).root
 
+
 @endpoint('/opds/navcatalog/{which}', postprocess=atom)
 def opds_navcatalog(ctx, rd, which):
     try:
@@ -469,7 +512,7 @@ def opds_navcatalog(ctx, rd, which):
 
     page_url = rc.url_for('/opds/navcatalog', which=which)
     up_url = rc.url_for('/opds')
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     type_ = which[0]
     which = which[1:]
     if type_ == 'O':
@@ -477,6 +520,7 @@ def opds_navcatalog(ctx, rd, which):
     elif type_ == 'N':
         return get_navcatalog(rc, which, page_url, up_url, offset=offset)
     raise HTTPNotFound('Not found')
+
 
 @endpoint('/opds/category/{category}/{which}', postprocess=atom)
 def opds_category(ctx, rd, category, which):
@@ -491,7 +535,7 @@ def opds_category(ctx, rd, category, which):
     page_url = rc.url_for('/opds/category', which=which, category=category)
     up_url = rc.url_for('/opds/navcatalog', which=category)
 
-    which, category = unhexlify(which), unhexlify(category)
+    which, category = from_hex_unicode(which), from_hex_unicode(category)
     type_ = which[0]
     which = which[1:]
     if type_ == 'I':
@@ -503,8 +547,7 @@ def opds_category(ctx, rd, category, which):
             which = int(which[:p])
         except Exception:
             # Might be a composite column, where we have the lookup key
-            if not (category in rc.db.field_metadata and
-                    rc.db.field_metadata[category]['datatype'] == 'composite'):
+            if not (category in rc.db.field_metadata and rc.db.field_metadata[category]['datatype'] == 'composite'):
                 raise HTTPNotFound('Tag %r not found'%which)
 
     categories = rc.get_categories()
@@ -524,10 +567,10 @@ def opds_category(ctx, rd, category, which):
     q = category
     if q == 'news':
         q = 'tags'
-    ids = rc.db.get_books_for_category(q, which)
+    ids = rc.db.get_books_for_category(q, which) & rc.allowed_book_ids()
     sort_by = 'series' if category == 'series' else 'title'
 
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+str(which), sort_by=sort_by)
+    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+unicode_type(which), sort_by=sort_by)
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)
@@ -544,17 +587,18 @@ def opds_categorygroup(ctx, rd, category, which):
     categories = rc.get_categories()
     page_url = rc.url_for('/opds/categorygroup', category=category, which=which)
 
-    category = unhexlify(category)
+    category = from_hex_unicode(category)
     if category not in categories:
         raise HTTPNotFound('Category %r not found'%which)
     category_meta = rc.db.field_metadata
     meta = category_meta.get(category, {})
     category_name = meta.get('name', which)
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
-    owhich = hexlify('N'+which)
+    owhich = as_hex_unicode('N'+which)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
     items = categories[category]
+
     def belongs(x, which):
         return getattr(x, 'sort', x.name).lower().startswith(which.lower())
     items = [x for x in items if belongs(x, which)]
@@ -572,6 +616,7 @@ def opds_categorygroup(ctx, rd, category, which):
 
     return CategoryFeed(items, category, id_, updated, rc, offsets, page_url, up_url, title=feed_title).root
 
+
 @endpoint('/opds/search/{query=""}', postprocess=atom)
 def opds_search(ctx, rd, query):
     try:
@@ -580,6 +625,11 @@ def opds_search(ctx, rd, query):
         raise HTTPNotFound('Not found')
 
     rc = RequestContext(ctx, rd)
+    if query:
+        path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
+        query = path[-1]
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
     try:
         ids = rc.search(query)
     except Exception:

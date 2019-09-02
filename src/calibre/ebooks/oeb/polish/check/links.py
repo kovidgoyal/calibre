@@ -1,31 +1,39 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from collections import defaultdict
-from urlparse import urlparse
-from future_builtins import map
 from threading import Thread
-from Queue import Queue, Empty
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote, XHTML_MIME
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
+from polyglot.builtins import iteritems, map, range, itervalues
+from polyglot.urllib import urlparse
+from polyglot.queue import Queue, Empty
+
 
 class BadLink(BaseError):
 
     HELP = _('The resource pointed to by this link does not exist. You should'
              ' either fix, or remove the link.')
     level = WARN
+
+
+class InvalidCharInLink(BadLink):
+
+    HELP = _('Windows computers do not allow the : character in filenames. For maximum'
+             ' compatibility it is best to not use these in filenames/links to files.')
+
 
 class CaseMismatch(BadLink):
 
@@ -44,8 +52,10 @@ class CaseMismatch(BadLink):
         if frag:
             nhref += '#' + frag
         orig_href = self.href
+
         class LinkReplacer(object):
             replaced = False
+
             def __call__(self, url):
                 if url != orig_href:
                     return url
@@ -55,6 +65,7 @@ class CaseMismatch(BadLink):
         container.replace_links(self.name, replacer)
         return replacer.replaced
 
+
 class BadDestinationType(BaseError):
 
     level = WARN
@@ -62,12 +73,13 @@ class BadDestinationType(BaseError):
     def __init__(self, link_source, link_dest, link_elem):
         BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
         self.HELP = _('The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
-                      ' Many ebook readers will be unable to follow such a link. You should'
+                      ' Many e-book readers will be unable to follow such a link. You should'
                       ' either remove the link or change it to point to a text document.'
                       ' For example, if it points to an image, you can create small wrapper'
                       ' document that contains the image and change the link to point to that.').format(
                           link_elem.get('href'), link_dest)
         self.bad_href = link_elem.get('href')
+
 
 class BadDestinationFragment(BaseError):
 
@@ -81,10 +93,12 @@ class BadDestinationFragment(BaseError):
                       ' or change the link to point to the correct location.').format(
                           self.bad_href, fragment, link_dest)
 
+
 class FileLink(BadLink):
 
-    HELP = _('This link uses the file:// URL scheme. This does not work with many ebook readers.'
+    HELP = _('This link uses the file:// URL scheme. This does not work with many e-book readers.'
              ' Remove the file:// prefix and make sure the link points to a file inside the book.')
+
 
 class LocalLink(BadLink):
 
@@ -92,19 +106,22 @@ class LocalLink(BadLink):
              ' book is read on any computer other than the one it was created on.'
              ' Either fix or remove the link.')
 
+
 class EmptyLink(BadLink):
 
     HELP = _('This link is empty. This is almost always a mistake. Either fill in the link destination or remove the link tag.')
 
+
 class UnreferencedResource(BadLink):
 
     HELP = _('This file is included in the book but not referred to by any document in the spine.'
-             ' This means that the file will not be viewable on most ebook readers. You should '
+             ' This means that the file will not be viewable on most e-book readers. You should '
              ' probably remove this file from the book or add a link to it somewhere.')
 
     def __init__(self, name):
         BadLink.__init__(self, _(
             'The file %s is not referenced') % name, name)
+
 
 class UnreferencedDoc(UnreferencedResource):
 
@@ -114,7 +131,7 @@ class UnreferencedDoc(UnreferencedResource):
 
     def __call__(self, container):
         from calibre.ebooks.oeb.base import OPF
-        rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
         if self.name in rmap:
             manifest_id = rmap[self.name]
         else:
@@ -124,6 +141,7 @@ class UnreferencedDoc(UnreferencedResource):
         container.insert_into_xml(spine, si)
         container.dirty(container.opf_name)
         return True
+
 
 class Unmanifested(BadLink):
 
@@ -145,10 +163,11 @@ class Unmanifested(BadLink):
         if self.file_action == 'remove':
             container.remove_item(self.name)
         else:
-            rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+            rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
             if self.name not in rmap:
                 container.add_name_to_manifest(self.name)
         return True
+
 
 class DanglingLink(BadLink):
 
@@ -160,11 +179,12 @@ class DanglingLink(BadLink):
     def __call__(self, container):
         return bool(remove_links_to(container, lambda name, *a: name == self.target_name))
 
+
 class Bookmarks(BadLink):
 
     HELP = _(
         'This file stores the bookmarks and last opened information from'
-        ' the calibre ebook viewer. You can remove it if you do not'
+        ' the calibre E-book viewer. You can remove it if you do not'
         ' need that information, or don\'t want to share it with'
         ' other people you send this book to.')
     INDIVIDUAL_FIX = _('Remove this file')
@@ -172,7 +192,7 @@ class Bookmarks(BadLink):
 
     def __init__(self, name):
         BadLink.__init__(self, _(
-            'The bookmarks file used by the calibre ebook viewer is present'), name)
+            'The bookmarks file used by the calibre E-book viewer is present'), name)
 
     def __call__(self, container):
         container.remove_item(self.name)
@@ -221,16 +241,18 @@ class MimetypeMismatch(BaseError):
                 container.dirty(container.opf_name)
         return changed
 
+
 def check_mimetypes(container):
     errors = []
     a = errors.append
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         gt = container.guess_type(name)
         if mt != gt:
             if mt == 'application/oebps-page-map+xml' and name.lower().endswith('.xml'):
                 continue
             a(MimetypeMismatch(container, name, mt, gt))
     return errors
+
 
 def check_link_destination(container, dest_map, name, href, a, errors):
     if href.startswith('#'):
@@ -261,7 +283,7 @@ def check_link_destinations(container):
     dest_map = {}
     opf_type = guess_type('a.opf')
     ncx_type = guess_type('a.ncx')
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             for a in container.parsed(name).xpath('//*[local-name()="a" and @href]'):
                 href = a.get('href')
@@ -279,6 +301,7 @@ def check_link_destinations(container):
 
     return errors
 
+
 def check_links(container):
     links_map = defaultdict(set)
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
@@ -291,7 +314,7 @@ def check_links(container):
             x = x[1:]
         return x
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
                 if not href:
@@ -325,6 +348,8 @@ def check_links(container):
                         a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
                     elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
                         a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
+                    elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
+                        a(InvalidCharInLink(_('The link %s contains a : character, this will cause errors on Windows computers') % fl(href), name, lnum, col))
 
     spine_docs = {name for name, linear in container.spine_names}
     spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
@@ -338,11 +363,12 @@ def check_links(container):
     unreferenced = set()
 
     cover_name = container.guide_type_map.get('cover', None)
+    nav_items = frozenset(container.manifest_items_with_property('nav'))
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_STYLES and name not in spine_styles:
             a(UnreferencedResource(name))
-        elif mt in OEB_DOCS and name not in spine_docs:
+        elif mt in OEB_DOCS and name not in spine_docs and name not in nav_items:
             a(UnreferencedDoc(name))
         elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
             if mt.partition('/')[0] == 'image' and name == get_raster_cover_name(container):
@@ -352,7 +378,7 @@ def check_links(container):
             continue
         unreferenced.add(name)
 
-    manifest_names = set(container.manifest_id_map.itervalues())
+    manifest_names = set(itervalues(container.manifest_id_map))
     for name in container.mime_map:
         if name not in manifest_names and not container.ok_to_be_unmanifested(name):
             a(Unmanifested(name, unreferenced=name in unreferenced))
@@ -361,40 +387,64 @@ def check_links(container):
 
     return errors
 
-def check_external_links(container, progress_callback=lambda num, total:None):
+
+def get_html_ids(raw_data):
+    ans = set()
+    root = parse_html5(raw_data, discard_namespaces=True, line_numbers=False, fix_newlines=False)
+    for body in root.xpath('//body'):
+        ans.update(set(body.xpath('descendant-or-self::*/@id')))
+        ans.update(set(body.xpath('descendant::a/@name')))
+    return ans
+
+
+def check_external_links(container, progress_callback=(lambda num, total:None), check_anchors=True):
     progress_callback(0, 0)
     external_links = defaultdict(list)
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS or mt in OEB_STYLES:
             for href, lnum, col in container.iterlinks(name):
                 purl = urlparse(href)
                 if purl.scheme in ('http', 'https'):
-                    key = href.partition('#')[0]
-                    external_links[key].append((name, href, lnum, col))
+                    external_links[href].append((name, href, lnum, col))
     if not external_links:
         return []
     items = Queue()
     ans = []
-    tuple(map(items.put, external_links.iteritems()))
+    tuple(map(items.put, iteritems(external_links)))
     progress_callback(0, len(external_links))
     done = []
+    downloaded_html_ids = {}
 
     def check_links():
         br = browser(honor_time=False, verify_ssl_certificates=False)
         while True:
             try:
-                href, locations = items.get_nowait()
+                full_href, locations = items.get_nowait()
             except Empty:
                 return
+            href, frag = full_href.partition('#')[::2]
             try:
-                br.open(href, timeout=10).close()
+                res = br.open(href, timeout=10)
             except Exception as e:
-                ans.append((locations, e, href))
+                ans.append((locations, e, full_href))
+            else:
+                if frag and check_anchors:
+                    ct = res.info().get('Content-Type')
+                    if ct and ct.split(';')[0].lower() in {'text/html', XHTML_MIME}:
+                        ids = downloaded_html_ids.get(href)
+                        if ids is None:
+                            try:
+                                ids = downloaded_html_ids[href] = get_html_ids(res.read())
+                            except Exception:
+                                ids = downloaded_html_ids[href] = frozenset()
+                        if frag not in ids:
+                            ans.append((locations, ValueError('HTML anchor {} not found on the page'.format(frag)), full_href))
+                res.close()
             finally:
                 done.append(None)
                 progress_callback(len(done), len(external_links))
 
-    workers = [Thread(name="CheckLinks", target=check_links) for i in xrange(min(10, len(external_links)))]
+    workers = [Thread(name="CheckLinks", target=check_links) for i in range(min(10, len(external_links)))]
     for w in workers:
         w.daemon = True
         w.start()

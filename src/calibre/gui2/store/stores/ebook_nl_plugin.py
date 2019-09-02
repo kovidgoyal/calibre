@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -20,6 +23,7 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
 
 class EBookNLStore(BasicStoreConfig, StorePlugin):
 
@@ -41,38 +45,25 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.nl/store/advanced_search_result.php?keywords=' + urllib2.quote(query))
+        url = ('http://www.ebook.nl/store/advanced_search_result.php?keywords=' + quote(query))
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//table[contains(@class, "productListing")]/tr'):
+            for data in doc.xpath('//div[@id="books"]/div[@itemtype="http://schema.org/Book"]'):
                 if counter <= 0:
                     break
 
-                details = data.xpath('./td/div[@class="prodImage"]/a')
-                if not details:
-                    continue
-                details = details[0]
-                id = ''.join(details.xpath('./@href')).strip()
-                id = id[id.rfind('/')+1:]
-                i = id.rfind('?')
-                if i > 0:
-                    id = id[:i]
+                id = ''.join(data.xpath('./meta[@itemprop="url"]/@content')).strip()
                 if not id:
                     continue
-                cover_url = 'http://www.ebook.nl/store/' + ''.join(details.xpath('./img/@src'))
-                title = ''.join(details.xpath('./img/@title')).strip()
-                author = ''.join(data.xpath('./td/div[@class="prodTitle"]/h3/a/text()')).strip()
-                price = ''.join(data.xpath('./td/div[@class="prodTitle"]/b/text()'))
-                pdf = data.xpath('boolean(./td/div[@class="prodTitle"]/'
-                                   'p[contains(text(), "Bestandsformaat: Pdf")])')
-                epub = data.xpath('boolean(./td/div[@class="prodTitle"]/'
-                                   'p[contains(text(), "Bestandsformaat: ePub")])')
-                nodrm = data.xpath('boolean(./td/div[@class="prodTitle"]/'
-                                   'p[contains(text(), "zonder DRM") or'
-                                   '  contains(text(), "watermerk")])')
+                cover_url = 'http://www.ebook.nl/store/' + ''.join(data.xpath('.//img[@itemprop="image"]/@src'))
+                title = ''.join(data.xpath('./span[@itemprop="name"]/a/text()')).strip()
+                author = ''.join(data.xpath('./span[@itemprop="author"]/a/text()')).strip()
+                if author == '&nbsp':
+                    author = ''
+                price = ''.join(data.xpath('.//span[@itemprop="price"]//text()'))
                 counter -= 1
 
                 s = SearchResult()
@@ -80,16 +71,29 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                if nodrm:
-                    s.drm = SearchResult.DRM_UNLOCKED
-                else:
-                    s.drm = SearchResult.DRM_LOCKED
+                s.drm = SearchResult.DRM_UNKNOWN
                 s.detail_item = id
-                formats = []
-                if epub:
-                    formats.append('ePub')
-                if pdf:
-                    formats.append('PDF')
-                s.formats = ','.join(formats)
 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        br = browser()
+        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            formats = []
+            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]/span[contains(., "ePub")]'):
+                if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]/span[contains(., "EPUB3")]'):
+                    formats.append('EPUB3')
+                else:
+                    formats.append('EPUB')
+            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]/span[contains(., "Pdf")]'):
+                formats.append('PDF')
+            search_result.formats = ', '.join(formats)
+
+            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]'
+                           '//span[@class="ePubAdobeDRM" or @class="ePubwatermerk" or'
+                           ' @class="Pdfwatermark" or @class="PdfAdobeDRM"]'):
+                search_result.drm = SearchResult.DRM_LOCKED
+            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]//span[@class="ePubzonderDRM"]'):
+                search_result.drm = SearchResult.DRM_UNLOCKED
+        return True

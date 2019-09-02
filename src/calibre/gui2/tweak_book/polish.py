@@ -1,42 +1,59 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
 from threading import Thread
 
 from PyQt5.Qt import (
     QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
     QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
-    QSpinBox, QStyledItemDelegate, QSize, QModelIndex, QStyle, QPen,
-    QProgressBar, pyqtSignal
+    QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen,
+    QProgressBar, pyqtSignal, QApplication
 )
 
 from calibre import human_readable, fit_image, force_unicode
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
+from calibre.gui2 import empty_index
 from calibre.gui2.tweak_book import tprefs, current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.icu import numeric_sort_key
 
+
 class Abort(Exception):
     pass
+
 
 def customize_remove_unused_css(name, parent, ans):
     d = QDialog(parent)
     d.l = l = QVBoxLayout()
     d.setLayout(d.l)
     d.setWindowTitle(_('Remove unused CSS'))
-    d.la = la = QLabel(_(
-        'This will remove all CSS rules that do not match any actual content. You'
-        ' can also have it automatically remove any class attributes from the HTML'
-        ' that do not match any CSS rules, by using the check box below:'))
-    la.setWordWrap(True), l.addWidget(la)
+
+    def label(text):
+        la = QLabel(text)
+        la.setWordWrap(True), l.addWidget(la), la.setMinimumWidth(450)
+        l.addWidget(la)
+        return la
+
+    d.la = label(_(
+        'This will remove all CSS rules that do not match any actual content.'
+        ' There are a couple of additional cleanups you can enable, below:'))
     d.c = c = QCheckBox(_('Remove unused &class attributes'))
     c.setChecked(tprefs['remove_unused_classes'])
     l.addWidget(c)
+    d.la2 = label('<span style="font-size:small; font-style: italic">' + _(
+        'Remove all class attributes from the HTML that do not match any existing CSS rules'))
+    d.m = m = QCheckBox(_('Merge identical CSS rules'))
+    m.setChecked(tprefs['merge_identical_selectors'])
+    l.addWidget(m)
+    d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
+        'Merge CSS rules in the same stylesheet that have identical selectors.'
+    ' Note that in rare cases merging can result in a change to the effective styling'
+    ' of the book, so use with care.'))
     d.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
@@ -44,6 +61,8 @@ def customize_remove_unused_css(name, parent, ans):
     if d.exec_() != d.Accepted:
         raise Abort()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
+    ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
+
 
 def get_customization(action, name, parent):
     ans = CUSTOMIZATION.copy()
@@ -54,10 +73,12 @@ def get_customization(action, name, parent):
         return None
     return ans
 
+
 def format_report(title, report):
     from calibre.ebooks.markdown import markdown
     report = [force_unicode(line) for line in report]
     return markdown('# %s\n\n'%force_unicode(title) + '\n\n'.join(report), output_format='html4')
+
 
 def show_report(changed, title, report, parent, show_current_diff):
     report = format_report(title, report)
@@ -69,18 +90,33 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.l.addWidget(d.e)
     d.e.setHtml(report)
     d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+    d.show_changes = False
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
         b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
-        b.clicked.connect(lambda : show_current_diff(allow_revert=True), type=Qt.QueuedConnection)
+        connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
+    b = d.bb.addButton(_('&Copy to clipboard'), d.bb.ActionRole)
+    b.setIcon(QIcon(I('edit-copy.png'))), b.setAutoDefault(False)
+
+    def copy_report():
+        text = re.sub(r'</.+?>', '\n', report)
+        text = re.sub(r'<.+?>', '', text)
+        cp = QApplication.instance().clipboard()
+        cp.setText(text)
+
+    b.clicked.connect(copy_report)
     d.bb.button(d.bb.Close).setDefault(True)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
     d.resize(600, 400)
     d.exec_()
+    b.clicked.disconnect()
+    if d.show_changes:
+        show_current_diff(allow_revert=True)
 
 # CompressImages {{{
+
 
 class ImageItemDelegate(QStyledItemDelegate):
 
@@ -101,7 +137,7 @@ class ImageItemDelegate(QStyledItemDelegate):
             index.model().setData(index, pmap, Qt.UserRole+1)
         x, y = (irect.width() - pmap.width())//2, (irect.height() - pmap.height())//2
         r = irect.adjusted(x, y, -x, -y)
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, empty_index)
         painter.drawPixmap(r, pmap)
         trect = irect.adjusted(irect.width() + 10, 0, 0, 0)
         trect.setRight(option.rect.right())
@@ -111,10 +147,11 @@ class ImageItemDelegate(QStyledItemDelegate):
         painter.drawText(trect, Qt.AlignVCenter | Qt.AlignLeft, name + '\n' + sz)
         painter.restore()
 
+
 class CompressImages(Dialog):
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Compress Images'), 'compress-images', parent=parent)
+        Dialog.__init__(self, _('Compress images'), 'compress-images', parent=parent)
 
     def setup_ui(self):
         from calibre.ebooks.oeb.polish.images import get_compressible_images
@@ -147,15 +184,19 @@ class CompressImages(Dialog):
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.jq = jq = QSpinBox(self)
-        jq.setMinimum(0), jq.setMaximum(100), jq.setValue(80), jq.setEnabled(False)
+        jq.setMinimum(0), jq.setMaximum(100), jq.setValue(tprefs.get('jpeg_compression_quality_for_lossless_compression', 80)), jq.setEnabled(False)
         jq.setToolTip(_('The compression quality, 1 is high compression, 100 is low compression.\nImage'
                         ' quality is inversely correlated with compression quality.'))
+        jq.valueChanged.connect(self.save_compression_quality)
         el.toggled.connect(jq.setEnabled)
         self.jql = la = QLabel(_('Compression &quality:'))
         la.setBuddy(jq)
         h.addWidget(la), h.addWidget(jq)
         l.addStretch(10)
         l.addWidget(self.bb)
+
+    def save_compression_quality(self):
+        tprefs.set('jpeg_compression_quality_for_lossless_compression', self.jq.value())
 
     @property
     def names(self):
@@ -167,6 +208,7 @@ class CompressImages(Dialog):
             return None
         return self.jq.value()
 
+
 class CompressImagesProgress(Dialog):
 
     gui_loop = pyqtSignal(object, object, object)
@@ -176,7 +218,7 @@ class CompressImagesProgress(Dialog):
         self.names, self.jpeg_quality = names, jpeg_quality
         self.keep_going = True
         self.result = (None, '')
-        Dialog.__init__(self, _('Compressing Images...'), 'compress-images-progress', parent=parent)
+        Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
         self.gui_loop.connect(self.update_progress, type=Qt.QueuedConnection)
         self.cidone.connect(self.accept, type=Qt.QueuedConnection)
         t = Thread(name='RunCompressImages', target=self.run_compress)
@@ -229,6 +271,7 @@ class CompressImagesProgress(Dialog):
         self.msg.setText(name)
 
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

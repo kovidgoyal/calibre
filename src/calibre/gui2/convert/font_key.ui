@@ -32,8 +32,8 @@
     <widget class="QLabel" name="wh_label">
      <property name="text">
       <string>&lt;p&gt;This wizard will help you choose an appropriate font size key for your needs. Just enter the base font size of the input document and then enter an input font size. The wizard will display what font size it will be mapped to, by the font rescaling algorithm. You can adjust the algorithm by adjusting the output base font size and font key below. When you find values suitable for you, click OK.&lt;/p&gt;
-&lt;p&gt;By default, if the output base font size is zero and/or no font size key is specified, calibre will use the values from the current Output Profile. &lt;/p&gt;
-&lt;p&gt;See the &lt;a href=&quot;%s&quot;&gt;User Manual&lt;/a&gt; for a discussion of how font size rescaling works.&lt;/p&gt;</string>
+&lt;p&gt;By default, if the output base font size is zero and/or no font size key is specified, calibre will use the values from the current Output profile. &lt;/p&gt;
+&lt;p&gt;See the &lt;a href=&quot;%s&quot;&gt;User Manual&lt;/a&gt; for an explanation of how font size rescaling works.&lt;/p&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

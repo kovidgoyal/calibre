@@ -1,4 +1,3 @@
-
 __license__ = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -11,7 +10,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Newstraitstimes(BasicNewsRecipe):
     title = 'New Straits Times from Malaysia'
     __author__ = 'Darko Miletic'
-    description = 'Learning Curve, Sunday People, New Straits Times from Malaysia'
+    description = ('Learning Curve, Sunday People, '
+                   'New Straits Times from Malaysia')
     publisher = 'nst.com.my'
     category = 'news, politics, Malaysia'
     oldest_article = 2
@@ -20,13 +20,6 @@ class Newstraitstimes(BasicNewsRecipe):
     encoding = 'cp1252'
     use_embedded_content = False
     language = 'en'
-    masthead_url = 'http://www.nst.com.my/Current_News/NST/Images/new-nstonline.jpg'
+    auto_cleanup = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    remove_tags = [dict(name=['link', 'table'])]
-    keep_only_tags = dict(name='div', attrs={'id': 'haidah'})
-
-    feeds = [(u'Articles', u'http://www.nst.com.my/rss/allSec')]
+    feeds = [(u'Articles', u'http://www.nst.com.my/latest.xml')]

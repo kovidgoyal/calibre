@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -7,25 +8,28 @@ Device drivers.
 
 import sys, time, pprint
 from functools import partial
-from StringIO import StringIO
+from polyglot.builtins import zip, unicode_type
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
 INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
 INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 
+
 def strptime(src):
     src = src.strip()
     src = src.split()
-    src[0] = str(DAY_MAP[src[0][:-1]])+','
-    src[2] = str(MONTH_MAP[src[2]])
+    src[0] = unicode_type(DAY_MAP[src[0][:-1]])+','
+    src[2] = unicode_type(MONTH_MAP[src[2]])
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+
 
 def strftime(epoch, zone=time.gmtime):
     src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
+
 
 def get_connected_device():
     from calibre.customize.ui import device_plugins
@@ -42,7 +46,7 @@ def get_connected_device():
             connected_devices.append((det, dev))
 
     if dev is None:
-        print >>sys.stderr, 'Unable to find a connected ebook reader.'
+        print('Unable to find a connected ebook reader.', file=sys.stderr)
         return
 
     for det, d in connected_devices:
@@ -54,6 +58,7 @@ def get_connected_device():
             dev = d
             break
     return dev
+
 
 def debug(ioreg_to_tmp=False, buf=None, plugins=None,
         disabled_plugins=None):
@@ -69,16 +74,16 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     from calibre.devices.scanner import DeviceScanner
     from calibre.constants import iswindows, isosx
     from calibre import prints
+    from polyglot.io import PolyglotBytesIO
     oldo, olde = sys.stdout, sys.stderr
 
     if buf is None:
-        buf = StringIO()
+        buf = PolyglotBytesIO()
     sys.stdout = sys.stderr = buf
     out = partial(prints, file=buf)
 
     devplugins = device_plugins() if plugins is None else plugins
-    devplugins = list(sorted(devplugins, cmp=lambda
-            x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+    devplugins = list(sorted(devplugins, key=lambda x: x.__class__.__name__))
     if plugins is None:
         for d in devplugins:
             try:
@@ -192,6 +197,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     d.shutdown()
                 except:
                     pass
+
 
 def device_info(ioreg_to_tmp=False, buf=None):
     from calibre.devices.scanner import DeviceScanner

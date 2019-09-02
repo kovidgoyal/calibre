@@ -50,7 +50,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -117,6 +117,19 @@
    </item>
    <item row="4" column="1">
     <widget class="QLineEdit" name="opt_toc_title"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>EP&amp;UB version:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_epub_version</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QComboBox" name="opt_epub_version"/>
    </item>
   </layout>
  </widget>

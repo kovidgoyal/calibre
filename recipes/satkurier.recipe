@@ -17,18 +17,11 @@ class SATKurier(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    keep_only_tags = []
-    keep_only_tags.append(
-        dict(name='div', attrs={'id': ['single_news', 'content']}))
+    keep_only_tags = [dict(name='div', attrs={'id': ['leftNewsContainer', 'content']})]
 
-    remove_tags = []
-    remove_tags.append(dict(attrs={'id': ['news_info', 'comments']}))
-    remove_tags.append(dict(attrs={'href': '#czytaj'}))
-    remove_tags.append(dict(attrs={'align': 'center'}))
-    remove_tags.append(dict(attrs={'class': [
-                       'date', 'category', 'right mini-add-comment', 'socialLinks', 'commentlist']}))
+    remove_tags = [dict(name='div', attrs={'class': ['col-xs-20', 'coverNews','btn-group']})]
 
-    remove_tags_after = [(dict(id='entry'))]
+    remove_tags_after = [dict(name='div',attrs={'class':'btn-group'})]
 
     feeds = [(u'Najnowsze wiadomości', u'http://feeds.feedburner.com/satkurierpl?format=xml'),
              (u'Sport w telewizji',

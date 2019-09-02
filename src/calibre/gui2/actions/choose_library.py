@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,17 +13,20 @@ from PyQt5.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
         QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
 
-from calibre import isbytestring, sanitize_file_name_unicode
+from calibre import isbytestring, sanitize_file_name
 from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable)
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type, range
+
 
 def db_class():
     from calibre.db.legacy import LibraryDatabase
     return LibraryDatabase
+
 
 class LibraryUsageStats(object):  # {{{
 
@@ -36,7 +40,7 @@ class LibraryUsageStats(object):  # {{{
                 # Rename the current library. Renaming of other libraries is
                 # handled by the switch function
                 q = os.path.basename(lp)
-                for loc in list(self.stats.iterkeys()):
+                for loc in list(self.stats):
                     bn = posixpath.basename(loc)
                     if bn.lower() == q.lower():
                         self.rename(loc, lp)
@@ -47,8 +51,7 @@ class LibraryUsageStats(object):  # {{{
 
     def write_stats(self):
         locs = list(self.stats.keys())
-        locs.sort(cmp=lambda x, y: cmp(self.stats[x], self.stats[y]),
-                reverse=True)
+        locs.sort(key=lambda x: self.stats[x], reverse=True)
         for key in locs[500:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
@@ -77,7 +80,7 @@ class LibraryUsageStats(object):  # {{{
         if lpath in locs:
             locs.remove(lpath)
         limit = tweaks['many_libraries'] if limit is None else limit
-        key = sort_key if len(locs) > limit else lambda x:self.stats[x]
+        key = (lambda x:sort_key(os.path.basename(x))) if len(locs) > limit else self.stats.get
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
             yield self.pretty(loc), loc
@@ -94,6 +97,7 @@ class LibraryUsageStats(object):  # {{{
             self.stats[newloc] = stats
         self.write_stats()
 # }}}
+
 
 class MovedDialog(QDialog):  # {{{
 
@@ -140,7 +144,7 @@ class MovedDialog(QDialog):  # {{{
         self.stats.remove(self.location)
 
     def accept(self):
-        newloc = unicode(self.loc.text())
+        newloc = unicode_type(self.loc.text())
         if not db_class().exists_at(newloc):
             error_dialog(self, _('No library found'),
                     _('No existing calibre library found at %s')%newloc,
@@ -150,6 +154,7 @@ class MovedDialog(QDialog):  # {{{
         self.newloc = newloc
         QDialog.accept(self)
 # }}}
+
 
 class BackupStatus(QDialog):  # {{{
 
@@ -183,12 +188,14 @@ class BackupStatus(QDialog):  # {{{
             dirty_text = '%s' % db.dirty_queue_length()
         except:
             dirty_text = _('none')
-        self.msg.setText('<p>' +
-                _('Book metadata files remaining to be written: %s') % dirty_text)
+        self.msg.setText('<p>' + _(
+            'Book metadata files remaining to be written: %s') % dirty_text)
         QTimer.singleShot(1000, self.update)
 
     def mark_all_dirty(self):
         db = self.db()
+        if db is None:
+            return
         db.new_api.mark_as_dirty(db.new_api.all_book_ids())
 
 # }}}
@@ -199,15 +206,16 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
     restore_view_state = pyqtSignal(object)
 
     def genesis(self):
+        self.prev_lname = self.last_lname = ''
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
-        self.action_exim = ac = QAction(_('Export/Import all calibre data'), self.gui)
+        self.action_exim = ac = QAction(_('Export/import all calibre data'), self.gui)
         ac.triggered.connect(self.exim_data)
 
         self.stats = LibraryUsageStats()
@@ -244,15 +252,17 @@ class ChooseLibraryAction(InterfaceAction):
         for i in range(5):
             ac = self.create_action(spec=('', None, None, None),
                     attr='switch_action%d'%i)
+            ac.setObjectName(unicode_type(i))
             self.switch_actions.append(ac)
             ac.setVisible(False)
-            ac.triggered.connect(partial(self.qs_requested, i),
+            connect_lambda(ac.triggered, self, lambda self:
+                    self.switch_requested(self.qs_locations[int(self.gui.sender().objectName())]),
                     type=Qt.QueuedConnection)
             self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
 
-        self.maintenance_menu = QMenu(_('Library Maintenance'))
+        self.maintenance_menu = QMenu(_('Library maintenance'))
         ac = self.create_action(spec=(_('Library metadata backup status'),
                         'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
@@ -287,9 +297,9 @@ class ChooseLibraryAction(InterfaceAction):
         if isportable:
             return error_dialog(self.gui, _('Cannot export/import'), _(
                 'You are running calibre portable, all calibre data is already in the'
-                ' calibre portable folder. Export/Import is unavailable.'), show=True)
+                ' calibre portable folder. Export/import is unavailable.'), show=True)
         if self.gui.job_manager.has_jobs():
-            return error_dialog(self.gui, _('Cannot Export/Import'),
+            return error_dialog(self.gui, _('Cannot export/import'),
                     _('Cannot export/import data while there are running jobs.'), show=True)
         from calibre.gui2.dialogs.exim import EximDialog
         d = EximDialog(parent=self.gui)
@@ -315,9 +325,11 @@ class ChooseLibraryAction(InterfaceAction):
 
     def library_changed(self, db):
         lname = self.stats.library_used(db)
-        self.last_lname = lname
+        if lname != self.last_lname:
+            self.prev_lname = self.last_lname
+            self.last_lname = lname
         if len(lname) > 16:
-            lname = lname[:16] + u'…'
+            lname = lname[:16] + '…'
         a = self.qaction
         a.setText(lname.replace('&', '&&&'))  # I have no idea why this requires a triple ampersand
         self.update_tooltip(db.count())
@@ -346,10 +358,15 @@ class ChooseLibraryAction(InterfaceAction):
         self.delete_menu.clear()
         quick_actions, rename_actions, delete_actions = [], [], []
         for name, loc in locations:
+            is_prev_lib = name == self.prev_lname
             name = name.replace('&', '&&')
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
             ac.setStatusTip(_('Switch to: %s') % loc)
+            if is_prev_lib:
+                f = ac.font()
+                f.setBold(True)
+                ac.setFont(f)
             quick_actions.append(ac)
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
@@ -359,6 +376,8 @@ class ChooseLibraryAction(InterfaceAction):
                 name, loc)))
             delete_actions.append(ac)
             ac.setStatusTip(_('Remove: %s') % loc)
+            if is_prev_lib:
+                ac.setFont(f)
 
         qs_actions = []
         locations_by_frequency = locations
@@ -387,6 +406,7 @@ class ChooseLibraryAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def rename_requested(self, name, location):
         LibraryDatabase = db_class()
@@ -394,10 +414,11 @@ class ChooseLibraryAction(InterfaceAction):
         base = os.path.dirname(loc)
         old_name = name.replace('&&', '&')
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
-                '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
-                '<p>'+_('Note that the actual library folder will be renamed.'),
+                '<p>'+_(
+                    'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
+                    'Note that the actual library folder will be renamed.'),
                 text=old_name)
-        newname = sanitize_file_name_unicode(unicode(newname))
+        newname = sanitize_file_name(unicode_type(newname))
         if not ok or not newname or newname == old_name:
             return
         newloc = os.path.join(base, newname)
@@ -405,8 +426,7 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Already exists'),
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
-        if (iswindows and len(newloc) >
-                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
+        if (iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
@@ -417,6 +437,7 @@ class ChooseLibraryAction(InterfaceAction):
                       'Try switching to this library first, then switch back '
                       'and retry the renaming.')%loc, show=True)
             return
+        self.gui.library_broker.remove_library(loc)
         try:
             os.rename(loc, newloc)
         except:
@@ -444,6 +465,7 @@ class ChooseLibraryAction(InterfaceAction):
                 yes_text=_('&OK'), no_text=_('&Undo'), yes_icon='ok.png', no_icon='edit-undo.png'):
             return
         self.stats.remove(location)
+        self.gui.library_broker.remove_library(location)
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
         if os.path.exists(loc):
@@ -464,8 +486,7 @@ class ChooseLibraryAction(InterfaceAction):
         LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
-        if (iswindows and len(db.library_path) >
-                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
+        if (iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters. Move your library to a location with'
@@ -480,7 +501,7 @@ class ChooseLibraryAction(InterfaceAction):
         db = m.db
         db.prefs.disable_setting = True
         if restore_database(db, self.gui):
-            self.gui.library_moved(db.library_path, call_close=False)
+            self.gui.library_moved(db.library_path)
 
     def check_library(self):
         from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
@@ -489,16 +510,16 @@ class ChooseLibraryAction(InterfaceAction):
         m.stop_metadata_backup()
         db = m.db
         db.prefs.disable_setting = True
+        library_path = db.library_path
 
         d = DBCheck(self.gui, db)
         d.start()
         try:
-            d.conn.close()
+            m.close()
         except:
             pass
         d.break_cycles()
-        self.gui.library_moved(db.library_path, call_close=not
-                d.closed_orig_conn)
+        self.gui.library_moved(library_path)
         if d.rejected:
             return
         if d.error is None:
@@ -573,20 +594,17 @@ class ChooseLibraryAction(InterfaceAction):
         import gc
         from calibre.utils.mem import memory
         ref = self.dbref
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         if ref() is not None:
-            print 'DB object alive:', ref()
+            print('DB object alive:', ref())
             for r in gc.get_referrers(ref())[:10]:
-                print r
-                print
-        print 'before:', self.before_mem
-        print 'after:', memory()
-        print
+                print(r)
+                print()
+        print('before:', self.before_mem)
+        print('after:', memory())
+        print()
         self.dbref = self.before_mem = None
-
-    def qs_requested(self, idx, *args):
-        self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
         self.update_tooltip(new_count)
@@ -629,4 +647,3 @@ class ChooseLibraryAction(InterfaceAction):
             return False
 
         return True
-

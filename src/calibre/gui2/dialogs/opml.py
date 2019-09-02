@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,8 +16,10 @@ from lxml import etree
 
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 Group = namedtuple('Group', 'title feeds')
+
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -28,6 +29,7 @@ def uniq(vals, kmap=lambda x:x):
     seen = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 
 def import_opml(raw, preserve_groups=True):
     root = etree.fromstring(raw)
@@ -46,7 +48,7 @@ def import_opml(raw, preserve_groups=True):
                         break
         groups[parent].append((title, url))
 
-    for title in sorted(groups.iterkeys(), key=sort_key):
+    for title in sorted(groups, key=sort_key):
         yield Group(title, uniq(groups[title], kmap=itemgetter(1)))
 
 
@@ -123,7 +125,7 @@ class ImportOPML(QDialog):
             self.path.setText(opml_files[0])
 
     def accept(self):
-        path = unicode(self.path.text())
+        path = unicode_type(self.path.text())
         if not path:
             return error_dialog(self, _('Path not specified'), _(
                 'You must specify the path to the OPML file to import'), show=True)
@@ -136,10 +138,11 @@ class ImportOPML(QDialog):
 
         QDialog.accept(self)
 
+
 if __name__ == '__main__':
     import sys
     for group in import_opml(open(sys.argv[-1], 'rb').read()):
-        print (group.title)
+        print(group.title)
         for title, url in group.feeds:
-            print ('\t%s - %s' % (title, url))
-        print ()
+            print('\t%s - %s' % (title, url))
+        print()

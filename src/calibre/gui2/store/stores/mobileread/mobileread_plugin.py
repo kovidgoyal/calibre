@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -22,6 +22,7 @@ from calibre.gui2.store.stores.mobileread.cache_progress_dialog import CacheProg
 from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdateThread
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
 
+
 class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def __init__(self, *args, **kwargs):
@@ -39,7 +40,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         return self._mr_cache
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.mobileread.com/'
+        url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else url))

@@ -27,16 +27,14 @@ class OSW_Recipe(BasicNewsRecipe):
     simultaneous_downloads = 5
 
     keep_only_tags = []
-    # this line should show title of the article, but it doesnt work
-    keep_only_tags.append(dict(name='h1', attrs={'class': 'print-title'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'print-submitted'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'print-content'}))
+    keep_only_tags.append(dict(name='h2', attrs={'class': 'node-title'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'content clearfix'}))
 
     remove_tags = []
     remove_tags.append(dict(name='table', attrs={'id': 'attachments'}))
     remove_tags.append(dict(name='div', attrs={'class': 'print-submitted'}))
 
-    feeds = [(u'OSW', u'http://www.osw.waw.pl/pl/rss.xml')]
+    feeds = [(u'OSW', u'https://www.osw.waw.pl/pl/rss.xml')]
 
     def print_version(self, url):
-        return url.replace('http://www.osw.waw.pl/pl/', 'http://www.osw.waw.pl/pl/print/')
+        return url.replace('https://www.osw.waw.pl/pl/', 'https://www.osw.waw.pl/pl/print/')

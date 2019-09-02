@@ -1,6 +1,7 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-__license__ = 'GPL v3'
+from __future__ import print_function, unicode_literals
+__license__   = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 http://www.al-monitor.com/
@@ -95,7 +96,7 @@ class AlMonitor(BasicNewsRecipe):
 
         self._p('Got section. Processing links.')
 
-        for link in soup.findAll('a'):
+        for link in soup.findAll('a', href=True):
             href = link.get('href')
             text = self.text(link)
             if text and ('pulse/originals' in href):
@@ -161,7 +162,7 @@ class AlMonitor(BasicNewsRecipe):
     def scrape_article_date(self, soup):
         for span in soup.findAll('span'):
             txt = self.text(span)
-            rgx = re.compile('Posted ([a-zA-Z]+ \d\d?, \d\d\d\d).*')
+            rgx = re.compile(r'Posted ([a-zA-Z]+ \d\d?, \d\d\d\d).*')
             hit = rgx.match(txt)
             if hit:
                 return self.date_from_string(txt)

@@ -1,5 +1,8 @@
 #!/usr/bin/python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """
 Get word, character, and Asian character counts
 
@@ -27,6 +30,7 @@ __author__ = "Ryan Ginstrom"
 
 IDEOGRAPHIC_SPACE = 0x3000
 
+
 def is_asian(char):
     """Is the character Asian?"""
 
@@ -34,14 +38,16 @@ def is_asian(char):
     # Anything over is an Asian character
     return ord(char) > IDEOGRAPHIC_SPACE
 
+
 def filter_jchars(c):
     """Filters Asian characters to spaces"""
     if is_asian(c):
         return ' '
     return c
 
+
 def nonj_len(word):
-    u"""Returns number of non-Asian words in {word}
+    """Returns number of non-Asian words in {word}
     - 日本語AアジアンB -> 2
     - hello -> 1
     @param word: A word, possibly containing Asian characters
@@ -53,7 +59,8 @@ def nonj_len(word):
     # -> ['spam', 'eggs']
     # The length of which is 2!
     chars = [filter_jchars(c) for c in word]
-    return len(u''.join(chars).split())
+    return len(''.join(chars).split())
+
 
 def get_wordcount(text):
     """Get the word/character count for text
@@ -62,8 +69,8 @@ def get_wordcount(text):
     """
 
     characters = len(text)
-    chars_no_spaces = sum([not x.isspace() for x in text])
-    asian_chars =  sum([is_asian(x) for x in text])
+    chars_no_spaces = sum(not x.isspace() for x in text)
+    asian_chars =  sum(is_asian(x) for x in text)
     non_asian_words = nonj_len(text)
     words = non_asian_words + asian_chars
 
@@ -73,12 +80,15 @@ def get_wordcount(text):
                 non_asian_words=non_asian_words,
                 words=words)
 
+
 def dict2obj(dictionary):
     """Transform a dictionary into an object"""
     class Obj(object):
+
         def __init__(self, dictionary):
             self.__dict__.update(dictionary)
     return Obj(dictionary)
+
 
 def get_wordcount_obj(text):
     """Get the wordcount as an object rather than a dictionary"""

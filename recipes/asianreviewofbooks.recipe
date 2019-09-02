@@ -1,8 +1,11 @@
+#!/usr/bin/env  python2
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2012-2017, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.asianreviewofbooks.com
+asianreviewofbooks.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -18,30 +21,22 @@ class AsianReviewOfBooks(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    encoding = 'cp1252'
+    encoding = 'utf8'
     language = 'en_CN'
     publication_type = 'magazine'
-    masthead_url = 'http://www.asianreviewofbooks.com/new/images/mob_arb.png'
+    auto_cleanup = True
+    masthead_url = 'https://i2.wp.com/asianreviewofbooks.com/content/wp-content/uploads/2016/09/ARBwidelogo.png'
     extra_css             = """
-                               body{font-family: serif}
-                               .big {font-size: xx-large}
-                               .bold {font-weight: bold}
-                               .italic {font-style: italic}
-                               .small {font-size: small}
+                               body{font-family: "Droid Serif", serif}
+                               .entry-title {font-family: "Playfair Display", serif}
                                img {display: block}
                             """
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
     }
 
-    remove_tags = [dict(name=['object', 'script', 'iframe', 'embed'])]
-    remove_attributes = ['style', 'onclick']
-    feeds = [(u'Articles', u'http://www.asianreviewofbooks.com/new/rss.php')]
-
-    def print_version(self, url):
-        root, sep, artid = url.rpartition('?ID=')
-        return root + 'getarticle.php?articleID=' + artid + '&stats=web'
-
-    def preprocess_raw_html(self, raw, url):
-        return '<html><head><title>title</title></head><body>' + raw + '</body></html>'
+    feeds = [(u'Articles', u'http://asianreviewofbooks.com/content/feed/')]

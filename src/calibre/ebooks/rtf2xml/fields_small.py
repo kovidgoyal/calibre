@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,8 @@ import sys, os, re
 
 from calibre.ebooks.rtf2xml import field_strings, copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
+
 
 class FieldsSmall:
     """
@@ -32,6 +35,7 @@ until the closing bracket entry is found. Send the string to the module
 field_strings to process it. Write the processed string to the output
 file.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -212,7 +216,7 @@ file.
         see_string = ''
         changed_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -246,7 +250,7 @@ file.
         bookmark_string = ''
         index_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -333,7 +337,7 @@ file.
         book_type = 0
         toc_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -436,8 +440,8 @@ file.
            bookmark.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':

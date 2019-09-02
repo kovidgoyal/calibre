@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,6 +15,7 @@ import os, sys
 
 is_detached = False
 
+
 def do_detach(fork=True, setsid=True, redirect=True):
     global is_detached
     if fork:
@@ -29,10 +29,12 @@ def do_detach(fork=True, setsid=True, redirect=True):
         plugins['speedup'][0].detach(os.devnull)
     is_detached = True
 
+
 def detach_gui():
     from calibre.constants import islinux, isbsd, DEBUG
     if (islinux or isbsd) and not DEBUG and '--detach' in sys.argv:
         do_detach()
+
 
 def init_dbus():
     from calibre.constants import islinux, isbsd
@@ -40,6 +42,7 @@ def init_dbus():
         from dbus.mainloop.glib import DBusGMainLoop, threads_init
         threads_init()
         DBusGMainLoop(set_as_default=True)
+
 
 def register_with_default_programs():
     from calibre.constants import iswindows
@@ -49,18 +52,26 @@ def register_with_default_programs():
         return Register(gprefs)
     else:
         class Dummy(object):
+
             def __enter__(self):
                 return self
+
             def __exit__(self, *args):
                 pass
         return Dummy()
 
+
 def calibre(args=sys.argv):
+    from calibre.constants import DEBUG
+    if DEBUG:
+        from calibre.debug import print_basic_debug_info
+        print_basic_debug_info()
     detach_gui()
     init_dbus()
     with register_with_default_programs():
         from calibre.gui2.main import main
         main(args)
+
 
 def ebook_viewer(args=sys.argv):
     detach_gui()
@@ -69,11 +80,13 @@ def ebook_viewer(args=sys.argv):
         from calibre.gui2.viewer.main import main
         main(args)
 
+
 def gui_ebook_edit(path=None, notify=None):
     ' For launching the editor from inside calibre '
     init_dbus()
     from calibre.gui2.tweak_book.main import gui_main
     gui_main(path, notify)
+
 
 def ebook_edit(args=sys.argv):
     detach_gui()
@@ -81,6 +94,7 @@ def ebook_edit(args=sys.argv):
     with register_with_default_programs():
         from calibre.gui2.tweak_book.main import main
         main(args)
+
 
 def option_parser(basename):
     if basename == 'calibre':

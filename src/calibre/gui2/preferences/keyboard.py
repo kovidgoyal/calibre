@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +11,7 @@ from PyQt5.Qt import QVBoxLayout
 from calibre.gui2.preferences import (ConfigWidgetBase, test_widget)
 from calibre.gui2.keyboard import ShortcutConfig
 
+
 class ConfigWidget(ConfigWidgetBase):
 
     def genesis(self, gui):
@@ -19,6 +19,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.conf_widget = ShortcutConfig(self)
         self.conf_widget.changed_signal.connect(self.changed_signal)
         self._layout = l = QVBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         l.addWidget(self.conf_widget)
 
@@ -40,8 +41,8 @@ class ConfigWidget(ConfigWidgetBase):
     def highlight_group(self, group_name):
         self.conf_widget.highlight_group(group_name)
 
-if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
-    test_widget('Advanced', 'Keyboard')
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    test_widget('Advanced', 'Keyboard')

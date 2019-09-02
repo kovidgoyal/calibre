@@ -1,48 +1,61 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import io
 import os
-from cStringIO import StringIO
-
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
+from polyglot.builtins import unicode_type
+
 
 class HTMLZOutput(OutputFormatPlugin):
 
     name = 'HTMLZ Output'
     author = 'John Schember'
     file_type = 'htmlz'
+    commit_name = 'htmlz_output'
+    ui_data = {
+            'css_choices': {
+                'class': _('Use CSS classes'),
+                'inline': _('Use the style attribute'),
+                'tag': _('Use HTML tags wherever possible')
+            },
+            'sheet_choices': {
+                'external': _('Use an external CSS file'),
+                'inline': _('Use a <style> tag in the HTML file')
+            }
+    }
 
-    options = set([
+    options = {
         OptionRecommendation(name='htmlz_css_type', recommended_value='class',
             level=OptionRecommendation.LOW,
-            choices=['class', 'inline', 'tag'],
+            choices=list(ui_data['css_choices']),
             help=_('Specify the handling of CSS. Default is class.\n'
-                   'class: Use CSS classes and have elements reference them.\n'
-                   'inline: Write the CSS as an inline style attribute.\n'
-                   'tag: Turn as many CSS styles as possible into HTML tags.'
-            )),
+                   'class: {class}\n'
+                   'inline: {inline}\n'
+                   'tag: {tag}'
+            ).format(**ui_data['css_choices'])),
         OptionRecommendation(name='htmlz_class_style', recommended_value='external',
             level=OptionRecommendation.LOW,
-            choices=['external', 'inline'],
+            choices=list(ui_data['sheet_choices']),
             help=_('How to handle the CSS when using css-type = \'class\'.\n'
                    'Default is external.\n'
-                   'external: Use an external CSS file that is linked in the document.\n'
-                   'inline: Place the CSS in the head section of the document.'
-            )),
+                   'external: {external}\n'
+                   'inline: {inline}'
+            ).format(**ui_data['sheet_choices'])),
         OptionRecommendation(name='htmlz_title_filename',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('If set this option causes the file name of the html file'
-                ' inside the htmlz archive to be based on the book title.')
+            help=_('If set this option causes the file name of the HTML file'
+                ' inside the HTMLZ archive to be based on the book title.')
             ),
-    ])
+    }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree
@@ -68,9 +81,9 @@ class HTMLZOutput(OutputFormatPlugin):
             fname = u'index'
             if opts.htmlz_title_filename:
                 from calibre.utils.filenames import shorten_components_to
-                fname = shorten_components_to(100, (ascii_filename(unicode(oeb_book.metadata.title[0])),))[0]
+                fname = shorten_components_to(100, (ascii_filename(unicode_type(oeb_book.metadata.title[0])),))[0]
             with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
-                if isinstance(html, unicode):
+                if isinstance(html, unicode_type):
                     html = html.encode('utf-8')
                 tf.write(html)
 
@@ -87,7 +100,7 @@ class HTMLZOutput(OutputFormatPlugin):
                 for item in oeb_book.manifest:
                     if item.media_type in OEB_IMAGES and item.href in images:
                         if item.media_type == SVG_MIME:
-                            data = unicode(etree.tostring(item.data, encoding=unicode))
+                            data = etree.tostring(item.data, encoding='unicode')
                         else:
                             data = item.data
                         fname = os.path.join(tdir, u'images', images[item.href])
@@ -113,7 +126,7 @@ class HTMLZOutput(OutputFormatPlugin):
 
             # Metadata
             with open(os.path.join(tdir, u'metadata.opf'), 'wb') as mdataf:
-                opf = OPF(StringIO(etree.tostring(oeb_book.metadata.to_opf1())))
+                opf = OPF(io.BytesIO(etree.tostring(oeb_book.metadata.to_opf1(), encoding='UTF-8')))
                 mi = opf.to_book_metadata()
                 if cover_path:
                     mi.cover = u'cover.jpg'

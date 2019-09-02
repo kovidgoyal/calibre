@@ -1,8 +1,11 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
+
 
 class TECLAST_K3(USBMS):
 
@@ -44,6 +47,7 @@ class NEWSMY(TECLAST_K3):
     WINDOWS_MAIN_MEM = 'NEWSMY'
     WINDOWS_CARD_A_MEM = 'USBDISK____SD'
 
+
 class ARCHOS7O(TECLAST_K3):
     name = 'Archos 7O device interface'
     gui_name = 'Archos'
@@ -53,6 +57,7 @@ class ARCHOS7O(TECLAST_K3):
 
     VENDOR_NAME      = 'ARCHOS'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
+
 
 class PICO(NEWSMY):
     name = 'Pico device interface'
@@ -65,6 +70,7 @@ class PICO(NEWSMY):
     FORMATS = ['EPUB', 'FB2', 'TXT', 'LRC', 'PDB', 'PDF', 'HTML', 'WTXT']
     SCAN_FROM_ROOT = True
 
+
 class IPAPYRUS(TECLAST_K3):
 
     name = 'iPapyrus device interface'
@@ -75,6 +81,7 @@ class IPAPYRUS(TECLAST_K3):
 
     VENDOR_NAME      = ['E_READER', 'EBOOKREA', 'ICARUS']
     WINDOWS_MAIN_MEM = ''
+
 
 class SOVOS(TECLAST_K3):
 
@@ -87,6 +94,7 @@ class SOVOS(TECLAST_K3):
     VENDOR_NAME      = 'RK28XX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
 
+
 class SUNSTECH_EB700(TECLAST_K3):
     name = 'Sunstech EB700 device interface'
     gui_name = 'EB700'
@@ -96,6 +104,7 @@ class SUNSTECH_EB700(TECLAST_K3):
 
     VENDOR_NAME = 'SUNEB700'
     WINDOWS_MAIN_MEM = 'USB-MSC'
+
 
 class STASH(TECLAST_K3):
 
@@ -109,6 +118,7 @@ class STASH(TECLAST_K3):
     VENDOR_NAME = 'STASH'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'W950'
 
+
 class WEXLER(TECLAST_K3):
 
     name = 'Wexler device interface'
@@ -119,4 +129,3 @@ class WEXLER(TECLAST_K3):
 
     VENDOR_NAME = 'WEXLER'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'T7001'
-

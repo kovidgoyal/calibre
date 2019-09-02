@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Read meta information from pdb files.
@@ -31,6 +32,7 @@ MWRITER = {
     'PNRdPPrs' : set_eReader,
 }
 
+
 def get_metadata(stream, extract_cover=True):
     """
     Return metadata as a L{MetaInfo} object
@@ -45,6 +47,7 @@ def get_metadata(stream, extract_cover=True):
 
     return MetadataReader(stream, extract_cover)
 
+
 def set_metadata(stream, mi):
     stream.seek(0)
 
@@ -57,4 +60,3 @@ def set_metadata(stream, mi):
 
     stream.seek(0)
     stream.write('%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace'))
-

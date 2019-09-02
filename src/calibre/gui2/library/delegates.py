@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,20 +11,24 @@ import sys
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
-        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize)
+        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit)
 
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu
+from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
+from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined, internal_iso_format_string
+
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
+from polyglot.builtins import unicode_type
+
 
 class UpdateEditorGeometry(object):
 
@@ -47,7 +52,7 @@ class UpdateEditorGeometry(object):
         else:
             # The line edit box seems to extend by the space consumed by an 'M'.
             # So add that to the text
-            text = self.displayText(index.data(Qt.DisplayRole), QLocale()) + u'M'
+            text = self.displayText(index.data(Qt.DisplayRole), QLocale()) + 'M'
             srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False, text)
             new_width = srect.width()
 
@@ -62,8 +67,18 @@ class UpdateEditorGeometry(object):
             new_width += r.width()
 
         # Compute the maximum we can show if we consume the entire viewport
-        max_width = (self.table_widget.horizontalScrollBar().geometry().width() -
-                     self.table_widget.verticalHeader().width())
+        pin_view = self.table_widget.pin_view
+        is_pin_view, p = False, editor.parent()
+        while p is not None:
+            if p is pin_view:
+                is_pin_view = True
+                break
+            p = p.parent()
+        if is_pin_view:
+            max_width = pin_view.horizontalScrollBar().geometry().width()
+        else:
+            view = self.table_widget
+            max_width = view.horizontalScrollBar().geometry().width() - view.verticalHeader().width()
         # What we have to display might not fit. If so, adjust down
         new_width = new_width if new_width < max_width else max_width
 
@@ -96,23 +111,31 @@ class UpdateEditorGeometry(object):
         initial_geometry.adjust(delta_x, 0, delta_width, 0)
         editor.setGeometry(initial_geometry)
 
+
 class DateTimeEdit(QDateTimeEdit):  # {{{
 
-    def __init__(self, parent, format):
+    def __init__(self, parent, format_):
         QDateTimeEdit.__init__(self, parent)
         self.setFrame(False)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.setCalendarPopup(True)
-        self.setDisplayFormat(format)
+        if format_ == 'iso':
+            format_ = internal_iso_format_string()
+        self.setDisplayFormat(format_)
 
     def contextMenuEvent(self, ev):
         m = QMenu(self)
         m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
                     self.clear_date)
+        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                    self.today_date)
         m.addSeparator()
         populate_standard_spinbox_context_menu(self, m)
         m.popup(ev.globalPos())
+
+    def today_date(self):
+        self.setDateTime(QDateTime.currentDateTime())
 
     def clear_date(self):
         self.setDateTime(UNDEFINED_QDATETIME)
@@ -122,13 +145,14 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
             ev.accept()
             self.clear_date()
         elif ev.key() == Qt.Key_Equal:
+            self.today_date()
             ev.accept()
-            self.setDateTime(QDateTime.currentDateTime())
         else:
             return QDateTimeEdit.keyPressEvent(self, ev)
 # }}}
 
 # Number Editor  {{{
+
 
 def make_clearing_spinbox(spinbox):
 
@@ -152,6 +176,7 @@ def make_clearing_spinbox(spinbox):
                 return spinbox.keyPressEvent(self, ev)
     return SpinBox
 
+
 ClearingSpinBox = make_clearing_spinbox(QSpinBox)
 ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
@@ -159,23 +184,27 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # setter for text-like delegates. Return '' if CTRL is pushed {{{
 
+
 def check_key_modifier(which_modifier):
     v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier + Qt.ShiftModifier))
     return v == which_modifier
+
 
 def get_val_for_textlike_columns(index_):
     if check_key_modifier(Qt.ControlModifier):
         ct = ''
     else:
         ct = index_.data(Qt.DisplayRole) or ''
-    return unicode(ct)
+    return unicode_type(ct)
 
 # }}}
+
 
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
-        QStyledItemDelegate.__init__(self, *args, **kwargs)
+        QStyledItemDelegate.__init__(self, *args)
+        self.is_half_star = kwargs.get('is_half_star', False)
         self.table_widget = args[0]
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
@@ -184,33 +213,25 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             delta = 2
         self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize()+delta)
 
-    def createEditor(self, parent, option, index):
-        sb = QSpinBox(parent)
-        sb.setMinimum(0)
-        sb.setMaximum(5)
-        sb.setSuffix(' ' + _('stars'))
-        sb.setSpecialValueText(_('Not rated'))
-        return sb
-
     def get_required_width(self, editor, style, fm):
-        val = editor.maximum()
-        text = editor.textFromValue(val) + editor.suffix()
-        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
-                                   text + u'M')
-        return srect.width()
+        return editor.sizeHint().width()
 
     def displayText(self, value, locale):
-        r = int(value)
-        if r < 0 or r > 5:
-            r = 0
-        return u'\u2605'*r
+        return rating_to_stars(value, self.is_half_star)
+
+    def createEditor(self, parent, option, index):
+        return RatingEditor(parent, is_half_star=self.is_half_star)
 
     def setEditorData(self, editor, index):
         if check_key_modifier(Qt.ControlModifier):
             val = 0
         else:
             val = index.data(Qt.EditRole)
-        editor.setValue(val)
+        editor.rating_value = val
+
+    def setModelData(self, editor, model, index):
+        val = editor.rating_value
+        model.setData(index, val, Qt.EditRole)
 
     def sizeHint(self, option, index):
         option.font = self.rf
@@ -223,6 +244,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return QStyledItemDelegate.paint(self, painter, option, index)
 
 # }}}
+
 
 class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -255,6 +277,7 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 # }}}
 
+
 class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -280,12 +303,13 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         elif is_date_undefined(val):
-            val = QDate(2000, 1, 1)
+            val = QDate.currentDate()
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
 
 # }}}
+
 
 class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -324,6 +348,7 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 
 # }}}
+
 
 class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -375,6 +400,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
+
 class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent):
@@ -395,6 +421,7 @@ class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         model.setData(index, (val), Qt.EditRole)
 # }}}
 
+
 class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
@@ -407,11 +434,13 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         QStyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
 
-    def set_format(self, format):
-        if not format:
+    def set_format(self, _format):
+        if not _format:
             self.format = 'dd MMM yyyy'
+        elif _format == 'iso':
+            self.format = internal_iso_format_string()
         else:
-            self.format = format
+            self.format = _format
 
     def displayText(self, val, locale):
         d = qt_to_dt(val)
@@ -428,11 +457,8 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         else:
-            m = index.model()
-            # db col is not named for the field, but for the table number. To get it,
-            # gui column -> column label -> table number -> db column
-            val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-            if val is None:
+            val = index.data(Qt.EditRole)
+            if is_date_undefined(val):
                 val = now()
         editor.setDateTime(val)
 
@@ -443,6 +469,7 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         model.setData(index, (val), Qt.EditRole)
 
 # }}}
+
 
 class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -464,7 +491,11 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
             editor.update_items_cache(complete_items)
         else:
-            editor = QStyledItemDelegate.createEditor(self, parent, option, index)
+            editor = QLineEdit(parent)
+            text = index.data(Qt.DisplayRole)
+            if text:
+                editor.setText(text)
+                editor.selectAll()
         return editor
 
     def setEditorData(self, editor, index):
@@ -477,6 +508,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = val.strip()
         model.setData(index, val, Qt.EditRole)
 # }}}
+
 
 class CcLongTextDelegate(QStyledItemDelegate):  # {{{
 
@@ -503,6 +535,7 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.EditRole)
 # }}}
+
 
 class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -549,10 +582,11 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         val = editor.maximum()
         text = editor.textFromValue(val)
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
-                                   text + u'M')
+                                   text + 'M')
         return srect.width()
 
 # }}}
+
 
 class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -579,14 +613,14 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setModelData(self, editor, model, index):
-        val = unicode(editor.currentText())
+        val = unicode_type(editor.currentText())
         if not val:
             val = None
         model.setData(index, (val), Qt.EditRole)
 
     def get_required_width(self, editor, style, fm):
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
-                                   self.longest_text + u'M')
+                                   self.longest_text + 'M')
         return srect.width()
 
     def setEditorData(self, editor, index):
@@ -600,6 +634,7 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         else:
             editor.setCurrentIndex(idx)
 # }}}
+
 
 class CcCommentsDelegate(QStyledItemDelegate):  # {{{
 
@@ -650,6 +685,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         model.setData(index, (editor.textbox.html), Qt.EditRole)
 # }}}
 
+
 class DelegateCB(QComboBox):  # {{{
 
     def __init__(self, parent):
@@ -660,6 +696,7 @@ class DelegateCB(QComboBox):  # {{{
             e.accept()
         return QComboBox.event(self, e)
 # }}}
+
 
 class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -686,7 +723,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def get_required_width(self, editor, style, fm):
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
-                                   self.longest_text + u'M')
+                                   self.longest_text + 'M')
         return srect.width() + editor.iconSize().width()
 
     def setModelData(self, editor, model, index):
@@ -705,6 +742,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 # }}}
 
+
 class CcTemplateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
@@ -717,7 +755,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         m = index.model()
         mi = m.db.get_metadata(index.row(), index_is_id=False)
         if check_key_modifier(Qt.ControlModifier):
-            text = u''
+            text = ''
         else:
             text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
         editor = TemplateDialog(parent, text, mi)

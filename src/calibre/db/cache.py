@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +10,8 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from future_builtins import zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp
+from time import time
 
 from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
@@ -19,7 +19,7 @@ from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimpor
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, DowngradeLockError, SafeReadLock
-from calibre.db.errors import NoSuchFormat
+from calibre.db.errors import NoSuchFormat, NoSuchBook
 from calibre.db.fields import create_field, IDENTITY, InvalidLinkTable
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
@@ -34,20 +34,25 @@ from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import canonicalize_lang
+
 
 def api(f):
     f.is_cache_api = True
     return f
+
 
 def read_api(f):
     f = api(f)
     f.is_read_api = True
     return f
 
+
 def write_api(f):
     f = api(f)
     f.is_read_api = False
     return f
+
 
 def wrap_simple(lock, func):
     @wraps(func)
@@ -62,6 +67,7 @@ def wrap_simple(lock, func):
             return func(*args, **kwargs)
     return call_func_with_lock
 
+
 def run_import_plugins(path_or_stream, fmt):
     fmt = fmt.lower()
     if hasattr(path_or_stream, 'seek'):
@@ -74,6 +80,7 @@ def run_import_plugins(path_or_stream, fmt):
         path = path_or_stream
     return run_plugins_on_import(path, fmt)
 
+
 def _add_newbook_tag(mi):
     tags = prefs['new_book_tags']
     if tags:
@@ -84,7 +91,9 @@ def _add_newbook_tag(mi):
                 elif tag not in mi.tags:
                     mi.tags.append(tag)
 
+
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
+
 
 class Cache(object):
 
@@ -151,11 +160,16 @@ class Cache(object):
         will happen.'''
         return SafeReadLock(self.read_lock)
 
+    @write_api
+    def ensure_has_search_category(self, fail_on_existing=True):
+        if len(self._search_api.saved_searches.names()) > 0:
+            self.field_metadata.add_search_category(label='search', name=_('Searches'), fail_on_existing=fail_on_existing)
+
     def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
         fm = self.field_metadata
         fm.remove_dynamic_categories()
-        for user_cat in sorted(self._pref('user_categories', {}).iterkeys(), key=sort_key):
+        for user_cat in sorted(self._pref('user_categories', {}), key=sort_key):
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
             while cat_name:
                 try:
@@ -166,17 +180,15 @@ class Cache(object):
 
         # add grouped search term user categories
         muc = frozenset(self._pref('grouped_search_make_user_categories', []))
-        for cat in sorted(self._pref('grouped_search_terms', {}).iterkeys(), key=sort_key):
+        for cat in sorted(self._pref('grouped_search_terms', {}), key=sort_key):
             if cat in muc:
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
                 try:
-                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                    self.field_metadata.add_user_category(label='@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
-
-        if len(self._search_api.saved_searches.names()) > 0:
-            self.field_metadata.add_search_category(label='search', name=_('Searches'))
+        self._ensure_has_search_category()
 
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
@@ -187,7 +199,7 @@ class Cache(object):
         self.dirtied_cache = {x:i for i, (x,) in enumerate(
             self.backend.execute('SELECT book FROM metadata_dirtied'))}
         if self.dirtied_cache:
-            self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
+            self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
         self._initialize_dynamic_categories()
 
     @write_api
@@ -195,8 +207,12 @@ class Cache(object):
         self.formatter_template_cache = {}
 
     @write_api
+    def set_user_template_functions(self, user_template_functions):
+        self.backend.set_user_template_functions(user_template_functions)
+
+    @write_api
     def clear_composite_caches(self, book_ids=None):
-        for field in self.composites.itervalues():
+        for field in itervalues(self.composites):
             field.clear_caches(book_ids=book_ids)
 
     @write_api
@@ -212,7 +228,7 @@ class Cache(object):
     def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
         if template_cache:
             self._initialize_template_cache()  # Clear the formatter template cache
-        for field in self.fields.itervalues():
+        for field in itervalues(self.fields):
             if hasattr(field, 'clear_caches'):
                 field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
         if book_ids:
@@ -230,7 +246,7 @@ class Cache(object):
         with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
             self.backend.prefs.load_from_db()
             self._search_api.saved_searches.load_from_db()
-            for field in self.fields.itervalues():
+            for field in itervalues(self.fields):
                 if hasattr(field, 'table'):
                     field.table.read(self.backend)  # Reread data from metadata.db
 
@@ -341,15 +357,17 @@ class Cache(object):
             self.backend.read_tables()
             bools_are_tristate = self.backend.prefs['bools_are_tristate']
 
-            for field, table in self.backend.tables.iteritems():
-                self.fields[field] = create_field(field, table, bools_are_tristate)
+            for field, table in iteritems(self.backend.tables):
+                self.fields[field] = create_field(field, table, bools_are_tristate,
+                                          self.backend.get_template_functions)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
-                    VirtualTable('ondevice'), bools_are_tristate)
+                    VirtualTable('ondevice'), bools_are_tristate,
+                    self.backend.get_template_functions)
 
-            for name, field in self.fields.iteritems():
+            for name, field in iteritems(self.fields):
                 if name[0] == '#' and name.endswith('_index'):
                     field.series_field = self.fields[name[:-len('_index')]]
                     self.fields[name[:-len('_index')]].index_field = field
@@ -475,7 +493,7 @@ class Cache(object):
             return frozenset(self.fields[field].table.col_book_map)
 
         try:
-            return frozenset(self.fields[field].table.id_map.itervalues())
+            return frozenset(itervalues(self.fields[field].table.id_map))
         except AttributeError:
             raise ValueError('%s is not a many-one or many-many field' % field)
 
@@ -484,7 +502,7 @@ class Cache(object):
         ''' Return a mapping of id to usage count for all values of the specified
         field, which must be a many-one or many-many field. '''
         try:
-            return {k:len(v) for k, v in self.fields[field].table.col_book_map.iteritems()}
+            return {k:len(v) for k, v in iteritems(self.fields[field].table.col_book_map)}
         except AttributeError:
             raise ValueError('%s is not a many-one or many-many field' % field)
 
@@ -509,14 +527,14 @@ class Cache(object):
     @read_api
     def get_item_id(self, field, item_name):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
-        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode) else item_name, None)
+        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
+        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode_type) else item_name, None)
 
     @read_api
     def get_item_ids(self, field, item_names):
         ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
-        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode) else name, None) for name in item_names}
+        rmap = {icu_lower(v) if isinstance(v, unicode_type) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
+        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode_type) else name, None) for name in item_names}
 
     @read_api
     def author_data(self, author_ids=None):
@@ -528,7 +546,7 @@ class Cache(object):
         '''
         af = self.fields['authors']
         if author_ids is None:
-            author_ids = tuple(af.table.id_map)
+            return {aid:af.author_data(aid) for aid in af.table.id_map}
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
@@ -554,7 +572,7 @@ class Cache(object):
             slow filesystem access is done. The cache values could be out of date
             if access was performed to the filesystem outside of this API.
 
-        :param update_db: If ``True`` The max_size field of the database is updates for this book.
+        :param update_db: If ``True`` The max_size field of the database is updated for this book.
         '''
         if not fmt:
             return {}
@@ -709,7 +727,7 @@ class Cache(object):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
-        dest can also be a path, in which case the format is copied to it, iff
+        dest can also be a path (to a file), in which case the format is copied to it, iff
         the path is different from the current path (taking case sensitivity
         into account).
         '''
@@ -726,13 +744,13 @@ class Cache(object):
     @read_api
     def format_abspath(self, book_id, fmt):
         '''
-        Return absolute path to the ebook file of format `format`. You should
+        Return absolute path to the e-book file of format `format`. You should
         almost never use this, as it breaks the threadsafe promise of this API.
         Instead use, :meth:`copy_format_to`.
 
         Currently used only in calibredb list, the viewer, edit book,
-        compare_format to original format, open with and the catalogs (via
-        get_data_as_dict()).
+        compare_format to original format, open with, bulk metadata edit and
+        the catalogs (via get_data_as_dict()).
 
         Apart from the viewer, open with and edit book, I don't believe any of
         the others do any file write I/O with the results of this call.
@@ -777,18 +795,24 @@ class Cache(object):
             nfmt = 'ORIGINAL_'+fmt
             return self.add_format(book_id, nfmt, fmtfile, run_hooks=False)
 
-    @api
+    @write_api
     def restore_original_format(self, book_id, original_fmt):
         ''' Restore the specified format from the previously saved
         ORIGINAL_FORMAT, if any. Return True on success. The ORIGINAL_FORMAT is
         deleted after a successful restore. '''
         original_fmt = original_fmt.upper()
-        fmtfile = self.format(book_id, original_fmt, as_file=True)
-        if fmtfile is not None:
-            fmt = original_fmt.partition('_')[2]
-            with fmtfile:
-                self.add_format(book_id, fmt, fmtfile, run_hooks=False)
-            self.remove_formats({book_id:(original_fmt,)})
+        fmt = original_fmt.partition('_')[2]
+        try:
+            ofmt_name = self.fields['formats'].format_fname(book_id, original_fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except Exception:
+            return False
+        if self.backend.is_format_accessible(book_id, original_fmt, ofmt_name, path):
+            self.add_format(book_id, fmt, BytesIO(), run_hooks=False)
+            fmt_name = self.fields['formats'].format_fname(book_id, fmt)
+            file_size = self.backend.rename_format_file(book_id, ofmt_name, original_fmt, fmt_name, fmt, path)
+            self.fields['formats'].table.update_fmt(book_id, fmt, fmt_name, file_size, self.backend)
+            self._remove_formats({book_id:(original_fmt,)})
             return True
         return False
 
@@ -804,6 +828,7 @@ class Cache(object):
                 path = self._field_for('path', book_id).replace('/', os.sep)
             except:
                 return ()
+
             def verify(fmt):
                 try:
                     name = self.fields['formats'].format_fname(book_id, fmt)
@@ -817,10 +842,10 @@ class Cache(object):
     @api
     def format(self, book_id, fmt, as_file=False, as_path=False, preserve_filename=False):
         '''
-        Return the ebook format as a bytestring or `None` if the format doesn't exist,
-        or we don't have permission to write to the ebook file.
+        Return the e-book format as a bytestring or `None` if the format doesn't exist,
+        or we don't have permission to write to the e-book file.
 
-        :param as_file: If True the ebook format is returned as a file object. Note
+        :param as_file: If True the e-book format is returned as a file object. Note
                         that the file object is a SpooledTemporaryFile, so if what you want to
                         do is copy the format to another file, use :meth:`copy_format_to`
                         instead for performance.
@@ -918,6 +943,7 @@ class Cache(object):
                     return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
                 idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
+
                 def skf(book_id):
                     return (func(book_id), idx_func(book_id))
                 return skf
@@ -935,14 +961,14 @@ class Cache(object):
 
         class SortKey(object):
 
-            __slots__ = ('book_id', 'sort_key')
+            __slots__ = 'book_id', 'sort_key'
 
             def __init__(self, book_id):
                 self.book_id = book_id
                 # Calculate only the first sub-sort key since that will always be used
                 self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
 
-            def __cmp__(self, other):
+            def compare_to_other(self, other):
                 for i, (order, self_key, other_key) in enumerate(zip(orders, self.sort_key, other.sort_key)):
                     if self_key is Lazy:
                         self_key = self.sort_key[i] = sort_key_funcs[i](self.book_id)
@@ -952,6 +978,24 @@ class Cache(object):
                     if ans != 0:
                         return ans * order
                 return 0
+
+            def __eq__(self, other):
+                return self.compare_to_other(other) == 0
+
+            def __ne__(self, other):
+                return self.compare_to_other(other) != 0
+
+            def __lt__(self, other):
+                return self.compare_to_other(other) < 0
+
+            def __le__(self, other):
+                return self.compare_to_other(other) <= 0
+
+            def __gt__(self, other):
+                return self.compare_to_other(other) > 0
+
+            def __ge__(self, other):
+                return self.compare_to_other(other) >= 0
 
         return sorted(ids_to_sort, key=SortKey)
 
@@ -969,6 +1013,19 @@ class Cache(object):
             be searched instead of searching all books.
         '''
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
+
+    @read_api
+    def books_in_virtual_library(self, vl, search_restriction=None):
+        ' Return the set of books in the specified virtual library '
+        vl = self._pref('virtual_libraries', {}).get(vl) if vl else None
+        if not vl and not search_restriction:
+            return self.all_book_ids()
+        # We utilize the search restriction cache to speed this up
+        if vl:
+            if search_restriction:
+                return frozenset(self._search('', vl) & self._search('', search_restriction))
+            return frozenset(self._search('', vl))
+        return frozenset(self._search('', search_restriction))
 
     @api
     def get_categories(self, sort='name', book_ids=None, already_fixed=None,
@@ -1004,13 +1061,13 @@ class Cache(object):
         new_dirtied = book_ids - already_dirtied
         already_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(already_dirtied)}
         if already_dirtied:
-            self.dirtied_sequence = max(already_dirtied.itervalues()) + 1
+            self.dirtied_sequence = max(itervalues(already_dirtied)) + 1
         self.dirtied_cache.update(already_dirtied)
         if new_dirtied:
             self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
                                     ((x,) for x in new_dirtied))
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
-            self.dirtied_sequence = max(new_dirtied.itervalues()) + 1
+            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
@@ -1041,8 +1098,8 @@ class Cache(object):
         if is_series:
             bimap, simap = {}, {}
             sfield = self.fields[name + '_index']
-            for k, v in book_id_to_val_map.iteritems():
-                if isinstance(v, basestring):
+            for k, v in iteritems(book_id_to_val_map):
+                if isinstance(v, string_or_bytes):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
@@ -1083,7 +1140,7 @@ class Cache(object):
     @read_api
     def get_a_dirtied_book(self):
         if self.dirtied_cache:
-            return random.choice(tuple(self.dirtied_cache.iterkeys()))
+            return random.choice(tuple(self.dirtied_cache))
         return None
 
     @read_api
@@ -1186,7 +1243,7 @@ class Cache(object):
         QPixmap, file object or bytestring. It can also be None, in which
         case any existing cover is removed. '''
 
-        for book_id, data in book_id_data_map.iteritems():
+        for book_id, data in iteritems(book_id_data_map):
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
             except AttributeError:
@@ -1197,7 +1254,7 @@ class Cache(object):
         for cc in self.cover_caches:
             cc.invalidate(book_id_data_map)
         return self._set_field('cover', {
-            book_id:(0 if data is None else 1) for book_id, data in book_id_data_map.iteritems()})
+            book_id:(0 if data is None else 1) for book_id, data in iteritems(book_id_data_map)})
 
     @write_api
     def add_cover_cache(self, cover_cache):
@@ -1219,12 +1276,13 @@ class Cache(object):
         if mi contains empty values. In this case, 'None' is distinguished from
         'empty'. If mi.XXX is None, the XXX is not replaced, otherwise it is.
         The tags, identifiers, and cover attributes are special cases. Tags and
-        identifiers cannot be set to None so then will always be replaced if
+        identifiers cannot be set to None so they will always be replaced if
         force_changes is true. You must ensure that mi contains the values you
         want the book to have. Covers are always changed if a new cover is
         provided, but are never deleted. Also note that force_changes has no
         effect on setting title or authors.
         '''
+        dirtied = set()
 
         try:
             # Handle code passing in an OPF object instead of a Metadata object
@@ -1233,7 +1291,7 @@ class Cache(object):
             pass
 
         def set_field(name, val):
-            self._set_field(name, {book_id:val}, do_path_update=False, allow_case_change=allow_case_change)
+            dirtied.update(self._set_field(name, {book_id:val}, do_path_update=False, allow_case_change=allow_case_change))
 
         path_changed = False
         if set_title and mi.title:
@@ -1263,7 +1321,7 @@ class Cache(object):
         # force_changes has no effect on cover manipulation
         try:
             cdata = mi.cover_data[1]
-            if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+            if cdata is None and isinstance(mi.cover, string_or_bytes) and mi.cover and os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:
@@ -1297,18 +1355,17 @@ class Cache(object):
                     protected_set_field('identifiers', mi_idents)
                 elif mi_idents:
                     identifiers = self._field_for('identifiers', book_id, default_value={})
-                    for key, val in mi_idents.iteritems():
+                    for key, val in iteritems(mi_idents):
                         if val and val.strip():  # Don't delete an existing identifier
                             identifiers[icu_lower(key)] = val
                     protected_set_field('identifiers', identifiers)
 
                 user_mi = mi.get_all_user_metadata(make_copy=False)
                 fm = self.field_metadata
-                for key in user_mi.iterkeys():
-                    if (key in fm and
-                            user_mi[key]['datatype'] == fm[key]['datatype'] and
-                            (user_mi[key]['datatype'] != 'text' or
-                            user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
+                for key in user_mi:
+                    if (key in fm and user_mi[key]['datatype'] == fm[key]['datatype'] and (
+                        user_mi[key]['datatype'] != 'text' or (
+                            user_mi[key]['is_multiple'] == fm[key]['is_multiple']))):
                         val = mi.get(key, None)
                         if force_changes or val is not None:
                             protected_set_field(key, val)
@@ -1323,12 +1380,13 @@ class Cache(object):
             # the db and Cache are in sync
             self._reload_from_db()
             raise
+        return dirtied
 
     def _do_add_format(self, book_id, fmt, stream, name=None, mtime=None):
         path = self._field_for('path', book_id)
         if path is None:
             # Theoretically, this should never happen, but apparently it
-            # does: http://www.mobileread.com/forums/showthread.php?t=233353
+            # does: https://www.mobileread.com/forums/showthread.php?t=233353
             self._update_path({book_id}, mark_as_dirtied=False)
             path = self._field_for('path', book_id)
 
@@ -1345,7 +1403,7 @@ class Cache(object):
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
         '''
-        Add a format to the specified book. Return True of the format was added successfully.
+        Add a format to the specified book. Return True if the format was added successfully.
 
         :param replace: If True replace existing format, otherwise if the format already exists, return False.
         :param run_hooks: If True, file type plugins are run on the format before and after being added.
@@ -1361,6 +1419,8 @@ class Cache(object):
             fmt = check_ebook_format(stream_or_path, fmt)
 
         with self.write_lock:
+            if not self._has_id(book_id):
+                raise NoSuchBook(book_id)
             fmt = (fmt or '').upper()
             self.format_metadata_cache[book_id].pop(fmt, None)
             try:
@@ -1396,15 +1456,15 @@ class Cache(object):
         :param db_only: If True, only remove the record for the format from the db, do not delete the actual format file from the filesystem.
         '''
         table = self.fields['formats'].table
-        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
+        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in iteritems(formats_map)}
 
-        for book_id, fmts in formats_map.iteritems():
+        for book_id, fmts in iteritems(formats_map):
             for fmt in fmts:
                 self.format_metadata_cache[book_id].pop(fmt, None)
 
         if not db_only:
             removes = defaultdict(set)
-            for book_id, fmts in formats_map.iteritems():
+            for book_id, fmts in iteritems(formats_map):
                 try:
                     path = self._field_for('path', book_id).replace('/', os.sep)
                 except:
@@ -1421,7 +1481,7 @@ class Cache(object):
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
-        self._update_last_modified(tuple(formats_map.iterkeys()))
+        self._update_last_modified(tuple(formats_map))
 
     @read_api
     def get_next_series_num_for(self, series, field='series', current_indices=False):
@@ -1444,21 +1504,21 @@ class Cache(object):
         index_map = {book_id:self._fast_field_for(idf, book_id, default_value=1.0) for book_id in books}
         if current_indices:
             return index_map
-        series_indices = sorted(index_map.itervalues())
+        series_indices = sorted(itervalues(index_map))
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
-    def author_sort_from_authors(self, authors):
+    def author_sort_from_authors(self, authors, key_func=icu_lower):
         '''Given a list of authors, return the author_sort string for the authors,
         preferring the author sort associated with the author over the computed
         string. '''
         table = self.fields['authors'].table
         result = []
-        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
+        rmap = {key_func(v):k for k, v in iteritems(table.id_map)}
         for aut in authors:
-            aid = rmap.get(icu_lower(aut), None)
+            aid = rmap.get(key_func(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
-        return ' & '.join(filter(None, result))
+        return ' & '.join(_f for _f in result if _f)
 
     @read_api
     def data_for_has_book(self):
@@ -1466,10 +1526,10 @@ class Cache(object):
         implementation of :meth:`has_book` in a worker process without access to the
         db. '''
         try:
-            return {icu_lower(title) for title in self.fields['title'].table.book_col_map.itervalues()}
+            return {icu_lower(title) for title in itervalues(self.fields['title'].table.book_col_map)}
         except TypeError:
             # Some non-unicode titles in the db
-            return {icu_lower(as_unicode(title)) for title in self.fields['title'].table.book_col_map.itervalues()}
+            return {icu_lower(as_unicode(title)) for title in itervalues(self.fields['title'].table.book_col_map)}
 
     @read_api
     def has_book(self, mi):
@@ -1481,7 +1541,7 @@ class Cache(object):
             if isbytestring(title):
                 title = title.decode(preferred_encoding, 'replace')
             q = icu_lower(title).strip()
-            for title in self.fields['title'].table.book_col_map.itervalues():
+            for title in itervalues(self.fields['title'].table.book_col_map):
                 if q == icu_lower(title):
                     return True
         return False
@@ -1562,7 +1622,7 @@ class Cache(object):
                 duplicates.append((mi, format_map))
             else:
                 ids.append(book_id)
-                for fmt, stream_or_path in format_map.iteritems():
+                for fmt, stream_or_path in iteritems(format_map):
                     if self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks):
                         fmt_map[fmt.lower()] = getattr(stream_or_path, 'name', stream_or_path) or '<stream>'
             run_plugins_on_postadd(dbapi or self, book_id, fmt_map)
@@ -1572,7 +1632,7 @@ class Cache(object):
     def remove_books(self, book_ids, permanent=False):
         ''' Remove the books specified by the book_ids from the database and delete
         their format files. If ``permanent`` is False, then the format files
-        are not deleted. '''
+        are placed in the recycle bin. '''
         path_map = {}
         for book_id in book_ids:
             try:
@@ -1581,11 +1641,11 @@ class Cache(object):
                 path = None
             path_map[book_id] = path
         if iswindows:
-            paths = (x.replace(os.sep, '/') for x in path_map.itervalues() if x)
+            paths = (x.replace(os.sep, '/') for x in itervalues(path_map) if x)
             self.backend.windows_check_if_files_in_use(paths)
 
         self.backend.remove_books(path_map, permanent=permanent)
-        for field in self.fields.itervalues():
+        for field in itervalues(self.fields):
             try:
                 table = field.table
             except AttributeError:
@@ -1628,7 +1688,7 @@ class Cache(object):
                 restrict_to_book_ids = frozenset(restrict_to_book_ids)
             id_map = {}
             default_process_map = {}
-            for old_id, new_name in item_id_to_new_name_map.iteritems():
+            for old_id, new_name in iteritems(item_id_to_new_name_map):
                 new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
                 # Get a list of books in the VL with the item
                 books_with_id = f.books_for(old_id)
@@ -1683,7 +1743,7 @@ class Cache(object):
             raise ValueError('Cannot rename items for one-one fields: %s' % field)
         moved_books = set()
         id_map = {}
-        for item_id, new_name in item_id_to_new_name_map.iteritems():
+        for item_id, new_name in iteritems(item_id_to_new_name_map):
             new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
             books, new_id = func(item_id, new_names[0], self.backend)
             affected_books.update(books)
@@ -1698,7 +1758,7 @@ class Cache(object):
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',
-                                {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).iteritems()})
+                                {k:' & '.join(v) for k, v in iteritems(self._author_sort_strings_for_books(affected_books))})
                 self._update_path(affected_books, mark_as_dirtied=False)
             elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
                 for book_id in moved_books:
@@ -1798,7 +1858,7 @@ class Cache(object):
             insensitive).
 
         '''
-        tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').iteritems()}
+        tag_map = {icu_lower(v):k for k, v in iteritems(self._get_id_map('tags'))}
         tag = icu_lower(tag.strip())
         mht = icu_lower(must_have_tag.strip()) if must_have_tag else None
         tag_id, mht_id = tag_map.get(tag, None), tag_map.get(mht, None)
@@ -1811,7 +1871,7 @@ class Cache(object):
                 tagged_books = tagged_books.intersection(self._books_for_field('tags', mht_id))
             if tagged_books:
                 if must_have_authors is not None:
-                    amap = {icu_lower(v):k for k, v in self._get_id_map('authors').iteritems()}
+                    amap = {icu_lower(v):k for k, v in iteritems(self._get_id_map('authors'))}
                     books = None
                     for author in must_have_authors:
                         abooks = self._books_for_field('authors', amap.get(icu_lower(author), None))
@@ -1897,14 +1957,15 @@ class Cache(object):
         db. See db.utils for an implementation. '''
         at = self.fields['authors'].table
         author_map = defaultdict(set)
-        for aid, author in at.id_map.iteritems():
+        for aid, author in iteritems(at.id_map):
             author_map[icu_lower(author)].add(aid)
-        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy())
+        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy(), self.fields['languages'].book_value_map.copy())
 
     @read_api
     def update_data_for_find_identical_books(self, book_id, data):
-        author_map, author_book_map, title_map = data
+        author_map, author_book_map, title_map, lang_map = data
         title_map[book_id] = self._field_for('title', book_id)
+        lang_map[book_id] = self._field_for('languages', book_id)
         at = self.fields['authors'].table
         for aid in at.book_col_map.get(book_id, ()):
             author_map[icu_lower(at.id_map[aid])].add(aid)
@@ -1919,6 +1980,7 @@ class Cache(object):
         title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
         from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
+        langq = tuple(x for x in map(canonicalize_lang, mi.languages or ()) if x and x != 'und')
         if mi.authors:
             try:
                 quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail
@@ -1947,7 +2009,9 @@ class Cache(object):
                 fbook_title = fuzzy_title(fbook_title)
                 mbook_title = fuzzy_title(mi.title)
                 if fbook_title == mbook_title:
-                    identical_book_ids.add(book_id)
+                    bl = self._field_for('languages', book_id)
+                    if not langq or not bl or bl == langq:
+                        identical_book_ids.add(book_id)
         return identical_book_ids
 
     @read_api
@@ -2038,12 +2102,12 @@ class Cache(object):
     def virtual_libraries_for_books(self, book_ids):
         libraries = self._pref('virtual_libraries', {})
         ans = {book_id:[] for book_id in book_ids}
-        for lib, expr in libraries.iteritems():
+        for lib, expr in iteritems(libraries):
             books = self._search(expr)  # We deliberately dont use book_ids as we want to use the search cache
             for book in book_ids:
                 if book in books:
                     ans[book].append(lib)
-        return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
+        return {k:tuple(sorted(v, key=sort_key)) for k, v in iteritems(ans)}
 
     @read_api
     def user_categories_for_books(self, book_ids, proxy_metadata_map=None):
@@ -2060,7 +2124,7 @@ class Cache(object):
         for book_id in book_ids:
             proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
             user_cat_vals = ans[book_id] = {}
-            for ucat, categories in user_cats.iteritems():
+            for ucat, categories in iteritems(user_cats):
                 user_cat_vals[ucat] = res = []
                 for name, cat, ign in categories:
                     try:
@@ -2122,9 +2186,33 @@ class Cache(object):
                 report_progress(i+1, len(book_ids), mi)
 
     @read_api
+    def get_last_read_positions(self, book_id, fmt, user):
+        fmt = fmt.upper()
+        ans = []
+        for device, cfi, epoch, pos_frac in self.backend.execute(
+                'SELECT device,cfi,epoch,pos_frac FROM last_read_positions WHERE book=? AND format=? AND user=?',
+                (book_id, fmt, user)):
+            ans.append({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac})
+        return ans
+
+    @write_api
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+        fmt = fmt.upper()
+        device = device or '_'
+        user = user or '_'
+        if not cfi:
+            self.backend.execute(
+                'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
+                (book_id, fmt, user, device))
+        else:
+            self.backend.execute(
+                'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
+                (book_id, fmt, user, device, cfi, epoch or time(), pos_frac))
+
+    @read_api
     def export_library(self, library_key, exporter, progress=None, abort=None):
-        from binascii import hexlify
-        key_prefix = hexlify(library_key)
+        from polyglot.binary import as_hex_unicode
+        key_prefix = as_hex_unicode(library_key)
         book_ids = self._all_book_ids()
         total = len(book_ids) + 1
         format_metadata = {}
@@ -2160,6 +2248,7 @@ class Cache(object):
         if progress is not None:
             progress(_('Completed'), total, total)
 
+
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
     metadata = importer.metadata[library_key]
@@ -2174,15 +2263,15 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         src.close()
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
-    format_data = {int(book_id):data for book_id, data in metadata['format_data'].iteritems()}
-    for i, (book_id, fmt_key_map) in enumerate(format_data.iteritems()):
+    format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
+    for i, (book_id, fmt_key_map) in enumerate(iteritems(format_data)):
         if abort is not None and abort.is_set():
             return
         title = cache._field_for('title', book_id)
         if progress is not None:
             progress(title, i + 1, total)
         cache._update_path((book_id,), mark_as_dirtied=False)
-        for fmt, fmtkey in fmt_key_map.iteritems():
+        for fmt, fmtkey in iteritems(fmt_key_map):
             if fmt == '.cover':
                 stream = importer.start_file(fmtkey, _('Cover for %s') % title)
                 path = cache._field_for('path', book_id).replace('/', os.sep)

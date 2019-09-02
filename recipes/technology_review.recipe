@@ -18,12 +18,14 @@ class TechnologyReview(BasicNewsRecipe):
     .subheadline {font: italic large}
     """
     feeds = [
-        (u'Computing', u'http://feeds.technologyreview.com/technology_review_Computing'),
-        (u'Web', u'http://feeds.technologyreview.com/technology_review_Web'),
-        (u'Communications',
-         u'http://feeds.technologyreview.com/technology_review_Communications'),
-        (u'Energy', u'http://feeds.technologyreview.com/technology_review_Energy'),
-        (u'Materials', u'http://feeds.technologyreview.com/technology_review_Materials'),
-        (u'Biomedicine', u'http://feeds.technologyreview.com/technology_review_Biotech'),
-        (u'Business', u'http://feeds.technologyreview.com/technology_review_Biztech')
+        (u'Computing',
+         u'http://feeds.technologyreview.com/technology_review_Computing'),
+        (u'Energy',
+         u'http://feeds.technologyreview.com/technology_review_Energy'),
+        (u'Materials',
+         u'http://feeds.technologyreview.com/technology_review_Materials'),
+        (u'Biomedicine',
+         u'http://feeds.technologyreview.com/technology_review_Biotech'),
+        (u'Business',
+         u'http://feeds.technologyreview.com/technology_review_Biztech')
     ]

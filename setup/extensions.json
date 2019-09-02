@@ -10,7 +10,14 @@
     {
         "name": "monotonic",
         "sources": "calibre/utils/monotonic.c",
-        "linux_libraries": "rt"
+        "linux_libraries": "rt",
+        "needs_py2": true
+    },
+    {
+        "name": "unicode_names",
+        "headers": "unicode_names/names.h unicode_names/data-types.h",
+        "sources": "unicode_names/unicode_names.c",
+        "needs_c99": true
     },
     {
         "name": "speedup",
@@ -24,7 +31,8 @@
         "inc_dirs": "!zlib_inc_dirs",
         "lib_dirs": "!zlib_lib_dirs",
         "libraries": "z",
-        "windows_libraries": "zlib"
+        "windows_libraries": "zlib",
+        "needs_py2": true
     },
     {
         "name": "certgen",
@@ -76,16 +84,7 @@
         "windows_libraries": "ChmLib",
         "inc_dirs": "!chmlib_inc_dirs",
         "lib_dirs": "!chmlib_lib_dirs",
-        "defines": "SWIG_COBJECT_TYPES"
-    },
-    {
-        "name": "chm_extra",
-        "sources": "calibre/utils/chm/extra.c",
-        "libraries": "chm",
-        "windows_libraries": "ChmLib",
-        "inc_dirs": "!chmlib_inc_dirs",
-        "lib_dirs": "!chmlib_lib_dirs",
-        "defines": "__PYTHON__"
+        "defines": "SWIG_COBJECT_TYPES SWIG_PYTHON_STRICT_BYTE_CHAR"
     },
     {
         "name": "lzx",
@@ -116,18 +115,6 @@
         "windows_inc_dirs": "calibre/utils/chm"
     },
     {
-        "name": "_regex",
-        "sources": "regex/_regex.c regex/_regex_unicode.c",
-        "headers": "regex/_regex.h",
-        "optimize_level": 2
-    },
-    {
-        "name": "dukpy",
-        "sources": "duktape/errors.c duktape/context.c duktape/conversions.c duktape/proxy.c duktape/module.c duktape/duktape/duktape.c",
-        "headers": "duktape/dukpy.h duktape/duktape/duk_config.h duktape/duktape/duktape.h",
-        "optimize_level": 2
-    },
-    {
         "name": "podofo",
         "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/podofo.cpp",
         "headers": "calibre/utils/podofo/global.h",
@@ -152,7 +139,7 @@
     },
     {
         "name": "imageops",
-        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp",
+        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp calibre/utils/imageops/ordered_dither.cpp",
         "headers": "calibre/utils/imageops/imageops.h",
         "sip_files": "calibre/utils/imageops/imageops.sip",
         "inc_dirs": "calibre/utils/imageops"
@@ -174,8 +161,8 @@
     {
         "name": "winutil",
         "only": "windows",
-        "sources": "calibre/utils/windows/winutil.c",
-        "libraries": "shell32 wininet",
+        "sources": "calibre/utils/windows/winutil.c calibre/utils/windows/winutilpp.cpp",
+        "libraries": "shell32 wininet advapi32",
         "cflags": "/X"
     },
     {
@@ -200,25 +187,28 @@
         "ldflags": "-framework CoreServices -framework IOKit"
     },
     {
+        "name": "cocoa",
+        "only": "osx",
+        "sources": "calibre/utils/cocoa.m calibre/utils/cocoa_wrapper.c",
+        "ldflags": "-framework Cocoa"
+    },
+    {
         "name": "libusb",
-        "only": "osx linux",
+        "only": "osx linux haiku",
         "sources": "calibre/devices/libusb/libusb.c",
         "libraries": "usb-1.0"
     },
     {
+        "name": "libusb",
+        "only": "freebsd",
+        "sources": "calibre/devices/libusb/libusb.c",
+        "libraries": "usb"
+    },
+    {
         "name": "libmtp",
-        "only": "osx linux",
+        "only": "freebsd osx linux haiku",
         "sources": "calibre/devices/mtp/unix/devices.c calibre/devices/mtp/unix/libmtp.c",
         "headers": "calibre/devices/mtp/unix/devices.h calibre/devices/mtp/unix/upstream/music-players.h calibre/devices/mtp/unix/upstream/device-flags.h",
         "libraries": "mtp"
-    },
-    {
-        "name": "unrar",
-        "sources": "unrar/rar.cpp unrar/strlist.cpp unrar/strfn.cpp unrar/pathfn.cpp unrar/savepos.cpp unrar/smallfn.cpp unrar/global.cpp unrar/file.cpp unrar/filefn.cpp unrar/filcreat.cpp unrar/archive.cpp unrar/arcread.cpp unrar/unicode.cpp unrar/system.cpp unrar/isnt.cpp unrar/crypt.cpp unrar/crc.cpp unrar/rawread.cpp unrar/encname.cpp unrar/resource.cpp unrar/match.cpp unrar/timefn.cpp unrar/rdwrfn.cpp unrar/consio.cpp unrar/options.cpp unrar/ulinks.cpp unrar/errhnd.cpp unrar/rarvm.cpp unrar/secpassword.cpp unrar/rijndael.cpp unrar/getbits.cpp unrar/sha1.cpp unrar/extinfo.cpp unrar/extract.cpp unrar/volume.cpp unrar/list.cpp unrar/find.cpp unrar/unpack.cpp unrar/cmddata.cpp unrar/filestr.cpp unrar/scantree.cpp calibre/utils/unrar.cpp",
-        "inc_dirs": "unrar",
-        "defines": "SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE",
-        "windows_defines": "SILENT RARDLL UNRAR",
-        "optimize_level": 2,
-        "windows_libraries": "User32 Advapi32 kernel32 Shell32"
     }
 ]

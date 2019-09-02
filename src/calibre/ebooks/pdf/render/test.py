@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,8 @@ from PyQt5.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
 QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF
 
 from calibre.ebooks.pdf.render.engine import PdfDevice
+from polyglot.builtins import range
+
 
 def full(p, xmax, ymax):
     p.drawRect(0, 0, xmax, ymax)
@@ -24,7 +25,7 @@ def full(p, xmax, ymax):
     pp.addRect(0, 0, xmax, ymax)
     p.drawPath(pp)
     p.save()
-    for i in xrange(3):
+    for i in range(3):
         col = [0, 0, 0, 200]
         col[i] = 255
         p.setOpacity(0.3)
@@ -55,7 +56,7 @@ def full(p, xmax, ymax):
 
     b = QBrush(Qt.HorPattern)
     b.setColor(QColor(Qt.blue))
-    pix = QPixmap(I('console.png'))
+    pix = QPixmap(I('lt.png'))
     w = xmax/4
     p.fillRect(0, ymax/3, w, w, b)
     p.fillRect(xmax/3, ymax/3, w, w, QBrush(pix))
@@ -82,6 +83,7 @@ def run(dev, func):
         if dev.engine.errors_occurred:
             raise SystemExit(1)
 
+
 def brush(p, xmax, ymax):
     x = 0
     y = 0
@@ -94,11 +96,13 @@ def brush(p, xmax, ymax):
     p.fillRect(x, y, w, w, QBrush(g))
     p.drawRect(x, y, w, w)
 
+
 def pen(p, xmax, ymax):
-    pix = QPixmap(I('console.png'))
+    pix = QPixmap(I('lt.png'))
     pen = QPen(QBrush(pix), 60)
     p.setPen(pen)
     p.drawRect(0, xmax/3, xmax/3, xmax/2)
+
 
 def text(p, xmax, ymax):
     f = p.font()
@@ -107,6 +111,7 @@ def text(p, xmax, ymax):
     p.setFont(f)
     p.drawText(QPoint(0, 100),
         'Test intra glyph spacing ffagain imceo')
+
 
 def main():
     app = QApplication([])
@@ -126,10 +131,9 @@ def main():
     run(img, func)
     path = os.path.join(tdir, 'painter.png')
     img.save(path)
-    print ('PDF written to:', pdf)
-    print ('Image written to:', path)
+    print('PDF written to:', pdf)
+    print('Image written to:', path)
+
 
 if __name__ == '__main__':
     main()
-
-

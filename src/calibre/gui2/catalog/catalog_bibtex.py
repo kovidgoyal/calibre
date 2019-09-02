@@ -1,19 +1,22 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
+from PyQt5.Qt import QWidget, QListWidgetItem
+
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
-from PyQt5.Qt import QWidget, QListWidgetItem
+from polyglot.builtins import unicode_type, range
+
 
 class PluginWidget(QWidget, Ui_Form):
 
-    TITLE = _('BibTeX Options')
+    TITLE = _('BibTeX options')
     HELP  = _('Options specific to')+' BibTeX '+_('output')
     OPTION_FIELDS = [('bib_cit','{authors}{id}'),
                      ('bib_entry', 0),  # mixed
@@ -24,7 +27,7 @@ class PluginWidget(QWidget, Ui_Form):
                      ]
 
     sync_enabled = False
-    formats = set(['bib'])
+    formats = {'bib'}
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -46,9 +49,9 @@ class PluginWidget(QWidget, Ui_Form):
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated db_fields from last use
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            item.setSelected(unicode(item.text()) in fields)
+            item.setSelected(unicode_type(item.text()) in fields)
         self.bibfile_enc.clear()
         self.bibfile_enc.addItems(['utf-8', 'cp1252', 'ascii/LaTeX'])
         self.bibfile_enctag.clear()
@@ -70,15 +73,15 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Save the currently activated fields
         fields = []
-        for x in xrange(self.db_fields.count()):
+        for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
             if item.isSelected():
-                fields.append(unicode(item.text()))
+                fields.append(unicode_type(item.text()))
         gprefs.set(self.name+'_db_fields', fields)
 
         # Dictionary currently activated fields
         if len(self.db_fields.selectedItems()):
-            opts_dict = {'fields':[unicode(i.text()) for i in self.db_fields.selectedItems()]}
+            opts_dict = {'fields':[unicode_type(i.text()) for i in self.db_fields.selectedItems()]}
         else:
             opts_dict = {'fields':['all']}
 
@@ -91,7 +94,7 @@ class PluginWidget(QWidget, Ui_Form):
             elif opt[0] in ['impcit', 'addfiles'] :
                 opt_value = getattr(self, opt[0]).isChecked()
             else :
-                opt_value = unicode(getattr(self, opt[0]).text())
+                opt_value = unicode_type(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
 
             opts_dict[opt[0]] = opt_value

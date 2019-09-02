@@ -1,27 +1,26 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, ssl, os, socket, time
+import ssl, os, socket, time
 from collections import namedtuple
 from unittest import skipIf
 from glob import glob
 from threading import Event
 
-try:
-    from calibre.utils.certgen import create_server_cert
-except ImportError:
-    create_server_cert = None
-
+from calibre.constants import ispy3
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import range, unicode_type, map
+from polyglot import http_client
 is_ci = os.environ.get('CI', '').lower() == 'true'
+
 
 class LoopTest(BaseTest):
 
@@ -56,15 +55,18 @@ class LoopTest(BaseTest):
     def test_plugins(self):
         'Test plugin semantics'
         class Plugin(object):
+
             def __init__(self):
                 self.running = Event()
                 self.event = Event()
                 self.port = None
+
             def start(self, loop):
                 self.running.set()
                 self.port = loop.bound_address[1]
                 self.event.wait()
                 self.running.clear()
+
             def stop(self):
                 self.event.set()
 
@@ -83,13 +85,18 @@ class LoopTest(BaseTest):
             server.join()
             self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
         # Test shutdown with hung worker
-        with TestServer(lambda data:time.sleep(1000), worker_count=3, shutdown_timeout=0.01, timeout=0.01) as server:
+        block = Event()
+        with TestServer(lambda data:block.wait(), worker_count=3, shutdown_timeout=0.1, timeout=0.01) as server:
             pool = server.loop.pool
             self.ae(3, sum(int(w.is_alive()) for w in pool.workers))
             conn = server.connect()
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
-                conn.getresponse()
+                res = conn.getresponse()
+                if unicode_type(res.status) == unicode_type(http_client.REQUEST_TIMEOUT):
+                    raise socket.timeout('Timeout')
+                raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
+                    res.status, res.reason, res.getheaders(), res.read()))
             self.ae(pool.busy, 1)
             server.loop.log.filter_level = server.loop.log.ERROR
             server.loop.stop()
@@ -107,23 +114,38 @@ class LoopTest(BaseTest):
     def test_bonjour(self):
         'Test advertising via BonJour'
         from calibre.srv.bonjour import BonJour
-        from calibre.utils.Zeroconf import Zeroconf
-        b = BonJour()
+        if ispy3:
+            from zeroconf import Zeroconf
+        else:
+            from calibre.utils.Zeroconf import Zeroconf
+        b = BonJour(wait_for_stop=False)
         with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:
             self.assertTrue(b.started.wait(5), 'BonJour not started')
             self.ae(b.advertised_port, server.address[1])
             service = b.services[0]
-            self.ae(service.type, b'_calibre._tcp.local.')
+            self.ae(service.type, '_calibre._tcp.local.')
             r = Zeroconf()
-            info = r.getServiceInfo(service.type, service.name)
+            info = r.get_service_info(service.type, service.name)
             self.assertIsNotNone(info)
             self.ae(info.text, b'\npath=/opds')
 
         self.assertTrue(b.stopped.wait(5), 'BonJour not stopped')
 
+    def test_dual_stack(self):
+        from calibre.srv.loop import IPPROTO_IPV6
+        with TestServer(lambda data:(data.path[0] + data.read().decode('utf-8')), listen_on='::') as server:
+            self.ae(server.address[0], '::')
+            self.ae(server.loop.socket.getsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY), 0)
+            conn = server.connect(interface='127.0.0.1')
+            conn.request('GET', '/test', 'body')
+            r = conn.getresponse()
+            self.ae(r.status, http_client.OK)
+            self.ae(r.read(), b'testbody')
+
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
         class FakeSocket(object):
+
             def __init__(self, data):
                 self.data = data
 
@@ -133,8 +155,10 @@ class LoopTest(BaseTest):
                 return sz
         from calibre.srv.loop import ReadBuffer, READ, WRITE
         buf = ReadBuffer(100)
+
         def write(data):
             return buf.recv_from(FakeSocket(data))
+
         def set(data, rpos, wpos, state):
             buf.ba = bytearray(data)
             buf.buf = memoryview(buf.ba)
@@ -148,7 +172,7 @@ class LoopTest(BaseTest):
         self.ae(buf.read(1000), bytes(buf.ba))
         self.ae(b'', buf.read(10))
         self.ae(write(b'a'*10), 10)
-        numbers = bytes(bytearray(xrange(10)))
+        numbers = bytes(bytearray(range(10)))
         set(numbers, 1, 3, READ)
         self.ae(buf.read(1), b'\x01')
         self.ae(buf.read(10), b'\x02')
@@ -175,7 +199,6 @@ class LoopTest(BaseTest):
         set(b'123456\n7', 4, 2, READ)
         self.ae(buf.readline(), b'56\n')
 
-    @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
         address = '127.0.0.1'
@@ -183,11 +206,13 @@ class LoopTest(BaseTest):
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
             ctx = ssl.create_default_context(cafile=ca_file)
-            with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
-                conn = httplib.HTTPSConnection(address, server.address[1], strict=True, context=ctx)
+            with TestServer(
+                    lambda data:(data.path[0] + data.read().decode('utf-8')),
+                    ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
+                conn = http_client.HTTPSConnection(address, server.address[1], context=ctx)
                 conn.request('GET', '/test', 'body')
                 r = conn.getresponse()
-                self.ae(r.status, httplib.OK)
+                self.ae(r.status, http_client.OK)
                 self.ae(r.read(), b'testbody')
                 cert = conn.sock.getpeercert()
                 subject = dict(x[0] for x in cert['subject'])
@@ -201,13 +226,13 @@ class LoopTest(BaseTest):
         s.bind(('localhost', 0))
         port = s.getsockname()[1]
         self.ae(s.fileno(), 3)
-        os.environ['LISTEN_PID'] = str(os.getpid())
+        os.environ['LISTEN_PID'] = unicode_type(os.getpid())
         os.environ['LISTEN_FDS'] = '1'
         with TestServer(lambda data:(data.path[0] + data.read()), allow_socket_preallocation=True) as server:
             conn = server.connect()
             conn.request('GET', '/test', 'body')
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK)
+            self.ae(r.status, http_client.OK)
             self.ae(r.read(), b'testbody')
             self.ae(server.loop.bound_address[1], port)
 
@@ -221,17 +246,20 @@ class LoopTest(BaseTest):
         b = monotonic()
         self.assertGreaterEqual(b, a)
         self.assertGreaterEqual(b - a, 0.09)
-        self.assertLessEqual(b - a, 0.2)
+        self.assertLessEqual(b - a, 0.4)
 
     def test_jobs_manager(self):
         'Test the jobs manager'
         from calibre.srv.jobs import JobsManager
         O = namedtuple('O', 'max_jobs max_job_time')
+
         class FakeLog(list):
+
             def error(self, *args):
                 self.append(' '.join(args))
         s = ('waiting', 'running')
         jm = JobsManager(O(1, 5), FakeLog())
+
         def job_status(jid):
             return jm.job_status(jid)[0]
 
@@ -273,6 +301,7 @@ class LoopTest(BaseTest):
         status, result, tb, was_aborted = jm.job_status(job_id)
         self.assertEqual(status, 'finished')
         self.assertFalse(was_aborted)
-        self.assertTrue(tb), self.assertIn('a testing error', tb)
+        self.assertTrue(tb)
+        self.assertIn('a testing error', tb)
         jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
         jm.shutdown(), jm.wait_for_shutdown(monotonic() + 1)

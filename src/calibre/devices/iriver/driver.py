@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.devices.usbms.driver import USBMS
+
 
 class IRIVER_STORY(USBMS):
 
@@ -40,5 +41,3 @@ class IRIVER_STORY(USBMS):
     EBOOK_DIR_MAIN = 'Book'
 
     SUPPORTS_SUB_DIRS = True
-
-

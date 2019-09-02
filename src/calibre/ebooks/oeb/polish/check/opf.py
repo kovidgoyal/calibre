@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,9 +9,11 @@ from lxml import etree
 
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
-from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc
+from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc, parse_nav
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS, XHTML_MIME
+from polyglot.builtins import iteritems
+
 
 class MissingSection(BaseError):
 
@@ -21,12 +22,14 @@ class MissingSection(BaseError):
         self.HELP = xml(_(
             'The <%s> section is required in the OPF file. You have to create one.') % section_name)
 
+
 class IncorrectIdref(BaseError):
 
     def __init__(self, name, idref, lnum):
         BaseError.__init__(self, _('idref="%s" points to unknown id') % idref, name, lnum)
         self.HELP = xml(_(
             'The idref="%s" points to an id that does not exist in the OPF') % idref)
+
 
 class IncorrectCover(BaseError):
 
@@ -35,10 +38,11 @@ class IncorrectCover(BaseError):
         self.HELP = xml(_(
             'The meta cover tag points to an item with id="%s" which does not exist in the manifest') % cover)
 
+
 class NookCover(BaseError):
 
     HELP = _(
-            'Some ebook readers such as the Nook fail to recognize covers if'
+            'Some e-book readers such as the Nook fail to recognize covers if'
             ' the content attribute comes before the name attribute.'
             ' For maximum compatibility move the name attribute before the content attribute.')
     INDIVIDUAL_FIX = _('Move the name attribute before the content attribute')
@@ -52,6 +56,7 @@ class NookCover(BaseError):
         container.dirty(container.opf_name)
         return True
 
+
 class IncorrectToc(BaseError):
 
     def __init__(self, name, lnum, bad_idref=None, bad_mimetype=None):
@@ -60,8 +65,9 @@ class IncorrectToc(BaseError):
             self.HELP = _('There is no item with id="%s" in the manifest.') % bad_idref
         else:
             msg = _('The item identified as the Table of Contents has an incorrect media-type (%s)') % bad_mimetype
-            self.HELP = _('The media type for the table of contents must be %s') % guess_type('a.ncx')
+            self.HELP = _('The media type for the Table of Contents must be %s') % guess_type('a.ncx')
         BaseError.__init__(self, msg, name, lnum)
+
 
 class NoHref(BaseError):
 
@@ -80,6 +86,7 @@ class NoHref(BaseError):
                 container.remove_from_xml(item)
                 container.dirty(container.opf_name)
         return changed
+
 
 class MissingNCXRef(BaseError):
 
@@ -101,6 +108,7 @@ class MissingNCXRef(BaseError):
                 container.dirty(container.opf_name)
         return changed
 
+
 class MissingNav(BaseError):
 
     HELP = _('This book has no Navigation document. According to the EPUB 3 specification, a navigation document'
@@ -109,6 +117,17 @@ class MissingNav(BaseError):
 
     def __init__(self, name, lnum):
         BaseError.__init__(self, _('Missing navigation document'), name, lnum)
+
+
+class EmptyNav(BaseError):
+
+    HELP = _('The nav document for this book contains no table of contents, or an empty table of contents.'
+             ' Use the Table of Contents tool to add a Table of Contents to this book.')
+    LEVEL = WARN
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Missing ToC in navigation document'), name, lnum)
+
 
 class MissingHref(BaseError):
 
@@ -126,13 +145,14 @@ class MissingHref(BaseError):
         container.dirty(container.opf_name)
         return True
 
+
 class NonLinearItems(BaseError):
 
     level = WARN
     has_multiple_locations = True
 
     HELP = xml(_('There are items marked as non-linear in the <spine>.'
-                 ' These will be displayed in random order by different ebook readers.'
+                 ' These will be displayed in random order by different e-book readers.'
                  ' Some will ignore the non-linear attribute, some will display'
                  ' them at the end or the beginning of the book and some will'
                  ' fail to display them at all. Instead of using non-linear items'
@@ -148,6 +168,7 @@ class NonLinearItems(BaseError):
         [elem.attrib.pop('linear') for elem in container.opf_xpath('//opf:spine/opf:itemref[@linear]')]
         container.dirty(container.opf_name)
         return True
+
 
 class DuplicateHref(BaseError):
 
@@ -173,6 +194,7 @@ class DuplicateHref(BaseError):
         container.dirty(self.name)
         return True
 
+
 class MultipleCovers(BaseError):
 
     has_multiple_locations = True
@@ -189,6 +211,7 @@ class MultipleCovers(BaseError):
         [container.remove_from_xml(e) for e in items[1:]]
         container.dirty(self.name)
         return True
+
 
 class NoUID(BaseError):
 
@@ -217,13 +240,22 @@ class NoUID(BaseError):
         container.dirty(container.opf_name)
         return True
 
+
+class EmptyIdentifier(BaseError):
+
+    HELP = xml(_('The <dc:identifier> element must not be empty.'))
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Empty identifier element'), name, lnum)
+
+
 class BadSpineMime(BaseError):
 
     def __init__(self, name, iid, mt, lnum, opf_name):
         BaseError.__init__(self, _('Incorrect media-type for spine item'), opf_name, lnum)
         self.HELP = _(
             'The item {0} present in the spine has the media-type {1}. '
-            ' Most ebook software cannot handle non-HTML spine items. '
+            ' Most e-book software cannot handle non-HTML spine items. '
             ' If the item is actually HTML, you should change its media-type to {2}.'
             ' If it is not-HTML you should consider replacing it with an HTML item, as it'
             ' is unlikely to work in most readers.').format(name, mt, XHTML_MIME)
@@ -237,6 +269,7 @@ class BadSpineMime(BaseError):
         container.dirty(container.opf_name)
         container.refresh_mime_map()
         return True
+
 
 def check_opf(container):
     errors = []
@@ -282,7 +315,7 @@ def check_opf(container):
                 dups[href].append(item.sourceline)
             else:
                 seen[href] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in iteritems(dups))
 
     seen, dups = {}, {}
     for item in container.opf_xpath('/opf:package/opf:spine/opf:itemref[@idref]'):
@@ -293,7 +326,7 @@ def check_opf(container):
             dups[ref].append(item.sourceline)
         else:
             seen[ref] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in iteritems(dups))
 
     spine = container.opf_xpath('/opf:package/opf:spine[@toc]')
     if spine:
@@ -312,14 +345,19 @@ def check_opf(container):
             ncx = container.manifest_type_map.get(guess_type('a.ncx'))
             if ncx:
                 ncx_name = ncx[0]
-                rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+                rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
                 ncx_id = rmap.get(ncx_name)
                 if ncx_id:
                     errors.append(MissingNCXRef(container.opf_name, spine.sourceline, ncx_id))
 
     if opf_version.major > 2:
-        if find_existing_nav_toc(container) is None:
+        existing_nav = find_existing_nav_toc(container)
+        if existing_nav is None:
             errors.append(MissingNav(container.opf_name, 0))
+        else:
+            toc = parse_nav(container, existing_nav)
+            if len(toc) == 0:
+                errors.append(EmptyNav(existing_nav, 0))
 
     covers = container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')
     if len(covers) > 0:
@@ -331,7 +369,7 @@ def check_opf(container):
                 errors.append(IncorrectCover(container.opf_name, cover.sourceline, cover.get('content', '')))
             raw = etree.tostring(cover)
             try:
-                n, c = raw.index('name="'), raw.index('content="')
+                n, c = raw.index(b'name="'), raw.index(b'content="')
             except ValueError:
                 n = c = -1
             if n > -1 and c > -1 and n > c:
@@ -340,6 +378,9 @@ def check_opf(container):
     uid = container.opf.get('unique-identifier', None)
     if uid is None or not container.opf_xpath('/opf:package/opf:metadata/dc:identifier[@id=%r]' % uid):
         errors.append(NoUID(container.opf_name))
+    for elem in container.opf_xpath('/opf:package/opf:metadata/dc:identifier'):
+        if not elem.text or not elem.text.strip():
+            errors.append(EmptyIdentifier(container.opf_name, elem.sourceline))
 
     for item, name, linear in container.spine_iter:
         mt = container.mime_map[name]

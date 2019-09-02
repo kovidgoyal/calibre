@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,7 @@ from struct import unpack_from
 from collections import OrderedDict
 
 from calibre.utils.fonts.sfnt import UnknownTable
+from polyglot.builtins import iteritems
 
 ARG_1_AND_2_ARE_WORDS      = 0x0001  # if set args are words otherwise they are bytes
 ARGS_ARE_XY_VALUES         = 0x0002  # if set args are xy values, otherwise they are points
@@ -25,6 +25,7 @@ USE_MY_METRICS             = 0x0200  # apply these metrics to parent glyph
 OVERLAP_COMPOUND           = 0x0400  # used by Apple in GX fonts
 SCALED_COMPONENT_OFFSET    = 0x0800  # composite designed to have the component offset scaled (designed for Apple)
 UNSCALED_COMPONENT_OFFSET  = 0x1000  # composite designed not to have the component offset scaled (designed for MS)
+
 
 class SimpleGlyph(object):
 
@@ -41,6 +42,7 @@ class SimpleGlyph(object):
 
     def __call__(self):
         return self.raw
+
 
 class CompositeGlyph(SimpleGlyph):
 
@@ -65,6 +67,7 @@ class CompositeGlyph(SimpleGlyph):
             elif flags & WE_HAVE_A_TWO_BY_TWO:
                 offset += 8
 
+
 class GlyfTable(UnknownTable):
 
     def glyph_data(self, offset, length):
@@ -78,11 +81,10 @@ class GlyfTable(UnknownTable):
         ans = OrderedDict()
         offset = 0
         block = []
-        for glyph_id, glyph in sorted_glyph_map.iteritems():
+        for glyph_id, glyph in iteritems(sorted_glyph_map):
             raw = glyph()
             ans[glyph_id] = (offset, len(raw))
             offset += len(raw)
             block.append(raw)
         self.raw = b''.join(block)
         return ans
-

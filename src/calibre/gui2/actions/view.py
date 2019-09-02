@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import Qt, QAction, pyqtSignal
 
-from calibre.constants import isosx, iswindows
+from calibre.constants import isosx, iswindows, plugins
 from calibre.gui2 import (
     error_dialog, Dispatcher, question_dialog, config, open_local_file,
     info_dialog, elided_text)
@@ -18,6 +19,8 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
+
 
 class HistoryAction(QAction):
 
@@ -39,6 +42,7 @@ class ViewAction(InterfaceAction):
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = True
+    force_internal_viewer = False
 
     def genesis(self):
         self.persistent_files = []
@@ -48,6 +52,7 @@ class ViewAction(InterfaceAction):
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
+        self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
         self.clear_sep1 = self.view_menu.addSeparator()
@@ -122,11 +127,11 @@ class ViewAction(InterfaceAction):
                         kwargs=dict(args=args))
             else:
                 if iswindows:
-                    from calibre.utils.file_associations import file_assoc_windows
+                    winutil = plugins['winutil'][0]
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
-                            prog = file_assoc_windows(ext)
+                            prog = winutil.file_association(unicode_type('.' + ext))
                         except Exception:
                             prog = None
                         if prog and prog.lower().endswith('calibre.exe'):
@@ -136,7 +141,7 @@ class ViewAction(InterfaceAction):
                                     'Windows will try to open %s with calibre itself'
                                     ' resulting in a duplicate in your calibre library. You'
                                     ' should install some program capable of viewing this'
-                                    ' file format and tell windows to use that program to open'
+                                    ' file format and tell Windows to use that program to open'
                                     ' files of this type.') % name, show=True)
 
                 open_local_file(name)
@@ -148,7 +153,7 @@ class ViewAction(InterfaceAction):
         ext = os.path.splitext(name)[1].upper().replace('.',
                 '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
-        internal = ext in config['internally_viewed_formats']
+        internal = self.force_internal_viewer or ext in config['internally_viewed_formats']
         self._launch_viewer(name, viewer, internal)
 
     def view_specific_format(self, triggered):
@@ -162,7 +167,7 @@ class ViewAction(InterfaceAction):
         rows = [r.row() for r in rows]
         book_ids = [db.id(r) for r in rows]
         formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
-        all_fmts = set([])
+        all_fmts = set()
         for x in formats:
             if x:
                 for f in x:
@@ -197,15 +202,15 @@ class ViewAction(InterfaceAction):
         book_id = self.gui.library_view.model().id(row)
         self.gui.book_details.open_fmt_with.emit(book_id, fmt, entry)
 
-    def _view_check(self, num, max_=3):
+    def _view_check(self, num, max_=5, skip_dialog_name=None):
         if num <= max_:
             return True
-        return question_dialog(self.gui, _('Multiple Books Selected'),
+        return question_dialog(self.gui, _('Multiple books selected'),
                 _('You are attempting to open %d books. Opening too many '
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
                 'cannot be stopped until complete. Do you wish to continue?'
-                ) % num, show_copy_button=False)
+                ) % num, show_copy_button=False, skip_dialog_name=skip_dialog_name)
 
     def view_folder(self, *args):
         rows = self.gui.current_view().selectionModel().selectedRows()
@@ -214,7 +219,7 @@ class ViewAction(InterfaceAction):
                     _('No book selected'))
             d.exec_()
             return
-        if not self._view_check(len(rows)):
+        if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
             return
         for i, row in enumerate(rows):
             path = self.gui.library_view.model().db.abspath(row.row())
@@ -229,6 +234,13 @@ class ViewAction(InterfaceAction):
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()
         self._view_books(rows)
+
+    def view_internal(self, triggered):
+        try:
+            self.force_internal_viewer = True
+            self.view_book(triggered)
+        finally:
+            self.force_internal_viewer = False
 
     def view_triggered(self, index):
         self._view_books([index])
@@ -249,7 +261,7 @@ class ViewAction(InterfaceAction):
             except:
                 error_dialog(self.gui, _('Cannot view'),
                     _('This book no longer exists in your library'), show=True)
-                self.update_history([], remove=set([id_]))
+                self.update_history([], remove={id_})
                 continue
 
             title   = db.title(id_, index_is_id=True)
@@ -306,10 +318,16 @@ class ViewAction(InterfaceAction):
             return
 
         if self.gui.current_view() is self.gui.library_view:
-            ids = list(map(self.gui.library_view.model().id, rows))
-            self._view_calibre_books(ids)
+            ids = []
+            m = self.gui.library_view.model().id
+            for r in rows:
+                try:
+                    ids.append(m(r))
+                except Exception:
+                    pass
+            if ids:
+                self._view_calibre_books(ids)
         else:
             paths = self.gui.current_view().model().paths(rows)
             for path in paths:
                 self.view_device_book(path)
-

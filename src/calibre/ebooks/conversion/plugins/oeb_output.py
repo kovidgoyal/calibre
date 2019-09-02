@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,16 +11,18 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre import CurrentDir
 
+
 class OEBOutput(OutputFormatPlugin):
 
     name = 'OEB Output'
     author = 'Kovid Goyal'
     file_type = 'oeb'
+    commit_name = 'oeb_output'
 
-    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+    recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        from urllib import unquote
+        from polyglot.urllib import unquote
         from lxml import etree
 
         self.log, self.opts = log, opts
@@ -49,22 +52,21 @@ class OEBOutput(OutputFormatPlugin):
                     if key == OPF_MIME:
                         # Needed as I can't get lxml to output opf:role and
                         # not output <opf:metadata> as well
-                        raw = re.sub(r'(<[/]{0,1})opf:', r'\1', raw)
-                    with open(href, 'wb') as f:
+                        raw = re.sub(br'(<[/]{0,1})opf:', br'\1', raw)
+                    with lopen(href, 'wb') as f:
                         f.write(raw)
 
             for item in oeb_book.manifest:
                 if (
-                        not self.opts.expand_css and
-                        item.media_type in OEB_STYLES and hasattr(item.data, 'cssText') and
-                        'nook' not in self.opts.output_profile.short_name):
+                        not self.opts.expand_css and item.media_type in OEB_STYLES and hasattr(
+                            item.data, 'cssText') and 'nook' not in self.opts.output_profile.short_name):
                     condense_sheet(item.data)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-                with open(path, 'wb') as f:
-                    f.write(str(item))
+                with lopen(path, 'wb') as f:
+                    f.write(item.bytes_representation)
                 item.unload_data_from_memory(memory=path)
 
     def workaround_nook_cover_bug(self, root):  # {{{
@@ -118,4 +120,3 @@ class OEBOutput(OutputFormatPlugin):
             if clc:
                 lang.text = clc
     # }}}
-

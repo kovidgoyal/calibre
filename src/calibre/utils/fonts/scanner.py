@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,9 +15,13 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
+from polyglot.builtins import itervalues, unicode_type, filter
+
 
 class NoFonts(ValueError):
     pass
+
+# Font dirs {{{
 
 
 def default_font_dirs():
@@ -114,10 +117,82 @@ def font_dirs():
                 os.path.expanduser('~/Library/Fonts'),
                 ]
     return fc_list()
+# }}}
+
+# Build font family maps {{{
+
+
+def font_priority(font):
+    '''
+    Try to ensure that  the "Regular" face is the first font for a given
+    family.
+    '''
+    style_normal = font['font-style'] == 'normal'
+    width_normal = font['font-stretch'] == 'normal'
+    weight_normal = font['font-weight'] == 'normal'
+    num_normal = sum(filter(None, (style_normal, width_normal,
+        weight_normal)))
+    subfamily_name = (font['wws_subfamily_name'] or
+            font['preferred_subfamily_name'] or font['subfamily_name'])
+    if num_normal == 3 and subfamily_name == 'Regular':
+        return 0
+    if num_normal == 3:
+        return 1
+    if subfamily_name == 'Regular':
+        return 2
+    return 3 + (3 - num_normal)
+
+
+def path_significance(path, folders):
+    path = os.path.normcase(os.path.abspath(path))
+    for i, q in enumerate(folders):
+        if path.startswith(q):
+            return i
+    return -1
+
+
+def build_families(cached_fonts, folders, family_attr='font-family'):
+    families = defaultdict(list)
+    for f in itervalues(cached_fonts):
+        if not f:
+            continue
+        lf = icu_lower(f.get(family_attr) or '')
+        if lf:
+            families[lf].append(f)
+
+    for fonts in itervalues(families):
+        # Look for duplicate font files and choose the copy that is from a
+        # more significant font directory (prefer user directories over
+        # system directories).
+        fmap = {}
+        remove = []
+        for f in fonts:
+            fingerprint = (icu_lower(f['font-family']), f['font-weight'],
+                    f['font-stretch'], f['font-style'])
+            if fingerprint in fmap:
+                opath = fmap[fingerprint]['path']
+                npath = f['path']
+                if path_significance(npath, folders) >= path_significance(opath, folders):
+                    remove.append(fmap[fingerprint])
+                    fmap[fingerprint] = f
+                else:
+                    remove.append(f)
+            else:
+                fmap[fingerprint] = f
+        for font in remove:
+            fonts.remove(font)
+        fonts.sort(key=font_priority)
+
+    font_family_map = dict.copy(families)
+    font_families = tuple(sorted((f[0]['font-family'] for f in
+            itervalues(font_family_map)), key=sort_key))
+    return font_family_map, font_families
+# }}}
+
 
 class FontScanner(Thread):
 
-    CACHE_VERSION = 1
+    CACHE_VERSION = 2
 
     def __init__(self, folders=[], allowed_extensions={'ttf', 'otf'}):
         Thread.__init__(self)
@@ -191,7 +266,7 @@ class FontScanner(Thread):
         '''
         from calibre.utils.fonts.utils import (supports_text,
                 panose_to_css_generic_family, get_printable_characters)
-        if not isinstance(text, unicode):
+        if not isinstance(text, unicode_type):
             raise TypeError(u'%r is not unicode'%text)
         text = get_printable_characters(text)
         found = {}
@@ -205,7 +280,7 @@ class FontScanner(Thread):
             return False
 
         for family in self.find_font_families():
-            faces = filter(filter_faces, self.fonts_for_family(family))
+            faces = list(filter(filter_faces, self.fonts_for_family(family)))
             if not faces:
                 continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])
@@ -283,68 +358,8 @@ class FontScanner(Thread):
 
         self.build_families()
 
-    def font_priority(self, font):
-        '''
-        Try to ensure that  the "Regular" face is the first font for a given
-        family.
-        '''
-        style_normal = font['font-style'] == 'normal'
-        width_normal = font['font-stretch'] == 'normal'
-        weight_normal = font['font-weight'] == 'normal'
-        num_normal = sum(filter(None, (style_normal, width_normal,
-            weight_normal)))
-        subfamily_name = (font['wws_subfamily_name'] or
-                font['preferred_subfamily_name'] or font['subfamily_name'])
-        if num_normal == 3 and subfamily_name == 'Regular':
-            return 0
-        if num_normal == 3:
-            return 1
-        if subfamily_name == 'Regular':
-            return 2
-        return 3 + (3 - num_normal)
-
     def build_families(self):
-        families = defaultdict(list)
-        for f in self.cached_fonts.itervalues():
-            if not f:
-                continue
-            lf = icu_lower(f['font-family'] or '')
-            if lf:
-                families[lf].append(f)
-
-        for fonts in families.itervalues():
-            # Look for duplicate font files and choose the copy that is from a
-            # more significant font directory (prefer user directories over
-            # system directories).
-            fmap = {}
-            remove = []
-            for f in fonts:
-                fingerprint = (icu_lower(f['font-family']), f['font-weight'],
-                        f['font-stretch'], f['font-style'])
-                if fingerprint in fmap:
-                    opath = fmap[fingerprint]['path']
-                    npath = f['path']
-                    if self.path_significance(npath) >= self.path_significance(opath):
-                        remove.append(fmap[fingerprint])
-                        fmap[fingerprint] = f
-                    else:
-                        remove.append(f)
-                else:
-                    fmap[fingerprint] = f
-            for font in remove:
-                fonts.remove(font)
-            fonts.sort(key=self.font_priority)
-
-        self.font_family_map = dict.copy(families)
-        self.font_families = tuple(sorted((f[0]['font-family'] for f in
-                self.font_family_map.itervalues()), key=sort_key))
-
-    def path_significance(self, path):
-        path = os.path.normcase(os.path.abspath(path))
-        for i, q in enumerate(self.folders):
-            if path.startswith(q):
-                return i
-        return -1
+        self.font_family_map, self.font_families = build_families(self.cached_fonts, self.folders)
 
     def write_cache(self):
         with self.cache:
@@ -382,15 +397,16 @@ class FontScanner(Thread):
                 prints()
             prints()
 
+
 font_scanner = FontScanner()
 font_scanner.start()
+
 
 def force_rescan():
     font_scanner.join()
     font_scanner.force_rescan()
     font_scanner.run()
 
+
 if __name__ == '__main__':
     font_scanner.dump_fonts()
-
-

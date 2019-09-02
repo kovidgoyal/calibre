@@ -2,13 +2,12 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>, John Howell <jhowell@acm.org>'
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 # Based on work of John Howell reversing the KFX format
-# http://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
+# https://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
 
-import struct, sys, base64, re
+import struct, sys, re
 from collections import defaultdict
 
 from calibre.ebooks.metadata.book.base import Metadata
@@ -18,9 +17,13 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type, filter, map
+from polyglot.binary import as_base64_bytes, from_base64_bytes
+
 
 class InvalidKFX(ValueError):
     pass
+
 
 # magic numbers for data structures
 CONTAINER_MAGIC = b'CONT'
@@ -36,6 +39,7 @@ DT_STRING = 8           # unicode
 DT_STRUCT = 11          # tuple
 DT_LIST = 12            # list
 DT_OBJECT = 13          # dict of property/value pairs
+DT_TYPED_DATA = 14      # type, name, value
 
 # property names (non-unicode strings to distinguish them from ION strings in this program)
 # These are place holders. The correct property names are unknown.
@@ -50,7 +54,7 @@ METADATA_PROPERTIES = {
     b'P10' : "languages",
     b'P153': "title",
     b'P154': "description",
-    b'P222': "authors",
+    b'P222': "author",
     b'P232': "publisher",
 }
 
@@ -58,7 +62,12 @@ COVER_KEY = "cover_image_base64"
 
 
 def hexs(string, sep=' '):
-    return sep.join('%02x' % ord(b) for b in string)
+    if isinstance(string, bytes):
+        string = bytearray(string)
+    else:
+        string = map(ord, string)
+    return sep.join('%02x' % b for b in string)
+
 
 class PackedData(object):
 
@@ -150,7 +159,7 @@ class Entity(PackedBlock):
         if PackedData(self.entity_data).unpack_one('4s') == ION_MAGIC:
             entity_value = PackedIon(self.entity_data).decode()
         else:
-            entity_value = base64.b64encode(self.entity_data)
+            entity_value = as_base64_bytes(self.entity_data)
 
         return (property_name(self.entity_type), property_name(self.entity_id), entity_value)
 
@@ -214,6 +223,12 @@ class PackedIon(PackedData):
 
             return result
 
+        if data_type == DT_TYPED_DATA:
+            ion = PackedIon(self.extract(data_len))
+            ion.unpack_number()
+            ion.unpack_number()
+            return ion.unpack_typed_value()
+
         # ignore unknown types
         self.advance(data_len)
         return None
@@ -228,7 +243,7 @@ class PackedIon(PackedData):
 
     def unpack_unsigned_int(self, length):
         # unsigned big-endian (MSB first)
-        return struct.unpack_from(b'>Q', chr(0) * (8 - length) + self.extract(length))[0]
+        return struct.unpack_from(b'>Q', b'\0' * (8 - length) + self.extract(length))[0]
 
 
 def property_name(property_number):
@@ -236,33 +251,52 @@ def property_name(property_number):
     # strings using a symbol table
     return b"P%d" % property_number
 
+
 def extract_metadata(container_data):
     metadata = defaultdict(list)
 
     # locate book metadata within the container data structures
 
+    metadata_entity = {}
+
     for entity_type, entity_id, entity_value in container_data:
         if entity_type == PROP_METADATA:
-            for key, value in entity_value.items():
-                if key in METADATA_PROPERTIES:
-                    metadata[METADATA_PROPERTIES[key]].append(value)
+            metadata_entity = entity_value
 
         elif entity_type == PROP_METADATA2:
-            for value1 in entity_value[PROP_METADATA3]:
-                for meta in value1[PROP_METADATA]:
-                    metadata[meta[PROP_METADATA_KEY]].append(meta[PROP_METADATA_VALUE])
+            if entity_value is not None:
+                for value1 in entity_value[PROP_METADATA3]:
+                    for meta in value1[PROP_METADATA]:
+                        metadata[meta[PROP_METADATA_KEY]].append(meta[PROP_METADATA_VALUE])
 
         elif entity_type == PROP_IMAGE and COVER_KEY not in metadata:
             # assume first image is the cover
             metadata[COVER_KEY] = entity_value
 
+    for key, value in metadata_entity.items():
+        if key in METADATA_PROPERTIES and METADATA_PROPERTIES[key] not in metadata:
+            metadata[METADATA_PROPERTIES[key]].append(value)
+
     return metadata
+
 
 def dump_metadata(m):
     d = dict(m)
     d[COVER_KEY] = bool(d.get(COVER_KEY))
     from pprint import pprint
     pprint(d)
+
+
+def read_book_key_kfx(stream, read_cover=True):
+    ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
+    c = Container(stream.read())
+    m = extract_metadata(c.decode())
+
+    def val(x):
+        return m[x][0] if x in m else ''
+
+    return (val('content_id') or val('ASIN')), val('cde_content_type')
+
 
 def read_metadata_kfx(stream, read_cover=True):
     ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
@@ -282,7 +316,7 @@ def read_metadata_kfx(stream, read_cover=True):
         return ans
 
     title = get('title') or _('Unknown')
-    authors = get('authors', False) or [_('Unknown')]
+    authors = get('author', False) or [_('Unknown')]
     auth_pat = re.compile(r'([^,]+?)\s*,\s+([^,]+)$')
 
     def fix_author(x):
@@ -292,7 +326,12 @@ def read_metadata_kfx(stream, read_cover=True):
                 return m.group(2) + ' ' + m.group(1)
         return x
 
-    mi = Metadata(title, [fix_author(x) for x in authors])
+    unique_authors = []     # remove duplicates while retaining order
+    for f in [fix_author(x) for x in authors]:
+        if f not in unique_authors:
+            unique_authors.append(f)
+
+    mi = Metadata(title, unique_authors)
     if has('author'):
         mi.author_sort = get('author')
     if has('ASIN'):
@@ -312,8 +351,8 @@ def read_metadata_kfx(stream, read_cover=True):
         mi.publisher = get('publisher')
     if read_cover and m[COVER_KEY]:
         try:
-            data = base64.standard_b64decode(m[COVER_KEY])
-            fmt, w, h = identify(bytes(data))
+            data = from_base64_bytes(m[COVER_KEY])
+            fmt, w, h = identify(data)
         except Exception:
             w, h, fmt = 0, 0, None
         if fmt and w > -1 and h > -1:
@@ -321,8 +360,9 @@ def read_metadata_kfx(stream, read_cover=True):
 
     return mi
 
+
 if __name__ == '__main__':
     from calibre import prints
     with open(sys.argv[-1], 'rb') as f:
         mi = read_metadata_kfx(f)
-        prints(unicode(mi))
+        prints(unicode_type(mi))

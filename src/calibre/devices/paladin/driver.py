@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Device driver for the Paladin devices
 '''
@@ -18,9 +17,12 @@ from calibre.devices.usbms.books import CollectionsBookList, BookList
 
 DBPATH = 'paladin/database/books.db'
 
+
 class ImageWrapper(object):
+
     def __init__(self, image_path):
         self.image_path = image_path
+
 
 class PALADIN(USBMS):
     name           = 'Paladin Device Interface'
@@ -218,9 +220,9 @@ class PALADIN(USBMS):
                     '\n'+tb)
 
     def get_database_min_id(self, source_id):
-        sequence_min = 0L
+        sequence_min = 0
         if source_id == 1:
-            sequence_min = 4294967296L
+            sequence_min = 4294967296
 
         return sequence_min
 
@@ -347,7 +349,7 @@ class PALADIN(USBMS):
                 values (?,?,?,?,?,?,?,?)
                 '''
                 t = (title, author, book.get('comments', None), int(time.time() * 1000),
-                        book.get('series', None), book.get('series_index', sys.maxint), lpath,
+                        book.get('series', None), book.get('series_index', sys.maxsize), lpath,
                         book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = connection.last_insert_rowid()

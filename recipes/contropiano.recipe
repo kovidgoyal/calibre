@@ -1,0 +1,51 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe(BasicNewsRecipe):
+    title = u'Contropiano'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    language = 'it'
+    __author__ = 'michele'
+
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': ['category-archive single']}),
+        dict(name='div', attrs={'class': ['content-post']})
+    ]
+
+    remove_tags = [
+        dict(name='span', attrs={'id': ['postviews']}),
+        dict(name='div', attrs={'class': ['social-share']}),
+        dict(name='p', attrs={'class': ['firma-redazione']})
+    ]
+
+    remove_tags_after = dict(name='p', attrs={'class': ['firma-redazione']})
+
+    feeds = [
+        (u'Politica',
+         u'http://contropiano.org/news/politica-news/feed'),
+        (u'Internazionale',
+         u'http://contropiano.org/news/internazionale-news/feed'),
+        (u'Aggiornamenti in breve',  u'http://contropiano.org/news/aggiornamenti-in-breve/feed'),
+        (u'Economia',
+         u'http://contropiano.org/news/news-economia/feed'),
+        (u'Ambiente',
+         u'http://contropiano.org/news/ambiente-news/feed'),
+        (u'Scienza',
+            u'http://contropiano.org/news/scienza-news/feed'),
+        (u'Cultura',
+         u'http://contropiano.org/news/cultura-news/feed'),
+        (u'Locali', u'http://contropiano.org/regionali/feed'),
+        (u'Lavoro', u'http://contropiano.org/news/lavoro-conflitto-news/feed'),
+        (u'Malapolizia',  u'http://contropiano.org/news/malapolizia-news/feed'),
+        (u'Interventi', u'http://contropiano.org/interventi/feed'),
+        (u'Documenti', u'http://contropiano.org/documenti/feed'),
+        (u'Vignette', u'http://contropiano.org/vignette/feed'),
+        (u'Altro',
+            u'http://contropiano.org/altro/feed')
+    ]

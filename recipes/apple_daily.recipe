@@ -10,7 +10,6 @@ import os
 import datetime
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
@@ -22,6 +21,7 @@ class AppleDaily(BasicNewsRecipe):
     title = u'蘋果日報 (香港)'
     __author__ = 'Eddie Lau'
     publisher = '蘋果日報'
+    publication_type= 'newspaper'
     oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup = False
@@ -33,12 +33,14 @@ class AppleDaily(BasicNewsRecipe):
     no_stylesheets = True
     description = 'http://hkm.appledaily.com/'
     category = 'Chinese, News, Hong Kong'
-    masthead_url = 'http://upload.wikimedia.org/wikipedia/zh/c/cf/AppleDailyLogo1.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/8/86/Apple_Daily_Title.svg'
 
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:200%; text-align:left; font-weight:bold;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:125%; text-align:left; font-weight:bold;} p{font-size:90%;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
     keep_only_tags = [dict(name='div', attrs={'id': 'content-article'})]
     remove_tags = [dict(name='div', attrs={'class': 'prev-next-btn'}),
-                   dict(name='p', attrs={'class': 'next'})]
+                   dict(name='p', attrs={'class': 'next'}),
+                   dict(name='meta'),
+                   dict(name='link')]
 
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
@@ -104,9 +106,20 @@ class AppleDaily(BasicNewsRecipe):
             relativea = li.find('a', href=True).get('href', False)
             a = 'http://hkm.appledaily.com/' + relativea
             title = li.find('a', text=True).strip()
-            if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            # if (time.tzname != 'HKT'):
+            #     if (title == u'三藩市'):
+            #         continue
+            #     if (title == u'洛杉磯'):
+            #         continue
+            #     if (title == u'紐&nbsp; 約'):
+            #         continue
+            #     if (title == u'美&nbsp; 國'):
+            #         continue
+            # if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            if (relativea.find('category=daily')!= -1)and (relativea.startswith('list.php')):
                 sectionList.append((title, a))
         for title, url in sectionList:
+            title = title.replace("&nbsp;", "")
             articles = self.parse_section(url)
             if articles:
                 feeds.append((title, articles))
@@ -116,6 +129,8 @@ class AppleDaily(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         ul = soup.find(attrs={'class': 'list'})
         current_articles = []
+        if ul is None :
+            return current_articles
         for li in ul.findAll('li'):
             a = li.find('a', href=True)
             title = li.find('p', text=True).strip()
@@ -146,7 +161,7 @@ class AppleDaily(BasicNewsRecipe):
                     article_titles.append(force_unicode(a.title, 'utf-8'))
 
         mi.comments = self.description
-        if not isinstance(mi.comments, unicode):
+        if not isinstance(mi.comments, type(u'')):
             mi.comments = mi.comments.decode('utf-8', 'replace')
         mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
                         '\n\n'.join(article_titles))
@@ -168,7 +183,7 @@ class AppleDaily(BasicNewsRecipe):
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
             ref = Guide.Reference(os.path.basename(
-                self.masthead_path), os.getcwdu())
+                self.masthead_path), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -240,6 +255,7 @@ class AppleDaily(BasicNewsRecipe):
                     if os.path.exists(last):
                         with open(last, 'rb') as fi:
                             src = fi.read().decode('utf-8')
+                        src = src.replace('height:260px !important;','')  # fix flow-player div tag parent
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
@@ -249,11 +265,14 @@ class AppleDaily(BasicNewsRecipe):
                                                          not self.has_single_feed,
                                                          a.orig_url, __appname__, prefix=prefix,
                                                          center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(
-                                doctype='xhtml').decode('utf-8')).find('div')
+                            translatedTempl =re.sub(
+                                '<hr.*<br','<hr>本篇由 '+__appname__+
+                                ' 快取自 <a href="http://hkm.appledaily.com/" >蘋果日報</a> ; <a href="'+a.orig_url+'">本篇來源位置</a>。'+
+                                '<br',templ.render(doctype='xhtml').decode('utf-8'),flags=re.S)
+                            elem = BeautifulSoup(translatedTempl).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
+                                fi.write(type(u'')(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 
@@ -282,5 +301,5 @@ class AppleDaily(BasicNewsRecipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)

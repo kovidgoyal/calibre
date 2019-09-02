@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
@@ -7,11 +8,13 @@ import os, subprocess, shutil, re
 from functools import partial
 
 from calibre import prints
-from calibre.constants import iswindows
+from calibre.constants import iswindows, ispy3
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from polyglot.builtins import iteritems, unicode_type
+
 
 def get_tools():
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
@@ -20,6 +23,7 @@ def get_tools():
     pdfinfo = os.path.join(base, 'pdfinfo') + suffix
     pdftoppm = os.path.join(base, 'pdftoppm') + suffix
     return pdfinfo, pdftoppm
+
 
 def read_info(outputdir, get_cover):
     ''' Read info dict and cover from a pdf file named src.pdf in outputdir.
@@ -33,28 +37,40 @@ def read_info(outputdir, get_cover):
     ans = {}
 
     try:
-        raw = subprocess.check_output([pdfinfo, '-meta', '-enc', 'UTF-8', 'src.pdf'])
+        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', '-isodates', 'src.pdf'])
     except subprocess.CalledProcessError as e:
         prints('pdfinfo errored out with return code: %d'%e.returncode)
         return None
-    # The XMP metadata could be in an encoding other than UTF-8, so split it
-    # out before trying to decode raw
-    parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
-    if len(parts) > 1:
-        raw, ans['xmp_metadata'] = parts
     try:
-        raw = raw.decode('utf-8')
+        info_raw = raw.decode('utf-8')
     except UnicodeDecodeError:
         prints('pdfinfo returned no UTF-8 data')
         return None
 
-    for line in raw.splitlines():
-        if u':' not in line:
+    for line in info_raw.splitlines():
+        if ':' not in line:
             continue
-        field, val = line.partition(u':')[::2]
+        field, val = line.partition(':')[::2]
         val = val.strip()
         if field and val:
             ans[field] = val.strip()
+
+    # Now read XMP metadata
+    # Versions of poppler before 0.47.0 used to print out both the Info dict and
+    # XMP metadata packet together. However, since that changed in
+    # https://cgit.freedesktop.org/poppler/poppler/commit/?id=c91483aceb1b640771f572cb3df9ad707e5cad0d
+    # we can no longer rely on it.
+    try:
+        raw = subprocess.check_output([pdfinfo, '-meta', 'src.pdf']).strip()
+    except subprocess.CalledProcessError as e:
+        prints('pdfinfo failed to read XML metadata with return code: %d'%e.returncode)
+    else:
+        parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
+        if len(parts) > 1:
+            # old poppler < 0.47.0
+            raw = parts[1].strip()
+        if raw:
+            ans['xmp_metadata'] = raw
 
     if get_cover:
         try:
@@ -65,6 +81,7 @@ def read_info(outputdir, get_cover):
 
     return ans
 
+
 def page_images(pdfpath, outputdir, first=1, last=1):
     pdftoppm = get_tools()[1]
     outputdir = os.path.abspath(outputdir)
@@ -73,11 +90,23 @@ def page_images(pdfpath, outputdir, first=1, last=1):
         import win32process as w
         args['creationflags'] = w.HIGH_PRIORITY_CLASS | w.CREATE_NO_WINDOW
     try:
-        subprocess.check_call([pdftoppm, '-cropbox', '-jpeg', '-f', unicode(first),
-                               '-l', unicode(last), pdfpath,
+        subprocess.check_call([pdftoppm, '-cropbox', '-jpeg', '-f', unicode_type(first),
+                               '-l', unicode_type(last), pdfpath,
                                os.path.join(outputdir, 'page-images')], **args)
     except subprocess.CalledProcessError as e:
         raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)
+
+
+def is_pdf_encrypted(path_to_pdf):
+    if not ispy3 and not isinstance(path_to_pdf, bytes):
+        path_to_pdf = path_to_pdf.encode('mbcs' if iswindows else 'utf-8')
+    pdfinfo = get_tools()[0]
+    raw = subprocess.check_output([pdfinfo, path_to_pdf])
+    q = re.search(br'^Encrypted:\s*(\S+)', raw, flags=re.MULTILINE)
+    if q is not None:
+        return q.group(1) == b'yes'
+    return False
+
 
 def get_metadata(stream, cover=True):
     with TemporaryDirectory('_pdf_metadata_read') as pdfpath:
@@ -95,7 +124,7 @@ def get_metadata(stream, cover=True):
             raw = f.read().strip()
             if raw:
                 prints(raw)
-        if not info:
+        if info is None:
             raise ValueError('Could not read info dict from PDF')
         covpath = os.path.join(pdfpath, 'cover.jpg')
         cdata = None
@@ -103,7 +132,7 @@ def get_metadata(stream, cover=True):
             with open(covpath, 'rb') as f:
                 cdata = f.read()
 
-    title = info.get('Title', None)
+    title = info.get('Title', None) or _('Unknown')
     au = info.get('Author', None)
     if au is None:
         au = [_('Unknown')]
@@ -136,9 +165,9 @@ def get_metadata(stream, cover=True):
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in mi.get_identifiers():
-            for k, v in info.iteritems():
+            for k, v in iteritems(info):
                 if k != 'xmp_metadata':
                     val = check_func(v)
                     if val:
@@ -149,12 +178,12 @@ def get_metadata(stream, cover=True):
         mi.cover_data = ('jpeg', cdata)
     return mi
 
+
 get_quick_metadata = partial(get_metadata, cover=False)
 
 from calibre.utils.podofo import set_metadata as podofo_set_metadata
 
+
 def set_metadata(stream, mi):
     stream.seek(0)
     return podofo_set_metadata(stream, mi)
-
-

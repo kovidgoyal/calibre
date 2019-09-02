@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -11,6 +12,7 @@ import re, os
 
 from calibre.ebooks.metadata import MetaInformation
 
+
 def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object
@@ -21,15 +23,15 @@ def get_metadata(stream, extract_cover=True):
     mi = MetaInformation(name or _('Unknown'), [_('Unknown')])
     stream.seek(0)
 
-    mdata = u''
+    mdata = ''
     for x in range(0, 4):
         line = stream.readline().decode('utf-8', 'replace')
-        if line == '':
+        if not line:
             break
         else:
             mdata += line
 
-    mdata = mdata[:100]
+    mdata = mdata[:1024]
 
     mo = re.search('(?u)^[ ]*(?P<title>.+)[ ]*(\n{3}|(\r\n){3}|\r{3})[ ]*(?P<author>.+)[ ]*(\n|\r\n|\r)$', mdata)
     if mo is not None:

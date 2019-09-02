@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
@@ -10,11 +11,12 @@ Device driver for Bookeen's Cybook Gen 3
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class SNE(USBMS):
 
     name           = 'Samsung SNE Device Interface'
     gui_name       = 'Samsung SNE'
-    description    = _('Communicate with the Samsung SNE eBook reader.')
+    description    = _('Communicate with the Samsung SNE e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -34,5 +36,3 @@ class SNE(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Books'
     SUPPORTS_SUB_DIRS = True
-
-

@@ -1,13 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from functools import partial
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout, QSize,
@@ -16,6 +14,8 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, tprefs, editors
 from calibre.gui2.tweak_book.editor.canvas import Canvas
+from polyglot.builtins import itervalues
+
 
 class ResizeDialog(QDialog):  # {{{
 
@@ -39,8 +39,8 @@ class ResizeDialog(QDialog):  # {{{
         h.setValue(height)
         h.setSuffix(' px')
         l.addRow(_('&Height:'), h)
-        w.valueChanged.connect(partial(self.keep_ar, 'width'))
-        h.valueChanged.connect(partial(self.keep_ar, 'height'))
+        connect_lambda(w.valueChanged, self, lambda self: self.keep_ar('width'))
+        connect_lambda(h.valueChanged, self, lambda self: self.keep_ar('height'))
 
         self.ar = ar = QCheckBox(_('Keep &aspect ratio'))
         ar.setChecked(True)
@@ -61,22 +61,23 @@ class ResizeDialog(QDialog):  # {{{
             other.setValue(oval)
             other.blockSignals(False)
 
-    @dynamic_property
+    @property
     def width(self):
-        def fget(self):
-            return self._width.value()
-        def fset(self, val):
-            self._width.setValue(val)
-        return property(fget=fget, fset=fset)
+        return self._width.value()
 
-    @dynamic_property
+    @width.setter
+    def width(self, val):
+        self._width.setValue(val)
+
+    @property
     def height(self):
-        def fget(self):
-            return self._height.value()
-        def fset(self, val):
-            self._height.setValue(val)
-        return property(fget=fget, fset=fset)
+        return self._height.value()
+
+    @height.setter
+    def height(self, val):
+        self._height.setValue(val)
 # }}}
+
 
 class Editor(QMainWindow):
 
@@ -107,22 +108,22 @@ class Editor(QMainWindow):
         self.canvas.undo_redo_state_changed.connect(self.undo_redo_state_changed)
         self.canvas.selection_state_changed.connect(self.update_clipboard_actions)
 
-    @dynamic_property
+    @property
     def is_modified(self):
-        def fget(self):
-            return self._is_modified
-        def fset(self, val):
-            self._is_modified = val
-            self.modification_state_changed.emit(val)
-        return property(fget=fget, fset=fset)
+        return self._is_modified
 
-    @dynamic_property
+    @is_modified.setter
+    def is_modified(self, val):
+        self._is_modified = val
+        self.modification_state_changed.emit(val)
+
+    @property
     def current_editing_state(self):
-        def fget(self):
-            return {}
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
+        return {}
+
+    @current_editing_state.setter
+    def current_editing_state(self, val):
+        pass
 
     @property
     def undo_available(self):
@@ -132,13 +133,13 @@ class Editor(QMainWindow):
     def redo_available(self):
         return self.canvas.redo_action.isEnabled()
 
-    @dynamic_property
+    @property
     def current_line(self):
-        def fget(self):
-            return 0
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
+        return 0
+
+    @current_line.setter
+    def current_line(self, val):
+        pass
 
     @property
     def number_of_lines(self):
@@ -153,14 +154,14 @@ class Editor(QMainWindow):
     def get_raw_data(self):
         return self.canvas.get_image_data(quality=self.quality)
 
-    @dynamic_property
+    @property
     def data(self):
-        def fget(self):
-            return self.get_raw_data()
-        def fset(self, val):
-            self.canvas.load_image(val)
-            self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
-        return property(fget=fget, fset=fset)
+        return self.get_raw_data()
+
+    @data.setter
+    def data(self, val):
+        self.canvas.load_image(val)
+        self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
 
     def replace_data(self, raw, only_if_different=True):
         # We ignore only_if_different as it is useless in our case, and
@@ -293,7 +294,7 @@ class Editor(QMainWindow):
     def toolbar_floated(self, floating):
         if not floating:
             self.save_state()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if ed is not self:
                     ed.restore_state()
 
@@ -329,6 +330,7 @@ class Editor(QMainWindow):
         if ok:
             self.canvas.oilify_image(radius=val)
 
+
 def launch_editor(path_to_edit, path_is_raw=False):
     app = QApplication([])
     if path_is_raw:
@@ -340,6 +342,7 @@ def launch_editor(path_to_edit, path_is_raw=False):
     t.data = raw
     t.show()
     app.exec_()
+
 
 if __name__ == '__main__':
     launch_editor(sys.argv[-1])

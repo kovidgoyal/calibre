@@ -3,7 +3,11 @@
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
 #include <qpa/qplatformservices.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtServiceSupport/private/qgenericunixservices_p.h>
+#else
 #include <QtPlatformSupport/private/qgenericunixservices_p.h>
+#endif
 #include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE

@@ -54,7 +54,7 @@ IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *clien
     hr = CoCreateInstance(CLSID_PortableDevice, NULL, CLSCTX_INPROC_SERVER,
             IID_PPV_ARGS(&device));
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) hresult_set_exc("Failed to create IPortableDevice", hr);
+    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDevice", hr); device = NULL; }
     else {
         Py_BEGIN_ALLOW_THREADS;
         hr = device->Open(pnp_id, client_information);
@@ -151,7 +151,7 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                         if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_STORAGE_ACCESS_CAPABILITY, &access)) && access == WPD_STORAGE_ACCESS_CAPABILITY_READWRITE) desc = Py_True;
                         soid = PyUnicode_FromWideChar(object_ids[i], wcslen(object_ids[i]));
                         if (soid == NULL) { PyErr_NoMemory(); goto end; }
-                        so = Py_BuildValue("{s:K, s:K, s:K, s:K, s:O, s:N}", 
+                        so = Py_BuildValue("{s:K, s:K, s:K, s:K, s:O, s:N}",
                                 "capacity", capacity, "capacity_objects", capacity_objects, "free_space", free_space, "free_objects", free_objects, "rw", desc, "id", soid);
                         if (so == NULL) { PyErr_NoMemory(); goto end; }
                         if (SUCCEEDED(values->GetStringValue(WPD_STORAGE_DESCRIPTION, &storage_desc))) {
@@ -192,7 +192,7 @@ PyObject* get_storage_info(IPortableDevice *device) { // {{{
                         Py_DECREF(so);
                     }
                 }
-            } 
+            }
             for (i = 0; i < fetched; i ++) { CoTaskMemFree(object_ids[i]); object_ids[i] = NULL;}
         }// if(SUCCEEDED(hr))
     }
@@ -220,7 +220,7 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
     LPWSTR temp;
     ULONG ti;
     PyObject *t, *ans = NULL, *storage = NULL;
-    char *type;
+    const char *type = NULL;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
@@ -240,12 +240,12 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
     hr = keys->Add(WPD_DEVICE_TYPE);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) {hresult_set_exc("Failed to add keys to IPortableDeviceKeyCollection", hr); goto end;}
-    
+
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) {hresult_set_exc("Failed to get IPortableDeviceContent", hr); goto end; }
-    
+
     Py_BEGIN_ALLOW_THREADS;
     hr = content->Properties(&properties);
     Py_END_ALLOW_THREADS;
@@ -287,7 +287,7 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
 
     if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_DEVICE_TYPE, &ti))) {
         switch (ti) {
-            case WPD_DEVICE_TYPE_CAMERA: 
+            case WPD_DEVICE_TYPE_CAMERA:
                 type = "camera"; break;
             case WPD_DEVICE_TYPE_MEDIA_PLAYER:
                 type = "media player"; break;
@@ -302,7 +302,11 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
             default:
                 type = "unknown";
         }
+#if PY_MAJOR_VERSION >= 3
+        t = PyUnicode_FromString(type);
+#else
         t = PyString_FromString(type);
+#endif
         if (t != NULL) {
             PyDict_SetItemString(ans, "type", t); Py_DECREF(t);
         }
@@ -354,9 +358,19 @@ PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropert
 
     if (t == Py_True) {
         storage = get_storage_info(device);
-        if (storage == NULL) goto end;
+        if (storage == NULL) {
+            PyObject *exc_type, *exc_value, *exc_tb;
+            PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
+            if (exc_type != NULL && exc_value != NULL) {
+                PyErr_NormalizeException(&exc_type, &exc_value, &exc_tb);
+                PyDict_SetItemString(ans, "storage_error", exc_value);
+                Py_DECREF(exc_value); exc_value = NULL;
+            }
+            Py_XDECREF(exc_type); Py_XDECREF(exc_value); Py_XDECREF(exc_tb);
+            goto end;
+        }
         PyDict_SetItemString(ans, "storage", storage);
-        
+
     }
 
     Py_BEGIN_ALLOW_THREADS;

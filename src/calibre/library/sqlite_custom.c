@@ -10,7 +10,7 @@ SQLITE_EXTENSION_INIT1
 #ifdef _MSC_VER
 #define MYEXPORT __declspec(dllexport)
 #else
-#define MYEXPORT
+#define MYEXPORT __attribute__ ((visibility ("default")))
 #endif
 
 // sortconcat {{{
@@ -52,7 +52,7 @@ static void sort_concat_step(sqlite3_context *context, int argc, sqlite3_value *
 
     list->vals[list->count] = (SortConcatItem*)calloc(1, sizeof(SortConcatItem));
     if (list->vals[list->count] == NULL) return;
-    
+
     idx = sqlite3_value_int(argv[0]);
     val = sqlite3_value_text(argv[1]);
     sz  = sqlite3_value_bytes(argv[1]);
@@ -61,7 +61,7 @@ static void sort_concat_step(sqlite3_context *context, int argc, sqlite3_value *
 
 
     list->vals[list->count]->val = (unsigned char*)calloc(sz, sizeof(unsigned char));
-    if (list->vals[list->count]->val == NULL) 
+    if (list->vals[list->count]->val == NULL)
         {free(list->vals[list->count]); return;}
     list->vals[list->count]->index = idx;
     list->vals[list->count]->length = sz;
@@ -86,9 +86,9 @@ static int sort_concat_cmp(const void *a_, const void *b_) {
 
 static unsigned char* sort_concat_do_finalize(SortConcatList *list, const unsigned char join) {
     unsigned char *ans, *pos;
-    int sz = 0, i;
+    unsigned int sz = 0, i;
 
-    for (i = 0; i < list->count; i++) { 
+    for (i = 0; i < list->count; i++) {
         sz += list->vals[i]->length;
     }
     sz += list->count;
@@ -221,7 +221,7 @@ static void identifiers_concat_finalize(sqlite3_context *context) {
     list = (IdentifiersConcatList*) sqlite3_aggregate_context(context, sizeof(*list));
     if (list == NULL || list->vals == NULL || list->count < 1) return;
 
-    for (i = 0; i < list->count; i++) { 
+    for (i = 0; i < list->count; i++) {
         sz += list->vals[i]->length;
     }
     sz += list->count; // Space for commas
@@ -263,6 +263,8 @@ sqlite_custom_init_funcs(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static char sqlite_custom_doc[] = "Implementation of custom sqlite methods in C for speed.";
+
 static PyMethodDef sqlite_custom_methods[] = {
     {"init_funcs", sqlite_custom_init_funcs, METH_VARARGS,
         "init_funcs()\n\nInitialize module."
@@ -271,11 +273,33 @@ static PyMethodDef sqlite_custom_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initsqlite_custom(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&sqlite_custom_module)
+static struct PyModuleDef sqlite_custom_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "sqlite_custom",
+    /* m_doc      */ sqlite_custom_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ sqlite_custom_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_sqlite_custom(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("sqlite_custom", sqlite_custom_methods, sqlite_custom_doc)
+CALIBRE_MODINIT_FUNC initsqlite_custom(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3("sqlite_custom", sqlite_custom_methods,
-    "Implementation of custom sqlite methods in C for speed."
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

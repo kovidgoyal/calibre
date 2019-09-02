@@ -14,9 +14,8 @@ def string_to_bytes_slow(string):
         return String.fromCharCode('0x' + p1)
     )
     ua = Uint8Array(binstr.length)
-    Array.prototype.forEach.call(binstr, def(ch, i):
+    for i, ch in enumerate(binstr):
         ua[i] = ch.charCodeAt(0)
-    )
     return ua
 
 def as_hex(array, sep=''):
@@ -46,8 +45,8 @@ def bytes_to_string_slow(bytes, offset):
             i += 3
     return ans.join('')
 
-string_to_bytes = string_to_bytes_encoder if type(TextEncoder) is 'function' else string_to_bytes_slow
-bytes_to_string = bytes_to_string_decoder if type(TextDecoder) is 'function' else bytes_to_string_slow
+string_to_bytes = string_to_bytes_encoder if jstype(TextEncoder) is 'function' else string_to_bytes_slow
+bytes_to_string = bytes_to_string_decoder if jstype(TextDecoder) is 'function' else bytes_to_string_slow
 
 def increment_counter(c):
     # c must be a Uint8Array of length 16
@@ -269,7 +268,7 @@ def random_bytes_secure(sz):
     crypto.getRandomValues(ans)
     return ans
 
-random_bytes = random_bytes_secure if type(crypto) is not 'undefined' and type(crypto.getRandomValues) is 'function' else random_bytes_insecure
+random_bytes = random_bytes_secure if jstype(crypto) is not 'undefined' and jstype(crypto.getRandomValues) is 'function' else random_bytes_insecure
 if random_bytes is random_bytes_insecure:
     try:
         noderandom = require('crypto').randomBytes
@@ -293,7 +292,7 @@ class ModeOfOperation:  # {{{
             return tag
         if not tag:
             return Uint8Array(0)
-        if type(tag) is 'string':
+        if jstype(tag) is 'string':
             return string_to_bytes(tag)
         raise TypeError('Invalid tag, must be a string or a Uint8Array')
 # }}}

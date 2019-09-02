@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 import re
-from future_builtins import map
+from polyglot.builtins import map
 from tinycss.css21 import CSS21Parser, ParseError
 from .tokenizer import tokenize_grouped
 
@@ -16,6 +15,7 @@ from .tokenizer import tokenize_grouped
 def parse_font_family_tokens(tokens):
     families = []
     current_family = ''
+
     def commit():
         val = current_family.strip()
         if val:
@@ -37,8 +37,10 @@ def parse_font_family_tokens(tokens):
         commit()
     return families
 
+
 def parse_font_family(css_string):
     return parse_font_family_tokens(tokenize_grouped(type('')(css_string).strip()))
+
 
 def serialize_single_font_family(x):
     xl = x.lower()
@@ -46,12 +48,15 @@ def serialize_single_font_family(x):
         if xl == 'sansserif':
             xl = 'sans-serif'
         return xl
-    if SIMPLE_NAME_PAT.match(x) is not None:
+    if SIMPLE_NAME_PAT.match(x) is not None and not x.lower().startswith('and'):
+        # css_parser dies if a font name starts with and
         return x
     return '"%s"' % x.replace('"', r'\"')
 
+
 def serialize_font_family(families):
     return ', '.join(map(serialize_single_font_family, families))
+
 
 GLOBAL_IDENTS = frozenset('inherit initial unset normal'.split())
 STYLE_IDENTS = frozenset('italic oblique'.split())
@@ -64,6 +69,7 @@ WEIGHT_SIZES = frozenset(map(int, '100 200 300 400 500 600 700 800 900'.split())
 LEGACY_FONT_SPEC = frozenset('caption icon menu message-box small-caption status-bar'.split())
 GENERIC_FAMILIES = frozenset('serif sans-serif sansserif cursive fantasy monospace'.split())
 SIMPLE_NAME_PAT = re.compile(r'[a-zA-Z][a-zA-Z0-9_-]*$')
+
 
 def serialize_font(font_dict):
     ans = []
@@ -82,6 +88,7 @@ def serialize_font(font_dict):
     if val:
         ans.append(serialize_font_family(val))
     return ' '.join(ans)
+
 
 def parse_font(css_string):
     # See https://www.w3.org/TR/css-fonts-3/#font-prop
@@ -178,6 +185,7 @@ def parse_font(css_string):
         ans['font-family'] = families
     return ans
 
+
 class FontFaceRule(object):
 
     at_keyword = '@font-face'
@@ -191,6 +199,7 @@ class FontFaceRule(object):
     def __repr__(self):
         return ('<{0.__class__.__name__} at {0.line}:{0.column}>'
                 .format(self))
+
 
 class CSSFonts3Parser(CSS21Parser):
 
@@ -214,4 +223,3 @@ class CSSFonts3Parser(CSS21Parser):
         declarations, decerrors = self.parse_declaration_list(rule.body)
         errors.extend(decerrors)
         return FontFaceRule(declarations, rule.line, rule.column)
-

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,6 +23,8 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import iteritems, unicode_type, map
+
 
 class BusyWidget(QWidget):  # {{{
 
@@ -55,12 +56,14 @@ class BusyWidget(QWidget):  # {{{
         p.end()
 # }}}
 
+
 class Cache(object):
 
     def __init__(self):
         self._left, self._right = {}, {}
         self.left, self.right = self._left.get, self._right.get
         self.set_left, self.set_right = self._left.__setitem__, self._right.__setitem__
+
 
 def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     list_of_names1, list_of_names2 = frozenset(list_of_names1), frozenset(list_of_names2)
@@ -76,11 +79,11 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     removals = list_of_names1 - common_names
     adds = set(list_of_names2 - common_names)
     adata, rdata = {a:get_data2(a) for a in adds}, {r:get_data1(r) for r in removals}
-    ahash = {a:hash(d) for a, d in adata.iteritems()}
-    rhash = {r:hash(d) for r, d in rdata.iteritems()}
+    ahash = {a:hash(d) for a, d in iteritems(adata)}
+    rhash = {r:hash(d) for r, d in iteritems(rdata)}
     renamed_names, removed_names, added_names = {}, set(), set()
-    for name, rh in rhash.iteritems():
-        for n, ah in ahash.iteritems():
+    for name, rh in iteritems(rhash):
+        for n, ah in iteritems(ahash):
             if ah == rh:
                 renamed_names[name] = n
                 adds.discard(n)
@@ -124,21 +127,25 @@ def get_decoded_raw(name):
                     pass
     return raw, syntax
 
+
 def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='left', right_name='right'):
-    left, right = unicode(left), unicode(right)
+    left, right = unicode_type(left), unicode_type(right)
     cache = Cache()
     cache.set_left(left_name, left), cache.set_right(right_name, right)
     changed_names = {} if left == right else {left_name:right_name}
     return cache, {left_name:left_syntax, right_name:right_syntax}, changed_names, {}, set(), set()
 
+
 def file_diff(left, right):
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
     if type(raw1) is not type(raw2):
-        raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
+        with open(left, 'rb') as f1, open(right, 'rb') as f2:
+            raw1, raw2 = f1.read(), f2.read()
     cache = Cache()
     cache.set_left(left, raw1), cache.set_right(right, raw2)
     changed_names = {} if raw1 == raw2 else {left:right}
     return cache, {left:syntax1, right:syntax2}, changed_names, {}, set(), set()
+
 
 def dir_diff(left, right):
     ldata, rdata, lsmap, rsmap = {}, {}, {}, {}
@@ -156,6 +163,7 @@ def dir_diff(left, right):
     syntax_map.update({name:rsmap[name] for name in added_names})
     syntax_map.update({name:lsmap[name] for name in removed_names})
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
+
 
 def container_diff(left, right):
     left_names, right_names = set(left.name_path_map), set(right.name_path_map)
@@ -186,11 +194,13 @@ def container_diff(left, right):
     syntax_map.update({name:syntax(left, name) for name in removed_names})
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
 
+
 def ebook_diff(path1, path2):
     from calibre.ebooks.oeb.polish.container import get_container
     left = get_container(path1, tweak_mode=True)
     right = get_container(path2, tweak_mode=True)
     return container_diff(left, right)
+
 
 class Diff(Dialog):
 
@@ -230,14 +240,14 @@ class Diff(Dialog):
         r = l.rowCount()
         self.bp = b = QToolButton(self)
         b.setIcon(QIcon(I('back.png')))
-        b.clicked.connect(partial(self.view.next_change, -1))
+        connect_lambda(b.clicked, self, lambda self: self.view.next_change(-1))
         b.setToolTip(_('Go to previous change') + ' [p]')
         b.setText(_('&Previous change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 0)
 
         self.bn = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
-        b.clicked.connect(partial(self.view.next_change, 1))
+        connect_lambda(b.clicked, self, lambda self: self.view.next_change(1))
         b.setToolTip(_('Go to next change') + ' [n]')
         b.setText(_('&Next change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 1)
@@ -246,16 +256,16 @@ class Diff(Dialog):
         s.initialize('diff_search_history')
         l.addWidget(s, r, 2)
         s.setPlaceholderText(_('Search for text'))
-        s.returnPressed.connect(partial(self.do_search, False))
+        connect_lambda(s.returnPressed, self, lambda self: self.do_search(False))
         self.sbn = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-down.png')))
-        b.clicked.connect(partial(self.do_search, False))
+        connect_lambda(b.clicked, self, lambda self: self.do_search(False))
         b.setToolTip(_('Find next match'))
         b.setText(_('Next &match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 3)
         self.sbp = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
-        b.clicked.connect(partial(self.do_search, True))
+        connect_lambda(b.clicked, self, lambda self: self.do_search(True))
         b.setToolTip(_('Find previous match'))
         b.setText(_('P&revious match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 4)
@@ -307,7 +317,7 @@ class Diff(Dialog):
                 pass
 
     def do_search(self, reverse):
-        text = unicode(self.search.text())
+        text = unicode_type(self.search.text())
         if not text.strip():
             return
         v = self.view.view.left if self.lb.isChecked() else self.view.view.right
@@ -396,6 +406,7 @@ class Diff(Dialog):
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
         self.view.clear()
         self.apply_diff_calls = calls = []
+
         def add(args, kwargs):
             self.view.add_diff(*args, **kwargs)
             calls.append((args, kwargs))
@@ -409,7 +420,7 @@ class Diff(Dialog):
         kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
-            for name, other_name in sorted(changed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
+            for name, other_name in sorted(iteritems(changed_names), key=lambda x:numeric_sort_key(x[0])):
                 args = (name, other_name, cache.left(name), cache.right(other_name))
                 add(args, kwargs(name))
         else:
@@ -425,7 +436,7 @@ class Diff(Dialog):
             args = (name, _('[%s was removed]') % name, cache.left(name), None)
             add(args, kwargs(name))
 
-        for name, new_name in sorted(renamed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
+        for name, new_name in sorted(iteritems(renamed_names), key=lambda x:numeric_sort_key(x[0])):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 
@@ -448,6 +459,7 @@ class Diff(Dialog):
                 return
             return Dialog.keyPressEvent(self, ev)
 
+
 def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
@@ -459,6 +471,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     except:
         pass
     d.break_cycles()
+
 
 def main(args=sys.argv):
     from calibre.gui2 import Application
@@ -478,8 +491,10 @@ def main(args=sys.argv):
     d = Diff(show_as_window=True)
     func = getattr(d, attr)
     QTimer.singleShot(0, lambda : func(left, right))
-    d.exec_()
+    d.show()
+    app.exec_()
     return 0
+
 
 if __name__ == '__main__':
     main()

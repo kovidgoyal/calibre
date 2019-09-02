@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from future_builtins import map
+from polyglot.builtins import iteritems, map
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -22,13 +21,14 @@ from calibre.ebooks.oeb.polish.check.opf import check_opf
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 
+
 def run_checks(container):
 
     errors = []
 
     # Check parsing
     xml_items, html_items, raster_images, stylesheets = [], [], [], []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         items = None
         if mt in XML_TYPES:
             items = xml_items
@@ -49,7 +49,7 @@ def run_checks(container):
         if err.level > WARN:
             return errors
 
-    # cssutils is not thread safe
+    # css_parser is not thread safe
     for name, mt, raw in stylesheets:
         if not raw:
             errors.append(EmptyFile(name))
@@ -81,6 +81,7 @@ def run_checks(container):
 
     return errors
 
+
 def fix_errors(container, errors):
     # Fix parsing
     changed = False
@@ -105,4 +106,3 @@ def fix_errors(container, errors):
                 # better to have a false positive than a false negative)
                 changed = True
     return changed
-

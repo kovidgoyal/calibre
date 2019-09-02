@@ -3,7 +3,7 @@
 Setting up a calibre development environment
 ===========================================================
 
-calibre is completely open source, licensed under the `GNU GPL v3 <http://www.gnu.org/copyleft/gpl.html>`_.
+calibre is completely open source, licensed under the `GNU GPL v3 <https://www.gnu.org/licenses/gpl.html>`_.
 This means that you are free to download and modify the program to your heart's content. In this section,
 you will learn how to get a calibre development environment set up on the operating system of your choice.
 calibre is written primarily in `Python <https://www.python.org>`_ with some C/C++ code for speed and system interfacing.
@@ -26,7 +26,7 @@ For example, adding support for a new device to calibre typically involves writi
 a device driver plugin. You can browse the
 `built-in drivers <https://github.com/kovidgoyal/calibre/tree/master/src/calibre/devices>`_. Similarly, adding support
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for
-fetching news. For more examples of plugins designed to add features to calibre, see the `plugin index <http://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
+fetching news. For more examples of plugins designed to add features to calibre, see the `Index of plugins <https://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
 
 .. _code_layout:
 
@@ -40,7 +40,7 @@ All the calibre python code is in the ``calibre`` package. This package contains
       * For details, see: ``devices.interface`` which defines the interface supported by device drivers and ``devices.usbms`` which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
 
-    * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
+    * e-books  - All the e-book conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
       module powering the :command:`ebook-convert` command. The conversion process is controlled via ``conversion.plumber``.
       The format independent code is all in ``ebooks.oeb`` and the format dependent code is in ``ebooks.format_name``.
 
@@ -49,26 +49,26 @@ All the calibre python code is in the ``calibre`` package. This package contains
           see :ref:`conversion-introduction`. The pipeline consists of an input
           plugin, various transforms and an output plugin. The code that constructs
           and drives the pipeline is in :file:`plumber.py`. The pipeline works on a
-          representation of an ebook that is like an unzipped epub, with
+          representation of an e-book that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The
           class that manages this representation is OEBBook in ``ebooks.oeb.base``. The
           various transformations that are applied to the book during
           conversions live in :file:`oeb/transforms/*.py`. And the input and output
           plugins live in :file:`conversion/plugins/*.py`.
-        * Ebook editing happens using a different container object. It is
+        * E-book editing happens using a different container object. It is
           documented in :ref:`polish_api`.
 
-    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library. 
+    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library.
 
-    * content server: ``library.server`` is the calibre Content Server.
+    * Content server: ``srv`` is the calibre Content server.
 
-    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
+    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The e-book-viewer is in ``gui2.viewer``. The e-book editor is in ``gui2.tweak_book``.
 
 If you want to locate the entry points for all the various calibre executables,
 look at the ``entry_points`` structure in `linux.py
 <https://github.com/kovidgoyal/calibre/blob/master/src/calibre/linux.py>`_.
 
-If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
+If you need help understanding the code, post in the `development forum <https://www.mobileread.com/forums/forumdisplay.php?f=240>`_
 and you will most likely get help from one of calibre's many developers.
 
 Getting the code
@@ -77,13 +77,13 @@ Getting the code
 You can get the calibre source code in two ways, using a version control system or
 directly downloading a `tarball <https://calibre-ebook.com/dist/src>`_.
 
-calibre uses `Git <http://www.git-scm.com/>`_, a distributed version control
+calibre uses `Git <https://www.git-scm.com/>`_, a distributed version control
 system. Git is available on all the platforms calibre supports.  After
 installing Git, you can get the calibre source code with the command::
 
     git clone git://github.com/kovidgoyal/calibre.git
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`. 
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`.
 
 calibre is a very large project with a very long source control history, so the
 above can take a while (10 mins to an hour depending on your internet speed).
@@ -94,6 +94,8 @@ always available as an `archive <https://calibre-ebook.com/dist/src>`_.
 To update a branch to the latest code, use the command::
 
     git pull --no-edit
+
+You can also browse the code at `GitHub <https://github.com/kovidgoyal/calibre>`_.
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,7 +124,7 @@ commits::
 Be careful to not include merges when using ``HEAD~n``.
 
 If you plan to do a lot of development on calibre, then the best method is to create a
-`GitHub <https://github.com>`_ account. Below is a basic guide to setting up
+`GitHub <https://github.com>`__ account. Below is a basic guide to setting up
 your own fork of calibre in a way that will allow you to submit pull requests
 for inclusion into the main calibre repository:
 
@@ -146,7 +148,7 @@ for inclusion into the main calibre repository:
 
 
 You should also keep an eye on the calibre `development forum
-<http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making
+<https://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making
 major changes, you should discuss them in the forum or contact Kovid directly
 (his email address is all over the source code).
 
@@ -182,9 +184,9 @@ in your favorite editor and add the line::
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
 You can also setup a calibre development environment inside the free Microsoft
-Visual Studio, if you like, following the instructions `here <http://www.mobileread.com/forums/showthread.php?t=251201>`_.
+Visual Studio, if you like, following the instructions `here <https://www.mobileread.com/forums/showthread.php?t=251201>`_.
 
-OS X development environment
+macOS development environment
 ------------------------------
 
 .. note:: You must also get the calibre source code separately as described above.
@@ -194,7 +196,11 @@ the previously checked out calibre code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the calibre commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the calibre GUI.
+calibre is the directory that contains the src and resources sub-directories.
+The calibre command line tools are found inside the calibre app bundle, in
+:file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS`
+you should add this directory to your PATH environment variable, if you want to
+run the command line tools easily.
 
 The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
@@ -223,7 +229,7 @@ Linux development environment
 
 calibre is primarily developed on Linux. You have two choices in setting up the development environment. You can install the
 calibre binary as normal and use that as a runtime environment to do your development. This approach is similar to that
-used in Windows and OS X. Alternatively, you can install calibre from source. Instructions for setting up a development
+used in Windows and macOS. Alternatively, you can install calibre from source. Instructions for setting up a development
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary as a runtime, which is the
 recommended method.
 
@@ -286,18 +292,18 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
-Similarly, you can start the ebook-viewer as::
+Similarly, you can start the e-book-viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
 
-The ebook-editor can be started as::
+The e-book-editor can be started as::
 
     calibre-debug -t /path/to/be/edited
 
-Using an interactive python interpreter
+Using an interactive Python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can insert the following two lines of code to start an interactive python session at that point::
+You can insert the following two lines of code to start an interactive Python session at that point::
 
     from calibre import ipython
     ipython(locals())
@@ -307,10 +313,10 @@ locally defined variables (variables in the local scope). The interactive prompt
 for object properties and you can use the various Python facilities for introspection, such as
 :func:`dir`, :func:`type`, :func:`repr`, etc.
 
-Using the python debugger as a remote debugger
+Using the Python debugger as a remote debugger
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use the builtin python debugger (pdb) as a remote debugger from the
+You can use the builtin Python debugger (pdb) as a remote debugger from the
 command line. First, start the remote debugger at the point in the calibre code
 you are interested in, like this::
 
@@ -326,7 +332,7 @@ the debugging session::
 
     calibre-debug -c "from calibre.rpdb import cli; cli()"
 
-You can read about how to use the python debugger in the `python stdlib docs
+You can read about how to use the Python debugger in the `Python stdlib docs
 for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
 
 .. note::
@@ -335,14 +341,14 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
     cli() functions above, like this: ``set_trace(port=1234)`` and
     ``cli(port=1234)``.
 
-.. note:: 
-    The python debugger cannot handle multiple threads, so you have to
+.. note::
+    The Python debugger cannot handle multiple threads, so you have to
     call set_trace once per thread, each time with a different port number.
 
-Using the debugger in your favorite python IDE
+Using the debugger in your favorite Python IDE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is possible to use the builtin debugger in your favorite python IDE, if it
+It is possible to use the builtin debugger in your favorite Python IDE, if it
 supports remote debugging. The first step is to add the calibre src checkout to
 the ``PYTHONPATH`` in your IDE. In other words, the directory you set as
 ``CALIBRE_DEVELOP_FROM`` above, must also be in the ``PYTHONPATH`` of your IDE.
@@ -353,15 +359,15 @@ remote debugger to calibre at the point of interest, for example in the main
 function. Then run calibre as normal. Your IDE should now be able to connect to
 the remote debugger running inside calibre.
 
-Executing arbitrary scripts in the calibre python environment
+Executing arbitrary scripts in the calibre Python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :command:`calibre-debug` command provides a couple of handy switches to execute your own
 code, with access to the calibre modules::
 
-    calibre-debug -c "some python code"
+    calibre-debug -c "some Python code"
 
-is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
+is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the Python interpreter::
 
     calibre-debug myscript.py
 
@@ -409,4 +415,3 @@ API documentation for various parts of calibre
     plugins
     db_api
     polish
-

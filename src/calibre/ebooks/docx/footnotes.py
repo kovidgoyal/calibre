@@ -1,12 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
+from polyglot.builtins import iteritems
+
 
 class Note(object):
 
@@ -19,6 +20,7 @@ class Note(object):
     def __iter__(self):
         for p in self.namespace.descendants(self.parent, 'w:p', 'w:tbl'):
             yield p
+
 
 class Footnotes(object):
 
@@ -55,10 +57,9 @@ class Footnotes(object):
         return None, None
 
     def __iter__(self):
-        for anchor, (counter, note) in self.notes.iteritems():
+        for anchor, (counter, note) in iteritems(self.notes):
             yield anchor, counter, note
 
     @property
     def has_notes(self):
         return bool(self.notes)
-

@@ -1,0 +1,481 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from ajax import ajax, ajax_send
+from book_list.book_details import report_load_failure
+from book_list.conversion_widgets import create_option_group, entry_points, commit_changes
+from book_list.library_data import download_url, load_status, url_books_query
+from book_list.router import back, open_book, report_a_load_failure
+from book_list.top_bar import create_top_bar, set_title
+from book_list.ui import set_panel_handler
+from dom import add_extra_css, build_rule, clear
+from modals import error_dialog
+from utils import conditional_timeout, human_readable, parse_url_params
+from widgets import create_button
+
+CLASS_NAME = 'convert-book-panel'
+current_state = 'initializing'
+overall_container_id = None
+initializers = {}
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = build_rule(sel, padding='1ex 1rem')
+    style += build_rule(sel + 'h3', margin_bottom='1ex')
+    style += build_rule(sel + '.group-names', list_style='none', display='flex', flex_wrap='wrap')
+    style += build_rule(sel + '.group-names li', padding='1ex 1rem', font_weight='bold', white_space='nowrap')
+    return style
+)
+
+
+conversion_data = None
+conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch':None}
+
+
+def container_for_current_state():
+    ans = document.getElementById(overall_container_id)
+    if ans:
+        return ans.querySelector(f'[data-state="{current_state}"]')
+
+
+def create_converted_markup():
+
+    def init(container):
+        clear(container)
+        container.appendChild(E.h3('Conversion successful!'))
+        fmt = conversion_data.fmt.toUpperCase()
+        book_id = int(conversion_data.book_id)
+
+        def read_book():
+            open_book(book_id, fmt)
+
+        container.appendChild(E.div(
+            style='margin-top: 1rem',
+            create_button(_('Read {}').format(fmt), 'book', read_book),
+            '\xa0',
+            create_button(_('Download {}').format(fmt), 'cloud-download', download_url(book_id, fmt),
+                            _('File size: {}').format(human_readable(conversion_data.size)),
+                            download_filename=f'{conversion_data.title}.{fmt.toLowerCase()}')
+        ))
+
+    return E.div(), init
+
+
+def report_conversion_ajax_failure(xhr):
+    nonlocal current_state
+    current_state = 'configuring'
+    apply_state_to_markup()
+    error_dialog(_('Failed to convert'), _(
+        'Could not convert {}. Click "Show details" for more'
+        ' information').format(conversion_data.title),
+        xhr.error_html
+    )
+
+
+def show_failure(response):
+    nonlocal current_state
+    current_state = 'failed'
+    apply_state_to_markup()
+    c = container_for_current_state()
+    clear(c)
+    c.appendChild(E.h3(_('Conversion failed!')))
+    c.appendChild(E.div(_('Error details below...')))
+    c.appendChild(E.div('\xa0'))
+    c.appendChild(E.div())
+    c = c.lastChild
+    if response.was_aborted:
+        c.textContent = _(
+            'Conversion of {} was taking too long, and has been aborted').format(conversion_data.title)
+    else:
+        log = ''
+        if response.traceback:
+            log += response.traceback
+        if response.log:
+            log += '\n\n' + _('Conversion log') + '\n\n'
+            log += response.log
+        c.appendChild(E.pre(log))
+
+
+def on_conversion_status(end_type, xhr, ev):
+    nonlocal current_state
+    if current_state is not 'converting' or not container_for_current_state():
+        return  # user clicked the back button similar
+    if end_type is 'load':
+        response = JSON.parse(xhr.responseText)
+        if response.running:
+            c = container_for_current_state()
+            c.querySelector('progress').value = response.percent
+            if response.msg:
+                c.querySelector('.progress-msg').textContent = response.msg
+            check_for_conversion_status()
+        else:
+            if response.ok:
+                conversion_data.fmt = response.fmt
+                conversion_data.size = response.size
+                current_state = 'converted'
+                apply_state_to_markup()
+            else:
+                show_failure(response)
+    else:
+        report_conversion_ajax_failure(xhr)
+
+
+def check_for_conversion_status(abort_job):
+    query = url_books_query()
+    if abort_job:
+        query.abort_job = '1'
+    data = {}
+    ajax_send(f'conversion/status/{conversion_data.job_id}', data, on_conversion_status, query=query)
+
+
+def on_conversion_started(end_type, xhr, ev):
+    nonlocal current_state
+    if end_type is 'load':
+        conversion_data.job_id = JSON.parse(xhr.responseText)
+        check_for_conversion_status()
+    else:
+        report_conversion_ajax_failure(xhr)
+
+
+def get_conversion_options(container):
+    return conversion_data.conversion_options.options
+
+
+def create_converting_markup():
+    ans = E.div(
+        E.div(
+            style='text-align: center; margin: auto',
+            _('Converting, please wait…'),
+            E.div(E.progress()),
+            E.div('\xa0', class_='progress-msg'),
+            E.div('\xa0'),
+            E.div(_('Conversion progress can sometimes stall for a few minutes when converting complex books, that is normal.')),
+            E.div('\xa0'),
+            E.div(_('Click the close button in the top left corner to abort the conversion.')),
+        )
+    )
+
+    def init(container):
+        container.querySelector('progress').removeAttribute('value')
+
+    return ans, init
+
+
+def current_input_format():
+    return document.getElementById(overall_container_id).querySelector('select[name="input_formats"]').value.toUpperCase()
+
+
+def current_output_format():
+    return document.getElementById(overall_container_id).querySelector('select[name="output_formats"]').value.toUpperCase()
+
+
+def start_conversion():
+    nonlocal current_state
+    container = document.getElementById(overall_container_id)
+    data = {
+        'input_fmt': current_input_format(),
+        'output_fmt': current_output_format(),
+        'options': get_conversion_options(container),
+        'book_id': conversion_data.book_id,
+    }
+    query = url_books_query()
+    ajax_send(f'conversion/start/{conversion_data.book_id}', data, on_conversion_started, query=query)
+    current_state = 'converting'
+    apply_state_to_markup()
+
+
+def create_configuring_markup():
+    ignore_changes = False
+    ans = E.div()
+
+    def on_format_change():
+        nonlocal ignore_changes, current_state
+        if ignore_changes:
+            return
+        input_fmt = container_for_current_state().querySelector('select[name="input_formats"]').value
+        output_fmt = container_for_current_state().querySelector('select[name="output_formats"]').value
+        current_state = 'initializing'
+        conditional_timeout(overall_container_id, 5, check_for_data_loaded)
+        q = parse_url_params()
+        fetch_conversion_data(q.book_id, input_fmt, output_fmt)
+        apply_state_to_markup()
+
+    def generate_choice(name):
+        ans = E.select(name=name)
+        ans.addEventListener('change', on_format_change)
+        return ans
+
+    tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
+
+    start_conv = E.div(
+        style='border-bottom: solid 1px currentColor; margin-bottom: 1em',
+        E.div(
+            E.label(
+                style='display: table-row',
+                E.div(style=tcell, _('Input format:')),
+                E.div(generate_choice('input_formats'), style=tcell),
+            ),
+            E.label(
+                style='display: table-row',
+                E.div(style=tcell, _('Output format:')),
+                E.div(generate_choice('output_formats'), style=tcell),
+            )
+        ),
+        E.div(
+            style='margin: 1em',
+            create_button(_('Start conversion'), action=start_conversion)
+        )
+    )
+    ans.appendChild(start_conv)
+    ans.appendChild(E.div(style='margin-bottom: 1em',
+        _('To change the settings for this conversion, click on one of the option groups below:')))
+
+    def show_group(ev):
+        nonlocal current_state
+        li = ev.currentTarget.closest('li')
+        group_name = li.dataset.group
+        group_title = li.firstChild.textContent
+        conversion_data.configuring_group = group_name
+        conversion_data.configuring_group_title = group_title
+        current_state = 'configure-group'
+        apply_state_to_markup()
+
+    def is_group_configurable(name):
+        if entry_points[name]:
+            return True
+        if name is 'input_fmt':
+            name = conversion_data.conversion_options.input_plugin_name
+        elif name is 'output_fmt':
+            name = conversion_data.conversion_options.output_plugin_name
+        return bool(entry_points[name])
+
+    def category(name):
+        ans = E.li(E.a(class_='simple-link', href='javascript: void(0)'))
+        ans.dataset.group = name
+        ans.firstChild.addEventListener('click', show_group)
+        return ans
+
+    GROUP_TITLES = {
+        'heuristics': _('Heuristic processing'),
+        'look_and_feel': _('Look & feel'),
+        'page_setup': _('Page setup'),
+        'search_and_replace': _('Search & replace'),
+        'structure_detection': _('Structure detection'),
+        'toc': _('Table of Contents'),
+    }
+
+    ans.appendChild(
+        E.ul(
+            class_='group-names',
+            category('input_fmt'),
+            category('look_and_feel'),
+            category('page_setup'),
+            category('search_and_replace'),
+            category('structure_detection'),
+            category('toc'),
+            category('heuristics'),
+            category('output_fmt')
+        )
+    )
+
+    def initialize(container):
+        nonlocal ignore_changes
+        ignore_changes = True
+        for name in 'input_formats', 'output_formats':
+            sel = container.querySelector(f'select[name="{name}"]')
+            clear(sel)
+            formats = conversion_data[name]
+            for fmt in formats:
+                sel.appendChild(E.option(fmt, value=fmt))
+        ignore_changes = False
+        for li in container.querySelectorAll('.group-names > li'):
+            group_name = li.dataset.group
+            li.style.display = 'block' if is_group_configurable(group_name) else 'none'
+            if GROUP_TITLES[group_name]:
+                title = GROUP_TITLES[group_name]
+            elif group_name is 'input_fmt':
+                title = _('{} input').format(current_input_format(), title)
+            else:
+                title = _('{} output').format(current_output_format(), title)
+            li.firstChild.textContent = title
+
+    return ans, initialize
+
+
+def get_option_value(name, defval):
+    ans = conversion_data.conversion_options.options[name]
+    if ans is undefined:
+        ans = defval
+    return ans
+
+
+def get_option_default_value(name, defval):
+    ans = conversion_data.conversion_options.defaults[name]
+    if ans is undefined:
+        ans = defval
+    return ans
+
+
+def set_option_value(name, val):
+    conversion_data.conversion_options.options[name] = val
+
+
+def is_option_disabled(name):
+    return conversion_data.disabled_map[name] is True
+
+
+def get_option_help(name):
+    return conversion_data.conversion_options.help[name] or ''
+
+
+def create_configure_group_markup():
+    ans = E.div()
+
+    def init(container):
+        clear(container)
+        container.appendChild(E.h3(
+            style='margin-bottom: 1ex',
+            _('Configuring {} settings').format(conversion_data.configuring_group_title)))
+        panel = E.div()
+        container.appendChild(panel)
+        g = conversion_data.configuring_group
+        ui_data = None
+        if g is 'input_fmt':
+            g = conversion_data.conversion_options.input_plugin_name
+            ui_data = conversion_data.conversion_options.input_ui_data
+        elif g is 'output_fmt':
+            g = conversion_data.conversion_options.output_plugin_name
+            ui_data = conversion_data.conversion_options.output_ui_data
+        create_option_group(g, ui_data, conversion_data.profiles, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
+
+    return ans, init
+
+
+# Initialization {{{
+
+def on_data_loaded(end_type, xhr, ev):
+    nonlocal conversion_data
+    conversion_data_load_status.current_fetch = None
+    conversion_data_load_status.loading = False
+    conversion_data_load_status.ok = True
+    conversion_data_load_status.error_html = None
+
+    def bad_load(msg):
+        conversion_data_load_status.ok = False
+        conversion_data_load_status.error_html = msg or xhr.error_html
+
+    if end_type is 'load':
+        conversion_data = JSON.parse(xhr.responseText)
+        conversion_data.disabled_map = {}
+        for name in conversion_data.conversion_options.disabled:
+            conversion_data.disabled_map[name] = True
+    elif end_type is 'abort':
+        pass
+    else:
+        bad_load()
+
+
+def fetch_conversion_data(book_id, input_fmt, output_fmt):
+    nonlocal conversion_data
+    if conversion_data_load_status.current_fetch:
+        conversion_data_load_status.current_fetch.abort()
+    conversion_data = None
+    query = url_books_query()
+    if input_fmt:
+        query.input_fmt = input_fmt
+    if output_fmt:
+        query.output_fmt = output_fmt
+    conversion_data_load_status.loading = True
+    conversion_data_load_status.ok = False
+    conversion_data_load_status.error_html = None
+    conversion_data_load_status.current_fetch = ajax(f'conversion/book-data/{book_id}', on_data_loaded, query=query)
+    conversion_data_load_status.current_fetch.send()
+
+
+def on_close(container_id):
+    nonlocal current_state
+    if current_state is 'configure-group':
+        commit_changes(set_option_value)
+        current_state = 'configuring'
+        apply_state_to_markup()
+        return
+    if current_state is 'converting':
+        check_for_conversion_status(True)
+    current_state = 'initializing'
+    apply_state_to_markup()
+    back()
+
+
+def check_for_data_loaded():
+    nonlocal current_state
+    container = this
+    if load_status.loading or conversion_data_load_status.loading:
+        conditional_timeout(container.id, 5, check_for_data_loaded)
+        return
+    container = container.lastChild
+    if not load_status.ok:
+        current_state = 'load-failure'
+        report_load_failure(container_for_current_state())
+    elif not conversion_data_load_status.ok:
+        current_state = 'load-failure'
+        report_a_load_failure(
+            container_for_current_state(),
+            _('Failed to load conversion data from calibre, with error:'),
+        conversion_data_load_status.error_html)
+    else:
+        set_title(container.parentNode, _('Convert: {}').format(conversion_data.title))
+        current_state = 'configuring'
+    apply_state_to_markup()
+
+
+def create_markup(container):
+    container.appendChild(E.div(
+        data_state='initializing',
+        E.div(_('Loading conversion data, please wait...'))
+    ))
+    container.appendChild(E.div(data_state='load-failure'))
+    container.appendChild(E.div(data_state='failed'))
+
+    def cm(name, func):
+        ccm, init = func()
+        ccm.dataset.state = name
+        container.appendChild(ccm)
+        initializers[name] = init
+
+    cm('configuring', create_configuring_markup)
+    cm('converting', create_converting_markup)
+    cm('converted', create_converted_markup)
+    cm('configure-group', create_configure_group_markup)
+
+
+def apply_state_to_markup():
+    container = document.getElementById(overall_container_id)
+    if container:
+        for node in container.lastChild.childNodes:
+            if node.dataset.state is current_state:
+                node.style.display = 'block'
+                if initializers[current_state]:
+                    initializers[current_state](node)
+            else:
+                node.style.display = 'none'
+
+
+def init(container_id):
+    nonlocal overall_container_id
+    container = document.getElementById(container_id)
+    overall_container_id = container_id
+    create_top_bar(container, title=_('Convert book'), action=on_close.bind(None, container_id), icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME))
+    create_markup(container.lastChild)
+    apply_state_to_markup()
+    conditional_timeout(container_id, 5, check_for_data_loaded)
+    q = parse_url_params()
+    fetch_conversion_data(q.book_id)
+
+
+set_panel_handler('convert_book', init)
+# }}}

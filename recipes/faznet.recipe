@@ -1,104 +1,93 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008-2011, Kovid Goyal <kovid at kovidgoyal.net>, Darko Miletic <darko at gmail.com>'
-'''
-Profile to download FAZ.NET
-'''
-
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
+__license__   = 'GPL v3'
+__copyright__ = '2008-2011, Kovid Goyal <kovid at kovidgoyal.net>, Darko Miletic <darko at gmail.com>'
 
 
 class FazNet(BasicNewsRecipe):
-    title = 'FAZ.NET'
-    __author__ = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V7 2016-01-26
-    description = 'Frankfurter Allgemeine Zeitung'
-    publisher = 'Frankfurter Allgemeine Zeitung GmbH'
-    category = 'news, politics, Germany'
-    use_embedded_content = False
+    # Version 8.0
+    # Update 2017-09-01
+    # Armin Geller
+    # new web page layout
+
+    title                 = 'FAZ.NET'
+    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'
+    description           = 'Frankfurter Allgemeine Zeitung'
+    publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
+    category              = 'news, politics, Germany'
+    use_embedded_content  = False
     language = 'de'
 
     max_articles_per_feed = 30
-    no_stylesheets = True
-    encoding = 'utf-8'
-    remove_javascript = True
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    remove_javascript     = True
 
-    keep_only_tags = [
-        {'class': ['FAZArtikelEinleitung']},
-        dict(name='div', attrs={'class': 'FAZSlimHeader'}),
-        {'id': 'ArtikelTabContent_0'}
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class':'atc'})]
 
-    remove_tags_after = [dict(name='div', attrs={'class': ['ArtikelFooter']})]
+    remove_tags_after = [dict(name='article', attrs={'class':['atc']})]
+
     remove_tags = [
-        dict(name='div', attrs={'class': ['ArtikelFooter', 'clear']}),
-        # AGe 2016-01-26
-        dict(name='div', attrs={'id': ['berndsbox', 'dertagbox']}),
-        dict(name='a', attrs={'title': ['Vergrößern']}),  # AGe 2014-10-22
-        dict(name='img', attrs={'class': ['VideoCtrlIcon']}),  # AGe 2014-10-22
-        dict(name='span', attrs={'class': ['shareAutor']})  # AGe 2014-10-22
-    ]
+                    dict(name='aside', attrs={'class':['atc-ContainerMore ',
+                                                       'atc-ContainerMore atc-ContainerMoreOneTeaser sld-TeaserMoreOneTeaser  js-slider-teaser-more'
+                                                       ]}),
+                    dict(name='div', attrs={'class':['atc-ContainerSocialMedia',
+                                                     'atc-ContainerFunctions_Interaction ',
+                                                     'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium '
+                                                     ]})
+                  ]
 
     feeds = [
-        ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
-        ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
-        ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
-        ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
-        ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
-        ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
-        ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
-        ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
-        ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
-        ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
-        ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
-        ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
-        ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
-    ]
+                ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
+                ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
+                ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
+                ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
+                ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+                ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
+                ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
+                ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
+                ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
+                ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
+                ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
+                ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
+                ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
+            ]
 
-# AGe 2014-01-10 For multipages
+    # For multipages:
+
     INDEX = ''
 
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('a', attrs={'title': 'Nächste Seite'})
+        pager = soup.find('li',attrs={'class':'nvg-Paginator_Item nvg-Paginator_Item-to-next-page'})
         if pager:
-            nexturl = self.INDEX + pager['href']
+            nexturl = self.INDEX + pager.a['href']
             soup2 = self.index_to_soup(nexturl)
-            texttag = soup2.find('div', attrs={'class': 'FAZArtikelContent'})
+            texttag = soup2.find('article', attrs={'class':'atc'})
             for cls in (
-                    'ArtikelFooter', 'ArtikelAbbinder',
-                    'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content',
-                    'Anzeige GoogleAdsBuehne', 'ThemenLinks', 'rechtehinweis',
-                    'stageModule Ressortmodul Rubrikenkopf clearfix', 'VideoCtrlIcon',
-                    'ArtikelAbbinder clearfix',
-                    'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content',
-                    'ThemenLinks',
-            ):  # AGe 2014-10-22
-                div = texttag.find(attrs={'class': cls})
-                if div is not None:
-                    div.extract()
-            for cls in (
-                    'berndsbox', 'dertagbox'):  # AGe 2016-01-26
-                div = texttag.find(attrs={'id': cls})
-                if div is not None:
-                    div.extract()
-                # AGe 2014-10-22
-                div = texttag.find(attrs={'title': 'Vergrößern'})
+                    'atc-Header',
+                    'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium ',
+                    'ctn-PlaceholderContent ctn-PlaceholderContent-is-in-article-medium ctn-PlaceholderContent-has-centered-content ',
+                    'atc-ContainerMore '
+                    ):
+                div = texttag.find(attrs={'class':cls})
                 if div is not None:
                     div.extract()
             newpos = len(texttag.contents)
-            self.append_page(soup2, texttag, newpos)
+            self.append_page(soup2,texttag,newpos)
             texttag.extract()
             pager.extract()
-            appendtag.insert(position, texttag)
+            appendtag.insert(position,texttag)
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
-        for img in soup.findAll('img', attrs={'data-src': True}):
+        for img in soup.findAll('img', attrs={'data-src':True}):
             img['src'] = img['data-src']
         return self.adeify_images(soup)
 
+    # Some last cleanup
     def postprocess_html(self, soup, first_fetch):
-        for div in soup.findAll(id='ArticlePagerBottom'):
-            div.extract()
-        # AGe add 2014-10-24
-        for div in soup.findAll('div', attrs={'class': 'clear'}):
+        for div in soup.findAll('div',attrs={'class':['atc-ContainerFunctions_Navigation','atc-ContainerFunctions_Interaction ']}):
             div.extract()
         return soup

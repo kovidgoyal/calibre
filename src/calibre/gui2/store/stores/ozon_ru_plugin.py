@@ -1,17 +1,19 @@
 ﻿# -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from PyQt5.Qt import QUrl
-import html5lib
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode
@@ -22,15 +24,27 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 shop_url = 'http://www.ozon.ru'
 
+
+def parse_html(raw):
+    try:
+        from html5_parser import parse
+    except ImportError:
+        # Old versions of calibre
+        import html5lib
+        return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+    else:
+        return parse(raw)
+
+
 def search(query, max_results=15, timeout=60):
-    url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % urllib.quote_plus(query)
+    url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % quote_plus(query)
 
     counter = max_results
     br = browser()
 
     with closing(br.open(url, timeout=timeout)) as f:
         raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-        root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+        root = parse_html(raw)
         for tile in root.xpath('//*[@class="bShelfTile inline"]'):
             if counter <= 0:
                 break
@@ -44,6 +58,7 @@ def search(query, max_results=15, timeout=60):
             s.cover_url = 'http:' + tile.xpath('descendant::img/@data-original')[0]
             s.price = format_price_in_RUR(s.price)
             yield s
+
 
 class OzonRUStore(StorePlugin):
 
@@ -61,6 +76,7 @@ class OzonRUStore(StorePlugin):
         for s in search(query, max_results=max_results, timeout=timeout):
             yield s
 
+
 def format_price_in_RUR(price):
     '''
     Try to format price according ru locale: '12 212,34 руб.'
@@ -70,6 +86,7 @@ def format_price_in_RUR(price):
     '''
     price = price.replace('\xa0', '').replace(',', '.').strip() + ' py6'
     return price
+
 
 if __name__ == '__main__':
     import sys

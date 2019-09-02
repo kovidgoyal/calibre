@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -10,16 +11,21 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, cStringIO
+import sys, os, io
 
 from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
+
 
 class Hex2Utf8:
     """
     Convert Microsoft hexidecimal numbers to utf-8
     """
+
     def __init__(self,
             in_file,
             area_to_convert,
@@ -61,7 +67,7 @@ class Hex2Utf8:
             'in module "hex_2_utf8.py\n'
             '"area_to_convert" must be "body" or "preamble"\n'
             )
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         self.__char_file = char_file
         self.__area_to_convert = area_to_convert
         self.__default_char_map = default_char_map
@@ -116,7 +122,7 @@ class Hex2Utf8:
             'in module "hex_2_utf8.py\n'
             '"area_to_convert" must be "body" or "preamble"\n'
             )
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         self.__area_to_convert = area_to_convert
         self.__symbol = symbol
         self.__wingdings = wingdings
@@ -146,7 +152,7 @@ class Hex2Utf8:
         # 128, and the encoding system for Microsoft characters.
         # New on 2004-05-8: the self.__char_map is not in directory with other
         # modules
-        self.__char_file = cStringIO.StringIO(char_set)
+        self.__char_file = io.StringIO(char_set)
         char_map_obj =  get_char_map.GetCharMap(
                 char_file=self.__char_file,
                 bug_handler=self.__bug_handler,
@@ -259,7 +265,7 @@ class Hex2Utf8:
                     # msg += 'the hexidecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
                     msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
 
     def __found_body_func(self, line):
         self.__state = 'body'
@@ -280,8 +286,8 @@ class Hex2Utf8:
 
     def __convert_preamble(self):
         self.__state = 'preamble'
-        with open(self.__write_to, 'w') as self.__write_obj:
-            with open(self.__file, 'r') as read_obj:
+        with open_for_write(self.__write_to) as self.__write_obj:
+            with open_for_read(self.__file) as read_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__preamble_state_dict.get(self.__state)
@@ -477,7 +483,7 @@ class Hex2Utf8:
             the_string = ''
             for letter in text:
                 hex_num = hex(ord(letter))
-                hex_num = str(hex_num)
+                hex_num = unicode_type(hex_num)
                 hex_num = hex_num.upper()
                 hex_num = hex_num[2:]
                 hex_num = '\'%s' % hex_num
@@ -538,8 +544,8 @@ class Hex2Utf8:
 
     def __convert_body(self):
         self.__state = 'body'
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__body_state_dict.get(self.__state)
@@ -560,6 +566,8 @@ class Hex2Utf8:
             self.__convert_preamble()
         else:
             self.__convert_body()
+
+
 """
 how to swap case for non-capitals
 my_string.swapcase()

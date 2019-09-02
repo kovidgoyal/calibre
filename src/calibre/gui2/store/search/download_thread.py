@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, base64
+import traceback
 from contextlib import closing
 from threading import Thread
-from Queue import Queue
 
 from calibre import browser
 from calibre.constants import DEBUG
 from calibre.utils.img import scale_image
+from polyglot.builtins import range
+from polyglot.queue import Queue
+from polyglot.binary import from_base64_bytes
+
 
 class GenericDownloadThreadPool(object):
     '''
@@ -43,7 +46,7 @@ class GenericDownloadThreadPool(object):
         starts any threads necessary to fill the pool if it is
         not already full.
         '''
-        for i in xrange(self.thread_count - self.running_threads_count()):
+        for i in range(self.thread_count - self.running_threads_count()):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
             t.start()
@@ -139,8 +142,10 @@ class CoverThreadPool(GenericDownloadThreadPool):
         self.tasks.put((search_result, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
+
 def decode_data_url(url):
-    return base64.standard_b64decode(url.partition(',')[2])
+    return from_base64_bytes(url.partition(',')[2])
+
 
 class CoverThread(Thread):
 

@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QWidget, QPainter, QPropertyAnimation, QEasingCurve, \
     QRect, QPixmap, Qt, pyqtProperty
 
+
 class SlideFlip(QWidget):
 
     # API {{{

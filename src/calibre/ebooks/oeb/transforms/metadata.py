@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os, re
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
+from polyglot.builtins import iteritems
+
 
 def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
     from calibre.ebooks.oeb.base import OPF
@@ -49,7 +51,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.clear('series')
     identifiers = mi.get_identifiers()
     set_isbn = False
-    for typ, val in identifiers.iteritems():
+    for typ, val in iteritems(identifiers):
         has = False
         if typ.lower() == 'isbn':
             set_isbn = True
@@ -122,9 +124,10 @@ class MergeMetadata(object):
             self.oeb.metadata.add('identifier', mi.application_id, scheme='calibre')
 
     def set_cover(self, mi, prefer_metadata_cover):
-        cdata, ext = '', 'jpg'
+        cdata, ext = b'', 'jpg'
         if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                cdata = f.read()
             ext = mi.cover.rpartition('.')[-1].lower().strip()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
@@ -135,7 +138,7 @@ class MergeMetadata(object):
         if 'cover' in self.oeb.guide:
             old_cover = self.oeb.guide['cover']
         if prefer_metadata_cover and old_cover is not None:
-            cdata = ''
+            cdata = b''
         if cdata:
             self.oeb.guide.remove('cover')
             self.oeb.guide.remove('titlepage')
@@ -143,41 +146,59 @@ class MergeMetadata(object):
             # The amazon formats dont support html cover pages, so remove them
             # even if no cover was specified.
             self.oeb.guide.remove('titlepage')
+        do_remove_old_cover = False
         if old_cover is not None:
             if old_cover.href in self.oeb.manifest.hrefs:
                 item = self.oeb.manifest.hrefs[old_cover.href]
                 if not cdata:
                     return item.id
-                self.remove_old_cover(item)
+                do_remove_old_cover = True
             elif not cdata:
                 id = self.oeb.manifest.generate(id='cover')[0]
                 self.oeb.manifest.add(id, old_cover.href, 'image/jpeg')
                 return id
+        new_cover_item = None
         if cdata:
             id, href = self.oeb.manifest.generate('cover', 'cover.'+ext)
-            self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
+            new_cover_item = self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
+        if do_remove_old_cover:
+            self.remove_old_cover(item, new_cover_item.href)
         return id
 
-    def remove_old_cover(self, cover_item):
-        from calibre.ebooks.oeb.base import XPath
+    def remove_old_cover(self, cover_item, new_cover_href=None):
+        from calibre.ebooks.oeb.base import XPath, XLINK
         from lxml import etree
 
         self.oeb.manifest.remove(cover_item)
 
         # Remove any references to the cover in the HTML
         affected_items = set()
-        for item in self.oeb.spine:
+        xp = XPath('//h:img[@src]|//svg:image[@xl:href]')
+        for i, item in enumerate(self.oeb.spine):
             try:
-                images = XPath('//h:img[@src]')(item.data)
-            except:
-                images = []
+                images = xp(item.data)
+            except Exception:
+                images = ()
             removed = False
             for img in images:
-                href = item.abshref(img.get('src'))
+                href = img.get('src') or img.get(XLINK('href'))
+                try:
+                    href = item.abshref(href)
+                except Exception:
+                    continue  # Invalid URL, ignore
                 if href == cover_item.href:
-                    img.getparent().remove(img)
-                    removed = True
+                    if new_cover_href is not None:
+                        replacement_href = item.relhref(new_cover_href)
+                        attr = 'src' if img.tag.endswith('img') else XLINK('href')
+                        img.set(attr, replacement_href)
+                    else:
+                        p = img.getparent()
+                        if p.tag.endswith('}svg'):
+                            p.getparent().remove(p)
+                        else:
+                            p.remove(img)
+                        removed = True
             if removed:
                 affected_items.add(item)
 
@@ -185,7 +206,7 @@ class MergeMetadata(object):
         for item in affected_items:
             body = XPath('//h:body')(item.data)
             if body:
-                text = etree.tostring(body[0], method='text', encoding=unicode)
+                text = etree.tostring(body[0], method='text', encoding='unicode')
             else:
                 text = ''
             text = re.sub(r'\s+', '', text)
@@ -194,6 +215,4 @@ class MergeMetadata(object):
                         ' the cover image'%item.href)
                 self.oeb.spine.remove(item)
                 self.oeb.manifest.remove(item)
-
-
-
+                self.oeb.guide.remove_by_href(item.href)

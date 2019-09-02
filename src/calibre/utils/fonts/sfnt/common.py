@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,8 @@ from struct import unpack_from, calcsize
 from collections import OrderedDict, namedtuple
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from polyglot.builtins import range, iteritems
+
 
 class Unpackable(object):
 
@@ -26,6 +27,7 @@ class Unpackable(object):
         self.offset += calcsize(fmt)
         return ans
 
+
 class SimpleListTable(list):
 
     'A table that contains a list of subtables'
@@ -39,7 +41,7 @@ class SimpleListTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             offset = data.unpack('H')
             self.append(self.child_class(raw, data.start_pos + offset))
         self.read_extra_footer(data)
@@ -49,6 +51,7 @@ class SimpleListTable(list):
 
     def read_extra_footer(self, data):
         pass
+
 
 class ListTable(OrderedDict):
 
@@ -63,7 +66,7 @@ class ListTable(OrderedDict):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             tag, coffset = data.unpack('4sH')
             self[tag] = self.child_class(raw, data.start_pos + coffset)
 
@@ -76,10 +79,10 @@ class ListTable(OrderedDict):
         pass
 
     def dump(self, prefix=''):
-        print (prefix, self.__class__.__name__, sep='')
+        print(prefix, self.__class__.__name__, sep='')
         prefix += '  '
-        for tag, child in self.iteritems():
-            print (prefix, tag, sep='')
+        for tag, child in iteritems(self):
+            print(prefix, tag, sep='')
             child.dump(prefix=prefix+'  ')
 
 
@@ -90,7 +93,7 @@ class IndexTable(list):
         self.read_extra_header(data)
 
         count = data.unpack('H')
-        for i in xrange(count):
+        for i in range(count):
             self.append(data.unpack('H'))
 
     def read_extra_header(self, data):
@@ -99,6 +102,7 @@ class IndexTable(list):
     def dump(self, prefix=''):
         print(prefix, self.__class__.__name__, sep='')
 
+
 class LanguageSystemTable(IndexTable):
 
     def read_extra_header(self, data):
@@ -106,6 +110,7 @@ class LanguageSystemTable(IndexTable):
         if self.lookup_order != 0:
             raise UnsupportedFont('This LanguageSystemTable has an unknown'
                     ' lookup order: 0x%x'%self.lookup_order)
+
 
 class ScriptTable(ListTable):
 
@@ -120,9 +125,11 @@ class ScriptTable(ListTable):
         self[b'default'] = (LanguageSystemTable(data.raw, start_pos +
             default_offset) if default_offset else None)
 
+
 class ScriptListTable(ListTable):
 
     child_class = ScriptTable
+
 
 class FeatureTable(IndexTable):
 
@@ -133,9 +140,11 @@ class FeatureTable(IndexTable):
             raise UnsupportedFont(
                 'This FeatureTable has non NULL FeatureParams: 0x%x'%self.feature_params)
 
+
 class FeatureListTable(ListTable):
 
     child_class = FeatureTable
+
 
 class LookupTable(SimpleListTable):
 
@@ -150,6 +159,7 @@ class LookupTable(SimpleListTable):
         if self.lookup_flag & 0x0010:
             self.mark_filtering_set = data.unpack('H')
 
+
 def ExtensionSubstitution(raw, offset, subtable_map={}):
     data = Unpackable(raw, offset)
     subst_format, extension_lookup_type, offset = data.unpack('2HL')
@@ -157,7 +167,9 @@ def ExtensionSubstitution(raw, offset, subtable_map={}):
         raise UnsupportedFont('ExtensionSubstitution has unknown format: 0x%x'%subst_format)
     return subtable_map[extension_lookup_type](raw, offset+data.start_pos)
 
+
 CoverageRange = namedtuple('CoverageRange', 'start end start_coverage_index')
+
 
 class Coverage(object):
 
@@ -175,7 +187,7 @@ class Coverage(object):
         else:
             self.ranges = []
             ranges = data.unpack('%dH'%(3*count), single_special=False)
-            for i in xrange(count):
+            for i in range(count):
                 start, end, start_coverage_index = ranges[i*3:(i+1)*3]
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
 
@@ -194,6 +206,7 @@ class Coverage(object):
                     if start <= gid <= end:
                         ans[gid] = start_coverage_index + (gid-start)
         return ans
+
 
 class UnknownLookupSubTable(object):
 
@@ -237,4 +250,3 @@ class UnknownLookupSubTable(object):
                     items.append(read_item(data))
             coverage_to_items_map.append(items)
         return coverage_to_items_map
-

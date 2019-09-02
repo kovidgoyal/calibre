@@ -1,9 +1,12 @@
+#!/usr/bin/env  python2
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.diariobae.com
 '''
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -19,41 +22,32 @@ class BsAsEconomico(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
     language = 'es_AR'
-    cover_url = strftime(
-        'http://www.diariobae.com/imgs_portadas/%Y%m%d_portadasBAE.jpg')
-    masthead_url = 'http://www.diariobae.com/img/logo_bae.png'
+    masthead_url = 'http://static.cronica.com.ar/FileAccessHandler.ashx?code=635959869637084622'
     remove_empty_feeds = True
     publication_type = 'newspaper'
     extra_css             = """
                                body{font-family: Georgia,"Times New Roman",Times,serif}
-                               #titulo{font-size: x-large}
-                               #epi{font-size: small; font-style: italic; font-weight: bold}
                                img{display: block; margin-top: 1em}
                             """
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+        'comment'  : description,
+        'tags'     : category,
+        'publisher': publisher,
+        'language' : language
     }
 
-    remove_tags_before = dict(attrs={'id': 'titulo'})
-    remove_tags_after = dict(attrs={'id': 'autor'})
+    keep_only_tags = [dict(name='div', attrs={'class':'post'})]
     remove_tags = [
-        dict(name=['meta', 'base', 'iframe', 'link', 'lang']), dict(
-            attrs={'id': 'barra_tw'})
-    ]
-    remove_attributes = ['data-count', 'data-via']
+                    dict(name=['meta', 'base', 'iframe', 'link', 'lang'])
+                    ,dict(attrs={'class':'pdfprnt-bottom-right'})
+                  ]
 
-    feeds = [
+    feeds = [(u'Articles', u'http://www.diariobae.com/feed/getfeed')]
 
-    (u'Argentina', u'http://www.diariobae.com/rss/argentina.xml'),
-    (u'Valores', u'http://www.diariobae.com/rss/valores.xml'),
-    (u'Finanzas', u'http://www.diariobae.com/rss/finanzas.xml'),
-    (u'Negocios', u'http://www.diariobae.com/rss/negocios.xml'),
-    (u'Mundo', u'http://www.diariobae.com/rss/mundo.xml'),
-    (u'5 dias', u'http://www.diariobae.com/rss/5dias.xml'),
-    (u'Espectaculos', u'http://www.diariobae.com/rss/espectaculos.xml')
-    ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+    def get_cover_url(self):
+        cover = None
+        soup = self.index_to_soup('http://www.diariobae.com/')
+        tag = soup.find('a', rel='lightbox[tapa]', href=True)
+        if tag:
+            cover = tag['href']
+        return cover

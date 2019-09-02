@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,11 +15,14 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
+
 
 class Fonts:
     """
     Change lines with font info from font numbers to the actual font names.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -176,7 +180,7 @@ class Fonts:
             if font_name is None:
                 if self.__run_level > 3:
                     msg = 'no value for %s in self.__font_table\n' % font_num
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
             else:
                 # self.__special_font_dict
                 if font_name in self.__special_font_list:
@@ -202,8 +206,8 @@ class Fonts:
             info. Substitute a font name for a font number.
             """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)

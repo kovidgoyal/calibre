@@ -1,4 +1,6 @@
 # coding:utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 __docformat__ = 'restructuredtext en'
@@ -23,6 +25,7 @@ from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
 from calibre.ebooks.unihandecode.pykakasi.kakasi import kakasi
 
+
 class Jadecoder(Unidecoder):
     kakasi = None
     codepoints = {}
@@ -38,4 +41,3 @@ class Jadecoder(Unidecoder):
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
         except:
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
-

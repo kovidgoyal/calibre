@@ -34,10 +34,10 @@ static PyObject* monotonic(PyObject *self, PyObject *args) {
 /* QueryPerformanceCounter() is wildly inaccurate, so we use the more stable
  * the lower resolution GetTickCount64() (this is what python 3.x uses)
  * static LARGE_INTEGER frequency = {0}, ts = {0};
- * static PyObject* monotonic(PyObject *self, PyObject *args) { 
+ * static PyObject* monotonic(PyObject *self, PyObject *args) {
  * 	if (!QueryPerformanceCounter(&ts)) { PyErr_SetFromWindowsErr(0); return NULL; }
- * 	return PyFloat_FromDouble(((double)ts.QuadPart)/frequency.QuadPart); 
- * } 
+ * 	return PyFloat_FromDouble(((double)ts.QuadPart)/frequency.QuadPart);
+ * }
  */
 
 #elif defined(__APPLE__)
@@ -71,7 +71,7 @@ static PyMethodDef monotonic_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
+CALIBRE_MODINIT_FUNC
 initmonotonic(void) {
     PyObject *m;
 #ifdef _MSC_VER

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '''
@@ -15,6 +15,7 @@ from lxml import etree
 
 from calibre import browser
 from calibre.utils.opensearch.url import URL
+
 
 class Description(object):
     '''

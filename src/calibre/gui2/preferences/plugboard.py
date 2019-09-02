@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -20,10 +21,10 @@ from calibre.customize.ui import metadata_writers, device_plugins, disabled_devi
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                     plugboard_any_device_value, plugboard_save_to_disk_value, \
                     find_plugboard
-from calibre.library.server.content import plugboard_content_server_value, \
-                                        plugboard_content_server_formats
+from calibre.srv.content import plugboard_content_server_value, plugboard_content_server_formats
 from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
+from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -33,17 +34,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.db = gui.library_view.model().db
 
     def initialize(self):
-        def field_cmp(x, y):
-            if x.startswith('#'):
-                if y.startswith('#'):
-                    return cmp(x.lower(), y.lower())
-                else:
-                    return 1
-            elif y.startswith('#'):
-                return -1
-            else:
-                return cmp(x.lower(), y.lower())
-
         ConfigWidgetBase.initialize(self)
 
         self.current_plugboards = copy.deepcopy(self.db.prefs.get('plugboards',{}))
@@ -72,7 +62,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if n not in self.disabled_devices:
                 self.disabled_devices.append(n)
 
-        self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
+        self.devices.sort(key=lambda x: x.lower())
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
         self.device_to_formats_map[plugboard_content_server_value] = \
@@ -97,7 +87,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.dest_fields = ['',
                             'authors', 'author_sort', 'language', 'publisher',
-                            'tags', 'title', 'title_sort']
+                            'tags', 'title', 'title_sort', 'comments']
 
         self.source_widgets = []
         self.dest_widgets = []
@@ -153,14 +143,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
-        self.current_device = unicode(txt)
+        self.current_device = unicode_type(txt)
         fpb = self.current_plugboards.get(self.current_format, None)
         if fpb is None:
-            print 'edit_device_changed: none format!'
+            print('edit_device_changed: none format!')
             return
         dpb = fpb.get(self.current_device, None)
         if dpb is None:
-            print 'edit_device_changed: none device!'
+            print('edit_device_changed: none device!')
             return
         self.set_fields()
         for i,op in enumerate(dpb):
@@ -176,10 +166,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
-        txt = unicode(txt)
+        txt = unicode_type(txt)
         fpb = self.current_plugboards.get(txt, None)
         if fpb is None:
-            print 'edit_format_changed: none editable format!'
+            print('edit_format_changed: none editable format!')
             return
         self.current_format = txt
         self.check_if_writer_disabled(txt)
@@ -208,7 +198,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.clear_fields(edit_boxes=False)
             return
         self.clear_fields(edit_boxes=True)
-        self.current_device = unicode(txt)
+        self.current_device = unicode_type(txt)
 
         if self.current_format in self.current_plugboards and \
                 self.current_device in self.current_plugboards[self.current_format]:
@@ -292,15 +282,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.new_device.setCurrentIndex(0)
         if txt:
             self.clear_fields(edit_boxes=True)
-            self.current_format = unicode(txt)
+            self.current_format = unicode_type(txt)
             self.check_if_writer_disabled(self.current_format)
         else:
             self.clear_fields(edit_boxes=False)
 
     def ok_clicked(self):
         pb = []
+        comments_in_dests = False
         for i in range(0, len(self.source_widgets)):
-            s = unicode(self.source_widgets[i].text())
+            s = unicode_type(self.source_widgets[i].text())
             if s:
                 d = self.dest_widgets[i].currentIndex()
                 if d != 0:
@@ -312,6 +303,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 '<br>'+str(err), show=True)
                         return
                     pb.append((s, self.dest_fields[d]))
+                    comments_in_dests = comments_in_dests or self.dest_fields[d] == 'comments'
                 else:
                     error_dialog(self, _('Invalid destination'),
                             '<p>'+_('The destination field cannot be blank'),
@@ -325,6 +317,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if len(fpb) == 0:
                     del self.current_plugboards[self.current_format]
         else:
+            if comments_in_dests and not question_dialog(self.gui, _('Plugboard modifies Comments'),
+                     _('This plugboard modifies the Comments metadata. '
+                       'If the Comments are set to invalid HTML, it could cause problems on the device. '
+                       'Are you sure you wish to save this plugboard?'
+                       ),
+                        skip_dialog_name='plugboard_comments_in_dests'
+                        ):
+                return
             if self.current_format not in self.current_plugboards:
                 self.current_plugboards[self.current_format] = {}
             fpb = self.current_plugboards[self.current_format]
@@ -403,4 +403,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Plugboard')
-

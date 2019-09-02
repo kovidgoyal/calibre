@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,7 @@ from lxml import etree
 
 from calibre.constants import config_dir
 from calibre.utils.zipfile import ZipFile
+from polyglot.builtins import iteritems
 
 NS_MAP = {
     'oor': "http://openoffice.org/2001/registry",
@@ -21,6 +21,7 @@ NS_MAP = {
 
 XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
 BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
+
 
 def parse_xcu(raw, origin='%origin%'):
     ' Get the dictionary and affix file names as well as supported locales for each dictionary '
@@ -40,6 +41,7 @@ def parse_xcu(raw, origin='%origin%'):
         ans[(dic, aff)] = locales
     return ans
 
+
 def convert_to_utf8(dic_data, aff_data, errors='strict'):
     m = re.search(br'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
     if m is not None:
@@ -55,6 +57,7 @@ def convert_to_utf8(dic_data, aff_data, errors='strict'):
                 dic_data = dic_data.decode(enc, errors).encode('utf-8')
     return dic_data, aff_data
 
+
 def import_from_libreoffice_source_tree(source_path):
     dictionaries = {}
     for x in glob.glob(os.path.join(source_path, '*', 'dictionaries.xcu')):
@@ -65,7 +68,7 @@ def import_from_libreoffice_source_tree(source_path):
     base = P('dictionaries', allow_user_override=False)
     want_locales = set(BUILTIN_LOCALES)
 
-    for (dic, aff), locales in dictionaries.iteritems():
+    for (dic, aff), locales in iteritems(dictionaries):
         c = set(locales) & want_locales
         if c:
             locale = tuple(c)[0]
@@ -85,8 +88,10 @@ def import_from_libreoffice_source_tree(source_path):
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
 
+
 def fill_country_code(x):
     return {'lt':'lt_LT'}.get(x, x)
+
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -96,6 +101,7 @@ def uniq(vals, kmap=lambda x:x):
     seen = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     from calibre.spell.dictionary import parse_lang_code
@@ -120,7 +126,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
         xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
             '{%s}full-path' % NS_MAP['manifest'])
-        for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems():
+        for (dic, aff), locales in iteritems(parse_xcu(zf.open(xcu).read(), origin='')):
             dic, aff = dic.lstrip('/'), aff.lstrip('/')
             d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
             locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])
@@ -136,6 +142,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
                 f.write(ad)
             num += 1
     return num
+
 
 if __name__ == '__main__':
     import_from_libreoffice_source_tree(sys.argv[-1])

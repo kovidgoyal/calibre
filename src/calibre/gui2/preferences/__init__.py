@@ -14,9 +14,12 @@ from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
+from polyglot.builtins import unicode_type, string_or_bytes
+
 
 class AbortCommit(Exception):
     pass
+
 
 class ConfigWidgetInterface(object):
 
@@ -34,7 +37,7 @@ class ConfigWidgetInterface(object):
     #: Set to True iff the :meth:`restore_to_defaults` method is implemented.
     supports_restoring_to_defaults = True
 
-    #: The tooltip for the Restore to defaults button
+    #: The tooltip for the "Restore defaults" button
     restore_defaults_desc = _('Restore settings to default values. '
             'You have to click Apply to actually save the default settings.')
 
@@ -82,6 +85,7 @@ class ConfigWidgetInterface(object):
         '''
         pass
 
+
 class Setting(object):
 
     CHOICES_SEARCH_FLAGS = Qt.MatchExactly | Qt.MatchCaseSensitive
@@ -115,15 +119,15 @@ class Setting(object):
             raise ValueError('Unknown data type %s' % self.gui_obj.__class__)
 
         if isinstance(self.config_obj, ConfigProxy) and \
-                not unicode(self.gui_obj.toolTip()):
+                not unicode_type(self.gui_obj.toolTip()):
             h = self.config_obj.help(self.name)
             if h:
                 self.gui_obj.setToolTip(h)
-        tt = unicode(self.gui_obj.toolTip())
+        tt = unicode_type(self.gui_obj.toolTip())
         if tt:
-            if not unicode(self.gui_obj.whatsThis()):
+            if not unicode_type(self.gui_obj.whatsThis()):
                 self.gui_obj.setWhatsThis(tt)
-            if not unicode(self.gui_obj.statusTip()):
+            if not unicode_type(self.gui_obj.statusTip()):
                 self.gui_obj.setStatusTip(tt)
             tt = '\n'.join(textwrap.wrap(tt, 70))
             self.gui_obj.setToolTip(tt)
@@ -140,7 +144,7 @@ class Setting(object):
             else:
                 self.gui_obj.clear()
                 for x in choices:
-                    if isinstance(x, basestring):
+                    if isinstance(x, string_or_bytes):
                         x = (x, x)
                     self.gui_obj.addItem(x[0], (x[1]))
         self.set_gui_val(self.get_config_val(default=False))
@@ -191,18 +195,19 @@ class Setting(object):
         elif self.datatype == 'number':
             val = self.gui_obj.value()
         elif self.datatype == 'string':
-            val = unicode(self.gui_obj.text()).strip()
+            val = unicode_type(self.gui_obj.text()).strip()
             if self.empty_string_is_None and not val:
                 val = None
         elif self.datatype == 'choice':
             if isinstance(self.gui_obj, EditWithComplete):
-                val = unicode(self.gui_obj.text())
+                val = unicode_type(self.gui_obj.text())
             else:
                 idx = self.gui_obj.currentIndex()
                 if idx < 0:
                     idx = 0
-                val = unicode(self.gui_obj.itemData(idx) or '')
+                val = unicode_type(self.gui_obj.itemData(idx) or '')
         return val
+
 
 class CommaSeparatedList(Setting):
 
@@ -213,12 +218,13 @@ class CommaSeparatedList(Setting):
         self.gui_obj.setText(x)
 
     def get_gui_val(self):
-        val = unicode(self.gui_obj.text()).strip()
+        val = unicode_type(self.gui_obj.text()).strip()
         ans = []
         if val:
             ans = [x.strip() for x in val.split(',')]
             ans = [x for x in ans if x]
         return ans
+
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
@@ -298,16 +304,19 @@ def get_plugin(category, name):
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
+
 class ConfigDialog(QDialog):
 
     def set_widget(self, w):
         self.w = w
+
     def accept(self):
         try:
             self.restart_required = self.w.commit()
         except AbortCommit:
             return
         QDialog.accept(self)
+
 
 def init_gui():
     from calibre.gui2.ui import Main
@@ -320,6 +329,7 @@ def init_gui():
     gui = Main(opts)
     gui.initialize(db.library_path, db, None, actions, show_gui=False)
     return gui
+
 
 def show_config_widget(category, name, gui=None, show_restart_msg=False,
         parent=None, never_shutdown=False):
@@ -340,7 +350,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     d.resize(750, 550)
     conf_name = 'config_widget_dialog_geometry_%s_%s'%(category, name)
     geom = gprefs.get(conf_name, None)
-    d.setWindowTitle(_('Configure ') + name)
+    d.setWindowTitle(_('Configure ') + pl.gui_name)
     d.setWindowIcon(QIcon(I('config.png')))
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(bb.Apply|bb.Cancel|bb.RestoreDefaults)
@@ -352,6 +362,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     bb.button(bb.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
     bb.button(bb.Apply).setEnabled(False)
     bb.button(bb.Apply).clicked.connect(d.accept)
+
     def onchange():
         b = bb.button(bb.Apply)
         b.setEnabled(True)
@@ -384,8 +395,10 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
 
 # Testing {{{
 
+
 def test_widget(category, name, gui=None):
     show_config_widget(category, name, gui=gui, show_restart_msg=True)
+
 
 def test_all():
     from PyQt5.Qt import QApplication
@@ -396,8 +409,7 @@ def test_all():
         test_widget(plugin.category, plugin.name, gui=gui)
     gui.shutdown()
 
+
 if __name__ == '__main__':
     test_all()
 # }}}
-
-

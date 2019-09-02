@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
@@ -8,19 +9,18 @@ __docformat__ = 'restructuredtext en'
 Device driver for Barns and Nobel's Nook
 '''
 
-import os
+import io, os, errno
 
-import cStringIO
-
-from calibre import fsync
-from calibre.constants import isosx
+from calibre import fsync, prints
+from calibre.constants import DEBUG
 from calibre.devices.usbms.driver import USBMS
+
 
 class NOOK(USBMS):
 
     name           = 'Nook Device Interface'
     gui_name       = _('The Nook')
-    description    = _('Communicate with the Nook eBook reader.')
+    description    = _('Communicate with the Nook e-book reader.')
     author         = 'John Schember'
     icon           = I('devices/nook.png')
     supported_platforms = ['windows', 'linux', 'osx']
@@ -56,12 +56,12 @@ class NOOK(USBMS):
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover = Image.open(io.BytesIO(coverdata[2]))
         else:
             coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (96, 144), 'black')
-            im = Image.open(cStringIO.StringIO(coverdata))
+            im = Image.open(io.BytesIO(coverdata))
             im.thumbnail((96, 144), Image.ANTIALIAS)
 
             x, y = im.size
@@ -71,7 +71,7 @@ class NOOK(USBMS):
             draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
             draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
 
-        data = cStringIO.StringIO()
+        data = io.BytesIO()
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
@@ -80,18 +80,21 @@ class NOOK(USBMS):
             fsync(coverfile)
 
     def sanitize_path_components(self, components):
-        return [x.replace('#', '_') for x in components]
+        return [x.replace('#', '_').replace('%', '_') for x in components]
+
 
 class NOOK_COLOR(NOOK):
     name           = 'Nook Color Device Interface'
-    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet eBook readers.')
+    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet e-book readers.')
 
-    PRODUCT_ID  = [0x002, 0x003, 0x004,
-                   # Glowlight from 2013
-                   0x007]
-    if isosx:
-        PRODUCT_ID.append(0x005)  # Nook HD+
-    BCD         = [0x216]
+    PRODUCT_ID  = [
+        0x002, 0x003, 0x004,
+        0x005,  # Nook HD+
+        0x007,  # Glowlight from 2013
+        0xb,    # Glowlight from 2017
+        0xc,    # Glowlight from 2019
+    ]
+    BCD         = [0x216, 0x9999]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
             'NOOK_SIMPLETOUCH', 'NOOK_GLOWLIGHT']
@@ -101,6 +104,20 @@ class NOOK_COLOR(NOOK):
 
     def upload_cover(self, path, filename, metadata, filepath):
         pass
+
+    def post_open_callback(self):
+        product_id = self.device_being_opened[1]
+        if DEBUG:
+            prints('Opened NOOK with product id:', product_id)
+        if product_id in (0xb, 0xc):
+            if DEBUG:
+                prints('Setting Nook upload directory to NOOK/My Files')
+            self.EBOOK_DIR_MAIN = 'NOOK/My Files'
+            try:
+                os.makedirs(os.path.join(self._main_prefix, *self.EBOOK_DIR_MAIN.split('/')))
+            except EnvironmentError as err:
+                if err.errno != errno.EEXIST:
+                    self.EBOOK_DIR_MAIN = 'NOOK'
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:
@@ -113,4 +130,3 @@ class NOOK_COLOR(NOOK):
         path = os.path.join(path, subdir)
         return USBMS.create_upload_path(self, path, mdata, fname,
                 create_dirs=create_dirs)
-

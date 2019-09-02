@@ -1,8 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,12 +11,16 @@ from collections import OrderedDict
 from functools import partial
 
 from calibre import as_unicode
+from calibre.constants import ispy3
 from calibre.customize import (Plugin, numeric_version, platform,
         InvalidPlugin, PluginNotFound)
+from polyglot.builtins import (itervalues, map, string_or_bytes,
+        unicode_type, reload)
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths
 # have non ASCII characters
+
 
 def get_resources(zfp, name_or_list_of_names):
     '''
@@ -33,7 +35,7 @@ def get_resources(zfp, name_or_list_of_names):
                 be just the bytes of the resource or None if it wasn't found.
     '''
     names = name_or_list_of_names
-    if isinstance(names, basestring):
+    if isinstance(names, string_or_bytes):
         names = [names]
     ans = {}
     with zipfile.ZipFile(zfp) as zf:
@@ -47,6 +49,7 @@ def get_resources(zfp, name_or_list_of_names):
         ans = ans.pop(names[0], None)
 
     return ans
+
 
 def get_icons(zfp, name_or_list_of_names):
     '''
@@ -63,11 +66,11 @@ def get_icons(zfp, name_or_list_of_names):
     from PyQt5.Qt import QIcon, QPixmap
     names = name_or_list_of_names
     ans = get_resources(zfp, names)
-    if isinstance(names, basestring):
+    if isinstance(names, string_or_bytes):
         names = [names]
     if ans is None:
         ans = {}
-    if isinstance(ans, basestring):
+    if isinstance(ans, string_or_bytes):
         ans = dict([(names[0], ans)])
 
     ians = {}
@@ -81,7 +84,9 @@ def get_icons(zfp, name_or_list_of_names):
         ians = ians.pop(names[0])
     return ians
 
+
 _translations_cache = {}
+
 
 def load_translations(namespace, zfp):
     null = object()
@@ -106,8 +111,9 @@ def load_translations(namespace, zfp):
         from io import BytesIO
         trans = _translations_cache[zfp] = GNUTranslations(BytesIO(mo))
 
-    namespace['_'] = trans.ugettext
+    namespace['_'] = getattr(trans, 'gettext' if ispy3 else 'ugettext')
     namespace['ngettext'] = trans.ungettext
+
 
 class PluginLoader(object):
 
@@ -176,7 +182,7 @@ class PluginLoader(object):
             mod.__dict__['get_resources'] = partial(get_resources, zfp)
             mod.__dict__['get_icons'] = partial(get_icons, zfp)
             mod.__dict__['load_translations'] = partial(load_translations, mod.__dict__, zfp)
-            exec compiled in mod.__dict__
+            exec(compiled, mod.__dict__)
 
         return mod
 
@@ -196,7 +202,7 @@ class PluginLoader(object):
             else:
                 m = importlib.import_module(plugin_module)
             plugin_classes = []
-            for obj in m.__dict__.itervalues():
+            for obj in itervalues(m.__dict__):
                 if isinstance(obj, type) and issubclass(obj, Plugin) and \
                         obj.name != 'Trivial Plugin':
                     plugin_classes.append(obj)
@@ -211,7 +217,7 @@ class PluginLoader(object):
             if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
                     'The plugin at %s needs a version of calibre >= %s' %
-                    (as_unicode(path_to_zip_file), '.'.join(map(unicode,
+                    (as_unicode(path_to_zip_file), '.'.join(map(unicode_type,
                         ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
@@ -226,7 +232,7 @@ class PluginLoader(object):
             raise
 
     def _locate_code(self, zf, path_to_zip_file):
-        names = [x if isinstance(x, unicode) else x.decode('utf-8') for x in
+        names = [x if isinstance(x, unicode_type) else x.decode('utf-8') for x in
                 zf.namelist()]
         names = [x[1:] if x[0] == '/' else x for x in names]
 
@@ -275,7 +281,7 @@ class PluginLoader(object):
 
         # Legacy plugins
         if '__init__' not in names:
-            for name in list(names.iterkeys()):
+            for name in tuple(names):
                 if '.' not in name and name.endswith('plugin'):
                     names['__init__'] = names[name]
                     break
@@ -305,11 +311,10 @@ if __name__ == '__main__':
             with CurrentDir(path):
                 for x in os.listdir('.'):
                     if x[0] != '.':
-                        print ('Adding', x)
+                        print('Adding', x)
                     zf.write(x)
                     if os.path.isdir(x):
                         for y in os.listdir(x):
                             zf.write(os.path.join(x, y))
         add_plugin(f.name)
-        print ('Added plugin from', sys.argv[-1])
-
+        print('Added plugin from', sys.argv[-1])

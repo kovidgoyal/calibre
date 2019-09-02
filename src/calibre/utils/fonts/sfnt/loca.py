@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,8 @@ from struct import calcsize, unpack_from, pack
 from operator import itemgetter
 
 from calibre.utils.fonts.sfnt import UnknownTable
+from polyglot.builtins import iteritems, range
+
 
 class LocaTable(UnknownTable):
 
@@ -38,14 +39,14 @@ class LocaTable(UnknownTable):
         '''
         self.offset_map = [0 for i in self.offset_map]
         glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in
-                    resolved_glyph_map.iteritems()]
+                    iteritems(resolved_glyph_map)]
         glyphs.sort(key=itemgetter(1))
         for glyph_id, offset, sz in glyphs:
             self.offset_map[glyph_id] = offset
             self.offset_map[glyph_id+1] = offset + sz
         # Fix all zero entries to be the same as the previous entry, which
         # means that if the ith entry is zero, the i-1 glyph is not present.
-        for i in xrange(1, len(self.offset_map)):
+        for i in range(1, len(self.offset_map)):
             if self.offset_map[i] == 0:
                 self.offset_map[i] = self.offset_map[i-1]
 
@@ -58,9 +59,7 @@ class LocaTable(UnknownTable):
     def dump_glyphs(self, sfnt):
         if not hasattr(self, 'offset_map'):
             self.load_offsets(sfnt[b'head'], sfnt[b'maxp'])
-        for i in xrange(len(self.offset_map)-1):
+        for i in range(len(self.offset_map)-1):
             off, noff = self.offset_map[i], self.offset_map[i+1]
             if noff != off:
-                print ('Glyph id:', i, 'size:', noff-off)
-
-
+                print('Glyph id:', i, 'size:', noff-off)

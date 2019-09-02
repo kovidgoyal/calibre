@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections, itertools, glob
@@ -17,6 +18,7 @@ class Color(QColor):
 
     def __init__(self, color):
         QColor.__init__(self, color.r, color.g, color.b, 0xff-color.a)
+
 
 class Pen(QPen):
 
@@ -69,6 +71,7 @@ def object_factory(container, obj, respect_max_y=False):
         return Canvas(container.font_loader, obj, container.logger, container.opts,
                       container.ruby_tags, container.link_activated)
     return None
+
 
 class _Canvas(QGraphicsRectItem):
 
@@ -161,10 +164,10 @@ class _Canvas(QGraphicsRectItem):
             self.is_full = y > self.max_y-5
             ib.has_content = False
             if ib.block_id == 54:
-                print
-                print ib.block_id, ib.has_content, self.is_full
-                print self.current_y, self.max_y, y, br.height()
-                print
+                print()
+                print(ib.block_id, ib.has_content, self.is_full)
+                print(self.current_y, self.max_y, y, br.height())
+                print()
 
     def search(self, phrase):
         matches = []
@@ -209,6 +212,7 @@ class Canvas(_Canvas, ContentObject):
         block.reset()
         _Canvas.layout_block(self, block, x, y)
 
+
 class Header(Canvas):
 
     def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated):
@@ -217,6 +221,7 @@ class Header(Canvas):
         if opts.visual_debug:
             self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
 
+
 class Footer(Canvas):
 
     def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated):
@@ -224,6 +229,7 @@ class Footer(Canvas):
                         page_style.textwidth, page_style.footheight)
         if opts.visual_debug:
             self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
+
 
 class Screen(_Canvas):
 
@@ -515,10 +521,9 @@ class Document(QGraphicsScene):
         self.next_match()
 
     def next_match(self):
-        page_num = self.last_search.next()[0]
+        page_num = next(self.last_search)[0]
         if self.current_page == page_num:
             self.update()
         else:
             self.add_to_history()
             self.show_page(page_num)
-

@@ -5,26 +5,24 @@ let g:project_tags_dirs = ['src/calibre']
 let g:syntastic_cpp_include_dirs = [ 
             \'/usr/include/python2.7',
             \'/usr/include/podofo', 
-            \'/usr/include/qt4/QtCore', 
-            \'/usr/include/qt4/QtGui', 
-            \'/usr/include/qt4',
+            \'/usr/include/qt/QtCore', 
+            \'/usr/include/qt/QtGui', 
+            \'/usr/include/qt',
             \'/usr/include/freetype2',
             \'/usr/include/fontconfig',
-            \'src/qtcurve/common', 'src/qtcurve',
-            \'src/unrar',
-            \'src/qt-harfbuzz/src',
-            \'/usr/include/ImageMagick',
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
 let g:syntastic_python_flake8_exec = 'flake8-python2'
 let g:syntastic_python_flake8_args = '--filename='. shellescape('*.py,*.recipe')
+let g:python_version_2 = 1
 
-set wildignore+=resources/viewer/mathjax/*
+set wildignore+=resources/mathjax/*
 set wildignore+=resources/rapydscript/lib/*
 set wildignore+=build/*
 set wildignore+=dist/*
 set wildignore+=manual/generated/*
 set wildignore+=manual/locale/*
+set wildignore+=imgsrc/*
 
 fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to

@@ -1,7 +1,6 @@
 #!/usr/bin/env  python2
 
 __license__ = 'GPL v3'
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -29,9 +28,3 @@ class ppeRecipe(BasicNewsRecipe):
         ('Recenzje', 'http://ppe.pl/rss-recenzje.html'),
         ('Publicystyka', 'http://ppe.pl/rss-publicystyka.html'),
     ]
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.ppe.pl/psx_extreme.html')
-        part = soup.find(attrs={'class': 'archiwum-foto'})['style']
-        part = re.search("'(.+)'", part).group(1).replace('_min', '')
-        return 'http://www.ppe.pl' + part

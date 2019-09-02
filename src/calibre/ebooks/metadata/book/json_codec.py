@@ -1,10 +1,11 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Created on 4 Jun 2010
 
 @author: charles
 '''
 
-from base64 import b64encode, b64decode
 import json, traceback
 from datetime import datetime, time
 
@@ -12,9 +13,13 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
+from polyglot.builtins import iteritems, itervalues, as_bytes
+from polyglot.binary import as_base64_unicode, from_base64_bytes
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
+
+
 def string_to_datetime(src):
     from calibre.utils.iso8601 import parse_iso8601
     if src != "None":
@@ -23,6 +28,7 @@ def string_to_datetime(src):
         except Exception:
             pass
     return None
+
 
 def datetime_to_string(dateval):
     from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
@@ -36,6 +42,7 @@ def datetime_to_string(dateval):
         return "None"
     return isoformat(dateval)
 
+
 def encode_thumbnail(thumbnail):
     '''
     Encode the image part of a thumbnail, then return the 3 part tuple
@@ -45,13 +52,14 @@ def encode_thumbnail(thumbnail):
         return None
     if not isinstance(thumbnail, (tuple, list)):
         try:
-            width, height = identify(bytes(thumbnail))[1:]
+            width, height = identify(as_bytes(thumbnail))[1:]
             if width < 0 or height < 0:
                 return None
             thumbnail = (width, height, thumbnail)
         except Exception:
             return None
-    return (thumbnail[0], thumbnail[1], b64encode(str(thumbnail[2])))
+    return (thumbnail[0], thumbnail[1], as_base64_unicode(thumbnail[2]))
+
 
 def decode_thumbnail(tup):
     '''
@@ -59,7 +67,8 @@ def decode_thumbnail(tup):
     '''
     if tup is None:
         return None
-    return (tup[0], tup[1], b64decode(tup[2]))
+    return (tup[0], tup[1], from_base64_bytes(tup[2]))
+
 
 def object_to_unicode(obj, enc=preferred_encoding):
 
@@ -79,6 +88,7 @@ def object_to_unicode(obj, enc=preferred_encoding):
         return ans
     return obj
 
+
 def encode_is_multiple(fm):
     if fm.get('is_multiple', None):
         # migrate is_multiple back to a character
@@ -91,6 +101,7 @@ def encode_is_multiple(fm):
     else:
         fm['is_multiple'] = None
         fm['is_multiple2'] = {}
+
 
 def decode_is_multiple(fm):
     im = fm.get('is_multiple2',  None)
@@ -115,14 +126,17 @@ def decode_is_multiple(fm):
             im = {}
         fm['is_multiple'] = im
 
+
 class JsonCodec(object):
 
     def __init__(self, field_metadata=None):
         self.field_metadata = field_metadata or FieldMetadata()
 
     def encode_to_file(self, file_, booklist):
-        file_.write(json.dumps(self.encode_booklist_metadata(booklist),
-                              indent=2, encoding='utf-8'))
+        data = json.dumps(self.encode_booklist_metadata(booklist), indent=2)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        file_.write(data)
 
     def encode_booklist_metadata(self, booklist):
         result = []
@@ -139,7 +153,7 @@ class JsonCodec(object):
     def encode_metadata_attr(self, book, key):
         if key == 'user_metadata':
             meta = book.get_all_user_metadata(make_copy=True)
-            for fm in meta.itervalues():
+            for fm in itervalues(meta):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = datetime_to_string(fm['#value#'])
                 encode_is_multiple(fm)
@@ -168,13 +182,13 @@ class JsonCodec(object):
                 if entry is not None:
                     booklist.append(entry)
         except:
-            print 'exception during JSON decode_from_file'
+            print('exception during JSON decode_from_file')
             traceback.print_exc()
 
     def raw_to_book(self, json_book, book_class, prefix):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
-            for key,val in json_book.iteritems():
+            for key,val in iteritems(json_book):
                 meta = self.decode_metadata(key, val)
                 if key == 'user_metadata':
                     book.set_all_user_metadata(meta)
@@ -184,14 +198,14 @@ class JsonCodec(object):
                     setattr(book, key, meta)
             return book
         except:
-            print 'exception during JSON decoding'
+            print('exception during JSON decoding')
             traceback.print_exc()
 
     def decode_metadata(self, key, value):
         if key == 'classifiers':
             key = 'identifiers'
         if key == 'user_metadata':
-            for fm in value.itervalues():
+            for fm in itervalues(value):
                 if fm['datatype'] == 'datetime':
                     fm['#value#'] = string_to_datetime(fm['#value#'])
                 decode_is_multiple(fm)

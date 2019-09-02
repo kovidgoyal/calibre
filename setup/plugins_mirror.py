@@ -1,23 +1,42 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+# Imports {{{
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket, subprocess, atexit
-from future_builtins import map, zip, filter
+import ast
+import atexit
+import bz2
+import errno
+import glob
+import gzip
+import HTMLParser
+import io
+import json
+import os
+import random
+import re
+import socket
+import stat
+import subprocess
+import sys
+import tempfile
+import time
+import urllib2
+import urlparse
+import zipfile
+import zlib
 from collections import namedtuple
-from multiprocessing.pool import ThreadPool
+from contextlib import closing
 from datetime import datetime
 from email.utils import parsedate
-from contextlib import closing
 from functools import partial
+from multiprocessing.pool import ThreadPool
 from xml.sax.saxutils import escape, quoteattr
+# }}}
 
 USER_AGENT = 'calibre mirror'
-MR_URL = 'http://www.mobileread.com/forums/'
+MR_URL = 'https://www.mobileread.com/forums/'
 IS_PRODUCTION = os.path.exists('/srv/plugins')
 WORKDIR = '/srv/plugins' if IS_PRODUCTION else '/t/plugins'
 PLUGINS = 'plugins.json.bz2'
@@ -27,7 +46,8 @@ INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
 u = HTMLParser.HTMLParser().unescape
 
-socket.setdefaulttimeout(60)
+socket.setdefaulttimeout(30)
+
 
 def read(url, get_info=False):  # {{{
     if url.startswith("file://"):
@@ -37,7 +57,15 @@ def read(url, get_info=False):  # {{{
         ('User-Agent', USER_AGENT),
         ('Accept-Encoding', 'gzip,deflate'),
     ]
-    res = opener.open(url)
+    # Sporadic network failures in rackspace, so retry with random sleeps
+    for i in range(10):
+        try:
+            res = opener.open(url)
+            break
+        except urllib2.URLError as e:
+            if not isinstance(e.reason, socket.timeout) or i == 9:
+                raise
+            time.sleep(random.randint(10, 45))
     info = res.info()
     encoding = info.get('Content-Encoding')
     raw = res.read()
@@ -52,12 +80,14 @@ def read(url, get_info=False):  # {{{
     return raw
 # }}}
 
+
 def url_to_plugin_id(url, deprecated):
     query = urlparse.parse_qs(urlparse.urlparse(url).query)
     ans = (query['t'] if 't' in query else query['p'])[0]
     if deprecated:
         ans += '-deprecated'
     return ans
+
 
 def parse_index(raw=None):  # {{{
     raw = raw or read(INDEX).decode('utf-8', 'replace')
@@ -67,7 +97,7 @@ def parse_index(raw=None):  # {{{
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
     seen = {}
 
-    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](http://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
+    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
         deprecated = match.start() > dep_start
         donate = uninstall = None
         history = False
@@ -90,12 +120,14 @@ def parse_index(raw=None):  # {{{
         yield entry
 # }}}
 
+
 def parse_plugin_zip_url(raw):
     for m in re.finditer(r'''(?is)<a\s+href=['"](attachment.php\?[^'"]+?)['"][^>]*>([^<>]+?\.zip)\s*<''', raw):
         url, name = u(m.group(1)), u(m.group(2).strip())
         if name.lower().endswith('.zip'):
             return MR_URL + url, name
     return None, None
+
 
 def load_plugins_index():
     try:
@@ -108,6 +140,8 @@ def load_plugins_index():
     return json.loads(bz2.decompress(raw))
 
 # Get metadata from plugin zip file {{{
+
+
 def convert_node(fields, x, names={}, import_data=None):
     name = x.__class__.__name__
     conv = lambda x:convert_node(fields, x, names=names, import_data=import_data)
@@ -136,7 +170,9 @@ def convert_node(fields, x, names={}, import_data=None):
             return x.right.s.decode('utf-8') if isinstance(x.right.s, bytes) else x.right.s
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
 
+
 Alias = namedtuple('Alias', 'name asname')
+
 
 def get_import_data(name, mod, zf, names):
     mod = mod.split('.')
@@ -157,6 +193,7 @@ def get_import_data(name, mod, zf, names):
     else:
         raise ValueError('Failed to find module: %r' % mod)
 
+
 def parse_metadata(raw, namelist, zf):
     module = ast.parse(raw, filename='__init__.py')
     top_level_imports = filter(lambda x:x.__class__.__name__ == 'ImportFrom', ast.iter_child_nodes(module))
@@ -176,7 +213,7 @@ def parse_metadata(raw, namelist, zf):
             names = [Alias(n.name, getattr(n, 'asname', None)) for n in names]
             if mod in {
                 'calibre.customize', 'calibre.customize.conversion',
-                'calibre.ebooks.metadata.sources.base', 'calibre.ebooks.metadata.covers',
+                'calibre.ebooks.metadata.sources.base', 'calibre.ebooks.metadata.sources.amazon', 'calibre.ebooks.metadata.covers',
                 'calibre.devices.interface', 'calibre.ebooks.metadata.fetch', 'calibre.customize.builtins',
                        } or re.match(r'calibre\.devices\.[a-z0-9]+\.driver', mod) is not None:
                 inames = {n.asname or n.name for n in names}
@@ -232,6 +269,7 @@ def parse_metadata(raw, namelist, zf):
 
     raise ValueError('Could not find plugin class')
 
+
 def check_qt5_compatibility(zf, names):
     uses_qt = False
     for name in names:
@@ -243,6 +281,7 @@ def check_qt5_compatibility(zf, names):
                 return False
     return True
 
+
 def get_plugin_info(raw, check_for_qt5=False):
     metadata = None
     with zipfile.ZipFile(io.BytesIO(raw)) as zf:
@@ -253,7 +292,7 @@ def get_plugin_info(raw, check_for_qt5=False):
             metadata = names[inits[0]]
         else:
             # Legacy plugin
-            for name, val in names.iteritems():
+            for name, val in names.items():
                 if name.endswith('plugin.py'):
                     metadata = val
                     break
@@ -290,8 +329,9 @@ def update_plugin_from_entry(plugin, entry):
     for x in ('donate', 'history', 'deprecated', 'uninstall', 'thread_id'):
         plugin[x] = getattr(entry, x)
 
+
 def fetch_plugin(old_index, entry):
-    lm_map = {plugin['thread_id']:plugin for plugin in old_index.itervalues()}
+    lm_map = {plugin['thread_id']:plugin for plugin in old_index.values()}
     raw = read(entry.url)
     url, name = parse_plugin_zip_url(raw)
     if url is None:
@@ -323,6 +363,7 @@ def fetch_plugin(old_index, entry):
         f.write(raw)
     return plugin
 
+
 def parallel_fetch(old_index, entry):
     try:
         return fetch_plugin(old_index, entry)
@@ -330,22 +371,27 @@ def parallel_fetch(old_index, entry):
         import traceback
         return traceback.format_exc()
 
+
 def log(*args, **kwargs):
-    print (*args, **kwargs)
+    print(*args, **kwargs)
     with open('log', 'a') as f:
         kwargs['file'] = f
-        print (*args, **kwargs)
+        print(*args, **kwargs)
+
 
 def atomic_write(raw, name):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    with tempfile.NamedTemporaryFile(dir=os.getcwd(), delete=False) as f:
         f.write(raw)
         os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)
+
 
 def fetch_plugins(old_index):
     ans = {}
     pool = ThreadPool(processes=10)
     entries = tuple(parse_index())
+    if not entries:
+        raise SystemExit('Could not find any plugins, probably the markup on the MR index page has changed')
     with closing(pool):
         result = pool.map(partial(parallel_fetch, old_index), entries)
     for entry, plugin in zip(entries, result):
@@ -357,7 +403,7 @@ def fetch_plugins(old_index):
             log('Failed to get plugin', entry.name, 'at', datetime.utcnow().isoformat(), 'with error:')
             log(plugin)
     # Move staged files
-    for plugin in ans.itervalues():
+    for plugin in ans.values():
         if plugin['file'].startswith('staging_'):
             src = plugin['file']
             plugin['file'] = src.partition('_')[-1]
@@ -365,11 +411,12 @@ def fetch_plugins(old_index):
     raw = bz2.compress(json.dumps(ans, sort_keys=True, indent=4, separators=(',', ': ')))
     atomic_write(raw, PLUGINS)
     # Cleanup any extra .zip files
-    all_plugin_files = {p['file'] for p in ans.itervalues()}
+    all_plugin_files = {p['file'] for p in ans.values()}
     extra = set(glob.glob('*.zip')) - all_plugin_files
     for x in extra:
         os.unlink(x)
     return ans
+
 
 def plugin_to_index(plugin, count):
     title = '<h3><img src="plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
@@ -400,6 +447,7 @@ def plugin_to_index(plugin, count):
     if desc:
         desc = '<p>%s</p>' % desc
     return '%s\n%s\n%s\n%s\n\n' % (title, desc, block, zipfile)
+
 
 def create_index(index, raw_stats):
     plugins = []
@@ -450,7 +498,7 @@ h1 { text-align: center }
         name, count = x
         return '<tr><td>%s</td><td>%s</td></tr>\n' % (escape(name), count)
 
-    pstats = map(plugin_stats, sorted(stats.iteritems(), reverse=True, key=lambda x:x[1]))
+    pstats = map(plugin_stats, sorted(stats.items(), reverse=True, key=lambda x:x[1]))
     stats = '''\
 <!DOCTYPE html>
 <html>
@@ -482,6 +530,8 @@ h1 { text-align: center }
 
 
 _singleinstance = None
+
+
 def singleinstance():
     global _singleinstance
     s = _singleinstance = socket.socket(socket.AF_UNIX)
@@ -492,6 +542,7 @@ def singleinstance():
             return False
         raise
     return True
+
 
 def update_stats():
     log = olog = 'stats.log'
@@ -517,9 +568,13 @@ def update_stats():
         if m is not None:
             plugin = m.group(1).decode('utf-8')
             stats[plugin] = stats.get(plugin, 0) + 1
+    data = json.dumps(stats, indent=2)
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
     with open('stats.json', 'wb') as f:
-        json.dump(stats, f, indent=2)
+        f.write(data)
     return stats
+
 
 def check_for_qt5_incompatibility():
     ok_plugins, bad_plugins = [], []
@@ -557,7 +612,7 @@ h1 { text-align: center }
 </ul>
 </body>
 </html>
-    ''' % (len(ok_plugins), len(bad_plugins), len(ok_plugins)/(len(ok_plugins) + len(bad_plugins)) * 100,
+    ''' % (len(ok_plugins), len(bad_plugins), len(ok_plugins)/(max(1, len(ok_plugins) + len(bad_plugins))) * 100,
            '\n'.join(sorted(gplugs, key=lambda x:x.lower())),
            '\n'.join(sorted(plugs, key=lambda x:x.lower())))
     with open('porting.html', 'wb') as f:
@@ -591,6 +646,7 @@ def main():
         log('Failed to run at:', datetime.utcnow().isoformat())
         log(traceback.format_exc())
         raise SystemExit(1)
+
 
 def test_parse():  # {{{
     raw = read(INDEX).decode('utf-8', 'replace')
@@ -628,7 +684,7 @@ def test_parse():  # {{{
     new_entries = tuple(parse_index(raw))
     for i, entry in enumerate(old_entries):
         if entry != new_entries[i]:
-            print ('The new entry: %s != %s' % (new_entries[i], entry))
+            print('The new entry: %s != %s' % (new_entries[i], entry))
             raise SystemExit(1)
     pool = ThreadPool(processes=20)
     urls = [e.url for e in new_entries]
@@ -645,10 +701,11 @@ def test_parse():  # {{{
                 break
         new_url, aname = parse_plugin_zip_url(raw)
         if new_url != full_url:
-            print ('new url (%s): %s != %s for plugin at: %s' % (aname, new_url, full_url, url))
+            print('new url (%s): %s != %s for plugin at: %s' % (aname, new_url, full_url, url))
             raise SystemExit(1)
 
 # }}}
+
 
 def test_parse_metadata():  # {{{
     raw = b'''\
@@ -682,6 +739,7 @@ class HelloWorld(FileTypePlugin):
     assert get_plugin_info(buf.getvalue()) == vals
 
 # }}}
+
 
 if __name__ == '__main__':
     # test_parse_metadata()

@@ -10,6 +10,7 @@ import os
 
 from setup import Command, __appname__
 
+
 class GUI(Command):
     description = 'Compile all GUI forms'
     PATH  = os.path.join(Command.SRC, __appname__, 'gui2')
@@ -19,16 +20,19 @@ class GUI(Command):
         parser.add_option('--summary', default=False, action='store_true',
                 help='Only display a summary about how many files were compiled')
 
-    @classmethod
-    def find_forms(cls):
+    def find_forms(self):
         # We do not use the calibre function find_forms as
-        # mporting calibre.gui2 may not work
+        # importing calibre.gui2 may not work
         forms = []
-        for root, _, files in os.walk(cls.PATH):
+        for root, _, files in os.walk(self.PATH):
             for name in files:
+                path = os.path.abspath(os.path.join(root, name))
                 if name.endswith('.ui'):
-                    forms.append(os.path.abspath(os.path.join(root, name)))
-
+                    forms.append(path)
+                elif name.endswith('_ui.py') or name.endswith('_ui.pyc'):
+                    fname = path.rpartition('_')[0] + '.ui'
+                    if not os.path.exists(fname):
+                        os.remove(path)
         return forms
 
     @classmethod
@@ -53,7 +57,9 @@ class GUI(Command):
                 self.info('Creating images.qrc')
                 for s in sources:
                     files.append('<file>%s</file>'%s)
-                manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(files)
+                manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(sorted(files))
+                if not isinstance(manifest, bytes):
+                    manifest = manifest.encode('utf-8')
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
         finally:
@@ -71,5 +77,3 @@ class GUI(Command):
                 os.remove(c)
         if os.path.exists(self.QRC):
             os.remove(self.QRC)
-
-

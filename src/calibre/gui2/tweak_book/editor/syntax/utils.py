@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,7 @@ from PyQt5.Qt import QTextCharFormat
 NULL_FMT = QTextCharFormat()
 
 _pyg_map = None
+
 
 def pygments_map():
     global _pyg_map
@@ -30,6 +30,7 @@ def pygments_map():
             Token.Error: 'Error',
         }
     return _pyg_map
+
 
 def format_for_pygments_token(theme, cache, token):
     try:

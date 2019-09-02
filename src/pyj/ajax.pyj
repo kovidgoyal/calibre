@@ -4,6 +4,15 @@ from __python__ import hash_literals
 
 from gettext import gettext as _
 
+
+default_timeout = 60
+
+
+def set_default_timeout(val):
+    nonlocal default_timeout
+    default_timeout = val
+
+
 def encode_query_component(x):
     ans = encodeURIComponent(x)
     # The following exceptions are to make epubcfi() look better
@@ -15,22 +24,30 @@ def encode_query_component(x):
     ans = ans.replace(/%3[aA]/g, ':')
     return ans
 
-def encode_query(query):
+def encode_query(query, qchar):
     if not query:
         return ''
-    keys = Object.keys(query)
-    has_query = False
-    path = ''
+    qchar = qchar or '?'
+    keys = Object.keys(query).sort()
+    ans = ''
     if keys.length:
         for k in keys:
             val = query[k]
-            if val is undefined or val is None:
+            if val is undefined or val is None or val is '':
                 continue
-            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
-            has_query = True
+            ans += qchar + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
+            qchar = '&'
+    return ans
+
+
+def absolute_path(path):
+    if path[0] is not '/':
+        slash = '' if window.location.pathname[-1] is '/' else '/'
+        path = window.location.pathname + slash + path
     return path
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200, progress_totals_needed=True):
+
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=None, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
     # 'load', 'timeout'. In case end_type is anything other than 'load' you can
@@ -39,24 +56,31 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     # where loaded is the number of bytes received, total is the total size.
     #
     # Returns the xhr object, call xhr.send() to start the request.
+    if timeout is None:
+        timeout = default_timeout
     query = query or {}
     xhr = XMLHttpRequest()
     eq = encode_query(query)
     has_query = eq.length > 0
-    path += eq
+    path = absolute_path(path) + eq
     if bypass_cache:
         path += ('&' if has_query else '?') + Date().getTime()
 
     xhr.request_path = path
     xhr.error_html = ''
 
-    def set_error(event):
-        if event is 'timeout':
-            xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
+    def set_error(event, is_network_error):
+        if is_network_error:
+            xhr.error_html = str.format(_('Failed to communicate with "{}", network error, is the server running and accessible?'), xhr.request_path)
+        elif event is 'timeout':
+            xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout)
         elif event is 'abort':
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
-            rtext = xhr.responseText or ''
+            try:
+                rtext = xhr.responseText or ''
+            except:
+                rtext = ''
             xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{}] {}<br><br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
 
     def progress_callback(ev):
@@ -75,10 +99,11 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
                 on_progress(ev.loaded, ul, xhr)
 
     def complete_callback(end_type, ev):
+        is_network_error = ev if end_type is 'error' else False
         if xhr.status is not ok_code and end_type is 'load':
             end_type = 'error'
         if end_type is not 'load':
-            set_error(end_type)
+            set_error(end_type, is_network_error)
         on_complete(end_type, xhr, ev)
 
     if on_progress:
@@ -88,10 +113,10 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr.addEventListener('load', def(ev): complete_callback('load', ev);)
     xhr.addEventListener('timeout', def(ev): complete_callback('timeout', ev);)
     xhr.open(method, path)
-    xhr.timeout = timeout  # IE requires timeout to be set after open
+    xhr.timeout = timeout * 1000 # IE requires timeout to be set after open
     return xhr
 
-def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=30*1000, ok_code=200):
+def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=None, ok_code=200):
     # Unfortunately, browsers do not allow sending of data with HTTP GET, except
     # as query parameters, so we have to use POST
     xhr = ajax(path, on_complete, on_progress, False, 'POST', query, timeout, ok_code)
@@ -100,18 +125,19 @@ def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=30*
     return xhr
 
 
-allow_console_print = False
+def ajax_send_file(path, file, on_complete, on_progress, timeout=None, ok_code=200):
+    xhr = ajax(path, on_complete, on_progress, False, 'POST', timeout, ok_code)
+    if file.type:
+        xhr.overrideMimeType(file.type)
+    xhr.send(file)
+    return xhr
 
-def set_allow_console_print(val):
-    nonlocal allow_console_print
-    allow_console_print = bool(val)
 
 def console_print(*args):
-    print(*args)
-    if allow_console_print:
-        data = ' '.join(map(str, args)) + '\n'
-        xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
-        xhr.send(data)
+    ρσ_print(*args)  # noqa: undef
+    data = ' '.join(map(str, args)) + '\n'
+    xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
+    xhr.send(data)
 
 # TODO: Implement AJAX based switch user by:
 # 1) POST to a logout URL with an incorrect username and password

@@ -24,6 +24,7 @@
     border-right: 1px solid ButtonShadow;
     border-bottom: 1px solid ButtonShadow;
     border-left: 1 px solid ThreeDLightShadow;
+    border-radius: 0.25em;
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
 }
@@ -44,6 +45,7 @@ div.navigation {
 
 #search_box {
     border: 1px solid #393;
+    border-radius: 0.5em;
     -moz-border-radius: 0.5em;
     -webkit-border-radius: 0.5em;
     padding: 1em;

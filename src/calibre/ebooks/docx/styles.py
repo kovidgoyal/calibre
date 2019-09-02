@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,8 @@ from collections import OrderedDict, Counter
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
+from polyglot.builtins import iteritems, itervalues
+
 
 class PageProperties(object):
 
@@ -120,9 +121,10 @@ class Styles(object):
         self.default_styles = {}
         self.tables = tables
         self.numbering_style_links = {}
+        self.default_paragraph_style = self.default_character_style = None
 
     def __iter__(self):
-        for s in self.id_map.itervalues():
+        for s in itervalues(self.id_map):
             yield s
 
     def __getitem__(self, key):
@@ -136,32 +138,32 @@ class Styles(object):
 
     def __call__(self, root, fonts, theme):
         self.fonts, self.theme = fonts, theme
-        for s in self.namespace.XPath('//w:style')(root):
-            s = Style(self.namespace, s)
-            if s.style_id:
-                self.id_map[s.style_id] = s
-            if s.is_default:
-                self.default_styles[s.style_type] = s
-            if getattr(s, 'numbering_style_link', None) is not None:
-                self.numbering_style_links[s.style_id] = s.numbering_style_link
-
         self.default_paragraph_style = self.default_character_style = None
+        if root is not None:
+            for s in self.namespace.XPath('//w:style')(root):
+                s = Style(self.namespace, s)
+                if s.style_id:
+                    self.id_map[s.style_id] = s
+                if s.is_default:
+                    self.default_styles[s.style_type] = s
+                if getattr(s, 'numbering_style_link', None) is not None:
+                    self.numbering_style_links[s.style_id] = s.numbering_style_link
 
-        for dd in self.namespace.XPath('./w:docDefaults')(root):
-            for pd in self.namespace.XPath('./w:pPrDefault')(dd):
-                for pPr in self.namespace.XPath('./w:pPr')(pd):
-                    ps = ParagraphStyle(self.namespace, pPr)
-                    if self.default_paragraph_style is None:
-                        self.default_paragraph_style = ps
-                    else:
-                        self.default_paragraph_style.update(ps)
-            for pd in self.namespace.XPath('./w:rPrDefault')(dd):
-                for pPr in self.namespace.XPath('./w:rPr')(pd):
-                    ps = RunStyle(self.namespace, pPr)
-                    if self.default_character_style is None:
-                        self.default_character_style = ps
-                    else:
-                        self.default_character_style.update(ps)
+            for dd in self.namespace.XPath('./w:docDefaults')(root):
+                for pd in self.namespace.XPath('./w:pPrDefault')(dd):
+                    for pPr in self.namespace.XPath('./w:pPr')(pd):
+                        ps = ParagraphStyle(self.namespace, pPr)
+                        if self.default_paragraph_style is None:
+                            self.default_paragraph_style = ps
+                        else:
+                            self.default_paragraph_style.update(ps)
+                for pd in self.namespace.XPath('./w:rPrDefault')(dd):
+                    for pPr in self.namespace.XPath('./w:rPr')(pd):
+                        ps = RunStyle(self.namespace, pPr)
+                        if self.default_character_style is None:
+                            self.default_character_style = ps
+                        else:
+                            self.default_character_style.update(ps)
 
         def resolve(s, p):
             if p is not None:
@@ -211,12 +213,15 @@ class Styles(object):
             ans = self.para_cache[p] = ParagraphStyle(self.namespace)
             ans.style_name = None
             direct_formatting = None
+            is_section_break = False
             for pPr in self.namespace.XPath('./w:pPr')(p):
                 ps = ParagraphStyle(self.namespace, pPr)
                 if direct_formatting is None:
                     direct_formatting = ps
                 else:
                     direct_formatting.update(ps)
+                if self.namespace.XPath('./w:sectPr')(pPr):
+                    is_section_break = True
 
             if direct_formatting is None:
                 direct_formatting = ParagraphStyle(self.namespace)
@@ -244,7 +249,8 @@ class Styles(object):
                     self.para_char_cache[p] = default_para.character_style
 
             is_numbering = direct_formatting.numbering is not inherit
-            if is_numbering:
+            is_section_break = is_section_break and not self.namespace.XPath('./w:r')(p)
+            if is_numbering and not is_section_break:
                 num_id, lvl = direct_formatting.numbering
                 if num_id is not None:
                     p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
@@ -252,7 +258,9 @@ class Styles(object):
                     ps = self.numbering.get_para_style(num_id, lvl)
                     if ps is not None:
                         parent_styles.append(ps)
-            if not is_numbering and linked_style is not None and getattr(linked_style.paragraph_style, 'numbering', inherit) is not inherit:
+            if (
+                    not is_numbering and not is_section_break and linked_style is not None and getattr(
+                        linked_style.paragraph_style, 'numbering', inherit) is not inherit):
                 num_id, lvl = linked_style.paragraph_style.numbering
                 if num_id is not None:
                     p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
@@ -333,11 +341,11 @@ class Styles(object):
                     setattr(s, prop, inherit)
                 setattr(block_style, prop, next(iter(vals)))
 
-        for p, runs in layers.iteritems():
+        for p, runs in iteritems(layers):
             has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
-            for prop in ('font_family', 'font_size', 'color'):
+            for prop in ('font_family', 'font_size', 'cs_font_family', 'cs_font_size', 'color'):
                 if has_links and prop == 'color':
                     # We cannot promote color as browser rendering engines will
                     # override the link color setting it to blue, unless the
@@ -413,7 +421,7 @@ class Styles(object):
             ps.pageBreakBefore = True
 
     def register(self, css, prefix):
-        h = hash(frozenset(css.iteritems()))
+        h = hash(frozenset(iteritems(css)))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -422,17 +430,17 @@ class Styles(object):
         return ans
 
     def generate_classes(self):
-        for bs in self.para_cache.itervalues():
+        for bs in itervalues(self.para_cache):
             css = bs.css
             if css:
                 self.register(css, 'block')
-        for bs in self.run_cache.itervalues():
+        for bs in itervalues(self.run_cache):
             css = bs.css
             if css:
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(frozenset(css.iteritems()))
+        h = hash(frozenset(iteritems(css)))
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):
@@ -443,8 +451,9 @@ class Styles(object):
 
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
             p, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0 }
-            /* In word headings only have bold font if explicitly specified */
-            h1, h2, h3, h4, h5, h6 { font-weight: normal }
+            /* In word headings only have bold font if explicitly specified,
+                similarly the font size is the body font size, unless explicitly set. */
+            h1, h2, h3, h4, h5, h6 { font-weight: normal; font-size: 1rem }
             /* Setting padding-left to zero breaks rendering of lists, so we only set the other values to zero and leave padding-left for the user-agent */
             ul, ol { margin: 0; padding-top: 0; padding-bottom: 0; padding-right: 0 }
 
@@ -455,18 +464,19 @@ class Styles(object):
 
             h1.notes-header { page-break-before: always }
 
-            dl.notes dt { font-size: large }
+            dl.footnote dt { font-size: large }
 
-            dl.notes dt a { text-decoration: none }
+            dl.footnote dt a { text-decoration: none }
 
             '''
 
         if not notes_nopb:
-            s = s + 'dl.notes dd { page-break-after: always }'
+            s += '''\
+            dl.footnote { page-break-after: always }
+            dl.footnote:last-of-type { page-break-after: avoid }
+            '''
 
         s = s + '''\
-            dl.notes dd:last-of-type { page-break-after: avoid }
-
             span.tab { white-space: pre }
 
             p.index-entry { text-indent: 0pt; }
@@ -485,8 +495,8 @@ class Styles(object):
             prefix = ef + '\n' + prefix
 
         ans = []
-        for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):
-            b = ('\t%s: %s;' % (k, v) for k, v in css.iteritems())
+        for (cls, css) in sorted(itervalues(self.classes), key=lambda x:x[0]):
+            b = ('\t%s: %s;' % (k, v) for k, v in iteritems(css))
             b = '\n'.join(b)
             ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)

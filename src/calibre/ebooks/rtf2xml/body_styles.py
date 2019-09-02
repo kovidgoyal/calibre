@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,15 +14,19 @@
 import os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 """
 Simply write the list of strings after style table
 """
+
+
 class BodyStyles:
     """
     Insert table data for tables.
     Logic:
     """
+
     def __init__(self,
             in_file,
             list_of_styles,
@@ -46,11 +51,12 @@ class BodyStyles:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
         # self.__write_to = 'table_info.data'
+
     def insert_info(self):
         """
         """
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()
@@ -65,7 +71,7 @@ class BodyStyles:
                     # this shouldn't happen!
                     if self.__run_level > 3:
                         msg = 'Not enough data for each table\n'
-                        raise self.__bug_handler, msg
+                        raise self.__bug_handler(msg)
                     # why was this line even here?
                     # self.__write_obj.write('mi<tg<open______<table\n')
             self.__write_obj.write(line)

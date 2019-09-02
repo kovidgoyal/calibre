@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Created on 15 May 2010
 
@@ -11,6 +13,8 @@ from calibre.ebooks import BOOK_EXTENSIONS
 # This class is added to the standard device plugin chain, so that it can
 # be configured. It has invalid vendor_id etc, so it will never match a
 # device. The 'real' FOLDER_DEVICE will use the config from it.
+
+
 class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     name           = 'Folder Device Interface'
     gui_name       = 'Folder Device'
@@ -25,8 +29,9 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
     SUPPORTS_SUB_DIRS = True
 
+
 class FOLDER_DEVICE(USBMS):
-    type = _('Device Interface')
+    type = _('Device interface')
 
     name           = 'Folder Device Interface'
     gui_name       = 'Folder Device'

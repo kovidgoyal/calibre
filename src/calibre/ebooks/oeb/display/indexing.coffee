@@ -105,8 +105,10 @@ class BookIndexing
         body = document.body
         links = []
         anchors = {}
-        for a in document.querySelectorAll("body a[href], body [id], body a[name]")
-            if window.paged_display?.in_paged_mode
+        in_paged_mode = window.paged_display?.in_paged_mode
+
+        for a in document.querySelectorAll("body, body a[href], body [id], body a[name]")
+            if in_paged_mode
                 geom = window.paged_display.column_location(a)
             else
                 br = a.getBoundingClientRect()
@@ -117,15 +119,14 @@ class BookIndexing
             if href
                 links.push([href, geom])
             id = a.getAttribute("id")
-            if id and id not in anchors
+            if id and not anchors[id]
                 anchors[id] = geom
             if a.tagName in ['A', "a"]
                 name = a.getAttribute("name")
-                if name and name not in anchors
+                if name and not anchors[name]
                     anchors[name] = geom
 
         return {'links':links, 'anchors':anchors}
 
 if window?
     window.book_indexing = new BookIndexing()
-

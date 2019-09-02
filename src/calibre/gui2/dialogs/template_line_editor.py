@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QLineEdit
 
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+
 
 class TemplateLineEditor(QLineEdit):
 
@@ -29,7 +31,7 @@ class TemplateLineEditor(QLineEdit):
 
         action_clear_field = menu.addAction(_('Remove any template from the box'))
         action_clear_field.triggered.connect(self.clear_field)
-        action_open_editor = menu.addAction(_('Open Template Editor'))
+        action_open_editor = menu.addAction(_('Open template editor'))
         action_open_editor.triggered.connect(self.open_editor)
         menu.exec_(event.globalPos())
 

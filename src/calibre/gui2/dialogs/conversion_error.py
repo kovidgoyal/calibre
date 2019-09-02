@@ -1,9 +1,12 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import QDialog
 
 from calibre.gui2.dialogs.conversion_error_ui import Ui_ConversionErrorDialog
+
 
 class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
 
@@ -18,4 +21,3 @@ class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
 
     def set_message(self, html):
         self.text.setHtml('<html><body>%s</body></html'%(html,))
-

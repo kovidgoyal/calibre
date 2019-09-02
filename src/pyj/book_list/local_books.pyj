@@ -1,0 +1,173 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_db
+from book_list.router import home, open_book
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler
+from book_list.views import DEFAULT_MODE, setup_view_mode, get_view_mode
+from dom import clear, ensure_id
+from modals import create_custom_dialog, error_dialog
+from utils import conditional_timeout
+from widgets import create_button
+
+CLASS_NAME = 'local-books-list'
+
+book_list_data = {}
+
+def component(name):
+    return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
+
+
+def clear_grid():
+    container = document.getElementById(book_list_data.container_id)
+    # We replace the div entirely so that any styles associated with it are also removed
+    e = component('book_list')
+    bl = E.div(data_component='book_list')
+    container.insertBefore(bl, e)
+    container.removeChild(e)
+    book_list_data.init_grid(bl)
+
+
+def read_book(book, book_idx):
+    library_id, book_id, fmt = book.key
+    open_book(book_id, fmt, library_id)
+
+
+def delete_book(book, book_idx):
+    db = get_db()
+    db.delete_book(book, def(book, err_string):
+        if err_string:
+            error_dialog(_('Failed to delete book'), err_string)
+            return
+        books = [book_list_data.book_data[i] for i in book_list_data.books if i is not book_idx]
+        show_recent_stage2.call(book_list_data.container_id, books)
+    )
+
+
+def on_select(book, book_idx):
+    title = this
+
+    create_custom_dialog(title, def(parent, close_modal):
+
+        def action(which):
+            close_modal()
+            which(book, book_idx)
+
+        parent.appendChild(E.div(
+            E.div(_('What would you like to do with this book?')),
+            E.div(class_='button-box',
+                create_button(_('Read'), 'book', action.bind(None, read_book)),
+                '\xa0',
+                create_button(_('Delete'), 'trash', action.bind(None, delete_book)),
+            )
+        ))
+    )
+
+
+
+def show_cover(blob, name, mt, book):
+    img = document.getElementById(this)
+    if img:
+        img.src = window.URL.createObjectURL(blob)
+
+
+def create_image(book_idx, max_width, max_height, on_load):
+    img = new Image()
+    img.onerror = def():
+        if this.src:
+            window.URL.revokeObjectURL(this.src)
+        on_load(this, 'error')
+    img.onload = def():
+        if this.src:
+            window.URL.revokeObjectURL(this.src)
+        on_load(this, 'load')
+    book = book_list_data.book_data[book_idx]
+    if book?.metadata:
+        authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
+        img.setAttribute('alt', _('{} by {}').format(
+            book.metadata.title, authors))
+    if book?.cover_name:
+        img_id = ensure_id(img, 'local-cover-')
+        get_db().get_file(book, book.cover_name, show_cover.bind(img_id))
+    return img
+
+
+def render_book(book_idx):
+    book = book_list_data.book_data[book_idx]
+    return book_list_data.render_book(book_idx, book.metadata, create_image, on_select.bind(book.metadata.title, book, book_idx))
+
+
+def render_books(books):
+    div = component('book_list')
+    books = books or book_list_data.books
+    for book_idx in books:
+        child = render_book(book_idx)
+        if child is not None:
+            book_list_data.append_item(div, child)
+
+
+def apply_view_mode(mode):
+    mode = mode or DEFAULT_MODE
+    if book_list_data.mode is mode:
+        return
+    setup_view_mode(mode, book_list_data)
+    clear_grid()
+    render_books()
+
+
+def create_books_list(container, books):
+    book_list_data.container_id = ensure_id(container)
+    book_list_data.book_data = {i:book for i, book in enumerate(books)}
+    book_list_data.books = list(range(books.length))
+    book_list_data.mode = None
+    book_list_data.thumbnail_cache = {}
+    container.appendChild(E.div(data_component='book_list'))
+    apply_view_mode(get_view_mode())
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container:
+        return
+    clear(container)
+    if not books.length:
+        container.appendChild(E.div(
+            style='margin: 1rem 1rem',
+            _('No downloaded books present')
+        ))
+        return
+    create_books_list(container, books)
+
+def show_recent():
+    container = this
+    db = get_db()
+    if not db.initialized:
+        conditional_timeout(container.id, 5, show_recent)
+        return
+    if db.is_ok:
+        db.get_recently_read_books(show_recent_stage2.bind(container.id), 200)
+    else:
+        error_dialog(_('Database not initialized'),
+            db.initialize_error_msg)
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Downloaded books'), action=home, icon='home')
+    # book list
+    recent = E.div(class_=CLASS_NAME)
+    recent_container_id = ensure_id(recent)
+    container.appendChild(recent)
+    recent.appendChild(E.div(
+        style='margin: 1rem 1rem',
+        _('Loading downloaded books from storage, please wait...')
+    ))
+    conditional_timeout(recent_container_id, 5, show_recent)
+
+
+
+set_panel_handler('local_books', init)

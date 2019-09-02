@@ -7,8 +7,10 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
+import numbers
 from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
+
 
 def step_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -62,7 +64,8 @@ class UserDefinedDevice(QDialog):
             res = ''
             if len(new_devices) == 1:
                 def fmtid(x):
-                    if isinstance(x, (int, long)):
+                    x = x or 0
+                    if isinstance(x, numbers.Integral):
                         x = hex(x)
                     if not x.startswith('0x'):
                         x = '0x' + x
@@ -78,7 +81,7 @@ class UserDefinedDevice(QDialog):
             trailer = _(
                     'Copy these values to the clipboard, paste them into an '
                     'editor, then enter them into the USER_DEVICE by '
-                    'customizing the device plugin in Preferences->Plugins. '
+                    'customizing the device plugin in Preferences->Advanced->Plugins. '
                     'Remember to also enter the folders where you want the books to '
                     'be put. You must restart calibre for your changes '
                     'to take effect.\n')
@@ -88,6 +91,7 @@ class UserDefinedDevice(QDialog):
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.log.toPlainText())
+
 
 if __name__ == '__main__':
     app = QApplication([])

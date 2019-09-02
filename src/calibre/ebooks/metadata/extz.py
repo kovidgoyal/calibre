@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -7,14 +8,14 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 Read meta information from extZ (TXTZ, HTMLZ...) files.
 '''
 
+import io
 import os
-
-from cStringIO import StringIO
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile, safe_replace
+
 
 def get_metadata(stream, extract_cover=True):
     '''
@@ -25,7 +26,7 @@ def get_metadata(stream, extract_cover=True):
     try:
         with ZipFile(stream) as zf:
             opf_name = get_first_opf_name(zf)
-            opf_stream = StringIO(zf.read(opf_name))
+            opf_stream = io.BytesIO(zf.read(opf_name))
             opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
             if extract_cover:
@@ -45,13 +46,14 @@ def get_metadata(stream, extract_cover=True):
         return mi
     return mi
 
+
 def set_metadata(stream, mi):
     replacements = {}
 
     # Get the OPF in the archive.
     with ZipFile(stream) as zf:
         opf_path = get_first_opf_name(zf)
-        opf_stream = StringIO(zf.read(opf_path))
+        opf_stream = io.BytesIO(zf.read(opf_path))
     opf = OPF(opf_stream)
 
     # Cover.
@@ -62,7 +64,8 @@ def set_metadata(stream, mi):
             raise Exception('no cover')
     except:
         try:
-            new_cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                new_cdata = f.read()
         except:
             pass
     if new_cdata:
@@ -75,7 +78,7 @@ def set_metadata(stream, mi):
 
     # Update the metadata.
     opf.smart_update(mi, replace_metadata=True)
-    newopf = StringIO(opf.render())
+    newopf = io.BytesIO(opf.render())
     safe_replace(stream, opf_path, newopf, extra_replacements=replacements, add_missing=True)
 
     # Cleanup temporary files.
@@ -85,6 +88,7 @@ def set_metadata(stream, mi):
             os.remove(replacements[cpath].name)
     except:
         pass
+
 
 def get_first_opf_name(zf):
     names = zf.namelist()
@@ -96,6 +100,7 @@ def get_first_opf_name(zf):
         raise Exception('No OPF found')
     opfs.sort()
     return opfs[0]
+
 
 def _write_new_cover(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to

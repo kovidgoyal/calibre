@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import (
     QContextMenuEvent, QDialog, QDialogButtonBox, QLabel, QVBoxLayout)
 
 from calibre.constants import iswindows
+from polyglot.builtins import itervalues, map
 
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
@@ -28,6 +28,7 @@ PINCH_SQUEEZE_FACTOR = 2.5  # smaller length must be less that larger length / s
 Tap, TapAndHold, Pinch, Swipe, SwipeAndHold = 'Tap', 'TapAndHold', 'Pinch', 'Swipe', 'SwipeAndHold'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
 In, Out = 'In', 'Out'
+
 
 class Help(QDialog):  # {{{
 
@@ -80,6 +81,7 @@ class Help(QDialog):  # {{{
         self.resize(600, 500)
 # }}}
 
+
 class TouchPoint(object):
 
     def __init__(self, tp):
@@ -115,6 +117,7 @@ class TouchPoint(object):
         y_movement = self.current_screen_position.y() - self.previous_screen_position.y()
         return (x_movement, y_movement)
 
+
 def get_pinch(p1, p2):
     starts = [p1.start_screen_position, p2.start_screen_position]
     ends = [p1.current_screen_position, p2.current_screen_position]
@@ -127,6 +130,7 @@ def get_pinch(p1, p2):
     if min(start_length, end_length) > max(start_length, end_length) / PINCH_SQUEEZE_FACTOR:
         return None
     return In if start_length > end_length else Out
+
 
 class State(QObject):
 
@@ -178,14 +182,14 @@ class State(QObject):
         else:
             self.check_for_holds()
             if {Swipe, SwipeAndHold} & self.possible_gestures:
-                tp = next(self.touch_points.itervalues())
+                tp = next(itervalues(self.touch_points))
                 self.swiping.emit(*tp.swipe_live)
 
     def check_for_holds(self):
         if not {SwipeAndHold, TapAndHold} & self.possible_gestures:
             return
         now = time.time()
-        tp = next(self.touch_points.itervalues())
+        tp = next(itervalues(self.touch_points))
         if now - tp.time_of_last_move < HOLD_THRESHOLD:
             return
         if self.hold_started:
@@ -212,20 +216,20 @@ class State(QObject):
 
     def finalize(self):
         if Tap in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             if tp.total_movement <= TAP_THRESHOLD:
                 self.tapped.emit(tp)
                 return
 
         if Swipe in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             st = tp.swipe_type
             if st is not None:
                 self.swiped.emit(st)
                 return
 
         if Pinch in self.possible_gestures:
-            points = tuple(self.touch_points.itervalues())
+            points = tuple(itervalues(self.touch_points))
             if len(points) == 2:
                 pinch_dir = get_pinch(*points)
                 if pinch_dir is not None:
@@ -235,7 +239,7 @@ class State(QObject):
             return
 
         if TapAndHold in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             self.tap_hold_finished.emit(tp)
             return
 
@@ -291,7 +295,7 @@ class GestureHandler(QObject):
         view = self.parent()
         if not view.document.in_paged_mode:
             return
-        func = {Left:'next_page', Right: 'previous_page', Up:'goto_previous_section', Down:'goto_next_section'}[direction]
+        func = {Left:'next_page', Right: 'previous_page', Down:'goto_previous_section', Up:'goto_next_section'}[direction]
         getattr(view, func)()
 
     def handle_swiping(self, x, y):
@@ -366,6 +370,7 @@ class GestureHandler(QObject):
 
     def show_help(self):
         Help(self.parent()).exec_()
+
 
 if __name__ == '__main__':
     app = QApplication([])

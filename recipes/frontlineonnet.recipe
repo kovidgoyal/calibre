@@ -1,79 +1,74 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2011 - 2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
-frontlineonnet.com
+www.frontline.in
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Frontlineonnet(BasicNewsRecipe):
-    title = 'Frontline'
-    __author__ = 'Darko Miletic'
-    description = "India's national magazine"
-    publisher = 'Frontline'
-    category = 'news, politics, India'
-    no_stylesheets = True
-    delay = 1
-    INDEX = 'http://frontlineonnet.com/'
+    title                = 'Frontline'
+    __author__           = 'Darko Miletic'
+    description          = """
+India's National Magazine
+Frontline, the fortnightly English magazine from the stable of The Hindu, has been a distinguished presence in the media world for the past 27 years.
+As per the Indian Readership Survey (IRS) Q4, its average issue readership is 152,000.
+
+Frontline's journalism is characterised by in-depth, insightful reporting and analysis of issues and events at the regional, national and international levels.
+It excels in long-form journalism.
+
+The topics Frontline covers range from politics, economics and social issues to the environment, nature, culture and cinema.
+Its cover stories are comprehensive.
+    """
+    publisher            = 'Frontline'
+    category             = 'news, politics, India'
+    no_stylesheets       = True
+    oldest_article       = 15
+    INDEX                = 'http://www.frontline.in/'
     use_embedded_content = False
-    encoding = 'utf-8'
-    language = 'en_IN'
-    publication_type = 'magazine'
-    masthead_url = 'http://frontlineonnet.com/images/newfline.jpg'
+    encoding             = 'utf-8'
+    language             = 'en_IN'
+    publication_type     = 'magazine'
+    auto_cleanup         = True
+    masthead_url         = 'http://www.frontline.in/template/1-0-1/gfx/fl_logo.jpg'
     extra_css            = """
-                              body{font-family: Verdana,Arial,Helvetica,sans-serif}
+                              body{font-family: Georgia,"Times New Roman",serif}
                               img{margin-top:0.5em; margin-bottom: 0.7em; display: block}
                            """
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
+        'comment'  : description,
+        'tags'     : category   ,
+        'publisher': publisher  ,
+        'language' : language
     }
 
-    preprocess_regexps = [
-                           (re.compile(r'.*?<base', re.DOTALL | re.IGNORECASE), lambda match: '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html dir="ltr" xml:lang="en-IN"><head><title>title</title><base')  # noqa
-                          , (re.compile(r'<base .*?>', re.DOTALL | re.IGNORECASE), lambda match: '</head><body>'), (re.compile(r'<byline>', re.DOTALL | re.IGNORECASE), lambda match: '<div class="byline">'), (re.compile(r'</byline>', re.DOTALL | re.IGNORECASE), lambda match: '</div>'), (re.compile(r'<center>', re.DOTALL | re.IGNORECASE), lambda match: '<div class="ctr">'), (re.compile(r'</center>', re.DOTALL | re.IGNORECASE), lambda match: '</div>')  # noqa
-                         ]
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'content'})
+    feeds = [
+      (u'Cover story'       , u'http://www.frontline.in/cover-story/?service=rss'),
+      (u'The Nation'        , u'http://www.frontline.in/the-nation/?service=rss'),
+      (u'Politics'          , u'http://www.frontline.in/politics/?service=rss'),
+      (u'Columns'           , u'http://www.frontline.in/columns/?service=rss'),
+      (u'Social Issues'     , u'http://www.frontline.in/social-issues/?service=rss'),
+      (u'General issues'    , u'http://www.frontline.in/social-issues/general-issues/?service=rss'),
+      (u'Social justice'    , u'http://www.frontline.in/social-issues/social-justice/?service=rss'),
+      (u'Arts&Culture'      , u'http://www.frontline.in/arts-and-culture/?service=rss'),
+      (u'Economy'           , u'http://www.frontline.in/economy/?service=rss'),
+      (u'World Affairs'     , u'http://www.frontline.in/world-affairs/?service=rss'),
+      (u'Science&Technology', u'http://www.frontline.in/science-and-technology/?service=rss'),
+      (u'Books'             , u'http://www.frontline.in/books/?service=rss'),
+      (u'Sport'             , u'http://www.frontline.in/other/sport/?service=rss')
     ]
-    remove_attributes = ['size', 'noshade', 'border']
 
-    use_javascript_to_login = True
-    needs_subscription = True
-
-    def javascript_login(self, browser, username, password):
-        browser.visit('http://www.frontline.in/profile/login.do')
-        browser.wait_for_element('form#loginForm', timeout=180)
-        # Select the first form on the page
-        form = browser.select_form('#loginForm')
-        form['userName'] = username
-        form['password'] = password
-        browser.submit(timeout=120)
-
-    def parse_index(self):
-        articles = []
-        current_section = None
-        feeds = []
+    def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX)
-        for h3 in soup.findAll('h3'):
-            if h3.get('class', None) == 'artListSec':
-                if articles:
-                    feeds.append((current_section, articles))
-                articles = []
-                current_section = self.tag_to_string(h3).strip()
-                self.log(current_section)
-            elif h3.get('id', None) in {'headseccol', 'headsec'}:
-                a = h3.find('a', href=True)
-                if a is not None:
-                    title = self.tag_to_string(a)
-                    url = a['href']
-                    articles.append({
-                                    'title': title, 'date': '', 'url': url, 'description': ''
-                                    })
-                    self.log('\t', title, url)
-        if articles:
-            feeds.append((current_section, articles))
-        return feeds
+        divtag = soup.find('div', 'smallMagCont')
+        if divtag:
+            return divtag.img['src']
+        return None
+
+    def print_version(self, url):
+        return url.replace('?','?css=print&')

@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, shutil, re, sys
 from collections import namedtuple, defaultdict
-from operator import attrgetter
 from itertools import chain
 from functools import partial
 
@@ -18,6 +16,7 @@ from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import get_lang, get_system_locale
+from polyglot.builtins import iteritems, itervalues, unicode_type, filter
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
@@ -29,6 +28,7 @@ dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}
 dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 'words':[]}]
 not_present = object()
+
 
 class UserDictionary(object):
 
@@ -43,14 +43,16 @@ class UserDictionary(object):
         return {'name':self.name, 'is_active': self.is_active, 'words':[
             (w, l) for w, l in self.words]}
 
+
 _builtins = _custom = None
+
 
 def builtin_dictionaries():
     global _builtins
     if _builtins is None:
         dics = []
         for lc in glob.glob(os.path.join(P('dictionaries', allow_user_override=False), '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = list(filter(None, open(lc, 'rb').read().decode('utf-8').splitlines()))
             locale = locales[0]
             base = os.path.dirname(lc)
             dics.append(Dictionary(
@@ -59,12 +61,13 @@ def builtin_dictionaries():
         _builtins = frozenset(dics)
     return _builtins
 
+
 def custom_dictionaries(reread=False):
     global _custom
     if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
-            locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
+            locales = list(filter(None, open(lc, 'rb').read().decode('utf-8').splitlines()))
             try:
                 name, locale, locales = locales[0], locales[1], locales[1:]
             except IndexError:
@@ -79,6 +82,7 @@ def custom_dictionaries(reread=False):
         _custom = frozenset(dics)
     return _custom
 
+
 default_en_locale = 'en-US'
 try:
     ul = parse_lang_code(get_system_locale() or 'en-US')
@@ -88,20 +92,24 @@ if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE
     default_en_locale = 'en-' + ul.countrycode
 default_preferred_locales = {'eng':default_en_locale, 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
 
+
 def best_locale_for_language(langcode):
     best_locale = dprefs['preferred_locales'].get(langcode, default_preferred_locales.get(langcode, None))
     if best_locale is not None:
         return parse_lang_code(best_locale)
 
+
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].iteritems()}.get(locale, None)
+    return {parse_lang_code(k):v for k, v in iteritems(dprefs['preferred_dictionaries'])}.get(locale, None)
+
 
 def remove_dictionary(dictionary):
     if dictionary.builtin:
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
-    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
+    dprefs['preferred_dictionaries'] = {k:v for k, v in iteritems(dprefs['preferred_dictionaries']) if v != dictionary.id}
+
 
 def rename_dictionary(dictionary, name):
     lf = os.path.join(os.path.dirname(dictionary.dicpath), 'locales')
@@ -110,6 +118,7 @@ def rename_dictionary(dictionary, name):
         lines[:1] = [name.encode('utf-8')]
         f.seek(0), f.truncate(), f.write(b'\n'.join(lines))
     custom_dictionaries(reread=True)
+
 
 def get_dictionary(locale, exact_match=False):
     preferred = preferred_dictionary(locale)
@@ -148,9 +157,10 @@ def get_dictionary(locale, exact_match=False):
     # Now just return any dictionary that matches the language, preferring user
     # installed ones to builtin ones
     for collection in (custom_dictionaries(), builtin_dictionaries()):
-        for d in sorted(collection, key=attrgetter('name')):
+        for d in sorted(collection, key=lambda d: d.name or ''):
             if d.primary_locale.langcode == locale.langcode:
                 return d
+
 
 def load_dictionary(dictionary):
     from calibre.spell.import_from import convert_to_utf8
@@ -160,11 +170,12 @@ def load_dictionary(dictionary):
         obj = hunspell.Dictionary(dic_data, aff_data)
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
+
 class Dictionaries(object):
 
     def __init__(self):
         self.remove_hyphenation = re.compile('[\u2010-]+')
-        self.negative_pat = re.compile('-[.\d+]')
+        self.negative_pat = re.compile(r'-[.\d+]')
         self.fix_punctuation_pat = re.compile(r'''[:.]''')
         self.dictionaries = {}
         self.word_cache = {}
@@ -242,13 +253,13 @@ class Dictionaries(object):
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
     def add_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in itervalues(self.dictionaries):
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
-        for d in self.dictionaries.itervalues():
+        for d in itervalues(self.dictionaries):
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
@@ -300,7 +311,7 @@ class Dictionaries(object):
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-            for langcode, words in removals.iteritems():
+            for langcode, words in iteritems(removals):
                 self.remove_user_words(words, langcode)
             self.save_user_dictionaries()
         return changed
@@ -358,7 +369,7 @@ class Dictionaries(object):
                     d = self.dictionary_for_locale(locale)
                     if d is not None:
                         try:
-                            ans = d.obj.recognized(word)
+                            ans = d.obj.recognized(word.replace('\u2010', '-'))
                         except ValueError:
                             pass
                     else:
@@ -371,6 +382,7 @@ class Dictionaries(object):
     def suggestions(self, word, locale=None):
         locale = locale or self.default_locale
         d = self.dictionary_for_locale(locale)
+        has_unicode_hyphen = '\u2010' in word
         ans = ()
 
         def add_suggestion(w, ans):
@@ -378,7 +390,7 @@ class Dictionaries(object):
 
         if d is not None:
             try:
-                ans = d.obj.suggest(unicode(word))
+                ans = d.obj.suggest(unicode_type(word).replace('\u2010', '-'))
             except ValueError:
                 pass
             else:
@@ -397,22 +409,34 @@ class Dictionaries(object):
                                 fw = w1 + m.group() + ' ' + capitalize(w2)
                                 ans = add_suggestion(fw, ans)
 
+        if has_unicode_hyphen:
+            ans = tuple(w.replace('-', '\u2010') for w in ans)
         return ans
 
-def test_dictionaries():
-    dictionaries = Dictionaries()
-    dictionaries.initialize()
-    eng = parse_lang_code('en')
-    rec = partial(dictionaries.recognized, locale=eng)
-    sg = partial(dictionaries.suggestions, locale=eng)
-    if not rec('recognized'):
-        raise ValueError('recognized not recognized')
-    if 'adequately' not in sg('ade-quately'):
-        raise ValueError('adequately not in %s' % sg('ade-quately'))
-    if 'magic. Wand' not in sg('magic.wand'):
-        raise ValueError('magic. Wand not in: %s' % sg('magic.wand'))
-    d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
-    assert d.recognized('Achí')
 
-if __name__ == '__main__':
-    test_dictionaries()
+def find_tests():
+    import unittest
+
+    class TestDictionaries(unittest.TestCase):
+
+        def setUp(self):
+            dictionaries = Dictionaries()
+            dictionaries.initialize()
+            eng = parse_lang_code('en')
+            self.recognized = partial(dictionaries.recognized, locale=eng)
+            self.suggestions = partial(dictionaries.suggestions, locale=eng)
+
+        def ar(self, w):
+            if not self.recognized(w):
+                raise AssertionError('The word %r was not recognized' % w)
+
+        def test_dictionaries(self):
+            for w in 'recognized one-half one\u2010half'.split():
+                self.ar(w)
+            d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
+            self.assertTrue(d.recognized('Achí'))
+            self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
+            self.assertIn('adequately', self.suggestions('ade-quately'))
+            self.assertIn('magic. Wand', self.suggestions('magic.wand'))
+
+    return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)

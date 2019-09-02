@@ -9,11 +9,13 @@ import copy, sys
 
 from PyQt5.Qt import Qt, QTableWidgetItem, QIcon
 
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
+from polyglot.builtins import unicode_type, range, map
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -67,14 +69,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         state = self.columns_state(defaults)
         self.hidden_cols = state['hidden_columns']
         positions = state['column_positions']
-        colmap.sort(cmp=lambda x,y: cmp(positions[x], positions[y]))
+        colmap.sort(key=lambda x: positions[x])
         self.opt_columns.clear()
 
         db = model.db
         self.field_metadata = db.field_metadata
 
         self.opt_columns.setColumnCount(4)
-        item = QTableWidgetItem(_('Column Header'))
+        item = QTableWidgetItem(_('Column header'))
         self.opt_columns.setHorizontalHeaderItem(0, item)
         item = QTableWidgetItem(_('Lookup name'))
         self.opt_columns.setHorizontalHeaderItem(1, item)
@@ -92,7 +94,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.setup_row(self.field_metadata, row, col)
 
         self.restore_geometry()
+        self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
         self.opt_columns.blockSignals(False)
+
+    def row_double_clicked(self, r, c):
+        self.edit_custcol()
 
     def restore_geometry(self):
         geom = gprefs.get('custcol-prefs-table-geometry', None)
@@ -110,7 +116,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.resizeRowsToContents()
 
     def setup_row(self, field_metadata, row, col, oldkey=None):
+        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
         item = QTableWidgetItem(col)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 1, item)
 
         if col.startswith('#'):
@@ -126,27 +135,30 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             dt = fm['datatype']
             if fm['is_multiple']:
                 if col == 'authors' or fm.get('display', {}).get('is_names', False):
-                    coltype = _('Ampersand separated text, shown in the tag browser')
+                    coltype = _('Ampersand separated text, shown in the Tag browser')
                 else:
                     coltype = self.column_desc['*' + dt]
             else:
                 coltype = self.column_desc[dt]
         coltype_info = (coltype if oldkey is None else
                           ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
+
         item = QTableWidgetItem(coltype_info)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 2, item)
 
         desc = fm['display'].get('description', "")
         item = QTableWidgetItem(desc)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 3, item)
 
         item = QTableWidgetItem(fm['name'])
         item.setData(Qt.UserRole, (col))
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 0, item)
 
         if col.startswith('#'):
             item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
-        flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
         if col != 'ondevice':
             flags |= Qt.ItemIsUserCheckable
         item.setFlags(flags)
@@ -181,7 +193,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = unicode(self.opt_columns.item(idx, 0).data(Qt.UserRole) or '')
+        col = unicode_type(self.opt_columns.item(idx, 0).data(Qt.UserRole) or '')
         if col not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
@@ -210,7 +222,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
-            key = unicode(self.opt_columns.item(row, 0).data(Qt.UserRole))
+            key = unicode_type(self.opt_columns.item(row, 0).data(Qt.UserRole))
         except:
             key = ''
         CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
@@ -223,24 +235,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        config_cols = [unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = set([unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        hidden_cols = {unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())
-                 if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked])
+                 if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked}
         hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols
         hidden_cols = list(hidden_cols.intersection(set(model.column_map)))
         if 'ondevice' in hidden_cols:
             hidden_cols.remove('ondevice')
-        def col_pos(x, y):
-            xidx = config_cols.index(x) if x in config_cols else sys.maxint
-            yidx = config_cols.index(y) if y in config_cols else sys.maxint
-            return cmp(xidx, yidx)
+
+        def col_pos(x):
+            return config_cols.index(x) if x in config_cols else sys.maxsize
         positions = {}
-        for i, col in enumerate((sorted(model.column_map, cmp=col_pos))):
+        for i, col in enumerate((sorted(model.column_map, key=col_pos))):
             positions[col] = i
         state = {'hidden_columns': hidden_cols, 'column_positions':positions}
         self.gui.library_view.apply_state(state)
@@ -271,6 +282,5 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    app = Application([])
     test_widget('Interface', 'Custom Columns')

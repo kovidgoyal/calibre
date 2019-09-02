@@ -1,0 +1,103 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from complete import create_search_bar
+from dom import add_extra_css, build_rule, svgicon
+from keycodes import get_key
+from elementmaker import E
+from gettext import gettext as _
+from book_list.theme import get_color
+from read_book.resources import text_from_serialized_html
+
+CLASS_NAME = 'book-search-container'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME
+    style = build_rule(sel, text_align='right', user_select='none')
+    sel += ' > div '
+    style += build_rule(sel, display='inline-flex', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
+    return style
+)
+
+
+class SearchOverlay:
+
+    def __init__(self, view):
+        self.view = view
+        c = self.container
+        c.classList.add(CLASS_NAME)
+        next_button = E.div(class_='simple-link', svgicon('chevron-down'), title=_('Next match'))
+        prev_button = E.div(class_='simple-link', svgicon('chevron-up'), title=_('Previous match'))
+        prev_button.addEventListener('click', def(ev): self.find_previous();)
+        # We cannot use simple link for the close button as it causes the
+        # button to remain red when the search panel is re-opened
+        close_button = E.div(style='cursor:pointer', svgicon('close'), title=_('Close Search bar'))
+        close_button.addEventListener('click', def(ev): window.setTimeout(self.hide, 0);)
+        c.appendChild(E.div(
+            svgicon('search'), '\xa0',
+            create_search_bar(self.find_next, 'search-in-book', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button, close_button]),
+            '\xa0', next_button, '\xa0', prev_button, '\xa0', close_button
+        ))
+        c.firstChild.addEventListener('keydown', self.onkeydown)
+
+    def onkeydown(self, event):
+        k = get_key(event)
+        if k is 'escape':
+            self.hide()
+            event.preventDefault(), event.stopPropagation()
+
+    @property
+    def container(self):
+        return document.getElementById('book-search-overlay')
+
+    @property
+    def search_text(self):
+        return self.container.querySelector('input').value
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def hide(self):
+        self.container.style.display = 'none'
+
+    def show(self):
+        c = self.container
+        c.style.display = 'block'
+        c.querySelector('input').focus()
+
+    def find(self, text, backwards):
+        if not text:
+            return
+        self.view.find(text, backwards)
+
+    def find_next(self):
+        self.find(self.search_text, False)
+
+    def find_previous(self):
+        self.find(self.search_text, True)
+
+
+def find_in_serialized_html(data, text):
+    haystack = text_from_serialized_html(data)
+    return haystack.toLowerCase().indexOf(text) > -1
+
+
+def find_in_spine(names, book, db, text, proceed):
+    text = text.toLowerCase()
+
+    def got_one(data, name, mimetype):
+        if find_in_serialized_html(data, text):
+            proceed(name)
+        else:
+            do_one()
+
+    def do_one():
+        name = names.shift()
+        if name:
+            db.get_file(book, name, got_one)
+        else:
+            proceed(None)
+
+    do_one()

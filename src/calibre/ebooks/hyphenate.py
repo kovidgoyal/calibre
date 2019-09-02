@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """ Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes
@@ -18,6 +20,7 @@ import re
 
 __version__ = '1.0.20070709'
 
+
 class Hyphenator:
 
     def __init__(self, patterns, exceptions=''):
@@ -31,7 +34,7 @@ class Hyphenator:
             self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r"[a-z]", ex)]
 
     def _insert_pattern(self, pattern):
-        # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
+        # Convert a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub('[0-9]', '', pattern)
         points = [int(d or 0) for d in re.split("[.a-z]", pattern)]
@@ -80,6 +83,7 @@ class Hyphenator:
             if p % 2:
                 pieces.append('')
         return pieces
+
 
 patterns = (
 # Knuth and Liang's original hyphenation patterns from classic TeX.
@@ -518,7 +522,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
         for word in sys.argv[1:]:
-            print '-'.join(hyphenate_word(word))
+            print('-'.join(hyphenate_word(word)))
     else:
         import doctest
         doctest.testmod(verbose=True)

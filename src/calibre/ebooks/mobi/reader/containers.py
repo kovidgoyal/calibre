@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,8 +9,10 @@ from struct import unpack_from, error
 
 from calibre.utils.imghdr import what
 
+
 def find_imgtype(data):
     return what(None, data) or 'unknown'
+
 
 class Container(object):
 

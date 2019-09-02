@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2011,  Ken <ken at szboeye.com>'
 __docformat__ = 'restructuredtext en'
@@ -8,10 +10,11 @@ Device driver for BOEYE serial readers
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class BOEYE_BEX(USBMS):
     name		= 'BOEYE BEX reader driver'
     gui_name	= 'BOEYE BEX'
-    description	= _('Communicate with BOEYE BEX Serial eBook readers.')
+    description	= _('Communicate with BOEYE BEX Serial e-book readers.')
     author		= 'szboeye'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -29,10 +32,11 @@ class BOEYE_BEX(USBMS):
     EBOOK_DIR_MAIN	  = 'Documents'
     SUPPORTS_SUB_DIRS = True
 
+
 class BOEYE_BDX(USBMS):
     name		= 'BOEYE BDX reader driver'
     gui_name	= 'BOEYE BDX'
-    description	= _('Communicate with BOEYE BDX serial eBook readers.')
+    description	= _('Communicate with BOEYE BDX serial e-book readers.')
     author		= 'szboeye'
     supported_platforms = ['windows', 'osx', 'linux']
 

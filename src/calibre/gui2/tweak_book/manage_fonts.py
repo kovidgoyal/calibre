@@ -1,17 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, textwrap
+from io import BytesIO
 
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit)
+    QHBoxLayout, QTextEdit, QApplication, QMessageBox)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -20,6 +20,28 @@ from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
+from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
+from polyglot.builtins import iteritems, unicode_type
+
+
+def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+    try:
+        fm = FontMetadata(BytesIO(file_data)).to_dict()
+    except UnsupportedFont:
+        return
+    pp = _('Change this to the relative path to: %s') % added_name
+    rule = '''@font-face {{
+  src: url({pp});
+  font-family: "{ff}";
+  font-weight: {w};
+  font-style: {sy};
+  font-stretch: {st};
+  }}'''.format(pp=pp, ff=fm['font-family'], w=fm['font-weight'], sy=fm['font-style'], st=fm['font-stretch'])
+    QApplication.clipboard().setText(rule)
+    QMessageBox.information(parent, _('Font file added'), _(
+        'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
+        ' to the clipboard. You should paste it into whichever CSS file you want to add this font to.').format(added_name))
+
 
 class EmbeddingData(Dialog):
 
@@ -51,6 +73,7 @@ class EmbeddingData(Dialog):
                 text.append('<br>' + 'font-style:\xa0' + type('')(face['font-style']))
         self.text.setHtml('\n'.join(text))
 
+
 class AllFonts(QAbstractTableModel):
 
     def __init__(self, parent=None):
@@ -79,7 +102,7 @@ class AllFonts(QAbstractTableModel):
 
     def do_sort(self):
         reverse = not self.sorted_on[1]
-        self.items = sorted(self.font_data.iterkeys(), key=sort_key, reverse=reverse)
+        self.items = sorted(self.font_data, key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.get, reverse=reverse)
 
@@ -128,6 +151,7 @@ class AllFonts(QAbstractTableModel):
                 pass
         return ans
 
+
 class ChangeFontFamily(Dialog):
 
     def __init__(self, old_family, embedded_families, parent=None):
@@ -155,7 +179,7 @@ class ChangeFontFamily(Dialog):
 
     @property
     def family(self):
-        return unicode(self._family.text())
+        return unicode_type(self._family.text())
 
     @property
     def normalized_family(self):
@@ -220,7 +244,7 @@ class ManageFonts(Dialog):
         s.addWidget(fv), s.addWidget(c)
 
         self.cb = b = QPushButton(_('&Change selected fonts'))
-        b.setIcon(QIcon(I('auto_author_sort.png')))
+        b.setIcon(QIcon(I('wizard.png')))
         b.clicked.connect(self.change_fonts)
         l.addWidget(b)
         self.rb = b = QPushButton(_('&Remove selected fonts'))
@@ -290,7 +314,7 @@ class ManageFonts(Dialog):
         fonts = self.get_selected_data()
         if not fonts:
             return
-        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.iteritems() if embedded}, self)
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
         if d.exec_() != d.Accepted:
             return
         changed = False
@@ -320,6 +344,7 @@ class ManageFonts(Dialog):
 
     def refresh(self):
         self.model.build()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

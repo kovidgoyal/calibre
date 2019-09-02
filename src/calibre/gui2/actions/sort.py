@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,8 @@ from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from polyglot.builtins import iteritems
+
 
 class SortAction(QAction):
 
@@ -23,25 +24,32 @@ class SortAction(QAction):
     def __call__(self):
         self.sort_requested.emit(self.key, self.ascending)
 
+
 class SortByAction(InterfaceAction):
 
     name = 'Sort By'
-    action_spec = (_('Sort By'), 'arrow-up.png', _('Sort the list of books'), None)
+    action_spec = (_('Sort by'), 'sort.png', _('Sort the list of books'), None)
     action_type = 'current'
     popup_type = QToolButton.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset([
-        'toolbar', 'toolbar-device', 'context-menu-device', 'toolbar-child',
-        'menubar', 'menubar-device', 'context-menu-cover-browser'])
+        'toolbar-device', 'context-menu-device', 'menubar', 'menubar-device',
+        'context-menu-cover-browser'])
 
     def genesis(self):
         self.sorted_icon = QIcon(I('ok.png'))
+        self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
     def location_selected(self, loc):
-        self.qaction.setEnabled(loc == 'library')
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
-    def update_menu(self):
-        menu = self.qaction.menu()
+    def about_to_show(self):
+        self.update_menu()
+
+    def update_menu(self, menu=None):
+        menu = self.qaction.menu() if menu is None else menu
         for action in menu.actions():
             action.sort_requested.disconnect()
         menu.clear()
@@ -53,8 +61,7 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
-        self._sactions = []
+        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:
@@ -74,5 +81,3 @@ class SortByAction(InterfaceAction):
             self.gui.library_view.intelligent_sort(key, True)
         else:
             self.gui.library_view.sort_by_named_field(key, ascending)
-
-

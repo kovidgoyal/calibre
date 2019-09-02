@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -25,6 +26,9 @@ from calibre.ebooks.rtf2xml import headings_to_sections, \
     body_styles, preamble_rest, group_styles, \
     inline
 from calibre.ebooks.rtf2xml.old_rtf import OldRtf
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
 
 """
 Here is an example script using the ParseRTF module directly
@@ -68,21 +72,27 @@ def Handle_Main():
     except ParseRtf.RtfInvalidCodeException, msg:
         sys.stderr.write(msg)
 """
+
+
 class InvalidRtfException(Exception):
     """
     handle invalid RTF
     """
     pass
+
+
 class RtfInvalidCodeException(Exception):
     """
     handle bugs in program
     """
     pass
 
+
 class ParseRtf:
     """
     Main class for controlling the rest of the parsing.
     """
+
     def __init__(self,
                 in_file,
                 out_file='',
@@ -224,7 +234,7 @@ class ParseRtf:
             )
         try:
             return_value = process_tokens_obj.process_tokens()
-        except InvalidRtfException, msg:
+        except InvalidRtfException as msg:
             # Check to see if the file is correctly encoded
             encode_obj = default_encoding.DefaultEncoding(
             in_file=self.__temp_file,
@@ -240,9 +250,9 @@ class ParseRtf:
             enc = encode_obj.get_codepage()
             # TODO: to check if cp is a good idea or if I should use a dict to convert
             enc = 'cp' + enc
-            msg = '%s\nException in token processing' % str(msg)
+            msg = '%s\nException in token processing' % unicode_type(msg)
             if check_encoding_obj.check_encoding(self.__file, enc):
-                file_name = self.__file if isinstance(self.__file, str) \
+                file_name = self.__file if isinstance(self.__file, bytes) \
                                     else self.__file.encode('utf-8')
                 msg +='\nFile %s does not appear to be correctly encoded.\n' % file_name
             try:
@@ -544,8 +554,8 @@ class ParseRtf:
                 pass
                 # sys.stderr.write( msg + ' in ' + file_name + "\n")
             else:
-                msg = '%s in file %s\n' % (msg, file_name)
-                raise RtfInvalidCodeException(msg)
+                msg = '%s in file %s' % (msg, file_name)
+                print(msg, file=sys.stderr)
 
     def __return_code(self, num):
         if num is None:
@@ -556,8 +566,8 @@ class ParseRtf:
     def __make_temp_file(self,file):
         """Make a temporary file to parse"""
         write_file="rtf_write_file"
-        read_obj = file if hasattr(file, 'read') else open(file,'r')
-        with open(write_file, 'wb') as write_obj:
+        read_obj = file if hasattr(file, 'read') else open_for_read(file)
+        with open_for_write(write_file) as write_obj:
             for line in read_obj:
                 write_obj.write(line)
         return write_file

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, time, sys
+from functools import cmp_to_key
 
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -14,6 +17,8 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
+from polyglot.builtins import string_or_bytes, iteritems, itervalues, cmp
+
 
 class Book(Metadata):
 
@@ -43,26 +48,24 @@ class Book(Metadata):
         # use lpath because the prefix can change, changing path
         return self.lpath == getattr(other, 'lpath', None)
 
-    @dynamic_property
+    @property
     def db_id(self):
-        doc = '''The database id in the application database that this file corresponds to'''
-        def fget(self):
-            match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
-            if match:
-                return int(match.group(1))
-            return None
-        return property(fget=fget, doc=doc)
+        '''The database id in the application database that this file corresponds to'''
 
-    @dynamic_property
+        match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
+        if match:
+            return int(match.group(1))
+        return None
+
+    @property
     def title_sorter(self):
-        doc = '''String to sort the title. If absent, title is returned'''
-        def fget(self):
-            return title_sort(self.title)
-        return property(doc=doc, fget=fget)
+        '''String to sort the title. If absent, title is returned'''
+        return title_sort(self.title)
 
-    @dynamic_property
+    @property
     def thumbnail(self):
         return None
+
 
 class BookList(_BookList):
 
@@ -98,6 +101,7 @@ class BookList(_BookList):
 
     def get_collections(self):
         return {}
+
 
 class CollectionsBookList(BookList):
 
@@ -250,10 +254,10 @@ class CollectionsBookList(BookList):
                     elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxint), tsval)
+                                (book, book.get('series_index', sys.maxsize), tsval)
                         else:
                             collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxint), tsval)
+                                (book, book.get(attr+'_index', sys.maxsize), tsval)
                     else:
                         if lpath not in collections[cat_name]:
                             collections[cat_name][lpath] = (book, tsval, tsval)
@@ -286,7 +290,7 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, basestring) and isinstance(y, basestring):
+            if isinstance(x, string_or_bytes) and isinstance(y, string_or_bytes):
                 x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
             try:
                 c = cmp(x, y)
@@ -300,9 +304,8 @@ class CollectionsBookList(BookList):
             except TypeError:
                 return 0
 
-        for category, lpaths in collections.items():
-            books = lpaths.values()
-            books.sort(cmp=none_cmp)
+        for category, lpaths in iteritems(collections):
+            books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         return result
 

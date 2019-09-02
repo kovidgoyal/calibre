@@ -58,6 +58,12 @@ static PyObject *LZMAError = NULL;
 // Utils {{{
 static UInt64 crc64_table[256];
 
+#if PY_MAJOR_VERSION >= 3
+    #define BYTES_FMT "y#"
+#else
+    #define BYTES_FMT "s#"
+#endif
+
 static void init_crc_table() {
     static const UInt64 poly64 = (UInt64)(0xC96C5795D7870F42);
     size_t i, j;
@@ -79,7 +85,7 @@ crc64(PyObject *self, PyObject *args) {
     Py_ssize_t size = 0;
     UInt64 crc = 0;
     size_t i;
-    if (!PyArg_ParseTuple(args, "s#|K", &data, &size, &crc)) return NULL;
+    if (!PyArg_ParseTuple(args, BYTES_FMT "|K", &data, &size, &crc)) return NULL;
     crc = ~crc;
     for (i = 0; i < (size_t)size; ++i)
         crc = crc64_table[data[i] ^ (crc & 0xFF)] ^ (crc >> 8);
@@ -102,7 +108,7 @@ delta_decode(PyObject *self, PyObject *args) {
     datalen = PyBytes_GET_SIZE(array);
 
     for (i = 0; i < datalen; i++) {
-        data[i] += history[(unsigned char)(pos + distance)]; 
+        data[i] += history[(unsigned char)(pos + distance)];
         history[pos--] = data[i];
     }
     return Py_BuildValue("B", pos);
@@ -122,7 +128,7 @@ decompress2(PyObject *self, PyObject *args) {
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
 
     if (!PyArg_ParseTuple(args, "OOOBk", &read, &seek, &write, &props, &bufsize)) return NULL;
-    
+
     Lzma2Dec_Construct(&state);
     res = Lzma2Dec_Allocate(&state, (Byte)props, &allocator);
     if (res == SZ_ERROR_MEM) { PyErr_NoMemory(); return NULL; }
@@ -142,7 +148,7 @@ decompress2(PyObject *self, PyObject *args) {
         } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
         if (res != SZ_OK) { SET_ERROR(res); goto exit; }
         if (bytes_written > 0) {
-            if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+            if(!PyObject_CallFunction(write, BYTES_FMT, outbuf, bytes_written)) goto exit;
         }
         if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
             SET_ERROR(SZ_ERROR_DATA); goto exit;
@@ -158,7 +164,7 @@ decompress2(PyObject *self, PyObject *args) {
             if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA2 block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
-        } 
+        }
     }
     leftover = inbuf_len - inbuf_pos;
     if (leftover > 0) {
@@ -188,7 +194,7 @@ decompress(PyObject *self, PyObject *args) {
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
     ELzmaFinishMode finish_mode = LZMA_FINISH_ANY;
 
-    if(!PyArg_ParseTuple(args, "OOOKs#k", &read, &seek, &write, &decompressed_size, &header, &header_size, &bufsize)) return NULL;
+    if(!PyArg_ParseTuple(args, "OOOK" BYTES_FMT "k", &read, &seek, &write, &decompressed_size, &header, &header_size, &bufsize)) return NULL;
     size_known = (decompressed_size != (UInt64)(Int64)-1);
     if (header_size != 13) { PyErr_SetString(LZMAError, "Header must be exactly 13 bytes long"); return NULL; }
     if (!decompressed_size) { PyErr_SetString(LZMAError, "Cannot decompress empty file"); return NULL; }
@@ -214,7 +220,7 @@ decompress(PyObject *self, PyObject *args) {
         } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
         if (res != SZ_OK) { SET_ERROR(res); goto exit; }
         if (bytes_written > 0) {
-            if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+            if(!PyObject_CallFunction(write, BYTES_FMT, outbuf, bytes_written)) goto exit;
             total_written += bytes_written;
         }
         if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
@@ -232,7 +238,7 @@ decompress(PyObject *self, PyObject *args) {
             if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
-        } 
+        }
     }
     leftover = inbuf_len - inbuf_pos;
     if (leftover > 0) {
@@ -296,7 +302,7 @@ static size_t owrite(void *p, const void *buf, size_t size) {
     PyObject *res = NULL;
     if (!size) return 0;
     ACQUIRE_GIL
-    res = PyObject_CallFunction(self->write, "s#", (char*)buf, size);
+    res = PyObject_CallFunction(self->write, BYTES_FMT, (char*)buf, size);
     if (res == NULL) return 0;
     Py_DECREF(res);
     RELEASE_GIL
@@ -332,7 +338,7 @@ get_lzma2_properties(int preset) {
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
     if (PyErr_Occurred()) return NULL;
-    return Py_BuildValue("s#", &props_out, 1);
+    return Py_BuildValue(BYTES_FMT, &props_out, 1);
 }
 
 
@@ -382,11 +388,13 @@ compress(PyObject *self, PyObject *args) {
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
     if (PyErr_Occurred()) return NULL;
-    return Py_BuildValue("s#", &props_out, 1);
+    return Py_BuildValue(BYTES_FMT, &props_out, 1);
 }
 
 // }}}
- 
+
+static char lzma_binding_doc[] = "Bindings to the LZMA (de)compression C code";
+
 static PyMethodDef lzma_binding_methods[] = {
     {"decompress2", decompress2, METH_VARARGS,
         "Decompress an LZMA2 encoded block, of unknown compressed size (reads till LZMA2 EOS marker)"
@@ -411,24 +419,54 @@ static PyMethodDef lzma_binding_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&lzma_binding_module)
+static struct PyModuleDef lzma_binding_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "lzma_binding",
+    /* m_doc      */ lzma_binding_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ lzma_binding_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_lzma_binding(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("lzma_binding", lzma_binding_methods, lzma_binding_doc)
+CALIBRE_MODINIT_FUNC initlzma_binding(void) {
+#endif
 
-PyMODINIT_FUNC
-initlzma_binding(void) {
     PyObject *m = NULL, *preset_map = NULL, *temp = NULL;
     int i = 0;
     init_crc_table();
     LZMAError = PyErr_NewException("lzma_binding.error", NULL, NULL);
-    if (!LZMAError) return;
-    m = Py_InitModule3("lzma_binding", lzma_binding_methods, "Bindings to the LZMA (de)compression C code");
-    if (m == NULL) return;
+    if (!LZMAError) {
+        INITERROR;
+    }
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
     preset_map = PyTuple_New(10);
-    if (preset_map == NULL) return;
+    if (preset_map == NULL) {
+        INITERROR;
+    }
     for (i = 0; i < 10; i++) {
         temp = get_lzma2_properties(i);
-        if (temp == NULL) return;
+        if (temp == NULL) {
+            INITERROR;
+        }
         PyTuple_SET_ITEM(preset_map, i, temp);
     }
     PyModule_AddObject(m, "preset_map", preset_map);
     Py_INCREF(LZMAError);
     PyModule_AddObject(m, "error", LZMAError);
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

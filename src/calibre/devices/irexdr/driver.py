@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -10,10 +11,11 @@ Device driver for IRex Digiatal Reader
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class IREXDR1000(USBMS):
 
     name           = 'IRex Digital Reader 1000 Device Interface'
-    description    = _('Communicate with the IRex Digital Reader 1000 eBook '
+    description    = _('Communicate with the IRex Digital Reader 1000 e-book '
         'reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -37,6 +39,7 @@ class IREXDR1000(USBMS):
     DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
 
+
 class IREXDR800(IREXDR1000):
     name           = 'IRex Digital Reader 800 Device Interface'
     description    = _('Communicate with the IRex Digital Reader 800')
@@ -47,4 +50,3 @@ class IREXDR800(IREXDR1000):
     EBOOK_DIR_MAIN = ''
     DELETE_EXTS = []
     SUPPORTS_SUB_DIRS = True
-

@@ -7,6 +7,7 @@ import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
+from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -25,6 +26,7 @@ category_icon_map = {
             }
 
 # Builtin metadata {{{
+
 
 def _builtin_field_metadata():
     # This is a function so that changing the UI language allows newly created
@@ -150,7 +152,7 @@ def _builtin_field_metadata():
                             'datatype':'text',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Author Sort'),
+                           'name':_('Author sort'),
                            'search_terms':['author_sort'],
                            'is_custom':False,
                            'is_category':False,
@@ -212,7 +214,7 @@ def _builtin_field_metadata():
                            'datatype':'text',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('On Device'),
+                           'name':_('On device'),
                            'search_terms':['ondevice'],
                            'is_custom':False,
                            'is_category':False,
@@ -262,7 +264,7 @@ def _builtin_field_metadata():
                            'datatype':'text',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Series Sort'),
+                           'name':_('Series sort'),
                            'search_terms':['series_sort'],
                            'is_custom':False,
                            'is_category':False,
@@ -272,7 +274,7 @@ def _builtin_field_metadata():
                            'datatype':'text',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Title Sort'),
+                           'name':_('Title sort'),
                            'search_terms':['title_sort'],
                            'is_custom':False,
                            'is_category':False,
@@ -320,7 +322,8 @@ def _builtin_field_metadata():
         ]
 # }}}
 
-class FieldMetadata(dict):
+
+class FieldMetadata(object):
     '''
     key: the key to the dictionary is:
     - for standard fields, the metadata field name.
@@ -378,7 +381,8 @@ class FieldMetadata(dict):
                 'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     # search labels that are not db columns
-    search_items = ['all', 'search']
+    search_items = ['all', 'search', 'vl']
+    __calibre_serializable__ = True
 
     def __init__(self):
         self._field_metadata = _builtin_field_metadata()
@@ -425,7 +429,18 @@ class FieldMetadata(dict):
         return key in self
 
     def keys(self):
-        return self._tb_cats.keys()
+        return list(self._tb_cats.keys())
+
+    def __eq__(self, other):
+        if not isinstance(other, FieldMetadata):
+            return False
+        for attr in ('_tb_custom_fields', '_search_term_map', 'custom_label_to_key_map', 'custom_field_prefix'):
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+        return dict(self._tb_cats) == dict(other._tb_cats)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def sortable_field_keys(self):
         return [k for k in self._tb_cats.keys()
@@ -470,21 +485,22 @@ class FieldMetadata(dict):
             yield key
 
     def itervalues(self):
-        return self._tb_cats.itervalues()
+        return itervalues(self._tb_cats)
 
     def values(self):
-        return self._tb_cats.values()
+        return list(self._tb_cats.values())
 
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
+    iter_items = iteritems
 
     def custom_iteritems(self):
-        for key, meta in self._tb_custom_fields.iteritems():
+        for key, meta in iteritems(self._tb_custom_fields):
             yield (key, meta)
 
     def items(self):
-        return list(self.iteritems())
+        return list(self.iter_items())
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
@@ -494,7 +510,7 @@ class FieldMetadata(dict):
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
-        return [k for k in self._tb_cats.iterkeys() if self.is_ignorable_field(k)]
+        return [k for k in self._tb_cats if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
         try:
@@ -614,8 +630,10 @@ class FieldMetadata(dict):
                                 'is_category':True,    'is_csp': False}
         self._add_search_terms_to_map(label, st)
 
-    def add_search_category(self, label, name):
+    def add_search_category(self, label, name, fail_on_existing=True):
         if label in self._tb_cats:
+            if not fail_on_existing:
+                return
             raise ValueError('Duplicate user field [%s]'%(label))
         self._tb_cats[label] = {'table':None,        'column':None,
                                 'datatype':None,     'is_multiple':{},
@@ -655,3 +673,27 @@ class FieldMetadata(dict):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    len(self._tb_cats[k]['search_terms']) > 0]
+
+
+# The following two methods are to support serialization
+# Note that they do not create copies of internal structures, for performance,
+# so they are not safe to use for anything else
+def fm_as_dict(self):
+    return {
+        'custom_fields': self._tb_custom_fields,
+        'search_term_map': self._search_term_map,
+        'custom_label_to_key_map': self.custom_label_to_key_map,
+        'user_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'search'},
+    }
+
+
+def fm_from_dict(src):
+    ans = FieldMetadata()
+    ans._tb_custom_fields = src['custom_fields']
+    ans._search_term_map = src['search_term_map']
+    ans.custom_label_to_key_map = src['custom_label_to_key_map']
+    for q in ('custom_fields', 'user_categories', 'search_categories'):
+        for k, v in iteritems(src[q]):
+            ans._tb_cats[k] = v
+    return ans

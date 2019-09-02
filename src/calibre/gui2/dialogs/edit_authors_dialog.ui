@@ -82,14 +82,14 @@
      <item row="0" column="0">
       <widget class="QPushButton" name="sort_by_author">
        <property name="text">
-        <string>Sort by author</string>
+        <string>Sort by &amp;author</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="sort_by_author_sort">
        <property name="text">
-        <string>Sort by author sort</string>
+        <string>Sort by author &amp;sort</string>
        </property>
       </widget>
      </item>
@@ -101,7 +101,7 @@ generated from the author. Exactly how this value is automatically
 generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
        </property>
        <property name="text">
-        <string>Recalculate all author sort values</string>
+        <string>&amp;Recalculate all author sort values</string>
        </property>
       </widget>
      </item>
@@ -112,7 +112,7 @@ generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
 after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorithm</string>
        </property>
        <property name="text">
-        <string>Copy all author sort values to author</string>
+        <string>&amp;Copy all author sort values to author</string>
        </property>
       </widget>
      </item>

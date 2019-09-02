@@ -1,7 +1,5 @@
 import re
-import urllib2
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, SoupStrainer
 
 
 class Ebert(BasicNewsRecipe):
@@ -55,7 +53,7 @@ class Ebert(BasicNewsRecipe):
             self.report_progress(0, _('Fetching feed') + ' %s...' %
                                  (feedtitle if feedtitle else feedurl))
             articles = []
-            page = urllib2.urlopen(feedurl).read()
+            page = self.index_to_soup(feedurl, raw=True)
 
             if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
                 pattern = self.patternReviews
@@ -78,8 +76,8 @@ class Ebert(BasicNewsRecipe):
                     description = match.group(2)
 
                 self.log(thislink)
-
-                for link in BeautifulSoup(thislink, parseOnlyThese=SoupStrainer('a')):
+                soup = self.index_to_soup(thislink)
+                for link in soup.findAll('a', href=True):
                     thisurl = self.PREFIX + link['href']
                     thislinktext = self.tag_to_string(link)
 
@@ -91,7 +89,7 @@ class Ebert(BasicNewsRecipe):
                     if thistitle == '':
                         thistitle = 'Ebert Journal Post'
 
-                    """
+                    r"""
                     pattern2 = r'AID=\/(.*?)\/'
                     reg2 = re.compile(pattern2, re.IGNORECASE|re.DOTALL)
                     match2 = reg2.search(thisurl)

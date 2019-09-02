@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -19,6 +18,8 @@ from struct import calcsize, unpack, pack
 from collections import namedtuple, OrderedDict
 from tempfile import SpooledTemporaryFile
 
+from polyglot.builtins import itervalues, getcwd
+
 HEADER_SIG = 0x04034b50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
 local_header_fmt = b'<L5HL2L2H'
@@ -30,6 +31,7 @@ LocalHeader = namedtuple('LocalHeader',
         'signature min_version flags compression_method mod_time mod_date '
         'crc32 compressed_size uncompressed_size filename_length extra_length '
         'filename extra')
+
 
 def decode_arcname(name):
     if isinstance(name, bytes):
@@ -44,6 +46,7 @@ def decode_arcname(name):
             except:
                 name = name.decode('utf-8', 'replace')
     return name
+
 
 def find_local_header(f):
     pos = f.tell()
@@ -61,6 +64,7 @@ def find_local_header(f):
     if header.signature == HEADER_SIG:
         return header
     f.seek(pos)
+
 
 def find_data_descriptor(f):
     pos = f.tell()
@@ -82,6 +86,7 @@ def find_data_descriptor(f):
                          'supported.')
     finally:
         f.seek(pos)
+
 
 def read_local_file_header(f):
     pos = f.tell()
@@ -132,9 +137,11 @@ def read_local_file_header(f):
         header[:-2] + (fname, extra)
         ))
 
+
 def read_compressed_data(f, header):
     cdata = f.read(header.compressed_size)
     return cdata
+
 
 def copy_stored_file(src, size, dest):
     read = 0
@@ -145,6 +152,7 @@ def copy_stored_file(src, size, dest):
             raise ValueError('Premature end of file')
         dest.write(raw)
         read += len(raw)
+
 
 def copy_compressed_file(src, size, dest):
     d = zlib.decompressobj(-15)
@@ -164,6 +172,7 @@ def copy_compressed_file(src, size, dest):
             if count > 100:
                 raise ValueError('This ZIP file contains a ZIP bomb in %s'%
                         os.path.basename(dest.name))
+
 
 def _extractall(f, path=None, file_info=None):
     found = False
@@ -217,7 +226,7 @@ def extractall(path_or_stream, path=None):
         f = open(f, 'rb')
         close_at_end = True
     if path is None:
-        path = os.getcwdu()
+        path = getcwd()
     pos = f.tell()
     try:
         _extractall(f, path)
@@ -265,7 +274,7 @@ class LocalZipFile(object):
 
     def extractall(self, path=None):
         self.stream.seek(0)
-        _extractall(self.stream, path=(path or os.getcwdu()))
+        _extractall(self.stream, path=(path or getcwd()))
 
     def close(self):
         pass
@@ -275,7 +284,7 @@ class LocalZipFile(object):
         from calibre.utils.zipfile import ZipFile, ZipInfo
         replacements = {name:datastream}
         replacements.update(extra_replacements)
-        names = frozenset(replacements.keys())
+        names = frozenset(list(replacements.keys()))
         found = set()
 
         def rbytes(name):
@@ -286,7 +295,7 @@ class LocalZipFile(object):
 
         with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
             ztemp = ZipFile(temp, 'w')
-            for offset, header in self.file_info.itervalues():
+            for offset, header in itervalues(self.file_info):
                 if header.filename in names:
                     zi = ZipInfo(header.filename)
                     zi.compress_type = header.compression_method
@@ -306,6 +315,6 @@ class LocalZipFile(object):
             shutil.copyfileobj(temp, zipstream)
             zipstream.flush()
 
+
 if __name__ == '__main__':
     extractall(sys.argv[-1])
-

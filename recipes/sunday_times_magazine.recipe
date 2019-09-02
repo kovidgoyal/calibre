@@ -1,0 +1,151 @@
+__license__ = 'GPL v3'
+__copyright__ = '2010-2019'
+'''
+www.thetimes.co.uk/magazine/the-sunday-times-magazine/
+'''
+
+from mechanize import Request
+
+from calibre import random_user_agent
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class TimesOnline(BasicNewsRecipe):
+    title = 'The Sunday Times Magazine UK'
+    __author__ = 'Bobby Steel & Darko Miletic'
+    description = 'Newsmagazine from United Kingdom and World'
+    language = 'en_GB'
+    publisher = 'Times Newspapers Ltd'
+    category = 'news, politics, UK'
+    oldest_article = 3
+    max_articles_per_feed = 500
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    delay = 1
+    needs_subscription = True
+    publication_type = 'newspaper'
+    INDEX = 'https://www.thetimes.co.uk'
+    LOGIN = 'https://login.thetimes.co.uk/'
+    PREFIX = u'https://www.thetimes.co.uk'
+    extra_css = """
+        .author-name,.authorName{font-style: italic}
+        .published-date,.multi-position-photo-text{
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: small; color: gray;
+            display:block; margin-bottom: 0.5em}
+        body{font-family: Georgia,"Times New Roman",Times,serif}
+    """
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language}
+
+    def get_browser(self, *a, **kw):
+        start_url = self.INDEX
+        kw['user_agent'] = random_user_agent(allow_ie=False)
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        self.log('Starting login process...')
+        res = br.open(start_url)
+        sso_url = res.geturl()
+        self.log(sso_url)
+        request_query = {
+            'username': self.username,
+            'password': self.password,
+            's': 1,
+            'gotoUrl': self.INDEX,
+        }
+        rq = Request(self.LOGIN, headers={
+            'Accept': 'text/html',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'X-HTTP-Method-Override': 'POST',
+            'X-Requested-With': 'XMLHttpRequest',
+        }, data=request_query)
+        self.log('Sending login request...')
+        res = br.open(rq)
+        return br
+    # }}}
+
+    def get_cover_url(self):
+        from datetime import date
+        from datetime import timedelta
+        today = date.today()
+        today_index = today.weekday()
+        if (today_index == 5):  # new edition drops on Saturday AM
+            today += timedelta(1)
+        elif (today_index < 5):  # Mon-Thurs
+            today_index = (
+                today_index + 1
+            ) % 7  # Recalibrate to days back MON = 0, SUN = 6 -> SUN = 0 .. SAT = 6
+            today = today - timedelta(today_index)  # Rewind to most recent Sunday
+        cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1174' + today.strftime(
+            '%Y') + today.strftime('%m') + today.strftime(
+                '%d') + '00000000001001&page=1&scale=100'
+        self.log(cover)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    remove_tags = [
+        classes('Topics is-hidden Tooltip Toolbar Comments RelatedLinks'),
+        {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']}, {
+            'attrs': {
+                'class': [
+                    'tools comments-parent', 'u-hide', 'Tooltip',
+                    'Toolbar Toolbar--bottom', 'Comments Article-container',
+                    'ArticlePager', 'Media-caption', 'RelatedLinks']}}, {
+                        'attrs': {
+                            'class': lambda x: x and 'Toolbar' in x}}]
+    remove_attributes = ['lang']
+    keep_only_tags = [
+        dict(attrs={'id': 'article-main'}),
+        dict(attrs={'class': 'f-author'}),
+        dict(attrs={'id': 'bodycopy'})]
+
+    feeds = [(
+        u'The Sunday Times Magazine',
+        u'http://www.thetimes.co.uk/magazine/the-sunday-times-magazine/'),
+             (u'Sunday Times Style', u'http://www.thetimes.co.uk/magazine/style/')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(
+                0,
+                _('Fetching feed') + ' %s...' %
+                (feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for atag in soup.findAll('a', href=True):
+                parentName = atag.parent.name
+                title = self.tag_to_string(atag).strip()
+                if (
+                    parentName == 'h2' or
+                    parentName == 'h3') and title is not None and title != '':
+                    url = self.INDEX + atag['href']
+                    articles.append({
+                        'title': title,
+                        'date': '',
+                        'url': url,
+                        'description': ''})
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds

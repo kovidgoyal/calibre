@@ -80,7 +80,7 @@ class LetsGetCritical(BasicNewsRecipe):
                     p = post.previousSibling
                     # navigate up sibling to find date
                     while p:
-                        if hasattr(p, 'class') and p['class'] == 'singledate':
+                        if ''.join(p.get('class') or '') == 'singledate':
                             date = self.tag_to_string(p)
                             break
                         p = p.previousSibling

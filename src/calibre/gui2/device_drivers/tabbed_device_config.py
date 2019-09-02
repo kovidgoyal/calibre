@@ -17,12 +17,16 @@ from PyQt5.Qt import (
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
+from polyglot.builtins import unicode_type, range
+
 
 def wrap_msg(msg):
     return textwrap.fill(msg.strip(), 100)
 
+
 def setToolTipFor(widget, tt):
     widget.setToolTip(wrap_msg(tt))
+
 
 def create_checkbox(title, tt, state):
     cb = QCheckBox(title)
@@ -52,6 +56,7 @@ class TabbedDeviceConfig(QTabWidget):
     from DeviceOptionsGroupBox, are created to further group the options. The group
     boxes can be coded to support any control type and dependencies between them.
     """
+
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
                     extra_customization_message, device,
@@ -77,7 +82,7 @@ class TabbedDeviceConfig(QTabWidget):
 
         self.base = QWidget(self)
 #         self.insertTab(0, self.base, _('Configure %s') % self.device.current_friendly_name)
-        self.insertTab(0, self.base, _("File Formats"))
+        self.insertTab(0, self.base, _("File formats"))
         l = self.base.l = QGridLayout(self.base)
         self.base.setLayout(l)
 
@@ -136,7 +141,7 @@ class TabbedDeviceConfig(QTabWidget):
                                             self.device_settings)
         # Only display the extra customization tab if there are options on it.
         if self.extra_tab.has_extra_customizations:
-            self.addTab(self.extra_tab, _('Extra Customization'))
+            self.addTab(self.extra_tab, _('Extra customization'))
 
         self.setCurrentIndex(0)
 
@@ -159,7 +164,7 @@ class TabbedDeviceConfig(QTabWidget):
                     return getattr(atab, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
     @property
     def device(self):
@@ -221,6 +226,7 @@ class DeviceConfigTab(QWidget):  # {{{
     abstract the properties of the configuration tab. When a property is accessed, it
     will iterate over all known widgets looking for the property.
     '''
+
     def __init__(self, parent=None):
         QWidget.__init__(self)
         self.parent = parent
@@ -239,7 +245,7 @@ class DeviceConfigTab(QWidget):  # {{{
                     return getattr(awidget, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
@@ -264,6 +270,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
         if extra_customization_message:
             extra_customization_choices = extra_customization_choices or {}
+
             def parse_msg(m):
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)
@@ -334,11 +341,11 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                     if hasattr(self.opt_extra_customization[i], 'isChecked'):
                         ec.append(self.opt_extra_customization[i].isChecked())
                     elif hasattr(self.opt_extra_customization[i], 'currentText'):
-                        ec.append(unicode(self.opt_extra_customization[i].currentText()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].currentText()).strip())
                     else:
-                        ec.append(unicode(self.opt_extra_customization[i].text()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].text()).strip())
             else:
-                ec = unicode(self.opt_extra_customization.text()).strip()
+                ec = unicode_type(self.opt_extra_customization.text()).strip()
                 if not ec:
                     ec = None
 
@@ -351,10 +358,12 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
 # }}}
 
+
 class DeviceOptionsGroupBox(QGroupBox):
     """
     This is a container for the individual options for a device driver.
     """
+
     def __init__(self, parent, device=None, title=_("Unknown")):
         QGroupBox.__init__(self, parent)
 
@@ -386,5 +395,3 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         cw.commit()
     dev.shutdown()
-
-

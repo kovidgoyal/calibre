@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Gerendi Sandor Attila'
@@ -14,33 +14,43 @@ At this point this will tokenize a RTF file then rebuild it from the tokens.
 In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compilant.
 """
 
+
 class tokenDelimitatorStart():
 
     def __init__(self):
         pass
+
     def toRTF(self):
-        return b'{'
+        return '{'
+
     def __repr__(self):
         return '{'
+
 
 class tokenDelimitatorEnd():
 
     def __init__(self):
         pass
+
     def toRTF(self):
-        return b'}'
+        return '}'
+
     def __repr__(self):
         return '}'
+
 
 class tokenControlWord():
 
     def __init__(self, name, separator=''):
         self.name = name
         self.separator = separator
+
     def toRTF(self):
         return self.name + self.separator
+
     def __repr__(self):
         return self.name + self.separator
+
 
 class tokenControlWordWithNumericArgument():
 
@@ -48,47 +58,62 @@ class tokenControlWordWithNumericArgument():
         self.name = name
         self.argument = argument
         self.separator = separator
+
     def toRTF(self):
         return self.name + repr(self.argument) + self.separator
+
     def __repr__(self):
         return self.name + repr(self.argument) + self.separator
+
 
 class tokenControlSymbol():
 
     def __init__(self, name):
         self.name = name
+
     def toRTF(self):
         return self.name
+
     def __repr__(self):
         return self.name
+
 
 class tokenData():
 
     def __init__(self, data):
         self.data = data
+
     def toRTF(self):
         return self.data
+
     def __repr__(self):
         return self.data
+
 
 class tokenBinN():
 
     def __init__(self, data, separator=''):
         self.data = data
         self.separator = separator
+
     def toRTF(self):
         return "\\bin" + repr(len(self.data)) + self.separator + self.data
+
     def __repr__(self):
         return "\\bin" + repr(len(self.data)) + self.separator + self.data
+
 
 class token8bitChar():
 
     def __init__(self, data):
         self.data = data
+
     def toRTF(self):
         return "\\'" + self.data
+
     def __repr__(self):
         return "\\'" + self.data
+
 
 class tokenUnicode():
 
@@ -97,6 +122,7 @@ class tokenUnicode():
         self.separator = separator
         self.current_ucn = current_ucn
         self.eqList = eqList
+
     def toRTF(self):
         result = '\\u' + repr(self.data) + ' '
         ucn = self.current_ucn
@@ -109,6 +135,7 @@ class tokenUnicode():
                 break
             result = result + eq.toRTF()
         return result
+
     def __repr__(self):
         return '\\u' + repr(self.data)
 
@@ -116,11 +143,14 @@ class tokenUnicode():
 def isAsciiLetter(value):
     return ((value >= 'a') and (value <= 'z')) or ((value >= 'A') and (value <= 'Z'))
 
+
 def isDigit(value):
     return (value >= '0') and (value <= '9')
 
+
 def isChar(value, char):
     return value == char
+
 
 def isString(buffer, string):
     return buffer == string
@@ -336,19 +366,15 @@ class RtfTokenizer():
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        print ("Usage %prog rtfFileToConvert")
+        print("Usage %prog rtfFileToConvert")
         sys.exit()
-    f = open(sys.argv[1], 'rb')
-    data = f.read()
-    f.close()
+    with open(sys.argv[1], 'rb') as f:
+        data = f.read()
 
     tokenizer = RtfTokenizer(data)
     parsedTokens = RtfTokenParser(tokenizer.tokens)
 
     data = parsedTokens.toRTF()
 
-    f = open(sys.argv[1], 'w')
-    f.write(data)
-    f.close()
-
-
+    with open(sys.argv[1], 'w') as f:
+        f.write(data)

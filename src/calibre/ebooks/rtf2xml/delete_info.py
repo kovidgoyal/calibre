@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,9 +15,12 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
+
 
 class DeleteInfo:
     """Delete unecessary destination groups"""
+
     def __init__(self,
             in_file ,
             bug_handler,
@@ -124,7 +128,7 @@ class DeleteInfo:
                 # believe I have a '{\*}
                 if self.__run_level > 3:
                     msg = 'Flag problem\n'
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
                 return True
         elif self.__token_info in self.__allowable :
             if self.__ob:
@@ -148,7 +152,7 @@ class DeleteInfo:
             if self.__run_level > 5:
                 msg = ('After an asterisk, and found neither an allowable or non-allowable token\n\
                             token is "%s"\n') % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
             if not self.__ob:
                 self.__write_cb = True
             self.__ob = 0
@@ -183,8 +187,8 @@ class DeleteInfo:
     def delete_info(self):
         """Main method for handling other methods. Read one line at
         a time, and determine whether to print the line based on the state."""
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     # ob<nu<open-brack<0001
                     self.__token_info = line[:16]

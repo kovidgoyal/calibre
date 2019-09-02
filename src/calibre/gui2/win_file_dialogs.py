@@ -2,29 +2,36 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import sys, subprocess, struct, os
 from threading import Thread
 from uuid import uuid4
 
 from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
+from polyglot.builtins import string_or_bytes, filter
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialog.exe')
+current_app_uid = None
+
+
+def set_app_uid(val=None):
+    global current_app_uid
+    current_app_uid = val
+
 
 def is_ok():
     return os.path.exists(HELPER)
 
+
 try:
     from calibre.constants import filesystem_encoding
-    from calibre.utils.filenames import expanduser
     from calibre.utils.config import dynamic
 except ImportError:
-    filesystem_encoding = 'utf-8'
-    expanduser = os.path.expanduser
+    filesystem_encoding = 'mbcs'
     dynamic = {}
+
 
 def get_hwnd(widget=None):
     ewid = None
@@ -34,17 +41,21 @@ def get_hwnd(widget=None):
         return None
     return int(ewid)
 
+
 def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
     return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
 
+
 def serialize_secret(secret):
     return struct.pack(b'=B6s32s', 6, b'SECRET', secret)
+
 
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
     return struct.pack(b'=B%ssB' % len(key), len(key), key, int(val))
+
 
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
@@ -53,18 +64,21 @@ def serialize_string(key, val):
         raise ValueError('%s is too long' % key)
     return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
 
+
 def serialize_file_types(file_types):
     key = b"FILE_TYPES"
     buf = [struct.pack(b'=B%dsH' % len(key), len(key), key, len(file_types))]
+
     def add(x):
         x = x.encode('utf-8').replace(b'\0', b'')
         buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
-        if isinstance(extensions, basestring):
+        if isinstance(extensions, string_or_bytes):
             extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)
+
 
 class Helper(Thread):
 
@@ -82,6 +96,7 @@ class Helper(Thread):
         self.rc = self.process.wait()
         self.callback()
 
+
 class Loop(QEventLoop):
 
     dialog_closed = pyqtSignal()
@@ -90,10 +105,12 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
+
 def process_path(x):
     if isinstance(x, bytes):
         x = x.decode(filesystem_encoding)
-    return os.path.abspath(expanduser(x))
+    return os.path.abspath(os.path.expanduser(x))
+
 
 def select_initial_dir(q):
     while q:
@@ -103,12 +120,13 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return expanduser('~')
+    return os.path.expanduser('~')
+
 
 def run_file_dialog(
         parent=None, title=None, initial_folder=None, filename=None, save_path=None,
         allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
-        file_types=()
+        file_types=(), default_ext=None, app_uid=None
 ):
     from calibre.gui2 import sanitize_env_vars
     secret = os.urandom(32).replace(b'\0', b' ')
@@ -153,6 +171,11 @@ def run_file_dialog(
         file_types = [(_('All files'), ('*',))]
     if file_types:
         data.append(serialize_file_types(file_types))
+    if default_ext:
+        data.append(serialize_string('DEFAULT_EXTENSION', default_ext))
+    app_uid = app_uid or current_app_uid
+    if app_uid:
+        data.append(serialize_string('APP_UID', app_uid))
     loop = Loop()
     server = PipeServer(pipename)
     with sanitize_env_vars():
@@ -161,6 +184,7 @@ def run_file_dialog(
                data, loop.dialog_closed.emit)
     h.start()
     loop.exec_(QEventLoop.ExcludeUserInputEvents)
+
     def decode(x):
         x = x or b''
         try:
@@ -168,6 +192,7 @@ def run_file_dialog(
         except Exception:
             x = repr(x)
         return x
+
     def get_errors():
         return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
     from calibre import prints
@@ -194,15 +219,17 @@ def run_file_dialog(
     ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
     return ans
 
+
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
     name = name or 'dialog_' + title
     if no_save_dir:
-        initial_folder = expanduser(default_dir)
+        initial_folder = os.path.expanduser(default_dir)
     else:
-        initial_folder = dynamic.get(name, expanduser(default_dir))
+        initial_folder = dynamic.get(name, os.path.expanduser(default_dir))
     if not initial_folder or not os.path.isdir(initial_folder):
         initial_folder = select_initial_dir(initial_folder)
     return name, initial_folder
+
 
 def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
@@ -212,6 +239,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
         if not no_save_dir:
             dynamic.set(name, ans)
         return ans
+
 
 def choose_files(window, name, title,
                  filters=(), all_files=True, select_only_single_file=False, default_dir=u'~'):
@@ -225,10 +253,14 @@ def choose_files(window, name, title,
         return ans
     return None
 
-def choose_images(window, name, title, select_only_single_file=True,
-                  formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
+
+def choose_images(window, name, title, select_only_single_file=True, formats=None):
+    if formats is None:
+        from calibre.gui2.dnd import image_extensions
+        formats = image_extensions()
     file_types = [(_('Images'), list(formats))]
     return choose_files(window, name, title, select_only_single_file=select_only_single_file, filters=file_types)
+
 
 def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
     no_save_dir = False
@@ -241,13 +273,20 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     file_types = list(filters)
     if all_files:
         file_types.append((_('All files'), ['*']))
+    all_exts = []
+    for ftext, exts in file_types:
+        for ext in exts:
+            if '*' not in ext:
+                all_exts.append(ext.lower())
+    default_ext = all_exts[0] if all_exts else None
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
-    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types)
+    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types, default_ext=default_ext)
     if ans:
         ans = ans[0]
         if not no_save_dir:
             dynamic.set(name, ans)
         return ans
+
 
 class PipeServer(Thread):
 
@@ -268,6 +307,7 @@ class PipeServer(Thread):
 
     def run(self):
         import win32pipe, win32file, winerror, win32api
+
         def as_unicode(err):
             try:
                 self.err_msg = type('')(err)
@@ -302,6 +342,7 @@ class PipeServer(Thread):
             win32api.CloseHandle(self.pipe_handle)
             self.pipe_handle = None
 
+
 def test(helper=HELPER):
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     echo = '\U0001f431 Hello world!'
@@ -315,12 +356,14 @@ def test(helper=HELPER):
     if server.err_msg is not None:
         raise RuntimeError(server.err_msg)
     server.join(2)
-    parts = filter(None, server.data.split(b'\0'))
+    parts = list(filter(None, server.data.split(b'\0')))
     if parts[0] != secret:
         raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
     q = parts[1].decode('utf-8')
     if q != echo:
         raise RuntimeError('Unexpected response: %r' % server.data)
 
+
 if __name__ == '__main__':
+    choose_save_file(None, 'xxx', 'yyy')
     test(sys.argv[-1])

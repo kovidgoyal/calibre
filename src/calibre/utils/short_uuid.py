@@ -2,14 +2,14 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Generate UUID encoded using a user specified alphabet.
 '''
 
 import string, math, uuid as _uuid
+
 
 def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
     ans = []
@@ -21,11 +21,13 @@ def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
         ans.append(alphabet[0] * (pad_to_length - len(ans)))
     return ''.join(ans)
 
+
 def string_to_num(string, alphabet_map, alphabet_len):
     ans = 0
     for char in reversed(string):
         ans = ans * alphabet_len + alphabet_map[char]
     return ans
+
 
 class ShortUUID(object):
 
@@ -50,6 +52,7 @@ class ShortUUID(object):
 
     def decode(self, encoded):
         return _uuid.UUID(int=string_to_num(encoded, self.alphabet_map, self.alphabet_len))
+
 
 _global_instance = ShortUUID()
 uuid4 = _global_instance.uuid4

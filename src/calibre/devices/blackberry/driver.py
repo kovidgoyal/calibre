@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
+
 
 class BLACKBERRY(USBMS):
 
@@ -29,11 +31,12 @@ class BLACKBERRY(USBMS):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
 
+
 class PLAYBOOK(USBMS):
 
     name           = 'Blackberry Playbook Interface'
     gui_name       = 'Playbook'
-    description    = _('Communicate with the Blackberry playbook.')
+    description    = _('Communicate with the Blackberry Playbook.')
     author         = _('Kovid Goyal')
     supported_platforms = ['windows', 'linux', 'osx']
 

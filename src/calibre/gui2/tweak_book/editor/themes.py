@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -18,10 +17,13 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
 _default_theme = None
+
+
 def default_theme():
     global _default_theme
     if _default_theme is None:
@@ -29,13 +31,14 @@ def default_theme():
         _default_theme = 'wombat-dark' if isdark else 'pyte-light'
     return _default_theme
 
+
 # The solarized themes {{{
 SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'626262', 'base0':'808080', 'base1':'8a8a8a', 'base2':'e4e4e4', 'base3':'ffffd7', 'yellow':'af8700', 'orange':'d75f00', 'red':'d70000', 'magenta':'af005f', 'violet':'5f5faf', 'blue':'0087ff', 'cyan':'00afaf', 'green':'5f8700'}  # noqa
 SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa
-m = {'base%d'%n:'base%02d'%n for n in xrange(1, 4)}
-m.update({'base%02d'%n:'base%d'%n for n in xrange(1, 4)})
-SLL = {m.get(k, k) : v for k, v in SLD.iteritems()}
-SLLX = {m.get(k, k) : v for k, v in SLDX.iteritems()}
+m = {'base%d'%n:'base%02d'%n for n in range(1, 4)}
+m.update({'base%02d'%n:'base%d'%n for n in range(1, 4)})
+SLL = {m.get(k, k) : v for k, v in iteritems(SLD)}
+SLLX = {m.get(k, k) : v for k, v in iteritems(SLDX)}
 SOLARIZED = \
     '''
     CursorLine   bg={base02}
@@ -47,7 +50,7 @@ SOLARIZED = \
     PmenuSel     fg={base01} bg={base2}
 
     Cursor       fg={base03} bg={base0}
-    Normal       fg={base0} bg={base03}
+    Normal       fg={base0} bg={base02}
     LineNr       fg={base01} bg={base02}
     LineNrC      fg={magenta}
     Visual       fg={base01} bg={base03}
@@ -108,7 +111,7 @@ THEMES = {
     Type         fg={identifier}
     Statement    fg={keyword}
     Keyword      fg={keyword}
-    Special      fg=e7f6da
+    Special      fg={special}
     Error        us=wave uc=red
     SpellError   us=wave uc=orange
     SpecialCharacter bg={cursor_loc}
@@ -126,7 +129,8 @@ THEMES = {
         comment='99968b',
         string='95e454',
         keyword='8ac6f2',
-        constant='e5786d'),  # }}}
+        constant='e5786d',
+        special='e7f6da'),  # }}}
 
     'pyte-light':  # {{{
     '''
@@ -156,7 +160,7 @@ THEMES = {
     Type         fg={identifier}
     Statement    fg={keyword}
     Keyword      fg={keyword}
-    Special      fg=70a0d0 italic
+    Special      fg={special} italic
     SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
@@ -174,7 +178,8 @@ THEMES = {
         comment='a0b0c0',
         string='4070a0',
         keyword='007020',
-        constant='a07040'),  # }}}
+        constant='a07040',
+        special='70a0d0'),  # }}}
 
     'solarized-x-dark': SOLARIZED.format(**SLDX),
     'solarized-dark': SOLARIZED.format(**SLD),
@@ -182,6 +187,7 @@ THEMES = {
     'solarized-x-light': SOLARIZED.format(**SLLX),
 
 }
+
 
 def read_color(col):
     if QColor.isValidColor(col):
@@ -196,7 +202,9 @@ def read_color(col):
     except Exception:
         pass
 
+
 Highlight = namedtuple('Highlight', 'fg bg bold italic underline underline_color')
+
 
 def read_theme(raw):
     ans = {}
@@ -229,14 +237,19 @@ def read_theme(raw):
             ans[name] = Highlight(fg, bg, bold, italic, underline, underline_color)
     return ans
 
-THEMES = {k:read_theme(raw) for k, raw in THEMES.iteritems()}
+
+THEMES = {k:read_theme(raw) for k, raw in iteritems(THEMES)}
+
 
 def u(x):
     x = {'spell':'SpellCheck', 'dash_dot':'DashDot', 'dash_dot_dot':'DashDotDot'}.get(x, x.capitalize())
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
+
+
 underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
+
 
 def to_highlight(data):
     data = data.copy()
@@ -244,10 +257,12 @@ def to_highlight(data):
         data[c] = read_color(data[c]) if data.get(c, None) is not None else None
     return Highlight(**data)
 
+
 def read_custom_theme(data):
     dt = THEMES[default_theme()].copy()
-    dt.update({k:to_highlight(v) for k, v in data.iteritems()})
+    dt.update({k:to_highlight(v) for k, v in iteritems(data)})
     return dt
+
 
 def get_theme(name):
     try:
@@ -259,6 +274,7 @@ def get_theme(name):
             return THEMES[default_theme()]
         else:
             return read_custom_theme(ans)
+
 
 def highlight_to_char_format(h):
     ans = syntax_text_char_format()
@@ -276,11 +292,13 @@ def highlight_to_char_format(h):
             ans.setUnderlineColor(h.underline_color.color())
     return ans
 
+
 def theme_color(theme, name, attr):
     try:
         return getattr(theme[name], attr).color()
     except (KeyError, AttributeError):
         return getattr(THEMES[default_theme()][name], attr).color()
+
 
 def theme_format(theme, name):
     try:
@@ -289,16 +307,20 @@ def theme_format(theme, name):
         h = THEMES[default_theme()][name]
     return highlight_to_char_format(h)
 
+
 def custom_theme_names():
-    return tuple(tprefs['custom_themes'].iterkeys())
+    return tuple(tprefs['custom_themes'])
+
 
 def builtin_theme_names():
-    return tuple(THEMES.iterkeys())
+    return tuple(THEMES)
+
 
 def all_theme_names():
     return builtin_theme_names() + custom_theme_names()
 
 # Custom theme creation/editing {{{
+
 
 class CreateNewTheme(Dialog):
 
@@ -324,7 +346,7 @@ class CreateNewTheme(Dialog):
 
     @property
     def theme_name(self):
-        return unicode(self._name.text()).strip()
+        return unicode_type(self._name.text()).strip()
 
     def accept(self):
         if not self.theme_name:
@@ -335,8 +357,10 @@ class CreateNewTheme(Dialog):
                 'A custom theme with the name %s already exists') % self.theme_name, show=True)
         return Dialog.accept(self)
 
+
 def col_to_string(color):
     return '%02X%02X%02X' % color.getRgb()[:3]
+
 
 class ColorButton(QPushButton):
 
@@ -384,6 +408,7 @@ class ColorButton(QPushButton):
             return None
         return col_to_string(self.current_color)
 
+
 class Bool(QCheckBox):
 
     changed = pyqtSignal()
@@ -401,6 +426,7 @@ class Bool(QCheckBox):
     @property
     def value(self):
         return self.checkState() == Qt.Checked
+
 
 class Property(QWidget):
 
@@ -449,67 +475,66 @@ class Property(QWidget):
         l.addStretch(1)
 
     def us_changed(self):
-        self.data['underline'] = unicode(self.underline.currentText()) or None
+        self.data['underline'] = unicode_type(self.underline.currentText()) or None
         self.changed.emit()
 
 # Help text {{{
+
+
 HELP_TEXT = _('''\
 <h2>Creating a custom theme</h2>
 
-<p id="attribute" lang="und">You can create a custom syntax highlighting
-theme, with your own colors and font styles. The most important
-types of highlighting rules are described below. Note that not
-every rule supports every kind of customization, for example,
-changing font or underline styles for the <code>Cursor</code> rule
-does not have any effect as that rule is used only for the color of
-the blinking cursor.</p>
+<p id="attribute" lang="und">You can create a custom syntax highlighting theme, \
+with your own colors and font styles. The most important types of highlighting \
+rules are described below. Note that not every rule supports every kind of \
+customization, for example, changing font or underline styles for the \
+<code>Cursor</code> rule does not have any effect as that rule is used only for \
+the color of the blinking cursor.</p>
 
-<p>As you make changes to your theme on the left, the changes will
-be reflected live in this panel.</p>
+<p>As you make changes to your theme on the left, the changes will be reflected live in this panel.</p>
 
 <p xml:lang="und">
-{0}
-    The most important rule. Sets the
-    foreground and background colors for the editor as well as the
-    style of "normal" text, that is, text that does not match any
-    special syntax.
+{}
+    The most important rule. Sets the foreground and background colors for the \
+    editor as well as the style of "normal" text, that is, text that does not match any special syntax.
 
-{1}
+{}
     Defines the colors for text selected by the mouse.
 
-{2}
+{}
     Defines the color for the line containing the cursor.
 
-{3}
+{}
     Defines the colors for the line numbers on the left.
 
-{4}
+{}
     Defines the colors for matching tags in HTML and matching
     braces in CSS.
 
-{5}
+{}
     Used for highlighting tags in HTML
 
-{6}
+{}
     Used for highlighting attributes in HTML
 
-{7}
+{}
     Tag names in HTML
 
-{8}
+{}
     Namespace prefixes in XML and constants in CSS
 
-{9}
+{}
     Non-breaking spaces/hyphens in HTML
 
-{10}
+{}
     Syntax errors such as <this <>
 
-{11}
+{}
     Misspelled words such as <span lang="en">thisword</span>
 
-{12}
+{}
     Comments like <!-- this one -->
+
 </p>
 
 <style type="text/css">
@@ -522,6 +547,7 @@ p.someclass {{
 }}
 </style>
 ''')  # }}}
+
 
 class ThemeEditor(Dialog):
 
@@ -566,7 +592,8 @@ class ThemeEditor(Dialog):
         p.load_text(HELP_TEXT.format(
                 *['<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
-                    'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter', 'Error', 'SpellError', 'Comment'
+                    'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
+                    'Error', 'SpellError', 'Comment'
                 )]
             ))
         p.setMaximumWidth(p.size_hint.width() + 5)
@@ -584,15 +611,15 @@ class ThemeEditor(Dialog):
 
     def update_theme(self, name):
         data = tprefs['custom_themes'][name]
-        extra = set(data.iterkeys()) - set(THEMES[default_theme()].iterkeys())
-        missing = set(THEMES[default_theme()].iterkeys()) - set(data.iterkeys())
+        extra = set(data) - set(THEMES[default_theme()])
+        missing = set(THEMES[default_theme()]) - set(data)
         for k in extra:
             data.pop(k)
         for k in missing:
             data[k] = dict(THEMES[default_theme()][k]._asdict())
-            for nk, nv in data[k].iteritems():
+            for nk, nv in iteritems(data[k]):
                 if isinstance(nv, QBrush):
-                    data[k][nk] = unicode(nv.color().name())
+                    data[k][nk] = unicode_type(nv.color().name())
         if extra or missing:
             tprefs['custom_themes'][name] = data
         return data
@@ -606,7 +633,7 @@ class ThemeEditor(Dialog):
             c.setParent(None)
             c.deleteLater()
         self.properties = []
-        name = unicode(self.theme.currentText())
+        name = unicode_type(self.theme.currentText())
         if not name:
             return
         data = self.update_theme(name)
@@ -623,7 +650,7 @@ class ThemeEditor(Dialog):
 
     @property
     def theme_name(self):
-        return unicode(self.theme.currentText())
+        return unicode_type(self.theme.currentText())
 
     def changed(self):
         name = self.theme_name
@@ -634,10 +661,10 @@ class ThemeEditor(Dialog):
         d = CreateNewTheme(self)
         if d.exec_() == d.Accepted:
             name = '*' + d.theme_name
-            base = unicode(d.base.currentText())
+            base = unicode_type(d.base.currentText())
             theme = {}
-            for key, val in THEMES[base].iteritems():
-                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().iteritems()}
+            for key, val in iteritems(THEMES[base]):
+                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in iteritems(val._asdict())}
             tprefs['custom_themes'][name] = theme
             tprefs['custom_themes'] = tprefs['custom_themes']
             t = self.theme
@@ -664,6 +691,7 @@ class ThemeEditor(Dialog):
         g = QApplication.instance().desktop().availableGeometry(self.parent() or self)
         return QSize(min(1500, g.width() - 25), 650)
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])

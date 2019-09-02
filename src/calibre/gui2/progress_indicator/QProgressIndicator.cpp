@@ -35,10 +35,10 @@ void QProgressIndicator::setDisplayedWhenStopped(bool state)
     update();
 }
 
-void QProgressIndicator::setDisplaySize(int size) 
-{ 
-    m_displaySize = size; 
-    update(); 
+void QProgressIndicator::setDisplaySize(int size)
+{
+    m_displaySize = size;
+    update();
 }
 
 
@@ -106,10 +106,10 @@ void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
         return;
 
     int width = qMin(this->width(), this->height());
-    
+
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    
+
     int outerRadius = (width-1)*0.5;
     int innerRadius = (width-1)*0.5*0.38;
 
@@ -122,7 +122,7 @@ void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
         QColor color = m_color;
         color.setAlphaF(1.0f - (i/12.0f));
         p.setPen(Qt::NoPen);
-        p.setBrush(color);       
+        p.setBrush(color);
         p.save();
         p.translate(rect().center());
         p.rotate(m_angle - i*30.0f);
@@ -136,7 +136,7 @@ static inline QByteArray detectDesktopEnvironment()
     const QByteArray xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP");
     if (!xdgCurrentDesktop.isEmpty())
         // See http://standards.freedesktop.org/menu-spec/latest/apb.html
-        return xdgCurrentDesktop.toUpper(); 
+        return xdgCurrentDesktop.toUpper();
 
     // Classic fallbacks
     if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION"))
@@ -163,7 +163,7 @@ class CalibreStyle: public QProxyStyle {
     public:
         CalibreStyle(QStyle *base, QHash<int, QString> icmap) : QProxyStyle(base), icon_map(icmap) {
             setObjectName(QString("calibre"));
-            desktop_environment = detectDesktopEnvironment(); 
+            desktop_environment = detectDesktopEnvironment();
             button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
             if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment || QLatin1String("CINNAMON") == desktop_environment || QLatin1String("X-CINNAMON") == desktop_environment)
                 button_layout = QDialogButtonBox::GnomeLayout;
@@ -252,12 +252,12 @@ int load_style(QHash<int,QString> icon_map) {
     return 0;
 }
 
-class NoActivateStyle: public QProxyStyle { 
- 	public: 
-        int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const { 
-            if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0; 
-            return QProxyStyle::styleHint(hint, option, widget, returnData); 
-        } 
+class NoActivateStyle: public QProxyStyle {
+ 	public:
+        int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
+            if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0;
+            return QProxyStyle::styleHint(hint, option, widget, returnData);
+        }
 };
 
 void set_no_activate_on_click(QWidget *widget) {

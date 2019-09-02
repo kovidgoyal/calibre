@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, QIcon, Qt
 from PyQt5.QtWebKitWidgets import QWebInspector
 
 from calibre.gui2 import gprefs
+
 
 class WebInspector(QDialog):
 

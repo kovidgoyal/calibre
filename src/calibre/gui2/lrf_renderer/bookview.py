@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import QGraphicsView, QSize
 
+
 class BookView(QGraphicsView):
 
     MINIMUM_SIZE = QSize(400, 500)

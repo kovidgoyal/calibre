@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,25 +7,30 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys
+import locale, sys, os
 
 # Default translation is NOOP
-import __builtin__
-__builtin__.__dict__['_'] = lambda s: s
+from polyglot.builtins import builtins, is_py3, unicode_type
+builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
 # immediately translated to the environment language
-__builtin__.__dict__['__'] = lambda s: s
+builtins.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG
+# For backwards compat with some third party plugins
+builtins.__dict__['dynamic_property'] = lambda func: func(None)
+
+
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG, isfreebsd, ispy3
 
 _run_once = False
 winutil = winutilerror = None
 
 if not _run_once:
     _run_once = True
+    from importlib import import_module
 
-    if not isfrozen:
+    if not isfrozen and not ispy3:
         # Prevent PyQt4 from being loaded
         class PyQt4Ban(object):
 
@@ -37,19 +43,67 @@ if not _run_once:
 
         sys.meta_path.insert(0, PyQt4Ban())
 
+    class DeVendor(object):
+
+        if ispy3:
+
+            def find_spec(self, fullname, path, target=None):
+                spec = None
+                if fullname == 'calibre.web.feeds.feedparser':
+                    m = import_module('feedparser')
+                    spec = m.__spec__
+                elif fullname.startswith('calibre.ebooks.markdown'):
+                    m = import_module(fullname[len('calibre.ebooks.'):])
+                    spec = m.__spec__
+                return spec
+
+        else:
+
+            def find_module(self, fullname, path=None):
+                if fullname == 'calibre.web.feeds.feedparser' or fullname.startswith('calibre.ebooks.markdown'):
+                    return self
+
+            def load_module(self, fullname):
+                if fullname == 'calibre.web.feeds.feedparser':
+                    return import_module('feedparser')
+                return import_module(fullname[len('calibre.ebooks.'):])
+
+    sys.meta_path.insert(0, DeVendor())
+
     #
     # Platform specific modules
     if iswindows:
         winutil, winutilerror = plugins['winutil']
         if not winutil:
             raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode):
+        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode_type):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
-    #
+        if not ispy3:
+            # Python2's expanduser is broken for non-ASCII usernames
+            # and unicode paths
+
+            def expanduser(path):
+                if isinstance(path, bytes):
+                    path = path.decode('mbcs')
+                if path[:1] != '~':
+                    return path
+                i, n = 1, len(path)
+                while i < n and path[i] not in '/\\':
+                    i += 1
+                userhome = winutil.special_folder_path(winutil.CSIDL_PROFILE)
+                if i != 1:  # ~user
+                    userhome = os.path.join(os.path.dirname(userhome), path[1:i])
+
+                return userhome + path[i:]
+            os.path.expanduser = expanduser
+
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
-    base_dir()
+    try:
+        base_dir()
+    except EnvironmentError:
+        pass  # Ignore this error during startup, so we can show a better error message to the user later.
 
     #
     # Convert command line arguments to unicode
@@ -57,7 +111,7 @@ if not _run_once:
     if isosx:
         enc = 'utf-8'
     for i in range(1, len(sys.argv)):
-        if not isinstance(sys.argv[i], unicode):
+        if not isinstance(sys.argv[i], unicode_type):
             sys.argv[i] = sys.argv[i].decode(enc, 'replace')
 
     #
@@ -102,18 +156,21 @@ if not _run_once:
         dl = locale.getdefaultlocale()
         try:
             if dl:
-                locale.setlocale(dl[0])
+                locale.setlocale(locale.LC_ALL, dl[0])
         except:
             pass
 
     # local_open() opens a file that wont be inherited by child processes
-    if iswindows:
+    if is_py3:
+        local_open = open  # PEP 446
+    elif iswindows:
         def local_open(name, mode='r', bufsize=-1):
             mode += 'N'
             return open(name, mode, bufsize)
     elif isosx:
         import fcntl
         FIOCLEX = 0x20006601
+
         def local_open(name, mode='r', bufsize=-1):
             ans = open(name, mode, bufsize)
             try:
@@ -128,6 +185,7 @@ if not _run_once:
         except AttributeError:
             cloexec_flag = 1
         supports_mode_e = False
+
         def local_open(name, mode='r', bufsize=-1):
             global supports_mode_e
             mode += 'e'
@@ -141,55 +199,70 @@ if not _run_once:
                 supports_mode_e = True
             return ans
 
-    __builtin__.__dict__['lopen'] = local_open
+    builtins.__dict__['lopen'] = local_open
 
     from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
-    __builtin__.__dict__['icu_lower'] = icu_lower
-    __builtin__.__dict__['icu_upper'] = icu_upper
-    __builtin__.__dict__['icu_title'] = title_case
+    builtins.__dict__['icu_lower'] = icu_lower
+    builtins.__dict__['icu_upper'] = icu_upper
+    builtins.__dict__['icu_title'] = title_case
 
-    if islinux:
+    def connect_lambda(bound_signal, self, func, **kw):
+        import weakref
+        r = weakref.ref(self)
+        del self
+        num_args = func.__code__.co_argcount - 1
+        if num_args < 0:
+            raise TypeError('lambda must take at least one argument')
+
+        def slot(*args):
+            ctx = r()
+            if ctx is not None:
+                if len(args) != num_args:
+                    args = args[:num_args]
+                func(ctx, *args)
+
+        bound_signal.connect(slot, **kw)
+    builtins.__dict__['connect_lambda'] = connect_lambda
+
+    if islinux or isosx or isfreebsd:
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
-        import ctypes, ctypes.util, threading
-        libpthread_path = ctypes.util.find_library("pthread")
-        if libpthread_path:
-            libpthread = ctypes.CDLL(libpthread_path)
-            if hasattr(libpthread, "pthread_setname_np"):
-                pthread_setname_np = libpthread.pthread_setname_np
-                pthread_setname_np.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-                pthread_setname_np.restype = ctypes.c_int
-                orig_start = threading.Thread.start
-                def new_start(self):
-                    orig_start(self)
-                    try:
+        import threading
+
+        orig_start = threading.Thread.start
+
+        def new_start(self):
+            orig_start(self)
+            try:
+                name = self.name
+                if not name or name.startswith('Thread-'):
+                    name = self.__class__.__name__
+                    if name == 'Thread':
                         name = self.name
-                        if not name or name.startswith('Thread-'):
-                            name = self.__class__.__name__
-                            if name == 'Thread':
-                                name = self.name
-                        if name:
-                            if isinstance(name, unicode):
-                                name = name.encode('ascii', 'replace')
-                            ident = getattr(self, "ident", None)
-                            if ident is not None:
-                                pthread_setname_np(ident, name[:15])
-                    except Exception:
-                        pass  # Don't care about failure to set name
-                threading.Thread.start = new_start
+                if name:
+                    if isinstance(name, unicode_type):
+                        name = name.encode('ascii', 'replace').decode('ascii')
+                    plugins['speedup'][0].set_thread_name(name[:15])
+            except Exception:
+                pass  # Don't care about failure to set name
+        threading.Thread.start = new_start
+
 
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
-    n = u'f\xe4llen'
+    n = 'f\xe4llen'
     print('testing lopen()')
 
     if iswindows:
         import msvcrt, win32api
+
         def assert_not_inheritable(f):
             if win32api.GetHandleInformation(msvcrt.get_osfhandle(f.fileno())) & 0b1:
                 raise SystemExit('File handle is inheritable!')
     else:
+        import fcntl
+
         def assert_not_inheritable(f):
             if not fcntl.fcntl(f, fcntl.F_GETFD) & fcntl.FD_CLOEXEC:
                 raise SystemExit('File handle is inheritable!')
@@ -203,19 +276,19 @@ def test_lopen():
         with copen(n, 'w') as f:
             f.write('one')
 
-        print 'O_CREAT tested'
+        print('O_CREAT tested')
         with copen(n, 'w+b') as f:
-            f.write('two')
+            f.write(b'two')
         with copen(n, 'r') as f:
             if f.read() == 'two':
-                print 'O_TRUNC tested'
+                print('O_TRUNC tested')
             else:
                 raise Exception('O_TRUNC failed')
         with copen(n, 'ab') as f:
-            f.write('three')
+            f.write(b'three')
         with copen(n, 'r+') as f:
             if f.read() == 'twothree':
-                print 'O_APPEND tested'
+                print('O_APPEND tested')
             else:
                 raise Exception('O_APPEND failed')
         with copen(n, 'r+') as f:
@@ -223,6 +296,6 @@ def test_lopen():
             f.write('xxxxx')
             f.seek(0)
             if f.read() == 'twoxxxxx':
-                print 'O_RANDOM tested'
+                print('O_RANDOM tested')
             else:
                 raise Exception('O_RANDOM failed')

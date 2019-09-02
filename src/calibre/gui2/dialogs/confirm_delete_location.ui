@@ -72,7 +72,7 @@
      <item>
       <widget class="QPushButton" name="button_both">
        <property name="text">
-        <string>Library and Device</string>
+        <string>Library and device</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -18,8 +20,9 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
+from polyglot.builtins import unicode_type, string_or_bytes, map
 
-DEBUG_README=u'''
+DEBUG_README=b'''
 This debug directory contains snapshots of the e-book as it passes through the
 various stages of conversion. The stages are:
 
@@ -40,14 +43,17 @@ various stages of conversion. The stages are:
 
 '''
 
+
 def supported_input_formats():
     fmts = available_input_formats()
     for x in ('zip', 'rar', 'oebzip'):
         fmts.add(x)
     return fmts
 
+
 class OptionValues(object):
     pass
+
 
 class CompositeProgressReporter(object):
 
@@ -60,7 +66,9 @@ class CompositeProgressReporter(object):
                 (self.global_max - self.global_min)
         self.global_reporter(global_frac, msg)
 
+
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
+
 
 class Plumber(object):
 
@@ -126,8 +134,8 @@ OptionRecommendation(name='input_profile',
                    'conversion system information on how to interpret '
                    'various information in the input document. For '
                    'example resolution dependent lengths (i.e. lengths in '
-                   'pixels). Choices are:')+
-                        ', '.join([x.short_name for x in input_profiles()])
+                   'pixels). Choices are:')+ ', '.join([
+                       x.short_name for x in input_profiles()])
         ),
 
 OptionRecommendation(name='output_profile',
@@ -137,8 +145,8 @@ OptionRecommendation(name='output_profile',
                    'tells the conversion system how to optimize the '
                    'created document for the specified device (such as by resizing images for the device screen size). In some cases, '
                    'an output profile can be used to optimize the output for a particular device, but this is rarely necessary. '
-                   'Choices are:') +
-                           ', '.join([x.short_name for x in output_profiles()])
+                   'Choices are:') + ', '.join([
+                       x.short_name for x in output_profiles()])
         ),
 
 OptionRecommendation(name='base_font_size',
@@ -146,7 +154,7 @@ OptionRecommendation(name='base_font_size',
             help=_('The base font size in pts. All font sizes in the produced book '
                    'will be rescaled based on this size. By choosing a larger '
                    'size you can make the fonts in the output bigger and vice '
-                   'versa. By default, the base font size is chosen based on '
+                   'versa. By default, when the value is zero, the base font size is chosen based on '
                    'the output profile you chose.'
                    )
         ),
@@ -258,8 +266,8 @@ OptionRecommendation(name='level2_toc',
 OptionRecommendation(name='level3_toc',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('XPath expression that specifies all tags that should be '
-                'added to the Table of Contents at level three. Each entry '
-                'is added under the previous level two entry.'
+            'added to the Table of Contents at level three. Each entry '
+            'is added under the previous level two entry.'
             ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
@@ -289,8 +297,8 @@ OptionRecommendation(name='toc_threshold',
 OptionRecommendation(name='max_toc_links',
             recommended_value=50, level=OptionRecommendation.LOW,
             help=_('Maximum number of links to insert into the TOC. Set to 0 '
-               'to disable. Default is: %default. Links are only added to the '
-            'TOC if less than the threshold number of chapters were detected.'
+                'to disable. Default is: %default. Links are only added to the '
+                'TOC if less than the threshold number of chapters were detected.'
                 )
         ),
 
@@ -317,7 +325,7 @@ OptionRecommendation(name='chapter',
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
-                '"chapter","book","section", "prologue", "epilogue", or "part" as chapter titles as '
+                '"chapter", "book", "section", "prologue", "epilogue" or "part" as chapter titles as '
                 'well as any tags that have class="chapter". The expression '
                 'used must evaluate to a list of elements. To disable chapter '
                 'detection, use the expression "/". See the XPath Tutorial '
@@ -340,7 +348,7 @@ OptionRecommendation(name='chapter_mark',
 OptionRecommendation(name='start_reading_at',
         recommended_value=None, level=OptionRecommendation.LOW,
         help=_('An XPath expression to detect the location in the document'
-            ' at which to start reading. Some ebook reading programs'
+            ' at which to start reading. Some e-book reading programs'
             ' (most prominently the Kindle) use this location as the'
             ' position at which to open the book. See the XPath tutorial'
             ' in the calibre User Manual for further help using this'
@@ -375,7 +383,7 @@ OptionRecommendation(name='expand_css',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_(
                 'By default, calibre will use the shorthand form for various'
-                ' css properties such as margin, padding, border, etc. This'
+                ' CSS properties such as margin, padding, border, etc. This'
                 ' option will cause it to use the full expanded form instead.'
                 ' Note that CSS is always expanded when generating EPUB files'
                 ' with the output profile set to one of the Nook profiles'
@@ -405,28 +413,32 @@ OptionRecommendation(name='margin_top',
         help=_('Set the top margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the bottom margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the left margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the right margin in pts. Default is %default. '
             'Setting this to less than zero will cause no margin to be set '
             '(the margin setting in the original document will be preserved). '
-            'Note: 72 pts equals 1 inch')),
+            'Note: Page oriented formats such as PDF and DOCX have their own'
+            ' margin settings that take precedence.')),
 
 OptionRecommendation(name='change_justification',
         recommended_value='original', level=OptionRecommendation.LOW,
@@ -477,7 +489,7 @@ OptionRecommendation(name='insert_blank_line_size',
 
 OptionRecommendation(name='remove_first_image',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Remove the first image from the input ebook. Useful if the '
+        help=_('Remove the first image from the input e-book. Useful if the '
         'input document has a cover image that is not identified as a cover. '
         'In this case, if you set a cover in calibre, the output document will '
         'end up with two cover images if you do not specify this option.'
@@ -487,7 +499,7 @@ OptionRecommendation(name='remove_first_image',
 OptionRecommendation(name='insert_metadata',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Insert the book metadata at the start of '
-            'the book. This is useful if your ebook reader does not support '
+            'the book. This is useful if your e-book reader does not support '
             'displaying/searching metadata directly.'
             )
         ),
@@ -496,7 +508,7 @@ OptionRecommendation(name='smarten_punctuation',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Convert plain quotes, dashes and ellipsis to their '
             'typographically correct equivalents. For details, see '
-            'http://daringfireball.net/projects/smartypants'
+            'https://daringfireball.net/projects/smartypants'
             )
         ),
 
@@ -525,8 +537,8 @@ OptionRecommendation(name='asciiize',
             '(characters shared by Chinese and Japanese for instance) the '
             'representation based on the current calibre interface language will be '
             'used.')%
-            u'\u041c\u0438\u0445\u0430\u0438\u043b '
-            u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
+            '\u041c\u0438\u0445\u0430\u0438\u043b '
+            '\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
         ),
 
@@ -565,15 +577,15 @@ OptionRecommendation(name='cover',
 
 OptionRecommendation(name='comments',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook description.')),
+    help=_('Set the e-book description.')),
 
 OptionRecommendation(name='publisher',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the ebook publisher.')),
+    help=_('Set the e-book publisher.')),
 
 OptionRecommendation(name='series',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the series this ebook belongs to.')),
+    help=_('Set the series this e-book belongs to.')),
 
 OptionRecommendation(name='series_index',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -601,7 +613,7 @@ OptionRecommendation(name='language',
 
 OptionRecommendation(name='pubdate',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the publication date.')),
+    help=_('Set the publication date (assumed to be in the local timezone, unless the timezone is explicitly specified)')),
 
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -701,7 +713,7 @@ OptionRecommendation(name='search_replace',
         'Path to a file containing search and replace regular expressions. '
         'The file must contain alternating lines of regular expression '
         'followed by replacement pattern (which can be an empty line). '
-        'The regular expression must be in the python regex syntax and '
+        'The regular expression must be in the Python regex syntax and '
         'the file must be UTF-8 encoded.')),
 ]
         # }}}
@@ -713,6 +725,7 @@ OptionRecommendation(name='search_replace',
         if view_kepub and input_fmt.lower() == 'kepub':
             input_fmt = 'epub'
         self.archive_input_tdir = None
+        self.changed_options = set()
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_pl_arc')
@@ -784,7 +797,7 @@ OptionRecommendation(name='search_replace',
     def unarchive(self, path, tdir):
         extract(path, tdir)
         files = list(walk(tdir))
-        files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
+        files = [f if isinstance(f, unicode_type) else f.decode(filesystem_encoding)
                 for f in files]
         from calibre.customize.ui import available_input_formats
         fmts = set(available_input_formats())
@@ -808,15 +821,23 @@ OptionRecommendation(name='search_replace',
         html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
         html_files = [f for f in files if html_pat.search(f) is not None]
         if not html_files:
-            raise ValueError(_('Could not find an ebook inside the archive'))
+            raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
-        html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        html_files.sort(key=lambda x: x[1])
         html_files = [f[0] for f in html_files]
         for q in ('toc', 'index'):
             for f in html_files:
                 if os.path.splitext(os.path.basename(f))[0].lower() == q:
                     return f, os.path.splitext(f)[1].lower()[1:]
         return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
+
+    def get_all_options(self):
+        ans = {}
+        for group in (self.input_options, self.pipeline_options,
+                      self.output_options, self.all_format_options):
+            for rec in group:
+                ans[rec.option] = rec.recommended_value
+        return ans
 
     def get_option_by_name(self, name):
         for group in (self.input_options, self.pipeline_options,
@@ -829,7 +850,17 @@ OptionRecommendation(name='search_replace',
         rec = self.get_option_by_name(name)
         help = getattr(rec, 'help', None)
         if help is not None:
-            return help.replace('%default', str(rec.recommended_value))
+            return help.replace('%default', unicode_type(rec.recommended_value))
+
+    def get_all_help(self):
+        ans = {}
+        for group in (self.input_options, self.pipeline_options,
+                      self.output_options, self.all_format_options):
+            for rec in group:
+                help = getattr(rec, 'help', None)
+                if help is not None:
+                    ans[rec.option.name] = help
+        return ans
 
     def merge_plugin_recs(self, plugin):
         for name, val, level in plugin.recommendations:
@@ -848,11 +879,24 @@ OptionRecommendation(name='search_replace',
         level is >= the baseline recommended level, the UI value is used,
         *except* if the baseline has a recommendation level of `HIGH`.
         '''
+
+        def eq(name, a, b):
+            if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css', 'comments'}:
+                if not a and not b:
+                    return True
+            if name in {'transform_css_rules', 'search_replace'}:
+                if b == '[]':
+                    b = None
+            return a == b
+
         for name, val, level in recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
+                changed = not eq(name, rec.recommended_value, val)
                 rec.recommended_value = val
                 rec.level = level
+                if changed:
+                    self.changed_options.add(rec)
 
     def opts_to_mi(self, mi):
         from calibre.ebooks.metadata import string_to_authors
@@ -872,22 +916,21 @@ OptionRecommendation(name='search_replace',
                         continue
                 elif x in ('timestamp', 'pubdate'):
                     try:
-                        val = parse_date(val, assume_utc=x=='pubdate')
+                        val = parse_date(val, assume_utc=x=='timestamp')
                     except:
-                        self.log.exception(_('Failed to parse date/time') + ' ' +
-                                unicode(val))
+                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode_type(val))
                         continue
                 setattr(mi, x, val)
 
     def download_cover(self, url):
         from calibre import browser
         from PIL import Image
-        from cStringIO import StringIO
+        import io
         from calibre.ptempfile import PersistentTemporaryFile
         self.log('Downloading cover from %r'%url)
         br = browser()
         raw = br.open_novisit(url).read()
-        buf = StringIO(raw)
+        buf = io.BytesIO(raw)
         pt = PersistentTemporaryFile('.jpg')
         pt.close()
         img = Image.open(buf)
@@ -905,8 +948,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.read_metadata_from_opf is not None:
             self.opts.read_metadata_from_opf = os.path.abspath(
                                             self.opts.read_metadata_from_opf)
-            opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
-                      os.path.dirname(self.opts.read_metadata_from_opf))
+            with lopen(self.opts.read_metadata_from_opf, 'rb') as stream:
+                opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
         if mi.cover:
@@ -915,7 +958,8 @@ OptionRecommendation(name='search_replace',
             ext = mi.cover.rpartition('.')[-1].lower().strip()
             if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
-            mi.cover_data = (ext, open(mi.cover, 'rb').read())
+            with lopen(mi.cover, 'rb') as stream:
+                mi.cover_data = (ext, stream.read())
             mi.cover = None
         self.user_metadata = mi
 
@@ -951,6 +995,11 @@ OptionRecommendation(name='search_replace',
                 and self.output_fmt == 'mobi'
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
+        if self.changed_options:
+            self.log('Conversion options changed from defaults:')
+            for rec in self.changed_options:
+                if rec.option.name not in ('username', 'password'):
+                    self.log(' ', '%s:' % rec.option.name, repr(rec.recommended_value))
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
@@ -966,7 +1015,7 @@ OptionRecommendation(name='search_replace',
         try:
             sys.stdout.flush()
             sys.stderr.flush()
-        except:
+        except Exception:
             pass
 
     def dump_oeb(self, oeb, out_dir):
@@ -976,7 +1025,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, basestring):
+        if isinstance(ret, string_or_bytes):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1006,8 +1055,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
             from calibre.utils.fonts.scanner import font_scanner  # noqa
-        import cssutils, logging
-        cssutils.log.setLevel(logging.WARN)
+        import css_parser, logging
+        css_parser.log.setLevel(logging.WARN)
         get_types_map()  # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
@@ -1015,8 +1064,8 @@ OptionRecommendation(name='search_replace',
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
-            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
-                    'w').write(DEBUG_README.encode('utf-8'))
+            with lopen(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
+                f.write(DEBUG_README)
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
                 if os.path.exists(x):
@@ -1033,7 +1082,7 @@ OptionRecommendation(name='search_replace',
 
         tdir = PersistentTemporaryDirectory('_plumber')
         stream = self.input if self.input_fmt == 'recipe' else \
-                open(self.input, 'rb')
+                lopen(self.input, 'rb')
         if self.input_fmt == 'recipe':
             self.opts.original_recipe_input_arg = self.original_input_arg
 
@@ -1054,6 +1103,7 @@ OptionRecommendation(name='search_replace',
         self.input_plugin.report_progress = ir
         if self.for_regex_wizard:
             self.input_plugin.for_viewer = True
+        self.output_plugin.specialize_options(self.log, self.opts, self.input_fmt)
         with self.input_plugin:
             self.oeb = self.input_plugin(stream, self.opts,
                                         self.input_fmt, self.log,
@@ -1068,7 +1118,7 @@ OptionRecommendation(name='search_replace',
                 self.oeb = create_oebbook(
                     self.log, self.oeb, self.opts,
                     encoding=self.input_plugin.output_encoding,
-                    for_regex_wizard=self.for_regex_wizard)
+                    for_regex_wizard=self.for_regex_wizard, removed_items=getattr(self.input_plugin, 'removed_items_to_ignore', ()))
             if self.for_regex_wizard:
                 return
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
@@ -1082,7 +1132,7 @@ OptionRecommendation(name='search_replace',
             self.input_plugin.specialize(self.oeb, self.opts, self.log,
                     self.output_fmt)
 
-        pr(0., _('Running transforms on ebook...'))
+        pr(0., _('Running transforms on e-book...'))
 
         self.oeb.plumber_output_format = self.output_fmt or ''
 
@@ -1096,6 +1146,8 @@ OptionRecommendation(name='search_replace',
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
 
+        from calibre.ebooks.oeb.transforms.jacket import RemoveFirstImage
+        RemoveFirstImage()(self.oeb, self.opts, self.user_metadata)
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
         MergeMetadata()(self.oeb, self.user_metadata, self.opts,
                 override_input_metadata=self.override_input_metadata)
@@ -1107,7 +1159,7 @@ OptionRecommendation(name='search_replace',
         pr(0.35)
         self.flush()
 
-        if self.output_plugin.file_type != 'epub':
+        if self.output_plugin.file_type not in ('epub', 'kepub'):
             # Remove the toc reference to the html cover, if any, except for
             # epub, as the epub output plugin will do the right thing with it.
             item = getattr(self.oeb.toc, 'item_that_refers_to_cover', None)
@@ -1123,8 +1175,8 @@ OptionRecommendation(name='search_replace',
             fkey = self.opts.dest.fkey
         else:
             try:
-                fkey = map(float, fkey.split(','))
-            except:
+                fkey = list(map(float, fkey.split(',')))
+            except Exception:
                 self.log.error('Invalid font size key: %r ignoring'%fkey)
                 fkey = self.opts.dest.fkey
 
@@ -1139,7 +1191,8 @@ OptionRecommendation(name='search_replace',
             self.log('Structured HTML written to:', out_dir)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
-            self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
+            with open(self.opts.extra_css, 'rb') as f:
+                self.opts.extra_css = f.read()
 
         oibl = self.opts.insert_blank_line
         orps  = self.opts.remove_paragraph_spacing
@@ -1160,12 +1213,12 @@ OptionRecommendation(name='search_replace',
             UnsmartenPunctuation()(self.oeb, self.opts)
 
         mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
-        needs_old_markup = (self.output_plugin.file_type == 'lit' or
-                    (self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
+        needs_old_markup = (self.output_plugin.file_type == 'lit' or (
+            self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, basestring):
+            if isinstance(transform_css_rules, string_or_bytes):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
@@ -1227,15 +1280,19 @@ OptionRecommendation(name='search_replace',
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
 
+
 # This has to be global as create_oebbook can be called from other locations
 # (for example in the html input plugin)
 regex_wizard_callback = None
+
+
 def set_regex_wizard_callback(f):
     global regex_wizard_callback
     regex_wizard_callback = f
 
+
 def create_oebbook(log, path_or_stream, opts, reader=None,
-        encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None):
+        encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None, removed_items=()):
     '''
     Create an OEBBook.
     '''
@@ -1251,9 +1308,23 @@ def create_oebbook(log, path_or_stream, opts, reader=None,
         oeb = specialize(oeb) or oeb
     # Read OEB Book into OEBBook
     log('Parsing all content...')
+    oeb.removed_items_to_ignore = removed_items
     if reader is None:
         from calibre.ebooks.oeb.reader import OEBReader
         reader = OEBReader
 
     reader()(oeb, path_or_stream)
     return oeb
+
+
+def create_dummy_plumber(input_format, output_format):
+    from calibre.utils.logging import Log
+    input_format = input_format.lower()
+    output_format = output_format.lower()
+    output_path = 'dummy.'+output_format
+    log = Log()
+    log.outputs = []
+    input_file = 'dummy.'+input_format
+    if input_format in ARCHIVE_FMTS:
+        input_file = 'dummy.html'
+    return Plumber(input_file, output_path, log)

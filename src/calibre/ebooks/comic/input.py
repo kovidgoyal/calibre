@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -8,7 +9,6 @@ Based on ideas from comiclrf created by FangornUK.
 '''
 
 import os, traceback, time
-from Queue import Empty
 
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
@@ -16,17 +16,20 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
+from polyglot.builtins import unicode_type, map
+from polyglot.queue import Empty
 
 # If the specified screen has either dimension larger than this value, no image
 # rescaling is done (we assume that it is a tablet output profile)
 MAX_SCREEN_SIZE = 3000
+
 
 def extract_comic(path_to_comic_file):
     '''
     Un-archive the comic file.
     '''
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
-    if not isinstance(tdir, unicode):
+    if not isinstance(tdir, unicode_type):
         # Needed in case the zip file has wrongly encoded unicode file/dir
         # names
         tdir = tdir.decode(filesystem_encoding)
@@ -37,6 +40,7 @@ def extract_comic(path_to_comic_file):
         if nbn != bn:
             os.rename(x, os.path.join(os.path.dirname(x), nbn))
     return tdir
+
 
 def find_pages(dir, sort_on_mtime=False, verbose=False):
     '''
@@ -72,6 +76,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
         prints('\t'+'\n\t'.join([os.path.relpath(p, dir) for p in pages]))
     return pages
 
+
 class PageProcessor(list):  # {{{
 
     '''
@@ -101,10 +106,9 @@ class PageProcessor(list):  # {{{
             if self.opts.landscape:
                 self.rotate = True
             else:
-                split1, split2 = img.clone, img.clone
-                half = int(width/2)
-                split1 = crop_image(img, 0, 0, half - 1, height)
-                split2 = crop_image(img, half, 0, half-1, height)
+                half = width // 2
+                split1 = crop_image(img, 0, 0, half, height)
+                split2 = crop_image(img, half, 0, width - half, height)
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
         self.process_pages()
 
@@ -141,13 +145,13 @@ class PageProcessor(list):  # {{{
                 if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
                     newsizey = SCRHEIGHT
                     newsizex = int(newsizey * aspect)
-                    deltax = (SCRWIDTH - newsizex) / 2
+                    deltax = (SCRWIDTH - newsizex) // 2
                     deltay = 0
                 else:
                     newsizex = SCRWIDTH
-                    newsizey = int(newsizex / aspect)
+                    newsizey = int(newsizex // aspect)
                     deltax = 0
-                    deltay = (SCRHEIGHT - newsizey) / 2
+                    deltay = (SCRHEIGHT - newsizey) // 2
                 if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
                     # Too large and resizing fails, so better
                     # to leave it as original size
@@ -160,17 +164,17 @@ class PageProcessor(list):  # {{{
                 # Get dimensions of the landscape mode screen
                 # Add 25px back to height for the battery bar.
                 wscreenx = SCRHEIGHT + 25
-                wscreeny = int(wscreenx / screen_aspect)
+                wscreeny = int(wscreenx // screen_aspect)
                 if aspect <= screen_aspect:
                     newsizey = wscreeny
                     newsizex = int(newsizey * aspect)
-                    deltax = (wscreenx - newsizex) / 2
+                    deltax = (wscreenx - newsizex) // 2
                     deltay = 0
                 else:
                     newsizex = wscreenx
-                    newsizey = int(newsizex / aspect)
+                    newsizey = int(newsizex // aspect)
                     deltax = 0
-                    deltay = (wscreeny - newsizey) / 2
+                    deltay = (wscreeny - newsizey) // 2
                 if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
                     # Too large and resizing fails, so better
                     # to leave it as original size
@@ -197,6 +201,7 @@ class PageProcessor(list):  # {{{
                 f.write(image_to_data(img, fmt=self.opts.output_format))
             self.append(dest)
 # }}}
+
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     '''
@@ -229,6 +234,7 @@ class Progress(object):
         self.done += 1
         # msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done)/self.total, msg)
+
 
 def process_pages(pages, opts, update, tdir):
     '''
@@ -269,6 +275,3 @@ def process_pages(pages, opts, update, tdir):
         ans += pages
         failures += failures_
     return ans, failures
-
-
-

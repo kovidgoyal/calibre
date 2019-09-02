@@ -1,13 +1,19 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import bound_methods, hash_literals
+
+from uuid import short_uuid
 
 from ajax import ajax_send
+
 
 defaults = {
     # Book list settings
     'view_mode': 'cover_grid',
     'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
+    'last_sort_order': {},
+    'show_all_metadata': False, # show all metadata fields in the book details panel
+    'copy_to_library_dupes': 'add;overwrite',
 
     # Tag Browser settings
     'partition_method': 'first letter',  # other choices: 'disable', 'partition'
@@ -25,8 +31,32 @@ defaults = {
     'read_mode': 'paged',
     'max_text_height': 0,
     'max_text_width': 0,
-    'cols_per_screen': 1,
+    'columns_per_screen': {'portrait':0, 'landscape':0},
+    'user_stylesheet': '',
+    'current_color_scheme': 'white',
+    'user_color_schemes': {},
+    'base_font_size': 16,
+    'controls_help_shown_count': 0,
+    'header': {},
+    'footer': {'right': 'progress'},
+    'word_actions': v'[]',
 }
+
+is_local_setting = {
+    'margin_right': True,
+    'margin_left': True,
+    'margin_top': True,
+    'margin_bottom': True,
+    'read_mode': 'paged',
+    'max_text_height': True,
+    'max_text_width': True,
+    'columns_per_screen': True,
+    'user_stylesheet': True,
+    'current_color_scheme': True,
+    'base_font_size': True,
+    'controls_help_shown_count': True,
+}
+
 
 def storage_available(which):
     which = which or 'localStorage'
@@ -39,8 +69,6 @@ def storage_available(which):
     except:
         return False
 
-session_storage = None
-
 class FakeStorage:
 
     def __init__(self):
@@ -50,7 +78,7 @@ class FakeStorage:
         return self.data[key]
 
     def setItem(self, key, value):
-        if type(value) is not 'string':
+        if jstype(value) is not 'string':
             value = JSON.stringify(value)
         self.data[key] = value
 
@@ -58,17 +86,16 @@ class FakeStorage:
         self.data = {}
 
 def get_session_storage():
-    nonlocal session_storage
-    if session_storage is None:
+    if not get_session_storage.ans:
         if storage_available('localStorage'):
-            session_storage = window.localStorage
+            get_session_storage.ans = window.localStorage
         elif storage_available('sessionStorage'):
-            session_storage = window.sessionStorage
+            get_session_storage.ans = window.sessionStorage
             console.error('localStorage not available using sessionStorage instead')
         else:
-            session_storage = FakeStorage()
+            get_session_storage.ans = FakeStorage()
             console.error('sessionStorage and localStorage not available using a temp cache instead')
-    return session_storage
+    return get_session_storage.ans
 
 class SessionData:
 
@@ -114,12 +141,75 @@ class SessionData:
         self.overflow_storage = {}
         self.has_overflow = False
 
-_local_storage = None
+
 def local_storage():
-    nonlocal _local_storage
-    if not _local_storage:
-        _local_storage = SessionData('calibre-local-')
-    return _local_storage
+    if not local_storage.storage:
+        local_storage.storage = SessionData('calibre-local-')
+    return local_storage.storage
+
+
+def get_device_uuid():
+    if not get_device_uuid.ans:
+        s = local_storage()
+        ans = s.get('device_uuid')
+        if not ans:
+            ans = short_uuid()
+            s.set('device_uuid', ans)
+        get_device_uuid.ans = ans
+    return get_device_uuid.ans
+
+
+default_interface_data = {
+    'username': None,
+    'output_format': 'EPUB',
+    'input_formats': {'EPUB', 'MOBI', 'AZW3'},
+    'gui_pubdate_display_format': 'MMM yyyy',
+    'gui_timestamp_display_format': 'dd MMM yyyy',
+    'gui_last_modified_display_format': 'dd MMM yyyy',
+    'use_roman_numerals_for_series_number': True,
+    'default_library_id': None,
+    'default_book_list_mode': defaults.view_mode,
+    'library_map': None,
+    'search_the_net_urls': [],
+    'donate_link': 'https://calibre-ebook.com/donate',
+    'icon_map': {},
+    'icon_path': '',
+    'custom_list_template': None,
+    'num_per_page': 50,
+}
+
+def get_interface_data():
+    if not get_interface_data.storage:
+        get_interface_data.storage = SessionData('calibre-interface-data-')
+    ans = get_interface_data.storage.get('current')
+    if ans:
+        ans.is_default = False
+    else:
+        ans = {'is_default': True}
+        for k in default_interface_data:
+            ans[k] = default_interface_data[k]
+    return ans
+
+
+def update_interface_data(new_data):
+    data = get_interface_data()
+    for k in default_interface_data:
+        nval = new_data[k]
+        if k is not undefined:
+            data[k] = nval
+    if not get_interface_data.storage:
+        get_interface_data.storage = SessionData('calibre-interface-data-')
+    get_interface_data.storage.set('current', data)
+
+
+def get_translations(newval):
+    if not get_translations.storage:
+        get_translations.storage = SessionData('calibre-translations-')
+    if newval?:
+        get_translations.storage.set('current', newval)
+    else:
+        return get_translations.storage.get('current')
+
 
 class UserSessionData(SessionData):
 
@@ -134,7 +224,8 @@ class UserSessionData(SessionData):
         self.push_timer_id = None
         if saved_data:
             for key in saved_data:
-                self.set(key, saved_data[key])
+                if not is_local_setting[key]:
+                    self.set(key, saved_data[key])
         self.echo_changes = True
 
     def defval(self, key):
@@ -154,7 +245,7 @@ class UserSessionData(SessionData):
         return self.get(lkey, defval)
 
     def set(self, key, value):
-        if self.echo_changes and self.has_user:
+        if self.echo_changes and self.has_user and not is_local_setting[key]:
             self.changes[key] = value
             self.has_changes = True
             if self.push_timer_id is not None:

@@ -6,14 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, re
+import json, re, numbers
 from functools import partial
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
+from polyglot.builtins import unicode_type, string_or_bytes
+
 
 class CustomColumns(object):
 
@@ -25,9 +27,9 @@ class CustomColumns(object):
 
     @property
     def custom_tables(self):
-        return set([x[0] for x in self.conn.get(
+        return {x[0] for x in self.conn.get(
             'SELECT name FROM sqlite_master WHERE type="table" AND '
-            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')])
+            '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')}
 
     def __init__(self):
         # Verify that CUSTOM_DATA_TYPES is a (possibly improper) subset of
@@ -69,11 +71,11 @@ class CustomColumns(object):
                     'label':record[0],
                     'name':record[1],
                     'datatype':record[2],
-                    'editable':record[3],
+                    'editable':bool(record[3]),
                     'display':json.loads(record[4]),
-                    'normalized':record[5],
+                    'normalized':bool(record[5]),
                     'num':record[6],
-                    'is_multiple':record[7],
+                    'is_multiple':bool(record[7]),
                     }
             if data['display'] is None:
                 data['display'] = {}
@@ -129,23 +131,25 @@ class CustomColumns(object):
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, unicode, bytes)):
+                if isinstance(x, (unicode_type, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode) else y for y in x]
+                    unicode_type) else y for y in x]
                 return [u' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode) else \
+                return x if x is None or isinstance(x, unicode_type) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 x = x.lower()
                 if x == 'true':
                     x = True
@@ -166,7 +170,9 @@ class CustomColumns(object):
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 if x.lower() == 'none':
                     return None
             if d['datatype'] == 'int':
@@ -210,7 +216,12 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x:x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -237,7 +248,12 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x: x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         if data['datatype'] != 'series':
             return (ans, None)
         ign,lt = self.custom_table_names(data['num'])
@@ -340,7 +356,7 @@ class CustomColumns(object):
         series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
                                                         (series,), all=False)
         if series_id is None:
-            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
         series_indices = self.conn.get('''
@@ -360,7 +376,7 @@ class CustomColumns(object):
             ans = self.conn.get('SELECT value FROM %s'%table)
         else:
             ans = self.conn.get('SELECT DISTINCT value FROM %s'%table)
-        ans = set([x[0] for x in ans])
+        ans = {x[0] for x in ans}
         return ans
 
     def delete_custom_column(self, label=None, num=None):
@@ -508,7 +524,7 @@ class CustomColumns(object):
         rv = self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra,
                          allow_case_change=allow_case_change)
-        self.dirtied(set([id])|rv, commit=False)
+        self.dirtied({id}|rv, commit=False)
         if commit:
             self.conn.commit()
         return rv
@@ -589,7 +605,7 @@ class CustomColumns(object):
                 if case_change:
                     bks = self.conn.get('SELECT book FROM %s WHERE value=?'%lt,
                                         (xid,))
-                    books_to_refresh |= set([bk[0] for bk in bks])
+                    books_to_refresh |= {bk[0] for bk in bks}
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
@@ -656,7 +672,7 @@ class CustomColumns(object):
             editable=True, display={}):
         if not label:
             raise ValueError(_('No label was provided'))
-        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+        if re.match('^\\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
@@ -808,5 +824,3 @@ class CustomColumns(object):
         self.conn.executescript(script)
         self.conn.commit()
         return num
-
-

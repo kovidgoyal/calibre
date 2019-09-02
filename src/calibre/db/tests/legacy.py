@@ -1,20 +1,23 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import inspect, time
+import inspect, time, numbers
 from io import BytesIO
-from repr import repr
 from functools import partial
 from operator import itemgetter
 
+from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
+from polyglot.builtins import iteritems, range, zip
+from polyglot import reprlib
 
 # Utils {{{
+
+
 class ET(object):
 
     def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
@@ -28,18 +31,26 @@ class ET(object):
         oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
         newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
         test.assertEqual(oldres, newres, 'Equivalence test for %s with args: %s and kwargs: %s failed' % (
-            self.func_name, repr(self.args), repr(self.kwargs)))
+            self.func_name, reprlib.repr(self.args), reprlib.repr(self.kwargs)))
         self.retval = newres
         return newres
+
+
+def get_defaults(spec):
+    num = len(spec.defaults or ())
+    if not num:
+        return {}
+    return dict(zip(spec.args[-num:], spec.defaults))
+
 
 def compare_argspecs(old, new, attr):
     # We dont compare the names of the non-keyword arguments as they are often
     # different and they dont affect the usage of the API.
-    num = len(old.defaults or ())
 
-    ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
+    ok = len(old.args) == len(new.args) and get_defaults(old) == get_defaults(new)
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
+
 
 def run_funcs(self, db, ndb, funcs):
     for func in funcs:
@@ -61,6 +72,7 @@ def run_funcs(self, db, ndb, funcs):
             self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
 # }}}
 
+
 class LegacyTest(BaseTest):
 
     ''' Test the emulation of the legacy interface. '''
@@ -74,16 +86,17 @@ class LegacyTest(BaseTest):
                 # We ignore the key rec_index, since it is not stable for
                 # custom columns (it is created by iterating over a dict)
                 return {k.decode('utf-8') if isinstance(k, bytes) else k:to_unicode(v)
-                        for k, v in x.iteritems() if k != 'rec_index'}
+                        for k, v in iteritems(x) if k != 'rec_index'}
             return x
 
         def get_props(db):
-            props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
+            props = ('user_version', 'is_second_db', 'library_id',
                     'custom_column_label_map', 'custom_column_num_map', 'library_path', 'dbpath')
             fprops = ('last_modified', )
             ans = {x:getattr(db, x) for x in props}
             ans.update({x:getattr(db, x)() for x in fprops})
             ans['all_ids'] = frozenset(db.all_ids())
+            ans['field_metadata'] = fm_as_dict(db.field_metadata)
             return to_unicode(ans)
 
         old = self.init_old()
@@ -100,8 +113,8 @@ class LegacyTest(BaseTest):
         'Test the get_property interface for reading data'
         def get_values(db):
             ans = {}
-            for label, loc in db.FIELD_MAP.iteritems():
-                if isinstance(label, int):
+            for label, loc in iteritems(db.FIELD_MAP):
+                if isinstance(label, numbers.Integral):
                     label = '#'+db.custom_column_num_map[label]['label']
                 label = type('')(label)
                 ans[label] = tuple(db.get_property(i, index_is_id=True, loc=loc)
@@ -116,18 +129,18 @@ class LegacyTest(BaseTest):
                     ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
                 if label == 'series_sort':
                     # The old db code did not take book language into account
-                    # when generating series_sort values (the first book has
-                    # lang=deu)
-                    ans[label] = ans[label][1:]
+                    # when generating series_sort values
+                    ans[label] = None
             return ans
+
+        db = self.init_legacy()
+        new_vals = get_values(db)
+        db.close()
 
         old = self.init_old()
         old_vals = get_values(old)
         old.close()
         old = None
-        db = self.init_legacy()
-        new_vals = get_values(db)
-        db.close()
         self.assertEqual(old_vals, new_vals)
 
     # }}}
@@ -139,7 +152,7 @@ class LegacyTest(BaseTest):
         # Ensure that the following change will actually update the timestamp
         # on filesystems with one second resolution (OS X)
         time.sleep(1)
-        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), set([1]))
+        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), {1})
         db2.close()
         del db2
         self.assertNotEqual(db.title(1, index_is_id=True), 'xxx')
@@ -155,11 +168,11 @@ class LegacyTest(BaseTest):
                    'comment', 'publisher', 'rating', 'series_index', 'tags',
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
                    'metadata_last_modified', 'languages')
-        oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
+        oldvals = {g:tuple(getattr(old, g)(x) for x in range(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
         old_rows = {tuple(r)[:5] for r in old}
         old.close()
         db = self.init_legacy()
-        newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
+        newvals = {g:tuple(getattr(db, g)(x) for x in range(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
         new_rows = {tuple(r)[:5] for r in db}
         for x in (oldvals, newvals):
             x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
@@ -178,7 +191,7 @@ class LegacyTest(BaseTest):
 
         self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
-        for meth, args in {
+        for meth, args in iteritems({
             'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
             'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
@@ -243,7 +256,7 @@ class LegacyTest(BaseTest):
             'book_on_device_string':[(1,), (2,), (3,)],
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
-        }.iteritems():
+        }):
             fmt = lambda x: x
             if meth[0] in {'!', '@'}:
                 fmt = {'!':dict, '@':frozenset}[meth[0]]
@@ -253,6 +266,7 @@ class LegacyTest(BaseTest):
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
+
         def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
             x.discard('metadata_db_prefs_backup.json')
             return x, y
@@ -268,8 +282,8 @@ class LegacyTest(BaseTest):
         old = db.get_data_as_dict(prefix='test-prefix')
         new = ndb.get_data_as_dict(prefix='test-prefix')
         for o, n in zip(old, new):
-            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in o.iteritems()}
-            n = {k:set(v) if isinstance(v, list) else v for k, v in n.iteritems()}
+            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
+            n = {k:set(v) if isinstance(v, list) else v for k, v in iteritems(n)}
             self.assertEqual(o, n)
 
         ndb.search('title:Unknown')
@@ -283,9 +297,15 @@ class LegacyTest(BaseTest):
     def test_legacy_conversion_options(self):  # {{{
         'Test conversion options API'
         ndb = self.init_legacy()
-        db = self.init_old()
+        db  = self.init_old()
         all_ids = ndb.new_api.all_book_ids()
-        op1 = {'xx':'yy'}
+        op1 = {'xx': 'yy'}
+
+        def decode(x):
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            return x
+
         for x in (
             ('has_conversion_options', all_ids),
             ('conversion_options', 1, 'PIPE'),
@@ -296,8 +316,10 @@ class LegacyTest(BaseTest):
             ('has_conversion_options', all_ids),
         ):
             meth, args = x[0], x[1:]
-            self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
-                                 'The method: %s() returned different results for argument %s' % (meth, args))
+            self.assertEqual(
+                decode(getattr(db, meth)(*args)), decode(getattr(ndb, meth)(*args)),
+                'The method: %s() returned different results for argument %s' % (meth, args)
+            )
         db.close()
     # }}}
 
@@ -307,9 +329,9 @@ class LegacyTest(BaseTest):
         db = self.init_old()
         cache = ndb.new_api
         tmap = cache.get_id_map('tags')
-        t = next(tmap.iterkeys())
+        t = next(iter(tmap))
         pmap = cache.get_id_map('publisher')
-        p = next(pmap.iterkeys())
+        p = next(iter(pmap))
         run_funcs(self, db, ndb, (
             ('delete_tag_using_id', t),
             ('delete_publisher_using_id', p),
@@ -450,7 +472,7 @@ class LegacyTest(BaseTest):
                     try:
                         argspec = inspect.getargspec(obj)
                         nargspec = inspect.getargspec(nobj)
-                    except TypeError:
+                    except (TypeError, ValueError):
                         pass
                     else:
                         compare_argspecs(argspec, nargspec, attr)
@@ -638,10 +660,10 @@ class LegacyTest(BaseTest):
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
-        a = {v:k for k, v in ndb.new_api.get_id_map('authors').iteritems()}['Author One']
-        t = {v:k for k, v in ndb.new_api.get_id_map('tags').iteritems()}['Tag One']
-        s = {v:k for k, v in ndb.new_api.get_id_map('series').iteritems()}['A Series One']
-        p = {v:k for k, v in ndb.new_api.get_id_map('publisher').iteritems()}['Publisher One']
+        a = {v:k for k, v in iteritems(ndb.new_api.get_id_map('authors'))}['Author One']
+        t = {v:k for k, v in iteritems(ndb.new_api.get_id_map('tags'))}['Tag One']
+        s = {v:k for k, v in iteritems(ndb.new_api.get_id_map('series'))}['A Series One']
+        p = {v:k for k, v in iteritems(ndb.new_api.get_id_map('publisher'))}['Publisher One']
         run_funcs(self, db, ndb, (
             ('rename_author', a, 'Author Two'),
             ('rename_tag', t, 'News'),
@@ -679,11 +701,11 @@ class LegacyTest(BaseTest):
                 run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
 
         # Test renaming/deleting
-        t = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag One']
-        t2 = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag Two']
-        a = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['My Author Two']
-        a2 = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['Custom One']
-        s = {v:k for k, v in ndb.new_api.get_id_map('#series').iteritems()}['My Series One']
+        t = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag One']
+        t2 = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag Two']
+        a = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#authors'))}['My Author Two']
+        a2 = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#authors'))}['Custom One']
+        s = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#series'))}['My Series One']
         run_funcs(self, db, ndb, (
             ('delete_custom_item_using_id', t, 'tags'),
             ('delete_custom_item_using_id', a, 'authors'),
@@ -769,20 +791,6 @@ class LegacyTest(BaseTest):
         ndb.set_custom(1, 'TS [9]', label='series')
         self.assertEqual(ndb.new_api.field_for('#series', 1), 'TS')
         self.assertEqual(ndb.new_api.field_for('#series_index', 1), 9)
-    # }}}
-
-    def test_legacy_original_fmt(self):  # {{{
-        db, ndb = self.init_old(), self.init_legacy()
-        run_funcs(self, db, ndb, (
-            ('original_fmt', 1, 'FMT1'),
-            ('save_original_format', 1, 'FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('restore_original_format', 1, 'ORIGINAL_FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('%formats', 1, True),
-        ))
-        db.close()
-
     # }}}
 
     def test_legacy_saved_search(self):  # {{{

@@ -9,6 +9,13 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class VedomostiRecipe(BasicNewsRecipe):
     title = u'Ведомости'
     __author__ = 'Nikolai Kotchetkov'
@@ -62,16 +69,22 @@ class VedomostiRecipe(BasicNewsRecipe):
             if not feedData:
                 raise NotImplementedError
             self.log("parse_index: Feed loaded successfully.")
-            if feedData.feed.has_key('title'):  # noqa
-                self.title = feedData.feed.title
-                self.log("parse_index: Title updated to: ", self.title)
-            if feedData.feed.has_key('description'):  # noqa
-                self.description = feedData.feed.description
-                self.log("parse_index: Description updated to: ",
-                         self.description)
+            try:
+                if feedData.feed.title:
+                    self.title = feedData.feed.title
+                    self.log("parse_index: Title updated to: ", self.title)
+            except Exception:
+                pass
+            try:
+                if feedData.feed.description:
+                    self.description = feedData.feed.description
+                    self.log("parse_index: Description updated to: ",
+                            self.description)
+            except Exception:
+                pass
 
             def get_virtual_feed_articles(feed):
-                if feeds.has_key(feed):  # noqa
+                if feed in feeds:
                     return feeds[feed][1]
                 self.log("Adding new feed: ", feed)
                 articles = []
@@ -88,7 +101,7 @@ class VedomostiRecipe(BasicNewsRecipe):
                     continue
                 article = {'title': title, 'url': link, 'description': item.get(
                     'description', ''), 'date': item.get('date', ''), 'content': ''}
-                if not item.has_key('tags'):  # noqa
+                if not item.get('tags'):  # noqa
                     get_virtual_feed_articles('_default').append(article)
                     continue
                 for tag in item.tags:
@@ -105,7 +118,7 @@ class VedomostiRecipe(BasicNewsRecipe):
             # Select sorted feeds first of all
             result = []
             for feedName in self.sortOrder:
-                if (not feeds.has_key(feedName)):  # noqa
+                if (not feeds.get(feedName)):
                     continue
                 result.append(feeds[feedName])
                 del feeds[feedName]
@@ -113,7 +126,7 @@ class VedomostiRecipe(BasicNewsRecipe):
 
             return result
 
-        except Exception, err:
+        except Exception as err:
             self.log(err)
             raise NotImplementedError
 
@@ -139,12 +152,12 @@ class VedomostiRecipe(BasicNewsRecipe):
         if newstop:
             img = newstop.find('img')
             if img:
-                imgDiv = Tag(soup, 'div')
+                imgDiv = new_tag(soup, 'div')
                 imgDiv['class'] = 'article_img'
 
-                if img.has_key('width'):  # noqa
+                if img.get('width'):
                     del(img['width'])
-                if img.has_key('height'):  # noqa
+                if img.get('height'):
                     del(img['height'])
 
                 # find description
@@ -180,11 +193,9 @@ class VedomostiRecipe(BasicNewsRecipe):
                 contents.insert(len(contents.contents), authorsP)
 
         # Fix urls that use relative path
-        urls = contents.findAll('a')
+        urls = contents.findAll('a', href=True)
         if urls:
             for url in urls:
-                if not url.has_key('href'):  # noqa
-                    continue
                 if '/' == url['href'][0]:
                     url['href'] = self.base_url + url['href']
 

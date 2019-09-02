@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +10,7 @@ import os
 
 from calibre.devices.usbms.driver import USBMS
 from calibre import fsync
+
 
 class PALMPRE(USBMS):
 
@@ -51,6 +52,7 @@ class AVANT(USBMS):
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
+
 
 class SWEEX(USBMS):
     # Identical to the Promedia
@@ -101,6 +103,7 @@ class PDNOVEL(USBMS):
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 
+
 class PDNOVEL_KOBO(PDNOVEL):
     name = 'Pandigital Kobo device interface'
     gui_name = 'PD Novel (Kobo)'
@@ -139,6 +142,7 @@ class VELOCITYMICRO(USBMS):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
 
+
 class GEMEI(USBMS):
     name           = 'Gemei Device Interface'
     gui_name       = 'GM2000'
@@ -158,6 +162,7 @@ class GEMEI(USBMS):
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
+
 
 class LUMIREAD(USBMS):
     name           = 'Acer Lumiread Device Interface'
@@ -193,6 +198,7 @@ class LUMIREAD(USBMS):
                 f.write(metadata.thumbnail[-1])
                 fsync(f)
 
+
 class ALURATEK_COLOR(USBMS):
 
     name           = 'Aluratek Color Device Interface'
@@ -215,6 +221,7 @@ class ALURATEK_COLOR(USBMS):
     SCAN_FROM_ROOT = True
     SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
+
 class TREKSTOR(USBMS):
 
     name           = 'Trekstor E-book player device interface'
@@ -231,9 +238,9 @@ class TREKSTOR(USBMS):
             0x0067,  # This is for the Pyrus Mini
             0x006f,  # This is for the Pyrus Maxi
             0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x05cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
-            0x006c,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=218273
-            0x006d,  # Another Pyrus? http://www.mobileread.com/forums/showthread.php?t=231982
+            0x05c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
+            0x006c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=218273
+            0x006d,  # Another Pyrus? https://www.mobileread.com/forums/showthread.php?t=231982
             0x73,    # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018
             ]
     BCD         = [0x0002, 0x100, 0x0222, 0x2]
@@ -245,6 +252,7 @@ class TREKSTOR(USBMS):
             'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI', 'PYRUS_2_LED']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
+
 
 class EEEREADER(USBMS):
 
@@ -265,6 +273,7 @@ class EEEREADER(USBMS):
 
     VENDOR_NAME = ['LINUX', 'ASUS']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'EEE_NOTE']
+
 
 class ADAM(USBMS):
 
@@ -287,6 +296,7 @@ class ADAM(USBMS):
     VENDOR_NAME = 'NI'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['ADAM']
     SUPPORTS_SUB_DIRS = True
+
 
 class NEXTBOOK(USBMS):
 
@@ -341,6 +351,7 @@ class NEXTBOOK(USBMS):
                 fsync(f)
     '''
 
+
 class MOOVYBOOK(USBMS):
 
     name           = 'Moovybook device interface'
@@ -362,6 +373,7 @@ class MOOVYBOOK(USBMS):
 
     def get_main_ebook_dir(self, for_upload=False):
         return 'Books' if for_upload else self.EBOOK_DIR_MAIN
+
 
 class COBY(USBMS):
 
@@ -389,6 +401,7 @@ class COBY(USBMS):
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
 
+
 class EX124G(USBMS):
 
     name = 'Motorola Ex124G device interface'
@@ -415,6 +428,7 @@ class EX124G(USBMS):
         if for_upload:
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
+
 
 class WAYTEQ(USBMS):
 
@@ -506,6 +520,7 @@ class WOXTER(USBMS):
     VENDOR_NAME = ['ROCKCHIP', 'TEXET']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EREADER', 'TB-146SE']
 
+
 class POCKETBOOK626(USBMS):
 
     name  = 'PocketBook Touch Lux 2'
@@ -525,6 +540,7 @@ class POCKETBOOK626(USBMS):
 
     VENDOR_NAME = ['USB_2.0']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER']
+
 
 class SONYDPTS1(USBMS):
 
@@ -547,6 +563,7 @@ class SONYDPTS1(USBMS):
     WINDOWS_MAIN_MEM = ['DPT-S1']
     WINDOWS_CARD_A_MEM = ['DPT-S1__SD']
 
+
 class CERVANTES(USBMS):
 
     name = 'Bq Cervantes Device Interface'
@@ -556,11 +573,9 @@ class CERVANTES(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
     VENDOR_ID   = [0x2a47]
-    PRODUCT_ID  = [0xad78, 0xad77, 0xad75]
+    PRODUCT_ID  = [0xad79, 0xad78, 0xad77, 0xad75]
     BCD         = [0x0110]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
     SUPPORTS_SUB_DIRS = True
-
-

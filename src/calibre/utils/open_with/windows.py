@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, struct, ctypes
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 
 from PyQt5.Qt import QtWin, Qt, QIcon, QByteArray, QBuffer, QPixmap
 import win32con, win32api, win32gui, pywintypes, winerror
@@ -16,11 +15,14 @@ import win32con, win32api, win32gui, pywintypes, winerror
 from calibre import prints
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
+from polyglot.builtins import filter
 
 ICON_SIZE = 64
 
+
 def hicon_to_pixmap(hicon):
     return QtWin.fromHICON(hicon)
+
 
 def pixmap_to_data(pixmap):
     ba = QByteArray()
@@ -29,10 +31,12 @@ def pixmap_to_data(pixmap):
     pixmap.save(buf, 'PNG')
     return bytearray(ba.data())
 
+
 def copy_to_size(pixmap, size=ICON_SIZE):
     if pixmap.width() > ICON_SIZE:
         return pixmap.scaled(ICON_SIZE, ICON_SIZE, transformMode=Qt.SmoothTransformation)
     return pixmap.copy()
+
 
 def simple_load_icon(module, index, as_data=False, size=ICON_SIZE):
     ' Use the win32 API ExtractIcon to load the icon. This restricts icon size to 32x32, but has less chance of failing '
@@ -104,6 +108,7 @@ def load_icon(module, index, as_data=False, size=ICON_SIZE):
         return pixmap
     finally:
         win32api.FreeLibrary(handle)
+
 
 def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
     if not icon_resource:

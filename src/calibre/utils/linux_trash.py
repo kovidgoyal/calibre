@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 # Copyright 2010 Hardcoded Software (http://www.hardcoded.net)
 
@@ -22,7 +21,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, stat
 import os.path as op
 from datetime import datetime
-from urllib import quote
+
+from polyglot.builtins import unicode_type
+from polyglot.urllib import quote
 
 FILES_DIR = 'files'
 INFO_DIR = 'info'
@@ -36,18 +37,22 @@ uid = os.getuid()
 TOPDIR_TRASH = '.Trash'
 TOPDIR_FALLBACK = '.Trash-%s'%uid
 
+
 def uniquote(raw):
-    if isinstance(raw, unicode):
+    if isinstance(raw, unicode_type):
         raw = raw.encode('utf-8')
-    return quote(raw).decode('utf-8')
+    return unicode_type(quote(raw))
+
 
 def is_parent(parent, path):
     path = op.realpath(path)  # In case it's a symlink
     parent = op.realpath(parent)
     return path.startswith(parent)
 
+
 def format_date(date):
     return date.strftime("%Y-%m-%dT%H:%M:%S")
+
 
 def info_for(src, topdir):
     # ...it MUST not include a ".."" directory, and for files not "under" that
@@ -62,10 +67,12 @@ def info_for(src, topdir):
     info += "DeletionDate=" + format_date(datetime.now()) + "\n"
     return info
 
+
 def check_create(dir):
     # use 0700 for paths [3]
     if not op.exists(dir):
         os.makedirs(dir, 0o700)
+
 
 def trash_move(src, dst, topdir=None):
     filename = op.basename(src)
@@ -84,7 +91,11 @@ def trash_move(src, dst, topdir=None):
 
     os.rename(src, op.join(filespath, destname))
     with open(op.join(infopath, destname + INFO_SUFFIX), 'wb') as f:
-        f.write(info_for(src, topdir))
+        data = info_for(src, topdir)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        f.write(data)
+
 
 def find_mount_point(path):
     # Even if something's wrong, "/" is a mount point, so the loop will exit.
@@ -93,6 +104,7 @@ def find_mount_point(path):
     while not op.ismount(path):
         path = op.split(path)[0]
     return path
+
 
 def find_ext_volume_global_trash(volume_root):
     # from [2] Trash directories (1) check for a .Trash dir with the right
@@ -107,12 +119,13 @@ def find_ext_volume_global_trash(volume_root):
     if not op.isdir(trash_dir) or op.islink(trash_dir) or not (mode & stat.S_ISVTX):
         return None
 
-    trash_dir = op.join(trash_dir, str(uid))
+    trash_dir = op.join(trash_dir, unicode_type(uid))
     try:
         check_create(trash_dir)
     except OSError:
         return None
     return trash_dir
+
 
 def find_ext_volume_fallback_trash(volume_root):
     # from [2] Trash directories (1) create a .Trash-$uid dir.
@@ -122,6 +135,7 @@ def find_ext_volume_fallback_trash(volume_root):
     check_create(trash_dir)
     return trash_dir
 
+
 def find_ext_volume_trash(volume_root):
     trash_dir = find_ext_volume_global_trash(volume_root)
     if trash_dir is None:
@@ -129,8 +143,11 @@ def find_ext_volume_trash(volume_root):
     return trash_dir
 
 # Pull this out so it's easy to stub (to avoid stubbing lstat itself)
+
+
 def get_dev(path):
     return os.lstat(path).st_dev
+
 
 def send2trash(path):
     if not op.exists(path):

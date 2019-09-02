@@ -3,6 +3,20 @@ scmp.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class SCMP(BasicNewsRecipe):
@@ -15,13 +29,19 @@ class SCMP(BasicNewsRecipe):
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf-8'
-    auto_cleanup = True
     use_embedded_content = False
     language = 'en_CN'
     remove_empty_feeds = True
     needs_subscription = 'optional'
     publication_type = 'newspaper'
-    masthead_url = 'http://www.scmp.com/images/logo_scmp_home.gif'
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('info__subHeadline article-author main__right'),
+    ]
+    remove_tags = [
+        dict(name='button')
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -37,11 +57,29 @@ class SCMP(BasicNewsRecipe):
         return br
 
     feeds = [
-        (u'Business', u'http://www.scmp.com/rss/business.xml'),
-        (u'Hong Kong', u'http://www.scmp.com/rss/hong_kong.xml'),
-        (u'China', u'http://www.scmp.com/rss/china.xml'),
-        (u'Asia & World', u'http://www.scmp.com/rss/news_asia_world.xml'),
-        (u'Opinion', u'http://www.scmp.com/rss/opinion.xml'),
-        (u'LifeSTYLE', u'http://www.scmp.com/rss/lifestyle.xml'),
-        (u'Sport', u'http://www.scmp.com/rss/sport.xml')
+        ('Hong Kong', 'https://www.scmp.com/rss/2/feed'),
+        ('China', 'https://www.scmp.com/rss/4/feed'),
+        ('Asia', 'https://www.scmp.com/rss/3/feed'),
+        ('World', 'https://www.scmp.com/rss/5/feed'),
+        ('Business', 'https://www.scmp.com/rss/92/feed'),
+        ('Tech', 'https://www.scmp.com/rss/36/feed'),
+        ('Life', 'https://www.scmp.com/rss/94/feed'),
+        ('Culture', 'https://www.scmp.com/rss/322296/feed'),
+        ('Sport', 'https://www.scmp.com/rss/95/feed'),
+        ('Post Mag', 'https://www.scmp.com/rss/71/feed'),
+        ('Style', 'https://www.scmp.com/rss/72/feed'),
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll("img", attrs={'data-original':True}):
+            img['src'] = img['data-original']
+        meta = soup.find('meta', attrs={'name':'twitter:image:src'}, content=True)
+        if meta is not None:
+            wrapper = soup.find(**classes('image-wrapper__placeholder'))
+            if wrapper is not None:
+                p = wrapper.parent
+                img = new_tag(soup, 'img')
+                img['src'] = meta['content']
+                p.append(img)
+                wrapper.extract()
+        return soup

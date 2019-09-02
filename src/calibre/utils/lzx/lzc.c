@@ -18,7 +18,7 @@
 #define LZ_ONEBUFFER 1
 #define LAZY 1
 
-/* 
+/*
  * Document here
  */
 #include <stdio.h>
@@ -41,7 +41,7 @@ void lz_init(lz_info *lzi, int wsize, int max_dist,
 	     output_match_t output_match,
 	     output_literal_t output_literal, void *user_data)
 {
-  /* the reason for the separate max_dist value is LZX can't reach the 
+  /* the reason for the separate max_dist value is LZX can't reach the
      first three characters in its nominal window.  But using a smaller
      window results in inefficiency when dealing with reset intervals
      which are the length of the nominal window */
@@ -55,12 +55,12 @@ void lz_init(lz_info *lzi, int wsize, int max_dist,
   lzi->min_match = min_match;
   if (lzi->min_match < 3) lzi->min_match = 3;
 
-  lzi->max_dist = max_dist; 
-  lzi->block_buf_size = wsize + lzi->max_dist; 
+  lzi->max_dist = max_dist;
+  lzi->block_buf_size = wsize + lzi->max_dist;
   lzi->block_buf = malloc(lzi->block_buf_size);
   lzi->block_bufe = lzi->block_buf + lzi->block_buf_size;
   assert(lzi->block_buf != NULL);
-  
+
   lzi->cur_loc = 0;
   lzi->block_loc = 0;
   lzi->chars_in_buf = 0;
@@ -109,7 +109,7 @@ int tmp_output_match(lz_info *lzi, int match_pos, int match_len)
 {
   lz_user_data *lzud = (lz_user_data *)lzi->user_data;
   int mod_match_loc;
-  
+
   mod_match_loc = match_pos;
 
   fprintf(lzud->outfile, "(%d, %d)(%d)\n", match_pos, match_len, mod_match_loc);
@@ -275,18 +275,18 @@ static void lz_analyze_block(lz_info *lzi)
 #endif
 }
 
-void lz_stop_compressing(lz_info *lzi) 
+void lz_stop_compressing(lz_info *lzi)
 {
   lzi->stop = 1;
   /*  fprintf(stderr, "Stopping...\n");*/
 }
 
-int lz_compress(lz_info *lzi, int nchars) 
+int lz_compress(lz_info *lzi, int nchars)
 {
 
   unsigned char *bbp, *bbe;
-  int *lentab, *lenp;
-  unsigned char **prevtab, **prevp;
+  int *lenp;
+  unsigned char **prevp;
   int len;
   int holdback;
   short trimmed;
@@ -306,7 +306,7 @@ int lz_compress(lz_info *lzi, int nchars)
 #endif
       memmove(lzi->block_buf, lzi->block_buf + lzi->chars_in_buf - bytes_to_move,
 	      bytes_to_move);
-      
+
       lzi->block_loc = bytes_to_move - residual;
       lzi->chars_in_buf = bytes_to_move;
 #ifdef DEBUG_ANALYZE_BLOCK
@@ -327,8 +327,8 @@ int lz_compress(lz_info *lzi, int nchars)
       lz_analyze_block(lzi);
     }
 #endif
-    prevtab = prevp = lzi->prevtab + lzi->block_loc;
-    lentab = lenp = lzi->lentab + lzi->block_loc;
+    prevp = lzi->prevtab + lzi->block_loc;
+    lenp = lzi->lentab + lzi->block_loc;
     bbp = lzi->block_buf + lzi->block_loc;
     holdback = lzi->max_match;
     if (lzi->eofcount) holdback = 0;
@@ -360,7 +360,7 @@ int lz_compress(lz_info *lzi, int nchars)
 	  len = 1;
 	  /* this is the lazy eval case */
 	}
-	else 
+	else
 #endif
 	  if (lzi->output_match(lzi, (*prevp - lzi->block_buf) - lzi->block_loc,
 				len) < 0) {
@@ -370,7 +370,7 @@ int lz_compress(lz_info *lzi, int nchars)
       }
       else
 	len = 1;
-      
+
       if (len < lzi->min_match) {
 	assert(len == 1);
 	lzi->output_literal(lzi, *bbp);

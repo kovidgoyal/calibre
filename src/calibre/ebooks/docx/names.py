@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,7 @@ import re
 from lxml.etree import XPath as X
 
 from calibre.utils.filenames import ascii_text
+from polyglot.builtins import iteritems
 
 # Names {{{
 TRANSITIONAL_NAMES = {
@@ -32,13 +32,14 @@ TRANSITIONAL_NAMES = {
 
 STRICT_NAMES = {
     k:v.replace('http://schemas.openxmlformats.org/officeDocument/2006',  'http://purl.oclc.org/ooxml/officeDocument')
-    for k, v in TRANSITIONAL_NAMES.iteritems()
+    for k, v in iteritems(TRANSITIONAL_NAMES)
 }
 
 TRANSITIONAL_NAMESPACES = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
     'o': 'urn:schemas-microsoft-com:office:office',
     've': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
+    'mc': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
     # Text Content
     'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
     'w10': 'urn:schemas-microsoft-com:office:word',
@@ -71,15 +72,18 @@ STRICT_NAMESPACES = {
         'http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument').replace(
         'http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml').replace(
         'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
-    for k, v in TRANSITIONAL_NAMESPACES.iteritems()
+    for k, v in iteritems(TRANSITIONAL_NAMESPACES)
 }
 # }}}
+
 
 def barename(x):
     return x.rpartition('}')[-1]
 
+
 def XML(x):
     return '{%s}%s' % (TRANSITIONAL_NAMESPACES['xml'], x)
+
 
 def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
@@ -88,6 +92,7 @@ def generate_anchor(name, existing):
         y = '%s_%d' % (x, c)
         c += 1
     return y
+
 
 class DOCXNamespace(object):
 
@@ -133,7 +138,7 @@ class DOCXNamespace(object):
         return self.XPath('|'.join('descendant::%s' % a for a in args))(elem)
 
     def makeelement(self, root, tag, append=True, **attrs):
-        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in attrs.iteritems()})
+        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in iteritems(attrs)})
         if append:
             root.append(ans)
         return ans

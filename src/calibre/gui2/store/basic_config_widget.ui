@@ -17,7 +17,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Added Tags:</string>
+      <string>Added tags:</string>
      </property>
     </widget>
    </item>

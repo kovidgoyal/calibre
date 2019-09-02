@@ -76,7 +76,7 @@ class ElDiplo_Recipe(BasicNewsRecipe):
                 summaryurl = re.sub(r'\?.*', '', a['href'])
                 summaryurl = 'http://www.eldiplo.org' + summaryurl
 
-        for pagenum in xrange(1, 10):
+        for pagenum in range(1, 10):
             soup = self.index_to_soup(
                 '{0}/?cms1_paging_p_b32={1}'.format(summaryurl, pagenum))
             thedivs = soup.findAll(True, attrs={'class': ['interna']})
@@ -113,11 +113,11 @@ class ElDiplo_Recipe(BasicNewsRecipe):
                 if aut:
                     auth = self.tag_to_string(aut, use_alt=False).strip()
 
-                if not articles.has_key(section):  # noqa
+                if section not in articles:  # noqa
                     articles[section] = []
 
                 articles[section].append(dict(
                     title=title, author=auth, url=url, date=None, description=description, content=''))
 
-        ans = [(s, articles[s]) for s in ans if articles.has_key(s)]  # noqa
+        ans = [(s, articles[s]) for s in ans if s in articles]
         return ans

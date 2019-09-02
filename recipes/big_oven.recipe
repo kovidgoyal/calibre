@@ -47,7 +47,7 @@ class BigOven(BasicNewsRecipe):
 
     preprocess_regexps = [
         (re.compile(r'Want detailed nutrition information?', re.DOTALL), lambda match: ''),
-        (re.compile('\(You could win \$100 in our ', re.DOTALL), lambda match: ''),
+        (re.compile(r'\(You could win \$100 in our ', re.DOTALL), lambda match: ''),
     ]
 
     def preprocess_html(self, soup):

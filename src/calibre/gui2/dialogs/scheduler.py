@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -22,17 +23,19 @@ from PyQt5.Qt import (
 from calibre.gui2 import config as gconf, error_dialog, gprefs
 from calibre.gui2.search_box import SearchBox2
 from calibre.web.feeds.recipes.model import RecipeModel
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre import force_unicode
 from calibre.utils.localization import get_lang, canonicalize_lang
+from polyglot.builtins import iteritems, unicode_type, range, map
+
 
 def convert_day_time_schedule(val):
     day_of_week, hour, minute = val
     if day_of_week == -1:
-        return (tuple(xrange(7)), hour, minute)
+        return (tuple(range(7)), hour, minute)
     return ((day_of_week,), hour, minute)
+
 
 class RecipesView(QTreeView):
 
@@ -48,6 +51,8 @@ class RecipesView(QTreeView):
         self.parent().current_changed(current, previous)
 
 # Time/date widgets {{{
+
+
 class Base(QWidget):
 
     def __init__(self, parent=None):
@@ -55,6 +60,7 @@ class Base(QWidget):
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.setToolTip(textwrap.dedent(self.HELP))
+
 
 class DaysOfWeek(Base):
 
@@ -68,7 +74,7 @@ class DaysOfWeek(Base):
     def __init__(self, parent=None):
         Base.__init__(self, parent)
         self.days = [QCheckBox(force_unicode(calendar.day_abbr[d]),
-            self) for d in xrange(7)]
+            self) for d in range(7)]
         for i, cb in enumerate(self.days):
             row = i % 2
             col = i // 2
@@ -106,6 +112,7 @@ class DaysOfWeek(Base):
         t = self.time.time()
         hour, minute = t.hour(), t.minute()
         return 'days_of_week', (days_of_week, int(hour), int(minute))
+
 
 class DaysOfMonth(Base):
 
@@ -146,7 +153,7 @@ class DaysOfMonth(Base):
 
     @property
     def schedule(self):
-        parts = [x.strip() for x in unicode(self.days.text()).split(',') if
+        parts = [x.strip() for x in unicode_type(self.days.text()).split(',') if
                 x.strip()]
         try:
             days_of_month = tuple(map(int, parts))
@@ -157,6 +164,7 @@ class DaysOfMonth(Base):
         t = self.time.time()
         hour, minute = t.hour(), t.minute()
         return 'days_of_month', (days_of_month, int(hour), int(minute))
+
 
 class EveryXDays(Base):
 
@@ -227,10 +235,7 @@ class SchedulerDialog(QDialog):
         self.go_button = b = QToolButton(self)
         b.setText(_("Go"))
         b.clicked.connect(self.search.do_search)
-        self.clear_search_button = cb = QToolButton(self)
-        self.clear_search_button.clicked.connect(self.search.clear_clicked)
-        cb.setIcon(QIcon(I('clear_left.png')))
-        h.addWidget(s), h.addWidget(b), h.addWidget(cb)
+        h.addWidget(s), h.addWidget(b)
         self.recipes = RecipesView(self)
         l.addWidget(self.recipes, 1, 0, 1, 1)
         self.recipe_model = recipe_model
@@ -310,7 +315,7 @@ class SchedulerDialog(QDialog):
         g.addWidget(spw, 2, 0, 1, 2)
         self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
         vt.addWidget(la)
-        for b, c in self.SCHEDULE_TYPES.iteritems():
+        for b, c in iteritems(self.SCHEDULE_TYPES):
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
             b.setToolTip(textwrap.dedent(c.HELP))
@@ -359,7 +364,7 @@ class SchedulerDialog(QDialog):
         b.setToolTip(_("Download all scheduled news sources at once"))
         b.clicked.connect(self.download_all_clicked)
         self.l.addWidget(b, 3, 0, 1, 1)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Save, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), bb.ActionRole)
         b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
@@ -452,7 +457,7 @@ class SchedulerDialog(QDialog):
             return True
 
         if self.account.isVisible():
-            un, pw = map(unicode, (self.username.text(), self.password.text()))
+            un, pw = map(unicode_type, (self.username.text(), self.password.text()))
             un, pw = un.strip(), pw.strip()
             if not un and not pw and self.schedule.isChecked():
                 if not getattr(self, 'subscription_optional', False):
@@ -473,10 +478,10 @@ class SchedulerDialog(QDialog):
             self.recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
-        keep_issues = u'0'
+        keep_issues = '0'
         if self.keep_issues.isEnabled():
-            keep_issues = unicode(self.keep_issues.value())
-        custom_tags = unicode(self.custom_tags.text()).strip()
+            keep_issues = unicode_type(self.keep_issues.value())
+        custom_tags = unicode_type(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
         self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, keep_issues)
         return True
@@ -533,6 +538,7 @@ class SchedulerDialog(QDialog):
         if scheduled:
             typ, sch, last_downloaded = schedule_info
             d = utcnow() - last_downloaded
+
             def hm(x):
                 return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
             hours, minutes = hm(d.seconds)
@@ -551,7 +557,7 @@ class SchedulerDialog(QDialog):
         self.schedule_stack.currentWidget().initialize(typ, sch)
         add_title_tag, custom_tags, keep_issues = customize_info
         self.add_title_tag.setChecked(add_title_tag)
-        self.custom_tags.setText(u', '.join(custom_tags))
+        self.custom_tags.setText(', '.join(custom_tags))
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
         try:
             keep_issues = int(keep_issues)
@@ -582,14 +588,14 @@ class Scheduler(QObject):
         self.recipe_model = RecipeModel()
         self.db = db
         self.lock = QMutex(QMutex.Recursive)
-        self.download_queue = set([])
+        self.download_queue = set()
 
         self.news_menu = QMenu()
         self.news_icon = QIcon(I('news.png'))
         self.scheduler_action = QAction(QIcon(I('scheduler.png')), _('Schedule news download'), self)
         self.news_menu.addAction(self.scheduler_action)
         self.scheduler_action.triggered[bool].connect(self.show_dialog)
-        self.cac = QAction(QIcon(I('user_profile.png')), _('Add a custom news source'), self)
+        self.cac = QAction(QIcon(I('user_profile.png')), _('Add or edit a custom news source'), self)
         self.cac.triggered[bool].connect(self.customize_feeds)
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()
@@ -649,16 +655,11 @@ class Scheduler(QObject):
             if account_info is not None:
                 un, pw = account_info
             add_title_tag, custom_tags, keep_issues = customize_info
-            script = self.recipe_model.get_recipe(urn)
-            pt = PersistentTemporaryFile('_builtin.recipe')
-            pt.write(script)
-            pt.close()
             arg = {
                     'username': un,
                     'password': pw,
                     'add_title_tag':add_title_tag,
                     'custom_tags':custom_tags,
-                    'recipe':pt.name,
                     'title':recipe.get('title',''),
                     'urn':urn,
                     'keep_issues':keep_issues
@@ -726,10 +727,10 @@ class Scheduler(QObject):
                 # No internet connection, we will try again in a minute
                 break
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     d = SchedulerDialog(RecipeModel())
     d.exec_()
     del app
-

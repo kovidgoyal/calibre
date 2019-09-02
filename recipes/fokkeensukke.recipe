@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class FokkeEnSukkeRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -45,29 +52,29 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
             # If there's only one, there is just a link with the dayname.
             # If there are two, there are three links in sequence: <a>dayname</a> <a>1</a> <a>2</a>.
             # In that case we're interested in the last two.
-            if links[i].renderContents() in dayNames:
+            if links[i].renderContents().decode('utf-8') in dayNames:
                 # If the link is not in daynames, we processed it already, but if it is, let's see
                 # if the next one has '1' as content
-                if (i + 1 <= maxIndex) and (links[i + 1].renderContents() == '1'):
+                if (i + 1 <= maxIndex) and (links[i + 1].renderContents().decode('utf-8') == '1'):
                     # Got you! Add it to the list
-                    article = {'title': links[i].renderContents(
-                    ) + ' 1', 'date': u'', 'url': self.INDEX + links[i + 1]['href'], 'description': ''}
+                    article = {'title': links[i].renderContents().decode('utf-8'
+                        )+ ' 1', 'date': u'', 'url': self.INDEX + links[i + 1]['href'], 'description': ''}
                     articles.append(article)
                     # If there is a '1', there should be a '2' as well, but
                     # better save than sorry
-                    if (i + 2 <= maxIndex) and (links[i + 2].renderContents() == '2'):
+                    if (i + 2 <= maxIndex) and (links[i + 2].renderContents().decode('utf-8') == '2'):
                         # Got you! Add it to the list
                         article = {'title': links[i].renderContents(
-                        ) + ' 2', 'date': u'', 'url': self.INDEX + links[i + 2]['href'], 'description': ''}
+                        ).decode('utf-8') + ' 2', 'date': u'', 'url': self.INDEX + links[i + 2]['href'], 'description': ''}
                         articles.append(article)
                 else:
                     # There is only one cartoon for this day. Add it to the
                     # list.
                     article = {'title': links[i].renderContents(
-                    ), 'date': u'', 'url': self.INDEX + links[i]['href'], 'description': ''}
+                    ).decode('utf-8'), 'date': u'', 'url': self.INDEX + links[i]['href'], 'description': ''}
                     articles.append(article)
         # Might as well use the weeknumber as title
-        week = index.find('span', attrs={'class': 'week'}).renderContents()
+        week = index.find('span', attrs={'class': 'week'}).renderContents().decode('utf-8')
 
         return [[week, articles]]
 
@@ -79,7 +86,7 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
         if img:
             title = img['alt']
 
-        tag = Tag(soup, 'div', [('class', 'title')])
+        tag = new_tag(soup, 'div', [('class', 'title')])
         tag.insert(0, title)
         cartoon.insert(0, tag)
 

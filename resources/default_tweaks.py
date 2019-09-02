@@ -1,33 +1,28 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import unicode_literals
 
-'''
-Contains various tweaks that affect calibre behavior. Only edit this file if
-you know what you are doing. If you delete this file, it will be recreated from
-defaults.
-'''
+# Contains various tweaks that affect calibre behavior. Only edit this file if
+# you know what you are doing. If you delete this file, it will be recreated from
+# defaults.
 
 #: Auto increment series index
 # The algorithm used to assign a book added to an existing series a series number.
 # New series numbers assigned using this tweak are always integer values, except
 # if a constant non-integer is specified.
 # Possible values are:
-# next - First available integer larger than the largest existing number
-# first_free - First available integer larger than 0
-# next_free - First available integer larger than the smallest existing number
-# last_free - First available integer smaller than the largest existing number
-#             Return largest existing + 1 if no free number is found
-# const - Assign the number 1 always
-# no_change - Do not change the series index
-# a number - Assign that number always. The number is not in quotes. Note that
-#            0.0 can be used here.
+#   next - First available integer larger than the largest existing number
+#   first_free - First available integer larger than 0
+#   next_free - First available integer larger than the smallest existing number
+#   last_free - First available integer smaller than the largest existing number. Return largest existing + 1 if no free number is found
+#   const - Assign the number 1 always
+#   no_change - Do not change the series index
+#   a number - Assign that number always. The number is not in quotes. Note that 0.0 can be used here.
 # Examples:
-# series_index_auto_increment = 'next'
-# series_index_auto_increment = 'next_free'
-# series_index_auto_increment = 16.5
+#   series_index_auto_increment = 'next'
+#   series_index_auto_increment = 'next_free'
+#   series_index_auto_increment = 16.5
 #
 # Set the use_series_auto_increment_tweak_when_importing tweak to True to
 # use the above values when importing/adding books. If this tweak is set to
@@ -51,7 +46,7 @@ use_series_auto_increment_tweak_when_importing = False
 authors_completer_append_separator = False
 
 #: Author sort name algorithm
-# The algorithm used to copy author to author_sort
+# The algorithm used to copy author to author_sort.
 # Possible values are:
 #  invert: use "fn ln" -> "ln, fn"
 #  copy  : copy author to author_sort without modification
@@ -83,11 +78,11 @@ author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
 # Default: r'(?i),?\s+(and|with)\s+'
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
-#: Use author sort in Tag Browser
+#: Use author sort in Tag browser
 # Set which author field to display in the tags pane (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
-# category in the tags pane and content server. Please note that if you set this
+# category in the tags pane and Content server. Please note that if you set this
 # to author_sort, it is very possible to see duplicate names in the list because
 # although it is guaranteed that author names are unique, there is no such
 # guarantee for author_sort values. Showing duplicates won't break anything, but
@@ -98,7 +93,7 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
-#: Control partitioning of Tag Browser
+#: Control partitioning of Tag browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
 # name, categories_collapsed_rating_template if sorting by average rating, and
@@ -120,9 +115,9 @@ categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:s
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
-#: Control order of categories in the tag browser
+#: Control order of categories in the Tag browser
 # Change the following dict to change the order that categories are displayed in
-# the tag browser. Items are named using their lookup name, and will be sorted
+# the Tag browser. Items are named using their lookup name, and will be sorted
 # using the number supplied. The lookup name '*' stands for all names that
 # otherwise do not appear. Two names with the same value will be sorted
 # using the default order; the one used when the dict is empty.
@@ -132,11 +127,11 @@ tag_browser_category_order = {'*':1}
 
 
 #: Specify columns to sort the booklist by on startup
-# Provide a set of columns to be sorted on when calibre starts
-#  The argument is None if saved sort history is to be used
-#  otherwise it is a list of column,order pairs. Column is the
-#  lookup/search name, found using the tooltip for the column
-#  Order is 0 for ascending, 1 for descending
+# Provide a set of columns to be sorted on when calibre starts.
+# The argument is None if saved sort history is to be used
+# otherwise it is a list of column,order pairs. Column is the
+# lookup/search name, found using the tooltip for the column
+# Order is 0 for ascending, 1 for descending.
 # For example, set it to [('authors',0),('title',0)] to sort by
 # title within authors.
 sort_columns_at_startup = None
@@ -160,14 +155,13 @@ sort_columns_at_startup = None
 #  mm    the minutes with a leading 0 (00 to 59) '
 #  s     the seconds without a leading 0 (0 to 59) '
 #  ss    the seconds with a leading 0 (00 to 59) '
-#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap"
-#        replaced by the localized string for am or pm '
-#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP"
-#        replaced by the localized string for AM or PM '
+#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm
+#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM
 #  iso   the date with time and timezone. Must be the only format present
 #  For example, given the date of 9 Jan 2010, the following formats show
 #  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
 #  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
+#
 # publication default if not set: MMM yyyy
 # timestamp default if not set: dd MMM yyyy
 # last_modified_display_format if not set: dd MMM yyyy
@@ -183,10 +177,12 @@ gui_last_modified_display_format = 'dd MMM yyyy'
 # sorted as-is (sort by title instead of title sort). For example, with
 # library_order, The Client will sort under 'C'. With strictly_alphabetic, the
 # book will sort under 'T'.
-# This flag affects Calibre's library display. It has no effect on devices. In
+# This flag affects calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
-# order until the title is edited. Double-clicking on a title and hitting return
-# without changing anything is sufficient to change the sort.
+# order until the title is edited. Editing a title and hitting return
+# without changing anything is sufficient to change the sort. Or you can use
+# the 'Update title sort' action in the Bulk metadata edit dialog to update
+# it for many books at once.
 title_series_sorting = 'library_order'
 
 #: Control formatting of title and series when used in templates
@@ -219,23 +215,19 @@ save_template_title_series_sorting = 'library_order'
 per_language_title_sort_articles = {
         # English
         'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
-
         # Esperanto
-        'epo': (r'La\s+', r"L'", 'L\xb4'),
-
+        'epo': (r'La\s+', r"L'", 'L´'),
         # Spanish
         'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra'  : (r'Le\s+', r'La\s+', r"L'", u'L´', u'L’', r'Les\s+', r'Un\s+', r'Une\s+',
                   r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", u'D´', u'L’'),
-
         # Italian
-        'ita': ('Lo\\s+', 'Il\\s+', "L'", 'L\xb4', 'La\\s+', 'Gli\\s+',
+        'ita': ('Lo\\s+', 'Il\\s+', "L'", 'L´', 'La\\s+', 'Gli\\s+',
                 'I\\s+', 'Le\\s+', 'Uno\\s+', 'Un\\s+', 'Una\\s+', "Un'",
-                'Un\xb4', 'Dei\\s+', 'Degli\\s+', 'Delle\\s+', 'Del\\s+',
-                'Della\\s+', 'Dello\\s+', "Dell'", 'Dell\xb4'),
-
+                'Un´', 'Dei\\s+', 'Degli\\s+', 'Delle\\s+', 'Del\\s+',
+                'Della\\s+', 'Dello\\s+', "Dell'", 'Dell´'),
         # Portuguese
         'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
                   r'Uma\s+', r'Umas\s+', ),
@@ -259,7 +251,7 @@ per_language_title_sort_articles = {
         'ell'  : (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
                   r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
         # Hungarian
-        'hun'  : (r'A\s+', 'Az\s+', 'Egy\s+',),
+        'hun'  : (r'A\s+', r'Az\s+', r'Egy\s+',),
 }
 default_language_for_title_sort = None
 title_sort_articles=r'^(A|The|An)\s+'
@@ -308,20 +300,20 @@ auto_connect_to_folder = ''
 # '{value} {category:|(|)}'
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
-# 1: I want three series columns to be merged into one set of collections. The
-# column lookup names are 'series', '#series_1' and '#series_2'. I want nothing
-# in the parenthesis. The value to use in the tweak value would be:
+#  1: I want three series columns to be merged into one set of collections. The
+#  column lookup names are 'series', '#series_1' and '#series_2'. I want nothing
+#  in the parenthesis. The value to use in the tweak value would be:
 #    sony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}
-# 2: I want the word '(Series)' to appear on collections made from series, and
-# the word '(Tag)' to appear on collections made from tags. Use:
+#  2: I want the word '(Series)' to appear on collections made from series, and
+#  the word '(Tag)' to appear on collections made from tags. Use:
 #    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
-# 3: I want 'series' and '#myseries' to be merged, and for the collection name
-# to have '(Series)' appended. The renaming rule is:
+#  3: I want 'series' and '#myseries' to be merged, and for the collection name
+#  to have '(Series)' appended. The renaming rule is:
 #    sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
-# 4: Same as example 2, but instead of having the category name in parentheses
-# and appended to the value, I want it prepended and separated by a colon, such
-# as in Series: Darkover. I must change the template used to format the category name
-# The resulting two tweaks are:
+#  4: Same as example 2, but instead of having the category name in parentheses
+#  and appended to the value, I want it prepended and separated by a colon, such
+#  as in Series: Darkover. I must change the template used to format the category name
+#  The resulting two tweaks are:
 #    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
 #    sony_collection_name_template='{category:||: }{value}'
 sony_collection_renaming_rules={}
@@ -350,10 +342,9 @@ sony_collection_sorting_rules = []
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-#: Set the maximum number of tags to show per book in the content server
-max_content_server_tags_shown=5
-
-#: Set custom metadata fields that the content server will or will not display.
+#: Set custom metadata fields that the Content server will or will not display.
+# Controls what fields are displayed when clicking the "Search" button in the
+# browser to search your calibre library.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
@@ -361,10 +352,13 @@ max_content_server_tags_shown=5
 # Defaults:
 #    content_server_will_display = ['*']
 #    content_server_wont_display = []
+#
 # Examples:
+#
 # To display only the custom fields #mytags and #genre:
 #   content_server_will_display = ['#mytags', '#genre']
 #   content_server_wont_display = []
+#
 # To display all fields except #mycomments:
 #   content_server_will_display = ['*']
 #   content_server_wont_display['#mycomments']
@@ -392,7 +386,7 @@ sort_dates_using_visible_fields = False
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
-# You can control the behavior of doubleclicks on the books list.
+# You can control the behavior of double clicks and pressing enter on the books list.
 # Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting anything other than open_viewer has the
 # side effect of disabling editing a field using a single click.
@@ -401,15 +395,16 @@ cover_trim_fuzz_value = 10
 # You can also control whether the book list scrolls horizontal per column or
 # per pixel. Default is per column.
 doubleclick_on_library_view = 'open_viewer'
+enter_key_behavior = 'do_nothing'
 horizontal_scrolling_per_column = True
 
-#: Language to use when sorting.
+#: Language to use when sorting
 # Setting this tweak will force sorting to use the
 # collating order for the specified language. This might be useful if you run
 # calibre in English but want sorting to work in the language where you live.
 # Set the tweak to the desired ISO 639-1 language code, in lower case.
 # You can find the list of supported locales at
-# http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusortsequencetables.htm
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # Default: locale_for_sorting = '' -- use the language calibre displays in
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
@@ -424,7 +419,7 @@ metadata_single_use_2_cols_for_custom_fields = True
 #: Order of custom column(s) in edit metadata
 # Controls the order that custom columns are listed in edit metadata single
 # and bulk. The columns listed in the tweak are displayed first and in the
-# order provided. Any columns not listed are dislayed after the listed ones,
+# order provided. Any columns not listed are displayed after the listed ones,
 # in alphabetical order. Do note that this tweak does not change the size of
 # the edit widgets. Putting comments widgets in this list may result in some
 # odd widget spacing when using two-column mode.
@@ -437,8 +432,11 @@ metadata_edit_custom_column_order = []
 # public email server like gmx/hotmail/gmail. Default is: 5 minutes
 # Setting it to lower may cause the server's SPAM controls to kick in,
 # making email sending fail. Changes will take effect only after a restart of
-# calibre.
+# calibre. You can also change the list of hosts that calibre considers
+# to be public relays here. Any relay host ending with one of the suffixes
+# in the list below will be considered a public email server.
 public_smtp_relay_delay = 301
+public_smtp_relay_host_suffixes = ['gmail.com', 'live.com', 'gmx.com']
 
 #: The maximum width and height for covers saved in the calibre library
 # All covers in the calibre library will be resized, preserving aspect ratio,
@@ -454,17 +452,9 @@ maximum_cover_size = (1650, 2200)
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
 
-#: What interfaces should the content server listen on
-# By default, the calibre content server listens on '0.0.0.0' which means that it
-# accepts IPv4 connections on all interfaces. You can change this to, for
-# example, '127.0.0.1' to only listen for connections from the local machine, or
-# to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
-# work on all operating systems)
-server_listen_on = '0.0.0.0'
-
-#: Unified toolbar on OS X
+#: Unified toolbar on macOS
 # If you enable this option and restart calibre, the toolbar will be 'unified'
-# with the titlebar as is normal for OS X applications. However, doing this has
+# with the titlebar as is normal for macOS applications. However, doing this has
 # various bugs, for instance the minimum width of the toolbar becomes twice
 # what it should be and it causes other random bugs on some systems, so turn it
 # on at your own risk!
@@ -481,7 +471,7 @@ save_original_format = True
 save_original_format_when_polishing = True
 
 #: Number of recently viewed books to show
-# Right-clicking the View button shows a list of recently viewed books. Control
+# Right-clicking the "View" button shows a list of recently viewed books. Control
 # how many should be shown, here.
 gui_view_history_size = 15
 
@@ -491,24 +481,14 @@ gui_view_history_size = 15
 # negative number to increase or decrease the font size.
 change_book_details_font_size_by = 0
 
-#: Compile General Program Mode templates to Python
-# Compiled general program mode templates are significantly faster than
-# interpreted templates. Setting this tweak to True causes calibre to compile
-# (in most cases) general program mode templates. Setting it to False causes
-# calibre to use the old behavior -- interpreting the templates. Set the tweak
-# to False if some compiled templates produce incorrect values.
-# Default:    compile_gpm_templates = True
-# No compile: compile_gpm_templates = False
-compile_gpm_templates = True
-
-#: What format to default to when using the Tweak feature
-# The Tweak feature of calibre allows direct editing of a book format.
+#: What format to default to when using the "Unpack book" feature
+# The "Unpack book" feature of calibre allows direct editing of a book format.
 # If multiple formats are available, calibre will offer you a choice
 # of formats, defaulting to your preferred output format if it is available.
 # Set this tweak to a specific value of 'EPUB' or 'AZW3' to always default
 # to that format rather than your output format preference.
 # Set to a value of 'remember' to use whichever format you chose last time you
-# used the Tweak feature.
+# used the "Unpack book" feature.
 # Examples:
 #   default_tweak_format = None       (Use output format)
 #   default_tweak_format = 'EPUB'
@@ -539,17 +519,11 @@ completion_mode = 'prefix'
 numeric_collation = False
 
 #: Sort the list of libraries alphabetically
-# The list of libraries in the Copy to Library and Quick Switch menus are
+# The list of libraries in the Copy to library and Quick switch menus are
 # normally sorted by most used. However, if there are more than a certain
 # number of such libraries, the sorting becomes alphabetic. You can set that
 # number here. The default is ten libraries.
 many_libraries = 10
-
-#: Highlight the virtual library name when using a Virtual Library
-# The virtual library name next to the Virtual Library button is highlighted in
-# yellow when using a Virtual Library. You can choose the color used for the
-# highlight with this tweak. Set it to 'transparent' to disable highlighting.
-highlight_virtual_library = 'yellow'
 
 #: Choose available output formats for conversion
 # Restrict the list of available output formats in the conversion dialogs.
@@ -558,10 +532,37 @@ highlight_virtual_library = 'yellow'
 # all available output formats to be present.
 restrict_output_formats = None
 
-#: Set the thumbnail image quality used by the content server
+#: Set the thumbnail image quality used by the Content server
 # The quality of a thumbnail is largely controlled by the compression quality
 # used when creating it. Set this to a larger number to improve the quality.
 # Note that the thumbnails get much larger with larger compression quality
 # numbers.
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
+
+#: Image file types to treat as e-books when dropping onto the "Book details" panel
+# Normally, if you drop any image file in a format known to calibre onto the
+# "Book details" panel, it will be used to set the cover. If you want to store
+# some image types as e-books instead, you can set this tweak.
+# Examples:
+#    cover_drop_exclude = {'tiff', 'webp'}
+cover_drop_exclude = ()
+
+#: Show the Saved searches box in the Search bar
+# In newer versions of calibre, only a single button that allows you to add a
+# new Saved search is shown in the Search bar. If you would like to have the
+# old Saved searches box with its two buttons back, set this tweak to True.
+show_saved_search_box = False
+
+#: Exclude fields when copy/pasting metadata
+# You can ask calibre to not paste some metadata fields when using the
+# Edit metadata->Copy metadata/Paste metadata actions. For example,
+# exclude_fields_on_paste = ['cover', 'timestamp', '#mycolumn']
+# to prevent pasting of the cover, Date and custom column, mycolumn.
+exclude_fields_on_paste = []
+
+#: Skip internet connected check
+# Skip checking whether the internet is available before downloading news.
+# Useful if for some reason your operating systems network checking
+# facilities are not reliable (for example NetworkManager on Linux).
+skip_network_check = False

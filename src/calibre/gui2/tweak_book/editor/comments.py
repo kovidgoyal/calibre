@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import QTextCursor
 
@@ -20,6 +19,7 @@ closing_map = {
     'xml':'-->',
     'javascript':'*/',
 }
+
 
 def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None):
     doc = editor.document()
@@ -40,6 +40,7 @@ def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None):
     c.setPosition(right), c.insertText(closing)
     c.setPosition(left), c.insertText(opening)
     c.endEditBlock()
+
 
 def smart_comment(editor, syntax):
     apply_smart_comment(editor, opening=opening_map.get(syntax, '/*'), closing=closing_map.get(syntax, '*/'))

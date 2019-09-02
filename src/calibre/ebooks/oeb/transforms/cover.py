@@ -1,16 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
-from urllib import unquote
 
 from lxml import etree
 from calibre import guess_type
 from calibre.utils.imghdr import identify
+from polyglot.builtins import unicode_type
+from polyglot.urllib import unquote
+
 
 class CoverManager(object):
 
@@ -72,7 +75,7 @@ class CoverManager(object):
             style = 'style="height: 100%%"'
         else:
             width, height = fixed_size
-            style = 'style="height: %s; width: %s"'%(width, height)
+            style = 'style="height: %s; width: %s"'%(height, width)
         self.non_svg_template = self.NONSVG_TEMPLATE.replace('__style__',
                 style)
 
@@ -89,16 +92,19 @@ class CoverManager(object):
             return None
         self.log('Generating default cover')
         m = self.oeb.metadata
-        title = unicode(m.title[0])
-        authors = [unicode(x) for x in m.creator if x.role == 'aut']
+        title = unicode_type(m.title[0])
+        authors = [unicode_type(x) for x in m.creator if x.role == 'aut']
         try:
             from calibre.ebooks.covers import create_cover
             series = series_index = None
             if m.series:
-                series, series_index = unicode(m.series[0]), m.series_index[0]
+                try:
+                    series, series_index = unicode_type(m.series[0]), m.series_index[0]
+                except IndexError:
+                    pass
             img_data = create_cover(title, authors, series, series_index)
             id, href = self.oeb.manifest.generate('cover',
-                    u'cover_image.jpg')
+                    'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
             m.clear('cover')
@@ -140,15 +146,15 @@ class CoverManager(object):
             self.svg_template = self.svg_template.replace('__viewbox__',
                     '0 0 %d %d'%(width, height))
             self.svg_template = self.svg_template.replace('__width__',
-                    str(width))
+                    unicode_type(width))
             self.svg_template = self.svg_template.replace('__height__',
-                    str(height))
+                    unicode_type(height))
 
             if href is not None:
                 templ = self.non_svg_template if self.no_svg_cover \
                         else self.svg_template
                 tp = templ%unquote(href)
-                id, href = m.generate('titlepage', u'titlepage.xhtml')
+                id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))
         else:

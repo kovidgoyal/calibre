@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -14,19 +15,29 @@ from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 
 NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
 
+
 class TXTOutput(OutputFormatPlugin):
 
     name = 'TXT Output'
     author = 'John Schember'
     file_type = 'txt'
+    commit_name = 'txt_output'
+    ui_data = {
+            'newline_types': NEWLINE_TYPES,
+            'formatting_types': {
+                'plain': _('Plain text'),
+                'markdown': _('Markdown formatted text'),
+                'textile': _('TexTile formatted text')
+            },
+    }
 
-    options = set([
+    options = {
         OptionRecommendation(name='newline', recommended_value='system',
             level=OptionRecommendation.LOW,
             short_switch='n', choices=NEWLINE_TYPES,
             help=_('Type of newline to use. Options are %s. Default is \'system\'. '
                 'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
-                'For Mac OS X use \'unix\'. \'system\' will default to the newline '
+                'For macOS use \'unix\'. \'system\' will default to the newline '
                 'type used by this OS.') % sorted(NEWLINE_TYPES)),
         OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
@@ -48,11 +59,11 @@ class TXTOutput(OutputFormatPlugin):
             'is present. Also allows max-line-length to be below the minimum')),
         OptionRecommendation(name='txt_output_formatting',
              recommended_value='plain',
-             choices=['plain', 'markdown', 'textile'],
+             choices=list(ui_data['formatting_types']),
              help=_('Formatting used within the document.\n'
-                    '* plain: Produce plain text.\n'
-                    '* markdown: Produce Markdown formatted text.\n'
-                    '* textile: Produce Textile formatted text.')),
+                    '* plain: {plain}\n'
+                    '* markdown: {markdown}\n'
+                    '* textile: {textile}').format(**ui_data['formatting_types'])),
         OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove links within the document. This is only '
@@ -70,7 +81,7 @@ class TXTOutput(OutputFormatPlugin):
                    'formatting that supports setting font color. If this option is '
                    'not specified font color will not be set and default to the '
                    'color displayed by the reader (generally this is black).')),
-     ])
+     }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.txt.txtml import TXTMLizer

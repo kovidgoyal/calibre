@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, subprocess, signal, time, errno, socket
+import os, sys, subprocess, signal, time, errno, socket, ssl
 from threading import Thread, Lock
-from Queue import Queue, Empty
 
 from calibre.constants import islinux, iswindows, isosx
 from calibre.srv.http_response import create_http_handler
@@ -18,13 +16,17 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import itervalues, error_message, native_string_type
+from polyglot.queue import Queue, Empty
 
 MAX_RETRIES = 10
+
 
 class NoAutoReload(EnvironmentError):
     pass
 
 # Filesystem watcher {{{
+
 
 class WatcherBase(object):
 
@@ -56,6 +58,7 @@ class WatcherBase(object):
     def file_is_watched(self, fname):
         return fname and fname.rpartition('.')[-1] in self.EXTENSIONS_TO_WATCH
 
+
 if islinux:
     import select
     from calibre.utils.inotify import INotifyTreeWatcher
@@ -72,7 +75,7 @@ if islinux:
 
         def loop(self):
             while True:
-                r = select.select([self.srv_sock] + list(self.fd_map.iterkeys()), [], [])[0]
+                r = select.select([self.srv_sock] + list(self.fd_map), [], [])[0]
                 modified = set()
                 for fd in r:
                     if fd is self.srv_sock:
@@ -202,6 +205,7 @@ else:
 
 def find_dirs_to_watch(fpath, dirs, add_default_dirs):
     dirs = {os.path.abspath(x) for x in dirs}
+
     def add(x):
         if os.path.isdir(x):
             dirs.add(x)
@@ -217,12 +221,14 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
     return dirs
 # }}}
 
+
 def join_process(p, timeout=5):
     t = Thread(target=p.wait, name='JoinProcess')
     t.daemon = True
     t.start()
     t.join(timeout)
     return p.poll()
+
 
 class Worker(object):
 
@@ -244,6 +250,7 @@ class Worker(object):
 
         opts = create_option_parser().parse_args(cmd)[0]
         self.port = opts.port
+        self.uses_ssl = bool(opts.ssl_certfile and opts.ssl_keyfile)
         self.connection_timeout = opts.timeout
         self.retry_count = 0
         t = Thread(name='PingThread', target=self.ping_thread)
@@ -292,7 +299,7 @@ class Worker(object):
                 time.sleep(0.01)
             compile_srv()
         except CompileFailure as e:
-            self.log.error(e.message)
+            self.log.error(error_message(e))
             time.sleep(0.1 * self.retry_count)
             if self.retry_count < MAX_RETRIES and self.wakeup is not None:
                 self.wakeup()  # Force a restart
@@ -306,13 +313,20 @@ class Worker(object):
     def wait_for_listen(self):
         st = monotonic()
         while monotonic() - st < 5:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(5)
             try:
-                return socket.create_connection(('localhost', self.port), 5).close()
+                if self.uses_ssl:
+                    s = ssl.wrap_socket(s)
+                s.connect(('localhost', self.port))
+                s.close()
+                return
             except socket.error:
                 time.sleep(0.01)
         self.log.error('Restarted server did not start listening on:', self.port)
 
 # WebSocket reload notifier {{{
+
 
 class ReloadHandler(DummyHandler):
 
@@ -331,14 +345,14 @@ class ReloadHandler(DummyHandler):
 
     def notify_reload(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('reload')
 
     def ping(self):
         with self.conn_lock:
-            for connref in self.connections.itervalues():
+            for connref in itervalues(self.connections):
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('ping')
@@ -369,13 +383,14 @@ class ReloadServer(Thread):
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
         self.address = self.loop.bound_address[:2]
-        os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
+        os.environ['CALIBRE_AUTORELOAD_PORT'] = native_string_type(self.address[1])
         return self
 
     def __exit__(self, *args):
         self.loop.stop()
         self.join(self.loop.opts.shutdown_timeout)
 # }}}
+
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_on=None):
     if Watcher is None:
@@ -386,6 +401,8 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_o
     if cmd is None:
         cmd = list(sys.argv)
         cmd.remove('--auto-reload')
+    if os.path.basename(cmd[0]) == 'run-local':
+        cmd.insert(1, 'calibre-server')
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))

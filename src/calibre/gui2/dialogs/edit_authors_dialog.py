@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -7,17 +9,21 @@ from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
                   QByteArray)
 
-from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
+
 
 class tableItem(QTableWidgetItem):
+
     def __ge__(self, other):
-        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
 
     def __lt__(self, other):
-        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+        return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
+
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
@@ -33,9 +39,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         try:
             self.table_column_widths = \
                         gprefs.get('manage_authors_table_widths', None)
-            geom = gprefs.get('manage_authors_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
-        except:
+            geom = gprefs.get('manage_authors_dialog_geometry', None)
+            if geom:
+                self.restoreGeometry(QByteArray(geom))
+        except Exception:
             pass
 
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
@@ -93,7 +100,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.sort_by_author.clicked.connect(self.do_sort_by_author)
         self.author_order = 1
 
-        self.table.sortByColumn(1, Qt.AscendingOrder)
         self.sort_by_author_sort.clicked.connect(self.do_sort_by_author_sort)
         self.sort_by_author_sort.setCheckable(True)
         self.sort_by_author_sort.setChecked(True)
@@ -134,7 +140,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.not_found_label_timer_event, type=Qt.QueuedConnection)
 
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.table.customContextMenuRequested .connect(self.show_context_menu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
+        self.do_sort_by_author_sort()
 
     def save_state(self):
         self.table_column_widths = []
@@ -153,18 +160,18 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
         self.save_state()
 
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
-        case_menu = QMenu(_('Change Case'))
-        action_upper_case = case_menu.addAction(_('Upper Case'))
-        action_lower_case = case_menu.addAction(_('Lower Case'))
-        action_swap_case = case_menu.addAction(_('Swap Case'))
-        action_title_case = case_menu.addAction(_('Title Case'))
+        case_menu = QMenu(_('Change case'))
+        action_upper_case = case_menu.addAction(_('Upper case'))
+        action_lower_case = case_menu.addAction(_('Lower case'))
+        action_swap_case = case_menu.addAction(_('Swap case'))
+        action_title_case = case_menu.addAction(_('Title case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
 
         action_upper_case.triggered.connect(self.upper_case)
@@ -183,6 +190,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
+            m.addSeparator()
+            ca = m.addAction(_("Show books by author in book list"))
+            ca.triggered.connect(self.search)
         else:
             ca = m.addAction(_('Copy to author'))
             ca.triggered.connect(self.copy_aus_to_au)
@@ -190,30 +200,35 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
 
+    def search(self):
+        from calibre.gui2.ui import get_gui
+        row = self.context_item.row()
+        get_gui().search.set_search_string(self.table.item(row, 0).text())
+
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
-        cb.setText(unicode(self.context_item.text()))
+        cb.setText(unicode_type(self.context_item.text()))
 
     def paste_from_clipboard(self):
         cb = QApplication.clipboard()
         self.context_item.setText(cb.text())
 
     def upper_case(self):
-        self.context_item.setText(icu_upper(unicode(self.context_item.text())))
+        self.context_item.setText(icu_upper(unicode_type(self.context_item.text())))
 
     def lower_case(self):
-        self.context_item.setText(icu_lower(unicode(self.context_item.text())))
+        self.context_item.setText(icu_lower(unicode_type(self.context_item.text())))
 
     def swap_case(self):
-        self.context_item.setText(unicode(self.context_item.text()).swapcase())
+        self.context_item.setText(unicode_type(self.context_item.text()).swapcase())
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
-        self.context_item.setText(titlecase(unicode(self.context_item.text())))
+        self.context_item.setText(titlecase(unicode_type(self.context_item.text())))
 
     def capitalize(self):
         from calibre.utils.icu import capitalize
-        self.context_item.setText(capitalize(unicode(self.context_item.text())))
+        self.context_item.setText(capitalize(unicode_type(self.context_item.text())))
 
     def copy_aus_to_au(self):
         row = self.context_item.row()
@@ -239,14 +254,14 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setAutoDefault(False)
         self.buttonBox.button(QDialogButtonBox.Cancel).setDefault(False)
         self.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
-        st = icu_lower(unicode(self.find_box.currentText()))
+        st = icu_lower(unicode_type(self.find_box.currentText()))
 
         for i in range(0, self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
-            r = (self.start_find_pos/2)%self.table.rowCount()
+            r = (self.start_find_pos//2)%self.table.rowCount()
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
-            text = icu_lower(unicode(item.text()))
+            text = icu_lower(unicode_type(item.text()))
             if st in text:
                 self.table.setCurrentItem(item)
                 self.table.setFocus(True)
@@ -278,9 +293,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.result = []
         for row in range(0,self.table.rowCount()):
             id   = int(self.table.item(row, 0).data(Qt.UserRole))
-            aut  = unicode(self.table.item(row, 0).text()).strip()
-            sort = unicode(self.table.item(row, 1).text()).strip()
-            link = unicode(self.table.item(row, 2).text()).strip()
+            aut  = unicode_type(self.table.item(row, 0).text()).strip()
+            sort = unicode_type(self.table.item(row, 1).text()).strip()
+            link = unicode_type(self.table.item(row, 2).text()).strip()
             orig_aut,orig_sort,orig_link = self.authors[id]
             if orig_aut != aut or orig_sort != sort or orig_link != link:
                 self.result.append((id, orig_aut, aut, sort, link))
@@ -289,7 +304,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.cellChanged.disconnect()
         for row in range(0,self.table.rowCount()):
             item = self.table.item(row, 0)
-            aut  = unicode(item.text()).strip()
+            aut  = unicode_type(item.text()).strip()
             c = self.table.item(row, 1)
             # Sometimes trailing commas are left by changing between copy algs
             c.setText(author_to_author_sort(aut).rstrip(','))
@@ -300,7 +315,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.cellChanged.disconnect()
         for row in range(0,self.table.rowCount()):
             item = self.table.item(row, 1)
-            aus  = unicode(item.text()).strip()
+            aus  = unicode_type(item.text()).strip()
             c = self.table.item(row, 0)
             # Sometimes trailing commas are left by changing between copy algs
             c.setText(aus)
@@ -310,12 +325,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def cell_changed(self, row, col):
         if col == 0:
             item = self.table.item(row, 0)
-            aut  = unicode(item.text()).strip()
-            amper = aut.find('&')
-            if amper >= 0:
+            aut  = unicode_type(item.text()).strip()
+            aut_list = string_to_authors(aut)
+            if len(aut_list) != 1:
                 error_dialog(self.parent(), _('Invalid author name'),
-                        _('Author names cannot contain & characters.')).exec_()
-                aut = aut.replace('&', '%')
+                        _('You cannot change an author to multiple authors.')).exec_()
+                aut = ' % '.join(aut_list)
                 self.table.item(row, 0).setText(aut)
             c = self.table.item(row, 1)
             c.setText(author_to_author_sort(aut))

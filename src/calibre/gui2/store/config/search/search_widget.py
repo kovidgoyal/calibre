@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -10,6 +10,7 @@ from PyQt5.Qt import QWidget
 
 from calibre.gui2 import JSONConfig
 from calibre.gui2.store.config.search.search_widget_ui import Ui_Form
+
 
 class StoreConfigWidget(QWidget, Ui_Form):
 

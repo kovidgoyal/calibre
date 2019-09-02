@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/readline* && \
-./configure --prefix=$SW --disable-static && make && make install

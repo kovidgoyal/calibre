@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # Copyright (C) 2003-2006 Red Hat Inc. <http://www.redhat.com/>
 # Copyright (C) 2003 David Zeuthen
 # Copyright (C) 2004 Rob Taylor
@@ -24,8 +26,6 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-from __future__ import absolute_import
-
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'
 
@@ -44,7 +44,9 @@ from dbus.exceptions import (
     DBusException, NameExistsException, UnknownMethodException)
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
-is_py2 = sys.version_info.major == 2
+
+from polyglot.builtins import itervalues, zip, is_py3, native_string_type
+
 
 class dbus_property(object):
     """A decorator used to mark properties of a `dbus.service.Object`.
@@ -140,6 +142,7 @@ class dbus_property(object):
     def setter(self, fset):
         return self._copy(fset=fset)
 
+
 _logger = logging.getLogger('dbus.service')
 
 
@@ -149,6 +152,7 @@ class _VariantSignature(object):
 
     It has no string representation.
     """
+
     def __iter__(self):
         """Return self."""
         return self
@@ -157,7 +161,7 @@ class _VariantSignature(object):
         """Return 'v' whenever called."""
         return 'v'
 
-    if is_py2:
+    if not is_py3:
         next = __next__
 
 
@@ -497,7 +501,7 @@ class InterfaceType(type):
 
 # Define Interface as an instance of the metaclass InterfaceType, in a way
 # that is compatible across both Python 2 and Python 3.
-Interface = InterfaceType('Interface', (object,), {})
+Interface = InterfaceType(native_string_type('Interface'), (object,), {})
 
 
 class PropertiesInterface(Interface):
@@ -516,7 +520,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("Name %s on object interface %s is not a property" % (property_name, interface_name))
             return prop
         else:
-            for interface in interfaces.itervalues():
+            for interface in itervalues(interfaces):
                 prop = interface.get(property_name)
                 if prop and isinstance(prop, dbus_property):
                     return prop
@@ -556,7 +560,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("No interface %s on object" % interface_name)
             ifaces = [iface]
         else:
-            ifaces = interfaces.values()
+            ifaces = list(interfaces.values())
         properties = {}
         for iface in ifaces:
             for name, prop in iface.items():
@@ -576,6 +580,7 @@ class PropertiesInterface(Interface):
 #: A unique object used as the value of Object._object_path and
 #: Object._connection if it's actually in more than one place
 _MANY = object()
+
 
 class Object(Interface):
     r"""A base class for exporting your own Objects across the Bus.
@@ -597,7 +602,7 @@ class Object(Interface):
                 self.LastInputChanged(var)      # emits the signal
                 # Emit the property changed signal
                 self.PropertiesChanged('com.example.Sample', {'LastInput': var}, [])
-                return str(var)
+                return unicode_type(var)
 
             @dbus.service.signal(interface='com.example.Sample',
                                  signature='v')
@@ -1004,6 +1009,7 @@ class Object(Interface):
                                    self.__class__.__name__, where,
                                    id(self))
     __str__ = __repr__
+
 
 class FallbackObject(Object):
     """An object that implements an entire subtree of the object-path

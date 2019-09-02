@@ -2,9 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from functools import partial
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QIcon,
@@ -18,8 +16,10 @@ from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.search import get_search_regex, InvalidRegex, initialize_search_request
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
+from polyglot.builtins import iteritems, error_message
 
 # UI {{{
+
 
 class ModeBox(QComboBox):
 
@@ -35,13 +35,14 @@ class ModeBox(QComboBox):
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
             </dl>'''))
 
-    @dynamic_property
+    @property
     def mode(self):
-        def fget(self):
-            return ('normal', 'regex')[self.currentIndex()]
-        def fset(self, val):
-            self.setCurrentIndex({'regex':1}.get(val, 0))
-        return property(fget=fget, fset=fset)
+        return ('normal', 'regex')[self.currentIndex()]
+
+    @mode.setter
+    def mode(self, val):
+        self.setCurrentIndex({'regex':1}.get(val, 0))
+
 
 class WhereBox(QComboBox):
 
@@ -57,7 +58,7 @@ class WhereBox(QComboBox):
             <dt><b>All text files</b></dt>
             <dd>Search in all text (HTML) files</dd>
             <dt><b>Selected files</b></dt>
-            <dd>Search in the files currently selected in the Files Browser</dd>
+            <dd>Search in the files currently selected in the File browser</dd>
             <dt><b>Open files</b></dt>
             <dd>Search in the files currently open in the editor</dd>
             </dl>'''))
@@ -68,14 +69,15 @@ class WhereBox(QComboBox):
             f.setBold(True), f.setItalic(True)
             self.setFont(f)
 
-    @dynamic_property
+    @property
     def where(self):
         wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
-        def fget(self):
-            return wm[self.currentIndex()]
-        def fset(self, val):
-            self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
-        return property(fget=fget, fset=fset)
+        return wm[self.currentIndex()]
+
+    @where.setter
+    def where(self, val):
+        wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
+        self.setCurrentIndex({v:k for k, v in iteritems(wm)}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -122,24 +124,26 @@ class TextSearch(QWidget):
         h.addStretch(10)
         self.next_button = b = QPushButton(QIcon(I('arrow-down.png')), _('&Next'), self)
         b.setToolTip(_('Find next match'))
-        h.addWidget(b), b.clicked.connect(partial(self.do_search, 'down'))
+        h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search('down'))
         self.prev_button = b = QPushButton(QIcon(I('arrow-up.png')), _('&Previous'), self)
         b.setToolTip(_('Find previous match'))
-        h.addWidget(b), b.clicked.connect(partial(self.do_search, 'up'))
+        h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search('up'))
 
         state = tprefs.get('text_search_widget_state')
         self.state = state or {}
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            return {'mode': self.mode.mode, 'where':self.where_box.where, 'case_sensitive':self.cs.isChecked(), 'dot_all':self.da.isChecked()}
-        def fset(self, val):
-            self.mode.mode = val.get('mode', 'normal')
-            self.where_box.where = val.get('where', 'current')
-            self.cs.setChecked(bool(val.get('case_sensitive')))
-            self.da.setChecked(bool(val.get('dot_all', True)))
-        return property(fget=fget, fset=fset)
+        return {'mode': self.mode.mode, 'where':self.where_box.where, 'case_sensitive':self.cs.isChecked(), 'dot_all':self.da.isChecked()}
+
+    @state.setter
+    def state(self, val):
+        self.mode.mode = val.get('mode', 'normal')
+        self.where_box.where = val.get('where', 'current')
+        self.cs.setChecked(bool(val.get('case_sensitive')))
+        self.da.setChecked(bool(val.get('dot_all', True)))
 
     def save_state(self):
         tprefs['text_search_widget_state'] = self.state
@@ -151,13 +155,14 @@ class TextSearch(QWidget):
         self.find_text.emit(state)
 # }}}
 
+
 def run_text_search(search, current_editor, current_editor_name, searchable_names, gui_parent, show_editor, edit_file):
     try:
         pat = get_search_regex(search)
     except InvalidRegex as e:
         return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
             'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
-                prepare_string_for_xml(e.regex), e.message), show=True)
+                prepare_string_for_xml(e.regex), error_message(e)), show=True)
     editor, where, files, do_all, marked = initialize_search_request(search, 'count', current_editor, current_editor_name, searchable_names)
     with BusyCursor():
         if editor is not None:
@@ -165,7 +170,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
                 return True
             if not files and editor.find_text(pat, wrap=True):
                 return True
-        for fname, syntax in files.iteritems():
+        for fname, syntax in iteritems(files):
             ed = editors.get(fname, None)
             if ed is not None:
                 if ed.find_text(pat, complete=True):
@@ -174,7 +179,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
             else:
                 root = current_container().parsed(fname)
                 if hasattr(root, 'xpath'):
-                    raw = tostring(root, method='text', encoding=unicode, with_tail=True)
+                    raw = tostring(root, method='text', encoding='unicode', with_tail=True)
                 else:
                     raw = current_container().raw_data(fname)
                 if pat.search(raw) is not None:
@@ -184,6 +189,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
 
     msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(search['find']) + '</pre>')
     return error_dialog(gui_parent, _('Not found'), msg, show=True)
+
 
 def find_text_in_chunks(pat, chunks):
     text = ''.join(x[0] for x in chunks)

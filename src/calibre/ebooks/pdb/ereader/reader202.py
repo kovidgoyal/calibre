@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
 '''
@@ -14,6 +16,8 @@ from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
+from polyglot.builtins import unicode_type, range
+
 
 class HeaderRecord(object):
     '''
@@ -55,15 +59,17 @@ class Reader202(FormatReader):
 
     def decompress_text(self, number):
         from calibre.ebooks.compression.palmdoc import decompress_doc
-        return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')  # noqa
+        data = bytearray(self.section_data(number))
+        data = bytes(bytearray(x ^ 0xA5 for x in data))
+        return decompress_doc(data).decode(self.encoding or 'cp1252', 'replace')
 
     def get_image(self, number):
         name = None
         img = None
 
         data = self.section_data(number)
-        if data.startswith('PNG'):
-            name = data[4:4 + 32].strip('\x00')
+        if data.startswith(b'PNG'):
+            name = data[4:4 + 32].strip(b'\x00')
             img = data[62:]
 
         return name, img
@@ -74,7 +80,7 @@ class Reader202(FormatReader):
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
         '''
-        if number not in range(1, self.header_record.num_text_pages + 1):
+        if not (1 <= number <= self.header_record.num_text_pages):
             return ''
 
         return self.decompress_text(number)
@@ -87,16 +93,16 @@ class Reader202(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        pml = u''
+        pml = ''
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
             pml += self.get_text_page(i)
 
         title = self.mi.title
-        if not isinstance(title, unicode):
+        if not isinstance(title, unicode_type):
             title = title.decode('utf-8', 'replace')
 
-        html = u'<html><head><title>%s</title></head><body>%s</body></html>' % \
+        html = '<html><head><title>%s</title></head><body>%s</body></html>' % \
             (title, pml_to_html(pml))
 
         with CurrentDir(output_dir):

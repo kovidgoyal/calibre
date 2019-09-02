@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
@@ -18,7 +19,7 @@ class GryOnlinePl(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class': [
                            'gc660', 'gc660 S013', 'news_endpage_tit', 'news_container', 'news']})]
     remove_tags = [
-        dict({'class': ['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'S013-npb', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2', 'twitter-share-button']})]  # noqa
+        dict({'class': ['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'S013-npb', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2', 'social-for-old-news', 'social-for-old-rec']})]  # noqa
     feeds = [
         (u'Newsy', 'http://www.gry-online.pl/rss/news.xml'),
         ('Teksty', u'http://www.gry-online.pl/rss/teksty.xml')]
@@ -37,7 +38,7 @@ class GryOnlinePl(BasicNewsRecipe):
                         soup2 = self.index_to_soup(finalurl)
                         break
                     except:
-                        print 'retrying in 0.5s'
+                        print('retrying in 0.5s')
                         time.sleep(0.5)
                 pagetext = soup2.find(attrs={'class': 'gc660'})
                 for r in pagetext.findAll(name='header'):
@@ -73,7 +74,7 @@ class GryOnlinePl(BasicNewsRecipe):
                             soup2 = self.index_to_soup(finalurl)
                             break
                         except:
-                            print 'retrying in 0.5s'
+                            print('retrying in 0.5s')
                             time.sleep(0.5)
                     tag = soup2.find('div', attrs={'class': 'S018stronyr'})
                     pagetext = soup2.find(attrs={'class': 'gc660'})

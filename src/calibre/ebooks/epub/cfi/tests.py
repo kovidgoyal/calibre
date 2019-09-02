@@ -1,15 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest
-from future_builtins import map
+import unittest, numbers
+from polyglot.builtins import map
 
-from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key
+from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
+from polyglot.builtins import iteritems, unicode_type
+
 
 class Tests(unittest.TestCase):
 
@@ -25,17 +26,21 @@ class Tests(unittest.TestCase):
 
     def test_parsing(self):
         p = parser()
+
         def step(x):
-            if isinstance(x, int):
+            if isinstance(x, numbers.Integral):
                 return {'num': x}
             return {'num':x[0], 'id':x[1]}
+
         def s(*args):
             return {'steps':list(map(step, args))}
+
         def r(*args):
             idx = args.index('!')
             ans = s(*args[:idx])
             ans['redirect'] = s(*args[idx+1:])
             return ans
+
         def o(*args):
             ans = s(1)
             step = ans['steps'][-1]
@@ -45,6 +50,7 @@ class Tests(unittest.TestCase):
                 typ, val = args[2:]
                 step[{'@':'spatial_offset', '~':'temporal_offset'}[typ]] = val
             return ans
+
         def a(before=None, after=None, **params):
             ans = o(':', 3)
             step = ans['steps'][-1]
@@ -54,7 +60,7 @@ class Tests(unittest.TestCase):
             if after is not None:
                 ta['after'] = after
             if params:
-                ta['params'] = {unicode(k):(v,) if isinstance(v, unicode) else v for k, v in params.iteritems()}
+                ta['params'] = {unicode_type(k):(v,) if isinstance(v, unicode_type) else v for k, v in iteritems(params)}
             if ta:
                 step['text_assertion'] = ta
             return ans
@@ -90,8 +96,44 @@ class Tests(unittest.TestCase):
         ]:
             self.assertEqual(p.parse_path(raw), (path, leftover))
 
+    def test_cfi_decode(self):
+        from calibre.ebooks.oeb.polish.parsing import parse
+        root = parse('''
+<html>
+<head></head>
+<body id="body01">
+        <p>…</p>
+        <p>…</p>
+        <p>…</p>
+        <p>…</p>
+        <p id="para05">xxx<em>yyy</em>0123456789</p>
+        <p>…</p>
+        <p>…</p>
+        <img id="svgimg" src="foo.svg" alt="…"/>
+        <p>…</p>
+        <p><span>hello</span><span>goodbye</span>text here<em>adieu</em>text there</p>
+    </body>
+</html>
+''', line_numbers=True, linenumber_attribute='data-lnum')
+        body = root[-1]
+
+        def test(cfi, expected):
+            self.assertIs(decode_cfi(root, cfi), expected)
+
+        for cfi in '/4 /4[body01] /900[body01] /2[body01]'.split():
+            test(cfi, body)
+
+        for i in range(len(body)):
+            test('/4/{}'.format((i + 1)*2), body[i])
+
+        p = body[4]
+        test('/4/999[para05]', p)
+        test('/4/999[para05]/2', p[0])
+
+
 def find_tests():
     return unittest.TestLoader().loadTestsFromTestCase(Tests)
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(find_tests())

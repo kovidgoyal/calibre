@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,13 +9,17 @@ from collections import namedtuple
 
 from calibre.ebooks.docx.writer.utils import convert_color
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
+from polyglot.builtins import iteritems, range, unicode_type
+
 
 class Dummy(object):
     pass
 
+
 Border = namedtuple('Border', 'css_style style width color level')
 border_style_weight = {
     x:100-i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
+
 
 class SpannedCell(object):
 
@@ -34,6 +37,10 @@ class SpannedCell(object):
         makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
         makeelement(tc, 'w:p')
 
+    def applicable_borders(self, edge):
+        return self.spanning_cell.applicable_borders(edge)
+
+
 def read_css_block_borders(self, css):
     obj = Dummy()
     rcbb(obj, css, store_css_style=True)
@@ -47,12 +54,14 @@ def read_css_block_borders(self, css):
         ))
         setattr(self, 'padding_' + edge, getattr(obj, 'padding_' + edge))
 
+
 def as_percent(x):
     if x and x.endswith('%'):
         try:
             return float(x.rstrip('%'))
         except Exception:
             pass
+
 
 def convert_width(tag_style):
     if tag_style is not None:
@@ -69,11 +78,12 @@ def convert_width(tag_style):
                 pass
     return ('auto', 0)
 
+
 class Cell(object):
 
     BLEVEL = 2
 
-    def __init__(self, row, html_tag, tag_style):
+    def __init__(self, row, html_tag, tag_style=None):
         self.row = row
         self.table = self.row.table
         self.html_tag = html_tag
@@ -85,7 +95,10 @@ class Cell(object):
             self.col_span = max(0, int(html_tag.get('colspan', 1)))
         except Exception:
             self.col_span = 1
-        self.valign = {'top':'top', 'bottom':'bottom', 'middle':'center'}.get(tag_style._get('vertical-align'))
+        if tag_style is None:
+            self.valign = 'center'
+        else:
+            self.valign = {'top':'top', 'bottom':'bottom', 'middle':'center'}.get(tag_style._get('vertical-align'))
         self.items = []
         self.width = convert_width(tag_style)
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
@@ -102,7 +115,7 @@ class Cell(object):
     def serialize(self, parent, makeelement):
         tc = makeelement(parent, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
-        makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=str(self.width[1]))
+        makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=unicode_type(self.width[1]))
         # For some reason, Word 2007 refuses to honor <w:shd> at the table or row
         # level, despite what the specs say, so we inherit and apply at the
         # cell level
@@ -111,9 +124,9 @@ class Cell(object):
             makeelement(tcPr, 'w:shd', w_val="clear", w_color="auto", w_fill=bc)
 
         b = makeelement(tcPr, 'w:tcBorders', append=False)
-        for edge, border in self.borders.iteritems():
+        for edge, border in iteritems(self.borders):
             if border is not None and border.width > 0 and border.style != 'none':
-                makeelement(b, 'w:' + edge, w_val=border.style, w_sz=str(border.width), w_color=border.color)
+                makeelement(b, 'w:' + edge, w_val=border.style, w_sz=unicode_type(border.width), w_color=border.color)
         if len(b) > 0:
             tcPr.append(b)
 
@@ -123,7 +136,7 @@ class Cell(object):
             if edge in {'top', 'bottom'} or (edge == 'left' and self is self.row.first_cell) or (edge == 'right' and self is self.row.last_cell):
                 padding += getattr(self.row, 'padding_' + edge)
             if padding > 0:
-                makeelement(m, 'w:' + edge, w_type='dxa', w_w=str(int(padding * 20)))
+                makeelement(m, 'w:' + edge, w_type='dxa', w_w=unicode_type(int(padding * 20)))
         if len(m) > 0:
             tcPr.append(m)
 
@@ -197,6 +210,7 @@ class Cell(object):
                 ans = self.table.rows[ridx+1].cells[idx]
         return getattr(ans, 'spanning_cell', ans)
 
+
 class Row(object):
 
     BLEVEL = 1
@@ -204,6 +218,7 @@ class Row(object):
     def __init__(self, table, html_tag, tag_style=None):
         self.table = table
         self.html_tag = html_tag
+        self.orig_tag_style = tag_style
         self.cells = []
         self.current_cell = None
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
@@ -227,15 +242,20 @@ class Row(object):
                 self.current_cell = None
 
     def add_block(self, block):
+        if self.current_cell is None:
+            self.start_new_cell(self.html_tag, self.orig_tag_style)
         self.current_cell.add_block(block)
 
     def add_table(self, table):
+        if self.current_cell is None:
+            self.current_cell = Cell(self, self.html_tag, self.orig_tag_style)
         return self.current_cell.add_table(table)
 
     def serialize(self, parent, makeelement):
         tr = makeelement(parent, 'w:tr')
         for cell in self.cells:
             cell.serialize(tr, makeelement)
+
 
 class Table(object):
 
@@ -244,6 +264,7 @@ class Table(object):
     def __init__(self, namespace, html_tag, tag_style=None):
         self.namespace = namespace
         self.html_tag = html_tag
+        self.orig_tag_style = tag_style
         self.rows = []
         self.current_row = None
         self.width = convert_width(tag_style)
@@ -288,7 +309,7 @@ class Table(object):
             for cell in tuple(row.cells):
                 idx = row.cells.index(cell)
                 if cell.col_span > 1 and (cell is row.cells[-1] or not isinstance(row.cells[idx+1], SpannedCell)):
-                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in xrange(1, cell.col_span)]
+                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in range(1, cell.col_span)]
 
         # Expand vertically
         for r, row in enumerate(self.rows):
@@ -301,7 +322,7 @@ class Table(object):
                         except Exception:
                             tcell = None
                         if tcell is None:
-                            nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in xrange(idx - len(nrow.cells))])
+                            nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in range(idx - len(nrow.cells))])
                             nrow.cells.append(sc)
                         else:
                             if isinstance(tcell, SpannedCell):
@@ -324,6 +345,8 @@ class Table(object):
         self.current_row.add_block(block)
 
     def add_table(self, table):
+        if self.current_row is None:
+            self.current_row = Row(self, self.html_tag, self.orig_tag_style)
         return self.current_row.add_table(table)
 
     def serialize(self, parent):
@@ -333,14 +356,14 @@ class Table(object):
             return
         tbl = makeelement(parent, 'w:tbl')
         tblPr = makeelement(tbl, 'w:tblPr')
-        makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=str(self.width[1]))
+        makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=unicode_type(self.width[1]))
         if self.float in {'left', 'right'}:
             kw = {'w_vertAnchor':'text', 'w_horzAnchor':'text', 'w_tblpXSpec':self.float}
             for edge in border_edges:
                 val = getattr(self, 'margin_' + edge) or 0
                 if {self.float, edge} == {'left', 'right'}:
                     val = max(val, 2)
-                kw['w_' + edge + 'FromText'] = str(max(0, int(val *20)))
+                kw['w_' + edge + 'FromText'] = unicode_type(max(0, int(val *20)))
             makeelement(tblPr, 'w:tblpPr', **kw)
         if self.jc is not None:
             makeelement(tblPr, 'w:jc', w_val=self.jc)

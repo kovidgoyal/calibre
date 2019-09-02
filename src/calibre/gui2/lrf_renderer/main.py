@@ -1,3 +1,4 @@
+from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time
@@ -5,17 +6,20 @@ import sys, logging, os, traceback, time
 from PyQt5.Qt import (
     QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon, Qt, QCoreApplication, QThread, QScrollBar)
 
-from calibre import __appname__, setup_cli_handlers, islinux, isbsd
+from calibre import __appname__, setup_cli_handlers, islinux, isbsd, as_unicode
+from calibre.gui2 import gprefs
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
-from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, \
-                         config, choose_files, Application
+from calibre.gui2 import (
+        error_dialog, choose_files, Application
+        )
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.lrf_renderer.document import Document
 from calibre.gui2.search_box import SearchBox2
+
 
 class RenderWorker(QThread):
 
@@ -45,6 +49,7 @@ class RenderWorker(QThread):
             self.aborted = True
             self.lrf.keep_parsing = False
 
+
 class Config(QDialog, Ui_ViewerConfig):
 
     def __init__(self, parent, opts):
@@ -53,6 +58,7 @@ class Config(QDialog, Ui_ViewerConfig):
         self.setupUi(self)
         self.white_background.setChecked(opts.white_background)
         self.hyphenate.setChecked(opts.hyphenate)
+
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -103,15 +109,12 @@ class Main(MainWindow, Ui_MainWindow):
         self.closed = False
 
     def configure(self, triggered):
-        opts = config['LRF_ebook_viewer_options']
-        if not opts:
-            opts = self.opts
+        opts = self.opts
         d = Config(self, opts)
         d.exec_()
         if d.result() == QDialog.Accepted:
-            opts.white_background = bool(d.white_background.isChecked())
-            opts.hyphenate = bool(d.hyphenate.isChecked())
-            config['LRF_ebook_viewer_options'] = opts
+            gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
+            gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
 
     def set_ebook(self, stream):
         self.progress_bar.setMinimum(0)
@@ -176,11 +179,11 @@ class Main(MainWindow, Ui_MainWindow):
                 import cProfile
                 lrf = self.renderer.lrf
                 cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
-                print 'Stats written to', self.renderer.lrf.metadata.title+'.stats'
+                print('Stats written to', self.renderer.lrf.metadata.title+'.stats')
             else:
                 start = time.time()
                 self.document.render(self.renderer.lrf)
-                print 'Layout time:', time.time()-start, 'seconds'
+                print('Layout time:', time.time()-start, 'seconds')
             self.renderer.lrf = None
 
             self.graphics_view.setScene(self.document)
@@ -193,10 +196,10 @@ class Main(MainWindow, Ui_MainWindow):
             self.graphics_view.setFocus(Qt.OtherFocusReason)
         elif self.renderer.exception is not None:
             exception = self.renderer.exception
-            print >>sys.stderr, 'Error rendering document'
-            print >>sys.stderr, exception
-            print >>sys.stderr, self.renderer.formatted_traceback
-            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+            print('Error rendering document', file=sys.stderr)
+            print(exception, file=sys.stderr)
+            print(self.renderer.formatted_traceback, file=sys.stderr)
+            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + as_unicode(exception) + u'</p>'
             msg += u'<p>Failed to render document</p>'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'
@@ -269,7 +272,7 @@ def option_parser():
     parser = option_parser(_('''\
 %prog [options] book.lrf
 
-Read the LRF ebook book.lrf
+Read the LRF e-book book.lrf
 '''))
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose',
                       help=_('Print more information about the rendering process'))
@@ -283,16 +286,15 @@ Read the LRF ebook book.lrf
                       help=_('Profile the LRF renderer'))
     return parser
 
+
 def normalize_settings(parser, opts):
-    saved_opts = config['LRF_ebook_viewer_options']
-    if not saved_opts:
-        saved_opts = opts
-    for opt in parser.option_list:
-        if not opt.dest:
-            continue
-        if getattr(opts, opt.dest) == opt.default and hasattr(saved_opts, opt.dest):
-            continue
-        setattr(saved_opts, opt.dest, getattr(opts, opt.dest))
+    saved_opts = opts
+    dh = gprefs.get('lrf_viewer_hyphenate', None)
+    if dh is not None:
+        opts.hyphenate = bool(dh)
+    wb = gprefs.get('lrf_viewer_white_background', None)
+    if wb is not None:
+        opts.white_background = bool(wb)
     return saved_opts
 
 
@@ -307,8 +309,6 @@ def main(args=sys.argv, logger=None):
         override = 'calibre-lrf-viewer' if islinux else None
         app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon(I('viewer.png')))
-        QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)
         stream = open(args[1], 'rb') if len(args) > 1 else None
         main = file_renderer(stream, opts, logger=logger)
@@ -320,7 +320,6 @@ def main(args=sys.argv, logger=None):
         return app.exec_()
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
-
-

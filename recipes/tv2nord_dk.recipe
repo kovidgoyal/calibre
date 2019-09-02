@@ -1,0 +1,26 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+TV2 Nord
+'''
+
+
+class Tv2nord_dk(BasicNewsRecipe):
+    __author__            = 'CoderAllan.github.com'
+    title                 = 'TV2 Nord'
+    description           = ('Siden 1989 har nordjyderne inviteret TV2 Nord ind i stuen, men med '
+                             'premieren på Nordjylland LIVE i 2014 blev det forhold vendt om. Nu '
+                             'inviterer TV2 Nord nordjyderne i fjernsynet.')
+    category              = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article        = 7
+    max_articles_per_feed = 50
+    auto_cleanup          = True
+    language              = 'da'
+
+    # Feed are found here: http://www.tv2nord.dk/tv2nord/rss-feed-fra-tv2-nord
+    feeds = [
+        ('TV2 Nord', 'http://www.tv2nord.dk/rss'),
+    ]

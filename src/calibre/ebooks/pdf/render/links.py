@@ -1,29 +1,36 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
-from urllib2 import unquote
 
-from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String
+from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log
+from polyglot.builtins import iteritems
+from polyglot.urllib import unquote, urlparse
+
 
 class Destination(Array):
 
     def __init__(self, start_page, pos, get_pageref):
         pnum = start_page + max(0, pos['column'])
-        try:
-            pref = get_pageref(pnum)
-        except IndexError:
-            pref = get_pageref(pnum-1)
+        q = pnum
+        while q > -1:
+            try:
+                pref = get_pageref(q)
+                break
+            except IndexError:
+                pos['left'] = pos['top'] = 0
+                q -= 1
+        if q != pnum:
+            current_log().warn('Could not find page {} for link destination, using page {} instead'.format(pnum, q))
         super(Destination, self).__init__([
             pref, Name('XYZ'), pos['left'], pos['top'], None
         ])
+
 
 class Links(object):
 
@@ -38,7 +45,7 @@ class Links(object):
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
-        for anchor, pos in anchors.iteritems():
+        for anchor, pos in iteritems(anchors):
             a[anchor] = Destination(start_page, pos, self.pdf.get_pageref)
         for link in links:
             href, page, rect = link
@@ -137,5 +144,3 @@ class Links(object):
         item = Dictionary({'Parent':parentref, 'Dest':dest,
                            'Title':UTF16String(toc.text or _('Unknown'))})
         return self.pdf.objects.add(item)
-
-

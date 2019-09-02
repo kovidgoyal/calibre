@@ -1,0 +1,26 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+Frederiksberg Bladet
+'''
+
+
+class FrederiksbergBladet_dk(BasicNewsRecipe):
+    __author__ = 'CoderAllan.github.com'
+    title = 'Frederiksberg Bladet'
+
+    category = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    auto_cleanup = True
+    language = 'da'
+
+    feeds = [
+        ('Frederiksberg Bladet', 'http://minby.dk/frederiksberg-bladet/feed/'),
+        ('Kommentarer til Frederiksberg Bladet', 'http://minby.dk/frederiksberg-bladet/comments/feed/'),
+
+    ]
+

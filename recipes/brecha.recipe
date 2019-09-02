@@ -1,12 +1,14 @@
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.brecha.com.uy
 '''
 
-import urllib
+try:
+    from urllib.parse import urlencode, quote
+except ImportError:
+    from urllib import urlencode, quote
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -40,7 +42,7 @@ class Brecha(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.brecha.com.uy/index.php/acceder-miembros')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'task': 'login', 'view': 'register', 'username': self.username, 'password': self.password
+            data = urlencode({'task': 'login', 'view': 'register', 'username': self.username, 'password': self.password
                                      })
             br.open(
                 'http://www.brecha.com.uy/index.php/index.php?option=com_osemsc&controller=register', data)
@@ -74,5 +76,5 @@ class Brecha(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.brecha.com.uy/index.php')
         for image in soup.findAll('img', alt=True):
             if image['alt'].startswith('Tapa '):
-                return 'http://www.brecha.com.uy' + urllib.quote(image['src'])
+                return 'http://www.brecha.com.uy' + quote(image['src'])
         return None

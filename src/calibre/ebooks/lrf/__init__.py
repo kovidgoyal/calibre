@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -12,6 +14,7 @@ from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
 from calibre.ebooks import ConversionError
 
 __docformat__ = "epytext"
+
 
 class LRFParseError(Exception):
     pass
@@ -33,9 +36,11 @@ class PRS500_PROFILE(object):
 
     name = 'prs500'
 
+
 def find_custom_fonts(options, logger):
     from calibre.utils.fonts.scanner import font_scanner
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
+
     def family(cmd):
         return cmd.split(',')[-1].strip()
     if options.serif_family:
@@ -88,7 +93,7 @@ def Book(options, logger, font_delta=0, header=None,
                linespace=int(10*profile.line_space),
                baselineskip=baselineskip,
                wordspace=10*options.wordspace)
-    if fonts['serif'] and fonts['serif'].has_key('normal'):  # noqa
+    if fonts['serif'] and 'normal' in fonts['serif']:
         tsd['fontfacename'] = fonts['serif']['normal'][1]
 
     book = _Book(textstyledefault=tsd,
@@ -105,7 +110,6 @@ def Book(options, logger, font_delta=0, header=None,
     for family in ['serif', 'sans', 'mono']:
         if not fonts[family]:
             fonts[family] = {'normal' : (None, profile.default_fonts[family])}
-        elif not fonts[family].has_key('normal'):  # noqa
+        elif 'normal' not in fonts[family]:
             raise ConversionError('Could not find the normal version of the ' + family + ' font')
     return book, fonts
-

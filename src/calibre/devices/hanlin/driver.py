@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
@@ -12,11 +13,12 @@ import re
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class HANLINV3(USBMS):
 
     name           = 'Hanlin V3 driver'
     gui_name       = 'Hanlin V3'
-    description    = _('Communicate with Hanlin V3 eBook readers.')
+    description    = _('Communicate with Hanlin V3 e-book readers.')
     author         = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -44,11 +46,11 @@ class HANLINV3(USBMS):
         card = names.get('carda', None)
 
         try:
-            main_num = int(re.findall('\d+', main)[0]) if main else None
+            main_num = int(re.findall(r'\d+', main)[0]) if main else None
         except:
             main_num = None
         try:
-            card_num = int(re.findall('\d+', card)[0]) if card else None
+            card_num = int(re.findall(r'\d+', card)[0]) if card else None
         except:
             card_num = None
 
@@ -81,6 +83,7 @@ class HANLINV3(USBMS):
             drives['carda'] = main
         return drives
 
+
 class SPECTRA(HANLINV3):
 
     name = 'Spectra'
@@ -91,10 +94,11 @@ class SPECTRA(HANLINV3):
 
     SUPPORTS_SUB_DIRS = True
 
+
 class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'
     gui_name       = 'Hanlin V5'
-    description    = _('Communicate with Hanlin V5 eBook readers.')
+    description    = _('Communicate with Hanlin V5 e-book readers.')
 
     VENDOR_ID	= [0x0492]
     PRODUCT_ID	= [0x8813]
@@ -108,11 +112,12 @@ class HANLINV5(HANLINV3):
 
     OSX_EJECT_COMMAND = ['diskutil', 'unmount', 'force']
 
+
 class BOOX(HANLINV3):
 
     name           = 'BOOX driver'
     gui_name       = 'BOOX'
-    description    = _('Communicate with the BOOX eBook reader.')
+    description    = _('Communicate with the BOOX e-book reader.')
     author         = 'Jesus Manuel Marinho Valcarce'
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
@@ -155,4 +160,3 @@ class BOOX(HANLINV3):
 
     def linux_swap_drives(self, drives):
         return drives
-

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-# from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '20011, John Schember <john@nachtimwald.com>'
@@ -17,6 +17,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.utils.imghdr import identify
 from calibre.utils.img import save_cover_data_to, Canvas, image_from_data
+from polyglot.builtins import codepoint_to_chr, range
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
@@ -110,6 +111,7 @@ MIBNUM_TO_NAME = {
     2258: 'cp1258',
 }
 
+
 class HeaderRecord(object):
     '''
     Plucker header. PDB record 0.
@@ -127,7 +129,7 @@ class HeaderRecord(object):
         self.home_html = None
 
         self.reserved = {}
-        for i in xrange(self.records):
+        for i in range(self.records):
             adv = 4*i
             name, = struct.unpack('>H', raw[6+adv:8+adv])
             id, = struct.unpack('>H', raw[8+adv:10+adv])
@@ -164,7 +166,7 @@ class SectionHeaderText(object):
         # Paragraph attributes.
         self.attributes = []
 
-        for i in xrange(section_header.paragraphs):
+        for i in range(section_header.paragraphs):
             adv = 4*i
             self.sizes.append(struct.unpack('>H', raw[adv:2+adv])[0])
             self.attributes.append(struct.unpack('>H', raw[2+adv:4+adv])[0])
@@ -198,7 +200,7 @@ class SectionMetadata(object):
         record_count, = struct.unpack('>H', raw[0:2])
 
         adv = 0
-        for i in xrange(record_count):
+        for i in range(record_count):
             try:
                 type, length = struct.unpack_from('>HH', raw, 2 + adv)
             except struct.error:
@@ -211,7 +213,7 @@ class SectionMetadata(object):
             # ExceptionalCharSets
             elif type == 2:
                 ii_adv = 0
-                for ii in xrange(length / 2):
+                for ii in range(length / 2):
                     uid, = struct.unpack('>H', raw[6+adv+ii_adv:8+adv+ii_adv])
                     mib, = struct.unpack('>H', raw[8+adv+ii_adv:10+adv+ii_adv])
                     self.exceptional_uid_encodings[uid] = MIBNUM_TO_NAME.get(mib, 'latin-1')
@@ -245,7 +247,7 @@ class SectionText(object):
 
 class SectionCompositeImage(object):
     '''
-    A composite image consists of a a 2D array
+    A composite image consists of a 2D array
     of rows and columns. The entries in the array
     are uid's.
     '''
@@ -268,9 +270,9 @@ class SectionCompositeImage(object):
         # to an image record.
         self.layout = []
         offset = 4
-        for i in xrange(self.rows):
+        for i in range(self.rows):
             col = []
-            for j in xrange(self.columns):
+            for j in range(self.columns):
                 col.append(struct.unpack('>H', raw[offset:offset+2])[0])
                 offset += 2
             self.layout.append(col)
@@ -494,11 +496,11 @@ class Reader(FormatReader):
                     html += u'<p>'
                 paragraph_open = True
 
-            c = ord(d[offset])
+            c = ord(d[offset:offset+1])
             # PHTML "functions"
             if c == 0x0:
                 offset += 1
-                c = ord(d[offset])
+                c = ord(d[offset:offset+1])
                 # Page link begins
                 # 2 Bytes
                 # record ID
@@ -715,7 +717,7 @@ class Reader(FormatReader):
             elif c == 0xa0:
                 html += '&nbsp;'
             else:
-                html += unichr(c)
+                html += codepoint_to_chr(c)
             offset += 1
             if offset in paragraph_offsets:
                 need_set_p_id = True

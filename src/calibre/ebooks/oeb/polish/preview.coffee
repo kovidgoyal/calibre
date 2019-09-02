@@ -214,7 +214,7 @@ get_matched_css = (node, is_ancestor, all_properties) ->
     node_style = window.getComputedStyle(node)
 
     for sheet, sheet_index in document.styleSheets
-        if sheet.disabled
+        if sheet.disabled or not sheet.cssRules
             continue
         process_rules(node, sheet.cssRules, [], sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
 
@@ -354,4 +354,3 @@ class PreviewIntegration
 
 window.calibre_preview_integration = new PreviewIntegration()
 window.onload = window.calibre_preview_integration.onload
-

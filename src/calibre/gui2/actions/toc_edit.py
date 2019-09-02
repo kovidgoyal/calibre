@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,8 +13,10 @@ from PyQt5.Qt import (QTimer, QDialog, QGridLayout, QCheckBox, QLabel,
 
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import iteritems, unicode_type
 
 SUPPORTED = {'EPUB', 'AZW3'}
+
 
 class ChooseFormat(QDialog):  # {{{
 
@@ -42,26 +43,27 @@ class ChooseFormat(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)
         self.resize(self.sizeHint())
-        self.finished.connect(lambda code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
+        connect_lambda(self.finished, self, lambda self, code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
 
     def do_all(self):
         for b in self.buttons:
             b.setChecked(True)
         self.accept()
 
-    @dynamic_property
+    @property
     def formats(self):
-        def fget(self):
-            for b in self.buttons:
-                if b.isChecked():
-                    yield unicode(b.text())[1:]
-        def fset(self, formats):
-            formats = {x.upper() for x in formats}
-            for b in self.buttons:
-                b.setChecked(b.text()[1:] in formats)
-        return property(fget=fget, fset=fset)
+        for b in self.buttons:
+            if b.isChecked():
+                yield unicode_type(b.text())[1:]
+
+    @formats.setter
+    def formats(self, formats):
+        formats = {x.upper() for x in formats}
+        for b in self.buttons:
+            b.setChecked(b.text()[1:] in formats)
 
 # }}}
+
 
 class ToCEditAction(InterfaceAction):
 
@@ -85,7 +87,7 @@ class ToCEditAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -126,7 +128,7 @@ class ToCEditAction(InterfaceAction):
         return self.get_supported_books(ans)
 
     def do_edit(self, book_id_map):
-        for book_id, fmts in book_id_map.iteritems():
+        for book_id, fmts in iteritems(book_id_map):
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
                 if d.exec_() != d.Accepted:

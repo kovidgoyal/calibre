@@ -6,6 +6,12 @@ def classes(classes):
     return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def absolutize(url):
+    if url.startswith('/'):
+        url = 'https://www.nytimes.com' + url
+    return url
+
+
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title = u'New York Times Book Review'
     language = 'en'
@@ -18,30 +24,27 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
-        dict(id=['headline', 'story-meta-footer']),
-        dict(itemprop=['associatedMedia', 'articleBody', 'reviewBody']),
-        classes('story-body'),
-    ]
-    remove_tags = [
-        dict(id=['d-promo-realestate', 'books-update-email-promo']),
-        classes('skip-to-text-link story-meta-footer-sharetools story-footer-links'),
+            dict(name='h1'),
+            dict(attrs={'data-testid':'photoviewer-wrapper'}),
+            dict(itemprop=['author creator', 'articleBody']),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup(
-            'http://www.nytimes.com/pages/books/review/index.html')
+            'https://www.nytimes.com/pages/books/review/index.html')
 
         # Find TOC
-        toc = soup.find('div', attrs={'class': 'rank'})
+        toc = soup.find('section', id='collection-book-review').find('section').find('ol')
         main_articles, articles = [], []
         feeds = [('Features', main_articles), ('Latest', articles)]
-        for h2 in toc.findAll('h2', attrs={'class': 'headline'}):
+        for li in toc.findAll('li'):
+            h2 = li.find('h2')
             a = h2.find('a', href=True)
             if a is not None:
                 title = self.tag_to_string(a)
-                url = a['href']
+                url = absolutize(a['href'])
                 desc = ''
-                p = h2.findNextSibling('p', attrs={'class': 'summary'})
+                p = h2.findNextSibling('p')
                 if p:
                     desc = self.tag_to_string(p)
                 main_articles.append(
@@ -49,14 +52,15 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                 self.log('Found:', title, 'at', url)
                 if desc:
                     self.log('\t', desc)
-        for li in soup.find(id='latest-panel').find('ol').findAll('li'):
-            a = li.find('a', attrs={'class': 'story-link'}, href=True)
-            if a is None:
-                continue
-            url = a['href']
-            m = a.find(attrs={'class': 'story-meta'})
-            title = self.tag_to_string(m.find('h2'))
-            desc = self.tag_to_string(m.find(attrs={'class': 'summary'}))
+        for li in soup.find(id='stream-panel').find('ol').findAll('li'):
+            h2 = li.find('h2')
+            a = h2.findParent('a')
+            url = absolutize(a['href'])
+            p = h2.findNextSibling('p')
+            title = self.tag_to_string(h2)
+            desc = ''
+            if p:
+                desc = self.tag_to_string(p)
             articles.append({'title': title, 'url': url, 'description': desc})
             self.log('Found:', title, 'at', url)
             if desc:

@@ -18,9 +18,12 @@ class EandP(BasicNewsRecipe):
     encoding = 'utf8'
     cover_url = 'http://www.editorandpublisher.com/images/EP_main_logo.gif'
     remove_javascript = True
+    auto_cleanup = True
 
     html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
+        '--comment', description,
+        '--category', category,
+        '--publisher', publisher
     ]
 
     html2epub_options = 'publisher="' + publisher + \
@@ -34,21 +37,11 @@ class EandP(BasicNewsRecipe):
                  h2{font-size: large;}
                 '''
 
-    # Keep only div:itemmgap
-
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'itemmgap'})
-    ]
-
     # Remove commenting/social media lins
 
     remove_tags_after = [dict(name='div', attrs={'class': 'clear'})]
 
-    feeds = [(u'Breaking News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx'),
-             (u'Business News',
-              u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=2'),
-             (u'Ad/Circ News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=3'),
-             (u'Newsroom', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=4'),
-             (u'Technology News',
-              u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=5'),
-             (u'Syndicates News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=7')]
+    feeds = [
+        (u'Editor & Publisher', u'http://www.editorandpublisher.com/feed/'),
+        (u'Comments', u'http://www.editorandpublisher.com/comments/feed/'),
+    ]

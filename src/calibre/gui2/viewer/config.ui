@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure Ebook viewer</string>
+   <string>Configure E-book viewer</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
@@ -67,8 +67,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>336</width>
-            <height>210</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -240,8 +240,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>303</width>
-            <height>230</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -271,7 +271,7 @@ QToolBox::tab:hover {
            <item row="5" column="0">
             <widget class="QLabel" name="label_27">
              <property name="text">
-              <string>In &amp;Portrait orientation:</string>
+              <string>In &amp;portrait orientation:</string>
              </property>
              <property name="buddy">
               <cstring>opt_cols_per_screen_portrait</cstring>
@@ -304,7 +304,7 @@ QToolBox::tab:hover {
            <item row="9" column="0">
             <widget class="QLabel" name="label_18">
              <property name="text">
-              <string>&amp;Top margin</string>
+              <string>&amp;Top margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_top_margin</cstring>
@@ -327,7 +327,7 @@ QToolBox::tab:hover {
            <item row="10" column="0">
             <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>&amp;Side margin</string>
+              <string>&amp;Side margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_side_margin</cstring>
@@ -350,7 +350,7 @@ QToolBox::tab:hover {
            <item row="11" column="0">
             <widget class="QLabel" name="label_17">
              <property name="text">
-              <string>&amp;Bottom margin</string>
+              <string>&amp;Bottom margin:</string>
              </property>
              <property name="buddy">
               <cstring>opt_bottom_margin</cstring>
@@ -387,7 +387,7 @@ QToolBox::tab:hover {
            <item row="6" column="0">
             <widget class="QLabel" name="label_28">
              <property name="text">
-              <string>In &amp;Landscape orientation: </string>
+              <string>In &amp;landscape orientation: </string>
              </property>
              <property name="buddy">
               <cstring>opt_cols_per_screen_landscape</cstring>
@@ -414,8 +414,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>326</width>
-            <height>158</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -516,8 +516,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>314</width>
-            <height>54</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -543,14 +543,14 @@ QToolBox::tab:hover {
              <item>
               <widget class="QPushButton" name="change_background_color_button">
                <property name="text">
-                <string>Change</string>
+                <string>&amp;Change</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="reset_background_color_button">
                <property name="text">
-                <string>Reset</string>
+                <string>&amp;Reset</string>
                </property>
               </widget>
              </item>
@@ -575,7 +575,7 @@ QToolBox::tab:hover {
              <item>
               <widget class="QPushButton" name="change_text_color_button">
                <property name="text">
-                <string>Change</string>
+                <string>&amp;Change</string>
                </property>
               </widget>
              </item>
@@ -595,180 +595,150 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
-           <string>Page Fl&amp;ip/Scrolling options</string>
+           <string>Page fl&amp;ip/scrolling options</string>
           </attribute>
-          <widget class="QLabel" name="label_11">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>9</y>
-             <width>111</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Page flip &amp;duration:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_page_flip_duration</cstring>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
-           <property name="geometry">
-            <rect>
-             <x>251</x>
-             <y>9</y>
-             <width>76</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="specialValueText">
-            <string>disabled</string>
-           </property>
-           <property name="suffix">
-            <string> secs</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.500000000000000</double>
-           </property>
-          </widget>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>115</y>
-             <width>374</width>
-             <height>91</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>Scrolling in flow mode</string>
-           </property>
-           <layout class="QFormLayout" name="formLayout_3">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
-               <string>Control the amount the mouse &amp;wheel scrolls:</string>
-              </property>
-              <property name="buddy">
-               <cstring>opt_wheel_scroll_fraction</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="opt_wheel_scroll_fraction">
-              <property name="toolTip">
-               <string>This is a percentage, by making it less than 100 you can decrease the amount the wheel scrolls by, by making it more than 100 you can increase the scroll amount.</string>
-              </property>
-              <property name="suffix">
-               <string> %</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>2000</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_30">
-              <property name="text">
-               <string>Control the amount the arrow &amp;keys scroll:</string>
-              </property>
-              <property name="buddy">
-               <cstring>opt_line_scroll_fraction</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QSpinBox" name="opt_line_scroll_fraction">
-              <property name="toolTip">
-               <string>This is a percentage, by making it less than 100 you can decrease the amount the arrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
-              </property>
-              <property name="suffix">
-               <string> %</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>2000</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QCheckBox" name="opt_tap_flips_pages">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>37</y>
-             <width>219</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>&amp;Tapping on the page flips pages</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="opt_wheel_flips_pages">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>63</y>
-             <width>174</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Mouse &amp;wheel flips pages</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
-           <property name="geometry">
-            <rect>
-             <x>9</x>
-             <y>89</y>
-             <width>236</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Line &amp;scrolling stops at page breaks</string>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="vlayout123">
+           <item>
+            <layout class="QFormLayout" name="formLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Page flip &amp;duration:</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_page_flip_duration</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
+               <property name="specialValueText">
+                <string>disabled</string>
+               </property>
+               <property name="suffix">
+                <string> secs</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>3.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.500000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="opt_tap_flips_pages">
+               <property name="text">
+                <string>&amp;Tapping on the page flips pages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="opt_wheel_flips_pages">
+               <property name="text">
+                <string>Mouse &amp;wheel flips pages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
+               <property name="text">
+                <string>Line &amp;scrolling stops at page breaks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Scrolling in flow mode</string>
+               </property>
+               <layout class="QFormLayout" name="formLayout_3">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_29">
+                  <property name="text">
+                   <string>Control the amount the mouse &amp;wheel scrolls:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_wheel_scroll_fraction</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="opt_wheel_scroll_fraction">
+                  <property name="toolTip">
+                   <string>This is a percentage, by making it less than 100 you can decrease the amount the wheel scrolls by, by making it more than 100 you can increase the scroll amount.</string>
+                  </property>
+                  <property name="suffix">
+                   <string> %</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>1000</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>Control the amount the arrow &amp;keys scroll:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>opt_line_scroll_fraction</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="opt_line_scroll_fraction">
+                  <property name="toolTip">
+                   <string>This is a percentage, by making it less than 100 you can decrease the amount the arrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
+                  </property>
+                  <property name="suffix">
+                   <string> %</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>1000</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="page_4">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>807</width>
-            <height>428</height>
+            <width>799</width>
+            <height>354</height>
            </rect>
           </property>
           <attribute name="label">
@@ -787,129 +757,119 @@ QToolBox::tab:hover {
              <property name="toolTip">
               <string>The default language to use for hyphenation rules. If the book does not specify a language, this will be used.</string>
              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="hyphenate_label">
-              <property name="text">
-               <string>Default &amp;language for hyphenation:</string>
-              </property>
-              <property name="buddy">
-               <cstring>hyphenate_default_lang</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_show_controls">
-              <property name="text">
-               <string>Show &amp;controls in the viewer window</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_26">
-              <property name="text">
-               <string>&amp;Search online URL:</string>
-              </property>
-              <property name="buddy">
-               <cstring>search_online_url</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QLineEdit" name="search_online_url">
-              <property name="toolTip">
-               <string>Change the search engine used to perform online searches for selected text.
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="3">
+            <widget class="QCheckBox" name="opt_show_controls">
+             <property name="text">
+              <string>Show &amp;controls in the viewer window</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_26">
+             <property name="text">
+              <string>Search &amp;online URL:</string>
+             </property>
+             <property name="buddy">
+              <cstring>search_online_url</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="search_online_url">
+             <property name="toolTip">
+              <string>Change the search engine used to perform online searches for selected text.
 You must enter the search URL for the search engine, with the placeholder
 {text}, which will be replaced by the selected text.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_remember_window_size">
-              <property name="text">
-               <string>Remember last used &amp;window size and layout</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_copy_bookmarks_to_file">
-              <property name="toolTip">
-               <string>Keep a copy of all bookmarks/current page information inside the ebook file, so that you can share them by simply sending the ebook file itself. Currently only works with ebooks in the EPUB format.</string>
-              </property>
-              <property name="text">
-               <string>Keep a copy of &amp;bookmarks/current page inside the ebook file, for easy sharing</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_remember_current_page">
-              <property name="text">
-               <string>Remember the &amp;current page when quitting</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_singleinstance">
-              <property name="toolTip">
-               <string>Normally, you can view multiple books in calibre, each in its own viewer window. With this option, if you attempt to view a second book, it will replace the previously opened book instead of using a new window.</string>
-              </property>
-              <property name="text">
-               <string>Allow only a &amp;single book to be viewed at a time (needs restart)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0" colspan="3">
-             <widget class="QCheckBox" name="opt_fit_images">
-              <property name="text">
-               <string>&amp;Resize images larger than the viewer window (needs restart)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0">
-             <widget class="QLabel" name="label_31">
-              <property name="text">
-               <string>Misc. Page Indicator Options:</string>
-              </property>
-              <property name="buddy">
-               <cstring></cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QComboBox" name="page_indicator_opts">
-              <item>
-               <property name="text">
-                <string>Do Not Show Chapter Indicator</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show Book Indicator as Delta</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show Chapter Indicator</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show Chapter indicator as Delta</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show Chapter and Book Indicator as Delta</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           <item row="12" column="0">
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_remember_window_size">
+             <property name="text">
+              <string>Remember last used &amp;window size and layout</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_remember_current_page">
+             <property name="text">
+              <string>Remember the current &amp;page when quitting</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_copy_bookmarks_to_file">
+             <property name="toolTip">
+              <string>Keep a copy of all bookmarks/current page information inside the e-book file, so that you can share them by simply sending the e-book file itself. Currently only works with e-books in the EPUB format.</string>
+             </property>
+             <property name="text">
+              <string>Keep a copy of &amp;bookmarks/current page inside the e-book file, for easy sharing</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_singleinstance">
+             <property name="toolTip">
+              <string>Normally, you can view multiple books in calibre, each in its own viewer window. With this option, if you attempt to view a second book, it will replace the previously opened book instead of using a new window.</string>
+             </property>
+             <property name="text">
+              <string>Allow only a single book to be &amp;viewed at a time (needs restart)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_fit_images">
+             <property name="text">
+              <string>&amp;Resize images larger than the viewer window (needs restart)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
             <widget class="QPushButton" name="clear_search_history_button">
              <property name="text">
-              <string>Clear search history</string>
+              <string>Clear search &amp;history</string>
              </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Misc. Page Indicator Options:</string>
+             </property>
+             <property name="buddy">
+              <cstring></cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="1">
+            <widget class="QComboBox" name="page_indicator_opts">
+             <item>
+              <property name="text">
+               <string>Do Not Show Chapter Indicator</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Show Book Indicator as Delta</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Show Chapter Indicator</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Show Chapter indicator as Delta</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Show Chapter and Book Indicator as Delta</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -937,13 +897,13 @@ You must enter the search URL for the search engine, with the placeholder
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>User &amp;Stylesheet</string>
+       <string>User &amp;stylesheet</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>&lt;p&gt;A CSS stylesheet that can be used to control the look and feel of books. For examples, click &lt;a href=&quot;http://www.mobileread.com/forums/showthread.php?t=51500&quot;&gt;here&lt;/a&gt;.</string>
+          <string>&lt;p&gt;A CSS stylesheet that can be used to control the look and feel of books. For examples, click &lt;a href=&quot;https://www.mobileread.com/forums/showthread.php?t=51500&quot;&gt;here&lt;/a&gt;.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

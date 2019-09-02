@@ -1,28 +1,33 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, errno, select
 
+
 class INotifyError(Exception):
     pass
+
 
 class NoSuchDir(ValueError):
     pass
 
+
 class BaseDirChanged(ValueError):
     pass
+
 
 class DirTooLarge(ValueError):
 
     def __init__(self, bdir):
         ValueError.__init__(self, 'The directory {0} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches'.format(bdir))
 
+
 _inotify = None
+
 
 def load_inotify():  # {{{
     ''' Initialize the inotify ctypes wrapper '''
@@ -64,6 +69,7 @@ def load_inotify():  # {{{
         _inotify = (init1, add_watch, rm_watch, read)
     return _inotify
 # }}}
+
 
 class INotify(object):
 
@@ -196,8 +202,10 @@ class INotify(object):
         'Return True iff there are events waiting to be read. Blocks if timeout is None. Polls if timeout is 0.'
         return len((select.select([self._inotify_fd], [], []) if timeout is None else select.select([self._inotify_fd], [], [], timeout))[0]) > 0
 
+
 def realpath(path):
     return os.path.abspath(os.path.realpath(path))
+
 
 class INotifyTreeWatcher(INotify):
 
@@ -312,15 +320,16 @@ class INotifyTreeWatcher(INotify):
         self.modified = set()
         return ret
 
+
 if __name__ == '__main__':
     w = INotifyTreeWatcher(sys.argv[-1])
     w()
-    print ('Monitoring', sys.argv[-1], 'press Ctrl-C to stop')
+    print('Monitoring', sys.argv[-1], 'press Ctrl-C to stop')
     try:
         while w.wait():
             modified = w()
             for path in modified:
-                print (path or sys.argv[-1], 'changed')
+                print(path or sys.argv[-1], 'changed')
         raise SystemExit('inotify flaked out')
     except KeyboardInterrupt:
         pass

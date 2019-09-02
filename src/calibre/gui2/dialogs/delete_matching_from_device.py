@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -11,6 +13,8 @@ from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string, \
 from calibre.gui2.dialogs.delete_matching_from_device_ui import \
                                             Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
+from polyglot.builtins import unicode_type
+
 
 class tableItem(QTableWidgetItem):
 
@@ -25,17 +29,20 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return self.sort < other.sort
 
+
 class centeredTableItem(tableItem):
 
     def __init__(self, text):
         tableItem.__init__(self, text)
         self.setTextAlignment(Qt.AlignCenter)
 
+
 class titleTableItem(tableItem):
 
     def __init__(self, text):
         tableItem.__init__(self, text)
         self.sort = title_sort(text.lower())
+
 
 class authorTableItem(tableItem):
 
@@ -45,6 +52,7 @@ class authorTableItem(tableItem):
             self.sort = book.author_sort.lower()
         else:
             self.sort = authors_to_sort_string(book.authors).lower()
+
 
 class dateTableItem(tableItem):
 
@@ -111,7 +119,6 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             if self.table.item(row, 0).checkState() == Qt.Unchecked:
                 continue
             (model, id, path) = self.table.item(row, 0).data(Qt.UserRole)
-            path = unicode(path)
+            path = unicode_type(path)
             self.result.append((model, id, path))
         return
-

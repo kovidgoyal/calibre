@@ -48,11 +48,11 @@ def _makeelement(tag, *args, **kwargs):
             ans.addEventListener(attr, val)
         elif val is True:
             ans.setAttribute(vattr, vattr)
-        elif val is not False:
+        elif jstype(val) is 'string':
             ans.setAttribute(vattr, val)
 
     for arg in args:
-        if type(arg) is 'string':
+        if jstype(arg) is 'string':
             arg = this.createTextNode(arg)
         ans.appendChild(arg)
     return ans
@@ -60,11 +60,14 @@ def _makeelement(tag, *args, **kwargs):
 def maker_for_document(document):
     # Create an elementmaker to be used with the specified document
     E = _makeelement.bind(document)
-    for tag in html5_tags:
-        Object.defineProperty(E, tag, {'value':_makeelement.bind(document, tag)})
+    Object.defineProperties(E, {
+        tag: {
+            'value':_makeelement.bind(document, tag)
+        } for tag in html5_tags
+    })
     return E
 
-if type(document) is 'undefined':
+if jstype(document) is 'undefined':
     E = maker_for_document({
         'createTextNode': def(value): return value;,
         'createElement': def(name):

@@ -42,6 +42,8 @@ wherever possible in this module.
 #define UNICODE
 #include <Windows.h>
 #include <Wininet.h>
+#include <LMcons.h>
+#include <locale.h>
 #include <Python.h>
 #include <structseq.h>
 #include <timefuncs.h>
@@ -150,51 +152,51 @@ format_last_error() {
     (LPTSTR) &lpMsgBuf,
     0,
     NULL
-	);
-	return lpMsgBuf;
+    );
+    return lpMsgBuf;
 }
 
 static PyObject *
 winutil_set_debug(PyObject *self, PyObject *args) {
-	PyObject *yes;
-	if (!PyArg_ParseTuple(args, "O", &yes)) return NULL;
-	DEBUG = (BOOL)PyObject_IsTrue(yes);
-	return Py_None;
+    PyObject *yes;
+    if (!PyArg_ParseTuple(args, "O", &yes)) return NULL;
+    DEBUG = (BOOL)PyObject_IsTrue(yes);
+    return Py_None;
 }
 
 static int
 gettmarg(PyObject *args, struct tm *p)
 {
-	int y;
-	memset((void *) p, '\0', sizeof(struct tm));
+    int y;
+    memset((void *) p, '\0', sizeof(struct tm));
 
-	if (!PyArg_Parse(args, "(iiiiiiiii)",
-			 &y,
-			 &p->tm_mon,
-			 &p->tm_mday,
-			 &p->tm_hour,
-			 &p->tm_min,
-			 &p->tm_sec,
-			 &p->tm_wday,
-			 &p->tm_yday,
-			 &p->tm_isdst))
-		return 0;
-	if (y < 1900) {
-		if (69 <= y && y <= 99)
-			y += 1900;
-		else if (0 <= y && y <= 68)
-			y += 2000;
-		else {
-			PyErr_SetString(PyExc_ValueError,
-					"year out of range");
-			return 0;
-		}
-	}
-	p->tm_year = y - 1900;
-	p->tm_mon--;
-	p->tm_wday = (p->tm_wday + 1) % 7;
-	p->tm_yday--;
-	return 1;
+    if (!PyArg_Parse(args, "(iiiiiiiii)",
+             &y,
+             &p->tm_mon,
+             &p->tm_mday,
+             &p->tm_hour,
+             &p->tm_min,
+             &p->tm_sec,
+             &p->tm_wday,
+             &p->tm_yday,
+             &p->tm_isdst))
+        return 0;
+    if (y < 1900) {
+        if (69 <= y && y <= 99)
+            y += 1900;
+        else if (0 <= y && y <= 68)
+            y += 2000;
+        else {
+            PyErr_SetString(PyExc_ValueError,
+                    "year out of range");
+            return 0;
+        }
+    }
+    p->tm_year = y - 1900;
+    p->tm_mon--;
+    p->tm_wday = (p->tm_wday + 1) % 7;
+    p->tm_yday--;
+    return 1;
 }
 
 static PyObject *
@@ -217,144 +219,189 @@ winutil_prepare_for_restart(PyObject *self, PyObject *args) {
 
 static PyObject *
 winutil_get_max_stdio(PyObject *self, PyObject *args) {
-	return Py_BuildValue("i", _getmaxstdio());
+    return Py_BuildValue("i", _getmaxstdio());
 }
- 
+
 static PyObject *
 winutil_set_max_stdio(PyObject *self, PyObject *args) {
-	int num = 0;
-	if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
-	if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
-	Py_RETURN_NONE;
+    int num = 0;
+    if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
+    if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
+    Py_RETURN_NONE;
 }
- 
+
+static PyObject*
+winutil_move_file(PyObject *self, PyObject *args) {
+    Py_UNICODE *a, *b;
+    unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
+    if (!PyArg_ParseTuple(args, "uu|I", &a, &b, &flags)) return NULL;
+    if (!MoveFileExW(a, b, flags)) { PyErr_SetFromWindowsErr(0); return NULL; }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+winutil_username(PyObject *self) {
+    wchar_t buf[UNLEN + 1] = {0};
+    DWORD sz = sizeof(buf)/sizeof(buf[0]);
+    if (!GetUserName(buf, &sz)) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+static PyObject *
+winutil_temp_path(PyObject *self) {
+    wchar_t buf[MAX_PATH + 1] = {0};
+    DWORD sz = sizeof(buf)/sizeof(buf[0]);
+    if (!GetTempPath(sz, buf)) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+
+static PyObject *
+winutil_locale_name(PyObject *self) {
+    wchar_t buf[LOCALE_NAME_MAX_LENGTH + 1] = {0};
+    if (!GetUserDefaultLocaleName(buf, sizeof(buf)/sizeof(buf[0]))) {
+        PyErr_SetFromWindowsErr(0);
+        return NULL;
+    }
+    return PyUnicode_FromWideChar(buf, wcslen(buf));
+}
+
+
+static PyObject *
+winutil_localeconv(PyObject *self) {
+    struct lconv *d = localeconv();
+#define W(name) #name, d->_W_##name
+    return Py_BuildValue(
+        "{su su su su su su su su}",
+        W(decimal_point), W(thousands_sep), W(int_curr_symbol), W(currency_symbol),
+        W(mon_decimal_point), W(mon_thousands_sep), W(positive_sign), W(negative_sign)
+    );
+#undef W
+}
+
+
 static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
 {
-	PyObject *tup = NULL;
-	struct tm buf;
-	const char *_fmt;
-	size_t fmtlen, buflen;
-	wchar_t *outbuf = NULL, *fmt = NULL;
-	size_t i;
-    memset((void *) &buf, '\0', sizeof(buf));
+    PyObject *tup = NULL;
+    struct tm buf;
+    size_t buflen;
+    wchar_t *outbuf = NULL;
+    Py_UNICODE *fmt = NULL;
+    int fmtlen;
+    size_t i;
+    memset((void *) &buf, 0, sizeof(buf));
 
-	if (!PyArg_ParseTuple(args, "s|O:strftime", &_fmt, &tup))
-		return NULL;
+    if (!PyArg_ParseTuple(args, "u#|O:strftime", &fmt, &fmtlen, &tup)) return NULL;
 
-    if (mbstowcs_s(&fmtlen, NULL, 0, _fmt, strlen(_fmt)) != 0) {
-        PyErr_SetString(PyExc_ValueError, "Failed to convert fmt to wchar");
+    if (tup == NULL) {
+        time_t tt = time(NULL);
+        if(localtime_s(&buf, &tt) != 0) {
+            PyErr_SetString(PyExc_ValueError, "Failed to get localtime()");
+            return NULL;
+        }
+    } else if (!gettmarg(tup, &buf)) return NULL;
+
+    if (buf.tm_mon == -1) buf.tm_mon = 0;
+    else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
+        PyErr_SetString(PyExc_ValueError, "month out of range");
         return NULL;
     }
-    fmt = (wchar_t *)PyMem_Malloc((fmtlen+2)*sizeof(wchar_t));
-    if (fmt == NULL) return PyErr_NoMemory();
-    if (mbstowcs_s(&fmtlen, fmt, fmtlen+2, _fmt, strlen(_fmt)) != 0) {
-        PyErr_SetString(PyExc_ValueError, "Failed to convert fmt to wchar");
-        goto end;
+    if (buf.tm_mday == 0) buf.tm_mday = 1;
+    else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
+        PyErr_SetString(PyExc_ValueError, "day of month out of range");
+        return NULL;
+    }
+    if (buf.tm_hour < 0 || buf.tm_hour > 23) {
+        PyErr_SetString(PyExc_ValueError, "hour out of range");
+        return NULL;
+    }
+    if (buf.tm_min < 0 || buf.tm_min > 59) {
+        PyErr_SetString(PyExc_ValueError, "minute out of range");
+        return NULL;
+    }
+    if (buf.tm_sec < 0 || buf.tm_sec > 61) {
+        PyErr_SetString(PyExc_ValueError, "seconds out of range");
+        return NULL;
+    }
+    /* tm_wday does not need checking of its upper-bound since taking
+       ``% 7`` in gettmarg() automatically restricts the range. */
+    if (buf.tm_wday < 0) {
+        PyErr_SetString(PyExc_ValueError, "day of week out of range");
+        return NULL;
+    }
+    if (buf.tm_yday == -1) buf.tm_yday = 0;
+    else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
+        PyErr_SetString(PyExc_ValueError, "day of year out of range");
+        return NULL;
+    }
+    if (buf.tm_isdst < -1 || buf.tm_isdst > 1) {
+        PyErr_SetString(PyExc_ValueError,
+                "daylight savings flag out of range");
+        return NULL;
     }
 
-	if (tup == NULL) {
-		time_t tt = time(NULL);
-		if(localtime_s(&buf, &tt) != 0) {
-            PyErr_SetString(PyExc_ValueError, "Failed to get localtime()");
-            goto end;
+    for (i = 5*(unsigned int)fmtlen; ; i += i) {
+        outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
+        if (outbuf == NULL) {
+            PyErr_NoMemory(); return NULL;
         }
-	} else if (!gettmarg(tup, &buf))
-	    goto end;
-
-	if (buf.tm_mon == -1)
-	    buf.tm_mon = 0;
-	else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
-            PyErr_SetString(PyExc_ValueError, "month out of range");
-            goto end;
+        buflen = wcsftime(outbuf, i, fmt, &buf);
+        if (buflen > 0 || i >= 256 * (unsigned int)fmtlen) {
+            /* If the buffer is 256 times as long as the format,
+               it's probably not failing for lack of room!
+               More likely, the format yields an empty result,
+               e.g. an empty format, or %Z when the timezone
+               is unknown. */
+            PyObject *ret;
+            ret = PyUnicode_FromWideChar(outbuf, buflen);
+            PyMem_Free(outbuf);
+            return ret;
         }
-	if (buf.tm_mday == 0)
-	    buf.tm_mday = 1;
-	else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
-            PyErr_SetString(PyExc_ValueError, "day of month out of range");
-            goto end;
+        PyMem_Free(outbuf);
+        /* VisualStudio .NET 2005 does this properly */
+        if (buflen == 0 && errno == EINVAL) {
+            PyErr_SetString(PyExc_ValueError, "Invalid format string");
+            return NULL;
         }
-        if (buf.tm_hour < 0 || buf.tm_hour > 23) {
-            PyErr_SetString(PyExc_ValueError, "hour out of range");
-            goto end;
-        }
-        if (buf.tm_min < 0 || buf.tm_min > 59) {
-            PyErr_SetString(PyExc_ValueError, "minute out of range");
-            goto end;
-        }
-        if (buf.tm_sec < 0 || buf.tm_sec > 61) {
-            PyErr_SetString(PyExc_ValueError, "seconds out of range");
-            goto end;
-        }
-        /* tm_wday does not need checking of its upper-bound since taking
-        ``% 7`` in gettmarg() automatically restricts the range. */
-        if (buf.tm_wday < 0) {
-            PyErr_SetString(PyExc_ValueError, "day of week out of range");
-            goto end;
-        }
-	if (buf.tm_yday == -1)
-	    buf.tm_yday = 0;
-	else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
-            PyErr_SetString(PyExc_ValueError, "day of year out of range");
-            goto end;
-        }
-        if (buf.tm_isdst < -1 || buf.tm_isdst > 1) {
-            PyErr_SetString(PyExc_ValueError,
-                            "daylight savings flag out of range");
-            goto end;
-        }
-
-	for (i = 5*fmtlen; ; i += i) {
-		outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
-		if (outbuf == NULL) {
-			PyErr_NoMemory(); goto end;
-		}
-		buflen = wcsftime(outbuf, i, fmt, &buf);
-		if (buflen > 0 || i >= 256 * fmtlen) {
-			/* If the buffer is 256 times as long as the format,
-			   it's probably not failing for lack of room!
-			   More likely, the format yields an empty result,
-			   e.g. an empty format, or %Z when the timezone
-			   is unknown. */
-			PyObject *ret;
-			ret = PyUnicode_FromWideChar(outbuf, buflen);
-			PyMem_Free(outbuf); PyMem_Free(fmt);
-			return ret;
-		}
-		PyMem_Free(outbuf);
-#if defined _MSC_VER && _MSC_VER >= 1400 && defined(__STDC_SECURE_LIB__)
-		/* VisualStudio .NET 2005 does this properly */
-		if (buflen == 0 && errno == EINVAL) {
-			PyErr_SetString(PyExc_ValueError, "Invalid format string");
-            goto end;
-        }
-#endif
     }
-end:
-    PyMem_Free(fmt); return NULL;
+    return NULL;
 }
 
+static char winutil_doc[] = "Defines utility methods to interface with windows.";
+extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
+extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
+extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
+extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
+extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
+extern PyObject *winutil_manage_shortcut(PyObject *self, PyObject *args);
 
-static PyMethodDef WinutilMethods[] = {
+static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
-    		"Get paths to common system folders. "
-    		"See windows documentation of SHGetFolderPath. "
-    		"The paths are returned as unicode objects. csidl_id should be one "
-    		"of the symbolic constants defined in this module. You can also OR "
-    		"a symbolic constant with CSIDL_FLAG_CREATE to force the operating "
-    		"system to create a folder if it does not exist."},
+            "Get paths to common system folders. "
+            "See windows documentation of SHGetFolderPath. "
+            "The paths are returned as unicode objects. csidl_id should be one "
+            "of the symbolic constants defined in this module. You can also OR "
+            "a symbolic constant with CSIDL_FLAG_CREATE to force the operating "
+            "system to create a folder if it does not exist."},
 
     {"argv", winutil_argv, METH_VARARGS,
     "argv() -> list of command line arguments\n\n"
-    		"Get command line arguments as unicode objects. Note that the "
-    		"first argument will be the path to the interpreter, *not* the "
-    		"script being run. So to replace sys.argv, you should use "
-    		"sys.argv[1:] = argv()[1:]."},
+            "Get command line arguments as unicode objects. Note that the "
+            "first argument will be the path to the interpreter, *not* the "
+            "script being run. So to replace sys.argv, you should use "
+            "sys.argv[1:] = argv()[1:]."},
 
-	{"set_debug", winutil_set_debug, METH_VARARGS,
-			"set_debug(bool)\n\nSet debugging mode."
-	},
+    {"set_debug", winutil_set_debug, METH_VARARGS,
+            "set_debug(bool)\n\nSet debugging mode."
+    },
 
     {"strftime", winutil_strftime, METH_VARARGS,
         "strftime(format[, tuple]) -> string\n\
@@ -381,16 +428,80 @@ be a unicode string. Returns unicode strings."
         "setmaxstdio(num)\n\nSet the maximum number of open file handles."
     },
 
+    {"username", (PyCFunction)winutil_username, METH_NOARGS,
+        "username()\n\nGet the current username as a unicode string."
+    },
+
+    {"temp_path", (PyCFunction)winutil_temp_path, METH_NOARGS,
+        "temp_path()\n\nGet the current temporary dir as a unicode string."
+    },
+
+    {"locale_name", (PyCFunction)winutil_locale_name, METH_NOARGS,
+        "locale_name()\n\nGet the current locale name as a unicode string."
+    },
+
+    {"localeconv", (PyCFunction)winutil_localeconv, METH_NOARGS,
+        "localeconv()\n\nGet the locale conventions as unicode strings."
+    },
+
+    {"move_file", (PyCFunction)winutil_move_file, METH_VARARGS,
+        "move_file()\n\nRename the specified file."
+    },
+
+    {"add_to_recent_docs", (PyCFunction)winutil_add_to_recent_docs, METH_VARARGS,
+        "add_to_recent_docs()\n\nAdd a path to the recent documents list"
+    },
+
+    {"file_association", (PyCFunction)winutil_file_association, METH_VARARGS,
+        "file_association()\n\nGet the executable associated with the given file extension"
+    },
+
+    {"friendly_name", (PyCFunction)winutil_friendly_name, METH_VARARGS,
+        "friendly_name()\n\nGet the friendly name for the specified prog_id/exe"
+    },
+
+    {"notify_associations_changed", (PyCFunction)winutil_notify_associations_changed, METH_VARARGS,
+        "notify_associations_changed()\n\nNotify the OS that file associations have changed"
+    },
+
+    {"move_to_trash", (PyCFunction)winutil_move_to_trash, METH_VARARGS,
+        "move_to_trash()\n\nMove the specified path to trash"
+    },
+
+    {"manage_shortcut", (PyCFunction)winutil_manage_shortcut, METH_VARARGS,
+        "manage_shortcut()\n\nManage a shortcut"
+    },
+
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initwinutil(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&winutil_module)
+static struct PyModuleDef winutil_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "winutil",
+    /* m_doc      */ winutil_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ winutil_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("winutil", winutil_methods, winutil_doc)
+CALIBRE_MODINIT_FUNC initwinutil(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3("winutil", WinutilMethods,
-    "Defines utility methods to interface with windows."
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+
+    if (m == NULL) {
+        INITERROR;
+    }
 
     PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
     PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
@@ -411,6 +522,10 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_SYSTEM", CSIDL_SYSTEM);
     PyModule_AddIntConstant(m, "CSIDL_WINDOWS", CSIDL_WINDOWS);
     PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
+    PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
+    PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
 
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
-

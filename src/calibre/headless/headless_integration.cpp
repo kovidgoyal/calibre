@@ -1,15 +1,34 @@
 #include <QtGlobal>
 #include "headless_integration.h"
 #include "headless_backingstore.h"
+#ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+class QCoreTextFontEngine;
+#else
+#include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
+#endif
+#include <qpa/qplatformservices.h>
+#include <QtCore/private/qeventdispatcher_unix_p.h>
+#else
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 1))
 #include "fontconfig_database.h"
 #else
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qfontconfigdatabase_p.h>
+#else
 #include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
 #endif
+#endif
 #ifndef Q_OS_WIN
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
+#else
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#endif
 #else
 #include <QtCore/private/qeventdispatcher_win_p.h>
+#endif
 #endif
 
 #include <QtGui/private/qpixmap_raster_p.h>
@@ -19,19 +38,22 @@
 
 QT_BEGIN_NAMESPACE
 
+
+#ifndef __APPLE__
 class GenericUnixServices : public QGenericUnixServices {
     /* We must return desktop environment as UNKNOWN otherwise other parts of
      * Qt will try to query the nativeInterface() without checking if it exists
      * leading to a segfault.  For example, defaultHintStyleFromMatch() queries
      * the nativeInterface() without checking that it is NULL. See
-     * https://bugreports.qt-project.org/browse/QTBUG-40946 
-     * This is no longer strictly neccessary since we implement our own fontconfig database 
+     * https://bugreports.qt-project.org/browse/QTBUG-40946
+     * This is no longer strictly neccessary since we implement our own fontconfig database
      * (a patched version of the Qt fontconfig database). However, it is probably a good idea to
-     * keep it unknown, since the headless QPA is used in contexts where a desktop environment 
+     * keep it unknown, since the headless QPA is used in contexts where a desktop environment
      * does not make sense anyway.
      */
     QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
 };
+#endif
 
 HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 {
@@ -42,10 +64,27 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     mPrimaryScreen->mDepth = 32;
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    QWindowSystemInterface::handleScreenAdded(mPrimaryScreen);
+#else
     screenAdded(mPrimaryScreen);
-    m_fontDatabase.reset(new QFontconfigDatabase());
+#endif
 
+#ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    m_fontDatabase.reset(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>());
+#else
+    m_fontDatabase.reset(new QCoreTextFontDatabase());
+#endif
+#else
+    m_fontDatabase.reset(new QFontconfigDatabase());
+#endif
+
+#ifdef __APPLE__
+    platform_services.reset(new QPlatformServices());
+#else
     platform_services.reset(new GenericUnixServices());
+#endif
 }
 
 HeadlessIntegration::~HeadlessIntegration()
@@ -90,7 +129,11 @@ QPlatformBackingStore *HeadlessIntegration::createPlatformBackingStore(QWindow *
 
 QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 {
+#ifdef __APPLE__
+    return new QEventDispatcherUNIX();
+#else
     return createUnixEventDispatcher();
+#endif
 }
 
 HeadlessIntegration *HeadlessIntegration::instance()

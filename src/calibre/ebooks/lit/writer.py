@@ -1,22 +1,22 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Basic support for writing LIT files.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from cStringIO import StringIO
 from struct import pack
-from itertools import izip, count, chain
+from itertools import count, chain
+from operator import attrgetter
+import io
 import time
-import random
+import os
 import re
 import copy
 import uuid
 import functools
-from urlparse import urldefrag
-from urllib import unquote as urlunquote
+import numbers
 from lxml import etree
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
@@ -30,10 +30,12 @@ import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, zip, native_string_type
+from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']
 
-LIT_IMAGES = set(['image/png', 'image/jpeg', 'image/gif'])
+LIT_IMAGES = {'image/png', 'image/jpeg', 'image/gif'}
 LIT_MIMES = OEB_DOCS | OEB_STYLES | LIT_IMAGES
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
@@ -44,9 +46,10 @@ ALL_MS_COVER_TYPES = [
     ('other.ms-thumbimage', 'PocketPC thumbnail image'),
     ]
 
+
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
-    tags = dict((tags[i], i) for i in xrange(len(tags)))
+    tags = dict((tags[i], i) for i in range(len(tags)))
     dattrs = dict((v, k) for k, v in dattrs.items())
     tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
     for map in tattrs:
@@ -55,10 +58,11 @@ def invert_tag_map(tag_map):
     tattrs[0] = dattrs
     return tags, tattrs
 
+
 OPF_MAP = invert_tag_map(maps.OPF_MAP)
 HTML_MAP = invert_tag_map(maps.HTML_MAP)
 
-LIT_MAGIC = 'ITOLITLS'
+LIT_MAGIC = b'ITOLITLS'
 
 LITFILE_GUID = "{0A9007C1-4076-11D3-8789-0000F8105754}"
 PIECE3_GUID = "{0A9007C3-4076-11D3-8789-0000F8105754}"
@@ -66,12 +70,14 @@ PIECE4_GUID = "{0A9007C4-4076-11D3-8789-0000F8105754}"
 DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
 LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
 
+
 def packguid(guid):
     values = guid[1:9], guid[10:14], guid[15:19], \
         guid[20:22], guid[22:24], guid[25:27], guid[27:29], \
         guid[29:31], guid[31:33], guid[33:35], guid[35:37]
     values = [int(value, 16) for value in values]
     return pack("<LHHBBBBBBBB", *values)
+
 
 FLAG_OPENING = (1 << 0)
 FLAG_CLOSING = (1 << 1)
@@ -91,46 +97,49 @@ ROOT_OFFSET = 1284508585713721976
 ROOT_SIZE = 4165955342166943123
 
 BLOCK_CAOL = \
-    "\x43\x41\x4f\x4c\x02\x00\x00\x00" \
-    "\x50\x00\x00\x00\x37\x13\x03\x00" \
-    "\x00\x00\x00\x00\x00\x20\x00\x00" \
-    "\x00\x02\x00\x00\x00\x00\x10\x00" \
-    "\x00\x00\x02\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x43\x41\x4f\x4c\x02\x00\x00\x00" \
+    b"\x50\x00\x00\x00\x37\x13\x03\x00" \
+    b"\x00\x00\x00\x00\x00\x20\x00\x00" \
+    b"\x00\x02\x00\x00\x00\x00\x10\x00" \
+    b"\x00\x00\x02\x00\x00\x00\x00\x00" \
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"
 BLOCK_ITSF = \
-    "\x49\x54\x53\x46\x04\x00\x00\x00" \
-    "\x20\x00\x00\x00\x01\x00\x00\x00"
+    b"\x49\x54\x53\x46\x04\x00\x00\x00" \
+    b"\x20\x00\x00\x00\x01\x00\x00\x00"
 
 MSDES_CONTROL = \
-    "\x03\x00\x00\x00\x29\x17\x00\x00" \
-    "\x01\x00\x00\x00\xa5\xa5\x00\x00"
+    b"\x03\x00\x00\x00\x29\x17\x00\x00" \
+    b"\x01\x00\x00\x00\xa5\xa5\x00\x00"
 LZXC_CONTROL = \
-    "\x07\x00\x00\x00\x4c\x5a\x58\x43" \
-    "\x03\x00\x00\x00\x04\x00\x00\x00" \
-    "\x04\x00\x00\x00\x02\x00\x00\x00" \
-    "\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x07\x00\x00\x00\x4c\x5a\x58\x43" \
+    b"\x03\x00\x00\x00\x04\x00\x00\x00" \
+    b"\x04\x00\x00\x00\x02\x00\x00\x00" \
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
-PAGE_BREAKS = set(['always', 'left', 'right'])
+PAGE_BREAKS = {'always', 'left', 'right'}
+
 
 def decint(value):
-    bytes = []
+    ans = bytearray()
     while True:
         b = value & 0x7f
         value >>= 7
-        if bytes:
+        if len(ans):
             b |= 0x80
-        bytes.append(chr(b))
+        ans.append(b)
         if value == 0:
             break
-    return ''.join(reversed(bytes))
+    return bytes(bytearray(reversed(ans)))
 
-def randbytes(n):
-    return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
+
+randbytes = os.urandom
+
 
 def warn(x):
-    print x
+    print(x)
+
 
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
@@ -140,7 +149,7 @@ class ReBinary(object):
         self.logger = oeb.logger
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
-        self.buf = StringIO()
+        self.buf = io.BytesIO()
         self.anchors = []
         self.page_breaks = []
         self.is_html  = is_html = map is HTML_MAP
@@ -152,11 +161,11 @@ class ReBinary(object):
 
     def write(self, *values):
         for value in values:
-            if isinstance(value, (int, long)):
+            if isinstance(value, numbers.Integral):
                 try:
-                    value = unichr(value)
+                    value = codepoint_to_chr(value)
                 except OverflowError:
-                    self.logger.warn('Unicode overflow for integer:', value)
+                    self.logger.warn('unicode_type overflow for integer:', value)
                     value = u'?'
             self.buf.write(value.encode('utf-8'))
 
@@ -165,7 +174,7 @@ class ReBinary(object):
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, basestring):
+        if not isinstance(elem.tag, string_or_bytes):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)
@@ -207,9 +216,9 @@ class ReBinary(object):
                 path, frag = urldefrag(value)
                 if self.item:
                     path = self.item.abshref(path)
-                prefix = unichr(3)
+                prefix = codepoint_to_chr(3)
                 if path in self.manifest.hrefs:
-                    prefix = unichr(2)
+                    prefix = codepoint_to_chr(2)
                     value = self.manifest.hrefs[path].id
                     if frag:
                         value = '#'.join((value, frag))
@@ -271,10 +280,12 @@ class ReBinary(object):
         if len(self.anchors) > 6:
             self.logger.warn("More than six anchors in file %r. "
                 "Some links may not work properly." % self.item.href)
-        data = StringIO()
-        data.write(unichr(len(self.anchors)).encode('utf-8'))
+        data = io.BytesIO()
+        data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
-            data.write(unichr(len(anchor)).encode('utf-8'))
+            data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
+            if isinstance(anchor, unicode_type):
+                anchor = anchor.encode('utf-8')
             data.write(anchor)
             data.write(pack('<I', offset))
         return data.getvalue()
@@ -293,6 +304,7 @@ def preserve(function):
     functools.update_wrapper(wrapper, function)
     return wrapper
 
+
 class LitWriter(object):
 
     def __init__(self, opts):
@@ -303,7 +315,7 @@ class LitWriter(object):
         oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
         if oeb.metadata.cover:
-            id = unicode(oeb.metadata.cover[0])
+            id = unicode_type(oeb.metadata.cover[0])
             cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
@@ -321,7 +333,7 @@ class LitWriter(object):
         self._oeb = oeb
         self._logger = oeb.logger
         self._stream = stream
-        self._sections = [StringIO() for i in xrange(4)]
+        self._sections = [io.BytesIO() for i in range(4)]
         self._directory = []
         self._meta = None
         self._litize_oeb()
@@ -352,8 +364,8 @@ class LitWriter(object):
             1, PRIMARY_SIZE, 5, SECONDARY_SIZE))
         self._write(packguid(LITFILE_GUID))
         offset = self._tell()
-        pieces = list(xrange(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
-        self._write((5 * PIECE_SIZE) * '\0')
+        pieces = list(range(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
+        self._write((5 * PIECE_SIZE) * b'\0')
         aoli1 = len(dchunks) if ichunk else ULL_NEG1
         last = len(dchunks) - 1
         ddepth = 2 if ichunk else 1
@@ -378,7 +390,7 @@ class LitWriter(object):
         # Piece #1: Directory chunks
         piece1_offset = self._tell()
         number = len(dchunks) + ((ichunk and 1) or 0)
-        self._write('IFCM', pack('<IIIQQ',
+        self._write(b'IFCM', pack('<IIIQQ',
             1, DCHUNK_SIZE, 0x100000, ULL_NEG1, number))
         for dchunk in dchunks:
             self._write(dchunk)
@@ -389,20 +401,20 @@ class LitWriter(object):
 
         # Piece #2: Count chunks
         piece2_offset = self._tell()
-        self._write('IFCM', pack('<IIIQQ',
+        self._write(b'IFCM', pack('<IIIQQ',
             1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
-        cchunk = StringIO()
+        cchunk = io.BytesIO()
         last = 0
-        for i, dcount in izip(count(), dcounts):
+        for i, dcount in zip(count(), dcounts):
             cchunk.write(decint(last))
             cchunk.write(decint(dcount))
             cchunk.write(decint(i))
             last = dcount
         cchunk = cchunk.getvalue()
         rem = CCHUNK_SIZE - (len(cchunk) + 50)
-        self._write('AOLL', pack('<IQQQQQ',
+        self._write(b'AOLL', pack('<IQQQQQ',
             rem, 0, ULL_NEG1, ULL_NEG1, 0, 1))
-        filler = '\0' * rem
+        filler = b'\0' * rem
         self._write(cchunk, filler, pack('<H', len(dcounts)))
         self._writeat(pieces[2], pack('<QQ',
             piece2_offset, self._tell() - piece2_offset))
@@ -475,10 +487,10 @@ class LitWriter(object):
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
-            elif isinstance(data, unicode):
+            elif isinstance(data, unicode_type):
                 data = data.encode('utf-8')
             elif hasattr(data, 'cssText'):
-                data = str(item)
+                data = item.bytes_representation
             self._add_file(name, data, secnum)
             item.size = len(data)
 
@@ -493,12 +505,11 @@ class LitWriter(object):
                 manifest['css'].append(item)
             elif item.media_type in LIT_IMAGES:
                 manifest['images'].append(item)
-        data = StringIO()
-        data.write(pack('<Bc', 1, '\\'))
+        data = io.BytesIO()
+        data.write(pack('<Bc', 1, b'\\'))
         offset = 0
         for state in states:
-            items = manifest[state]
-            items.sort()
+            items = sorted(manifest[state], key=attrgetter('sort_key'))
             data.write(pack('<I', len(items)))
             for item in items:
                 id, media_type = item.id, item.media_type
@@ -507,23 +518,23 @@ class LitWriter(object):
                     media_type = XHTML_MIME
                 elif media_type in OEB_STYLES:
                     media_type = CSS_MIME
-                href = urlunquote(item.href)
+                href = unquote(item.href)
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [unichr(len(id)), unicode(id),
-                         unichr(len(href)), unicode(href),
-                         unichr(len(media_type)), unicode(media_type)]
+                entry = [codepoint_to_chr(len(id)), unicode_type(id),
+                         codepoint_to_chr(len(href)), unicode_type(href),
+                         codepoint_to_chr(len(media_type)), unicode_type(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
-                data.write('\0')
+                data.write(b'\0')
                 offset += item.size
         self._add_file('/manifest', data.getvalue())
 
     def _build_page_breaks(self):
-        pb1 = StringIO()
-        pb2 = StringIO()
-        pb3 = StringIO()
+        pb1 = io.BytesIO()
+        pb2 = io.BytesIO()
+        pb3 = io.BytesIO()
         pb3cur = 0
         bits = 0
         linear = []
@@ -560,7 +571,7 @@ class LitWriter(object):
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
-        meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
+        meta.attrib['ms--guid'] = '{%s}' % native_string_type(uuid.uuid4()).upper()
         rebin = ReBinary(meta, None, self._oeb, self.opts, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta
@@ -571,22 +582,22 @@ class LitWriter(object):
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
         msdes.deskey(tempkey, msdes.EN0)
-        self._add_file('/DRMStorage/DRMSealed', msdes.des("\0" * 16))
-        self._bookkey = '\0' * 8
-        self._add_file('/DRMStorage/ValidationStream', 'MSReader', 3)
+        self._add_file('/DRMStorage/DRMSealed', msdes.des(b"\0" * 16))
+        self._bookkey = b'\0' * 8
+        self._add_file('/DRMStorage/ValidationStream', b'MSReader', 3)
 
     def _build_version(self):
         self._add_file('/Version', pack('<HH', 8, 1))
 
     def _build_namelist(self):
-        data = StringIO()
+        data = io.BytesIO()
         data.write(pack('<HH', 0x3c, len(self._sections)))
         names = ['Uncompressed', 'MSCompressed', 'EbEncryptDS',
                  'EbEncryptOnlyDS']
         for name in names:
             data.write(pack('<H', len(name)))
             data.write(name.encode('utf-16-le'))
-            data.write('\0\0')
+            data.write(b'\0\0')
         self._add_file('::DataSpace/NameList', data.getvalue())
 
     def _build_storage(self):
@@ -596,7 +607,7 @@ class LitWriter(object):
         for secnum, name, transforms in mapping:
             root = '::DataSpace/Storage/' + name
             data = self._sections[secnum].getvalue()
-            cdata, sdata, tdata, rdata = '', '', '', ''
+            cdata, sdata, tdata, rdata = b'', b'', b'', b''
             for guid in transforms:
                 tdata = packguid(guid) + tdata
                 sdata = sdata + pack('<Q', len(data))
@@ -607,7 +618,7 @@ class LitWriter(object):
                     msdes.deskey(self._bookkey, msdes.EN0)
                     pad = 8 - (len(data) & 0x7)
                     if pad != 8:
-                        data = data + ('\0' * pad)
+                        data = data + (b'\0' * pad)
                     data = msdes.des(data)
                 elif guid == LZXCOMPRESS_GUID:
                     cdata = LZXC_CONTROL + cdata
@@ -616,7 +627,7 @@ class LitWriter(object):
                     unlen = len(data)
                     lzx = Compressor(17)
                     data, rtable = lzx.compress(data, flush=True)
-                    rdata = StringIO()
+                    rdata = io.BytesIO()
                     rdata.write(pack('<IIIIQQQQ',
                         3, len(rtable), 8, 0x28, unlen, len(data), 0x8000, 0))
                     for uncomp, comp in rtable[:-1]:
@@ -643,43 +654,47 @@ class LitWriter(object):
         hash = mssha1.new()
         for data in hashdata:
             if prepad > 0:
-                data = ("\000" * prepad) + data
+                data = (b"\000" * prepad) + data
                 prepad = 0
             postpad = 64 - (len(data) % 64)
             if postpad < 64:
-                data = data + ("\000" * postpad)
+                data = data + (b"\000" * postpad)
             hash.update(data)
         digest = hash.digest()
-        key = [0] * 8
-        for i in xrange(0, len(digest)):
-            key[i % 8] ^= ord(digest[i])
-        return ''.join(chr(x) for x in key)
+        if not isinstance(digest, bytes):
+            digest = digest.encode('ascii')
+        digest = bytearray(digest)
+        key = bytearray(8)
+        for i, k in enumerate(digest):
+            key[i % 8] ^= k
+        return bytes(key)
 
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
-        directory.sort(cmp=lambda x, y:
-            cmp(x.name.lower(), y.name.lower()))
+        directory.sort(key=lambda x: x.name.lower())
         qrn = 1 + (1 << 2)
-        dchunk = StringIO()
+        dchunk = io.BytesIO()
         dcount = 0
         quickref = []
         name = directory[0].name
         for entry in directory:
-            en = entry.name.encode('utf-8') if entry.name else entry.name
-            next = ''.join([decint(len(en)), en,
+            en = entry.name
+            if not isinstance(en, bytes):
+                en = en.encode('utf-8')
+            nxt = b''.join([decint(len(en)), en,
                 decint(entry.section), decint(entry.offset),
                 decint(entry.size)])
-            usedlen = dchunk.tell() + len(next) + (len(quickref) * 2) + 52
+            usedlen = dchunk.tell() + len(nxt) + (len(quickref) * 2) + 52
             if usedlen >= DCHUNK_SIZE:
                 ddata.append((dchunk.getvalue(), quickref, dcount, name))
-                dchunk = StringIO()
+                dchunk = io.BytesIO()
                 dcount = 0
                 quickref = []
                 name = en
             if (dcount % qrn) == 0:
                 quickref.append(dchunk.tell())
-            dchunk.write(next)
+            dchunk.write(nxt)
             dcount = dcount + 1
         ddata.append((dchunk.getvalue(), quickref, dcount, name))
         cidmax = len(ddata) - 1
@@ -688,17 +703,17 @@ class LitWriter(object):
         dcounts = []
         ichunk = None
         if len(ddata) > 1:
-            ichunk = StringIO()
-        for cid, (content, quickref, dcount, name) in izip(count(), ddata):
-            dchunk = StringIO()
+            ichunk = io.BytesIO()
+        for cid, (content, quickref, dcount, name) in zip(count(), ddata):
+            dchunk = io.BytesIO()
             prev = cid - 1 if cid > 0 else ULL_NEG1
             next = cid + 1 if cid < cidmax else ULL_NEG1
             rem = DCHUNK_SIZE - (len(content) + 50)
             pad = rem - (len(quickref) * 2)
-            dchunk.write('AOLL')
+            dchunk.write(b'AOLL')
             dchunk.write(pack('<IQQQQQ', rem, cid, prev, next, rdcount, 1))
             dchunk.write(content)
-            dchunk.write('\0' * pad)
+            dchunk.write(b'\0' * pad)
             for ref in reversed(quickref):
                 dchunk.write(pack('<H', ref))
             dchunk.write(pack('<H', dcount))
@@ -706,12 +721,14 @@ class LitWriter(object):
             dchunks.append(dchunk.getvalue())
             dcounts.append(dcount)
             if ichunk:
+                if not isinstance(name, bytes):
+                    name = name.encode('utf-8')
                 ichunk.write(decint(len(name)))
                 ichunk.write(name)
                 ichunk.write(decint(cid))
         if ichunk:
             rem = DCHUNK_SIZE - (ichunk.tell() + 16)
             pad = rem - 2
-            ichunk = ''.join(['AOLI', pack('<IQ', rem, len(dchunks)),
-                ichunk.getvalue(), ('\0' * pad), pack('<H', len(dchunks))])
+            ichunk = b''.join([b'AOLI', pack('<IQ', rem, len(dchunks)),
+                ichunk.getvalue(), (b'\0' * pad), pack('<H', len(dchunks))])
         return dcounts, dchunks, ichunk

@@ -11,5 +11,7 @@ class AdvancedUserRecipe1326135591(BasicNewsRecipe):
 
     feeds = [(u'Pambianco', u'http://feeds.feedburner.com/pambianconews/YGXu')]
     __author__ = 'faber1971'
+
+
 __version__ = 'v1.0'
 __date__ = '9, January 2011'

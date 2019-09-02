@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,24 +11,27 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import iswindows, islinux
+from calibre.constants import iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
+from polyglot.builtins import iteritems, unicode_type
 
 UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
          'cicero', 'devicepixel']
 
-PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
-               u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
+PAPER_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
+               'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
+
 
 class PDFMetadata(object):  # {{{
+
     def __init__(self, mi=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
         self.title = _(u'Unknown')
         self.author = _(u'Unknown')
-        self.tags = u''
+        self.tags = ''
         self.mi = mi
 
         if mi is not None:
@@ -36,24 +40,26 @@ class PDFMetadata(object):  # {{{
             if mi.authors:
                 self.author = authors_to_string(mi.authors)
             if mi.tags:
-                self.tags = u', '.join(mi.tags)
+                self.tags = ', '.join(mi.tags)
 
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
 # }}}
+
 
 class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
     author = 'Kovid Goyal'
     file_type = 'pdf'
+    commit_name = 'pdf_output'
+    ui_data = {'paper_sizes': PAPER_SIZES, 'units': UNITS, 'font_types': ['serif', 'sans', 'mono']}
 
-    options = set([
-        OptionRecommendation(name='override_profile_size', recommended_value=False,
-            help=_('Normally, the PDF page size is set by the output profile'
-                   ' chosen under the page setup options. This option will cause the '
-                   ' page size settings under PDF Output to override the '
-                   ' size specified by the output profile.')),
+    options = {
+        OptionRecommendation(name='use_profile_size', recommended_value=False,
+            help=_('Instead of using the paper size specified in the PDF Output options,'
+                   ' use a paper size corresponding to the current output profile.'
+                   ' Useful if you want to generate a PDF for viewing on a specific device.')),
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure for page sizes. Default is inch. Choices '
@@ -74,28 +80,27 @@ class PDFOutput(OutputFormatPlugin):
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
         OptionRecommendation(name='pdf_serif_family',
-            recommended_value='Liberation Serif' if islinux else 'Times New Roman', help=_(
+            recommended_value='Liberation Serif', help=_(
                 'The font family used to render serif fonts')),
         OptionRecommendation(name='pdf_sans_family',
-            recommended_value='Liberation Sans' if islinux else 'Helvetica', help=_(
+            recommended_value='Liberation Sans', help=_(
                 'The font family used to render sans-serif fonts')),
         OptionRecommendation(name='pdf_mono_family',
-            recommended_value='Liberation Mono' if islinux else 'Courier New', help=_(
-                'The font family used to render monospaced fonts')),
-        OptionRecommendation(name='pdf_standard_font', choices=['serif',
-            'sans', 'mono'],
+            recommended_value='Liberation Mono', help=_(
+                'The font family used to render monospace fonts')),
+        OptionRecommendation(name='pdf_standard_font', choices=ui_data['font_types'],
             recommended_value='serif', help=_(
-                'The font family used to render monospaced fonts')),
+                'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_default_font_size',
             recommended_value=20, help=_(
                 'The default font size')),
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
+        OptionRecommendation(name='pdf_hyphenate', recommended_value=False,
+            help=_('Break long words at the end of lines. This can give the text at the right margin a more even appearance.')),
         OptionRecommendation(name='pdf_mark_links', recommended_value=False,
             help=_('Surround all links with a red box, useful for debugging.')),
-        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
-            help=_('Use the old, less capable engine to generate the PDF')),
         OptionRecommendation(name='uncompressed_pdf',
             recommended_value=False, help=_(
                 'Generate an uncompressed PDF, useful for debugging, '
@@ -116,62 +121,103 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for generated table of contents.')
         ),
-        ])
+
+        OptionRecommendation(name='pdf_page_margin_left', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the left page margin, in pts. Default is 72pt.'
+                   ' Overrides the common left page margin setting.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_top', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the top page margin, in pts. Default is 72pt.'
+                   ' Overrides the common top page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_right', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the right page margin, in pts. Default is 72pt.'
+                   ' Overrides the common right page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='pdf_page_margin_bottom', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the bottom page margin, in pts. Default is 72pt.'
+                   ' Overrides the common bottom page margin setting, unless set to zero.')
+        ),
+        OptionRecommendation(name='pdf_use_document_margins', recommended_value=False,
+            help=_('Use the page margins specified in the input document via @page CSS rules.'
+            ' This will cause the margins specified in the conversion settings to be ignored.'
+            ' If the document does not specify page margins, the conversion settings will be used as a fallback.')
+        ),
+        OptionRecommendation(name='pdf_page_number_map', recommended_value=None,
+            help=_('Adjust page numbers, as needed. Syntax is a JavaScript expression for the page number.'
+                ' For example, "if (n < 3) 0; else n - 3;", where n is current page number.')
+        ),
+    }
+
+    def specialize_options(self, log, opts, input_fmt):
+        if opts.pdf_use_document_margins:
+            # Prevent the conversion pipeline from overwriting document margins
+            opts.margin_left = opts.margin_right = opts.margin_top = opts.margin_bottom = -1
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.gui2 import must_use_qt, load_builtin_fonts
-        must_use_qt()
-        load_builtin_fonts()
+        from calibre.ebooks.oeb.transforms.split import Split
+        # Turn off hinting in WebKit (requires a patched build of QtWebKit)
+        os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
+        self.filtered_font_warnings = set()
+        self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
+        try:
+            # split on page breaks, as the JS code to convert page breaks to
+            # column breaks will not work because of QWebSettings.LocalContentCanAccessFileUrls
+            Split()(oeb_book, opts)
+            must_use_qt()
+            load_builtin_fonts()
 
-        self.oeb = oeb_book
-        self.input_plugin, self.opts, self.log = input_plugin, opts, log
-        self.output_path = output_path
-        from calibre.ebooks.oeb.base import OPF, OPF2_NS
-        from lxml import etree
-        from io import BytesIO
-        package = etree.Element(OPF('package'),
-            attrib={'version': '2.0', 'unique-identifier': 'dummy'},
-            nsmap={None: OPF2_NS})
-        from calibre.ebooks.metadata.opf2 import OPF
-        self.oeb.metadata.to_opf2(package)
-        self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
-        self.cover_data = None
+            self.oeb = oeb_book
+            self.input_plugin, self.opts, self.log = input_plugin, opts, log
+            self.output_path = output_path
+            from calibre.ebooks.oeb.base import OPF, OPF2_NS
+            from lxml import etree
+            from io import BytesIO
+            package = etree.Element(OPF('package'),
+                attrib={'version': '2.0', 'unique-identifier': 'dummy'},
+                nsmap={None: OPF2_NS})
+            from calibre.ebooks.metadata.opf2 import OPF
+            self.oeb.metadata.to_opf2(package)
+            self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
+            self.cover_data = None
 
-        if input_plugin.is_image_collection:
-            log.debug('Converting input as an image collection...')
-            self.convert_images(input_plugin.get_images())
-        else:
-            log.debug('Converting input as a text based book...')
-            self.convert_text(oeb_book)
+            if input_plugin.is_image_collection:
+                log.debug('Converting input as an image collection...')
+                self.convert_images(input_plugin.get_images())
+            else:
+                log.debug('Converting input as a text based book...')
+                self.convert_text(oeb_book)
+        finally:
+            os.environ.pop('CALIBRE_WEBKIT_NO_HINTING', None)
 
     def convert_images(self, images):
-        from calibre.ebooks.pdf.writer import ImagePDFWriter
+        from calibre.ebooks.pdf.render.from_html import ImagePDFWriter
         self.write(ImagePDFWriter, images, None)
 
     def get_cover_data(self):
         oeb = self.oeb
-        if (oeb.metadata.cover and
-                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            cover_id = unicode(oeb.metadata.cover[0])
+        if (oeb.metadata.cover and unicode_type(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = unicode_type(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
             self.cover_data = item.data
 
-    def handle_embedded_fonts(self):
-        ''' On windows, Qt uses GDI which does not support OpenType
-        (CFF) fonts, so we need to nuke references to OpenType
-        fonts. Qt's directwrite text backend is not mature.
-        Also make sure all fonts are embeddable. '''
-        from calibre.ebooks.oeb.base import urlnormalize
+    def process_fonts(self):
+        ''' Make sure all fonts are embeddable. Also remove some fonts that cause problems. '''
+        from calibre.ebooks.oeb.base import urlnormalize, css_text
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt5.Qt import QByteArray, QRawFont
 
-        font_warnings = set()
         processed = set()
-        is_cff = {}
         for item in list(self.oeb.manifest):
             if not hasattr(item.data, 'cssRules'):
                 continue
-            remove = set()
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type == rule.FONT_FACE_RULE:
                     try:
@@ -194,31 +240,48 @@ class PDFOutput(OutputFormatPlugin):
                         if nraw != raw:
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
-
-                    if iswindows:
-                        if path not in is_cff:
-                            f = QRawFont(QByteArray(nraw), 12)
-                            is_cff[path] = f.isValid() and len(f.fontTable('head')) == 0
-                        if is_cff[path]:
-                            if path not in font_warnings:
-                                font_warnings.add(path)
-                                self.log.warn('CFF OpenType fonts are not supported on windows, ignoring: %s' % path)
-                            remove.add(i)
-            for i in sorted(remove, reverse=True):
-                item.data.cssRules.pop(i)
+                elif iswindows and rule.type == rule.STYLE_RULE:
+                    from tinycss.fonts3 import parse_font_family, serialize_font_family
+                    s = rule.style
+                    f = s.getProperty('font-family')
+                    if f is not None:
+                        font_families = parse_font_family(css_text(f.propertyValue))
+                        ff = [x for x in font_families if x.lower() != 'courier']
+                        if len(ff) != len(font_families):
+                            if 'courier' not in self.filtered_font_warnings:
+                                # See https://bugs.launchpad.net/bugs/1665835
+                                self.filtered_font_warnings.add('courier')
+                                self.log.warn('Removing courier font family as it does not render on windows')
+                            f.propertyValue.cssText = serialize_font_family(ff or ['monospace'])
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
-        if self.opts.old_pdf_engine:
-            from calibre.ebooks.pdf.writer import PDFWriter
-            PDFWriter
-        else:
-            from calibre.ebooks.pdf.render.from_html import PDFWriter
+        from calibre.ebooks.pdf.render.from_html import PDFWriter
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
-        self.handle_embedded_fonts()
+        self.process_fonts()
+        if self.opts.pdf_use_document_margins and self.stored_page_margins:
+            import json
+            for href, margins in iteritems(self.stored_page_margins):
+                item = oeb_book.manifest.hrefs.get(href)
+                if item is not None:
+                    root = item.data
+                    if hasattr(root, 'xpath') and margins:
+                        root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
+
+        # Remove javascript
+        for item in self.oeb.spine:
+            root = item.data
+            if hasattr(root, 'xpath'):
+                for script in root.xpath('//*[local-name()="script"]'):
+                    script.text = None
+                    script.attrib.clear()
+                for elem in root.iter('*'):
+                    for attr in tuple(elem.attrib):
+                        if attr.startswith('on'):
+                            elem.set(attr, '')
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format

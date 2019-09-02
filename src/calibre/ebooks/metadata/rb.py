@@ -1,12 +1,17 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from RB files'''
 
 import sys, struct
 
+from calibre import prints
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import unicode_type
 
-MAGIC = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
+MAGIC = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
+
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
@@ -15,7 +20,7 @@ def get_metadata(stream):
     stream.seek(0)
     try:
         if not stream.read(14) == MAGIC:
-            print >>sys.stderr, u'Couldn\'t read RB header from file'
+            print('Couldn\'t read RB header from file', file=sys.stderr)
             return mi
         stream.read(10)
 
@@ -30,11 +35,11 @@ def get_metadata(stream):
             if flag == 2:
                 break
         else:
-            print >>sys.stderr, u'Couldn\'t find INFO from RB file'
+            print('Couldn\'t find INFO from RB file', file=sys.stderr)
             return mi
 
         stream.seek(offset)
-        info = stream.read(length).splitlines()
+        info = stream.read(length).decode('utf-8', 'replace').splitlines()
         for line in info:
             if '=' not in line:
                 continue
@@ -42,12 +47,9 @@ def get_metadata(stream):
             if key.strip() == 'TITLE':
                 mi.title = value.strip()
             elif key.strip() == 'AUTHOR':
-                mi.author = value
                 mi.authors = string_to_authors(value)
     except Exception as err:
-        msg = u'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode(err))
-        print >>sys.stderr, msg.encode('utf8')
+        msg = 'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode_type(err))
+        prints(msg, file=sys.stderr)
         raise
     return mi
-
-

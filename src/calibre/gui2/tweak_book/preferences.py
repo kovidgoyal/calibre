@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from operator import attrgetter, methodcaller
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import (
+        iteritems, itervalues, map, unicode_type, range)
 from itertools import product
-from functools import partial
 from copy import copy, deepcopy
 
 from PyQt5.Qt import (
@@ -21,6 +21,7 @@ from PyQt5.Qt import (
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 
 from calibre import prepare_string_for_xml
+from calibre.utils.localization import get_lang
 from calibre.gui2 import info_dialog
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
@@ -28,6 +29,7 @@ from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.tweak_book.widgets import Dialog
+
 
 class BasicSettings(QWidget):  # {{{
 
@@ -49,8 +51,8 @@ class BasicSettings(QWidget):  # {{{
                 getter = getter or methodcaller('isChecked')
                 setter = setter or (lambda x, v: x.setChecked(v))
                 widget.toggled.connect(self.emit_changed)
-            elif isinstance(defval, (int, float)):
-                widget = (QSpinBox if isinstance(defval, int) else QDoubleSpinBox)(self)
+            elif isinstance(defval, numbers.Number):
+                widget = (QSpinBox if isinstance(defval, numbers.Integral) else QDoubleSpinBox)(self)
                 getter = getter or methodcaller('value')
                 setter = setter or (lambda x, v:x.setValue(v))
                 widget.valueChanged.connect(self.emit_changed)
@@ -70,11 +72,11 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged[int].connect(self.emit_changed)
-        for key, human in sorted(choices.iteritems(), key=lambda key_human: key_human[1] or key_human[0]):
+        for key, human in sorted(iteritems(choices), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
         def getter(w):
-            ans = unicode(w.itemData(w.currentIndex()) or '')
+            ans = unicode_type(w.itemData(w.currentIndex()) or '')
             return {none_val:None}.get(ans, ans)
 
         def setter(w, val):
@@ -101,7 +103,7 @@ class BasicSettings(QWidget):  # {{{
         widget.defaults = prefs.defaults[name]
 
         def getter(w):
-            return list(map(unicode, (w.item(i).text() for i in xrange(w.count()))))
+            return list(map(unicode_type, (w.item(i).text() for i in range(w.count()))))
 
         def setter(w, val):
             order_map = {x:i for i, x in enumerate(val)}
@@ -132,7 +134,7 @@ class BasicSettings(QWidget):  # {{{
                         prefs[name] = cv
 
     def restore_defaults(self):
-        for setting in self.settings.itervalues():
+        for setting in itervalues(self.settings):
             setting.setter(setting.widget, self.default_value(setting.name))
 
     def initial_value(self, name):
@@ -150,6 +152,7 @@ class BasicSettings(QWidget):  # {{{
         return self.current_value(name) != self.initial_value(name)
 # }}}
 
+
 class EditorSettings(BasicSettings):
 
     def __init__(self, parent=None):
@@ -161,7 +164,7 @@ class EditorSettings(BasicSettings):
         fc = FontFamilyChooser(self)
         self('editor_font_family', widget=fc, getter=attrgetter('font_family'), setter=lambda x, val: setattr(x, 'font_family', val))
         fc.family_changed.connect(self.emit_changed)
-        l.addRow(_('Editor font &family:'), fc)
+        l.addRow(_('Editor font family:'), fc)
 
         fs = self('editor_font_size')
         fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
@@ -178,11 +181,11 @@ class EditorSettings(BasicSettings):
 
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
-        l.addRow(_('Width of &tabs:'), tw)
+        l.addRow(_('W&idth of tabs:'), tw)
 
         self.tb = b = QPushButton(_('Change &templates'))
         l.addRow(_('Templates for new files:'), b)
-        b.clicked.connect(lambda : TemplatesDialog(self).exec_())
+        connect_lambda(b.clicked, self, lambda self: TemplatesDialog(self).exec_())
 
         lw = self('editor_line_wrap')
         lw.setText(_('&Wrap long lines in the editor'))
@@ -197,31 +200,31 @@ class EditorSettings(BasicSettings):
         l.addRow(lw)
 
         lw = self('auto_close_tags')
-        lw.setText(_('Auto &close tags when typing </'))
+        lw.setText(_('Auto close t&ags when typing </'))
         lw.setToolTip('<p>' + prepare_string_for_xml(_(
             'With this option, every time you type </ the current HTML closing tag is auto-completed')))
         l.addRow(lw)
 
         lw = self('editor_show_char_under_cursor')
-        lw.setText(_('Show the name of the current character before the cursor along with the line and column number'))
+        lw.setText(_('Show the &name of the current character before the cursor along with the line and column number'))
         l.addRow(lw)
 
         lw = self('pretty_print_on_open')
-        lw.setText(_('Beautify individual files automatically when they are opened'))
+        lw.setText(_('Beautify individual &files automatically when they are opened'))
         lw.setToolTip('<p>' + _(
             'This will cause the beautify current file action to be performed automatically every'
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
 
         lw = self('inline_spell_check')
-        lw.setText(_('Show misspelled words underlined in the code view'))
+        lw.setText(_('Show &misspelled words underlined in the code view'))
         lw.setToolTip('<p>' + _(
             'This will cause spelling errors to be highlighted in the code view'
             ' for easy correction as you type.'))
         l.addRow(lw)
 
         lw = self('editor_accepts_drops')
-        lw.setText(_('Allow drag and drop editing of text'))
+        lw.setText(_('Allow drag and drop &editing of text'))
         lw.setToolTip('<p>' + _(
             'Allow using drag and drop to move text around in the editor.'
             ' It can be useful to turn this off if you have a misbehaving touchpad.'))
@@ -260,11 +263,12 @@ class EditorSettings(BasicSettings):
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
         s.widget.clear()
-        for key, human in sorted(choices.iteritems(), key=lambda key_human1: key_human1[1] or key_human1[0]):
+        for key, human in sorted(iteritems(choices), key=lambda key_human1: key_human1[1] or key_human1[0]):
             s.widget.addItem(human or key, key)
         s.setter(s.widget, current_val)
         if d.theme_name:
             s.setter(s.widget, d.theme_name)
+
 
 class IntegrationSettings(BasicSettings):
 
@@ -274,20 +278,21 @@ class IntegrationSettings(BasicSettings):
         self.setLayout(l)
 
         um = self('update_metadata_from_calibre')
-        um.setText(_('Update metadata embedded in the book when opening'))
+        um.setText(_('Update &metadata embedded in the book when opening'))
         um.setToolTip('<p>' + _(
             'When the file is opened, update the metadata embedded in the book file to the current metadata'
             ' in the calibre library.'))
         l.addRow(um)
 
         ask = self('choose_tweak_fmt')
-        ask.setText(_('Ask which format to edit if more than one format is available for the book'))
+        ask.setText(_('Ask which &format to edit if more than one format is available for the book'))
         l.addRow(ask)
 
         order = self.order_widget('tweak_fmt_order')
         order.setToolTip(_('When auto-selecting the format to edit for a book with'
                            ' multiple formats, this is the preference order.'))
         l.addRow(_('Preferred format order (drag and drop to change)'), order)
+
 
 class MainWindowSettings(BasicSettings):
 
@@ -297,7 +302,7 @@ class MainWindowSettings(BasicSettings):
         self.setLayout(l)
 
         nd = self('nestable_dock_widgets')
-        nd.setText(_('Allow dockable windows to be nested inside the dock areas'))
+        nd.setText(_('Allow dockable &windows to be nested inside the dock areas'))
         nd.setToolTip('<p>' + _(
             'By default, you can have only a single row or column of windows in the dock'
             ' areas (the areas around the central editors). This option allows'
@@ -310,11 +315,11 @@ class MainWindowSettings(BasicSettings):
                        'horizontal':{'top':_('Top'), 'bottom':_('Bottom')}[v]}
             name = 'dock_%s_%s' % (v, h)
             w = self.choices_widget(name, choices, 'horizontal', 'horizontal')
-            cn = {('top', 'left'): _('The top-left corner'), ('top', 'right'):_('The top-right corner'),
-                  ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
+            cn = {('top', 'left'): _('The &top-left corner'), ('top', 'right'):_('The top-&right corner'),
+                  ('bottom', 'left'):_('The &bottom-left corner'), ('bottom', 'right'):_('The bottom-ri&ght corner')}[(v, h)]
             l.addRow(cn + ':', w)
         nd = self('restore_book_state')
-        nd.setText(_('Restore state of previously edited book when opening it again'))
+        nd.setText(_('Restore &state of previously edited book when opening it again'))
         nd.setToolTip('<p>' + _(
             'When opening a previously edited book again, restore its state. That means all open'
             ' files are automatically re-opened and the cursor is positioned at its previous location.'
@@ -322,12 +327,13 @@ class MainWindowSettings(BasicSettings):
         l.addRow(nd)
 
         nd = self('file_list_shows_full_pathname')
-        nd.setText(_('Show full file paths in the Files Browser'))
+        nd.setText(_('Show full &file paths in the File browser'))
         nd.setToolTip('<p>' + _(
             'Showing the full file paths is useful when editing books that contain'
             ' multiple files with the same file name.'
         ))
         l.addRow(nd)
+
 
 class PreviewSettings(BasicSettings):
 
@@ -337,19 +343,20 @@ class PreviewSettings(BasicSettings):
         self.setLayout(l)
 
         def family_getter(w):
-            return unicode(w.currentFont().family())
+            return unicode_type(w.currentFont().family())
 
         def family_setter(w, val):
             w.setCurrentFont(QFont(val))
 
         families = {'serif':_('Serif text'), 'sans':_('Sans-serif text'), 'mono':_('Monospaced text')}
-        for fam, text in families.iteritems():
+        for fam in sorted(families):
+            text = families[fam]
             w = QFontComboBox(self)
             self('preview_%s_family' % fam, widget=w, getter=family_getter, setter=family_setter)
             l.addRow(_('Font family for &%s:') % text, w)
 
         w = self.choices_widget('preview_standard_font_family', families, 'serif', 'serif')
-        l.addRow(_('&Style for standard text:'), w)
+        l.addRow(_('Style for standard &text:'), w)
 
         w = self('preview_base_font_size')
         w.setMinimum(8), w.setMaximum(100), w.setSuffix(' px')
@@ -363,11 +370,13 @@ class PreviewSettings(BasicSettings):
 
 # ToolbarSettings  {{{
 
+
 class ToolbarList(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setSelectionMode(self.ExtendedSelection)
+
 
 class ToolbarSettings(QWidget):
 
@@ -376,7 +385,6 @@ class ToolbarSettings(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = gl = QGridLayout(self)
-        self.setLayout(gl)
         self.changed = False
 
         self.bars = b = QComboBox(self)
@@ -408,10 +416,10 @@ class ToolbarSettings(QWidget):
         l.addWidget(gb1, 0, 0, -1, 1), l.addWidget(gb2, 0, 2, -1, 1)
         self.available, self.current = ToolbarList(self), ToolbarList(self)
         self.ub = b = QToolButton(self)
-        b.clicked.connect(partial(self.move, up=True))
+        connect_lambda(b.clicked, self, lambda self: self.move(up=True))
         b.setToolTip(_('Move selected action up')), b.setIcon(QIcon(I('arrow-up.png')))
         self.db = b = QToolButton(self)
-        b.clicked.connect(partial(self.move, up=False))
+        connect_lambda(b.clicked, self, lambda self: self.move(up=False))
         b.setToolTip(_('Move selected action down')), b.setIcon(QIcon(I('arrow-down.png')))
         self.gl1 = gl1 = QVBoxLayout()
         gl1.addWidget(self.available), gb1.setLayout(gl1)
@@ -420,10 +428,10 @@ class ToolbarSettings(QWidget):
         gl2.addWidget(self.ub, 0, 1), gl2.addWidget(self.db, 2, 1)
         gb2.setLayout(gl2)
         self.lb = b = QToolButton(self)
-        b.setToolTip(_('Add selected actions to toolbar')), b.setIcon(QIcon(I('forward.png')))
+        b.setToolTip(_('Add selected actions to the toolbar')), b.setIcon(QIcon(I('forward.png')))
         l.addWidget(b, 1, 1), b.clicked.connect(self.add_action)
         self.rb = b = QToolButton(self)
-        b.setToolTip(_('Remove selected actions from toolbar')), b.setIcon(QIcon(I('back.png')))
+        b.setToolTip(_('Remove selected actions from the toolbar')), b.setIcon(QIcon(I('back.png')))
         l.addWidget(b, 3, 1), b.clicked.connect(self.remove_action)
         self.si = QSpacerItem(20, 10, hPolicy=QSizePolicy.Preferred, vPolicy=QSizePolicy.Expanding)
         l.setRowStretch(0, 10), l.setRowStretch(2, 10), l.setRowStretch(4, 10)
@@ -436,22 +444,23 @@ class ToolbarSettings(QWidget):
         self.toolbar_icon_size = ics = QSpinBox(self)
         ics.setMinimum(16), ics.setMaximum(128), ics.setSuffix(' px'), ics.setValue(tprefs['toolbar_icon_size'])
         ics.setToolTip('<p>' + _('Adjust the size of icons on all toolbars'))
-        r = l.rowCount()
+        self.h = h = QHBoxLayout()
+        gl.addLayout(h, gl.rowCount(), 0, 1, -1)
         self.toolbar_icon_size_label = la = QLabel(_('Toolbar &icon size:'))
         la.setBuddy(ics)
-        l.addWidget(la, r, 0), l.addWidget(ics, r, 1)
+        h.addWidget(la), h.addWidget(ics), h.addStretch(10)
 
     def read_settings(self, prefs=None):
         prefs = prefs or tprefs
         val = self.original_settings = {}
-        for i in xrange(1, self.bars.count()):
-            name = unicode(self.bars.itemData(i) or '')
+        for i in range(1, self.bars.count()):
+            name = unicode_type(self.bars.itemData(i) or '')
             val[name] = copy(prefs[name])
         self.current_settings = deepcopy(val)
 
     @property
     def current_name(self):
-        return unicode(self.bars.itemData(self.bars.currentIndex()) or '')
+        return unicode_type(self.bars.itemData(self.bars.currentIndex()) or '')
 
     def build_lists(self):
         from calibre.gui2.tweak_book.plugin import plugin_toolbar_actions
@@ -475,12 +484,12 @@ class ToolbarSettings(QWidget):
             ic = ac.icon()
             if not ic or ic.isNull():
                 ic = blank
-            ans = QListWidgetItem(ic, unicode(ac.text()).replace('&', ''), parent)
+            ans = QListWidgetItem(ic, unicode_type(ac.text()).replace('&', ''), parent)
             ans.setData(Qt.UserRole, key)
             ans.setToolTip(ac.toolTip())
             return ans
 
-        for key, ac in sorted(all_items.iteritems(), key=lambda k_ac: unicode(k_ac[1].text())):
+        for key, ac in sorted(iteritems(all_items), key=lambda k_ac: unicode_type(k_ac[1].text())):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:
@@ -531,7 +540,7 @@ class ToolbarSettings(QWidget):
             s = self.current_settings[self.current_name]
         except KeyError:
             return
-        names = [unicode(i.data(Qt.UserRole) or '') for i in self.available.selectedItems()]
+        names = [unicode_type(i.data(Qt.UserRole) or '') for i in self.available.selectedItems()]
         if not names:
             return
         for n in names:
@@ -570,6 +579,7 @@ class ToolbarSettings(QWidget):
 
 # }}}
 
+
 class TemplatesDialog(Dialog):  # {{{
 
     def __init__(self, parent=None):
@@ -579,13 +589,17 @@ class TemplatesDialog(Dialog):  # {{{
     def setup_ui(self):
         from calibre.gui2.tweak_book.templates import DEFAULT_TEMPLATES
         from calibre.gui2.tweak_book.editor.text import TextEdit
-        self.l = l = QFormLayout(self)
-        self.setLayout(l)
+        # Cannot use QFormLayout as it does not play nice with TextEdit on windows
+        self.l = l = QVBoxLayout(self)
 
         self.syntaxes = s = QComboBox(self)
-        s.addItems(sorted(DEFAULT_TEMPLATES.iterkeys()))
+        s.addItems(sorted(DEFAULT_TEMPLATES))
         s.setCurrentIndex(s.findText('html'))
-        l.addRow(_('Choose the &type of template to edit:'), s)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        la = QLabel(_('Choose the &type of template to edit:'))
+        la.setBuddy(s)
+        h.addWidget(la), h.addWidget(s), h.addStretch(10)
         s.currentIndexChanged.connect(self.show_template)
 
         self.helpl = la = QLabel(_(
@@ -594,14 +608,14 @@ class TemplatesDialog(Dialog):  # {{{
             ' for example for CSS rules, you have to escape them, like this: {3}').format(*['<code>%s</code>'%x for x in
                 ['{TITLE}', '{AUTHOR}', '%CURSOR%', 'body {{ color: red }}']]))
         la.setWordWrap(True)
-        l.addRow(la)
+        l.addWidget(la)
 
         self.save_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100)
         t.timeout.connect(self._save_syntax)
 
         self.editor = e = TextEdit(self)
-        l.addRow(e)
+        l.addWidget(e)
         e.textChanged.connect(self.save_syntax)
 
         self.show_template()
@@ -610,11 +624,11 @@ class TemplatesDialog(Dialog):  # {{{
         self.bb.addButton(self.bb.Close)
         self.rd = b = self.bb.addButton(self.bb.RestoreDefaults)
         b.clicked.connect(self.restore_defaults)
-        l.addRow(self.bb)
+        l.addWidget(self.bb)
 
     @property
     def current_syntax(self):
-        return unicode(self.syntaxes.currentText())
+        return unicode_type(self.syntaxes.currentText())
 
     def show_template(self):
         from calibre.gui2.tweak_book.templates import raw_template_for
@@ -632,7 +646,7 @@ class TemplatesDialog(Dialog):  # {{{
 
     def _save_syntax(self):
         custom = tprefs['templates']
-        custom[self.current_syntax] = unicode(self.editor.toPlainText())
+        custom[self.current_syntax] = unicode_type(self.editor.toPlainText())
         tprefs['templates'] = custom
 
     def restore_defaults(self):
@@ -643,13 +657,14 @@ class TemplatesDialog(Dialog):  # {{{
         self._save_syntax()
 # }}}
 
+
 class Preferences(QDialog):
 
     def __init__(self, gui, initial_panel=None):
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
-        self.setWindowTitle(_('Preferences for Edit Book'))
+        self.setWindowTitle(_('Preferences for Edit book'))
         self.setWindowIcon(QIcon(I('config.png')))
 
         self.stacks = QStackedWidget(self)
@@ -663,19 +678,20 @@ class Preferences(QDialog):
         cl.setMovement(cl.Static)
         cl.setWrapping(False)
         cl.setSpacing(15)
-        cl.setWordWrap(True)
+        if get_lang()[:2] not in ('zh', 'ja'):
+            cl.setWordWrap(True)
         l.addWidget(cl, 0, 0, 1, 1)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        self.rdb = b = bb.addButton(_('Restore all defaults'), bb.ResetRole)
+        self.rdb = b = bb.addButton(_('Restore all &defaults'), bb.ResetRole)
         b.setToolTip(_('Restore defaults for all preferences'))
         b.clicked.connect(self.restore_all_defaults)
-        self.rcdb = b = bb.addButton(_('Restore current defaults'), bb.ResetRole)
+        self.rcdb = b = bb.addButton(_('Restore &current defaults'), bb.ResetRole)
         b.setToolTip(_('Restore defaults for currently displayed preferences'))
         b.clicked.connect(self.restore_current_defaults)
-        self.rconfs = b = bb.addButton(_('Restore confirmations'), bb.ResetRole)
+        self.rconfs = b = bb.addButton(_('Restore c&onfirmations'), bb.ResetRole)
         b.setToolTip(_('Restore all disabled confirmation prompts'))
         b.clicked.connect(self.restore_confirmations)
 
@@ -709,8 +725,8 @@ class Preferences(QDialog):
         cl.setCurrentRow(0)
         cl.item(0).setSelected(True)
         w, h = cl.sizeHintForColumn(0), 0
-        for i in xrange(cl.count()):
-            h = max(h, cl.sizeHintForRow(i))
+        for i in range(cl.count()):
+            h = cl.sizeHintForRow(i)
             cl.item(i).setSizeHint(QSize(w, h))
 
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
@@ -729,7 +745,7 @@ class Preferences(QDialog):
         return self.toolbars_panel.changed
 
     def restore_all_defaults(self):
-        for i in xrange(self.stacks.count()):
+        for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
             w.restore_defaults()
 
@@ -742,12 +758,18 @@ class Preferences(QDialog):
             if key.endswith('_again') and tprefs.get(key) is False:
                 del tprefs[key]
                 changed += 1
-        info_dialog(self, _('Disabled confirmations restored'), _(
-            '%d disabled confirmation prompts were restored') % changed, show=True)
+            elif key.startswith('skip_ask_to_show_current_diff_for_'):
+                del tprefs[key]
+                changed += 1
+        msg = _('There are no disabled confirmation prompts')
+        if changed:
+            msg = ngettext(
+                'One disabled confirmation prompt was restored', '{} disabled confirmation prompts were restored', changed).format(changed)
+        info_dialog(self, _('Disabled confirmations restored'), msg, show=True)
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
-        for i in xrange(self.stacks.count()):
+        for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
             w.commit()
         QDialog.accept(self)
@@ -755,6 +777,7 @@ class Preferences(QDialog):
     def reject(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
         QDialog.reject(self)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -765,4 +788,3 @@ if __name__ == '__main__':
     main = Main(opts)
     d = Preferences(main)
     d.exec_()
-

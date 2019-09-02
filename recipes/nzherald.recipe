@@ -1,5 +1,10 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import re
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NewZealandHerald(BasicNewsRecipe):
@@ -10,6 +15,15 @@ class NewZealandHerald(BasicNewsRecipe):
     timefmt = ' [%d %b, %Y]'
     language = 'en_NZ'
     oldest_article = 2.5
+
+    keep_only_tags = [
+        classes('article-header'),
+        dict(id='article-content'),
+    ]
+
+    remove_tags = [
+        classes('ad-container pb-f-video-video-player pb-f-article-related-articles social-shares')
+    ]
 
     feeds = [
         ('Business',
@@ -36,8 +50,7 @@ class NewZealandHerald(BasicNewsRecipe):
          'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
     ]
 
-    def print_version(self, url):
-        m = re.search(r'objectid=(\d+)', url)
-        if m is None:
-            return url
-        return 'http://www.nzherald.co.nz/news/print.cfm?pnum=1&objectid=' + m.group(1)
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split()[0]
+        return soup

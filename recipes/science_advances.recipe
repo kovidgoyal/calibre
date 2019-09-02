@@ -1,0 +1,49 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def check_words(words):
+    return lambda x: x and frozenset(words.split()).intersection(x.split())
+
+
+class ScienceAdvances(BasicNewsRecipe):
+    title = 'Science Advances'
+    __author__ = 'Jose Ortiz'
+    description = (
+        'Science Advances is a peer-reviewed multidisciplinary open-access'
+        ' scientific journal established in early 2015.  The journal\'s scope'
+        ' includes all areas of science, including the life sciences, physical'
+        ' sciences, social sciences, computer sciences, and environmental'
+        ' sciences.'
+    )
+    language = 'en'
+    encoding = 'UTF-8'
+    max_articles_per_feed = 100
+    publication_type = 'magazine'
+    keep_only_tags = [dict(name='article', attrs={'class': check_words('primary')})]
+    feeds = [
+        (
+            'Science Advances: Current Issue',
+            'http://advances.sciencemag.org/rss/current.xml'
+        ),
+    ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://advances.sciencemag.org/')
+        img = soup.find(id='content-block').find(
+            'img', attrs={'class': check_words('cover-img')}
+        )
+        return img['src']
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            if img['data-src'].endswith('medium.gif'):
+                img['src'] = img['data-src'][:-10] + 'large.jpg'
+                a = img.findParent(attrs={'href': True})
+                if a is not None and a['href'].startswith(img['src']):
+                    del a['href']
+            else:
+                img['src'] = img['data-src']
+        return soup

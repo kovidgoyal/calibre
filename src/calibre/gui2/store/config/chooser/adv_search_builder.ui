@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Advanced Search</string>
+   <string>Advanced search</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -186,7 +186,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Nam&amp;e/Description ...</string>
+       <string>Nam&amp;e/description...</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">

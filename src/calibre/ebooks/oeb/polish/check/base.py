@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,8 +10,10 @@ from functools import partial
 from contextlib import closing
 
 from calibre import detect_ncpus as cpu_count
+from polyglot.builtins import range
 
-DEBUG, INFO, WARN, ERROR, CRITICAL = xrange(5)
+DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
+
 
 class BaseError(object):
 
@@ -32,6 +33,7 @@ class BaseError(object):
 
     __repr__ = __str__
 
+
 def worker(func, args):
     try:
         result = func(*args)
@@ -41,6 +43,7 @@ def worker(func, args):
         import traceback
         tb = traceback.format_exc()
     return result, tb
+
 
 def run_checkers(func, args_list):
     num = cpu_count()
@@ -52,4 +55,3 @@ def run_checkers(func, args_list):
                 raise Exception('Failed to run worker: \n%s' % tb)
             ans.extend(result)
     return ans
-

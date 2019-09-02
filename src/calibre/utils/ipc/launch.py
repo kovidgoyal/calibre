@@ -6,12 +6,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time, binascii, cPickle
+import subprocess, os, sys, time
 from functools import partial
 
-from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
+from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding, ispy3
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from calibre.utils.serialize import msgpack_dumps
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, environ_item, native_string_type, getcwd
+from polyglot.binary import as_hex_unicode
 
 if iswindows:
     import win32process
@@ -20,13 +23,15 @@ if iswindows:
     except:
         raise RuntimeError('NUL file missing in windows. This indicates a'
                 ' corrupted windows. You should contact Microsoft'
-                ' for assistance and/or follow the steps described here: http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
+                ' for assistance and/or follow the steps described here: https://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
+
 
 def renice(niceness):
     try:
         os.nice(niceness)
     except:
         pass
+
 
 class Worker(object):
     '''
@@ -44,19 +49,11 @@ class Worker(object):
     exe_name = 'calibre-parallel'
 
     @property
-    def osx_interpreter(self):
-        exe = os.path.basename(sys.executable)
-        return exe if 'python' in exe else 'python'
-
-    @property
-    def osx_contents_dir(self):
-        fd = os.path.realpath(getattr(sys, 'frameworks_dir'))
-        return os.path.dirname(fd)
-
-    @property
     def executable(self):
         if hasattr(sys, 'running_from_setup'):
             return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
+        if getattr(sys, 'run_local', False):
+            return [sys.executable, sys.run_local, self.exe_name]
         e = self.exe_name
         if iswindows:
             return os.path.join(os.path.dirname(sys.executable),
@@ -84,26 +81,29 @@ class Worker(object):
 
     @property
     def env(self):
-        # We use this inefficient method of copying the environment variables
-        # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
-        env = {}
-        for key in os.environ:
-            try:
-                val = os.environ[key]
-                if isinstance(val, unicode):
-                    # On windows subprocess cannot handle unicode env vars
-                    try:
-                        val = val.encode(filesystem_encoding)
-                    except ValueError:
-                        val = val.encode('utf-8')
-                if isinstance(key, unicode):
-                    key = key.encode('ascii')
-                env[key] = val
-            except:
-                pass
-        env[b'CALIBRE_WORKER'] = b'1'
-        td = binascii.hexlify(cPickle.dumps(base_dir()))
-        env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
+        if ispy3:
+            env = os.environ.copy()
+        else:
+            # We use this inefficient method of copying the environment variables
+            # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
+            env = {}
+            for key in os.environ:
+                try:
+                    val = os.environ[key]
+                    if isinstance(val, unicode_type):
+                        # On windows subprocess cannot handle unicode env vars
+                        try:
+                            val = val.encode(filesystem_encoding)
+                        except ValueError:
+                            val = val.encode('utf-8')
+                    if isinstance(key, unicode_type):
+                        key = key.encode('ascii')
+                    env[key] = val
+                except:
+                    pass
+        env[native_string_type('CALIBRE_WORKER')] = environ_item('1')
+        td = as_hex_unicode(msgpack_dumps(base_dir()))
+        env[native_string_type('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
         env.update(self._env)
         return env
 
@@ -151,19 +151,22 @@ class Worker(object):
         self._env = {}
         self.gui = gui
         self.job_name = job_name
-        # Windows cannot handle unicode env vars
-        for k, v in env.iteritems():
-            try:
-                if isinstance(k, unicode):
-                    k = k.encode('ascii')
-                if isinstance(v, unicode):
-                    try:
-                        v = v.encode(filesystem_encoding)
-                    except:
-                        v = v.encode('utf-8')
-                self._env[k] = v
-            except:
-                pass
+        if ispy3:
+            self._env = env.copy()
+        else:
+            # Windows cannot handle unicode env vars
+            for k, v in iteritems(env):
+                try:
+                    if isinstance(k, unicode_type):
+                        k = k.encode('ascii')
+                    if isinstance(v, unicode_type):
+                        try:
+                            v = v.encode(filesystem_encoding)
+                        except:
+                            v = v.encode('utf-8')
+                    self._env[k] = v
+                except:
+                    pass
 
     def __call__(self, redirect_output=True, cwd=None, priority=None):
         '''
@@ -173,17 +176,15 @@ class Worker(object):
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.abspath(os.getcwdu())))
+            origwd = cwd or os.path.abspath(getcwd())
         except EnvironmentError:
             # cwd no longer exists
-            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
-                cwd or os.path.expanduser(u'~')))
-
+            origwd = cwd or os.path.expanduser(u'~')
+        env[native_string_type('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, basestring) else exe
+        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
         args = {
                 'env' : env,
                 'cwd' : _cwd,
@@ -229,6 +230,3 @@ class Worker(object):
 
         self.log_path = ret
         return ret
-
-
-

@@ -8,7 +8,7 @@ class Trojmiasto(BasicNewsRecipe):
     description = u'Wiadomości, imprezy, wydarzenia, spektakle.Gdańsk, Gdynia, Sopot - NOCLEGI, Katalog firm, repertuar kin, wydarzenia, przewodnik, mapa, kwatery, hotele. Portal regionalny trojmiasto.pl'  # noqa
     category = ''
     language = 'pl'
-    encoding = 'iso-8859-2'
+    encoding = 'utf-8'
     extra_css = 'ul {list-style: none; padding:0; margin:0;}'
     cover_url = 'http://www.trojmiasto.pl/_img/toplong2/logo_trojmiasto.gif'
     use_embedded_content = False
@@ -20,8 +20,8 @@ class Trojmiasto(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    preprocess_regexps = [(re.compile(ur'<strong>Czytaj więcej.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(ur'<strong>Zobacz też.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa
-                          (re.compile(ur'<b>[A-ZĄĆĘŁŃÓŚŹŻ \-,.:]*?</b>', re.DOTALL), lambda match: ''), ]
+    preprocess_regexps = [(re.compile(u'<strong>Czytaj więcej.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(u'<strong>Zobacz też.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa
+                          (re.compile(u'<b>[A-ZĄĆĘŁŃÓŚŹŻ ,.:-]*?</b>', re.DOTALL), lambda match: ''), ]
 
     remove_tags = [
         dict(id=['logo', 'font_small', 'font_big']),

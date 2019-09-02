@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +16,8 @@ from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
 from calibre.gui2 import NO_URL_FORMATTING
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import BusyCursor
+from polyglot.builtins import unicode_type, range
+
 
 def icon_for_level(level):
     if level > WARN:
@@ -28,6 +29,7 @@ def icon_for_level(level):
     else:
         icon = None
     return QIcon(I(icon)) if icon else QIcon()
+
 
 def prefix_for_level(level):
     if level > WARN:
@@ -42,6 +44,7 @@ def prefix_for_level(level):
         text += ': '
     return text
 
+
 class Delegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
@@ -49,6 +52,7 @@ class Delegate(QStyledItemDelegate):
         if index.row() == self.parent().currentRow():
             option.font.setBold(True)
             option.backgroundBrush = self.parent().palette().brush(QPalette.AlternateBase)
+
 
 class Check(QSplitter):
 
@@ -95,8 +99,8 @@ class Check(QSplitter):
 
     def copy_to_clipboard(self):
         items = []
-        for item in (self.items.item(i) for i in xrange(self.items.count())):
-            msg = unicode(item.text())
+        for item in (self.items.item(i) for i in range(self.items.count())):
+            msg = unicode_type(item.text())
             msg = prefix_for_level(item.data(Qt.UserRole).level) + msg
             items.append(msg)
         if items:
@@ -112,13 +116,13 @@ class Check(QSplitter):
             msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
-        url = unicode(url.toString(NO_URL_FORMATTING))
+        url = unicode_type(url.toString(NO_URL_FORMATTING))
         if url == 'activate:item':
             self.current_item_activated()
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.UserRole) for i in xrange(self.items.count())]
+            errors = [self.items.item(i).data(Qt.UserRole) for i in range(self.items.count())]
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
@@ -155,6 +159,7 @@ class Check(QSplitter):
     def current_item_changed(self, *args):
         i = self.items.currentItem()
         self.help.setText('')
+
         def loc_to_string(line, col):
             loc = ''
             if line is not None:
@@ -190,10 +195,12 @@ class Check(QSplitter):
                 activate = '<div>%s</div>' % ('<br>'.join(activate))
                 if many:
                     activate += '<br>'
+                activate = activate.replace('%', '%%')
                 template = header + ((msg + activate) if many else (activate + msg)) + footer
             else:
                 activate = '<div><a href="activate:item" title="%s">%s %s</a></div>' % (
                        open_tt, err.name, loc)
+                activate = activate.replace('%', '%%')
                 template = header + activate + msg + footer
             self.help.setText(
                 template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
@@ -241,6 +248,7 @@ class Check(QSplitter):
         self.items.clear()
         self.clear_help()
 
+
 def main():
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
@@ -251,6 +259,7 @@ def main():
     d.run_checks(container)
     d.show()
     app.exec_()
+
 
 if __name__ == '__main__':
     main()

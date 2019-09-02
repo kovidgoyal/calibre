@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -19,6 +18,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from polyglot.builtins import iteritems, string_or_bytes, filter
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 
@@ -44,17 +44,21 @@ NS_MAP = {
 }
 KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 
+
 def expand(name):
     prefix, name = name.partition(':')[::2]
     return '{%s}%s' % (NS_MAP[prefix], name)
 
+
 xpath_cache = {}
+
 
 def XPath(expr):
     ans = xpath_cache.get(expr, None)
     if ans is None:
         xpath_cache[expr] = ans = etree.XPath(expr, namespaces=NS_MAP)
     return ans
+
 
 def parse_xmp_packet(raw_bytes):
     raw_bytes = raw_bytes.strip()
@@ -74,10 +78,12 @@ def parse_xmp_packet(raw_bytes):
     raw = _xml_declaration.sub('', raw_bytes.decode(enc))  # lxml barfs if encoding declaration present in unicode string
     return etree.fromstring(raw)
 
+
 def serialize_xmp_packet(root, encoding='utf-8'):
     root.tail = '\n' + '\n'.join(repeat(' '*100, 30))  # Adobe spec recommends inserting padding at the end of the packet
     raw_bytes = etree.tostring(root, encoding=encoding, pretty_print=True, with_tail=True, method='xml')
     return b'<?xpacket begin="%s" id="W5M0MpCehiHzreSzNTczkc9d"?>\n%s\n<?xpacket end="w"?>' % ('\ufeff'.encode(encoding), raw_bytes)
+
 
 def read_simple_property(elem):
     # A simple property
@@ -85,6 +91,7 @@ def read_simple_property(elem):
         if elem.text:
             return elem.text
         return elem.get(expand('rdf:resource'), '')
+
 
 def read_lang_alt(parent):
     # A text value with possible alternate values in different languages
@@ -95,10 +102,12 @@ def read_lang_alt(parent):
     if items:
         return items[0]
 
+
 def read_sequence(parent):
     # A sequence or set of values (assumes simple properties in the sequence)
     for item in XPath('descendant::rdf:li')(parent):
         yield read_simple_property(item)
+
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -109,13 +118,15 @@ def uniq(vals, kmap=lambda x:x):
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
+
 def multiple_sequences(expr, root):
     # Get all values for sequence elements matching expr, ensuring the returned
     # list contains distinct non-null elements preserving their order.
     ans = []
     for item in XPath(expr)(root):
         ans += list(read_sequence(item))
-    return filter(None, uniq(ans))
+    return list(filter(None, uniq(ans)))
+
 
 def first_alt(expr, root):
     # The first element matching expr, assumes that the element contains a
@@ -125,6 +136,7 @@ def first_alt(expr, root):
         if q:
             return q
 
+
 def first_simple(expr, root):
     # The value for the first occurrence of an element matching expr (assumes
     # simple property)
@@ -133,11 +145,13 @@ def first_simple(expr, root):
         if q:
             return q
 
+
 def first_sequence(expr, root):
     # The first item in a sequence
     for item in XPath(expr)(root):
         for ans in read_sequence(item):
             return ans
+
 
 def read_series(root):
     for item in XPath('//calibre:series')(root):
@@ -155,6 +169,7 @@ def read_series(root):
                         break
                 return series, series_index
     return None, None
+
 
 def read_user_metadata(mi, root):
     from calibre.utils.config import from_json
@@ -179,6 +194,7 @@ def read_user_metadata(mi, root):
                             import traceback
                             traceback.print_exc()
 
+
 def read_xmp_identifers(parent):
     ''' For example:
     <rdf:li rdf:parseType="Resource"><xmpidq:Scheme>URL</xmp:idq><rdf:value>http://foo.com</rdf:value></rdf:li>
@@ -200,12 +216,14 @@ def read_xmp_identifers(parent):
         else:
             yield scheme[0].text or '', value
 
+
 def safe_parse_date(raw):
     if raw:
         try:
             return parse_date(raw)
         except Exception:
             pass
+
 
 def more_recent(one, two):
     if one is None:
@@ -216,6 +234,7 @@ def more_recent(one, two):
         return max(one, two)
     except Exception:
         return one
+
 
 def metadata_from_xmp_packet(raw_bytes):
     root = parse_xmp_packet(raw_bytes)
@@ -280,7 +299,7 @@ def metadata_from_xmp_packet(raw_bytes):
 
     languages = multiple_sequences('//dc:language', root)
     if languages:
-        languages = filter(None, map(canonicalize_lang, languages))
+        languages = list(filter(None, map(canonicalize_lang, languages)))
         if languages:
             mi.languages = languages
 
@@ -303,7 +322,7 @@ def metadata_from_xmp_packet(raw_bytes):
                     identifiers[scheme] = val
 
     # Check Dublin Core for recognizable identifier types
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in identifiers:
             val = check_func(first_simple('//dc:identifier', root))
             if val:
@@ -315,6 +334,7 @@ def metadata_from_xmp_packet(raw_bytes):
     read_user_metadata(mi, root)
 
     return mi
+
 
 def consolidate_metadata(info_mi, info):
     ''' When both the PDF Info dict and XMP metadata are present, prefer the xmp
@@ -348,13 +368,16 @@ def consolidate_metadata(info_mi, info):
         info_mi.authors, info_mi.tags = (info_authors if xmp_mi.is_null('authors') else xmp_mi.authors), xmp_mi.tags or info_tags
     return info_mi
 
+
 def nsmap(*args):
     return {x:NS_MAP[x] for x in args}
+
 
 def create_simple_property(parent, tag, value):
     e = parent.makeelement(expand(tag))
     parent.append(e)
     e.text = value
+
 
 def create_alt_property(parent, tag, value):
     e = parent.makeelement(expand(tag))
@@ -366,6 +389,7 @@ def create_alt_property(parent, tag, value):
     li.set(expand('xml:lang'), 'x-default')
     li.text = value
 
+
 def create_sequence_property(parent, tag, val, ordered=True):
     e = parent.makeelement(expand(tag))
     parent.append(e)
@@ -376,12 +400,13 @@ def create_sequence_property(parent, tag, val, ordered=True):
         li.text = x
         seq.append(li)
 
+
 def create_identifiers(xmp, identifiers):
     xmpid = xmp.makeelement(expand('xmp:Identifier'))
     xmp.append(xmpid)
     bag = xmpid.makeelement(expand('rdf:Bag'))
     xmpid.append(bag)
-    for scheme, value in identifiers.iteritems():
+    for scheme, value in iteritems(identifiers):
         li = bag.makeelement(expand('rdf:li'))
         li.set(expand('rdf:parseType'), 'Resource')
         bag.append(li)
@@ -391,6 +416,7 @@ def create_identifiers(xmp, identifiers):
         val = li.makeelement(expand('rdf:value'))
         li.append(val)
         val.text = value
+
 
 def create_series(calibre, series, series_index):
     s = calibre.makeelement(expand('calibre:series'))
@@ -407,6 +433,7 @@ def create_series(calibre, series, series_index):
     si.text = '%.2f' % series_index
     s.append(si)
 
+
 def create_user_metadata(calibre, all_user_metadata):
     from calibre.utils.config import to_json
     from calibre.ebooks.metadata.book.json_codec import object_to_unicode, encode_is_multiple
@@ -415,7 +442,7 @@ def create_user_metadata(calibre, all_user_metadata):
     calibre.append(s)
     bag = s.makeelement(expand('rdf:Bag'))
     s.append(bag)
-    for name, fm in all_user_metadata.iteritems():
+    for name, fm in iteritems(all_user_metadata):
         try:
             fm = copy.copy(fm)
             encode_is_multiple(fm)
@@ -436,6 +463,7 @@ def create_user_metadata(calibre, all_user_metadata):
         val.text = fm
         li.append(val)
 
+
 def metadata_to_xmp_packet(mi):
     A = ElementMaker(namespace=NS_MAP['x'], nsmap=nsmap('x'))
     R = ElementMaker(namespace=NS_MAP['rdf'], nsmap=nsmap('rdf'))
@@ -444,20 +472,20 @@ def metadata_to_xmp_packet(mi):
     dc = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('dc'))
     dc.set(expand('rdf:about'), '')
     rdf.append(dc)
-    for prop, tag in {'title':'dc:title', 'comments':'dc:description'}.iteritems():
+    for prop, tag in iteritems({'title':'dc:title', 'comments':'dc:description'}):
         val = mi.get(prop) or ''
         create_alt_property(dc, tag, val)
-    for prop, (tag, ordered) in {
+    for prop, (tag, ordered) in iteritems({
         'authors':('dc:creator', True), 'tags':('dc:subject', False), 'publisher':('dc:publisher', False),
-    }.iteritems():
+    }):
         val = mi.get(prop) or ()
-        if isinstance(val, basestring):
+        if isinstance(val, string_or_bytes):
             val = [val]
         create_sequence_property(dc, tag, val, ordered)
     if not mi.is_null('pubdate'):
         create_sequence_property(dc, 'dc:date', [isoformat(mi.pubdate, as_utc=False)])  # Adobe spec recommends local time
     if not mi.is_null('languages'):
-        langs = filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages))
+        langs = list(filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages)))
         if langs:
             create_sequence_property(dc, 'dc:language', langs, ordered=False)
 
@@ -473,9 +501,9 @@ def metadata_to_xmp_packet(mi):
     identifiers = mi.get_identifiers()
     if identifiers:
         create_identifiers(xmp, identifiers)
-        for scheme, val in identifiers.iteritems():
+        for scheme, val in iteritems(identifiers):
             if scheme in {'isbn', 'doi'}:
-                for prefix, parent in extra_ids.iteritems():
+                for prefix, parent in iteritems(extra_ids):
                     ie = parent.makeelement(expand('%s:%s'%(prefix, scheme)))
                     ie.text = val
                     parent.append(ie)
@@ -512,6 +540,7 @@ def metadata_to_xmp_packet(mi):
         create_user_metadata(calibre, all_user_metadata)
     return serialize_xmp_packet(root)
 
+
 def find_used_namespaces(elem):
     getns = lambda x: (x.partition('}')[0][1:] if '}' in x else None)
     ans = {getns(x) for x in list(elem.attrib) + [elem.tag]}
@@ -519,12 +548,14 @@ def find_used_namespaces(elem):
         ans |= find_used_namespaces(child)
     return ans
 
+
 def find_preferred_prefix(namespace, elems):
     for elem in elems:
-        ans = {v:k for k, v in elem.nsmap.iteritems()}.get(namespace, None)
+        ans = {v:k for k, v in iteritems(elem.nsmap)}.get(namespace, None)
         if ans is not None:
             return ans
         return find_preferred_prefix(namespace, elem.iterchildren(etree.Element))
+
 
 def find_nsmap(elems):
     used_namespaces = set()
@@ -532,7 +563,7 @@ def find_nsmap(elems):
         used_namespaces |= find_used_namespaces(elem)
     ans = {}
     used_namespaces -= {NS_MAP['xml'], NS_MAP['x'], None, NS_MAP['rdf']}
-    rmap = {v:k for k, v in NS_MAP.iteritems()}
+    rmap = {v:k for k, v in iteritems(NS_MAP)}
     i = 0
     for ns in used_namespaces:
         if ns in rmap:
@@ -546,6 +577,7 @@ def find_nsmap(elems):
                 ans['ns%d' % i] = ns
     return ans
 
+
 def clone_into(parent, elem):
     ' Clone the element, assuming that all namespace declarations are present in parent '
     clone = parent.makeelement(elem.tag)
@@ -557,6 +589,7 @@ def clone_into(parent, elem):
     clone.attrib.update(elem.attrib)
     for child in elem.iterchildren(etree.Element):
         clone_into(clone, child)
+
 
 def merge_xmp_packet(old, new):
     ''' Merge metadata present in the old packet that is not present in the new
@@ -604,10 +637,10 @@ def merge_xmp_packet(old, new):
 
     return serialize_xmp_packet(root)
 
+
 if __name__ == '__main__':
     from calibre.utils.podofo import get_xmp_metadata
     xmp_packet = get_xmp_metadata(sys.argv[-1])
     mi = metadata_from_xmp_packet(xmp_packet)
     np = metadata_to_xmp_packet(mi)
-    print (merge_xmp_packet(xmp_packet, np))
-
+    print(merge_xmp_packet(xmp_packet, np))

@@ -1,27 +1,84 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
+
+from select import word_at_point
 
 from dom import set_css
-from read_book.globals import get_boss
 from keycodes import get_key
-from utils import document_height, document_width
+from read_book.globals import get_boss
+from read_book.viewport import scroll_viewport
+from utils import document_height, document_width, viewport_to_document
+
 
 def flow_to_scroll_fraction(frac):
-    window.scrollTo(0, document_height() * frac)
+    scroll_viewport.scroll_to(0, document_height() * frac)
+
+
+small_scroll_events = v'[]'
+
+
+def clear_small_scrolls():
+    nonlocal small_scroll_events
+    small_scroll_events = v'[]'
+
+
+def dispatch_small_scrolls():
+    if small_scroll_events.length:
+        now = window.performance.now()
+        if now - small_scroll_events[-1].time <= 2000:
+            window.setTimeout(dispatch_small_scrolls, 100)
+            return
+        amt = 0
+        for x in small_scroll_events:
+            amt += x.amt
+        clear_small_scrolls()
+        get_boss().report_human_scroll(amt / document_height())
+
+
+def add_small_scroll(amt):
+    small_scroll_events.push({'amt': amt, 'time': window.performance.now()})
+    window.setTimeout(dispatch_small_scrolls, 100)
+
+
+def report_human_scroll(amt):
+    if amt > 0:
+        h = scroll_viewport.height()
+        is_large_scroll = (amt / h) >= 0.5
+        if is_large_scroll:
+            clear_small_scrolls()
+            get_boss().report_human_scroll(amt / document_height())
+        else:
+            add_small_scroll(amt)
+    else:
+        clear_small_scrolls()
+
+
+def _check_for_scroll_end(func, obj, args, report):
+    before = window.pageYOffset
+    func.apply(obj, args)
+    if window.pageYOffset is before:
+        get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
+        return False
+    if report:
+        report_human_scroll(window.pageYOffset - before)
+    return True
+
 
 def check_for_scroll_end(func):
     return def ():
-        before = window.pageYOffset
-        func.apply(this, arguments)
-        if window.pageYOffset is before:
-            get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
-            return False
-        return True
+        return _check_for_scroll_end(func, this, arguments, False)
 
-@check_for_scroll_end
+
+def check_for_scroll_end_and_report(func):
+    return def ():
+        return _check_for_scroll_end(func, this, arguments, True)
+
+
+@check_for_scroll_end_and_report
 def scroll_by(y):
     window.scrollBy(0, y)
+
 
 def flow_onwheel(evt):
     dx = dy = 0
@@ -31,14 +88,14 @@ def flow_onwheel(evt):
         elif evt.deltaMode is evt.DOM_DELTA_LINE:
             dy = 15 * evt.deltaY
         if evt.deltaMode is evt.DOM_DELTA_PAGE:
-            dy = (window.innerHeight - 30) * evt.deltaY
+            dy = (scroll_viewport.height() - 30) * evt.deltaY
     if evt.deltaX:
         if evt.deltaMode is evt.DOM_DELTA_PIXEL:
             dx = evt.deltaX
         elif evt.deltaMode is evt.DOM_DELTA_LINE:
             dx = 15 * evt.deltaX
         else:
-            dx = (window.innerWidth - 30) * evt.deltaX
+            dx = (scroll_viewport.width() - 30) * evt.deltaX
     if dx:
         window.scrollBy(dx, 0)
     elif dy:
@@ -57,14 +114,18 @@ def smooth_y_scroll(up):
     smooth_y_data.up = up
     do_y_scroll()
 
-@check_for_scroll_end
-def goto_boundary(y):
-    window.scrollTo(window.pageXOffset, 0)
 
 @check_for_scroll_end
+def goto_boundary(y):
+    scroll_viewport.scroll_to(window.pageXOffset, 0)
+    get_boss().report_human_scroll()
+
+
+@check_for_scroll_end_and_report
 def scroll_by_page(backward):
-    h = window.innerHeight - 10
+    h = scroll_viewport.height() - 10
     window.scrollBy(0, -h if backward else h)
+
 
 def flow_onkeydown(evt):
     handled = False
@@ -78,26 +139,30 @@ def flow_onkeydown(evt):
     elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
-            window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
+            scroll_viewport.scroll_to(0 if key is 'left' else document_width(), window.pageYOffset)
         else:
             window.scrollBy(-15 if key is 'left' else 15, 0)
     elif key is 'home' or key is 'end':
         handled = True
+        get_boss().report_human_scroll()
+        clear_small_scrolls()
         if evt.ctrlKey:
             get_boss().send_message('goto_doc_boundary', start=key is 'home')
         else:
             if key is 'home':
-                window.scrollTo(window.pageXOffset, 0)
+                scroll_viewport.scroll_to(window.pageXOffset, 0)
             else:
-                window.scrollTo(window.pageXOffset, document_height())
+                scroll_viewport.scroll_to(window.pageXOffset, document_height())
     elif key is 'pageup' or key is 'pagedown' or key is 'space':
         handled = True
         scroll_by_page(key is 'pageup')
     if handled:
         evt.preventDefault()
 
+
 def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
+
 
 class FlickAnimator:
 
@@ -162,3 +227,35 @@ def handle_gesture(gesture):
         scroll_by_page(True)
     elif gesture.type is 'next-page':
         scroll_by_page(False)
+    elif gesture.type is 'long-tap':
+        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
+        if r:
+            s = document.getSelection()
+            s.removeAllRanges()
+            s.addRange(r)
+            get_boss().send_message('lookup_word', word=str(r))
+
+
+anchor_funcs = {
+    'pos_for_elem': def pos_for_elem(elem):
+        if not elem:
+            return 0, 0
+        br = elem.getBoundingClientRect()
+        x, y = viewport_to_document(br.left, br.top, elem.ownerDocument)
+        return y, x
+    ,
+    'visibility': def visibility(pos):
+        y, x = pos
+        if y < window.pageYOffset:
+            return -1
+        if y < window.pageYOffset + scroll_viewport.height():
+            if x < window.pageXOffset:
+                return -1
+            if x < window.pageXOffset + scroll_viewport.width():
+                return 0
+        return 1
+    ,
+    'cmp': def cmp(a, b):
+        return (a[0] - b[0]) or (a[1] - b[1])
+    ,
+}

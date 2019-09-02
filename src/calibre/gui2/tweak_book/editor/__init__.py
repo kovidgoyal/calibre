@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,7 @@ from calibre.ebooks.oeb.polish.container import guess_type
 _xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-template+xml', 'application/page-template+xml'} | {
             guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
 _js_types = {'application/javascript', 'application/x-javascript'}
+
 
 def syntax_from_mime(name, mime):
     for syntax, types in (('html', OEB_DOCS), ('css', OEB_STYLES), ('xml', _xml_types)):
@@ -29,7 +29,9 @@ def syntax_from_mime(name, mime):
     if mime.endswith('+xml'):
         return 'xml'
 
+
 all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
+
 
 def editor_from_syntax(syntax, parent=None):
     if syntax in all_text_syntaxes:
@@ -46,11 +48,14 @@ SPELL_LOCALE_PROPERTY = SPELL_PROPERTY + 1
 LINK_PROPERTY = SPELL_LOCALE_PROPERTY + 1
 TAG_NAME_PROPERTY = LINK_PROPERTY + 1
 CSS_PROPERTY = TAG_NAME_PROPERTY + 1
+CLASS_ATTRIBUTE_PROPERTY = CSS_PROPERTY + 1
+
 
 def syntax_text_char_format(*args):
     ans = QTextCharFormat(*args)
     ans.setProperty(SYNTAX_PROPERTY, True)
     return ans
+
 
 class StoreLocale(object):
 
@@ -64,4 +69,6 @@ class StoreLocale(object):
 
     def __exit__(self, *args):
         self.enabled = False
+
+
 store_locale = StoreLocale()

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Read content from ztxt pdb file.
@@ -10,13 +11,14 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 import zlib
+import io
 
-from cStringIO import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError
 
 SUPPORTED_VERSION = (1, 40)
+
 
 class HeaderRecord(object):
     '''
@@ -71,7 +73,7 @@ class Reader(FormatReader):
         return self.uncompressor.decompress(self.section_data(number))
 
     def extract_content(self, output_dir):
-        raw_txt = ''
+        raw_txt = b''
 
         self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
@@ -79,7 +81,7 @@ class Reader(FormatReader):
             raw_txt += self.decompress_text(i)
 
         self.log.info('Converting text to OEB...')
-        stream = StringIO(raw_txt)
+        stream = io.BytesIO(raw_txt)
 
         from calibre.customize.ui import plugin_for_input_format
 

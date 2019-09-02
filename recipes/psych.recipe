@@ -1,4 +1,11 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+def check_words(words):
+    return lambda x: x and frozenset(words.split()).intersection(x.split())
 
 
 class PsychologyToday(BasicNewsRecipe):
@@ -16,33 +23,33 @@ class PsychologyToday(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(role='main'),
+        dict(name='div', attrs={'data-type': 'article'})
     ]
     remove_tags = [
-        dict(attrs={'class': ['pt-social-media', 'fb-like-button']}),
+        dict(attrs={'id': 'pt-social-media'}),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.psychologytoday.com/magazine')
         div = soup.find(id='block-views-magazine-issues-block')
-        a = div.findAll(
-            'h3', attrs={'class': 'magazine-published-date'})[1].find('a')
+        a = div.find('h4').find('a')
         self.timefmt = ' [%s]' % self.tag_to_string(a).capitalize()
         soup = self.index_to_soup('http://www.psychologytoday.com' + a['href'])
-        self.cover_url = soup.find(role='main').find(
+        div = soup.find(role='main')
+        self.cover_url = div.find(
             'img', src=lambda x: x and '/field_magazine_cover/' in x)['src'].partition('?')[0]
-        div = soup.find(id='block-system-main')
         articles = []
-        for x in div.findAll(attrs={'class': 'field__item'}):
-            h2 = x.find('h2')
-            title = self.tag_to_string(h2)
-            url = 'http://www.psychologytoday.com' + h2.find('a')['href']
+        for x in div.findAll('div', {'class': check_words('collection__item')}):
+            h = x.find(['h2', 'h3', 'h4', 'h5'], {
+                       'class': check_words('blog__title blog_entry__title')})
+            title = self.tag_to_string(h)
+            url = 'http://www.psychologytoday.com' + h.find('a')['href']
             self.log('\n', title, 'at', url)
-            desc = ''
-            for y in x.findAll(attrs={'class': ['subtext', 'collection__subtitle']}):
-                desc += self.tag_to_string(y) + ' '
+            desc = x.find(['div', 'p'], {'class': check_words(
+                'collection__subtitle blog_entry__teaser')}).find(text=True)
             if desc:
                 self.log(desc)
+            else:
+                desc = ''
             articles.append({'title': title, 'url': url, 'description': desc})
-
         return [('Current Issue', articles)]

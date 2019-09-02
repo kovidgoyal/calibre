@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import defaultdict
 from io import BytesIO
 import unittest
@@ -32,6 +31,7 @@ read_author_link_map, read_user_categories, set_author_link_map, set_user_catego
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa
 default_refines = defaultdict(list)
 
+
 class TestOPF3(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
@@ -57,6 +57,7 @@ class TestOPF3(unittest.TestCase):
     def test_identifiers(self):  # {{{
         def idt(val, scheme=None, iid=''):
             return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val, id=iid)
+
         def ri(root):
             return dict(read_identifiers(root, read_prefixes(root), default_refines))
 
@@ -94,6 +95,7 @@ class TestOPF3(unittest.TestCase):
     def test_title(self):  # {{{
         def rt(root):
             return read_title(root, read_prefixes(root), read_refines(root))
+
         def st(root, title, title_sort=None):
             set_title(root, read_prefixes(root), read_refines(root), title, title_sort)
             return rt(root)
@@ -111,6 +113,7 @@ class TestOPF3(unittest.TestCase):
     def test_languages(self):  # {{{
         def rl(root):
             return read_languages(root, read_prefixes(root), read_refines(root))
+
         def st(root, languages):
             set_languages(root, read_prefixes(root), read_refines(root), languages)
             return rl(root)
@@ -124,6 +127,7 @@ class TestOPF3(unittest.TestCase):
     def test_authors(self):  # {{{
         def rl(root):
             return read_authors(root, read_prefixes(root), read_refines(root))
+
         def st(root, authors):
             set_authors(root, read_prefixes(root), read_refines(root), authors)
             return rl(root)
@@ -144,11 +148,16 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
         self.ae([Author('c d', None)], rl(root))
         self.ae(authors, st(root, authors))
+        root = self.get_opf('''<dc:creator id="1">a  b</dc:creator>'''
+                            '''<meta refines="#1" property="role">aut</meta>'''
+                            '''<meta refines="#1" property="role">cow</meta>''')
+        self.ae([Author('a b', None)], rl(root))
     # }}}
 
     def test_book_producer(self):  # {{{
         def rl(root):
             return read_book_producers(root, read_prefixes(root), read_refines(root))
+
         def st(root, producers):
             set_book_producers(root, read_prefixes(root), read_refines(root), producers)
             return rl(root)
@@ -163,12 +172,17 @@ class TestOPF3(unittest.TestCase):
 
     def test_dates(self):  # {{{
         from calibre.utils.date import utcnow
+
         def rl(root):
-            return read_pubdate(root, read_prefixes(root), read_refines(root)), read_timestamp(root, read_prefixes(root), read_refines(root))
+            p, r = read_prefixes(root), read_refines(root)
+            return read_pubdate(root, p, r), read_timestamp(root, p, r)
+
         def st(root, pd, ts):
-            set_pubdate(root, read_prefixes(root), read_refines(root), pd)
-            set_timestamp(root, read_prefixes(root), read_refines(root), ts)
+            p, r = read_prefixes(root), read_refines(root)
+            set_pubdate(root, p, r, pd)
+            set_timestamp(root, p, r, ts)
             return rl(root)
+
         def ae(root, y1=None, y2=None):
             x1, x2 = rl(root)
             for x, y in ((x1, y1), (x2, y2)):
@@ -179,7 +193,8 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:date>1999-3-2</dc:date><meta property="calibre:timestamp" scheme="dcterms:W3CDTF">2001</meta>''')
         ae(root, 1999, 2001)
         n = utcnow()
-        self.ae(st(root, n, n), (n, n))
+        q = n.replace(microsecond=0)
+        self.ae(st(root, n, n), (n, q))
         root = self.get_opf('''<dc:date>1999-3-2</dc:date><meta name="calibre:timestamp" content="2001-1-1"/>''')
         ae(root, 1999, 2001)
         root = self.get_opf('''<meta property="dcterms:modified">2003</meta>''')
@@ -189,6 +204,7 @@ class TestOPF3(unittest.TestCase):
     def test_comments(self):  # {{{
         def rt(root):
             return read_comments(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_comments(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -200,6 +216,7 @@ class TestOPF3(unittest.TestCase):
     def test_publisher(self):  # {{{
         def rt(root):
             return read_publisher(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_publisher(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -225,6 +242,7 @@ class TestOPF3(unittest.TestCase):
     def test_tags(self):  # {{{
         def rt(root):
             return read_tags(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_tags(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -236,6 +254,7 @@ class TestOPF3(unittest.TestCase):
     def test_rating(self):  # {{{
         def rt(root):
             return read_rating(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_rating(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -249,6 +268,7 @@ class TestOPF3(unittest.TestCase):
     def test_series(self):  # {{{
         def rt(root):
             return read_series(root, read_prefixes(root), read_refines(root))
+
         def st(root, val, i):
             set_series(root, read_prefixes(root), read_refines(root), val, i)
             return rt(root)
@@ -265,6 +285,7 @@ class TestOPF3(unittest.TestCase):
         def rt(root, name):
             f = globals()['read_' + name]
             return f(root, read_prefixes(root), read_refines(root))
+
         def st(root, name, val):
             f = globals()['set_' + name]
             f(root, read_prefixes(root), read_refines(root), val)
@@ -275,8 +296,10 @@ class TestOPF3(unittest.TestCase):
             root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/><meta property="calibre:%s">{"2":2}</meta>''' % (name, name))
             self.ae({'2':2}, rt(root, name))
             self.ae({'3':3}, st(root, name, {3:3}))
+
         def ru(root):
             return read_user_metadata(root, read_prefixes(root), read_refines(root))
+
         def su(root, val):
             set_user_metadata(root, read_prefixes(root), read_refines(root), val)
             return ru(root)
@@ -352,7 +375,7 @@ class TestOPF3(unittest.TestCase):
         &quot;value&quot;, &quot;#value#&quot;:
         &quot;&lt;div&gt;&lt;b&gt;&lt;i&gt;Testing&lt;/i&gt;&lt;/b&gt; extra
         &lt;font
-        color=\&quot;#aa0000\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
+        color=\\&quot;#aa0000\\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
         &quot;is_custom&quot;: true, &quot;label&quot;: &quot;commetns&quot;,
         &quot;table&quot;: &quot;custom_column_13&quot;,
         &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
@@ -531,16 +554,20 @@ class TestOPF3(unittest.TestCase):
 
 # Run tests {{{
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TestOPF3)
+
 
 class TestRunner(unittest.main):
 
     def createTests(self):
         self.test = suite()
 
+
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)
+
 
 if __name__ == '__main__':
     run(verbosity=4)

@@ -1,14 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from polyglot.builtins import itervalues, range
 
 NBSP = '\xa0'
+
 
 def mergeable(previous, current):
     if previous.tail or current.tail:
@@ -24,6 +25,7 @@ def mergeable(previous, current):
         return next(previous.itersiblings()) is current
     except StopIteration:
         return False
+
 
 def append_text(parent, text):
     if len(parent) > 0:
@@ -51,7 +53,7 @@ def merge_run(run):
 def liftable(css):
     # A <span> is liftable if all its styling would work just as well if it is
     # specified on the parent element.
-    prefixes = {x.partition('-')[0] for x in css.iterkeys()}
+    prefixes = {x.partition('-')[0] for x in css}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
 
@@ -88,6 +90,7 @@ def lift(span):
         else:
             add_text(last_child, 'tail', span.tail)
 
+
 def before_count(root, tag, limit=10):
     body = root.xpath('//body[1]')
     if not body:
@@ -99,6 +102,7 @@ def before_count(root, tag, limit=10):
         ans += 1
         if ans > limit:
             return limit
+
 
 def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
     # Move <hr>s outside paragraphs, if possible.
@@ -129,8 +133,8 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                 current_run = [span]
 
     # Process dir attributes
-    class_map = dict(styles.classes.itervalues())
-    parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
+    class_map = dict(itervalues(styles.classes))
+    parents = ('p', 'div') + tuple('h%d' % i for i in range(1, 7))
     for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
         # Ensure that children of rtl parents that are not rtl have an
         # explicit dir set. Also, remove dir from children if it is the same as
@@ -216,4 +220,3 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                     log.debug('Detected an image that looks like a cover')
                     img.getparent().remove(img)
                     return path
-

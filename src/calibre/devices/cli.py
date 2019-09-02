@@ -1,3 +1,7 @@
+#!/usr/bin/env python2
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -6,16 +10,19 @@ Provides a command-line interface to ebook devices.
 For usage information run the script.
 """
 
-import StringIO, sys, time, os
+import sys, time, os
 from optparse import OptionParser
 
-from calibre import __version__, __appname__, human_readable, fsync
+from calibre import __version__, __appname__, human_readable, fsync, prints
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
+from polyglot.builtins import unicode_type
+from polyglot.io import PolyglotBytesIO
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
+
 
 class FileFormatter(object):
 
@@ -28,78 +35,68 @@ class FileFormatter(object):
         self.name        = file.name
         self.path        = file.path
 
-    @dynamic_property
+    @property
     def mode_string(self):
-        doc=""" The mode string for this file. There are only two modes read-only and read-write """
-        def fget(self):
-            mode, x = "-", "-"
-            if self.is_dir:
-                mode, x = "d", "x"
-            if self.is_readonly:
-                mode += "r-"+x+"r-"+x+"r-"+x
-            else:
-                mode += "rw"+x+"rw"+x+"rw"+x
-            return mode
-        return property(doc=doc, fget=fget)
+        """ The mode string for this file. There are only two modes read-only and read-write """
+        mode, x = "-", "-"
+        if self.is_dir:
+            mode, x = "d", "x"
+        if self.is_readonly:
+            mode += "r-"+x+"r-"+x+"r-"+x
+        else:
+            mode += "rw"+x+"rw"+x+"rw"+x
+        return mode
 
-    @dynamic_property
+    @property
     def isdir_name(self):
-        doc='''Return self.name + '/' if self is a directory'''
-        def fget(self):
-            name = self.name
-            if self.is_dir:
-                name += '/'
-            return name
-        return property(doc=doc, fget=fget)
+        '''Return self.name + '/' if self is a directory'''
+        name = self.name
+        if self.is_dir:
+            name += '/'
+        return name
 
-    @dynamic_property
+    @property
     def name_in_color(self):
-        doc=""" The name in ANSI text. Directories are blue, ebooks are green """
-        def fget(self):
-            cname = self.name
-            blue, green, normal = "", "", ""
-            if self.term:
-                blue, green, normal = self.term.BLUE, self.term.GREEN, self.term.NORMAL
-            if self.is_dir:
-                cname = blue + self.name + normal
-            else:
-                ext = self.name[self.name.rfind("."):]
-                if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"):
-                    cname = green + self.name + normal
-            return cname
-        return property(doc=doc, fget=fget)
+        """ The name in ANSI text. Directories are blue, ebooks are green """
+        cname = self.name
+        blue, green, normal = "", "", ""
+        if self.term:
+            blue, green, normal = self.term.BLUE, self.term.GREEN, self.term.NORMAL
+        if self.is_dir:
+            cname = blue + self.name + normal
+        else:
+            ext = self.name[self.name.rfind("."):]
+            if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"):
+                cname = green + self.name + normal
+        return cname
 
-    @dynamic_property
+    @property
     def human_readable_size(self):
-        doc=""" File size in human readable form """
-        def fget(self):
-            return human_readable(self.size)
-        return property(doc=doc, fget=fget)
+        """ File size in human readable form """
+        return human_readable(self.size)
 
-    @dynamic_property
+    @property
     def modification_time(self):
-        doc=""" Last modified time in the Linux ls -l format """
-        def fget(self):
-            return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
-        return property(doc=doc, fget=fget)
+        """ Last modified time in the Linux ls -l format """
+        return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
 
-    @dynamic_property
+    @property
     def creation_time(self):
-        doc=""" Last modified time in the Linux ls -l format """
-        def fget(self):
-            return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
-        return property(doc=doc, fget=fget)
+        """ Last modified time in the Linux ls -l format """
+        return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
+
 
 def info(dev):
     info = dev.get_device_information()
-    print "Device name:     ", info[0]
-    print "Device version:  ", info[1]
-    print "Software version:", info[2]
-    print "Mime type:       ", info[3]
+    print("Device name:     ", info[0])
+    print("Device version:  ", info[1])
+    print("Software version:", info[2])
+    print("Mime type:       ", info[3])
+
 
 def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     def col_split(l, cols):  # split list l into columns
-        rows = len(l) / cols
+        rows = len(l) // cols
         if len(l) % cols:
             rows += 1
         m = []
@@ -117,19 +114,19 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 c += 1
         return rowwidths
 
-    output = StringIO.StringIO()
+    output = PolyglotBytesIO()
     if path.endswith("/") and len(path) > 1:
         path = path[:-1]
     dirs = dev.list(path, recurse)
     for dir in dirs:
         if recurse:
-            print >>output, dir[0] + ":"
+            prints(dir[0] + ":", file=output)
         lsoutput, lscoloutput = [], []
         files = dir[1]
         maxlen = 0
         if ll:  # Calculate column width for size column
             for file in files:
-                size = len(str(file.size))
+                size = len(unicode_type(file.size))
                 if human_readable_size:
                     file = FileFormatter(file)
                     size = len(file.human_readable_size)
@@ -141,14 +138,14 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             lsoutput.append(name)
             lscoloutput.append(name)
             if ll:
-                size = str(file.size)
+                size = unicode_type(file.size)
                 if human_readable_size:
                     size = file.human_readable_size
-                print >>output, file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name
+                prints(file.mode_string, ("%"+unicode_type(maxlen)+"s")%size, file.modification_time, name, file=output)
         if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
-                trycols = int(cols/colwidth)
+                trycols = int(cols//colwidth)
                 trytable = col_split(lsoutput, trycols)
                 works = True
                 for row in trytable:
@@ -166,12 +163,13 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             for r in range(len(trytable)):
                 for c in range(len(trytable[r])):
                     padding = rowwidths[c] - len(trytable[r][c])
-                    print >>output, trytablecol[r][c], "".ljust(padding),
-                print >>output
-        print >>output
-    listing = output.getvalue().rstrip()+ "\n"
+                    prints(trytablecol[r][c], "".ljust(padding), end=' ', file=output)
+                prints(file=output)
+        prints(file=output)
+    listing = output.getvalue().rstrip().decode('utf-8') + "\n"
     output.close()
     return listing
+
 
 def shutdown_plugins():
     for d in device_plugins():
@@ -179,6 +177,7 @@ def shutdown_plugins():
             d.shutdown()
         except:
             pass
+
 
 def main():
     from calibre.utils.terminal import geometry
@@ -209,7 +208,7 @@ def main():
         try:
             d.startup()
         except:
-            print ('Startup failed for device plugin: %s'%d)
+            print('Startup failed for device plugin: %s'%d)
         if d.MANAGES_DEVICE_PRESENCE:
             cd = d.detect_managed_devices(scanner.devices)
             if cd is not None:
@@ -224,7 +223,7 @@ def main():
             connected_devices.append((det, dev))
 
     if dev is None:
-        print >>sys.stderr, 'Unable to find a connected ebook reader.'
+        print('Unable to find a connected ebook reader.', file=sys.stderr)
         shutdown_plugins()
         return 1
 
@@ -243,22 +242,22 @@ def main():
             total = dev.total_space(end_session=False)
             free = dev.free_space()
             where = ("Memory", "Card A", "Card B")
-            print "Filesystem\tSize \tUsed \tAvail \tUse%"
+            print("Filesystem\tSize \tUsed \tAvail \tUse%")
             for i in range(3):
-                print "%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
-                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%")
+                print("%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
+                                                                            unicode_type(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
         elif command == 'eject':
             dev.eject()
         elif command == "books":
-            print "Books in main memory:"
+            print("Books in main memory:")
             for book in dev.books():
-                print book
-            print "\nBooks on storage carda:"
+                print(book)
+            print("\nBooks on storage carda:")
             for book in dev.books(oncard='carda'):
-                print book
-            print "\nBooks on storage cardb:"
+                print(book)
+            print("\nBooks on storage cardb:")
             for book in dev.books(oncard='cardb'):
-                print book
+                print(book)
         elif command == "mkdir":
             parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with / or card:/")
             if len(args) != 1:
@@ -278,7 +277,7 @@ def main():
             if len(args) != 1:
                 parser.print_help()
                 return 1
-            print ls(dev, args[0], recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
+            print(ls(dev, args[0], recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols), end=' ')
         elif command == "info":
             info(dev)
         elif command == "cp":
@@ -305,7 +304,7 @@ def main():
                 try:
                     outfile = lopen(outfile, "wb")
                 except IOError as e:
-                    print >> sys.stderr, e
+                    print(e, file=sys.stderr)
                     parser.print_help()
                     return 1
                 dev.get_file(path, outfile)
@@ -315,7 +314,7 @@ def main():
                 try:
                     infile = lopen(args[0], "rb")
                 except IOError as e:
-                    print >> sys.stderr, e
+                    print(e, file=sys.stderr)
                     parser.print_help()
                     return 1
                 dev.put_file(infile, args[1][4:], replace_file=options.force)
@@ -365,8 +364,8 @@ def main():
             path = args[0]
             from calibre.ebooks.metadata.meta import get_metadata
             mi = get_metadata(lopen(path, 'rb'), path.rpartition('.')[-1].lower())
-            print dev.upload_books([args[0]], [os.path.basename(args[0])],
-                    end_session=False, metadata=[mi])
+            print(dev.upload_books([args[0]], [os.path.basename(args[0])],
+                    end_session=False, metadata=[mi]))
             dev.eject()
         else:
             parser.print_help()
@@ -374,14 +373,15 @@ def main():
                 dev.close()
             return 1
     except DeviceLocked:
-        print >> sys.stderr, "The device is locked. Use the --unlock option"
+        print("The device is locked. Use the --unlock option", file=sys.stderr)
     except (ArgumentError, DeviceError) as e:
-        print >>sys.stderr, e
+        print(e, file=sys.stderr)
         return 1
     finally:
         shutdown_plugins()
 
     return 0
+
 
 if __name__ == '__main__':
     main()

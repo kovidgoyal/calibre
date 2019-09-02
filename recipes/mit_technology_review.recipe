@@ -53,7 +53,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         # parse articles
         current_articles = []
         for div in soup.findAll(attrs={'class': lambda x: x in
-                                       'magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
+                'magazine-topper__title magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
             a = div.find('a', href=True)
             title = self.tag_to_string(a).strip()
             href = absurl(a['href'])

@@ -1,0 +1,39 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+Nordjyske.dk
+'''
+
+
+class Nordjyske_dk(BasicNewsRecipe):
+    __author__ = 'CoderAllan.github.com'
+    title = 'Nordjyske.dk'
+    description = ('Nordjyske.dk er hele tiden klar med de nyheder, der handler om dig og dit liv.'
+                   ' Og du får dem lige der, hvor du er - på din computer, tablet eller mobiltelefon.')
+    category = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    auto_cleanup = True
+    language = 'da'
+
+    feeds = [
+        ('Nyheder', 'http://nordjyske.dk/rss/nyheder'),
+        ('Danmark', 'http://nordjyske.dk/rss/danmark'),
+        ('Sport', 'http://nordjyske.dk/rss/sport'),
+        ('Erhverv', 'http://nordjyske.dk/rss/erhverv'),
+        ('Verden', 'http://nordjyske.dk/rss/verden'),
+        ('Brønderslev', 'http://nordjyske.dk/rss/broenderslev'),
+        ('Frederikshavn', 'http://nordjyske.dk/rss/frederikshavn'),
+        ('Hjørring', 'http://nordjyske.dk/rss/hjoerring'),
+        ('Jammerbugt', 'http://nordjyske.dk/rss/jammerbugt'),
+        ('Mariagerfjord', 'http://nordjyske.dk/rss/mariagerfjord'),
+        ('Rebild', 'http://nordjyske.dk/rss/rebild'),
+        ('Vesthimmerland', 'http://nordjyske.dk/rss/vesthimmerland'),
+        ('Thisted', 'http://nordjyske.dk/rss/thisted'),
+        ('Aalborg', 'http://nordjyske.dk/rss/aalborg'),
+
+    ]
+

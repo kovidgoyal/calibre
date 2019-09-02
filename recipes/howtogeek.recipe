@@ -13,14 +13,24 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     linearize_tables = True
     no_stylesheets = True
     remove_javascript = True
-    masthead_url = 'http://blog.stackoverflow.com/wp-content/uploads/how-to-geek-logo.png'
+    use_embedded_content = False
 
-    remove_tags = [dict(name='a', attrs={'target': ['_blank']}),
-                   dict(name='table', attrs={'id': ['articleTable']}),
-                   dict(name='div',   attrs={'class': ['feedflare']}),
-                   ]
+    keep_only_tags = [
+        dict(id='main')
+    ]
+    remove_tags_after = dict(classes='affiliate-disclosure')
+    remove_tags = [
+        dict(name='a', attrs={'target': ['_blank']}),
+        dict(name='table', attrs={'id': ['articleTable']}),
+        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets', 'related-articles', 'comments']}),
+    ]
 
     feeds = [
         ('Tips', 'http://feeds.howtogeek.com/howtogeek')
 
     ]
+
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll('img', attrs={'data-pagespeed-lazy-src': True}):
+            img['src'] = img['data-pagespeed-lazy-src']
+        return soup

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -12,13 +11,13 @@ __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
-from calibre.constants import plugins, iswindows
-from calibre.utils.filenames import atomic_rename
+import dukpy
+from polyglot.builtins import reraise
 
-dukpy, err = plugins['dukpy']
-if err:
-    raise RuntimeError('Failed to load dukpy with error: %s' % err)
-del err
+from calibre.constants import iswindows
+from calibre.utils.filenames import atomic_rename
+from polyglot.builtins import error_message, getcwd
+
 Context_, undefined = dukpy.Context, dukpy.undefined
 
 fs = '''
@@ -85,8 +84,10 @@ stream = '''
 module.exports = {};
 '''
 
+
 def sha1sum(x):
     return hashlib.sha1(x).hexdigest()
+
 
 def load_file(base_dirs, builtin_modules, name):
     try:
@@ -98,6 +99,7 @@ def load_file(base_dirs, builtin_modules, name):
             return [True, ans]
         if not name.endswith('.js'):
             name += '.js'
+
         def do_open(*args):
             with open(os.path.join(*args), 'rb') as f:
                 return [True, f.read().decode('utf-8')]
@@ -112,6 +114,7 @@ def load_file(base_dirs, builtin_modules, name):
     except Exception as e:
         return [False, str(e)]
 
+
 def readfile(path, enc='utf-8'):
     try:
         with open(path, 'rb') as f:
@@ -119,7 +122,8 @@ def readfile(path, enc='utf-8'):
     except UnicodeDecodeError as e:
         return None, '', 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
     except EnvironmentError as e:
-        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
+        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, error_message(e) or e)]
+
 
 def atomic_write(name, raw):
     bdir, bname = os.path.dirname(os.path.abspath(name)), os.path.basename(name)
@@ -127,6 +131,7 @@ def atomic_write(name, raw):
     with open(os.path.join(bdir, tname), 'wb') as f:
         f.write(raw)
     atomic_rename(f.name, name)
+
 
 def writefile(path, data, enc='utf-8'):
     if enc == undefined:
@@ -138,8 +143,9 @@ def writefile(path, data, enc='utf-8'):
     except UnicodeEncodeError as e:
         return ['', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)]
     except EnvironmentError as e:
-        return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, e.message or e)]
+        return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, error_message(e) or e)]
     return [None, None]
+
 
 class Function(object):
 
@@ -159,7 +165,8 @@ class Function(object):
             self.reraise(e)
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        reraise(JSError, JSError(e), sys.exc_info()[2])
+
 
 def to_python(x):
     try:
@@ -180,6 +187,7 @@ def to_python(x):
         return Function(x)
     return x
 
+
 class JSError(Exception):
 
     def __init__(self, ex):
@@ -193,7 +201,7 @@ class JSError(Exception):
                 if fn:
                     msg = type('')(fn) + ':' + msg
                 Exception.__init__(self, msg)
-                for k, v in e.iteritems():
+                for k, v in e.items():
                     if k != 'message':
                         setattr(self, k, v)
                     else:
@@ -209,22 +217,25 @@ class JSError(Exception):
     def as_dict(self):
         return {
             'name':self.name or undefined,
-            'message': self.js_message or self.message,
+            'message': self.js_message or error_message(self),
             'fileName': self.fileName or undefined,
             'lineNumber': self.lineNumber or undefined,
             'stack': self.stack or undefined
         }
 
+
 contexts = {}
+
 
 def create_context(base_dirs, *args):
     data = to_python(args[0]) if args else {}
     ctx = Context(base_dirs=base_dirs)
-    for k, val in data.iteritems():
+    for k, val in data.items():
         setattr(ctx.g, k, val)
     key = id(ctx)
     contexts[key] = ctx
     return key
+
 
 def run_in_context(code, ctx, options=None):
     c = contexts[ctx]
@@ -238,17 +249,18 @@ def run_in_context(code, ctx, options=None):
         return [False, {'message':type('')(e)}]
     return [True, to_python(ans)]
 
+
 class Context(object):
 
     def __init__(self, base_dirs=(), builtin_modules=None):
         self._ctx = Context_()
         self.g = self._ctx.g
-        self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
+        self.g.Duktape.load_file = partial(load_file, base_dirs or (getcwd(),), builtin_modules or {})
         self.g.Duktape.pyreadfile = readfile
         self.g.Duktape.pywritefile = writefile
         self.g.Duktape.create_context = partial(create_context, base_dirs)
         self.g.Duktape.run_in_context = run_in_context
-        self.g.Duktape.cwd = os.getcwdu
+        self.g.Duktape.cwd = getcwd
         self.g.Duktape.sha1sum = sha1sum
         self.g.Duktape.dirname = os.path.dirname
         self.g.Duktape.errprint = lambda *args: print(*args, file=sys.stderr)
@@ -268,7 +280,7 @@ class Context(object):
         if (!String.prototype.trim) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+                var rtrim = /^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$/g;
                 String.prototype.trim = function() {
                 return this.replace(rtrim, '');
                 };
@@ -277,7 +289,7 @@ class Context(object):
         if (!String.prototype.trimLeft) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /^[\s\uFEFF\xA0]+/g;
+                var rtrim = /^[\\s\uFEFF\xA0]+/g;
                 String.prototype.trimLeft = function() {
                 return this.replace(rtrim, '');
                 };
@@ -286,7 +298,7 @@ class Context(object):
         if (!String.prototype.trimRight) {
             (function() {
                 // Make sure we trim BOM and NBSP
-                var rtrim = /[\s\uFEFF\xA0]+$/g;
+                var rtrim = /[\\s\uFEFF\xA0]+$/g;
                 String.prototype.trimRight = function() {
                 return this.replace(rtrim, '');
                 };
@@ -334,7 +346,7 @@ class Context(object):
         '<init>')
 
     def reraise(self, e):
-        raise JSError(e), None, sys.exc_info()[2]
+        reraise(JSError, JSError(e), sys.exc_info()[2])
 
     def eval(self, code='', fname='<eval>', noreturn=False):
         try:
@@ -348,12 +360,13 @@ class Context(object):
         except dukpy.JSError as e:
             self.reraise(e)
 
+
 def test_build():
     import unittest
 
     def load_tests(loader, suite, pattern):
         from duktape import tests
-        for x in vars(tests).itervalues():
+        for x in vars(tests).values():
             if isinstance(x, type) and issubclass(x, unittest.TestCase):
                 tests = loader.loadTestsFromTestCase(x)
                 suite.addTests(tests)

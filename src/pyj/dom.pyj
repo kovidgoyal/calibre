@@ -12,7 +12,9 @@ simple_vendor_prefixes = {
     'animation-direction': v"['webkit', 'moz', 'o']",
     'animation-fill-mode': v"['webkit', 'moz', 'o']",
     'animation-play-state': v"['webkit', 'moz', 'o']",
+    'hyphens': v"['webkit', 'moz', 'ms']",
     'transform': v"['webkit', 'ms', 'moz', 'o']",
+    'transform-origin': v"['webkit', 'ms', 'moz', 'o']",
     'transition': v"['webkit', 'moz', 'o']",
     'filter': v"['webkit']",
     'user-select': v"['webkit', 'moz', 'ms']",
@@ -22,10 +24,11 @@ simple_vendor_prefixes = {
     'column-gap': v"['webkit', 'moz']",
     'column-width': v"['webkit', 'moz']",
     'column-rule': v"['webkit', 'moz']",
+    'column-fill': v"['moz']",
 }
 
 def set_css(elem, **kw):
-    if type(elem) is 'string':
+    if jstype(elem) is 'string':
         elem = document.querySelector(elem)
     s = elem.style
     if s:
@@ -92,14 +95,25 @@ def element(elem_id, child_selector):
         ans = ans.querySelector(child_selector)
     return ans
 
-auto_id_count = 0
+def selector(id_selector, *args):
+    ans = '#' + id_selector
+    for x in args:
+        ans += ' ' + x
+    return ans
 
-def ensure_id(w):
-    nonlocal auto_id_count
+def rule(id_selector, *args, **kw):
+    return build_rule(selector(id_selector, *args), **kw)
+
+def unique_id(prefix):
+    prefix = prefix or 'auto-id'
+    unique_id.counts[prefix] = num = (unique_id.counts[prefix] or 0) + 1
+    return prefix + '-' + num
+unique_id.counts = {}
+
+def ensure_id(w, prefix):
     ans = w.getAttribute('id')
     if not ans:
-        auto_id_count += 1
-        ans = 'auto-id-' + auto_id_count
+        ans = unique_id(prefix)
         w.setAttribute('id', ans)
     return ans
 
@@ -110,4 +124,3 @@ def add_extra_css(func):
 
 def get_widget_css():
     return extra_css.join('\n')
-

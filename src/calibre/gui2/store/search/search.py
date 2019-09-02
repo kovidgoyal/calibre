@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -23,6 +23,8 @@ from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import unicode_type
+
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -65,7 +67,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
-        if isinstance(query, (str, unicode)):
+        if isinstance(query, (bytes, unicode_type)):
             self.search_edit.setText(query)
         elif isinstance(query, dict):
             if 'author' in query:
@@ -79,7 +81,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.button_layout.setAlignment(Qt.AlignCenter)
         self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignCenter)
 
-        self.adv_search_button.setIcon(QIcon(I('search.png')))
+        self.adv_search_button.setIcon(QIcon(I('gear.png')))
+        self.adv_search_button.setToolTip(_('Advanced search'))
         self.configure.setIcon(QIcon(I('config.png')))
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
@@ -182,11 +185,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Don't start a search if there is nothing to search for.
         query = []
         if self.search_title.text():
-            query.append(u'title2:"~%s"' % unicode(self.search_title.text()).replace('"', ' '))
+            query.append(u'title2:"~%s"' % unicode_type(self.search_title.text()).replace('"', ' '))
         if self.search_author.text():
-            query.append(u'author2:"%s"' % unicode(self.search_author.text()).replace('"', ' '))
+            query.append(u'author2:"%s"' % unicode_type(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
-            query.append(unicode(self.search_edit.text()))
+            query.append(unicode_type(self.search_edit.text()))
         query = " ".join(query)
         if not query.strip():
             error_dialog(self, _('No query'),
@@ -204,7 +207,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
-        store_names = self.store_checks.keys()
+        store_names = list(self.store_checks)
         if not store_names:
             return
         # Remove all of our internal filtering logic from the query.
@@ -230,7 +233,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('<', '')
         # Remove the prefix.
         for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
-            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, r'\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):
@@ -315,7 +318,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         v = QVBoxLayout(d)
         button_box.accepted.connect(d.accept)
         button_box.rejected.connect(d.reject)
-        d.setWindowTitle(_('Customize get books search'))
+        d.setWindowTitle(_('Customize Get books search'))
 
         tab_widget = QTabWidget(d)
         v.addWidget(tab_widget)
@@ -324,8 +327,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         chooser_config_widget = StoreChooserWidget()
         search_config_widget = StoreConfigWidget(self.config)
 
-        tab_widget.addTab(chooser_config_widget, _('Choose stores'))
-        tab_widget.addTab(search_config_widget, _('Configure search'))
+        tab_widget.addTab(chooser_config_widget, _('Choose s&tores'))
+        tab_widget.addTab(search_config_widget, _('Configure s&earch'))
 
         # Restore dialog state.
         geometry = self.config.get('config_dialog_geometry', None)
@@ -408,7 +411,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.searching = False
         else:
             self.searching = True
-            if unicode(self.search.text()) != self.STOP_TEXT:
+            if unicode_type(self.search.text()) != self.STOP_TEXT:
                 self.search.setText(self.STOP_TEXT)
             if not self.pi.isAnimated():
                 self.pi.startAnimation()
@@ -432,9 +435,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.save_state()
 
     def exec_(self):
-        if unicode(self.search_edit.text()).strip() or unicode(self.search_title.text()).strip() or unicode(self.search_author.text()).strip():
+        if unicode_type(self.search_edit.text()).strip() or unicode_type(self.search_title.text()).strip() or unicode_type(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec_(self)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -446,5 +450,3 @@ if __name__ == '__main__':
 
     s = SearchDialog(gui, query=' '.join(sys.argv[1:]))
     s.exec_()
-
-

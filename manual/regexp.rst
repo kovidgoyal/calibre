@@ -3,7 +3,7 @@
 All about using regular expressions in calibre
 =======================================================
 
-Regular expressions are features used in many places in calibre to perform sophisticated manipulation of ebook content and metadata. This tutorial is a gentle introduction to getting you started with using regular expressions in calibre.
+Regular expressions are features used in many places in calibre to perform sophisticated manipulation of e-book content and metadata. This tutorial is a gentle introduction to getting you started with using regular expressions in calibre.
 
 .. contents:: Contents
   :depth: 2
@@ -18,9 +18,9 @@ This is, inevitably, going to be somewhat technical- after all, regular expressi
 Where in calibre can you use regular expressions?
 ---------------------------------------------------
 
-There are a few places calibre uses regular expressions. There's the Search &
-Replace in conversion options, metadata detection from filenames in the import
-settings and Search & Replace when editing the metadata of books in bulk. The
+There are a few places calibre uses regular expressions. There's the
+:guilabel:`Search & replace` in conversion options, metadata detection from filenames in the import
+settings and Search & replace when editing the metadata of books in bulk. The
 calibre book editor can also use regular expressions in its search and replace
 feature.
 
@@ -29,7 +29,7 @@ What on earth *is* a regular expression?
 
 A regular expression is a way to describe sets of strings. A single regular expression can *match* a number of different strings. This is what makes regular expression so powerful -- they are a concise way of describing a potentially large number of variations.
 
-.. note:: I'm using string here in the sense it is used in programming languages: a string of one or more characters, characters including actual characters, numbers, punctuation and so-called whitespace (linebreaks, tabulators etc.). Please note that generally, uppercase and lowercase characters are not considered the same, thus "a" being a different character from "A" and so forth. In calibre, regular expressions are case insensitive in the search bar, but not in the conversion options. There's a way to make every regular expression case insensitive, but we'll discuss that later. It gets complicated because regular expressions allow for variations in the strings it matches, so one expression can match multiple strings, which is why people bother using them at all. More on that in a bit.
+.. note:: I'm using string here in the sense it is used in programming languages: a string of one or more characters, characters including actual characters, numbers, punctuation and so-called whitespace (linebreaks, tabulators etc.). Please note that generally, uppercase and lowercase characters are not considered the same, thus "a" being a different character from "A" and so forth. In calibre, regular expressions are case insensitive in the Search bar, but not in the conversion options. There's a way to make every regular expression case insensitive, but we'll discuss that later. It gets complicated because regular expressions allow for variations in the strings it matches, so one expression can match multiple strings, which is why people bother using them at all. More on that in a bit.
 
 Care to explain?
 --------------------
@@ -39,7 +39,7 @@ Well, that's why we're here. First, this is the most important concept in regula
 That doesn't sound too bad. What's next?
 ------------------------------------------
 
-Next is the beginning of the really good stuff. Remember where I said that regular expressions can match multiple strings? This is were it gets a little more complicated. Say, as a somewhat more practical exercise, the ebook you wanted to convert had a nasty footer counting the pages, like "Page 5 of 423". Obviously the page number would rise from 1 to 423, thus you'd have to match 423 different strings, right? Wrong, actually: regular expressions allow you to define sets of characters that are matched: To define a set, you put all the characters you want to be in the set into square brackets. So, for example, the set ``[abc]`` would match either the character "a", "b" or "c". *Sets will always only match one of the characters in the set*. They "understand" character ranges, that is, if you wanted to match all the lower case characters, you'd use the set ``[a-z]`` for lower- and uppercase characters you'd use ``[a-zA-Z]`` and so on. Got the idea? So, obviously, using the expression ``Page [0-9] of 423`` you'd be able to match the first 9 pages, thus reducing the expressions needed to three: The second expression ``Page [0-9][0-9] of 423`` would match all two-digit page numbers, and I'm sure you can guess what the third expression would look like. Yes, go ahead. Write it down.
+Next is the beginning of the really good stuff. Remember where I said that regular expressions can match multiple strings? This is where it gets a little more complicated. Say, as a somewhat more practical exercise, the e-book you wanted to convert had a nasty footer counting the pages, like "Page 5 of 423". Obviously the page number would rise from 1 to 423, thus you'd have to match 423 different strings, right? Wrong, actually: regular expressions allow you to define sets of characters that are matched: To define a set, you put all the characters you want to be in the set into square brackets. So, for example, the set ``[abc]`` would match either the character "a", "b" or "c". *Sets will always only match one of the characters in the set*. They "understand" character ranges, that is, if you wanted to match all the lower case characters, you'd use the set ``[a-z]`` for lower- and uppercase characters you'd use ``[a-zA-Z]`` and so on. Got the idea? So, obviously, using the expression ``Page [0-9] of 423`` you'd be able to match the first 9 pages, thus reducing the expressions needed to three: The second expression ``Page [0-9][0-9] of 423`` would match all two-digit page numbers, and I'm sure you can guess what the third expression would look like. Yes, go ahead. Write it down.
 
 Hey, neat! This is starting to make sense!
 ---------------------------------------------
@@ -72,7 +72,7 @@ As a last note on sets, you can also define a set as any character *but* those i
 But if I had a few varying strings I wanted to match, things get complicated?
 -------------------------------------------------------------------------------
 
-Fear not, life still is good and easy. Consider this example: The book you're converting has "Title" written on every odd page and "Author" written on every even page. Looks great in print, right? But in ebooks, it's annoying. You can group whole expressions in normal parentheses, and the character ``"|"`` will let you match *either* the expression to its right *or* the one to its left. Combine those and you're done. Too fast for you? Okay, first off, we group the expressions for odd and even pages, thus getting ``(Title)(Author)`` as our two needed expressions. Now we make things simpler by using the vertical bar (``"|"`` is called the vertical bar character): If you use the expression ``(Title|Author)`` you'll either get a match for "Title" (on the odd pages) or you'd match "Author" (on the even pages). Well, wasn't that easy?
+Fear not, life still is good and easy. Consider this example: The book you're converting has "Title" written on every odd page and "Author" written on every even page. Looks great in print, right? But in e-books, it's annoying. You can group whole expressions in normal parentheses, and the character ``"|"`` will let you match *either* the expression to its right *or* the one to its left. Combine those and you're done. Too fast for you? Okay, first off, we group the expressions for odd and even pages, thus getting ``(Title)(Author)`` as our two needed expressions. Now we make things simpler by using the vertical bar (``"|"`` is called the vertical bar character): If you use the expression ``(Title|Author)`` you'll either get a match for "Title" (on the odd pages) or you'd match "Author" (on the even pages). Well, wasn't that easy?
 
 You can, of course, use the vertical bar without using grouping parentheses, as well. Remember when I said that quantifiers repeat the element preceding them? Well, the vertical bar works a little differently: The expression "Title|Author" will also match either the string "Title" or the string "Author", just as the above example using grouping. *The vertical bar selects between the entire expression preceding and following it*. So, if you wanted to match the strings "Calibre" and "calibre" and wanted to select only between the upper- and lowercase "c", you'd have to use the expression ``(c|C)alibre``, where the grouping ensures that only the "c" will be selected. If you were to use ``c|Calibre``, you'd get a match on the string "c" or on the string "Calibre", which isn't what we wanted. In short: If in doubt, use grouping together with the vertical bar.
 
@@ -85,9 +85,9 @@ You missed...
 In the beginning, you said there was a way to make a regular expression case insensitive?
 ------------------------------------------------------------------------------------------------------------------
 
-Yes, I did, thanks for paying attention and reminding me. You can tell calibre how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``test(?i)`` would match "Test", "tEst", "TEst" and any case variation you could think of.
+Yes, I did, thanks for paying attention and reminding me. You can tell calibre how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``(?i)test`` would match "Test", "tEst", "TEst" and any case variation you could think of.
 
-Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above. By the way, good places for putting flags in your expression would be either the very beginning or the very end. That way, they don't get mixed up with anything else.
+Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above. 
 
 I think I'm beginning to understand these regular expressions now... how do I use them in calibre?
 -----------------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ I think I'm beginning to understand these regular expressions now... how do I us
 Conversions
 ^^^^^^^^^^^^^^
 
-Let's begin with the conversion settings, which is really neat. In the Search and Replace part, you can input a regexp (short for regular expression) that describes the string that will be replaced during the conversion. The neat part is the wizard. Click on the wizard staff and you get a preview of what calibre "sees" during the conversion process. Scroll down to the string you want to remove, select and copy it, paste it into the regexp field on top of the window. If there are variable parts, like page numbers or so, use sets and quantifiers to cover those, and while you're at it, remember to escape special characters, if there are some. Hit the button labeled :guilabel:`Test` and calibre highlights the parts it would replace were you to use the regexp. Once you're satisfied, hit OK and convert. Be careful if your conversion source has tags like this example::
+Let's begin with the conversion settings, which is really neat. In the :guilabel:`Search & replace` part, you can input a regexp (short for regular expression) that describes the string that will be replaced during the conversion. The neat part is the wizard. Click on the wizard staff and you get a preview of what calibre "sees" during the conversion process. Scroll down to the string you want to remove, select and copy it, paste it into the regexp field on top of the window. If there are variable parts, like page numbers or so, use sets and quantifiers to cover those, and while you're at it, remember to escape special characters, if there are some. Hit the button labeled :guilabel:`Test` and calibre highlights the parts it would replace were you to use the regexp. Once you're satisfied, hit OK and convert. Be careful if your conversion source has tags like this example::
 
     Maybe, but the cops feel like you do, Anita. What's one more dead vampire?
     New laws don't change that. </p>
@@ -105,7 +105,7 @@ Let's begin with the conversion settings, which is really neat. In the Search an
     <p class="calibre4"> It had only been two years since Addison v. Clark.
     The court case gave us a revised version of what life was
     
-(shamelessly ripped out of `this thread <http://www.mobileread.com/forums/showthread.php?t=75594">`_). You'd have to remove some of the tags as well. In this example, I'd recommend beginning with the tag ``<b class="calibre2">``, now you have to end with the corresponding closing tag (opening tags are ``<tag>``, closing tags are ``</tag>``), which is simply the next ``</b>`` in this case. (Refer to a good HTML manual or ask in the forum if you are unclear on this point.) The opening tag can be described using ``<b.*?>``, the closing tag using ``</b>``, thus we could remove everything between those tags using ``<b.*?>.*?</b>``. But using this expression would be a bad idea, because it removes everything enclosed by <b>- tags (which, by the way, render the enclosed text in bold print), and it's a fair bet that we'll remove portions of the book in this way. Instead, include the beginning of the enclosed string as well, making the regular expression ``<b.*?>\s*Generated\s+by\s+ABC\s+Amber\s+LIT.*?</b>`` The ``\s`` with quantifiers are included here instead of explicitly using the spaces as seen in the string to catch any variations of the string that might occur. Remember to check what calibre will remove to make sure you don't remove any portions you want to keep if you test a new expression. If you only check one occurrence, you might miss a mismatch somewhere else in the text. Also note that should you accidentally remove more or fewer tags than you actually wanted to, calibre tries to repair the damaged code after doing the removal.
+(shamelessly ripped out of `this thread <https://www.mobileread.com/forums/showthread.php?t=75594">`_). You'd have to remove some of the tags as well. In this example, I'd recommend beginning with the tag ``<b class="calibre2">``, now you have to end with the corresponding closing tag (opening tags are ``<tag>``, closing tags are ``</tag>``), which is simply the next ``</b>`` in this case. (Refer to a good HTML manual or ask in the forum if you are unclear on this point.) The opening tag can be described using ``<b.*?>``, the closing tag using ``</b>``, thus we could remove everything between those tags using ``<b.*?>.*?</b>``. But using this expression would be a bad idea, because it removes everything enclosed by <b>- tags (which, by the way, render the enclosed text in bold print), and it's a fair bet that we'll remove portions of the book in this way. Instead, include the beginning of the enclosed string as well, making the regular expression ``<b.*?>\s*Generated\s+by\s+ABC\s+Amber\s+LIT.*?</b>`` The ``\s`` with quantifiers are included here instead of explicitly using the spaces as seen in the string to catch any variations of the string that might occur. Remember to check what calibre will remove to make sure you don't remove any portions you want to keep if you test a new expression. If you only check one occurrence, you might miss a mismatch somewhere else in the text. Also note that should you accidentally remove more or fewer tags than you actually wanted to, calibre tries to repair the damaged code after doing the removal.
 
 Adding books
 ^^^^^^^^^^^^^^^^
@@ -122,6 +122,15 @@ Well, that just about concludes the very short introduction to regular expressio
 
 One last word of warning, though: Regexps are powerful, but also really easy to get wrong. calibre provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
 
+
+Quick reference
+-------------------
+
+.. toctree::
+
+    regexp_quick_reference
+
+
 Credits
 -------------
 
@@ -133,6 +142,7 @@ Thanks for helping with tips, corrections and such:
     * dwanthny
     * kacir
     * Starson17
+    * Orpheu
 
 For more about regexps see `The Python User Manual <https://docs.python.org/2/library/re.html>`_.
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,8 @@ from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
+from polyglot.builtins import unicode_type, range
+
 
 def browser_item(f, parent):
     name = f.name
@@ -27,6 +28,7 @@ def browser_item(f, parent):
     ans.setData(0, Qt.DecorationRole, file_icon_provider().icon_from_ext(ext))
 
     return ans
+
 
 class Storage(QTreeWidget):
 
@@ -56,6 +58,7 @@ class Storage(QTreeWidget):
             return (self.object_id, item.data(0, Qt.UserRole))
         return None
 
+
 class Folders(QTabWidget):
 
     selected = pyqtSignal()
@@ -75,6 +78,7 @@ class Folders(QTabWidget):
         w = self.currentWidget()
         if w is not None:
             return w.current_item
+
 
 class Browser(QDialog):
 
@@ -96,6 +100,7 @@ class Browser(QDialog):
     @property
     def current_item(self):
         return self.folders.current_item
+
 
 class IgnoredFolders(QDialog):
 
@@ -130,9 +135,9 @@ class IgnoredFolders(QDialog):
                                    QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
-        self.sab = self.bb.addButton(_('Select &All'), self.bb.ActionRole)
+        self.sab = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
         self.sab.clicked.connect(self.select_all)
-        self.snb = self.bb.addButton(_('Select &None'), self.bb.ActionRole)
+        self.snb = self.bb.addButton(_('Select &none'), self.bb.ActionRole)
         self.snb.clicked.connect(self.select_none)
         l.addWidget(self.bb)
         self.setWindowTitle(_('Choose folders to scan'))
@@ -159,7 +164,7 @@ class IgnoredFolders(QDialog):
 
     def iterchildren(self, node):
         ' Iterate over all descendants of node '
-        for i in xrange(node.childCount()):
+        for i in range(node.childCount()):
             child = node.child(i)
             yield child
             for gc in self.iterchildren(child):
@@ -177,13 +182,13 @@ class IgnoredFolders(QDialog):
 
     def select_all(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Checked)
 
     def select_none(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Unchecked)
 
@@ -195,12 +200,13 @@ class IgnoredFolders(QDialog):
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.Checked:
                     continue
-                path = unicode(node.data(0, Qt.UserRole) or '')
+                path = unicode_type(node.data(0, Qt.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))
-            ans[unicode(w.storage.storage_id)] = list(folders)
+            ans[unicode_type(w.storage.storage_id)] = list(folders)
         return ans
+
 
 def setup_device():
     from calibre.devices.mtp.driver import MTP_DEVICE
@@ -215,6 +221,7 @@ def setup_device():
     dev.open(cd, 'test')
     return dev
 
+
 def browse():
     from calibre.gui2 import Application
     app = Application([])
@@ -224,6 +231,7 @@ def browse():
     d.exec_()
     dev.shutdown()
     return d.current_item
+
 
 def ignored_folders():
     from calibre.gui2 import Application
@@ -235,7 +243,7 @@ def ignored_folders():
     dev.shutdown()
     return d.ignored_folders
 
-if __name__ == '__main__':
-    print (browse())
-    # print ('Ignored:', ignored_folders())
 
+if __name__ == '__main__':
+    print(browse())
+    # print ('Ignored:', ignored_folders())

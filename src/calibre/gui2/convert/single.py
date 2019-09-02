@@ -1,66 +1,36 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import cPickle, shutil
+import shutil
 
-from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
+from PyQt5.Qt import (
+    QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
+    QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
+    QListView, QModelIndex, QRect, QScrollArea, QSize, QSizePolicy, QSpacerItem,
+    QStackedWidget, Qt, QTextEdit, QVBoxLayout, QWidget
+)
 
+from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.conversion.config import (
+    GuiRecommendations, delete_specifics, get_input_format_for_book,
+    get_output_formats, save_specifics, sort_formats_by_preference
+)
+from calibre.ebooks.conversion.plumber import create_dummy_plumber
 from calibre.gui2 import gprefs
-from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
-        load_specifics)
-from calibre.gui2.convert.single_ui import Ui_Dialog
-from calibre.gui2.convert.metadata import MetadataWidget
-from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.debug import DebugWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
-from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
+from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
-from calibre.gui2.convert.debug import DebugWidget
+from calibre.utils.config import prefs
+from polyglot.builtins import native_string_type, range, unicode_type
 
-
-from calibre.ebooks.conversion.plumber import (Plumber,
-        supported_input_formats, ARCHIVE_FMTS)
-from calibre.ebooks.conversion.config import delete_specifics
-from calibre.customize.ui import available_output_formats
-from calibre.customize.conversion import OptionRecommendation
-from calibre.utils.config import prefs, tweaks
-from calibre.utils.logging import Log
-
-class NoSupportedInputFormats(Exception):
-
-    def __init__(self, available_formats):
-        Exception.__init__(self)
-        self.available_formats = available_formats
-
-def sort_formats_by_preference(formats, prefs):
-    uprefs = [x.upper() for x in prefs]
-    def key(x):
-        try:
-            return uprefs.index(x.upper())
-        except ValueError:
-            pass
-        return len(prefs)
-    return sorted(formats, key=key)
-
-def get_output_formats(preferred_output_format):
-    all_formats = {x.upper() for x in available_output_formats()}
-    all_formats.discard('OEB')
-    pfo = preferred_output_format.upper() if preferred_output_format else ''
-    restrict = tweaks['restrict_output_formats']
-    if restrict:
-        fmts = [x.upper() for x in restrict]
-        if pfo and pfo not in fmts and pfo in all_formats:
-            fmts.append(pfo)
-    else:
-        fmts = list(sorted(all_formats,
-                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x)))
-    return fmts
 
 class GroupModel(QAbstractListModel):
 
@@ -86,48 +56,8 @@ class GroupModel(QAbstractListModel):
             return (f)
         return None
 
-def get_preferred_input_format_for_book(db, book_id):
-    recs = load_specifics(db, book_id)
-    if recs:
-        return recs.get('gui_preferred_input_format', None)
 
-def get_available_formats_for_book(db, book_id):
-    available_formats = db.formats(book_id, index_is_id=True)
-    if not available_formats:
-        available_formats = ''
-    return set([x.lower() for x in
-        available_formats.split(',')])
-
-def get_supported_input_formats_for_book(db, book_id):
-    available_formats = get_available_formats_for_book(db, book_id)
-    input_formats = set([x.lower() for x in supported_input_formats()])
-    input_formats = sorted(available_formats.intersection(input_formats))
-    if not input_formats:
-        raise NoSupportedInputFormats(tuple(x for x in available_formats if x))
-    return input_formats
-
-
-def get_input_format_for_book(db, book_id, pref):
-    '''
-    Return (preferred input format, list of available formats) for the book
-    identified by book_id. Raises an error if the book has no input formats.
-
-    :param pref: If None, the format used as input for the last conversion, if
-    any, on this book is used. If not None, should be a lowercase format like
-    'epub' or 'mobi'. If you do not want the last converted format to be used,
-    set pref=False.
-    '''
-    if pref is None:
-        pref = get_preferred_input_format_for_book(db, book_id)
-    if hasattr(pref, 'lower'):
-        pref = pref.lower()
-    input_formats = get_supported_input_formats_for_book(db, book_id)
-    input_format = pref if pref in input_formats else \
-        sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
-    return input_format, input_formats
-
-
-class Config(QDialog, Ui_Dialog):
+class Config(QDialog):
     '''
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
@@ -143,7 +73,7 @@ class Config(QDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi()
         self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
 
@@ -151,13 +81,14 @@ class Config(QDialog, Ui_Dialog):
                 preferred_output_format)
         self.setup_pipeline()
 
-        self.input_formats.currentIndexChanged[str].connect(self.setup_pipeline)
-        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.input_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
+        self.groups.setSpacing(5)
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
-        rb.setText(_('Restore &Defaults'))
+        rb.setText(_('Restore &defaults'))
         rb.clicked.connect(self.restore_defaults)
         self.groups.setMouseTracking(True)
         geom = gprefs.get('convert_single_dialog_geom', None)
@@ -166,10 +97,106 @@ class Config(QDialog, Ui_Dialog):
         else:
             self.resize(self.sizeHint())
 
+    def setupUi(self):
+        self.setObjectName("Dialog")
+        self.resize(1024, 700)
+        self.setWindowIcon(QIcon(I('convert.png')))
+        self.gridLayout = QGridLayout(self)
+        self.gridLayout.setObjectName("gridLayout")
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.input_label = QLabel(self)
+        self.input_label.setObjectName("input_label")
+        self.horizontalLayout.addWidget(self.input_label)
+        self.input_formats = QComboBox(self)
+        self.input_formats.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.input_formats.setMinimumContentsLength(5)
+        self.input_formats.setObjectName("input_formats")
+        self.horizontalLayout.addWidget(self.input_formats)
+        self.opt_individual_saved_settings = QCheckBox(self)
+        self.opt_individual_saved_settings.setObjectName("opt_individual_saved_settings")
+        self.horizontalLayout.addWidget(self.opt_individual_saved_settings)
+        spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.label_2 = QLabel(self)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout.addWidget(self.label_2)
+        self.output_formats = QComboBox(self)
+        self.output_formats.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.output_formats.setMinimumContentsLength(5)
+        self.output_formats.setObjectName("output_formats")
+        self.horizontalLayout.addWidget(self.output_formats)
+        self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 2)
+        self.groups = QListView(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groups.sizePolicy().hasHeightForWidth())
+        self.groups.setSizePolicy(sizePolicy)
+        self.groups.setTabKeyNavigation(True)
+        self.groups.setIconSize(QSize(48, 48))
+        self.groups.setWordWrap(True)
+        self.groups.setObjectName("groups")
+        self.gridLayout.addWidget(self.groups, 1, 0, 3, 1)
+        self.scrollArea = QScrollArea(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(4)
+        sizePolicy.setVerticalStretch(10)
+        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
+        self.scrollArea.setSizePolicy(sizePolicy)
+        self.scrollArea.setFrameShape(QFrame.NoFrame)
+        self.scrollArea.setLineWidth(0)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 810, 494))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.stack = QStackedWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.stack.sizePolicy().hasHeightForWidth())
+        self.stack.setSizePolicy(sizePolicy)
+        self.stack.setObjectName("stack")
+        self.page = QWidget()
+        self.page.setObjectName("page")
+        self.stack.addWidget(self.page)
+        self.page_2 = QWidget()
+        self.page_2.setObjectName("page_2")
+        self.stack.addWidget(self.page_2)
+        self.verticalLayout_3.addWidget(self.stack)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout.addWidget(self.scrollArea, 1, 1, 1, 1)
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok|QDialogButtonBox.RestoreDefaults)
+        self.buttonBox.setObjectName("buttonBox")
+        self.gridLayout.addWidget(self.buttonBox, 3, 1, 1, 1)
+        self.help = QTextEdit(self)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.help.sizePolicy().hasHeightForWidth())
+        self.help.setSizePolicy(sizePolicy)
+        self.help.setMaximumSize(QSize(16777215, 130))
+        self.help.setObjectName("help")
+        self.gridLayout.addWidget(self.help, 2, 1, 1, 1)
+        self.input_label.setBuddy(self.input_formats)
+        self.label_2.setBuddy(self.output_formats)
+        self.input_label.setText(_("&Input format:"))
+        self.opt_individual_saved_settings.setText(_("Use &saved conversion settings for individual books"))
+        self.label_2.setText(_("&Output format:"))
+
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
     def sizeHint(self):
         desktop = QCoreApplication.instance().desktop()
         geom = desktop.availableGeometry(self)
-        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        nh, nw = max(300, geom.height()-100), max(400, geom.width()-70)
         return QSize(nw, nh)
 
     def restore_defaults(self):
@@ -178,15 +205,15 @@ class Config(QDialog, Ui_Dialog):
 
     @property
     def input_format(self):
-        return unicode(self.input_formats.currentText()).lower()
+        return unicode_type(self.input_formats.currentText()).lower()
 
     @property
     def output_format(self):
-        return unicode(self.output_formats.currentText()).lower()
+        return unicode_type(self.output_formats.currentText()).lower()
 
     @property
     def manually_fine_tune_toc(self):
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             w = self.stack.widget(i)
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()
@@ -195,20 +222,14 @@ class Config(QDialog, Ui_Dialog):
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
-        output_path = 'dummy.'+output_format
-        log = Log()
-        log.outputs = []
-        input_file = 'dummy.'+input_format
-        if input_format in ARCHIVE_FMTS:
-            input_file = 'dummy.html'
-        self.plumber = Plumber(input_file, output_path, log)
+        self.plumber = create_dummy_plumber(input_format, output_format)
 
         def widget_factory(cls):
             return cls(self.stack, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db, self.book_id)
 
         self.mw = widget_factory(MetadataWidget)
-        self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
+        self.setWindowTitle(_('Convert')+ ' ' + unicode_type(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
         hw = widget_factory(HeuristicsWidget)
         sr = widget_factory(SearchAndReplaceWidget)
@@ -263,10 +284,8 @@ class Config(QDialog, Ui_Dialog):
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.input_formats.addItems(list(map(unicode, [x.upper() for x in
-            input_formats])))
-        self.output_formats.addItems(list(map(unicode, [x.upper() for x in
-            output_formats])))
+        self.input_formats.addItems((unicode_type(x.upper()) for x in input_formats))
+        self.output_formats.addItems((unicode_type(x.upper()) for x in output_formats))
         self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
@@ -307,11 +326,8 @@ class Config(QDialog, Ui_Dialog):
     def recommendations(self):
         recs = [(k, v, OptionRecommendation.HIGH) for k, v in
                 self._recommendations.items()]
-        return cPickle.dumps(recs, -1)
+        return recs
 
     def show_group_help(self, index):
         widget = self._groups_model.widgets[index.row()]
         self.help.setPlainText(widget.HELP)
-
-
-

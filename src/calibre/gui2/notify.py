@@ -1,13 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.constants import islinux, isosx, get_osx_version
+import time
+from calibre import prints
+from calibre.constants import islinux, isosx, get_osx_version, DEBUG, plugins
+from polyglot.builtins import unicode_type
+
 
 class Notifier(object):
 
@@ -28,22 +32,26 @@ class DBUSNotifier(Notifier):
 
     ICON = I('lt.png')
 
-    def __init__(self, server, path, interface):
+    def __init__(self, session_bus):
         self.ok, self.err = True, None
+        server, path, interface = self.SERVICE
+        if DEBUG:
+            start = time.time()
+            prints('Looking for desktop notifier support from:', server)
         try:
             import dbus
             self.dbus = dbus
-            self._notify = dbus.Interface(dbus.SessionBus().get_object(server, path), interface)
+            self._notify = dbus.Interface(session_bus.get_object(server, path), interface)
         except Exception as err:
             self.ok = False
-            self.err = str(err)
+            self.err = unicode_type(err)
+        if DEBUG:
+            prints(server, 'found' if self.ok else 'not found', 'in', '%.1f' % (time.time() - start), 'seconds')
 
 
 class KDENotifier(DBUSNotifier):
 
-    def __init__(self):
-        DBUSNotifier.__init__(self, 'org.kde.VisualNotifications',
-                '/VisualNotifications', 'org.kde.VisualNotifications')
+    SERVICE = 'org.kde.VisualNotifications', '/VisualNotifications', 'org.kde.VisualNotifications'
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:
@@ -58,11 +66,10 @@ class KDENotifier(DBUSNotifier):
             import traceback
             traceback.print_exc()
 
+
 class FDONotifier(DBUSNotifier):
 
-    def __init__(self):
-        DBUSNotifier.__init__(self, 'org.freedesktop.Notifications',
-                '/org/freedesktop/Notifications', 'org.freedesktop.Notifications')
+    SERVICE = 'org.freedesktop.Notifications', '/org/freedesktop/Notifications', 'org.freedesktop.Notifications'
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:
@@ -70,11 +77,23 @@ class FDONotifier(DBUSNotifier):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         try:
             self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
-                self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
+                self.dbus.Array(signature='s'), self.dbus.Dictionary({"desktop-entry": "calibre-gui"}, signature='sv'),
                 timeout)
         except:
             import traceback
             traceback.print_exc()
+
+
+def get_dbus_notifier():
+    import dbus
+    session_bus = dbus.SessionBus()
+    names = frozenset(session_bus.list_names())
+    for srv in KDENotifier, FDONotifier:
+        if srv.SERVICE[0] in names:
+            ans = srv(session_bus)
+            if ans.ok:
+                return ans
+
 
 class QtNotifier(Notifier):
 
@@ -88,7 +107,7 @@ class QtNotifier(Notifier):
             try:
                 hide = False
                 try:
-                    if not isinstance(body, unicode):
+                    if not isinstance(body, unicode_type):
                         body = body.decode('utf-8')
                     if isosx and not self.systray.isVisible():
                         self.systray.show()
@@ -101,6 +120,7 @@ class QtNotifier(Notifier):
             except:
                 pass
 
+
 class DummyNotifier(Notifier):
 
     ok = True
@@ -108,31 +128,19 @@ class DummyNotifier(Notifier):
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         pass
 
+
 class AppleNotifier(Notifier):
 
     def __init__(self):
-        self.ok = False
-        import os, sys
-        try:
-            self.exe = os.path.join(sys.console_binaries_path.replace(
-                'console.app', 'calibre-notifier.app'), 'Calibre')
-            self.ok = os.access(self.exe, os.X_OK)
-            import subprocess
-            self.call = subprocess.Popen
-        except:
-            pass
+        self.cocoa, err = plugins['cocoa']
+        self.ok = not err
 
     def notify(self, body, summary):
-        def encode(x):
-            if isinstance(x, unicode):
-                x = x.encode('utf-8')
-            return x
-
-        cmd = [self.exe, '-activate',
-               'net.kovidgoyal.calibre', '-message', encode(body)]
         if summary:
-            cmd += ['-title', encode(summary)]
-        self.call(cmd)
+            title, informative_text = summary, body
+        else:
+            title, informative_text = body, None
+        self.cocoa.send_notification(None, title, informative_text)
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
@@ -147,11 +155,12 @@ class AppleNotifier(Notifier):
 def get_notifier(systray=None):
     ans = None
     if islinux:
-        ans = KDENotifier()
-        if not ans.ok:
-            ans = FDONotifier()
-            if not ans.ok:
-                ans = None
+        try:
+            ans = get_dbus_notifier()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            ans = None
     elif isosx:
         if get_osx_version() >= (10, 8, 0):
             ans = AppleNotifier()
@@ -169,16 +178,5 @@ def get_notifier(systray=None):
 
 
 if __name__ == '__main__':
-    n = KDENotifier()
+    n = get_notifier()
     n('hello')
-    n = FDONotifier()
-    n('hello')
-    '''
-    from PyQt5.Qt import QApplication, QSystemTrayIcon, QIcon
-    app = QApplication([])
-    ic = QIcon(I('lt.png'))
-    tray = QSystemTrayIcon(ic)
-    tray.setVisible(True)
-    n = QtNotifier(tray)
-    n('hello')
-    '''

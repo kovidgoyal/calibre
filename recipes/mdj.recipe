@@ -12,33 +12,13 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
-
-    masthead_url = 'http://assets.matchbin.com/sites/624/assets/logo.gif'
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': ['print_content_container']})
-
-    ]
+    auto_cleanup = True
 
     feeds = [
-        ('Local News', 'http://mdjonline.com/rss/rss/Local+News?content_type=article&tags=news&page_name=rss&tag_inclusion=or&offset=0&limit=10&instance=Local+News'),  # noqa
-        ('Sports',   'http://mdjonline.com/rss/rss/Sports?content_type=article&tags=sports&page_name=rss&tag_inclusion=or&offset=0&limit=10&instance=Sports'),
-        ('Obits',    'http://mdjonline.com/rss/rss/Obits?content_type=article&tags=obits&page_name=rss&tag_inclusion=or&offset=0&limit=20&instance=Obits'),
-        ('Editorial & oped',   'http://mdjonline.com/rss/rss/Editorial+and+OPED?content_type=article&tags=oped+editorial&page_name=rss&tag_inclusion=or&offset=0&limit=10&instance=Editorial+and+OPED'),  # noqa
-        ('Lifestyle',   'http://mdjonline.com/rss/rss/Lifestyle?content_type=article&tags=lifestyle&page_name=rss&tag_inclusion=or&offset=0&limit=10&instance=Lifestyle'),  # noqa
-        ('Blogs',   'http://mdjonline.com/rss/rss/Lifestyle?content_type=article&tags=lifestyle&page_name=rss&tag_inclusion=or&offset=0&limit=10&instance=Lifestyle')  # noqa
+        ('Local News', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/local&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
+        ('Sports', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=sports&amp;l=50&amp;s=start_time&amp;sd=desc'),
+        ('Obits', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=obituaries&amp;l=50&amp;s=start_time&amp;sd=desc'),
+        ('Editorial & oped', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/mdj_editorials&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
+        ('Lifestyle', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/lifestyle&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
+        ('Blogs', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/blogs&amp;l=50&amp;s=start_time&amp;sd=desc')  # noqa
     ]
-
-    def print_version(self, url):
-        split1 = url.split("/")
-        artid = split1[4]
-
-        # example of link to convert
-        # Original link: http://mdjonline.com/bookmark/9274197
-        # print version: http://mdjonline.com/printer_friendly/9274197
-
-        print_url = 'http://mdjonline.com/printer_friendly/' + artid
-        return print_url
-
-        # test with ebook-convert nejm.recipe output_dir --test -vv >
-        # myrecipe.txt

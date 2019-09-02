@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,7 +12,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from calibre.constants import filesystem_encoding
+from polyglot.builtins import unicode_type, filter, map, zip, range, as_bytes
 
 block_level_tags = (
       'address',
@@ -40,7 +40,7 @@ block_level_tags = (
       'pre',
       'table',
       'ul',
-      )
+)
 
 
 class EPUBOutput(OutputFormatPlugin):
@@ -48,8 +48,10 @@ class EPUBOutput(OutputFormatPlugin):
     name = 'EPUB Output'
     author = 'Kovid Goyal'
     file_type = 'epub'
+    commit_name = 'epub_output'
+    ui_data = {'versions': ('2', '3')}
 
-    options = set([
+    options = {
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
@@ -59,7 +61,7 @@ class EPUBOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Turn off splitting at page breaks. Normally, input '
                     'files are automatically split at every page break into '
-                    'two files. This gives an output ebook that can be '
+                    'two files. This gives an output e-book that can be '
                     'parsed faster and with less resources. However, '
                     'splitting is slow and if your source file contains a '
                     'very large number of page breaks, you should turn off '
@@ -117,9 +119,15 @@ class EPUBOutput(OutputFormatPlugin):
             help=_('Title for any generated in-line table of contents.')
         ),
 
-        ])
+        OptionRecommendation(name='epub_version', recommended_value='2', choices=ui_data['versions'],
+            help=_('The version of the EPUB file to generate. EPUB 2 is the'
+                ' most widely compatible, only use EPUB 3 if you know you'
+                ' actually need it.')
+        ),
 
-    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+        }
+
+    recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def workaround_webkit_quirks(self):  # {{{
         from calibre.ebooks.oeb.base import XPath
@@ -168,6 +176,7 @@ class EPUBOutput(OutputFormatPlugin):
                         seen_names.add(name)
 
     # }}}
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
@@ -209,22 +218,22 @@ class EPUBOutput(OutputFormatPlugin):
         if self.oeb.toc.count() == 0:
             self.log.warn('This EPUB file has no Table of Contents. '
                     'Creating a default TOC')
-            first = iter(self.oeb.spine).next()
+            first = next(iter(self.oeb.spine))
             self.oeb.toc.add(_('Start'), first.href)
 
         from calibre.ebooks.oeb.base import OPF
         identifiers = oeb.metadata['identifier']
         uuid = None
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
-                uuid = unicode(x).split(':')[-1]
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
+                uuid = unicode_type(x).split(':')[-1]
                 break
         encrypted_fonts = getattr(input_plugin, 'encrypted_fonts', [])
 
         if uuid is None:
             self.log.warn('No UUID identifier found')
             from uuid import uuid4
-            uuid = str(uuid4())
+            uuid = unicode_type(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
 
         if encrypted_fonts and not uuid.startswith('urn:uuid:'):
@@ -232,10 +241,10 @@ class EPUBOutput(OutputFormatPlugin):
             # for some absurd reason, or it will throw a hissy fit and refuse
             # to use the obfuscated fonts.
             for x in identifiers:
-                if unicode(x) == uuid:
+                if unicode_type(x) == uuid:
                     x.content = 'urn:uuid:'+uuid
 
-        with TemporaryDirectory(u'_epub_output') as tdir:
+        with TemporaryDirectory('_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
             metadata_xml = None
             extra_entries = []
@@ -243,12 +252,14 @@ class EPUBOutput(OutputFormatPlugin):
                 if self.opts.output_profile.epub_periodical_format == 'sony':
                     from calibre.ebooks.epub.periodical import sony_metadata
                     metadata_xml, atom_xml = sony_metadata(oeb)
-                    extra_entries = [(u'atom.xml', 'application/atom+xml', atom_xml)]
+                    extra_entries = [('atom.xml', 'application/atom+xml', atom_xml)]
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)
                     if x.endswith('.ncx')][0])
+            if self.opts.epub_version == '3':
+                self.upgrade_to_epub3(tdir, opf)
             encryption = None
             if encrypted_fonts:
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
@@ -258,7 +269,7 @@ class EPUBOutput(OutputFormatPlugin):
                     extra_entries=extra_entries) as epub:
                 epub.add_dir(tdir)
                 if encryption is not None:
-                    epub.writestr('META-INF/encryption.xml', encryption)
+                    epub.writestr('META-INF/encryption.xml', as_bytes(encryption))
                 if metadata_xml is not None:
                     epub.writestr('META-INF/metadata.xml',
                             metadata_xml.encode('utf-8'))
@@ -274,14 +285,38 @@ class EPUBOutput(OutputFormatPlugin):
                     zf.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
 
+    def upgrade_to_epub3(self, tdir, opf):
+        self.log.info('Upgrading to EPUB 3...')
+        from calibre.ebooks.epub import simple_container_xml
+        from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
+        try:
+            os.mkdir(os.path.join(tdir, 'META-INF'))
+        except EnvironmentError:
+            pass
+        with open(os.path.join(tdir, 'META-INF', 'container.xml'), 'wb') as f:
+            f.write(simple_container_xml(os.path.basename(opf)).encode('utf-8'))
+        from calibre.ebooks.oeb.polish.container import EpubContainer
+        container = EpubContainer(tdir, self.log)
+        from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
+        existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
+        nav_href = getattr(self.opts, 'epub3_nav_href', None)
+        previous_nav = (nav_href, existing_nav) if existing_nav and nav_href else None
+        epub_2_to_3(container, self.log.info, previous_nav=previous_nav)
+        fix_conversion_titlepage_links_in_nav(container)
+        container.commit()
+        os.remove(f.name)
+        try:
+            os.rmdir(os.path.join(tdir, 'META-INF'))
+        except EnvironmentError:
+            pass
+
     def encrypt_fonts(self, uris, tdir, uuid):  # {{{
-        from binascii import unhexlify
+        from polyglot.binary import from_hex_bytes
 
         key = re.sub(r'[^a-fA-F0-9]', '', uuid)
         if len(key) < 16:
             raise ValueError('UUID identifier %r is invalid'%uuid)
-        key = unhexlify((key + key)[:32])
-        key = tuple(map(ord, key))
+        key = bytearray(from_hex_bytes((key + key)[:32]))
         paths = []
         with CurrentDir(tdir):
             paths = [os.path.join(*x.split('/')) for x in uris]
@@ -289,23 +324,21 @@ class EPUBOutput(OutputFormatPlugin):
             fonts = []
             for uri in list(uris.keys()):
                 path = uris[uri]
-                if isinstance(path, unicode):
-                    path = path.encode(filesystem_encoding)
                 if not os.path.exists(path):
                     uris.pop(uri)
                     continue
                 self.log.debug('Encrypting font:', uri)
-                with open(path, 'r+b') as f:
+                with lopen(path, 'r+b') as f:
                     data = f.read(1024)
                     if len(data) >= 1024:
+                        data = bytearray(data)
                         f.seek(0)
-                        for i in range(1024):
-                            f.write(chr(ord(data[i]) ^ key[i%16]))
+                        f.write(bytes(bytearray(data[i] ^ key[i%16] for i in range(1024))))
                     else:
                         self.log.warn('Font', path, 'is invalid, ignoring')
-                if not isinstance(uri, unicode):
+                if not isinstance(uri, unicode_type):
                     uri = uri.decode('utf-8')
-                fonts.append(u'''
+                fonts.append('''
                 <enc:EncryptedData>
                     <enc:EncryptionMethod Algorithm="http://ns.adobe.com/pdf/enc#RC"/>
                     <enc:CipherData>
@@ -319,12 +352,12 @@ class EPUBOutput(OutputFormatPlugin):
                     xmlns:enc="http://www.w3.org/2001/04/xmlenc#"
                     xmlns:deenc="http://ns.adobe.com/digitaleditions/enc">
                     '''
-                ans += (u'\n'.join(fonts)).encode('utf-8')
+                ans += '\n'.join(fonts)
                 ans += '\n</encryption>'
                 return ans
     # }}}
 
-    def condense_ncx(self, ncx_path):
+    def condense_ncx(self, ncx_path):  # {{{
         from lxml import etree
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
@@ -334,7 +367,9 @@ class EPUBOutput(OutputFormatPlugin):
                 if tag.tail:
                     tag.tail = tag.tail.strip()
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
-            open(ncx_path, 'wb').write(compressed)
+            with open(ncx_path, 'wb') as f:
+                f.write(compressed)
+    # }}}
 
     def workaround_ade_quirks(self):  # {{{
         '''
@@ -387,7 +422,7 @@ class EPUBOutput(OutputFormatPlugin):
                     if br.getparent() is None:
                         continue
                     try:
-                        prior = br.itersiblings(preceding=True).next()
+                        prior = next(br.itersiblings(preceding=True))
                         priortag = barename(prior.tag)
                         priortext = prior.tail
                     except:
@@ -396,9 +431,9 @@ class EPUBOutput(OutputFormatPlugin):
                     if priortext:
                         priortext = priortext.strip()
                     br.tag = XHTML('p')
-                    br.text = u'\u00a0'
+                    br.text = '\u00a0'
                     style = br.get('style', '').split(';')
-                    style = filter(None, map(lambda x: x.strip(), style))
+                    style = list(filter(None, map(lambda x: x.strip(), style)))
                     style.append('margin:0pt; border:0pt')
                     # If the prior tag is a block (including a <br> we replaced)
                     # then this <br> replacement should have a 1-line height.
@@ -420,8 +455,7 @@ class EPUBOutput(OutputFormatPlugin):
                 if not tag.text:
                     tag.getparent().remove(tag)
             for tag in XPath('//h:script')(root):
-                if (not tag.text and not tag.get('src', False) and
-                        tag.get('type', None) != 'text/x-mathjax-config'):
+                if (not tag.text and not tag.get('src', False) and tag.get('type', None) != 'text/x-mathjax-config'):
                     tag.getparent().remove(tag)
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)
@@ -450,18 +484,18 @@ class EPUBOutput(OutputFormatPlugin):
                     tag.tag = XHTML('div')
 
             # ADE fails to render non breaking hyphens/soft hyphens/zero width spaces
-            special_chars = re.compile(u'[\u200b\u00ad]')
+            special_chars = re.compile('[\u200b\u00ad]')
             for elem in root.iterdescendants('*'):
                 if elem.text:
                     elem.text = special_chars.sub('', elem.text)
-                    elem.text = elem.text.replace(u'\u2011', '-')
+                    elem.text = elem.text.replace('\u2011', '-')
                 if elem.tail:
                     elem.tail = special_chars.sub('', elem.tail)
-                    elem.tail = elem.tail.replace(u'\u2011', '-')
+                    elem.tail = elem.tail.replace('\u2011', '-')
 
             if stylesheet is not None:
                 # ADE doesn't render lists correctly if they have left margins
-                from cssutils.css import CSSRule
+                from css_parser.css import CSSRule
                 for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
                     sel = '.'+lb.get('class')
                     for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
@@ -512,4 +546,3 @@ class EPUBOutput(OutputFormatPlugin):
             simplify_toc_entry(self.oeb.toc)
 
     # }}}
-

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -26,6 +25,7 @@ from calibre.utils.zipfile import ZipFile, ZIP_STORED
 
 valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
 
+
 def create_toc(mi, opf, html_name, lang):
     uuid = ''
     for u in opf.xpath('//*[@id="uuid_id"]'):
@@ -33,6 +33,7 @@ def create_toc(mi, opf, html_name, lang):
     toc = TOC()
     toc.add(_('Start'), html_name)
     return create_ncx(toc, lambda x:x, mi.title, lang, uuid)
+
 
 def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
     ''' Create an empty book in the specified format at the specified location. '''
@@ -107,11 +108,12 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     else:
         with ZipFile(path, 'w', compression=ZIP_STORED) as zf:
             zf.writestr('mimetype', b'application/epub+zip', compression=ZIP_STORED)
-            zf.writestr('META-INF/', b'', 0755)
+            zf.writestr('META-INF/', b'', 0o755)
             zf.writestr('META-INF/container.xml', CONTAINER)
             zf.writestr(opf_name, opf)
             zf.writestr(html_name, HTML)
             zf.writestr(toc_name, ncx)
+
 
 if __name__ == '__main__':
     from calibre.ebooks.metadata.book.base import Metadata
@@ -119,6 +121,6 @@ if __name__ == '__main__':
     path = sys.argv[-1]
     ext = path.rpartition('.')[-1].lower()
     if ext not in valid_empty_formats:
-        print ('Unsupported format:', ext)
+        print('Unsupported format:', ext)
         raise SystemExit(1)
     create_book(mi, path, fmt=ext)

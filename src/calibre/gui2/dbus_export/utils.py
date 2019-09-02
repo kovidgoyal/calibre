@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,12 +11,17 @@ import dbus
 
 from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
+from polyglot.builtins import unicode_type, iteritems
+
+
 def log(*args, **kw):
     kw['file'] = sys.stderr
     print('DBusExport:', *args, **kw)
     kw['file'].flush()
 
+
 from calibre.ptempfile import PersistentTemporaryDirectory
+
 
 class IconCache(object):
 
@@ -56,7 +60,9 @@ class IconCache(object):
         # dir to decide whether it should look for new icons in the theme dir.
         os.utime(self.icon_theme_path, None)
 
+
 _icon_cache = None
+
 
 def icon_cache():
     global _icon_cache
@@ -86,6 +92,7 @@ def qicon_to_sni_image_list(qicon):
             ans.append((w, h, dbus.ByteArray(data)))
     return ans
 
+
 def swap_mnemonic_char(text, from_char='&', to_char='_'):
     text = text.replace(to_char, to_char * 2)  # Escape to_char
     # Replace the first occurence of an unescaped from_char with to_char
@@ -96,12 +103,13 @@ def swap_mnemonic_char(text, from_char='&', to_char='_'):
     text = text.replace(from_char * 2, from_char)
     return text
 
+
 def key_sequence_to_dbus_shortcut(qks):
     for key in qks:
         if key == -1 or key == Qt.Key_unknown:
             continue
         items = []
-        for mod, name in {Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}.iteritems():
+        for mod, name in iteritems({Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}):
             if key & mod == mod:
                 items.append(name)
         key &= int(~(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier | Qt.KeypadModifier))
@@ -112,6 +120,7 @@ def key_sequence_to_dbus_shortcut(qks):
         if items:
             yield items
 
+
 def icon_to_dbus_menu_icon(icon, size=32):
     if icon.isNull():
         return None
@@ -119,7 +128,8 @@ def icon_to_dbus_menu_icon(icon, size=32):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     icon.pixmap(32).save(buf, 'PNG')
-    return dbus.ByteArray(bytes((ba.data())))
+    return dbus.ByteArray(ba)
+
 
 def setup_for_cli_run():
     import signal
@@ -128,16 +138,17 @@ def setup_for_cli_run():
     DBusGMainLoop(set_as_default=True)
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
 
+
 def set_X_window_properties(win_id, **properties):
     ' Set X Window properties on the window with the specified id. Only string values are supported. '
     import xcb, xcb.xproto
     conn = xcb.connect()
     atoms = {name:conn.core.InternAtom(False, len(name), name) for name in properties}
     utf8_string_atom = None
-    for name, val in properties.iteritems():
+    for name, val in iteritems(properties):
         atom = atoms[name].reply().atom
         type_atom = xcb.xproto.Atom.STRING
-        if isinstance(val, unicode):
+        if isinstance(val, unicode_type):
             if utf8_string_atom is None:
                 utf8_string_atom = conn.core.InternAtom(True, len(b'UTF8_STRING'), b'UTF8_STRING').reply().atom
             type_atom = utf8_string_atom

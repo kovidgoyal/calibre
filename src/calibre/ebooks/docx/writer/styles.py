@@ -1,11 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from collections import Counter, defaultdict
 from operator import attrgetter
 
@@ -14,6 +14,7 @@ from lxml import etree
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.localization import lang_as_iso639_1
+from polyglot.builtins import iteritems, filter, unicode_type
 from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
@@ -21,6 +22,7 @@ css_parser = CSS21Parser()
 border_edges = ('left', 'top', 'right', 'bottom')
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 ignore = object()
+
 
 def parse_css_font_family(raw):
     decl, errs = css_parser.parse_style_attr('font-family:' + raw)
@@ -32,16 +34,20 @@ def parse_css_font_family(raw):
                     break
                 yield val
 
+
 def css_font_family_to_docx(raw):
     generic = {'serif':'Cambria', 'sansserif':'Candara', 'sans-serif':'Candara', 'fantasy':'Comic Sans', 'cursive':'Segoe Script'}
     for ff in parse_css_font_family(raw):
         return generic.get(ff.lower(), ff)
 
+
 def bmap(x):
     return 'on' if x else 'off'
 
+
 def is_dropcaps(html_tag, tag_style):
-    return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding=unicode, with_tail=False)) < 5 and tag_style['float'] == 'left'
+    return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding='unicode', with_tail=False)) < 5 and tag_style['float'] == 'left'
+
 
 class CombinedStyle(object):
 
@@ -70,9 +76,10 @@ class CombinedStyle(object):
         pPr = makeelement(block, 'w:pPr')
         self.bs.serialize_properties(pPr, normal_style.bs)
         if self.outline_level is not None:
-            makeelement(pPr, 'w:outlineLvl', w_val=str(self.outline_level + 1))
+            makeelement(pPr, 'w:outlineLvl', w_val=unicode_type(self.outline_level + 1))
         rPr = makeelement(block, 'w:rPr')
         self.rs.serialize_properties(rPr, normal_style.rs)
+
 
 class FloatSpec(object):
 
@@ -102,16 +109,16 @@ class FloatSpec(object):
 
     def serialize(self, block, parent):
         if self.is_dropcaps:
-            attrs = dict(w_dropCap='drop', w_lines=str(self.dropcaps_lines), w_wrap='around', w_vAnchor='text', w_hAnchor='text')
+            attrs = dict(w_dropCap='drop', w_lines=unicode_type(self.dropcaps_lines), w_wrap='around', w_vAnchor='text', w_hAnchor='text')
         else:
             attrs = dict(
                 w_wrap='around', w_vAnchor='text', w_hAnchor='text', w_xAlign=self.x_align, w_y='1',
-                w_hSpace=str(self.h_space), w_vSpace=str(self.v_space), w_hRule=self.h_rule
+                w_hSpace=unicode_type(self.h_space), w_vSpace=unicode_type(self.v_space), w_hRule=self.h_rule
             )
             if self.w is not None:
-                attrs['w_w'] = str(self.w)
+                attrs['w_w'] = unicode_type(self.w)
             if self.h is not None:
-                attrs['w_h'] = str(self.h)
+                attrs['w_h'] = unicode_type(self.h)
         self.makeelement(parent, 'w:framePr', **attrs)
         # Margins are already applied by the frame style, so override them to
         # be zero on individual blocks
@@ -130,7 +137,9 @@ class FloatSpec(object):
             padding = getattr(self, 'padding_' + edge)
             width = getattr(self, 'border_%s_width' % edge)
             bstyle = getattr(self, 'border_%s_style' % edge)
-            self.makeelement(bdr, 'w:'+edge, w_space=str(padding), w_val=bstyle, w_sz=str(width), w_color=getattr(self, 'border_%s_color' % edge))
+            self.makeelement(
+                bdr, 'w:'+edge, w_space=unicode_type(padding), w_val=bstyle, w_sz=unicode_type(width), w_color=getattr(self, 'border_%s_color' % edge))
+
 
 class DOCXStyle(object):
 
@@ -140,13 +149,16 @@ class DOCXStyle(object):
     def __init__(self, namespace):
         self.namespace = namespace
         self.w = lambda x: '{%s}%s' % (namespace.namespaces['w'], x)
-        self._hash = hash(tuple(
-            getattr(self, x) for x in self.ALL_PROPS))
         self.id = self.name = None
         self.next_style = None
+        self.calculate_hash()
+
+    def calculate_hash(self):
+        self._hash = hash(tuple(
+            getattr(self, x) for x in self.ALL_PROPS))
 
     def makeelement(self, parent, name, **attrs):
-        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in attrs.iteritems()})
+        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in iteritems(attrs)})
 
     def __hash__(self):
         return self._hash
@@ -173,6 +185,7 @@ class DOCXStyle(object):
         styles.append(style)
         return style
 
+
 LINE_STYLES = {
     'none'  : 'none',
     'hidden': 'none',
@@ -185,6 +198,7 @@ LINE_STYLES = {
     'inset' : 'inset',
     'outset': 'outset',
 }
+
 
 class TextStyle(DOCXStyle):
 
@@ -219,8 +233,8 @@ class TextStyle(DOCXStyle):
         except (ValueError, TypeError, AttributeError):
             self.spacing = None
         va = css.first_vertical_align
-        if isinstance(va, (int, float)):
-            self.vertical_align = str(int(va * 2))
+        if isinstance(va, numbers.Number):
+            self.vertical_align = unicode_type(int(va * 2))
         else:
             val = {
                 'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'super':'superscript',
@@ -241,7 +255,7 @@ class TextStyle(DOCXStyle):
                 elif self.padding != padding:
                     self.padding = ignore
                 val = css['border-%s-width' % edge]
-                if not isinstance(val, (float, int, long)):
+                if not isinstance(val, numbers.Number):
                     val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
                 val = min(96, max(2, int(val * 8)))
                 if self.border_width is None:
@@ -276,9 +290,9 @@ class TextStyle(DOCXStyle):
         w = self.w
         is_normal_style = self is normal_style
         if is_normal_style or self.padding != normal_style.padding:
-            bdr.set(w('space'), str(self.padding))
+            bdr.set(w('space'), unicode_type(self.padding))
         if is_normal_style or self.border_width != normal_style.border_width:
-            bdr.set(w('sz'), str(self.border_width))
+            bdr.set(w('sz'), unicode_type(self.border_width))
         if is_normal_style or self.border_style != normal_style.border_style:
             bdr.set(w('val'), self.border_style)
         if is_normal_style or self.border_color != normal_style.border_color:
@@ -328,7 +342,7 @@ class TextStyle(DOCXStyle):
         if check_attr('shadow'):
             rPr.append(makeelement(rPr, 'shadow', val=bmap(self.shadow)))
         if check_attr('spacing'):
-            rPr.append(makeelement(rPr, 'spacing', val=str(self.spacing or 0)))
+            rPr.append(makeelement(rPr, 'spacing', val=unicode_type(self.spacing or 0)))
         if is_normal_style:
             rPr.append(makeelement(rPr, 'vertAlign', val=self.vertical_align if self.vertical_align in {'superscript', 'subscript'} else 'baseline'))
         elif self.vertical_align != normal_style.vertical_align:
@@ -341,6 +355,7 @@ class TextStyle(DOCXStyle):
         if bdr.attrib:
             rPr.append(bdr)
 
+
 class DescendantTextStyle(object):
 
     def __init__(self, parent_style, child_style):
@@ -348,8 +363,9 @@ class DescendantTextStyle(object):
         self.makeelement = child_style.makeelement
 
         p = []
+
         def add(name, **props):
-            p.append((name, frozenset(props.iteritems())))
+            p.append((name, frozenset(iteritems(props))))
 
         def vals(attr):
             return getattr(parent_style, attr), getattr(child_style, attr)
@@ -364,7 +380,7 @@ class DescendantTextStyle(object):
         for name, attr in (('sz', 'font_size'), ('b', 'bold'), ('i', 'italic')):
             pval, cval = vals(attr)
             if pval != cval:
-                val = 'on' if attr in {'bold', 'italic'} else str(cval)  # bold, italic are toggle properties
+                val = 'on' if attr in {'bold', 'italic'} else unicode_type(cval)  # bold, italic are toggle properties
                 for suffix in ('', 'Cs'):
                     add(name + suffix, val=val)
 
@@ -385,7 +401,7 @@ class DescendantTextStyle(object):
         if check('shadow'):
             add('shadow', val='on')  # toggle property
         if check('spacing'):
-            add('spacing', val=str(child_style.spacing or 0))
+            add('spacing', val=unicode_type(child_style.spacing or 0))
         if check('vertical_align'):
             val = child_style.vertical_align
             if val in {'superscript', 'subscript', 'baseline'}:
@@ -395,9 +411,9 @@ class DescendantTextStyle(object):
 
         bdr = {}
         if check('padding'):
-            bdr['space'] = str(child_style.padding)
+            bdr['space'] = unicode_type(child_style.padding)
         if check('border_width'):
-            bdr['sz'] = str(child_style.border_width)
+            bdr['sz'] = unicode_type(child_style.border_width)
         if check('border_style'):
             bdr['val'] = child_style.border_style
         if check('border_color'):
@@ -452,7 +468,7 @@ def read_css_block_borders(self, css, store_css_style=False):
                 setattr(self, 'margin_' + edge, 0)  # for e.g.: margin: auto
             setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
             val = css['border-%s-width' % edge]
-            if not isinstance(val, (float, int, long)):
+            if not isinstance(val, numbers.Number):
                 val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
             val = min(96, max(2, int(val * 8)))
             setattr(self, 'border_%s_width' % edge, val)
@@ -461,16 +477,17 @@ def read_css_block_borders(self, css, store_css_style=False):
             if store_css_style:
                 setattr(self, 'border_%s_css_style' %  edge, css['border-%s-style' % edge].lower())
 
+
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align css_text_indent text_indent line_height background_color'.split() +
-        ['margin_' + edge for edge in border_edges] +
-        ['css_margin_' + edge for edge in border_edges] +
-        [x%edge for edge in border_edges for x in border_props]
+        'text_align css_text_indent text_indent line_height background_color'.split(
+        ) + ['margin_' + edge for edge in border_edges
+        ] + ['css_margin_' + edge for edge in border_edges
+        ] + [x%edge for edge in border_edges for x in border_props]
     )
 
-    def __init__(self, namespace, css, html_block, is_table_cell=False):
+    def __init__(self, namespace, css, html_block, is_table_cell=False, parent_bg=None):
         read_css_block_borders(self, css)
         if is_table_cell:
             for edge in border_edges:
@@ -485,16 +502,30 @@ class BlockStyle(DOCXStyle):
             self.background_color = None
             self.text_align = 'left'
         else:
-            self.text_indent = int(css['text-indent'] * 20)
-            self.css_text_indent = css._get('text-indent')
+            try:
+                self.text_indent = int(css['text-indent'] * 20)
+                self.css_text_indent = css._get('text-indent')
+            except (TypeError, ValueError):
+                self.text_indent = 0
+                self.css_text_indent = None
             try:
                 self.line_height = max(0, int(css.lineHeight * 20))
             except (TypeError, ValueError):
                 self.line_height = max(0, int(1.2 * css.fontSize * 20))
             self.background_color = None if is_table_cell else convert_color(css['background-color'])
+            if not is_table_cell and self.background_color is None:
+                self.background_color = parent_bg
             try:
+                ws = css['white-space'].lower()
+                preserve_whitespace = ws in {'pre', 'pre-wrap'}
+            except Exception:
+                preserve_whitespace = False
+            try:
+                aval = css['text-align'].lower()
+                if preserve_whitespace:
+                    aval = 'start'
                 self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
-                    css['text-align'].lower(), 'left')
+                    aval, 'left')
             except AttributeError:
                 self.text_align = 'left'
 
@@ -506,14 +537,14 @@ class BlockStyle(DOCXStyle):
             e = bdr.makeelement(w(edge))
             padding = getattr(self, 'padding_' + edge)
             if (self is normal_style and padding > 0) or (padding != getattr(normal_style, 'padding_' + edge)):
-                e.set(w('space'), str(padding))
+                e.set(w('space'), unicode_type(padding))
             width = getattr(self, 'border_%s_width' % edge)
             bstyle = getattr(self, 'border_%s_style' % edge)
             if (self is normal_style and width > 0 and bstyle != 'none'
                     ) or width != getattr(normal_style, 'border_%s_width' % edge
                     ) or bstyle != getattr(normal_style, 'border_%s_style' % edge):
                 e.set(w('val'), bstyle)
-                e.set(w('sz'), str(width))
+                e.set(w('sz'), unicode_type(width))
                 e.set(w('color'), getattr(self, 'border_%s_color' % edge))
             if e.attrib:
                 bdr.append(e)
@@ -531,21 +562,21 @@ class BlockStyle(DOCXStyle):
     def serialize_properties(self, pPr, normal_style):
         makeelement, w = self.makeelement, self.w
         spacing = makeelement(pPr, 'spacing')
-        for edge, attr in {'top':'before', 'bottom':'after'}.iteritems():
+        for edge, attr in iteritems({'top':'before', 'bottom':'after'}):
             getter = attrgetter('css_margin_' + edge)
             css_val, css_unit = parse_css_length(getter(self))
             if css_unit in ('em', 'ex'):
                 lines = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
                 if (self is normal_style and lines > 0) or getter(self) != getter(normal_style):
-                    spacing.set(w(attr + 'Lines'), str(lines))
+                    spacing.set(w(attr + 'Lines'), unicode_type(lines))
             else:
                 getter = attrgetter('margin_' + edge)
                 val = getter(self)
                 if (self is normal_style and val > 0) or val != getter(normal_style):
-                    spacing.set(w(attr), str(val))
+                    spacing.set(w(attr), unicode_type(val))
 
         if self is normal_style or self.line_height != normal_style.line_height:
-            spacing.set(w('line'), str(self.line_height))
+            spacing.set(w('line'), unicode_type(self.line_height))
             spacing.set(w('lineRule'), 'atLeast')
 
         if spacing.attrib:
@@ -558,31 +589,31 @@ class BlockStyle(DOCXStyle):
             if css_unit in ('em', 'ex'):
                 chars = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
                 if (self is normal_style and chars > 0) or getter(self) != getter(normal_style):
-                    ind.set(w(edge + 'Chars'), str(chars))
+                    ind.set(w(edge + 'Chars'), unicode_type(chars))
             else:
                 getter = attrgetter('margin_' + edge)
                 val = getter(self)
                 if (self is normal_style and val > 0) or val != getter(normal_style):
-                    ind.set(w(edge), str(val))
+                    ind.set(w(edge), unicode_type(val))
                     ind.set(w(edge + 'Chars'), '0')  # This is needed to override any declaration in the parent style
         css_val, css_unit = parse_css_length(self.css_text_indent)
         if css_unit in ('em', 'ex'):
             chars = int(css_val * (50 if css_unit == 'ex' else 100))
             if css_val >= 0:
                 if (self is normal_style and chars > 0) or self.css_text_indent != normal_style.css_text_indent:
-                    ind.set(w('firstLineChars'), str(chars))
+                    ind.set(w('firstLineChars'), unicode_type(chars))
             else:
                 if (self is normal_style and chars < 0) or self.css_text_indent != normal_style.css_text_indent:
-                    ind.set(w('hangingChars'), str(abs(chars)))
+                    ind.set(w('hangingChars'), unicode_type(abs(chars)))
         else:
             val = self.text_indent
             if val >= 0:
                 if (self is normal_style and val > 0) or self.text_indent != normal_style.text_indent:
-                    ind.set(w('firstLine'), str(val))
+                    ind.set(w('firstLine'), unicode_type(val))
                     ind.set(w('firstLineChars'), '0')  # This is needed to override any declaration in the parent style
             else:
                 if (self is normal_style and val < 0) or self.text_indent != normal_style.text_indent:
-                    ind.set(w('hanging'), str(abs(val)))
+                    ind.set(w('hanging'), unicode_type(abs(val)))
                     ind.set(w('hangingChars'), '0')
         if ind.attrib:
             pPr.append(ind)
@@ -608,6 +639,7 @@ class StylesManager(object):
         self.document_lang = lang_as_iso639_1(document_lang) or 'en'
         self.log = log
         self.block_styles, self.text_styles = {}, {}
+        self.styles_for_html_blocks = {}
 
     def create_text_style(self, css_style, is_parent_style=False):
         ans = TextStyle(self.namespace, css_style, is_parent_style=is_parent_style)
@@ -618,13 +650,14 @@ class StylesManager(object):
             ans = existing
         return ans
 
-    def create_block_style(self, css_style, html_block, is_table_cell=False):
-        ans = BlockStyle(self.namespace, css_style, html_block, is_table_cell=is_table_cell)
+    def create_block_style(self, css_style, html_block, is_table_cell=False, parent_bg=None):
+        ans = BlockStyle(self.namespace, css_style, html_block, is_table_cell=is_table_cell, parent_bg=parent_bg)
         existing = self.block_styles.get(ans, None)
         if existing is None:
             self.block_styles[ans] = ans
         else:
             ans = existing
+        self.styles_for_html_blocks[html_block] = ans
         return ans
 
     def finalize(self, all_blocks):
@@ -654,7 +687,7 @@ class StylesManager(object):
                 pure_block_styles.add(bs)
 
         self.pure_block_styles = sorted(pure_block_styles, key=block_counts.__getitem__)
-        bnum = len(str(max(1, len(pure_block_styles) - 1)))
+        bnum = len(unicode_type(max(1, len(pure_block_styles) - 1)))
         for i, bs in enumerate(self.pure_block_styles):
             bs.id = bs.name = '%0{}d Block'.format(bnum) % i
             bs.seq = i
@@ -663,18 +696,18 @@ class StylesManager(object):
 
         counts = Counter()
         smap = {}
-        for (bs, rs), blocks in used_pairs.iteritems():
+        for (bs, rs), blocks in iteritems(used_pairs):
             s = CombinedStyle(bs, rs, blocks, self.namespace)
             smap[(bs, rs)] = s
             counts[s] += sum(1 for b in blocks if not b.is_empty())
         for i, heading_tag in enumerate(sorted(heading_styles)):
             styles = sorted((smap[k] for k in heading_styles[heading_tag]), key=counts.__getitem__)
-            styles = filter(lambda s:s.outline_level is None, styles)
+            styles = list(filter(lambda s:s.outline_level is None, styles))
             if styles:
                 heading_style = styles[-1]
                 heading_style.outline_level = i
 
-        snum = len(str(max(1, len(counts) - 1)))
+        snum = len(unicode_type(max(1, len(counts) - 1)))
         heading_styles = []
         for i, (style, count) in enumerate(counts.most_common()):
             if i == 0:
@@ -688,7 +721,7 @@ class StylesManager(object):
                     heading_styles.append(style)
                 style.id = style.name = val
             style.seq = i
-        self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
+        self.combined_styles = sorted(counts, key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]
 
         descendant_style_map = {}
@@ -702,7 +735,7 @@ class StylesManager(object):
                         if run.descendant_style is None:
                             run.descendant_style = descendant_style_map[ds] = ds
                         ds_counts[run.descendant_style] += run.style_weight
-        rnum = len(str(max(1, len(ds_counts) - 1)))
+        rnum = len(unicode_type(max(1, len(ds_counts) - 1)))
         for i, (text_style, count) in enumerate(ds_counts.most_common()):
             text_style.id = 'Text%d' % i
             text_style.name = '%0{}d Text'.format(rnum) % i

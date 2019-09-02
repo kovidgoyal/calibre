@@ -20,19 +20,20 @@
 #
 
 # This script lists the content of the manifest.xml file
+from __future__ import print_function, unicode_literals, absolute_import, division
 import zipfile
 from xml.sax import make_parser,handler
 from xml.sax.xmlreader import InputSource
-import xml.sax.saxutils
-from cStringIO import StringIO
+import io
 
 MANIFESTNS="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
 # ODFMANIFESTHANDLER
 #
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class ODFManifestHandler(handler.ContentHandler):
     """ The ODFManifestHandler parses a manifest file and produces a list of
@@ -79,14 +80,14 @@ class ODFManifestHandler(handler.ContentHandler):
     def s_file_entry(self, tag, attrs):
         m = attrs.get((MANIFESTNS, 'media-type'),"application/octet-stream")
         p = attrs.get((MANIFESTNS, 'full-path'))
-        self.manifest[p] = { 'media-type':m, 'full-path':p }
+        self.manifest[p] = {'media-type':m, 'full-path':p}
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
 # Reading the file
 #
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def manifestlist(manifestxml):
     odhandler = ODFManifestHandler()
@@ -96,11 +97,12 @@ def manifestlist(manifestxml):
     parser.setErrorHandler(handler.ErrorHandler())
 
     inpsrc = InputSource()
-    inpsrc.setByteStream(StringIO(manifestxml))
+    inpsrc.setByteStream(io.BytesIO(manifestxml))
     parser.setFeature(handler.feature_external_ges, False)  # Changed by Kovid to ignore external DTDs
     parser.parse(inpsrc)
 
     return odhandler.manifest
+
 
 def odfmanifest(odtfile):
     z = zipfile.ZipFile(odtfile)
@@ -108,9 +110,9 @@ def odfmanifest(odtfile):
     z.close()
     return manifestlist(manifest)
 
+
 if __name__ == "__main__":
     import sys
     result = odfmanifest(sys.argv[1])
     for file in result.values():
-        print "%-40s %-40s" % (file['media-type'], file['full-path'])
-
+        print("%-40s %-40s" % (file['media-type'], file['full-path']))

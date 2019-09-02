@@ -1,0 +1,61 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class SI(BasicNewsRecipe):
+    title = 'Sports Illustrated'
+    __author__ = 'Kovid Goyal'
+    language = 'en'
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'title', 'url'}
+    no_stylesheets = True
+    compress_news_images = True
+    compress_news_images_auto_size = 5
+    remove_attributes = ['style']
+
+    keep_only_tags = [
+        classes('headline article-content'),
+    ]
+    remove_tags = [
+        classes('media-video OUTBRAIN'),
+        dict(name='meta'),
+    ]
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en')]
+        return br
+
+    def preprocess_html(self, soup, *a):
+        for tag in soup.findAll(attrs={'data-src': True}):
+            tag.name = 'img'
+            del tag.contents[:]
+            tag['src'] = tag['data-src']
+        return soup
+
+    feeds = [
+            ('Top stories', 'https://www.si.com/rss/si_topstories.rss'),
+            ('NFL', 'https://www.si.com/rss/si_nfl.rss'),
+            ('College Football', 'https://www.si.com/rss/si_ncaaf.rss'),
+            ('MLB', 'https://www.si.com/rss/si_mlb.rss'),
+            ('NBA', 'https://www.si.com/rss/si_nba.rss'),
+            ('College basketball', 'https://www.si.com/rss/si_ncaab.rss'),
+            ('NHL', 'https://www.si.com/rss/si_hockey.rss'),
+            ('Soccer', 'https://www.si.com/rss/si_soccer.rss'),
+            ('Tennis', 'https://www.si.com/rss/si_tennis.rss'),
+            ('Fantasy', 'https://www.si.com/rss/si_fantasy.rss'),
+            ('MMA', 'https://www.si.com/rss/si_mma.rss'),
+            ('Swim Daily', 'https://www.si.com/rss/si_swim_daily.rss'),
+            ('Writers', 'https://www.si.com/rss/si_writers.rss'),
+    ]

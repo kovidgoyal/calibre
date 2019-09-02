@@ -1,0 +1,157 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+import traceback
+from elementmaker import E
+from ajax import ajax
+from dom import set_css, get_widget_css
+from modals import create_modal_container, error_dialog
+from session import get_interface_data, UserSessionData, update_interface_data, get_translations
+from gettext import gettext as _, install
+from popups import install_event_filters
+from utils import safe_set_inner_html
+
+from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
+from book_list.library_data import fetch_init_data, update_library_data, url_books_query
+from book_list.theme import get_color, get_font_family
+from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
+from book_list.globals import get_db, set_session_data, get_read_ui
+from book_list.ui import apply_url_state as book_list_mode_handler
+from read_book.ui import ReadUI
+
+# Register the various panels
+import book_list.home # noqa: unused-import
+import book_list.views # noqa: unused-import
+import book_list.local_books # noqa: unused-import
+import book_list.book_details # noqa: unused-import
+import book_list.edit_metadata # noqa: unused-import
+import book_list.convert_book # noqa: unused-import
+
+
+def remove_initial_progress_bar():
+    p = document.getElementById('page_load_progress')
+    if p:
+        p.parentNode.removeChild(p)
+
+def onerror(msg, script_url, line_number, column_number, error_object):
+    if error_object is None:
+        # This happens for cross-domain errors (probably javascript injected
+        # into the browser via extensions/ userscripts and the like). It also
+        # happens all the time when using Chrom on Safari, so ignore this
+        # type of error
+        console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
+        return
+    console.log(error_object)
+    try:
+        fname = script_url.rpartition('/')[-1] or script_url
+        msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+        details = ''
+        details = traceback.format_exception(error_object).join('')
+        error_dialog(_('Unhandled error'), msg, details)
+        return True
+    except:
+        console.log('There was an error in the unhandled exception handler')
+
+
+def init_ui():
+    document.body.style.fontFamily = get_font_family()
+    install_event_filters()
+    set_default_mode_handler(book_list_mode_handler)
+    window.onerror = onerror
+    setTimeout(def():
+            window.onpopstate = on_pop_state
+        , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+
+    translations = get_translations()
+    install(translations)
+    remove_initial_progress_bar()
+    document.head.appendChild(E.style(get_widget_css()))
+    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    document.body.appendChild(E.div())
+    document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
+    document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
+    create_modal_container()
+    update_window_title()
+    read_ui = ReadUI()
+    get_db(read_ui.db)
+    set_mode_handler('read_book', read_ui.apply_url_state.bind(read_ui))
+    get_read_ui(read_ui)
+    apply_url()
+
+
+def install_data_and_init_ui(raw_data):
+    data = JSON.parse(raw_data)
+    update_interface_data(data)
+    update_library_data(data)
+    interface_data = get_interface_data()
+    sd = UserSessionData(interface_data.username, interface_data.user_session_data)
+    set_session_data(sd)
+    if data.translations?:
+        get_translations(data.translations)
+    init_ui()
+
+
+def on_data_loaded(end_type, xhr, ev):
+    remove_initial_progress_bar()
+    if end_type is 'load':
+        install_data_and_init_ui(xhr.responseText)
+    else:
+        p = E.p(style='color:{}; font-weight: bold; font-size:1.5em'.format(get_color('window-error-foreground')))
+        if xhr.status is 401:
+            msg = _('You are not authorized to view this site')
+        else:
+            msg = xhr.error_html
+        safe_set_inner_html(p, msg)
+        document.body.appendChild(p)
+
+
+def on_data_load_progress(loaded, total):
+    p = document.querySelector('#page_load_progress > progress')
+    if p:
+        p.max = total
+        p.value = loaded
+
+
+def load_interface_data():
+    idata = get_interface_data()
+    query = {}
+    if not idata.is_default:
+        temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
+        query = url_books_query(temp)
+    ajax(INIT_ENDPOINT, on_data_loaded, on_data_load_progress, query=query).send()
+
+
+def do_update_interface_data():
+    t = get_translations()
+    thash = t?.hash
+    url = 'interface-data/update'
+    if thash:
+        url += '/' + thash
+    ajax(url, def (end_type, xhr, ev):
+        if end_type is 'load':
+            data = JSON.parse(xhr.responseText)
+            update_interface_data(data)
+            if data.translations?:
+                get_translations(data.translations)
+                install(data.translations)
+    ).send()
+
+
+def main():
+    if document.createElement('iframe').srcdoc is undefined:
+        document.body.innerHTML = '<p style="margin:1.5em; max-width: 40em">' + _(
+            'You are using a browser that does not have the iframe srcdoc attribute.'
+        ' This is not supported. Use a better browser such as <b>Google Chrome</b> or <b>Mozilla'
+        ' Firefox</b>, instead. You can also use the simplified <a href="mobile">/mobile</a>'
+        ' interface if you do not have access to a modern browser.')
+        return
+    interface_data = get_interface_data()
+    if interface_data.is_default or not interface_data.library_map:
+        load_interface_data()
+    else:
+        sd = UserSessionData(interface_data.username, interface_data.user_session_data)
+        set_session_data(sd)
+        do_update_interface_data()
+        fetch_init_data()
+        init_ui()

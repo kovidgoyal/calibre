@@ -13,6 +13,7 @@ from calibre.utils.config import ConfigProxy
 from calibre.library.save_to_disk import config
 from calibre.utils.config import prefs
 
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
@@ -56,8 +57,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_template.save_settings(self.proxy, 'send_template')
         return ConfigWidgetBase.commit(self)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Sending')
-

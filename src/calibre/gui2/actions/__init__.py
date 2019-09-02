@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,9 +16,12 @@ from calibre import prints
 from calibre.constants import isosx
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
+from polyglot.builtins import unicode_type, string_or_bytes
+
 
 def menu_action_unique_name(plugin, unique_name):
-    return u'%s : menu action : %s'%(plugin.unique_name, unique_name)
+    return '%s : menu action : %s'%(plugin.unique_name, unique_name)
+
 
 class InterfaceAction(QObject):
 
@@ -94,7 +98,7 @@ class InterfaceAction(QObject):
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
         'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',
-        'context-menu-cover-browser'])
+        'context-menu-cover-browser', 'context-menu-split'])
 
     #: Type of action
     #: 'current' means acts on the current view
@@ -141,13 +145,14 @@ class InterfaceAction(QObject):
         self.gui.addAction(self.qaction)
         self.gui.addAction(self.menuless_qaction)
         self.genesis()
+        self.location_selected('library')
 
     @property
     def unique_name(self):
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
             bn = self.interface_action_base_plugin.name
-        return u'Interface Action: %s (%s)'%(bn, self.name)
+        return 'Interface Action: %s (%s)'%(bn, self.name)
 
     def create_action(self, spec=None, attr='qaction', shortcut_name=None):
         if spec is None:
@@ -159,7 +164,7 @@ class InterfaceAction(QObject):
             action = QAction(text, self.gui)
         if attr == 'qaction':
             mt = (action.text() if self.action_menu_clone_qaction is True else
-                    unicode(self.action_menu_clone_qaction))
+                    unicode_type(self.action_menu_clone_qaction))
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
             ma.triggered.connect(action.trigger)
         for a in ((action, ma) if attr == 'qaction' else (action,)):
@@ -173,10 +178,10 @@ class InterfaceAction(QObject):
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, string_or_bytes) else
                     tuple(shortcut))
             if shortcut_name is None and spec[0]:
-                shortcut_name = unicode(spec[0])
+                shortcut_name = unicode_type(spec[0])
 
             if shortcut_name and self.action_spec[0] and not (
                     attr == 'qaction' and self.popup_type == QToolButton.InstantPopup):
@@ -187,7 +192,7 @@ class InterfaceAction(QObject):
                         group=self.action_spec[0])
                 except NameConflict as e:
                     try:
-                        prints(unicode(e))
+                        prints(unicode_type(e))
                     except:
                         pass
                     shortcut_action.setShortcuts([QKeySequence(key,
@@ -211,7 +216,7 @@ class InterfaceAction(QObject):
             description=None, triggered=None, shortcut_name=None):
         '''
         Convenience method to easily add actions to a QMenu.
-        Returns the created QAction, This action has one extra attribute
+        Returns the created QAction. This action has one extra attribute
         calibre_shortcut_unique_name which if not None refers to the unique
         name under which this action is registered with the keyboard manager.
 
@@ -231,13 +236,13 @@ class InterfaceAction(QObject):
             tooltips.
         :param triggered: A callable which is connected to the triggered signal
             of the created action.
-        :param shortcut_name: The test displayed to the user when customizing
+        :param shortcut_name: The text displayed to the user when customizing
             the keyboard shortcuts for this action. By default it is set to the
             value of ``text``.
 
         '''
         if shortcut_name is None:
-            shortcut_name = unicode(text)
+            shortcut_name = unicode_type(text)
         ac = menu.addAction(text)
         if icon is not None:
             if not isinstance(icon, QIcon):
@@ -245,7 +250,7 @@ class InterfaceAction(QObject):
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:
-            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+            keys = ((shortcut,) if isinstance(shortcut, string_or_bytes) else
                     tuple(shortcut))
         unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:
@@ -274,13 +279,13 @@ class InterfaceAction(QObject):
         For example to load an image::
 
             pixmap = QPixmap()
-            pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
+            pixmap.loadFromData(tuple(self.load_resources(['images/icon.png']).values())[0])
             icon = QIcon(pixmap)
 
-        :param names: List of paths to resources in the zip file using / as separator
+        :param names: List of paths to resources in the ZIP file using / as separator
 
         :return: A dictionary of the form ``{name : file_contents}``. Any names
-                 that were not found in the zip file will not be present in the
+                 that were not found in the ZIP file will not be present in the
                  dictionary.
 
         '''

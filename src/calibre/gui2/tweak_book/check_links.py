@@ -2,27 +2,29 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import defaultdict
 from threading import Thread
 
 from PyQt5.Qt import (
-    QVBoxLayout, QTextBrowser, QProgressBar, Qt, QWidget, QStackedWidget,
-    QLabel, QSizePolicy, pyqtSignal, QIcon, QInputDialog
+    QCheckBox, QHBoxLayout, QIcon, QInputDialog, QLabel, QProgressBar, QSizePolicy,
+    QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import current_container, set_current_container, editors
+from calibre.gui2.tweak_book import current_container, editors, set_current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
+from polyglot.builtins import iteritems
+
 
 def get_data(name):
     'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
+
 
 def set_data(name, val):
     if name in editors:
@@ -31,6 +33,7 @@ def set_data(name, val):
         with current_container().open(name, 'wb') as f:
             f.write(val)
     get_boss().set_modified()
+
 
 class CheckExternalLinks(Dialog):
 
@@ -71,11 +74,21 @@ class CheckExternalLinks(Dialog):
         self.stack = s = QStackedWidget(self)
         s.addWidget(w), s.addWidget(self.results)
         l.addWidget(s)
-        l.addWidget(self.bb)
+        self.bh = h = QHBoxLayout()
+        self.check_anchors = ca = QCheckBox(_('Check &anchors'))
+        ca.setToolTip(_('Check HTML anchors in links (the part after the #).\n'
+            ' This can be a little slow, since it requires downloading and parsing all the HTML pages.'))
+        ca.setChecked(tprefs.get('check_external_link_anchors', True))
+        ca.stateChanged.connect(self.anchors_changed)
+        h.addWidget(ca), h.addStretch(100), h.addWidget(self.bb)
+        l.addLayout(h)
         self.bb.setStandardButtons(self.bb.Close)
         self.rb = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
         b.setIcon(QIcon(I('view-refresh.png')))
         b.clicked.connect(self.refresh)
+
+    def anchors_changed(self):
+        tprefs.set('check_external_link_anchors', self.check_anchors.isChecked())
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -88,7 +101,7 @@ class CheckExternalLinks(Dialog):
         self.tb = None
         self.errors = []
         try:
-            self.errors = check_external_links(current_container(), self.progress_made.emit)
+            self.errors = check_external_links(current_container(), self.progress_made.emit, check_anchors=self.check_anchors.isChecked())
         except Exception:
             import traceback
             self.tb = traceback.format_exc()
@@ -102,7 +115,7 @@ class CheckExternalLinks(Dialog):
             self.rb.setEnabled(True)
             if self.tb is not None:
                 return error_dialog(self, _('Checking failed'), _(
-                    'There was an error while checking links, click "Show Details" for more information'),
+                    'There was an error while checking links, click "Show details" for more information'),
                              det_msg=self.tb, show=True)
             if not self.errors:
                 self.results.setText(_('No broken links found'))
@@ -112,7 +125,9 @@ class CheckExternalLinks(Dialog):
             self.pb.setMaximum(total), self.pb.setValue(curr)
 
     def populate_results(self, preserve_pos=False):
-        text = '<h3>%s</h3><ol>' % (_('Found %d broken links') % (len(self.errors) - len(self.fixed_errors)))
+        num = len(self.errors) - len(self.fixed_errors)
+        text = '<h3>%s</h3><ol>' % (ngettext(
+            'Found a broken link', 'Found {} broken links', num).format(num))
         for i, (locations, err, url) in enumerate(self.errors):
             if i in self.fixed_errors:
                 continue
@@ -135,7 +150,7 @@ class CheckExternalLinks(Dialog):
             for name, href in {(l[0], l[1]) for l in err[0]}:
                 nmap[name].add(href)
 
-            for name, hrefs in nmap.iteritems():
+            for name, hrefs in iteritems(nmap):
                 raw = oraw = get_data(name)
                 for href in hrefs:
                     raw = raw.replace(href, newurl)

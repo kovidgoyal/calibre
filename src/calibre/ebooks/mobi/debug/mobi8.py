@@ -1,15 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, struct, textwrap
-from itertools import izip
 
 from calibre import CurrentDir
 from calibre.ebooks.mobi.debug.containers import ContainerHeader
@@ -20,6 +17,8 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, zip, print_to_binary_file
+
 
 class FDST(object):
 
@@ -35,7 +34,7 @@ class FDST(object):
         if rest:
             raise ValueError('FDST record has trailing data: '
                     '%s'%format_bytes(rest))
-        self.sections = tuple(izip(secs[::2], secs[1::2]))
+        self.sections = tuple(zip(secs[::2], secs[1::2]))
 
     def __str__(self):
         ans = ['FDST record']
@@ -47,6 +46,7 @@ class FDST(object):
             ans.append('Start: %20d End: %d'%sec)
 
         return '\n'.join(ans)
+
 
 class File(object):
 
@@ -66,6 +66,7 @@ class File(object):
             for i, text in enumerate(self.sections):
                 with open('sect-%04d.html'%i, 'wb') as f:
                     f.write(text)
+
 
 class MOBIFile(object):
 
@@ -93,14 +94,15 @@ class MOBIFile(object):
         self.read_tbs()
 
     def print_header(self, f=sys.stdout):
-        print (str(self.mf.palmdb).encode('utf-8'), file=f)
-        print (file=f)
-        print ('Record headers:', file=f)
+        p = print_to_binary_file(f)
+        p(unicode_type(self.mf.palmdb))
+        p()
+        p('Record headers:')
         for i, r in enumerate(self.mf.records):
-            print ('%6d. %s'%(i, r.header), file=f)
+            p('%6d. %s'%(i, r.header))
 
-        print (file=f)
-        print (str(self.mf.mobi8_header).encode('utf-8'), file=f)
+        p()
+        p(unicode_type(self.mf.mobi8_header))
 
     def read_fdst(self):
         self.fdst = None
@@ -199,7 +201,7 @@ class MOBIFile(object):
                         resource_index = len(container.resources)
             elif sig == b'\xa0\xa0\xa0\xa0' and len(payload) == 4:
                 if container is None:
-                    print ('Found an end of container record with no container, ignoring')
+                    print('Found an end of container record with no container, ignoring')
                 else:
                     container.resources.append(None)
                 continue
@@ -253,7 +255,7 @@ class MOBIFile(object):
             desc = ['Record #%d'%i]
             for s, strand in enumerate(strands):
                 desc.append('Strand %d'%s)
-                for entries in strand.itervalues():
+                for entries in itervalues(strand):
                     for e in entries:
                         desc.append(
                         ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(
@@ -271,7 +273,7 @@ class MOBIFile(object):
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
-                extra = {bin(k):v for k, v in extra.iteritems()}
+                extra = {bin(k):v for k, v in iteritems(extra)}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
                 desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
@@ -284,11 +286,12 @@ class MOBIFile(object):
             except:
                 calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
-                print ('WARNING: TBS mismatch for record %d'%i)
+                print('WARNING: TBS mismatch for record %d'%i)
                 desc.append('WARNING: TBS mismatch!')
                 desc.append('Calculated sequences: %r'%calculated_sequences)
             desc.append('')
             self.indexing_data.append('\n'.join(desc))
+
 
 def inspect_mobi(mobi_file, ddir):
     f = MOBIFile(mobi_file)
@@ -311,23 +314,23 @@ def inspect_mobi(mobi_file, ddir):
 
     for i, container in enumerate(f.containers):
         with open(os.path.join(ddir, 'container%d.txt' % (i + 1)), 'wb') as cf:
-            cf.write(str(container).encode('utf-8'))
+            cf.write(unicode_type(container).encode('utf-8'))
 
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
-            fo.write(str(f.fdst).encode('utf-8'))
+            fo.write(unicode_type(f.fdst).encode('utf-8'))
 
     with open(os.path.join(ddir, 'skel.record'), 'wb') as fo:
-        fo.write(str(f.skel_index).encode('utf-8'))
+        fo.write(unicode_type(f.skel_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'chunks.record'), 'wb') as fo:
-        fo.write(str(f.sect_index).encode('utf-8'))
+        fo.write(unicode_type(f.sect_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'ncx.record'), 'wb') as fo:
-        fo.write(str(f.ncx_index).encode('utf-8'))
+        fo.write(unicode_type(f.ncx_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'guide.record'), 'wb') as fo:
-        fo.write(str(f.guide_index).encode('utf-8'))
+        fo.write(unicode_type(f.guide_index).encode('utf-8'))
 
     with open(os.path.join(ddir, 'tbs.txt'), 'wb') as fo:
         fo.write(('\n'.join(f.indexing_data)).encode('utf-8'))
@@ -336,5 +339,3 @@ def inspect_mobi(mobi_file, ddir):
         part.dump(os.path.join(ddir, 'files'))
 
     f.dump_flows(os.path.join(ddir, 'flows'))
-
-

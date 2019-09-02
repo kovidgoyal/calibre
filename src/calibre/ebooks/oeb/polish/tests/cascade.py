@@ -1,23 +1,25 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from cssutils import parseStyle
+from css_parser import parseStyle
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, DEFAULTS
 from calibre.ebooks.oeb.polish.css import remove_property_value
+from calibre.ebooks.oeb.polish.embed import find_matching_font
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
+from polyglot.builtins import iteritems
+
 
 class VirtualContainer(ContainerBase):
 
@@ -55,6 +57,7 @@ class VirtualContainer(ContainerBase):
         for name in sorted(self.mime_map):
             if self.mime_map[name] in OEB_DOCS:
                 yield name, True
+
 
 class CascadeTest(BaseTest):
 
@@ -145,13 +148,14 @@ class CascadeTest(BaseTest):
 
     def test_font_stats(self):
         embeds = '@font-face { font-family: X; src: url(X.otf) }\n@font-face { font-family: X; src: url(XB.otf); font-weight: bold }'
+
         def get_stats(html, *fonts):
             styles = []
             html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
             files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
-                for k, v in font.iteritems():
+                for k, v in iteritems(font):
                     if k == 'src':
                         files[v] = b'xxx'
                         v = 'url(%s)' % v
@@ -182,7 +186,7 @@ class CascadeTest(BaseTest):
         def fkey(*args, **kw):
             f = font(*args, **kw)
             f['font-family'] = icu_lower(f['font-family'][0])
-            return frozenset((k, v) for k, v in f.iteritems() if k in font_keys)
+            return frozenset((k, v) for k, v in iteritems(f) if k in font_keys)
 
         def fu(text, *args, **kw):
             key = fkey(*args, **kw)
@@ -210,3 +214,19 @@ class CascadeTest(BaseTest):
         for prop in style.getProperties(all=True):
             remove_property_value(prop, lambda val:'png' in val.cssText)
         self.assertEqual('background: black fixed', style.cssText)
+
+    def test_fallback_font_matching(self):
+        def cf(id, weight='normal', style='normal', stretch='normal'):
+            return {'id':id, 'font-weight':weight, 'font-style':style, 'font-stretch':stretch}
+        fonts = [cf(1, '500', 'oblique', 'condensed'), cf(2, '300', 'italic', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 2)
+        fonts = [cf(1, '500', 'oblique', 'normal'), cf(2, '300', 'italic', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 1)
+        fonts = [cf(1, '500', 'oblique', 'normal'), cf(2, '200', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 1)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 2)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts, '500')['id'], 2)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts, '600')['id'], 1)

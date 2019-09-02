@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,10 +9,12 @@ from lxml.html.builder import TABLE, TR, TD
 
 from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle, border_to_css
 from calibre.ebooks.docx.char_styles import RunStyle
+from polyglot.builtins import iteritems, itervalues, range, filter
 
 # Read from XML {{{
 read_shd = rs
 edges = ('left', 'top', 'right', 'bottom')
+
 
 def _read_width(elem, get):
     ans = inherit
@@ -32,17 +33,20 @@ def _read_width(elem, get):
         ans = '%.3g%%' % (w/50)
     return ans
 
+
 def read_width(parent, dest, XPath, get):
     ans = inherit
     for tblW in XPath('./w:tblW')(parent):
         ans = _read_width(tblW, get)
     setattr(dest, 'width', ans)
 
+
 def read_cell_width(parent, dest, XPath, get):
     ans = inherit
     for tblW in XPath('./w:tcW')(parent):
         ans = _read_width(tblW, get)
     setattr(dest, 'width', ans)
+
 
 def read_padding(parent, dest, XPath, get):
     name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
@@ -53,6 +57,7 @@ def read_padding(parent, dest, XPath, get):
                 ans[x] = _read_width(edge, get)
     for x in edges:
         setattr(dest, 'cell_padding_%s' % x, ans[x])
+
 
 def read_justification(parent, dest, XPath, get):
     left = right = inherit
@@ -69,17 +74,20 @@ def read_justification(parent, dest, XPath, get):
     setattr(dest, 'margin_left', left)
     setattr(dest, 'margin_right', right)
 
+
 def read_spacing(parent, dest, XPath, get):
     ans = inherit
     for cs in XPath('./w:tblCellSpacing')(parent):
         ans = _read_width(cs, get)
     setattr(dest, 'spacing', ans)
 
+
 def read_float(parent, dest, XPath, get):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
-        ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.iteritems()}
+        ans = {k.rpartition('}')[-1]: v for k, v in iteritems(x.attrib)}
     setattr(dest, 'float', ans)
+
 
 def read_indent(parent, dest, XPath, get):
     ans = inherit
@@ -87,11 +95,14 @@ def read_indent(parent, dest, XPath, get):
         ans = _read_width(cs, get)
     setattr(dest, 'indent', ans)
 
+
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
+
 
 def read_borders(parent, dest, XPath, get):
     name = 'tblBorders' if parent.tag.endswith('}tblPr') else 'tcBorders'
     read_border(parent, dest, XPath, get, border_edges, name)
+
 
 def read_height(parent, dest, XPath, get):
     ans = inherit
@@ -102,12 +113,14 @@ def read_height(parent, dest, XPath, get):
             ans = (rule, val)
     setattr(dest, 'height', ans)
 
+
 def read_vertical_align(parent, dest, XPath, get):
     ans = inherit
     for va in XPath('./w:vAlign')(parent):
         val = get(va, 'w:val')
         ans = {'center': 'middle', 'top': 'top', 'bottom': 'bottom'}.get(val, 'middle')
     setattr(dest, 'vertical_align', ans)
+
 
 def read_col_span(parent, dest, XPath, get):
     ans = inherit
@@ -118,12 +131,14 @@ def read_col_span(parent, dest, XPath, get):
             continue
     setattr(dest, 'col_span', ans)
 
+
 def read_merge(parent, dest, XPath, get):
     for x in ('hMerge', 'vMerge'):
         ans = inherit
         for m in XPath('./w:%s' % x)(parent):
             ans = get(m, 'w:val', 'continue')
         setattr(dest, x, ans)
+
 
 def read_band_size(parent, dest, XPath, get):
     for x in ('Col', 'Row'):
@@ -134,6 +149,7 @@ def read_band_size(parent, dest, XPath, get):
             except (TypeError, ValueError):
                 continue
         setattr(dest, '%s_band_size' % x.lower(), ans)
+
 
 def read_look(parent, dest, XPath, get):
     ans = 0
@@ -146,6 +162,7 @@ def read_look(parent, dest, XPath, get):
 
 # }}}
 
+
 def clone(style):
     if style is None:
         return None
@@ -155,6 +172,7 @@ def clone(style):
         return None
     ans.update(style)
     return ans
+
 
 class Style(object):
 
@@ -195,6 +213,7 @@ class Style(object):
                     c[a % 'left'] = r
         return c
 
+
 class RowStyle(Style):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
@@ -229,6 +248,7 @@ class RowStyle(Style):
                         pass
             c.update(self.convert_spacing())
         return self._css
+
 
 class CellStyle(Style):
 
@@ -272,6 +292,7 @@ class CellStyle(Style):
             c.update(self.convert_border())
 
         return self._css
+
 
 class TableStyle(Style):
 
@@ -434,6 +455,7 @@ class Table(object):
     def get_overrides(self, r, c, num_of_rows, num_of_cols_in_row):
         'List of possible overrides for the given para'
         overrides = ['wholeTable']
+
         def divisor(m, n):
             return (m - (m % n)) // n
         if c is not None:
@@ -483,8 +505,6 @@ class Table(object):
 
     def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
         cs = CellStyle(self.namespace)
-        # from lxml.etree import tostring
-        # txt = tostring(tc, method='text', encoding=unicode)
         for o in overrides:
             if o in self.overrides:
                 ovr = self.overrides[o]
@@ -550,7 +570,7 @@ class Table(object):
             return
         # Handle vMerge
         max_col_num = max(len(r) for r in self.cell_map)
-        for c in xrange(max_col_num):
+        for c in range(max_col_num):
             cells = [row[c] if c < len(row) else None for row in self.cell_map]
             runs = [[]]
             for cell in cells:
@@ -597,7 +617,7 @@ class Table(object):
     def __iter__(self):
         for p in self.paragraphs:
             yield p
-        for t in self.sub_tables.itervalues():
+        for t in itervalues(self.sub_tables):
             for p in t:
                 yield p
 
@@ -644,10 +664,11 @@ class Table(object):
         table_style = self.table_style.css
         if table_style:
             table.set('class', self.styles.register(table_style, 'table'))
-        for elem, style in style_map.iteritems():
+        for elem, style in iteritems(style_map):
             css = style.css
             if css:
                 elem.set('class', self.styles.register(css, elem.tag))
+
 
 class Tables(object):
 
@@ -664,7 +685,7 @@ class Tables(object):
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(object_map)}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 
@@ -677,4 +698,3 @@ class Tables(object):
         table = self.para_map.get(p, None)
         if table is not None:
             return table.style_map.get(p, (None, None))[1]
-

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
@@ -20,14 +21,18 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes, zip
 
 BASE_TIME = None
+
+
 def debug_print(*args):
     global BASE_TIME
     if BASE_TIME is None:
         BASE_TIME = time.time()
     if DEBUG:
         prints('DEBUG: %6.1f'%(time.time()-BASE_TIME), *args)
+
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False):
     ' A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem'
@@ -78,7 +83,7 @@ class USBMS(CLI, Device):
     sending/getting/updating metadata/caching metadata/etc.
     '''
 
-    description    = _('Communicate with an eBook reader.')
+    description    = _('Communicate with an e-book reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -102,14 +107,14 @@ class USBMS(CLI, Device):
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
         if dinfo.get('device_name', None) is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['prefix'] = prefix.replace('\\', '/')
         return dinfo
@@ -124,13 +129,19 @@ class USBMS(CLI, Device):
                     driveinfo = None
                 driveinfo = self._update_driveinfo_record(driveinfo, prefix,
                                                           location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         else:
             driveinfo = self._update_driveinfo_record({}, prefix, location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         return driveinfo
 
@@ -174,8 +185,8 @@ class USBMS(CLI, Device):
     def formats_to_scan_for(self):
         return set(self.settings().format_map) | set(self.FORMATS)
 
-    def is_a_book_file(self, filename, path, prefix):
-        return False
+    def is_allowed_book_file(self, filename, path, prefix):
+        return True
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -219,7 +230,7 @@ class USBMS(CLI, Device):
 
         def update_booklist(filename, path, prefix):
             changed = False
-            if path_to_ext(filename) in all_formats or self.is_a_book_file(filename, path, prefix):
+            if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):
@@ -239,7 +250,7 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-        if isinstance(ebook_dirs, basestring):
+        if isinstance(ebook_dirs, string_or_bytes):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
@@ -277,7 +288,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(bl_cache.itervalues(), reverse=True):
+        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: -1 if x is None else x):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -307,7 +318,7 @@ class USBMS(CLI, Device):
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
+            mdata, fname = next(metadata), next(names)
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
@@ -325,7 +336,7 @@ class USBMS(CLI, Device):
 
         self.report_progress(1.0, _('Transferring books to device...'))
         debug_print('USBMS: finished uploading %d books'%(len(files)))
-        return zip(paths, cycle([on_card]))
+        return list(zip(paths, cycle([on_card])))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
@@ -335,7 +346,7 @@ class USBMS(CLI, Device):
         :param filename: The name of the book file without the extension.
         :param metadata: metadata belonging to the book. Use metadata.thumbnail
                          for cover
-        :param filepath: The full path to the ebook file
+        :param filepath: The full path to the e-book file
 
         '''
         pass
@@ -344,9 +355,10 @@ class USBMS(CLI, Device):
         debug_print('USBMS: adding metadata for %d books'%(len(metadata)))
 
         metadata = iter(metadata)
+        locations = tuple(locations)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
-            info = metadata.next()
+            info = next(metadata)
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             # Extract the correct prefix from the pathname. To do this correctly,

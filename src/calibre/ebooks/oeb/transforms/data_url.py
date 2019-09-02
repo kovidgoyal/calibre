@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 from calibre.ebooks.oeb.base import XPath, urlunquote
+
 
 class DataURL(object):
 
@@ -27,9 +27,9 @@ class DataURL(object):
                     continue
                 if ';base64' in header:
                     data = re.sub(r'\s+', '', data)
-                    from base64 import b64decode
+                    from polyglot.binary import from_base64_bytes
                     try:
-                        data = b64decode(data)
+                        data = from_base64_bytes(data)
                     except Exception:
                         self.log.error('Found invalid base64 encoded data URI, ignoring it')
                         continue

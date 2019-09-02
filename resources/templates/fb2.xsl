@@ -333,7 +333,9 @@
                     <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
                 </xsl:element>
             </xsl:if>
-            <xsl:apply-templates/>
+            <div>
+                <xsl:apply-templates/>
+            </div>
         </blockquote>
     </xsl:template>
     <!-- epigraph/text-author -->
@@ -350,7 +352,9 @@
                 <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
             </xsl:element>
         </xsl:if>
-        <xsl:apply-templates/>
+        <div>
+            <xsl:apply-templates/>
+        </div>
         </blockquote>
     </xsl:template>
     <!-- cite/text-author -->
@@ -379,7 +383,9 @@
                     <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
                 </xsl:element>
             </xsl:if>
-            <xsl:apply-templates/>
+            <div>
+                <xsl:apply-templates/>
+            </div>
         </blockquote>
     </xsl:template>
 

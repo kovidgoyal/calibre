@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 __license__ = 'GPL v3'
 
 '''
@@ -8,7 +9,14 @@ www.canada.com
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
-from calibre.ebooks.BeautifulSoup import Tag, BeautifulStoneSoup
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class TimesColonist(BasicNewsRecipe):
@@ -139,15 +147,7 @@ class TimesColonist(BasicNewsRecipe):
         return fixed
 
     def massageNCXText(self, description):
-        # Kindle TOC descriptions won't render certain characters
-        if description:
-            massaged = unicode(BeautifulStoneSoup(
-                description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
-            # Replace '&' with '&'
-            massaged = re.sub("&", "&", massaged)
-            return self.fixChars(massaged)
-        else:
-            return description
+        return description
 
     def populate_article_metadata(self, article, soup, first):
         if first:
@@ -178,7 +178,7 @@ class TimesColonist(BasicNewsRecipe):
             authstr = re.sub('/ *Times Colonist', '/',
                              authstr, flags=re.IGNORECASE)
             authstr = re.sub('BY */', '', authstr, flags=re.IGNORECASE)
-            newdiv = Tag(soup, 'div')
+            newdiv = new_tag(soup, 'div')
             newdiv.insert(0, authstr)
             newdiv['class'] = 'byline'
             byline.replaceWith(newdiv)
@@ -186,7 +186,7 @@ class TimesColonist(BasicNewsRecipe):
             capstr = self.tag_to_string(caption, False)
             capstr = re.sub('Photograph by.*$', '',
                             capstr, flags=re.IGNORECASE)
-            newdiv = Tag(soup, 'div')
+            newdiv = new_tag(soup, 'div')
             newdiv.insert(0, capstr)
             newdiv['class'] = 'caption'
             caption.replaceWith(newdiv)

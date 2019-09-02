@@ -1,0 +1,70 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from dom import ensure_id
+from utils import human_readable, safe_set_inner_html
+
+
+def upload_files_widget(container, proceed, msg, single_file=False, accept_extensions=None):
+    container_id = ensure_id(container, 'upload-files')
+
+    def files_selected():
+        files = this.files
+        container = document.getElementById(container_id)
+        container.removeChild(container.lastChild)
+        if callable(proceed) and files.length:
+            proceed(container_id, files)
+
+    msg = msg or _('Upload books by <a>selecting the book files</a> or drag and drop of the files here')
+    c = E.div(E.span(), E.input(type='file', style='display:none', onchange=files_selected))
+    if not single_file:
+        c.lastChild.setAttribute('multiple', 'multiple')
+    if accept_extensions:
+        c.lastChild.setAttribute('accept', ', '.join(['.' + x for x in accept_extensions.split(' ')]))
+    c.style.minHeight = '80vh'
+    c.style.padding = '1rem'
+    c.style.borderBottom = 'solid 1px currentColor'
+
+    safe_set_inner_html(c.firstChild, msg)
+    a = c.getElementsByTagName('a')[0]
+    a.setAttribute('href', 'javascript: void(0)')
+    a.classList.add('simple-link')
+    a.style.color = 'blue'
+    a.addEventListener('click', def():
+        document.getElementById(container_id).querySelector('input[type=file]').click()
+    , False)
+    container.appendChild(c)
+
+    def stop(e):
+        e.stopPropagation(), e.preventDefault()
+
+    def drop(e):
+        stop(e)
+        dt = e.dataTransfer
+        files_selected.call(dt)
+
+    c.addEventListener('dragenter', stop, False)
+    c.addEventListener('dragover', stop, False)
+    c.addEventListener('drop', drop, False)
+    return c
+
+
+def update_status_widget(w, sent, total):
+    if total:
+        p = w.getElementsByTagName('progress')[0]
+        p.setAttribute('value', '' + sent)
+        p.setAttribute('max', '' + total)
+        w.lastChild.textContent = _(' {percent:.0%} of {total}').format(percent=sent / total, total=human_readable(total))
+
+
+def upload_status_widget(name, job_id):
+    ans = E.div(style='padding: 1rem 1ex;', data_job='' + job_id)
+    if name:
+        ans.appendChild(E.h3(E.b(name)))
+    ans.appendChild(E.progress())
+    ans.appendChild(E.span())
+    return ans

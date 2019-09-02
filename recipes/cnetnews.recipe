@@ -18,6 +18,12 @@ You may want to set it to download daily for this reason.
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class CnetNews(BasicNewsRecipe):
     title = 'CNET News'
     __author__ = 'Kovid Goyal'
@@ -44,10 +50,12 @@ class CnetNews(BasicNewsRecipe):
                               'data-component': 'imageGalleryModal'}),
         dict(attrs={'data-component': 'sharebar'}),
         dict(name=['link', 'meta']),
+        classes('playerControls video share-button'),
     ]
 
     keep_only_tags = [
-        dict(itemprop='headline'),
+        dict(name='h1'),
+        dict(section='author'),
         dict(id=["article-body", 'cnetReview']),
         dict(attrs={'class': 'deal-content'}),
     ]
@@ -89,4 +97,6 @@ class CnetNews(BasicNewsRecipe):
             h1.extract()
             if first_fetch:
                 soup.find('body').insert(1, h1)
+        for img in soup.findAll('img'):
+            img['height'] = img['width'] = ''
         return soup

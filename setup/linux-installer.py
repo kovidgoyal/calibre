@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
-import ssl, socket
+import ssl, socket, stat
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
@@ -19,23 +18,27 @@ enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
 if enc.lower() == 'ascii':
     enc = 'utf-8'
 calibre_version = signature = None
-urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
 if py3:
     unicode = str
     raw_input = input
     from urllib.parse import urlparse
+    from urllib.request import BaseHandler, build_opener, Request, urlopen, getproxies, addinfourl
     import http.client as httplib
     encode_for_subprocess = lambda x:x
 else:
     from future_builtins import map
     from urlparse import urlparse
+    from urllib import urlopen, getproxies, addinfourl
+    from urllib2 import BaseHandler, build_opener, Request
     import httplib
+
     def encode_for_subprocess(x):
         if isinstance(x, unicode):
             x = x.encode(enc)
         return x
+
 
 class TerminalController:  # {{{
     BOL = ''             #: Move the cursor to the beginning of the line
@@ -166,6 +169,7 @@ class TerminalController:  # {{{
         else:
             return getattr(self, s[2:-1])
 
+
 class ProgressBar:
     BAR = '%3d%% ${GREEN}[${BOLD}%s%s${NORMAL}${GREEN}]${NORMAL}\n'
     HEADER = '${BOLD}${CYAN}%s${NORMAL}\n\n'
@@ -187,21 +191,19 @@ class ProgressBar:
             self.cleared = 0
         n = int((self.width-10)*percent)
         msg = message.center(self.width)
-        msg = (self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
-            (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
-            self.term.CLEAR_EOL + msg).encode(enc)
+        msg = (self.term.BOL + self.term.UP + self.term.CLEAR_EOL + (
+            self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) + self.term.CLEAR_EOL + msg).encode(enc)
         out.write(msg)
         out.flush()
 
     def clear(self):
         out = (sys.stdout.buffer if py3 else sys.stdout)
         if not self.cleared:
-            out.write((self.term.BOL + self.term.CLEAR_EOL +
-            self.term.UP + self.term.CLEAR_EOL +
-            self.term.UP + self.term.CLEAR_EOL).encode(enc))
+            out.write((self.term.BOL + self.term.CLEAR_EOL + self.term.UP + self.term.CLEAR_EOL + self.term.UP + self.term.CLEAR_EOL).encode(enc))
             self.cleared = 1
             out.flush()
 # }}}
+
 
 def prints(*args, **kwargs):  # {{{
     f = kwargs.get('file', sys.stdout.buffer if py3 else sys.stdout)
@@ -219,6 +221,7 @@ def prints(*args, **kwargs):  # {{{
     if py3 and f is sys.stdout.buffer:
         f.flush()
 # }}}
+
 
 class Reporter:  # {{{
 
@@ -244,12 +247,14 @@ class Reporter:  # {{{
                 traceback.print_exc()
 # }}}
 
+
 # Downloading {{{
 
 def clean_cache(cache, fname):
     for x in os.listdir(cache):
         if fname not in x:
             os.remove(os.path.join(cache, x))
+
 
 def check_signature(dest, signature):
     if not os.path.exists(dest):
@@ -261,32 +266,39 @@ def check_signature(dest, signature):
     if m.hexdigest().encode('ascii') == signature:
         return raw
 
-class URLOpener(urllib.FancyURLopener):
 
-    def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
-        ''' 206 means partial content, ignore it '''
-        pass
+class RangeHandler(BaseHandler):
+
+    def http_error_206(self, req, fp, code, msg, hdrs):
+        # 206 Partial Content Response
+        r = addinfourl(fp, hdrs, req.get_full_url())
+        r.code = code
+        r.msg = msg
+        return r
+    https_error_206 = http_error_206
+
 
 def do_download(dest):
     prints('Will download and install', os.path.basename(dest))
     reporter = Reporter(os.path.basename(dest))
     offset = 0
-    urlopener = URLOpener()
     if os.path.exists(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urllib.urlopen(DLURL)
+    rq = urlopen(DLURL)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
     mode = 'wb'
     if accepts_ranges and offset > 0:
-        rurl = rq.geturl()
+        req = Request(rq.geturl())
+        req.add_header('Range', 'bytes=%s-'%offset)
         mode = 'ab'
         rq.close()
-        urlopener.addheader('Range', 'bytes=%s-'%offset)
-        rq = urlopener.open(rurl)
+        handler = RangeHandler()
+        opener = build_opener(handler)
+        rq = opener.open(req)
     with open(dest, mode) as f:
         while f.tell() < size:
             raw = rq.read(8192)
@@ -300,6 +312,7 @@ def do_download(dest):
         raise SystemExit(1)
     prints('Downloaded %s bytes'%os.path.getsize(dest))
 
+
 def download_tarball():
     fname = 'calibre-%s-i686.%s'%(calibre_version, 'txz')
     if is64bit:
@@ -312,7 +325,7 @@ def download_tarball():
     dest = os.path.join(cache, fname)
     raw = check_signature(dest, signature)
     if raw is not None:
-        print ('Using previously downloaded', fname)
+        print('Using previously downloaded', fname)
         return raw
     cached_sigf = dest +'.signature'
     cached_sig = None
@@ -341,10 +354,11 @@ def download_tarball():
     return raw
 # }}}
 
+
 # Get tarball signature securely {{{
 
 def get_proxies(debug=True):
-    proxies = urllib.getproxies()
+    proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy:
             del proxies[key]
@@ -365,6 +379,7 @@ def get_proxies(debug=True):
         prints('Using proxies:', repr(proxies))
     return proxies
 
+
 class HTTPError(ValueError):
 
     def __init__(self, url, code):
@@ -374,8 +389,10 @@ class HTTPError(ValueError):
         self.code = code
         self.url = url
 
+
 class CertificateError(ValueError):
     pass
+
 
 def _dnsname_match(dn, hostname, max_wildcards=1):
     """Matching according to RFC 6125, section 6.4.3
@@ -425,6 +442,7 @@ def _dnsname_match(dn, hostname, max_wildcards=1):
 
     pat = re.compile(r'\A' + r'\.'.join(pats) + r'\Z', re.IGNORECASE)
     return pat.match(hostname)
+
 
 def match_hostname(cert, hostname):
     """Verify that *cert* (in decoded format as returned by
@@ -476,6 +494,7 @@ def match_hostname(cert, hostname):
     else:
         raise CertificateError("no appropriate commonName or "
             "subjectAltName fields were found")
+
 
 if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
@@ -544,6 +563,7 @@ nR0=
 -----END CERTIFICATE-----
 '''
 
+
 def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=None):
     '''
     Download the resource pointed to by url using https securely (verify server
@@ -602,6 +622,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
             return response.read()
 # }}}
 
+
 def extract_tarball(raw, destdir):
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
@@ -615,11 +636,12 @@ def extract_tarball(raw, destdir):
             prints('Extracting of application files failed with error code: %s' % p.returncode)
             raise SystemExit(1)
 
+
 def get_tarball_info():
     global signature, calibre_version
     print ('Downloading tarball signature securely...')
-    raw = get_https_resource_securely('https://code.calibre-ebook.com/tarball-info/' +
-                                      ('x86_64' if is64bit else 'i686'))
+    raw = get_https_resource_securely(
+            'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
     signature, calibre_version = raw.rpartition(b'@')[::2]
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
@@ -637,10 +659,12 @@ def download_and_extract(destdir):
     print('Extracting files to %s ...'%destdir)
     extract_tarball(raw, destdir)
 
+
 def check_version():
     global calibre_version
     if calibre_version == '%version':
-        calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
+        calibre_version = urlopen('http://code.calibre-ebook.com/latest').read()
+
 
 def run_installer(install_dir, isolated, bin_dir, share_dir):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
@@ -653,7 +677,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         if not os.path.isdir(destdir):
             prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
             return 1
-    print ('Installing to', destdir)
+    print('Installing to', destdir)
 
     download_and_extract(destdir)
 
@@ -669,8 +693,51 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         prints('Run "%s/calibre" to start calibre' % destdir)
     return 0
 
-def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
+
+def check_umask():
+    # A bad umask can cause system breakage because of bugs in xdg-mime
+    # See https://www.mobileread.com/forums/showthread.php?t=277803
+    mask = os.umask(18)  # 18 = 022
+    os.umask(mask)
+    forbid_user_read = mask & stat.S_IRUSR
+    forbid_user_exec = mask & stat.S_IXUSR
+    forbid_group_read = mask & stat.S_IRGRP
+    forbid_group_exec = mask & stat.S_IXGRP
+    forbid_other_read = mask & stat.S_IROTH
+    forbid_other_exec = mask & stat.S_IXOTH
+    if forbid_user_read or forbid_user_exec or forbid_group_read or forbid_group_exec or forbid_other_read or forbid_other_exec:
+        prints(
+            'WARNING: Your current umask disallows reading of files by some users,'
+            ' this can cause system breakage when running the installer because'
+            ' of bugs in common system utilities.'
+        )
+        sys.stdin = open('/dev/tty')  # stdin is a pipe from wget
+        while True:
+            q = raw_input('Should the installer (f)ix the umask, (i)gnore it or (a)bort [f/i/a Default is abort]: ') or 'a'
+            if q in 'f i a'.split():
+                break
+            prints('Response', q, 'not understood')
+        if q == 'f':
+            mask = mask & ~stat.S_IRUSR & ~stat.S_IXUSR & ~stat.S_IRGRP & ~stat.S_IXGRP & ~stat.S_IROTH & ~stat.S_IXOTH
+            os.umask(mask)
+            prints('umask changed to: {:03o}'.format(mask))
+        elif q == 'i':
+            prints('Ignoring bad umask and proceeding anyway, you have been warned!')
+        else:
+            raise SystemExit('The system umask is unsuitable, aborting')
+
+
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
+    if not ignore_umask and not isolated:
+        check_umask()
+    machine = os.uname()[4]
+    if machine and machine.lower().startswith('arm'):
+        raise SystemExit(
+            'You are running on an ARM system. The calibre binaries are only'
+            ' available for x86 systems. You will have to compile from'
+            ' source.')
     run_installer(install_dir, isolated, bin_dir, share_dir)
+
 
 try:
     __file__
@@ -678,5 +745,45 @@ try:
 except NameError:
     from_file = False
 
+
+def update_intaller_wrapper():
+    # To run: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
+    with open(__file__, 'rb') as f:
+        src = f.read().decode('utf-8')
+    wrapper = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'linux-installer.sh')
+    with open(wrapper, 'r+b') as f:
+        raw = f.read().decode('utf-8')
+        nraw = re.sub(r'^# HEREDOC_START.+^# HEREDOC_END', lambda m: '# HEREDOC_START\n{}\n# HEREDOC_END'.format(src), raw, flags=re.MULTILINE | re.DOTALL)
+        if 'update_intaller_wrapper()' not in nraw:
+            raise SystemExit('regex substitute of HEREDOC failed')
+        f.seek(0), f.truncate()
+        f.write(nraw.encode('utf-8'))
+
+
+def script_launch():
+    def path(x):
+        return os.path.expanduser(x)
+
+    def to_bool(x):
+        return x.lower() in ('y', 'yes', '1', 'true')
+
+    type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask'.split()}
+    type_map['isolated'] = type_map['ignore_umask'] = to_bool
+    kwargs = {}
+
+    for arg in sys.argv[1:]:
+        if arg:
+            m = re.match('([a-z_]+)=(.+)', arg)
+            if m is None:
+                raise SystemExit('Unrecognized command line argument: ' + arg)
+            k = m.group(1)
+            if k not in type_map:
+                raise SystemExit('Unrecognized command line argument: ' + arg)
+            kwargs[k] = type_map[k](m.group(2))
+    main(**kwargs)
+
+
 if __name__ == '__main__' and from_file:
     main()
+elif __name__ == 'update_wrapper':
+    update_intaller_wrapper()

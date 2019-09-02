@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,14 +14,16 @@ from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
+from polyglot.builtins import range, map
+
 
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
     action_spec = (_('Create catalog'), 'catalog.png',
                    _('Create a catalog of the books in your calibre library in different formats'), ())
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
 
     def genesis(self):
         self.qaction.triggered.connect(self.generate_catalog)
@@ -28,12 +31,13 @@ class GenerateCatalogAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:
-            rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
-        ids = map(self.gui.library_view.model().id, rows)
+            rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
+        ids = list(map(self.gui.library_view.model().id, rows))
 
         if not ids:
             return error_dialog(self.gui, _('No books selected'),
@@ -82,7 +86,7 @@ class GenerateCatalogAction(InterfaceAction):
             id = self.gui.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)
             self.gui.library_view.model().beginResetModel(), self.gui.library_view.model().endResetModel()
             if job.catalog_sync:
-                sync = dynamic.get('catalogs_to_be_synced', set([]))
+                sync = dynamic.get('catalogs_to_be_synced', set())
                 sync.add(id)
                 dynamic.set('catalogs_to_be_synced', sync)
         self.gui.status_bar.show_message(_('Catalog generated.'), 3000)
@@ -93,13 +97,13 @@ class GenerateCatalogAction(InterfaceAction):
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
                 destination = os.path.join(export_dir, '%s.%s' % (
-                    sanitize_file_name_unicode(job.catalog_title), job.fmt.lower()))
+                    sanitize_file_name(job.catalog_title), job.fmt.lower()))
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
                 except EnvironmentError as err:
                     if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                         import traceback
-                        error_dialog(self, _('Permission denied'),
+                        error_dialog(self.gui, _('Permission denied'),
                                 _('Could not open %s. Is it being used by another'
                                 ' program?')%destination, det_msg=traceback.format_exc(),
                                 show=True)

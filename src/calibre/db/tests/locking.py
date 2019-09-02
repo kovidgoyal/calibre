@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,8 @@ import time, random
 from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
+from polyglot.builtins import range
+
 
 class TestLock(BaseTest):
     """Tests for db locking """
@@ -27,6 +28,7 @@ class TestLock(BaseTest):
         self.assertFalse(lock.owns_lock())
 
         done = []
+
         def test():
             if not lock.owns_lock():
                 done.append(True)
@@ -40,12 +42,14 @@ class TestLock(BaseTest):
 
     def test_multithread_deadlock(self):
         lock = SHLock()
+
         def two_shared():
             r = RWLockWrapper(lock)
             with r:
                 time.sleep(0.2)
                 with r:
                     pass
+
         def one_exclusive():
             time.sleep(0.1)
             w = RWLockWrapper(lock, is_shared=False)
@@ -102,7 +106,7 @@ class TestLock(BaseTest):
             t.daemon = True
             t.start()
             self.assertRaises(LockingError, lock.release)
-            t.join(4)
+            t.join(15)
             self.assertFalse(t.is_alive())
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
@@ -149,8 +153,9 @@ class TestLock(BaseTest):
     def test_contention(self):
         lock = SHLock()
         done = []
+
         def lots_of_acquires():
-            for _ in xrange(1000):
+            for _ in range(1000):
                 shared = random.choice([True,False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
@@ -162,7 +167,7 @@ class TestLock(BaseTest):
                 lock.release()
                 lock.release()
             done.append(True)
-        threads = [Thread(target=lots_of_acquires) for _ in xrange(10)]
+        threads = [Thread(target=lots_of_acquires) for _ in range(10)]
         for t in threads:
             t.daemon = True
             t.start()
@@ -173,4 +178,3 @@ class TestLock(BaseTest):
         self.assertEqual(len(done), len(threads), 'SHLock locking failed')
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
-

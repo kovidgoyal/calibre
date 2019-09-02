@@ -2,12 +2,11 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, svgicon, add_extra_css
+from dom import build_rule, svgicon, add_extra_css, clear
 from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
 
-iv_counter = 0
 CLASS_NAME = 'generic-items-list'
 
 add_extra_css(def():
@@ -21,65 +20,38 @@ add_extra_css(def():
     return style
 )
 
-class ItemsView:
+def build_list(container, items, subtitle):
+    c = container
+    clear(c)
+    c.classList.add(CLASS_NAME)
+    if subtitle:
+        c.appendChild(E.p(subtitle, style="font-style:italic; padding: 1em 1ex; border-bottom: solid 1px currentColor"))
+    ul = E.ul()
+    c.appendChild(ul)
+    has_icons = False
+    for item in items:
+        if item.icon:
+            has_icons = True
+            break
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal iv_counter
-        iv_counter += 1
-        self.container_id = 'items-view-' + iv_counter
-        div = E.div(
-            id=self.container_id, style='display:none', class_=CLASS_NAME,
-        )
-        book_list_container.appendChild(div)
+    for item in items:
+        ic = ''
+        if has_icons:
+            if item.icon:
+                ic = svgicon(item.icon)
+            ic = E.span(ic, '\xa0')
+        ul.appendChild(E.li(
+            E.div(ic, item.title, class_='item-title')
+        ))
+        div = ul.lastChild.firstChild
+        if item.subtitle:
+            div.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
+        if item.action:
+            ul.lastChild.addEventListener('click', item.action)
 
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
-
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
-
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
-
-    def clear(self):
-        c = self.container
-        while c.lastChild is not c.firstChild:
-            c.removeChild(c.lastChild)
-        return c
-
-    def init(self, data):
-        items = getattr(data, 'items', data)
-        subtitle = getattr(data, 'subtitle', None)
-        c = self.clear()
-        if subtitle:
-            c.appendChild(E.p(subtitle, style="font-style:italic; padding: 1em 1ex; border-bottom: solid 1px currentColor"))
-        ul = E.ul()
-        c.appendChild(ul)
-        has_icons = False
-        for item in items:
-            if item.icon_name:
-                has_icons = True
-                break
-
-        for item in items:
-            ic = ''
-            if has_icons:
-                if item.icon_name:
-                    ic = svgicon(item.icon_name)
-                ic = E.span(ic, '\xa0')
-            ul.appendChild(E.li(E.a(href='javascript:void(0)',
-                E.div(ic, item.title, class_='item-title')
-            )))
-            a = ul.lastChild.firstChild
-            if item.subtitle:
-                a.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
-            a.addEventListener('click', def(event): event.preventDefault();)
-            if item.action:
-                ul.lastChild.addEventListener('click', item.action)
+def create_item(title, action=None, subtitle=None, icon=None):
+    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon}
 
 
-def create_item(title, action=None, subtitle=None, icon_name=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon_name':icon_name}
+def create_item_list(container, items, subtitle=None):
+    build_list(container, items, subtitle)

@@ -126,7 +126,7 @@ values that the RocketWriter generates:
 
 Encrypted titles have a few more entries (including those listed above):
 
-    ISBN=<ISBN number, including dashes>
+    ISBN=<ISBN, including dashes>
     REVISION=<digits>
     TITLE_LANGUAGE=<en-us>
     PUB_NAME=<Publisher's name>

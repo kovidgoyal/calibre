@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +11,7 @@ import os, shutil, time, sys
 from calibre import isbytestring
 from calibre.constants import (iswindows, isosx, plugins, filesystem_encoding,
         islinux)
+from polyglot.builtins import unicode_type
 
 recycle = None
 
@@ -19,6 +20,7 @@ if iswindows:
     from threading import Lock
     recycler = None
     rlock = Lock()
+
     def start_recycler():
         global recycler
         if recycler is None:
@@ -26,16 +28,13 @@ if iswindows:
             recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
     def recycle_path(path):
-        from win32com.shell import shell, shellcon
-        flags = (shellcon.FOF_ALLOWUNDO | shellcon.FOF_NOCONFIRMATION | shellcon.FOF_NOCONFIRMMKDIR | shellcon.FOF_NOERRORUI |
-                 shellcon.FOF_SILENT | shellcon.FOF_RENAMEONCOLLISION)
-        retcode, aborted = shell.SHFileOperation((0, shellcon.FO_DELETE, path, None, flags, None, None))
-        if retcode != 0 or aborted:
-            raise RuntimeError('Failed to delete: %r with error code: %d' % (path, retcode))
+        plugins['winutil'][0].move_to_trash(unicode_type(path))
 
     def recycler_main():
+        stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         while True:
-            path = eintr_retry_call(sys.stdin.readline)
+            path = eintr_retry_call(stdin.readline)
             if not path:
                 break
             try:
@@ -45,16 +44,16 @@ if iswindows:
             try:
                 recycle_path(path)
             except:
-                eintr_retry_call(print, b'KO', file=sys.stdout)
-                sys.stdout.flush()
+                eintr_retry_call(stdout.write, b'KO\n')
+                stdout.flush()
                 try:
                     import traceback
                     traceback.print_exc()  # goes to stderr, which is the same as for parent process
                 except Exception:
                     pass  # Ignore failures to write the traceback, since GUI processes on windows have no stderr
             else:
-                eintr_retry_call(print, b'OK', file=sys.stdout)
-                sys.stdout.flush()
+                eintr_retry_call(stdout.write, b'OK\n')
+                stdout.flush()
 
     def delegate_recycle(path):
         if '\n' in path:
@@ -86,7 +85,7 @@ if iswindows:
         return delegate_recycle(path)
 
 elif isosx:
-    u = plugins['usbobserver'][0]
+    u = plugins['cocoa'][0]
     if hasattr(u, 'send2trash'):
         def osx_recycle(path):
             if isbytestring(path):
@@ -95,6 +94,7 @@ elif isosx:
         recycle = osx_recycle
 elif islinux:
     from calibre.utils.linux_trash import send2trash
+
     def fdo_recycle(path):
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
@@ -104,13 +104,16 @@ elif islinux:
 
 can_recycle = callable(recycle)
 
+
 def nuke_recycle():
     global can_recycle
     can_recycle = False
 
+
 def restore_recyle():
     global can_recycle
     can_recycle = callable(recycle)
+
 
 def delete_file(path, permanent=False):
     if not permanent and can_recycle:
@@ -121,6 +124,7 @@ def delete_file(path, permanent=False):
             import traceback
             traceback.print_exc()
     os.remove(path)
+
 
 def delete_tree(path, permanent=False):
     if permanent:
@@ -143,4 +147,3 @@ def delete_tree(path, permanent=False):
                 import traceback
                 traceback.print_exc()
         delete_tree(path, permanent=True)
-

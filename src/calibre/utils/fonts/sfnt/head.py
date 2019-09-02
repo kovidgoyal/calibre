@@ -1,17 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
 from struct import unpack_from, pack, calcsize
 
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from polyglot.builtins import zip
+
 
 class HeadTable(UnknownTable):
 
@@ -46,12 +46,13 @@ class HeadTable(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
     def update(self):
         vals = [getattr(self, f) for f in self._fields]
         self.raw = pack(self._fmt, *vals)
+
 
 class HorizontalHeader(UnknownTable):
 
@@ -83,7 +84,7 @@ class HorizontalHeader(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
         raw = hmtx.raw
@@ -97,6 +98,7 @@ class HorizontalHeader(UnknownTable):
         fmt = '>%dh'%(2*num)
         entries = unpack_from(fmt.encode('ascii'), long_hor_metric)
         self.left_side_bearings = entries[1::2]
+
 
 class OS2Table(UnknownTable):
 
@@ -146,13 +148,14 @@ class OS2Table(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
     def zero_fstype(self):
         prefix = calcsize(b'>HhHH')
         self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix+2:]
         self.fs_type = 0
+
 
 class PostTable(UnknownTable):
 
@@ -164,4 +167,3 @@ class PostTable(UnknownTable):
             return
         (self._version, self._italic_angle, self.underline_position,
          self.underline_thickness) = unpack_from(b'>llhh', self.raw)
-

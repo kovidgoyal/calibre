@@ -19,6 +19,7 @@
     Lesser General Public License for more details.
 
 """
+from __future__ import print_function
 
 """0.13 update - fix IPv6 support
                  some cleanups in code"""
@@ -86,6 +87,8 @@ import socket
 import threading
 import select
 import traceback
+import numbers
+from functools import reduce
 
 __all__ = ["Zeroconf", "ServiceInfo", "ServiceBrowser"]
 
@@ -185,14 +188,17 @@ _TYPES = {_TYPE_A : "a",
 
 # utility functions
 
+
 def currentTimeMillis():
     """Current system time in milliseconds"""
     return time.time() * 1000
+
 
 def ntop(address):
     """Convert address to its string representation"""
     af = len(address) == 4 and socket.AF_INET or socket.AF_INET6
     return socket.inet_ntop(af, address)
+
 
 def address_type(address):
     """Return appropriate record type for an address"""
@@ -200,33 +206,42 @@ def address_type(address):
 
 # Exceptions
 
+
 class MalformedPacketException(Exception):
     pass
+
 
 class NonLocalNameException(Exception):
     pass
 
+
 class NonUniqueNameException(Exception):
     pass
+
 
 class NamePartTooLongException(Exception):
     pass
 
+
 class AbstractMethodException(Exception):
     pass
 
+
 class BadTypeInNameException(Exception):
     pass
+
 
 class BadDomainName(Exception):
 
     def __init__(self, pos):
         Exception.__init__(self, "at position " + str(pos))
 
+
 class BadDomainNameCircular(BadDomainName):
     pass
 
 # implementation classes
+
 
 class DNSEntry(object):
 
@@ -276,6 +291,7 @@ class DNSEntry(object):
         else:
             result += "]"
         return result
+
 
 class DNSQuestion(DNSEntry):
 
@@ -357,6 +373,7 @@ class DNSRecord(DNSEntry):
         arg = "%s/%s,%s" % (self.ttl, self.getRemainingTTL(currentTimeMillis()), other)
         return DNSEntry.toString(self, "record", arg)
 
+
 class DNSAddress(DNSRecord):
 
     """A DNS address record"""
@@ -382,6 +399,7 @@ class DNSAddress(DNSRecord):
         except:
             return 'record[%s]' % self.address
 
+
 class DNSHinfo(DNSRecord):
 
     """A DNS host information record"""
@@ -406,6 +424,7 @@ class DNSHinfo(DNSRecord):
         """String representation"""
         return self.cpu + " " + self.os
 
+
 class DNSPointer(DNSRecord):
 
     """A DNS pointer record"""
@@ -427,6 +446,7 @@ class DNSPointer(DNSRecord):
     def __repr__(self):
         """String representation"""
         return self.toString(self.alias)
+
 
 class DNSText(DNSRecord):
 
@@ -452,6 +472,7 @@ class DNSText(DNSRecord):
             return self.toString(self.text[:7] + "...")
         else:
             return self.toString(self.text)
+
 
 class DNSService(DNSRecord):
 
@@ -480,6 +501,7 @@ class DNSService(DNSRecord):
     def __repr__(self):
         """String representation"""
         return self.toString("%s:%s" % (self.server, self.port))
+
 
 class DNSIncoming(object):
 
@@ -929,6 +951,7 @@ class Engine(threading.Thread):
         self.condition.notify()
         self.condition.release()
 
+
 class Listener(object):
 
     """A Listener is used by this module to listen on the multicast
@@ -1115,9 +1138,9 @@ class ServiceInfo(object):
                 value = properties[key]
                 if value is None:
                     suffix = ''
-                elif isinstance(value, str):
+                elif isinstance(value, bytes):
                     suffix = value
-                elif isinstance(value, int):
+                elif isinstance(value, numbers.Integral):
                     suffix = value and 'true' or 'false'
                 else:
                     suffix = ''
@@ -1284,6 +1307,7 @@ class Zeroconf(object):
 
     Supports registration, unregistration, queries and browsing.
     """
+
     def __init__(self, bindaddress=None):
         """Creates an instance of the Zeroconf class, establishing
         multicast communications, listening and reaping threads."""
@@ -1360,6 +1384,7 @@ class Zeroconf(object):
         if info.request(self, timeout):
             return info
         return None
+    get_service_info = getServiceInfo
 
     def addServiceListener(self, type, listener):
         """Adds a listener for a particular service type.  This object
@@ -1400,6 +1425,7 @@ class Zeroconf(object):
             self.send(out)
             i += 1
             nextTime += _REGISTER_TIME
+    register_service = registerService
 
     def unregisterService(self, info):
         """Unregister a service."""
@@ -1428,6 +1454,7 @@ class Zeroconf(object):
             self.send(out)
             i += 1
             nextTime += _UNREGISTER_TIME
+    unregister_service = unregisterService
 
     def unregisterAllServices(self):
         """Unregister all registered services."""
@@ -1605,22 +1632,23 @@ class Zeroconf(object):
 # Test a few module features, including service registration, service
 # query (for Zoe), and service unregistration.
 
+
 if __name__ == '__main__':
-    print "Multicast DNS Service Discovery for Python, version", __version__
+    print("Multicast DNS Service Discovery for Python, version", __version__)
     r = Zeroconf()
-    print "1. Testing registration of a service..."
+    print("1. Testing registration of a service...")
     desc = {'version':'0.10','a':'test value', 'b':'another value'}
     info = ServiceInfo("_http._tcp.local.", "My Service Name._http._tcp.local.", socket.inet_aton("127.0.0.1"), 1234, 0, 0, desc)
-    print "   Registering service..."
+    print("   Registering service...")
     r.registerService(info)
-    print "   Registration done."
-    print "2. Testing query of service information..."
-    print "   Getting ZOE service:", str(r.getServiceInfo("_http._tcp.local.", "ZOE._http._tcp.local."))
-    print "   Query done."
-    print "3. Testing query of own service..."
-    print "   Getting self:", str(r.getServiceInfo("_http._tcp.local.", "My Service Name._http._tcp.local."))
-    print "   Query done."
-    print "4. Testing unregister of service information..."
+    print("   Registration done.")
+    print("2. Testing query of service information...")
+    print("   Getting ZOE service:", str(r.getServiceInfo("_http._tcp.local.", "ZOE._http._tcp.local.")))
+    print("   Query done.")
+    print("3. Testing query of own service...")
+    print("   Getting self:", str(r.getServiceInfo("_http._tcp.local.", "My Service Name._http._tcp.local.")))
+    print("   Query done.")
+    print("4. Testing unregister of service information...")
     r.unregisterService(info)
-    print "   Unregister done."
+    print("   Unregister done.")
     r.close()

@@ -1,4 +1,8 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 import os, sys
+from . import open_for_read
+
+
 class Configure:
 
     def __init__(self,
@@ -19,6 +23,7 @@ class Configure:
         self.__debug_dir = debug_dir
         self.__bug_handler = bug_handler
         self.__show_config_file = show_config_file
+
     def get_configuration(self, type):
         self.__configuration_file = self.__get_file_name()
         return_dict = {}
@@ -28,7 +33,7 @@ class Configure:
         if self.__show_config_file and not self.__configuration_file:
             sys.stderr.write('No configuraiton file found; using default values\n')
         if self.__configuration_file:
-            read_obj = open(self.__configuration_file, 'r')
+            read_obj = open_for_read(self.__configuration_file)
             line_to_read = 1
             line_num = 0
             while line_to_read:
@@ -47,7 +52,7 @@ class Configure:
                     msg += ('Options take the form of option = value.\n')
                     msg += ('Please correct the configuration file "%s" before continuing\n'
                         % self.__configuration_file)
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
                 att = fields[0]
                 value = fields[1]
                 att = att.strip()
@@ -57,8 +62,9 @@ class Configure:
         if return_dict == 1:
             msg = ('Please correct the configuration file "%s" before continuing\n'
                     % self.__configuration_file)
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         return return_dict
+
     def __get_file_name(self):
         home_var = os.environ.get('HOME')
         if home_var:
@@ -74,6 +80,7 @@ class Configure:
         if os.path.isfile(script_file):
             return script_file
         return self.__configuration_file
+
     def __parse_dict(self, return_dict):
         allowable = [
             'configuration-directory',

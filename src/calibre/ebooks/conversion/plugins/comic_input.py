@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -12,17 +13,20 @@ import shutil, textwrap, codecs, os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
+from polyglot.builtins import getcwd, map
+
 
 class ComicInput(InputFormatPlugin):
 
     name        = 'Comic Input'
     author      = 'Kovid Goyal'
     description = 'Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices'
-    file_types  = set(['cbz', 'cbr', 'cbc'])
+    file_types  = {'cbz', 'cbr', 'cbc'}
     is_image_collection = True
+    commit_name = 'comic_input'
     core_usage = -1
 
-    options = set([
+    options = {
         OptionRecommendation(name='colors', recommended_value=0,
             help=_('Reduce the number of colors used in the image. This works only'
                    ' if you choose the PNG output format. It is useful to reduce file sizes.'
@@ -54,7 +58,7 @@ class ComicInput(InputFormatPlugin):
               "alphabetically by name. Instead use the order they were "
               "added to the comic.")),
         OptionRecommendation(name='output_format', choices=['png', 'jpg'],
-            recommended_value='png', help=_('The format that images in the created ebook '
+            recommended_value='png', help=_('The format that images in the created e-book '
                 'are converted to. You can experiment to see which format gives '
                 'you optimal size and look on your device.')),
         OptionRecommendation(name='no_process', recommended_value=False,
@@ -69,9 +73,9 @@ class ComicInput(InputFormatPlugin):
             help=_('When converting a CBC do not add links to each page to'
                 ' the TOC. Note this only applies if the TOC has more than one'
                 ' section')),
-        ])
+        }
 
-    recommendations = set([
+    recommendations = {
         ('margin_left', 0, OptionRecommendation.HIGH),
         ('margin_top',  0, OptionRecommendation.HIGH),
         ('margin_right', 0, OptionRecommendation.HIGH),
@@ -86,7 +90,7 @@ class ComicInput(InputFormatPlugin):
         ('page_breaks_before', None, OptionRecommendation.HIGH),
         ('disable_font_rescaling', True, OptionRecommendation.HIGH),
         ('linearize_tables', False, OptionRecommendation.HIGH),
-        ])
+        }
 
     def get_comics_from_collection(self, stream):
         from calibre.libunzip import extract as zipextract
@@ -99,7 +103,8 @@ class ComicInput(InputFormatPlugin):
                     '%s is not a valid comic collection'
                     ' no comics.txt was found in the file')
                         %stream.name)
-            raw = open('comics.txt', 'rb').read()
+            with open('comics.txt', 'rb') as f:
+                raw = f.read()
             if raw.startswith(codecs.BOM_UTF16_BE):
                 raw = raw.decode('utf-16-be')[1:]
             elif raw.startswith(codecs.BOM_UTF16_LE):
@@ -135,8 +140,8 @@ class ComicInput(InputFormatPlugin):
                     %comic)
         if self.opts.no_process:
             n2 = []
-            for page in new_pages:
-                n2.append(os.path.join(tdir2, os.path.basename(page)))
+            for i, page in enumerate(new_pages):
+                n2.append(os.path.join(tdir2, '{} - {}' .format(i, os.path.basename(page))))
                 shutil.copyfile(page, n2[-1])
             new_pages = n2
         else:
@@ -173,7 +178,7 @@ class ComicInput(InputFormatPlugin):
         comics = []
         for i, x in enumerate(comics_):
             title, fname = x
-            cdir = u'comic_%d'%(i+1) if len(comics_) > 1 else u'.'
+            cdir = 'comic_%d'%(i+1) if len(comics_) > 1 else '.'
             cdir = os.path.abspath(cdir)
             if not os.path.exists(cdir):
                 os.makedirs(cdir)
@@ -188,7 +193,7 @@ class ComicInput(InputFormatPlugin):
 
         mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
             [_('Unknown')])
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         entries = []
 
         def href(x):
@@ -227,14 +232,14 @@ class ComicInput(InputFormatPlugin):
                                 _('Page')+' %d'%(i+1), play_order=po)
                         po += 1
         opf.set_toc(toc)
-        m, n = open(u'metadata.opf', 'wb'), open('toc.ncx', 'wb')
-        opf.render(m, n, u'toc.ncx')
-        return os.path.abspath(u'metadata.opf')
+        with open('metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
+            opf.render(m, n, 'toc.ncx')
+        return os.path.abspath('metadata.opf')
 
     def create_wrappers(self, pages):
         from calibre.ebooks.oeb.base import XHTML_NS
         wrappers = []
-        WRAPPER = textwrap.dedent(u'''\
+        WRAPPER = textwrap.dedent('''\
         <html xmlns="%s">
             <head>
                 <meta charset="utf-8"/>
@@ -255,9 +260,8 @@ class ComicInput(InputFormatPlugin):
         dir = os.path.dirname(pages[0])
         for i, page in enumerate(pages):
             wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
-            page = os.path.join(dir, u'page_%d.xhtml'%(i+1))
+            page = os.path.join(dir, 'page_%d.xhtml'%(i+1))
             with open(page, 'wb') as f:
                 f.write(wrapper.encode('utf-8'))
             wrappers.append(page)
         return wrappers
-

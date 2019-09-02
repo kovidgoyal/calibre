@@ -49,8 +49,8 @@ wpd_init(PyObject *self, PyObject *args) {
 
         if (FAILED(hr)) {
             portable_device_manager = NULL;
-            PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ? 
-                "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." : 
+            PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ?
+                "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." :
                 "Failed to create the WPD device manager interface");
             return NULL;
         }
@@ -116,7 +116,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
                 PyTuple_SET_ITEM(ans, i, temp);
             }
         }
-    } else { 
+    } else {
         hresult_set_exc("Failed to get list of portable devices", hr);
     }
 
@@ -161,6 +161,8 @@ wpd_device_info(PyObject *self, PyObject *args) {
     return ans;
 } // }}}
 
+static char wpd_doc[] = "Interface to the WPD windows service.";
+
 static PyMethodDef wpd_methods[] = {
     {"init", wpd_init, METH_VARARGS,
         "init(name, major_version, minor_version, revision)\n\n Initializes this module. Call this method *only* in the thread in which you intend to use this module. Also remember to call uninit before the thread exits."
@@ -181,33 +183,60 @@ static PyMethodDef wpd_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&wpd_module)
+static struct PyModuleDef wpd_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "wpd",
+    /* m_doc      */ wpd_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ wpd_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_wpd(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("wpd", wpd_methods, wpd_doc)
+CALIBRE_MODINIT_FUNC initwpd(void) {
+#endif
 
-PyMODINIT_FUNC
-initwpd(void) {
     PyObject *m;
 
     wpd::DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&wpd::DeviceType) < 0)
         return;
- 
-    m = Py_InitModule3("wpd", wpd_methods, "Interface to the WPD windows service.");
-    if (m == NULL) return;
+
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
 
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
-    if (WPDError == NULL) return;
+    if (WPDError == NULL) {
+        INITERROR;
+    }
     PyModule_AddObject(m, "WPDError", WPDError);
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
-    if (NoWPD == NULL) return;
+    if (NoWPD == NULL) {
+        INITERROR;
+    }
     PyModule_AddObject(m, "NoWPD", NoWPD);
 
     WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
-    if (WPDFileBusy == NULL) return;
+    if (WPDFileBusy == NULL) {
+        INITERROR;
+    }
     PyModule_AddObject(m, "WPDFileBusy", WPDFileBusy);
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
 
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
-
-

@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.oeb.base import XPath
+
 
 class CSSCleanup(object):
 
@@ -23,6 +23,7 @@ class CSSCleanup(object):
         for body in XPath('//h:body')(item.data):
             style = stylizer.style(body)
             style.drop('height')
+
 
 def remove_duplicate_anchors(oeb):
     # The Kindle apparently has incorrect behavior for duplicate anchors, see

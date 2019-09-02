@@ -1,0 +1,107 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from gettext import gettext as _
+from dom import add_extra_css, build_rule, unique_id, element
+from book_list.globals import get_session_data
+from elementmaker import E
+
+CONTAINER = unique_id('reader-page-layout')
+MARGINS = unique_id('reader-page-margins')
+READ_MODE = unique_id('read-mode')
+COLS = unique_id('cols-per-screen')
+TEXT_AREA = unique_id('text-area')
+
+add_extra_css(def():
+    sel = '#' + MARGINS
+    style = build_rule(sel, margin_left='2em', margin_top='-1em')
+    style += build_rule('#{} td'.format(CONTAINER), padding='1ex 1em')
+    return style
+)
+
+def create_layout_panel(container):
+    container.appendChild(E.div(id=CONTAINER))
+    container = container.lastChild
+    sd = get_session_data()
+    container.appendChild(E.p(_('Change the page margins (in pixels) below'), style='margin:1ex 1rem; padding: 1ex 0'))
+    container.appendChild(E.table(id=MARGINS))
+    labels = {'top':_('Top:'), 'bottom':_('Bottom:'), 'left':_('Left:'), 'right':_('Right:')}
+    for which in 'top bottom left right'.split(' '):
+        container.lastChild.appendChild(E.tr(
+            E.td(labels[which]), E.td(E.input(type='number', min='0', step='1', name=which, value=str(sd.get('margin_'+which))))
+        ))
+
+    def sec(text):
+        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px'))
+
+    sec(_('Choose the page layout mode. In paged mode, the text is split up into individual pages, as in a paper book. In flow mode'
+            ' text is presented as one long scrolling page, as in web browsers.'))
+    container.appendChild(E.div(id=READ_MODE, style='margin: 1ex 2rem; display: flex;'))
+    rm = sd.get('read_mode')
+    rm = 'flow' if rm is 'flow' else 'paged'
+    def rb(name, text):
+        d = container.lastChild
+        d.appendChild(E.label(E.input(type='radio', name='page-layout-mode', checked=rm is name), text))
+    rb('paged', _('Paged mode'))
+    container.lastChild.appendChild(E.span('\xa0', style='width:3em'))
+    rb('flow', _('Flow mode'))
+
+    sec(_('In paged mode, control the number of pages per screen. A setting of zero means the number of pages is'
+          ' set based on the screen size.'))
+    cps = sd.get('columns_per_screen')
+    container.appendChild(E.table(style='margin: 1ex 1rem', id=COLS,
+        E.tr(E.td(_('In portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
+        E.tr(E.td(_('In landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
+    ))
+
+    sec(_('Change the maximum screen area (in pixels) used to display text. A value of zero means that all available screen area is used.'))
+    container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
+        E.tr(E.td(_('Max. width:')), E.td(E.input(type='number', name='width',   min='0', step='10', value=str(sd.get('max_text_width'))))),
+        E.tr(E.td(_('Max. height:')), E.td(E.input(type='number', name='height', min='0', step='10', value=str(sd.get('max_text_height'))))),
+    ))
+
+
+develop = create_layout_panel
+
+
+def commit_layout(onchange, container):
+    was_changed = False
+    sd = get_session_data()
+    for which in 'top bottom left right'.split(' '):
+        i = element(MARGINS, '[name={}]'.format(which))
+        try:
+            val = int(i.value)
+        except:
+            continue
+        if val is not sd.get('margin_' + which):
+            was_changed = True
+            sd.set('margin_' + which, val)
+    rm = sd.get('read_mode')
+    rm = 'flow' if rm is 'flow' else 'paged'
+    crm = 'paged' if element(READ_MODE, 'input').checked else 'flow'
+    if rm is not crm:
+        was_changed = True
+        sd.set('read_mode', crm)
+    cps = sd.get('columns_per_screen')
+    for which in ('portrait', 'landscape'):
+        inp = element(COLS, 'input[name={}]'.format(which))
+        try:
+            val = int(inp.value)
+        except:
+            continue
+        if cps[which] is not val:
+            cps[which] = val
+            sd.set('columns_per_screen', cps)
+            was_changed = True
+    for which in ('width', 'height'):
+        try:
+            val = int(element(TEXT_AREA, 'input[name={}]'.format(which)).value)
+        except:
+            continue
+        if val is not sd.get('max_text_' + which):
+            was_changed = True
+            sd.set('max_text_' + which, val)
+
+    if was_changed:
+        onchange()

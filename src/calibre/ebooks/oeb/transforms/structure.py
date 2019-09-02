@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,11 +9,13 @@ __docformat__ = 'restructuredtext en'
 import re, uuid
 
 from lxml import etree
-from urlparse import urlparse
 from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
+from polyglot.builtins import itervalues, unicode_type
+from polyglot.urllib import urlparse
+
 
 def XPath(x):
     try:
@@ -22,8 +24,10 @@ def XPath(x):
         raise ConversionError(
         'The syntax of the XPath expression %s is invalid.' % repr(x))
 
+
 def isspace(x):
-    return not x or x.replace(u'\xa0', u'').isspace()
+    return not x or x.replace('\xa0', '').isspace()
+
 
 def at_start(elem):
     ' Return True if there is no content before elem '
@@ -41,6 +45,7 @@ def at_start(elem):
             continue
         return False
     return False
+
 
 class DetectStructure(object):
 
@@ -80,8 +85,8 @@ class DetectStructure(object):
             for item in oeb.spine:
                 for elem in pb_xpath(item.data):
                     try:
-                        prev = elem.itersiblings(tag=etree.Element,
-                                preceding=True).next()
+                        prev = next(elem.itersiblings(tag=etree.Element,
+                                preceding=True))
                         if (barename(elem.tag) in {'h1', 'h2'} and barename(
                                 prev.tag) in {'h1', 'h2'} and (not prev.tail or
                                     not prev.tail.split())):
@@ -119,11 +124,11 @@ class DetectStructure(object):
                 elem = matches[0]
                 eid = elem.get('id', None)
                 if not eid:
-                    eid = u'start_reading_at_'+unicode(uuid.uuid4()).replace(u'-', u'')
+                    eid = 'start_reading_at_'+unicode_type(uuid.uuid4()).replace('-', '')
                     elem.set('id', eid)
-                if u'text' in self.oeb.guide:
-                    self.oeb.guide.remove(u'text')
-                self.oeb.guide.add(u'text', u'Start', item.href+u'#'+eid)
+                if 'text' in self.oeb.guide:
+                    self.oeb.guide.remove('text')
+                self.oeb.guide.add('text', 'Start', item.href+'#'+eid)
                 self.log('Setting start reading at position to %s in %s'%(
                     self.opts.start_reading_at, item.href))
                 return
@@ -133,7 +138,7 @@ class DetectStructure(object):
     def get_toc_parts_for_xpath(self, expr):
         # if an attribute is selected by the xpath expr then truncate it
         # from the path and instead return it as where to find the title text
-        title_attribute_regex = re.compile('/@([-\w]+)$')
+        title_attribute_regex = re.compile(r'/@([-\w]+)$')
         match = title_attribute_regex.search(expr)
         if match is not None:
             return expr[0:match.start()], match.group(1)
@@ -172,7 +177,7 @@ class DetectStructure(object):
                 if chapter_mark == 'none':
                     continue
                 if chapter_mark == 'rule':
-                    mark = etree.Element(XHTML('hr'))
+                    mark = elem.makeelement(XHTML('hr'))
                 elif chapter_mark == 'pagebreak':
                     if c[item] < 3 and at_start(elem):
                         # For the first two elements in this item, check if they
@@ -182,9 +187,9 @@ class DetectStructure(object):
                         # feedbooks epubs match both a heading tag and its
                         # containing div with the default chapter expression.
                         continue
-                    mark = etree.Element(XHTML('div'), style=page_break_after)
+                    mark = elem.makeelement(XHTML('div'), style=page_break_after)
                 else:  # chapter_mark == 'both':
-                    mark = etree.Element(XHTML('hr'), style=page_break_before)
+                    mark = elem.makeelement(XHTML('hr'), style=page_break_before)
                 try:
                     elem.addprevious(mark)
                 except TypeError:
@@ -266,8 +271,8 @@ class DetectStructure(object):
                 return []
 
         for document in self.oeb.spine:
-            previous_level1 = list(added.itervalues())[-1] if added else None
-            previous_level2 = list(added2.itervalues())[-1] if added2 else None
+            previous_level1 = list(itervalues(added))[-1] if added else None
+            previous_level2 = list(itervalues(added2))[-1] if added2 else None
 
             level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
             for elem in find_matches(level1_toc, document.data):
@@ -317,5 +322,3 @@ class DetectStructure(object):
                                     level2.add(text, _href,
                                         play_order=self.oeb.toc.next_play_order())
                                 break
-
-

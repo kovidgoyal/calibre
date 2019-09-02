@@ -32,7 +32,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
 
     # rules for wyborcza.biz
     preprocess_regexps.append((re.compile(
-        u'(<br>)?(<br>)?        Czytaj (także|też):.*?</a>\.?<br>', re.DOTALL), lambda m: ''))
+        u'(<br>)?(<br>)?        Czytaj (także|też):.*?</a>\\.?<br>', re.DOTALL), lambda m: ''))
 
     feeds = [(u'Kraj', u'http://rss.feedsportal.com/c/32739/f/530266/index.rss'),
              (u'\u015awiat', u'http://rss.feedsportal.com/c/32739/f/530270/index.rss'),

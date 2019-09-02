@@ -23,6 +23,7 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.customize.ui import input_format_plugins, output_format_plugins
 from calibre.gui2.convert import config_widget_for_input_plugin
 
+
 class Model(QStringListModel):
 
     def __init__(self, widgets):
@@ -56,6 +57,7 @@ class ListView(QListView):
         QListView.currentChanged(self, cur, prev)
         self.current_changed.emit(cur, prev)
 
+
 class Base(ConfigWidgetBase):
 
     restore_defaults_desc = _('Restore settings to default values. '
@@ -78,8 +80,19 @@ class Base(ConfigWidgetBase):
                 merge_plugin_recs=False)
 
         def widget_factory(cls):
-            return cls(self, self.plumber.get_option_by_name,
-                self.plumber.get_option_help, None, None)
+            plugin = getattr(cls, 'conv_plugin', None)
+            if plugin is None:
+                hfunc = self.plumber.get_option_help
+            else:
+                options = plugin.options.union(plugin.common_options)
+
+                def hfunc(name):
+                    for rec in options:
+                        if rec.option == name:
+                            ans = getattr(rec, 'help', None)
+                            if ans is not None:
+                                return ans.replace('%default', str(rec.recommended_value))
+            return cls(self, self.plumber.get_option_by_name, hfunc, None, None)
 
         self.load_conversion_widgets()
         widgets = list(map(widget_factory, self.conversion_widgets))
@@ -113,12 +126,14 @@ class Base(ConfigWidgetBase):
     def category_current_changed(self, n, p):
         self.stack.setCurrentIndex(n.row())
 
+
 class CommonOptions(Base):
 
     def load_conversion_widgets(self):
         self.conversion_widgets = [LookAndFeelWidget, HeuristicsWidget,
                 PageSetupWidget,
                 StructureDetectionWidget, TOCWidget, SearchAndReplaceWidget,]
+
 
 class InputOptions(Base):
 
@@ -127,7 +142,9 @@ class InputOptions(Base):
         for plugin in input_format_plugins():
             pw = config_widget_for_input_plugin(plugin)
             if pw is not None:
+                pw.conv_plugin = plugin
                 self.conversion_widgets.append(pw)
+
 
 class OutputOptions(Base):
 
@@ -139,14 +156,15 @@ class OutputOptions(Base):
                 output_widget = importlib.import_module(
                         'calibre.gui2.convert.'+name)
                 pw = output_widget.PluginWidget
+                pw.conv_plugin = plugin
                 self.conversion_widgets.append(pw)
             except ImportError:
                 continue
 
-if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
-    # test_widget('Conversion', 'Input Options')
-    # test_widget('Conversion', 'Common Options')
-    test_widget('Conversion', 'Output Options')
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    # test_widget('Conversion', 'Input Options')
+    test_widget('Conversion', 'Common Options')
+    # test_widget('Conversion', 'Output Options')

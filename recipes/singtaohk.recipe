@@ -31,7 +31,6 @@ import os
 import datetime
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
@@ -413,7 +412,7 @@ class STHKRecipe(BasicNewsRecipe):
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
             ref = Guide.Reference(os.path.basename(
-                self.masthead_path), os.getcwdu())
+                self.masthead_path), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -498,7 +497,7 @@ class STHKRecipe(BasicNewsRecipe):
                                 doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
+                                fi.write(type(u'')(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 
@@ -527,5 +526,5 @@ class STHKRecipe(BasicNewsRecipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)

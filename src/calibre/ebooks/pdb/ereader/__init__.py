@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -6,10 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
+
 class EreaderError(Exception):
     pass
 
-def image_name(name, taken_names=[]):
+
+def image_name(name, taken_names=()):
     name = os.path.basename(name)
 
     if len(name) > 32:
@@ -18,11 +21,10 @@ def image_name(name, taken_names=[]):
         namee = name[10+cut:]
         name = '%s%s.png' % (names, namee)
 
+    i = 0
+    base_name, ext = os.path.splitext(name)
     while name in taken_names:
-        for i in xrange(999999999999999999999999999):
-            name = '%s%s.png' % (name[:-len('%s' % i)], i)
+        i += 1
+        name = '%s%s%s' % (base_name, i, ext)
 
-    name = name.ljust(32, '\x00')[:32]
-
-    return name
-
+    return name.ljust(32, '\x00')[:32]

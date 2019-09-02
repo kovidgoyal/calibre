@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+    <String Id="AdvancedWelcomeEulaDlgDescriptionPerUser">Click Advanced to change installation settings.</String>
+    <String Id="ProgressTextFileCost">Computing space requirements, this may take up to five minutes...</String>
+    <String Id="ProgressTextCostInitialize">Computing space requirements, this may take up to five minutes...</String>
+    <String Id="ProgressTextCostFinalize">Computing space requirements, this may take up to five minutes...</String>
+    <String Id="WaitForCostingDlgText">Please wait while the installer finishes determining your disk space requirements, this may take up to five minutes...</String>
+</WixLocalization>
+

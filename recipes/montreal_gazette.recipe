@@ -1,5 +1,6 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 __license__ = 'GPL v3'
 
 '''
@@ -7,7 +8,14 @@ www.canada.com
 '''
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -175,15 +183,7 @@ class CanWestPaper(BasicNewsRecipe):
         return fixed
 
     def massageNCXText(self, description):
-        # Kindle TOC descriptions won't render certain characters
-        if description:
-            massaged = unicode(BeautifulStoneSoup(
-                description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
-            # Replace '&' with '&'
-            massaged = re.sub("&", "&", massaged)
-            return self.fixChars(massaged)
-        else:
-            return description
+        return description
 
     def populate_article_metadata(self, article, soup, first):
         if first:
@@ -217,21 +217,21 @@ class CanWestPaper(BasicNewsRecipe):
         pgall = soup.find('div', attrs={'id': 'storyphoto'})
         if pgall is not None:  # photo gallery perhaps
             if (soup.find('div', attrs={'id': 'storycontent'}) is None):
-                allpics = Tag(soup, 'div')
+                allpics = new_tag(soup, 'div')
                 first_img = pgall.find('div', 'storyimage')
                 if first_img is not None:
                     first_img.extract()
                     tlist = pgall.find('div', attrs={'id': 'relatedthumbs'})
                     if tlist is not None:
                         for atag in tlist.findAll('a'):
-                            img = Tag(soup, 'img')
+                            img = new_tag(soup, 'img')
                             srcpre, sep, srcpost = atag.img[
                                 'src'].partition('?')
                             img['src'] = srcpre
-                            pdesc = Tag(soup, 'p')
+                            pdesc = new_tag(soup, 'p')
                             pdesc.insert(0, atag.img['alt'])
                             pdesc['class'] = 'photocaption'
-                            div = Tag(soup, 'div')
+                            div = new_tag(soup, 'div')
                             div.insert(0, pdesc)
                             div.insert(0, img)
                             allpics.append(div)
@@ -280,12 +280,12 @@ class CanWestPaper(BasicNewsRecipe):
                     if dtag is not None:
                         stag = dtag.span
                         if stag is not None:
-                            if stag['class'] != 'timestamp':
+                            if ''.join(stag['class']) != 'timestamp':
                                 description = self.tag_to_string(stag, False)
                         else:
                             description = self.tag_to_string(dtag, False)
                         print("DESCRIPTION: " + description)
-                    if not articles.has_key(key):  # noqa
+                    if key not in articles:
                         articles[key] = []
                     articles[key].append(dict(
                         title=title, url=url, date='', description=description, author='', content=''))
@@ -309,5 +309,5 @@ class CanWestPaper(BasicNewsRecipe):
 
         for (k, url) in self.postmedia_index_pages:
             parse_web_index(k, url)
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]  # noqa
+        ans = [(key, articles[key]) for key in ans if key in articles]
         return ans

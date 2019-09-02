@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
         QProgressBar, QSize, QTimer, pyqtSignal, Qt)
@@ -13,11 +12,12 @@ from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding
 
+
 class DBRestore(QDialog):
 
     update_signal = pyqtSignal(object, object)
 
-    def __init__(self, parent, library_path):
+    def __init__(self, parent, library_path, wait_time=2):
         QDialog.__init__(self, parent)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -34,7 +34,7 @@ class DBRestore(QDialog):
         self.msg.setWordWrap(True)
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         self.l.addWidget(self.bb)
-        self.bb.rejected.connect(self.reject)
+        self.bb.rejected.connect(self.confirm_cancel)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.rejected = False
@@ -46,7 +46,7 @@ class DBRestore(QDialog):
         self.restorer.daemon = True
 
         # Give the metadata backup thread time to stop
-        QTimer.singleShot(2000, self.start)
+        QTimer.singleShot(wait_time * 1000, self.start)
 
     def start(self):
         self.restorer.start()
@@ -56,6 +56,12 @@ class DBRestore(QDialog):
         self.rejected = True
         self.restorer.progress_callback = lambda x, y: x
         QDialog.reject(self)
+
+    def confirm_cancel(self):
+        if question_dialog(self, _('Are you sure?'), _(
+            'The restore has not completed, are you sure you want to cancel?'),
+            default_yes=False, override_icon='dialog_warning.png'):
+            self.reject()
 
     def update(self):
         if self.restorer.is_alive():
@@ -74,6 +80,7 @@ class DBRestore(QDialog):
             self.msg.setText(msg)
             self.pb.setValue(step)
 
+
 def _show_success_msg(restorer, parent=None):
     r = restorer
     olddb = _('The old database was saved as: %s')%force_unicode(r.olddb,
@@ -87,6 +94,7 @@ def _show_success_msg(restorer, parent=None):
         info_dialog(parent, _('Success'),
                 _('Restoring database was successful. %s')%olddb, show=True,
                 show_copy_button=False)
+
 
 def restore_database(db, parent=None):
     if not question_dialog(parent, _('Are you sure?'), '<p>'+
@@ -117,14 +125,15 @@ def restore_database(db, parent=None):
         _show_success_msg(r, parent=parent)
     return True
 
-def repair_library_at(library_path, parent=None):
-    d = DBRestore(parent, library_path)
+
+def repair_library_at(library_path, parent=None, wait_time=2):
+    d = DBRestore(parent, library_path, wait_time=wait_time)
     d.exec_()
     if d.rejected:
         return False
     r = d.restorer
     if r.tb is not None:
-        error_dialog(parent, _('Failed'),
+        error_dialog(parent, _('Failed to repair library'),
         _('Restoring database failed, click Show details to see details'),
         det_msg=r.tb, show=True)
         return False
@@ -132,4 +141,8 @@ def repair_library_at(library_path, parent=None):
     return True
 
 
-
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    repair_library_at('/t')
+    del app

@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,8 +12,12 @@
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
 
 """
 States.
@@ -40,6 +45,8 @@ States.
     1. 'mi<mk<not-in-tbl', end table
     2. 'cw<tb<cell______', end cell
 """
+
+
 class Table:
     """
     Make tables.
@@ -47,6 +54,7 @@ class Table:
     Read one line at a time. The default state (self.__state) is
     'not_in_table'. Look for either a 'cw<tb<in-table__', or a row definition.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -67,6 +75,7 @@ class Table:
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -103,6 +112,7 @@ class Table:
         self.__row_dict = {}
         self.__cell_list = []
         self.__cell_widths = []
+
     def __in_table_func(self, line):
         """
         Requires:
@@ -127,6 +137,7 @@ class Table:
             self.__start_row_func(line)
             self.__empty_cell(line)
         self.__write_obj.write(line)
+
     def __not_in_table_func(self, line):
         """
         Requires:
@@ -143,6 +154,7 @@ class Table:
         if action:
             action(line)
         self.__write_obj.write(line)
+
     def __close_table(self, line):
         """
         Requires:
@@ -162,6 +174,7 @@ class Table:
         self.__table_data[-1]['average-cells-per-row'] = average_cells_in_row
         average_cell_width = self.__mode(self.__cell_widths)
         self.__table_data[-1]['average-cell-width'] = average_cell_width
+
     def __found_row_def_func(self, line):
         """
         Requires:
@@ -178,6 +191,7 @@ class Table:
         self.__cell_list = []
         self.__cell_list.append({})
         self.__cell_widths = []
+
     def __start_table_func(self, line):
         """
         Requires:
@@ -197,6 +211,7 @@ class Table:
         self.__list_of_cells_in_row = []
         self.__write_obj.write('mi<mk<tabl-start\n')
         self.__state.append('in_table')
+
     def __end_row_table_func(self, line):
         """
         Requires:
@@ -207,6 +222,7 @@ class Table:
             ?
         """
         self.__close_table(self, line)
+
     def __end_row_def_func(self, line):
         """
         Requires:
@@ -229,6 +245,7 @@ class Table:
             width_list = widths.split(',')
             num_cells = len(width_list)
             self.__row_dict['number-of-cells'] = num_cells
+
     def __in_row_def_func(self, line):
         """
         Requires:
@@ -271,6 +288,7 @@ class Table:
             self.__write_obj.write(line)
         else:
             self.__write_obj.write(line)
+
     def __handle_row_token(self, line):
         """
         Requires:
@@ -311,6 +329,7 @@ class Table:
             self.__row_dict['left-row-position'] = position
         elif self.__token_info == 'cw<tb<row-header':
             self.__row_dict['header'] = 'true'
+
     def __start_cell_func(self, line):
         """
         Required:
@@ -341,6 +360,7 @@ class Table:
             self.__write_obj.write('mi<tg<open______<cell\n')
         self.__cells_in_table += 1
         self.__cells_in_row += 1
+
     def __start_row_func(self, line):
         """
         Required:
@@ -359,6 +379,7 @@ class Table:
         self.__write_obj.write('\n')
         self.__cells_in_row = 0
         self.__rows_in_table += 1
+
     def __found_cell_position(self, line):
         """
         needs:
@@ -379,16 +400,17 @@ class Table:
             left_position = float(left_position)
         width = new_cell_position - self.__last_cell_position - left_position
         # width = round(width, 2)
-        width = str('%.2f' % width)
+        width = unicode_type('%.2f' % width)
         self.__last_cell_position = new_cell_position
         widths_exists = self.__row_dict.get('widths')
         if widths_exists:
-            self.__row_dict['widths'] += ', %s' % str(width)
+            self.__row_dict['widths'] += ', %s' % unicode_type(width)
         else:
-            self.__row_dict['widths'] = str(width)
+            self.__row_dict['widths'] = unicode_type(width)
         self.__cell_list[-1]['width'] = width
         self.__cell_list.append({})
         self.__cell_widths.append(width)
+
     def __in_cell_func(self, line):
         """
         Required:
@@ -417,6 +439,7 @@ class Table:
             self.__end_cell_func(line)
         else:
             self.__write_obj.write(line)
+
     def __end_cell_func(self, line):
         """
         Requires:
@@ -432,6 +455,7 @@ class Table:
         self.__write_obj.write('mi<mk<close_cell\n')
         self.__write_obj.write('mi<tg<close_____<cell\n')
         self.__write_obj.write('mi<mk<closecell_\n')
+
     def __in_row_func(self, line):
         if self.__token_info == 'mi<mk<not-in-tbl' or\
             self.__token_info == 'mi<mk<sect-start' or\
@@ -455,6 +479,7 @@ class Table:
         else:
             self.__write_obj.write(line)
         """
+
     def __end_row_func(self, line):
         """
         """
@@ -467,6 +492,7 @@ class Table:
         if self.__cells_in_row > self.__max_number_cells_in_row:
             self.__max_number_cells_in_row = self.__cells_in_row
         self.__list_of_cells_in_row.append(self.__cells_in_row)
+
     def __empty_cell(self, line):
         """
         Required:
@@ -488,6 +514,7 @@ class Table:
             self.__write_obj.write('mi<tg<empty_____<cell\n')
         self.__cells_in_table += 1
         self.__cells_in_row += 1
+
     def __mode(self, the_list):
         """
         Required:
@@ -506,6 +533,7 @@ class Table:
                 mode = item
                 max = num_of_values
         return mode
+
     def make_table(self):
         """
         Requires:
@@ -517,8 +545,8 @@ class Table:
             the state.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

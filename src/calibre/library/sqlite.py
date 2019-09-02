@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import print_function, with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -7,11 +7,9 @@ __docformat__ = 'restructuredtext en'
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
 '''
-import sqlite3 as sqlite, traceback, time, uuid, sys, os
-import repr as reprlib
+import sqlite3 as sqlite, traceback, time, uuid, os
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
-from Queue import Queue
 from threading import RLock
 from datetime import datetime
 from functools import partial
@@ -19,15 +17,19 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG, plugins
+from calibre.constants import iswindows, DEBUG, plugins, plugins_loc
 from calibre.utils.icu import sort_key
 from calibre import prints
+from polyglot.builtins import unicode_type, cmp
+from polyglot import reprlib
+from polyglot.queue import Queue
 
 from dateutil.tz import tzoffset
 
 global_lock = RLock()
 
 _c_speedup = plugins['speedup'][0]
+
 
 def _c_convert_timestamp(val):
     if not val:
@@ -44,6 +46,7 @@ def _c_convert_timestamp(val):
                 tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
     except OverflowError:
         return UNDEFINED_DATE.astimezone(local_tz)
+
 
 def _py_convert_timestamp(val):
     if val:
@@ -65,21 +68,27 @@ def _py_convert_timestamp(val):
         return parse_date(val, as_utc=False)
     return None
 
+
 convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
                     _c_convert_timestamp
+
 
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')
 
+
 sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
+
 
 def convert_bool(val):
     return val != '0'
 
+
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
 sqlite.register_converter('bool', convert_bool)
 sqlite.register_converter('BOOL', convert_bool)
+
 
 class DynamicFilter(object):
 
@@ -96,6 +105,7 @@ class DynamicFilter(object):
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
+
     def __init__(self, sep=','):
         self.sep = sep
         self.ans = []
@@ -105,13 +115,20 @@ class Concatenate(object):
             self.ans.append(value)
 
     def finalize(self):
-        if not self.ans:
-            return None
-        return self.sep.join(self.ans)
+        try:
+            if not self.ans:
+                return None
+            return self.sep.join(self.ans)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
+
 
 class SortedConcatenate(object):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
     sep = ','
+
     def __init__(self):
         self.ans = {}
 
@@ -120,18 +137,27 @@ class SortedConcatenate(object):
             self.ans[ndx] = value
 
     def finalize(self):
-        if len(self.ans) == 0:
-            return None
-        return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+        try:
+            if len(self.ans) == 0:
+                return None
+            return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
+
 
 class SortedConcatenateBar(SortedConcatenate):
     sep = '|'
 
+
 class SortedConcatenateAmper(SortedConcatenate):
     sep = '&'
 
+
 class IdentifiersConcat(object):
     '''String concatenation aggregator for the identifiers map'''
+
     def __init__(self):
         self.ans = []
 
@@ -139,11 +165,17 @@ class IdentifiersConcat(object):
         self.ans.append(u'%s:%s'%(key, val))
 
     def finalize(self):
-        return ','.join(self.ans)
+        try:
+            return ','.join(self.ans)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
 
 class AumSortedConcatenate(object):
     '''String concatenation aggregator for the author sort map'''
+
     def __init__(self):
         self.ans = {}
 
@@ -152,13 +184,19 @@ class AumSortedConcatenate(object):
             self.ans[ndx] = ':::'.join((author, sort, link))
 
     def finalize(self):
-        keys = self.ans.keys()
-        l = len(keys)
-        if l == 0:
-            return None
-        if l == 1:
-            return self.ans[keys[0]]
-        return ':#:'.join([self.ans[v] for v in sorted(keys)])
+        try:
+            keys = tuple(self.ans)
+            l = len(keys)
+            if l == 0:
+                return None
+            if l == 1:
+                return self.ans[keys[0]]
+            return ':#:'.join([self.ans[v] for v in sorted(keys)])
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
+
 
 class Connection(sqlite.Connection):
 
@@ -171,10 +209,12 @@ class Connection(sqlite.Connection):
             return ans[0]
         return ans.fetchall()
 
+
 def _author_to_author_sort(x):
     if not x:
         return ''
     return author_to_author_sort(x.replace('|', ','))
+
 
 def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
@@ -189,28 +229,30 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+
 def icu_collator(s1, s2):
     return cmp(sort_key(force_unicode(s1, 'utf-8')),
                sort_key(force_unicode(s2, 'utf-8')))
 
+
 def load_c_extensions(conn, debug=DEBUG):
     try:
         conn.enable_load_extension(True)
-        ext_path = os.path.join(sys.extensions_location, 'sqlite_custom.'+
+        ext_path = os.path.join(plugins_loc, 'sqlite_custom.'+
                 ('pyd' if iswindows else 'so'))
         conn.load_extension(ext_path)
         conn.enable_load_extension(False)
         return True
     except Exception as e:
         if debug:
-            print 'Failed to load high performance sqlite C extension'
-            print e
+            print('Failed to load high performance sqlite C extension')
+            print(e)
     return False
 
+
 def do_connect(path, row_factory=None):
-    conn = sqlite.connect(path, factory=Connection,
-                                detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-    conn.execute('pragma cache_size=5000')
+    conn = sqlite.connect(path, factory=Connection)
+    conn.execute('pragma cache_size=-5000')
     encoding = conn.execute('pragma encoding').fetchone()[0]
     conn.create_aggregate('sortconcat', 2, SortedConcatenate)
     conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
@@ -230,6 +272,7 @@ def do_connect(path, row_factory=None):
     conn.create_function('books_list_filter', 1, lambda x: 1)
     conn.create_collation('icucollate', icu_collator)
     return conn
+
 
 class DBThread(Thread):
 
@@ -291,20 +334,23 @@ class DBThread(Thread):
         except Exception as err:
             self.unhandled_error = (err, traceback.format_exc())
 
+
 class DatabaseException(Exception):
 
     def __init__(self, err, tb):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
         try:
-            msg = unicode(err) +'\n' + tb
+            msg = unicode_type(err) +'\n' + tb
         except:
             msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
         self.orig_err = err
         self.orig_tb  = tb
 
+
 def proxy(fn):
     ''' Decorator to call methods on the database connection in the proxy thread '''
+
     def run(self, *args, **kwargs):
         if self.closed:
             raise DatabaseException('Connection closed', '')
@@ -315,7 +361,7 @@ def proxy(fn):
             ok, res = self.proxy.results.get()
             if not ok:
                 if isinstance(res[0], IntegrityError):
-                    raise IntegrityError(unicode(res[0]))
+                    raise IntegrityError(unicode_type(res[0]))
                 raise DatabaseException(*res)
             return res
     return run
@@ -372,6 +418,7 @@ class ConnectionProxy(object):
     def create_dynamic_filter(self):
         pass
 
+
 def connect(dbpath, row_factory=None):
     conn = ConnectionProxy(DBThread(dbpath, row_factory))
     conn.proxy.start()
@@ -381,8 +428,8 @@ def connect(dbpath, row_factory=None):
         raise DatabaseException(*conn.proxy.unhandled_error)
     return conn
 
+
 def test():
     c = sqlite.connect(':memory:')
     if load_c_extensions(c, True):
-        print 'Loaded C extension successfully'
-
+        print('Loaded C extension successfully')

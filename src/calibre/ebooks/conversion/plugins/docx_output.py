@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,11 +10,14 @@ from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendatio
 PAGE_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
               'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
 
+
 class DOCXOutput(OutputFormatPlugin):
 
     name = 'DOCX Output'
     author = 'Kovid Goyal'
     file_type = 'docx'
+    commit_name = 'docx_output'
+    ui_data = {'page_sizes': PAGE_SIZES}
 
     options = {
         OptionRecommendation(name='docx_page_size', recommended_value='letter',
@@ -32,6 +34,10 @@ class DOCXOutput(OutputFormatPlugin):
             help=_('Do not insert the book cover as an image at the start of the document.'
                    ' If you use this option, the book cover will be discarded.')),
 
+        OptionRecommendation(name='preserve_cover_aspect_ratio', recommended_value=False,
+            help=_('Preserve the aspect ratio of the cover image instead of stretching'
+                   ' it out to cover the entire page.')),
+
         OptionRecommendation(name='docx_no_toc', recommended_value=False,
             help=_('Do not insert the table of contents as a page at the start of the document.')),
 
@@ -39,13 +45,31 @@ class DOCXOutput(OutputFormatPlugin):
             help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
                 'deleted, so be careful.') % 'DOCX'),
-    }
 
-    recommendations = {
-        ('margin_left', 72.0, OptionRecommendation.MED),
-        ('margin_right', 72.0, OptionRecommendation.MED),
-        ('margin_top', 72.0, OptionRecommendation.MED),
-        ('margin_bottom', 72.0, OptionRecommendation.MED),
+        OptionRecommendation(name='docx_page_margin_left', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the left page margin, in pts. Default is 72pt.'
+                   ' Overrides the common left page margin setting.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_top', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the top page margin, in pts. Default is 72pt.'
+                   ' Overrides the common top page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_right', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the right page margin, in pts. Default is 72pt.'
+                   ' Overrides the common right page margin setting, unless set to zero.')
+        ),
+
+        OptionRecommendation(name='docx_page_margin_bottom', recommended_value=72.0,
+            level=OptionRecommendation.LOW,
+            help=_('The size of the bottom page margin, in pts. Default is 72pt.'
+                   ' Overrides the common bottom page margin setting, unless set to zero.')
+        ),
+
     }
 
     def convert_metadata(self, oeb):
@@ -67,4 +91,3 @@ class DOCXOutput(OutputFormatPlugin):
         if opts.extract_to:
             from calibre.ebooks.docx.dump import do_dump
             do_dump(output_path, opts.extract_to)
-

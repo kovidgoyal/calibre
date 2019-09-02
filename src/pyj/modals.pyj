@@ -2,12 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ajax import ajax, ajax_send
 from elementmaker import E
-from dom import set_css, clear, build_rule, svgicon, add_extra_css
 from gettext import gettext as _
+
+from ajax import ajax, ajax_send
 from book_list.theme import get_color, get_font_size
+from dom import add_extra_css, build_rule, clear, set_css, svgicon
 from popups import MODAL_Z_INDEX
+from utils import safe_set_inner_html
 
 modal_container = None
 modal_count = 0
@@ -21,6 +23,10 @@ add_extra_css(def():
     style += build_rule(
         '#modal-container a.dialog-simple-link:hover', color='red !important'
     )
+    style += build_rule(
+        '.button-box', display='flex', justify_content='flex-end', padding='1rem 0rem', overflow='hidden'
+    )
+    style += build_rule('.button-box .calibre-push-button', transform_origin='right')
     return style
 )
 
@@ -53,7 +59,7 @@ class ModalContainer:
         # Popup style
         set_css(div.firstChild,
             position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
-            min_width='25vw', max_width='75vw',
+            min_width='25vw', max_width='70vw',  # Needed for iPhone 5
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
             background_image=get_color('dialog-background-image'), get_color('dialog-background'), get_color('dialog-background2')
@@ -125,40 +131,65 @@ class ModalContainer:
                 return
             self.clear_current_modal()
 
-def create_simple_dialog(title, msg, details, icon_name, prefix):
+    def close_all_modals(self):
+        while self.current_modal is not None:
+            self.close_current_modal()
+
+
+def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     details = details or ''
-    def create_func(parent):
-        show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
-        show_details.addEventListener('click', def():
-            show_details.style.display = 'none'
-            show_details.nextSibling.style.display = 'block'
-        )
-        is_html_msg = /<[a-zA-Z]/.test(msg)
-        html_container = E.div()
-        if is_html_msg:
-            html_container.innerHTML = msg
-        details_container = E.span()
-        if /<[a-zA-Z]/.test(details):
-            details_container.innerHTML = details
-        else:
-            details_container.textContent = details
-        parent.appendChild(
-            E.div(
-                style='max-width:60em; text-align: left',
-                E.h2(
-                    E.span(svgicon(icon_name), style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
-                    style='font-weight: bold; font-size: ' + get_font_size('title')
-                ),
-                E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
-                E.div(style='display: ' + ('block' if details else 'none'),
-                    show_details,
-                    E.div(details_container,
-                          style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
-                    )
+    show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
+    show_details.addEventListener('click', def():
+        show_details.style.display = 'none'
+        show_details.nextSibling.style.display = 'block'
+    )
+    is_html_msg = /<[a-zA-Z]/.test(msg)
+    html_container = E.div()
+    if is_html_msg:
+        safe_set_inner_html(html_container, msg)
+    details_container = E.span()
+    if /<[a-zA-Z]/.test(details):
+        safe_set_inner_html(details_container, details)
+    else:
+        details_container.textContent = details
+    if prefix:
+        prefix = E.span(' ' + prefix + ' ', style='white-space:pre; font-variant: small-caps')
+    else:
+        prefix = '\xa0'
+    parent.appendChild(
+        E.div(
+            style='max-width:40em; text-align: left',
+            E.h2(
+                E.span(svgicon(icon), style='color:red'), prefix, title,
+                style='font-weight: bold; font-size: ' + get_font_size('title')
+            ),
+            E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+            E.div(style='display: ' + ('block' if details else 'none'),
+                show_details,
+                E.div(details_container,
+                        style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
                 )
             )
         )
+    )
+
+
+def create_simple_dialog(title, msg, details, icon, prefix):
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
+
+
+def create_custom_dialog(title, content_generator_func):
+    def create_func(parent, close_modal):
+        content_div = E.div()
+        content_generator_func(content_div, close_modal)
+        parent.appendChild(
+            E.div(
+                style='max-width:60em; text-align: left',
+                E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
+                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+        ))
     show_modal(create_func)
+
 
 def create_progress_dialog(msg, on_close):
     msg = msg or _('Loading, please wait...')
@@ -170,7 +201,7 @@ def create_progress_dialog(msg, on_close):
     return {
         'close': def(): modal_container.hide_modal(modal_id);,
         'update_progress': def(amount, total): pbar.max, pbar.value = total, amount;,
-        'set_msg': def(new_msg): msg_div.innerHTML = new_msg;,
+        'set_msg': def(new_msg): safe_set_inner_html(msg_div, new_msg);,
     }
 
 # def test_progress():
@@ -208,6 +239,11 @@ def create_modal_container():
 
 def show_modal(create_func, on_close=None, show_close=True):
     return modal_container.show_modal(create_func, on_close, show_close)
+
+
+def close_all_modals():
+    return modal_container.close_all_modals()
+
 
 def error_dialog(title, msg, details=None):
     create_simple_dialog(title, msg, details, 'bug', _('Error:'))

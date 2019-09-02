@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,9 +15,11 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.writer8.exth import build_exth
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import unicode_type
 
 NULL_INDEX = 0xffffffff
 FLIS = b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+ b'\xff'*4
+
 
 def fcis(text_length):
     fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x02\x00\x00\x00\x00'
@@ -26,6 +27,7 @@ def fcis(text_length):
     fcis += b'\x00\x00\x00\x00\x00\x00\x00\x28\x00\x00\x00\x00\x00\x00\x00'
     fcis += b'\x28\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
     return fcis
+
 
 class MOBIHeader(Header):  # {{{
 
@@ -207,6 +209,7 @@ class MOBIHeader(Header):  # {{{
 
 # }}}
 
+
 HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'first_non_text_record', 'title_length', 'language_code',
                     'first_resource_record', 'exth_flags', 'fdst_record',
@@ -214,12 +217,18 @@ HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'guide_index', 'exth', 'full_title', 'extra_data_flags',
                     'flis_record', 'fcis_record', 'uid'}
 
+
 class KF8Book(object):
 
     def __init__(self, writer, for_joint=False):
         self.build_records(writer, for_joint)
         self.used_images = writer.used_images
         self.page_progression_direction = writer.oeb.spine.page_progression_direction
+        self.primary_writing_mode = writer.oeb.metadata.primary_writing_mode
+        if self.page_progression_direction == 'rtl' and not self.primary_writing_mode:
+            # Without this the Kindle renderer does not respect
+            # page_progression_direction
+            self.primary_writing_mode = 'horizontal-rl'
 
     def build_records(self, writer, for_joint):
         metadata = writer.oeb.metadata
@@ -273,14 +282,14 @@ class KF8Book(object):
         # Miscellaneous header fields
         self.compression = writer.compress
         self.book_type = 0x101 if writer.opts.mobi_periodical else 2
-        self.full_title = utf8_text(unicode(metadata.title[0]))
+        self.full_title = utf8_text(unicode_type(metadata.title[0]))
         self.title_length = len(self.full_title)
         self.extra_data_flags = 0b1
         if writer.has_tbs:
             self.extra_data_flags |= 0b10
         self.uid = random.randint(0, 0xffffffff)
 
-        self.language_code = iana2mobi(str(metadata.language[0]))
+        self.language_code = iana2mobi(unicode_type(metadata.language[0]))
         self.exth_flags = 0b1010000
         if writer.opts.mobi_periodical:
             self.exth_flags |= 0b1000
@@ -308,7 +317,8 @@ class KF8Book(object):
             num_of_resources=self.num_of_resources,
             kf8_unknown_count=self.kuc, be_kindlegen2=True,
             start_offset=self.start_offset, mobi_doctype=self.book_type,
-            page_progression_direction=self.page_progression_direction
+            page_progression_direction=self.page_progression_direction,
+            primary_writing_mode=self.primary_writing_mode
         )
 
         kwargs = {field:getattr(self, field) for field in HEADER_FIELDS}
@@ -321,8 +331,10 @@ class KF8Book(object):
 
             # Write PalmDB Header
 
-            title = ascii_filename(self.full_title.decode('utf-8')).replace(
-                    ' ', '_')[:31]
+            title = ascii_filename(self.full_title.decode('utf-8')).replace(' ', '_')
+            if not isinstance(title, bytes):
+                title = title.encode('ascii')
+            title = title[:31]
             title += (b'\0' * (32 - len(title)))
             now = int(time.time())
             nrecords = len(records)
@@ -339,4 +351,3 @@ class KF8Book(object):
 
             for rec in records:
                 f.write(rec)
-

@@ -1,13 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys
-from calibre.constants import iswindows, plugins
+
+from polyglot.builtins import reraise
+
+from calibre.constants import iswindows, plugins, ispy3
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -33,8 +35,10 @@ if not speedup:
 
 valid_modes = {'a', 'a+', 'a+b', 'ab', 'r', 'rb', 'r+', 'r+b', 'w', 'wb', 'w+', 'w+b'}
 
+
 def validate_mode(mode):
     return mode in valid_modes
+
 
 class FlagConstants(object):
 
@@ -45,7 +49,10 @@ class FlagConstants(object):
         for x in 'RANDOM SEQUENTIAL TEXT BINARY'.split():
             x = 'O_' + x
             setattr(self, x, getattr(os, x, 0))
+
+
 fc = FlagConstants()
+
 
 def flags_from_mode(mode):
     if not validate_mode(mode):
@@ -72,6 +79,7 @@ def flags_from_mode(mode):
         flags |= fc.O_TRUNC | fc.O_CREAT
     flags |= (fc.O_BINARY if binary else fc.O_TEXT)
     return flags
+
 
 if iswindows:
     from numbers import Integral
@@ -116,7 +124,11 @@ if iswindows:
     }
 
     def raise_winerror(pywinerr):
-        raise WindowsError(pywinerr.winerror, (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')), None, sys.exc_info()[2]
+        reraise(
+            WindowsError,
+            WindowsError(pywinerr.winerror,
+                         (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')),
+            sys.exc_info()[2])
 
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
         '''
@@ -165,12 +177,17 @@ if iswindows:
         return speedup.fdopen(os_open(path, flags), path, mode, buffering)
 
 else:
-    def share_open(path, mode='r', buffering=-1):
-        flags = flags_from_mode(mode) | speedup.O_CLOEXEC
-        return speedup.fdopen(os.open(path, flags), path, mode, buffering)
+    if ispy3:
+        # See PEP 446
+        share_open = open
+    else:
+        def share_open(path, mode='r', buffering=-1):
+            flags = flags_from_mode(mode) | speedup.O_CLOEXEC
+            return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
     def raise_winerror(x):
-        raise NotImplementedError(), None, sys.exc_info()[2]
+        reraise(NotImplementedError, None, sys.exc_info()[2])
+
 
 def find_tests():
     import unittest

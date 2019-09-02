@@ -1,4 +1,5 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +13,7 @@ class Bookmark():  # {{{
     A simple class fetching bookmark data
     kobo-specific
     '''
+
     def __init__(self, db_connection, contentid, path, id, book_format, bookmark_extension):
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
@@ -62,7 +64,7 @@ class Bookmark():  # {{{
                 kepub_chapter_data = ('{0}-%'.format(row[1]), )
                 cursor2.execute(kepub_chapter_query, kepub_chapter_data)
                 try:
-                    kepub_chapter = cursor2.next()
+                    kepub_chapter = next(cursor2)
                     chapter_title = kepub_chapter[0]
                     current_chapter = kepub_chapter[1]
                 except StopIteration:

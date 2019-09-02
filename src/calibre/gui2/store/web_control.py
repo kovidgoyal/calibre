@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
 
 from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
@@ -19,6 +18,9 @@ from calibre.gui2.ebook_download import show_download_info
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import ascii_filename
 from calibre.web import get_download_filename
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urlparse
+
 
 class NPWebView(QWebView):
 
@@ -69,7 +71,7 @@ class NPWebView(QWebView):
         if not self.gui:
             return
 
-        url = unicode(request.url().toString(NO_URL_FORMATTING))
+        url = unicode_type(request.url().toString(NO_URL_FORMATTING))
         cf = self.get_cookies()
 
         filename = get_download_filename(url, cf)
@@ -78,18 +80,18 @@ class NPWebView(QWebView):
         if ext not in BOOK_EXTENSIONS:
             if ext == 'acsm':
                 from calibre.gui2.dialogs.confirm_delete import confirm
-                if not confirm('<p>' + _('This ebook is a DRMed EPUB file.  '
+                if not confirm('<p>' + _('This e-book is a DRMed EPUB file.  '
                           'You will be prompted to save this file to your '
                           'computer. Once it is saved, open it with '
-                          '<a href="http://www.adobe.com/products/digitaleditions/">'
+                          '<a href="https://www.adobe.com/solutions/ebook/digital-editions.html">'
                           'Adobe Digital Editions</a> (ADE).<p>ADE, in turn '
-                          'will download the actual ebook, which will be a '
+                          'will download the actual e-book, which will be a '
                           '.epub file. You can add this book to calibre '
                           'using "Add Books" and selecting the file from '
                           'the ADE library folder.'),
                           'acsm_download', self):
                     return
-            name = choose_save_file(self, 'web-store-download-unknown', _('File is not a supported ebook type. Save to disk?'), initial_filename=filename)
+            name = choose_save_file(self, 'web-store-download-unknown', _('File is not a supported e-book type. Save to disk?'), initial_filename=filename)
             if name:
                 self.gui.download_ebook(url, cf, name, name, False, create_browser=self.create_browser)
         else:
@@ -111,15 +113,15 @@ class NPWebView(QWebView):
 
         for c in self.page().networkAccessManager().cookieJar().allCookies():
             cookie = []
-            domain = unicode(c.domain())
+            domain = unicode_type(c.domain())
 
             cookie.append(domain)
             cookie.append('TRUE' if domain.startswith('.') else 'FALSE')
-            cookie.append(unicode(c.path()))
+            cookie.append(unicode_type(c.path()))
             cookie.append('TRUE' if c.isSecure() else 'FALSE')
-            cookie.append(unicode(c.expirationDate().toTime_t()))
-            cookie.append(unicode(c.name()))
-            cookie.append(unicode(c.value()))
+            cookie.append(unicode_type(c.expirationDate().toTime_t()))
+            cookie.append(unicode_type(c.name()))
+            cookie.append(unicode_type(c.value()))
 
             cf.write('\t'.join(cookie))
             cf.write('\n')

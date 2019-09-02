@@ -1,6 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class BangkokPostRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -40,15 +46,12 @@ class BangkokPostRecipe(BasicNewsRecipe):
     feeds.append((u'Life', u'http://www.bangkokpost.com/rss/data/life.xml'))
     feeds.append((u'Tech', u'http://www.bangkokpost.com/rss/data/tect.xml'))
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'class': 'entry'}))
+    keep_only_tags = [
+        dict(itemprop='headline'),
+        classes('articleContents'),
+    ]
 
-    remove_tags = []
-    remove_tags.append(dict(name='div', attrs={'class': 'article-features'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'socialBookmark'}))
-    remove_tags.append(dict(name='div', attrs={'id': 'main-sns'}))
-    # Their YouTube movies are displayed in an iframe, if you want those you will have to parse the articles by hand.
-    # Setting self.recursion to 1, which might resolve this, makes calibre
-    # downloading a lot of PDF files, which will cause a very, very very, long
-    # download time
-    remove_tags.append(dict(name='iframe'))
+    def print_version(self, url):
+        if '.com/vdo/' in url:
+            url = None
+        return url

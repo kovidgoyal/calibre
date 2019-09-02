@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,7 @@ from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
     smart_home, smart_backspace, smart_tab, expand_tabs)
+
 
 def find_rule(raw, rule_address):
     import tinycss
@@ -33,6 +33,7 @@ def find_rule(raw, rule_address):
         if rule_address:
             rules = getattr(r, 'rules', ())
     return ans
+
 
 class Smarts(NullSmarts):
 

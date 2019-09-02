@@ -6,6 +6,7 @@ from book_list.theme import get_color, get_font_size
 from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
+from session import get_interface_data
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'
@@ -26,104 +27,92 @@ add_extra_css(def():
     return style
 )
 
-class TopBar:
+def create_markup(container):
+    for i in range(2):
+        bar = E.div(
+            class_=CLASS_NAME,
+            E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
+            E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
+        )
+        if i is 0:
+            set_css(bar, position='fixed', left='0', top='0', z_index='1')
+        set_css(bar,
+            width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
+            font_size=get_font_size('title'), user_select='none',
+            color=get_color('bar-foreground'), background_color=get_color('bar-background')
+        )
+        container.appendChild(bar)
 
-    def __init__(self, book_list_container):
-        nonlocal bar_counter
-        bar_counter += 1
-        self.current_left_data = {}
-        self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
-        for bid in self.dummy_bar_id, self.bar_id:
-            bar = E.div(
-                id=bid, class_=CLASS_NAME,
-                E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
-                E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
-            )
-            if bid is self.bar_id:
-                set_css(bar, position='fixed', left='0', top='0', z_index='1')
-            set_css(bar,
-                width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
-                font_size=get_font_size('title'), user_select='none',
-                color=get_color('bar-foreground'), background_color=get_color('bar-background')
-            )
-            book_list_container.appendChild(bar)
+def get_bars(container):
+    return container.getElementsByClassName(CLASS_NAME)
 
-    @property
-    def bar(self):
-        return document.getElementById(self.bar_id)
+def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
+    bars = get_bars(container)
+    if icon is 'heart':
+        if not tooltip:
+            tooltip = _('Donate to support calibre development')
+    interface_data = get_interface_data()
 
-    @property
-    def dummy_bar(self):
-        return document.getElementById(self.dummy_bar_id)
+    for i, bar in enumerate(bars):
+        left = bar.firstChild
+        clear(left)
+        title_elem = 'a' if callable(title_action) else 'span'
+        left.appendChild(E.a(title=tooltip, svgicon(icon)))
+        left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
+            style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
+        if i is 0:
+            a = left.firstChild
+            if icon is 'heart':
+                set_css(a,
+                    animation_name=THROBBER_NAME, animation_duration='1s', animation_timing_function='ease-in-out',
+                    animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
+                )
+                set_css(a.firstChild, color=get_color('heart'))
+                a.setAttribute('href', interface_data.donate_link)
+                a.setAttribute('target', 'donate-to-calibre')
+            if action is not None:
+                a.addEventListener('click', def(event): event.preventDefault(), action();)
 
-    def set_left(self, title='calibre', icon_name='heart', action=None, tooltip='', run_animation=False):
-        self.current_left_data = {'title':title, 'icon_name':icon_name, 'action':action, 'tooltip':tooltip}
-        if icon_name is 'heart':
-            if not tooltip:
-                tooltip = _('Donate to support calibre development')
+            if callable(title_action):
+                a = a.nextSibling
+                a.addEventListener('click', def(event): event.preventDefault(), title_action();)
 
-        title_action = title_tooltip = None
-        if callable(title):
-            data = title()
-            title, title_action, title_tooltip = data.title, data.title_action, data.title_tooltip
+def set_title(container, text):
+    bars = get_bars(container)
+    for bar in bars:
+        bar.firstChild.firstChild.nextSibling.textContent = text
 
-        for bar in self.bar, self.dummy_bar:
-            left = bar.firstChild
-            clear(left)
-            title_elem = 'a' if callable(title_action) else 'span'
-            left.appendChild(E.a(title=tooltip, svgicon(icon_name)))
-            left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
-                style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
-            if bar is self.bar:
-                a = left.firstChild
-                if icon_name is 'heart':
-                    set_css(a,
-                        animation_name=THROBBER_NAME, animation_duration='1s', animation_timing_function='ease-in-out',
-                        animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
-                    )
-                    set_css(a.firstChild, color=get_color('heart'))
-                    a.setAttribute('href', 'http://calibre-ebook.com/donate')
-                    a.setAttribute('target', 'donate-to-calibre')
-                if action is not None:
-                    a.addEventListener('click', def(event): event.preventDefault(), action();)
+def create_top_bar(container, **kw):
+    create_markup(container)
+    set_left_data(container, **kw)
 
-                if callable(title_action):
-                    a = a.nextSibling
-                    a.addEventListener('click', def(event): event.preventDefault(), title_action();)
+def add_button(container, icon, action=None, tooltip=''):
+    if not icon:
+        raise ValueError('An icon must be specified')
+    bars = get_bars(container)
+    for i, bar in enumerate(bars):
+        right = bar.firstChild.nextSibling
+        right.appendChild(E.a(
+            style="margin-left: " + SPACING,
+            title=tooltip, svgicon(icon),
+        ))
+        right.lastChild.dataset.buttonIcon = icon
+        if i is 0:
+            if action is not None:
+                right.lastChild.addEventListener('click', def(event):
+                    event.preventDefault(), action()
+                )
 
-    def refresh_left(self):
-        kw = self.current_left_data
-        self.set_left(**kw)
+def clear_buttons(container):
+    bars = get_bars(container)
+    for i, bar in enumerate(bars):
+        right = bar.firstChild.nextSibling
+        clear(right)
 
-    def add_button(self, icon_name=None, action=None, tooltip=''):
-        if not icon_name:
-            return
-        for bar in self.bar, self.dummy_bar:
-            right = bar.firstChild.nextSibling
-            right.appendChild(E.a(
-                style="margin-left: " + SPACING,
-                title=tooltip, svgicon(icon_name),
-            ))
-            right.lastChild.setAttribute('id', ('top' if bar is self.bar else 'dummy') + '-bar-icon-' + icon_name)
-            if bar is self.bar:
-                if action is not None:
-                    right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
 
-    def set_button_visibility(self, icon_name, visible):
-        for bar in self.bar, self.dummy_bar:
-            right = bar.firstChild.nextSibling
-            elem = right.querySelector('#{}-bar-icon-{}'.format(('top' if bar is self.bar else 'dummy'), icon_name))
-            if elem:
-                elem.style.display = 'inline-block' if visible else 'none'
-
-    def apply_state(self, left, buttons):
-        self.set_left(**left)
-        for bar in self.bar, self.dummy_bar:
-            right = bar.firstChild.nextSibling
-            clear(right)
-        for button in buttons:
-            self.add_button(**button)
-
-    def set_title(self, text):
-        for bar in self.bar, self.dummy_bar:
-            bar.firstChild.firstChild.nextSibling.textContent = text
+def set_button_visibility(container, icon, visible):
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling
+        elem = right.querySelector(f'[data-button-icon="{icon}"]')
+        if elem:
+            elem.style.display = 'inline-block' if visible else 'none'

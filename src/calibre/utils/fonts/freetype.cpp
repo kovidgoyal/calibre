@@ -10,7 +10,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include <ft2build.h> 
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 static PyObject *FreeTypeError = NULL;
@@ -47,7 +47,7 @@ Face_dealloc(Face* self)
     Py_XDECREF(self->data);
     self->data = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -58,7 +58,11 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     Py_ssize_t sz;
     PyObject *ft;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "Oy#", &ft, &data, &sz)) return -1;
+#else
     if (!PyArg_ParseTuple(args, "Os#", &ft, &data, &sz)) return -1;
+#endif
 
     Py_BEGIN_ALLOW_THREADS;
     error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
@@ -84,12 +88,12 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
 static PyObject *
 family_name(Face *self, void *closure) {
     return Py_BuildValue("s", self->face->family_name);
-} 
+}
 
 static PyObject *
 style_name(Face *self, void *closure) {
     return Py_BuildValue("s", self->face->style_name);
-} 
+}
 
 static PyObject*
 supports_text(Face *self, PyObject *args) {
@@ -124,12 +128,12 @@ glyph_id(Face *self, PyObject *args) {
 }
 
 static PyGetSetDef Face_getsetters[] = {
-    {(char *)"family_name", 
+    {(char *)"family_name",
      (getter)family_name, NULL,
      (char *)"The family name of this font.",
      NULL},
 
-    {(char *)"style_name", 
+    {(char *)"style_name",
      (getter)style_name, NULL,
      (char *)"The style name of this font.",
      NULL},
@@ -160,7 +164,7 @@ dealloc(FreeType* self)
     }
     self->library = NULL;
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int
@@ -181,45 +185,44 @@ init(FreeType *self, PyObject *args, PyObject *kwds)
 // }}}
 
 static PyTypeObject FaceType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "freetype.Face",            /*tp_name*/
-    sizeof(Face),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Face_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Face",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    Face_methods,             /* tp_methods */
-    0,             /* tp_members */
-    Face_getsetters,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)Face_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    0,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name              */ "freetype.Face",
+    /* tp_basicsize         */ sizeof(Face),
+    /* tp_itemsize          */ 0,
+    /* tp_dealloc           */ (destructor)Face_dealloc,
+    /* tp_print             */ 0,
+    /* tp_getattr           */ 0,
+    /* tp_setattr           */ 0,
+    /* tp_compare           */ 0,
+    /* tp_repr              */ 0,
+    /* tp_as_number         */ 0,
+    /* tp_as_sequence       */ 0,
+    /* tp_as_mapping        */ 0,
+    /* tp_hash              */ 0,
+    /* tp_call              */ 0,
+    /* tp_str               */ 0,
+    /* tp_getattro          */ 0,
+    /* tp_setattro          */ 0,
+    /* tp_as_buffer         */ 0,
+    /* tp_flags             */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_doc               */ "Face",
+    /* tp_traverse          */ 0,
+    /* tp_clear             */ 0,
+    /* tp_richcompare       */ 0,
+    /* tp_weaklistoffset    */ 0,
+    /* tp_iter              */ 0,
+    /* tp_iternext          */ 0,
+    /* tp_methods           */ Face_methods,
+    /* tp_members           */ 0,
+    /* tp_getset            */ Face_getsetters,
+    /* tp_base              */ 0,
+    /* tp_dict              */ 0,
+    /* tp_descr_get         */ 0,
+    /* tp_descr_set         */ 0,
+    /* tp_dictoffset        */ 0,
+    /* tp_init              */ (initproc)Face_init,
+    /* tp_alloc             */ 0,
+    /* tp_new               */ 0,
 }; // }}}
 
 static PyObject*
@@ -247,76 +250,100 @@ static PyMethodDef FreeType_methods[] = {
 
 
 static PyTypeObject FreeTypeType = { // {{{
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "freetype.FreeType",            /*tp_name*/
-    sizeof(FreeType),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "FreeType",                  /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    FreeType_methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)init,      /* tp_init */
-    0,                         /* tp_alloc */
-    0,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name              */ "freetype.FreeType",
+    /* tp_basicsize         */ sizeof(FreeType),
+    /* tp_itemsize          */ 0,
+    /* tp_dealloc           */ (destructor)dealloc,
+    /* tp_print             */ 0,
+    /* tp_getattr           */ 0,
+    /* tp_setattr           */ 0,
+    /* tp_compare           */ 0,
+    /* tp_repr              */ 0,
+    /* tp_as_number         */ 0,
+    /* tp_as_sequence       */ 0,
+    /* tp_as_mapping        */ 0,
+    /* tp_hash              */ 0,
+    /* tp_call              */ 0,
+    /* tp_str               */ 0,
+    /* tp_getattro          */ 0,
+    /* tp_setattro          */ 0,
+    /* tp_as_buffer         */ 0,
+    /* tp_flags             */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_doc               */ "FreeType",
+    /* tp_traverse          */ 0,
+    /* tp_clear             */ 0,
+    /* tp_richcompare       */ 0,
+    /* tp_weaklistoffset    */ 0,
+    /* tp_iter              */ 0,
+    /* tp_iternext          */ 0,
+    /* tp_methods           */ FreeType_methods,
+    /* tp_members           */ 0,
+    /* tp_getset            */ 0,
+    /* tp_base              */ 0,
+    /* tp_dict              */ 0,
+    /* tp_descr_get         */ 0,
+    /* tp_descr_set         */ 0,
+    /* tp_dictoffset        */ 0,
+    /* tp_init              */ (initproc)init,
+    /* tp_alloc             */ 0,
+    /* tp_new               */ 0,
 }; // }}}
 
-static 
-PyMethodDef methods[] = {
+static char freetype_doc[] = "Interface to freetype";
+
+static PyMethodDef freetype_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initfreetype(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&freetype_module)
+static struct PyModuleDef freetype_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "freetype",
+    /* m_doc      */ freetype_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ freetype_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("freetype", freetype_methods, freetype_doc)
+CALIBRE_MODINIT_FUNC initfreetype(void) {
+#endif
+
     PyObject *m;
 
     FreeTypeType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&FreeTypeType) < 0)
-        return;
+    if (PyType_Ready(&FreeTypeType) < 0) {
+        INITERROR;
+    }
 
     FaceType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&FaceType) < 0)
-        return;
+    if (PyType_Ready(&FaceType) < 0) {
+        INITERROR;
+    }
 
-    m = Py_InitModule3(
-            "freetype", methods,
-            "FreeType API"
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
 
     FreeTypeError = PyErr_NewException((char*)"freetype.FreeTypeError", NULL, NULL);
-    if (FreeTypeError == NULL) return;
+    if (FreeTypeError == NULL) {
+        INITERROR;
+    }
     PyModule_AddObject(m, "FreeTypeError", FreeTypeError);
 
     Py_INCREF(&FreeTypeType);
     PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
     PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
+ #if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
-

@@ -15,9 +15,10 @@ class JerusalemPost(BasicNewsRecipe):
     no_stylesheets = True
 
     feeds = [('Front Page', 'http://www.jpost.com/Rss/RssFeedsFrontPage.aspx'),
-             ('Israel News', 'http://www.jpost.com/Rss/RssFeedsIsraelNews.aspx'),
-             ('Middle East News', 'http://www.jpost.com/Rss/RssFeedsMiddleEastNews.aspx'),
+             ('Israel News',
+              'http://www.jpost.com/Rss/RssFeedsIsraelNews.aspx'),
+             ('Middle East News',
+              'http://www.jpost.com/Rss/RssFeedsMiddleEastNews.aspx'),
              ('International News',
-              'http://www.jpost.com/Rss/RssFeedsInternationalNews.aspx'),
-             ('Editorials', 'http://www.jpost.com/Rss/RssFeedsEditorialsNews.aspx'),
+              'http://www.jpost.com/Rss/RssFeedsPolitiqueetsocial.aspx'),
              ]

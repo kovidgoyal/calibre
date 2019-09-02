@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -19,12 +18,14 @@ from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 
 # Utils {{{
+
 
 def _matchkind(query, case_sensitive=False):
     matchkind = CONTAINS_MATCH
@@ -42,6 +43,7 @@ def _matchkind(query, case_sensitive=False):
         # leave case in regexps because it can be significant e.g. \S \W \D
         query = icu_lower(query)
     return matchkind, query
+
 
 def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensitive=False):
     if query.startswith('..'):
@@ -77,11 +79,12 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                     if primary_contains(query, t):
                         return True
                 elif query in t:
-                        return True
+                    return True
         except re.error:
             pass
     return False
 # }}}
+
 
 class DateSearch(object):  # {{{
 
@@ -145,7 +148,9 @@ class DateSearch(object):  # {{{
 
         if query == 'false':
             for v, book_ids in field_iter():
-                if isinstance(v, (str, unicode)):
+                if isinstance(v, (bytes, unicode_type)):
+                    if isinstance(v, bytes):
+                        v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
                 if v is None or v <= UNDEFINED_DATE:
                     matches |= book_ids
@@ -153,13 +158,15 @@ class DateSearch(object):  # {{{
 
         if query == 'true':
             for v, book_ids in field_iter():
-                if isinstance(v, (str, unicode)):
+                if isinstance(v, (bytes, unicode_type)):
+                    if isinstance(v, bytes):
+                        v = v.decode(preferred_encoding, 'replace')
                     v = parse_date(v)
                 if v is not None and v > UNDEFINED_DATE:
                     matches |= book_ids
             return matches
 
-        for k, relop in self.operators.iteritems():
+        for k, relop in iteritems(self.operators):
             if query.startswith(k):
                 query = query[len(k):]
                 break
@@ -195,13 +202,14 @@ class DateSearch(object):  # {{{
                     field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
-            if isinstance(v, (str, unicode)):
+            if isinstance(v, string_or_bytes):
                 v = parse_date(v)
             if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
 
         return matches
 # }}}
+
 
 class NumericSearch(object):  # {{{
 
@@ -245,19 +253,18 @@ class NumericSearch(object):  # {{{
             else:
                 relop = lambda x,y: x is not None
         else:
-            for k, relop in self.operators.iteritems():
+            for k, relop in iteritems(self.operators):
                 if query.startswith(k):
                     query = query[len(k):]
                     break
             else:
                 relop = self.operators['=']
 
-            cast = int
             if dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
                 adjust = lambda x: x // 2
-            elif dt in ('float', 'composite'):
-                cast = float
+            else:
+                cast = float if dt in ('float', 'composite', 'half-rating') else int
 
             mult = 1.0
             if len(query) > 1:
@@ -270,9 +277,12 @@ class NumericSearch(object):  # {{{
 
             try:
                 q = cast(query) * mult
-            except:
+            except Exception:
                 raise ParseException(
                         _('Non-numeric value in query: {0}').format(query))
+            if dt == 'half-rating':
+                q = int(round(q * 2))
+                cast = int
 
         qfalse = query == 'false'
         for val, book_ids in field_iter():
@@ -282,7 +292,7 @@ class NumericSearch(object):  # {{{
                 continue
             try:
                 v = cast(val)
-            except:
+            except Exception:
                 v = None
             if v:
                 v = adjust(v)
@@ -291,6 +301,7 @@ class NumericSearch(object):  # {{{
         return matches
 
 # }}}
+
 
 class BooleanSearch(object):  # {{{
 
@@ -333,6 +344,7 @@ class BooleanSearch(object):  # {{{
 
 # }}}
 
+
 class KeyPairSearch(object):  # {{{
 
     def __call__(self, query, field_iter, candidates, use_primary_find):
@@ -359,7 +371,7 @@ class KeyPairSearch(object):  # {{{
             return found if valq == 'true' else candidates - found
 
         for m, book_ids in field_iter():
-            for key, val in m.iteritems():
+            for key, val in iteritems(m):
                 if (keyq and not _match(keyq, (key,), keyq_mkind,
                                         use_primary_find_in_search=use_primary_find)):
                     continue
@@ -372,6 +384,7 @@ class KeyPairSearch(object):  # {{{
         return matches
 
 # }}}
+
 
 class SavedSearchQueries(object):  # {{{
     queries = {}
@@ -398,7 +411,7 @@ class SavedSearchQueries(object):  # {{{
         return self._db()
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, unicode_type):
             x = x.decode(preferred_encoding, 'replace')
         return x
 
@@ -431,8 +444,9 @@ class SavedSearchQueries(object):  # {{{
             db._set_pref(self.opt_name, smap)
 
     def names(self):
-        return sorted(self.queries.iterkeys(), key=sort_key)
+        return sorted(self.queries, key=sort_key)
 # }}}
+
 
 class Parser(SearchQueryParser):  # {{{
 
@@ -487,6 +501,15 @@ class Parser(SearchQueryParser):  # {{{
             return matches
         if location not in self.all_search_locations:
             return matches
+
+        if location == 'vl':
+            vl = self.dbcache._pref('virtual_libraries', {}).get(query) if query else None
+            if not vl:
+                raise ParseException(_('No such virtual library: {}').format(query))
+            try:
+                return candidates & self.dbcache.books_in_virtual_library(query)
+            except RuntimeError:
+                raise ParseException(_('Virtual library search is recursive: {}').format(query))
 
         if (len(location) > 2 and location.startswith('@') and
                     location[1:] in self.grouped_search_terms):
@@ -563,12 +586,15 @@ class Parser(SearchQueryParser):  # {{{
                      fm['display'].get('composite_sort', '') == 'number')):
                 if location == 'id':
                     is_many = False
+
                     def fi(default_value=None):
                         for qid in candidates:
                             yield qid, {qid}
                 else:
                     field = self.dbcache.fields[location]
                     fi, is_many = partial(self.field_iter, location, candidates), field.is_many
+                if dt == 'rating' and fm['display'].get('allow_half_stars'):
+                    dt = 'half-rating'
                 return self.num_search(
                     icu_lower(query), fi, location, dt, candidates, is_many=is_many)
 
@@ -605,7 +631,7 @@ class Parser(SearchQueryParser):  # {{{
         text_fields = set()
         field_metadata = {}
 
-        for x, fm in self.field_metadata.iteritems():
+        for x, fm in self.field_metadata.iter_items():
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x not in {'series_sort', 'id'}:
@@ -643,7 +669,7 @@ class Parser(SearchQueryParser):  # {{{
                 q = canonicalize_lang(query)
                 if q is None:
                     lm = lang_map()
-                    rm = {v.lower():k for k,v in lm.iteritems()}
+                    rm = {v.lower():k for k,v in iteritems(lm)}
                     q = rm.get(query, query)
 
             if matchkind == CONTAINS_MATCH and q.lower() in {'true', 'false'}:
@@ -679,7 +705,7 @@ class Parser(SearchQueryParser):  # {{{
             if location in text_fields:
                 for val, book_ids in self.field_iter(location, current_candidates):
                     if val is not None:
-                        if isinstance(val, basestring):
+                        if isinstance(val, string_or_bytes):
                             val = (val,)
                         if _match(q, val, matchkind, use_primary_find_in_search=upf, case_sensitive=case_sensitive):
                             matches |= book_ids
@@ -717,6 +743,7 @@ class Parser(SearchQueryParser):  # {{{
             return candidates - matches
         return matches
 # }}}
+
 
 class LRUCache(object):  # {{{
 
@@ -771,8 +798,9 @@ class LRUCache(object):  # {{{
         return self.get(key)
 
     def __iter__(self):
-        return self.item_map.iteritems()
+        return iteritems(self.item_map)
 # }}}
+
 
 class Search(object):
 
@@ -900,4 +928,3 @@ class Search(object):
             self.cache.add(query, result)
 
         return result
-

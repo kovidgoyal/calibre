@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,9 +12,11 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 
+
 def debug(*args, **kwargs):
     if DEBUG:
         prints('MTP:', *args, **kwargs)
+
 
 def synchronous(func):
     @wraps(func)
@@ -23,6 +24,7 @@ def synchronous(func):
         with self.lock:
             return func(self, *args, **kwargs)
     return synchronizer
+
 
 class MTPDeviceBase(DevicePlugin):
     name = 'MTP Device Interface'

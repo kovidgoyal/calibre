@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,35 +10,43 @@ import struct
 from io import BytesIO
 from collections import defaultdict
 
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, as_bytes
+
+
 class UnsupportedFont(ValueError):
     pass
+
 
 def get_printable_characters(text):
     import unicodedata
     return u''.join(x for x in unicodedata.normalize('NFC', text)
             if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
 
+
 def is_truetype_font(raw):
     sfnt_version = raw[:4]
     return (sfnt_version in {b'\x00\x01\x00\x00', b'OTTO'}, sfnt_version)
 
+
 def get_tables(raw):
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
     offset = 4*3  # start of the table record entries
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         table_tag, table_checksum, table_offset, table_length = struct.unpack_from(
                     b'>4s3L', raw, offset)
         yield (table_tag, raw[table_offset:table_offset+table_length], offset,
                 table_offset, table_checksum)
         offset += 4*4
 
+
 def get_table(raw, name):
     ''' Get the raw table bytes for the specified table in the font '''
-    name = bytes(name.lower())
+    name = as_bytes(name.lower())
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
         if table_tag.lower() == name:
             return table, table_index, table_offset, table_checksum
     return None, None, None, None
+
 
 def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     '''
@@ -85,6 +92,7 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
 
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
+
 def panose_to_css_generic_family(panose):
     proportion = panose[3]
     if proportion == 9:
@@ -98,6 +106,7 @@ def panose_to_css_generic_family(panose):
     if serif_style in (11, 12, 13):
         return 'sans-serif'
     return 'serif'
+
 
 def decode_name_record(recs):
     '''
@@ -156,10 +165,11 @@ def decode_name_record(recs):
         return mac_names[0]
 
     # Use unicode names
-    for val in unicode_names.itervalues():
+    for val in itervalues(unicode_names):
         return val
 
     return None
+
 
 def _get_font_names(raw, raw_is_table=False):
     if raw_is_table:
@@ -172,7 +182,7 @@ def _get_font_names(raw, raw_is_table=False):
 
     records = defaultdict(list)
 
-    for i in xrange(count):
+    for i in range(count):
         try:
             platform_id, encoding_id, language_id, name_id, length, offset = \
                     struct.unpack_from(b'>6H', table, 6+i*12)
@@ -185,6 +195,7 @@ def _get_font_names(raw, raw_is_table=False):
 
     return records
 
+
 def get_font_names(raw, raw_is_table=False):
     records = _get_font_names(raw, raw_is_table)
     family_name = decode_name_record(records[1])
@@ -192,6 +203,7 @@ def get_font_names(raw, raw_is_table=False):
     full_name = decode_name_record(records[4])
 
     return family_name, subfamily_name, full_name
+
 
 def get_font_names2(raw, raw_is_table=False):
     records = _get_font_names(raw, raw_is_table)
@@ -209,13 +221,14 @@ def get_font_names2(raw, raw_is_table=False):
     return (family_name, subfamily_name, full_name, preferred_family_name,
             preferred_subfamily_name, wws_family_name, wws_subfamily_name)
 
+
 def get_all_font_names(raw, raw_is_table=False):
     records = _get_font_names(raw, raw_is_table)
     ans = {}
 
-    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+    for name, num in iteritems({'family_name':1, 'subfamily_name':2, 'full_name':4,
             'preferred_family_name':16, 'preferred_subfamily_name':17,
-            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+            'wws_family_name':21, 'wws_subfamily_name':22}):
         try:
             ans[name] = decode_name_record(records[num])
         except (IndexError, KeyError, ValueError):
@@ -239,11 +252,13 @@ def get_all_font_names(raw, raw_is_table=False):
 
     return ans
 
+
 def checksum_of_block(raw):
     extra = 4 - len(raw)%4
     raw += b'\0'*extra
     num = len(raw)//4
     return sum(struct.unpack(b'>%dI'%num, raw)) % (1<<32)
+
 
 def verify_checksums(raw):
     head_table = None
@@ -269,6 +284,7 @@ def verify_checksums(raw):
         if q != checksum_adj:
             raise ValueError('Checksum of entire font incorrect')
 
+
 def set_checksum_adjustment(f):
     offset = get_table(f.getvalue(), 'head')[2]
     offset += 8
@@ -279,12 +295,14 @@ def set_checksum_adjustment(f):
     f.seek(offset)
     f.write(struct.pack(b'>I', q))
 
+
 def set_table_checksum(f, name):
     table, table_index, table_offset, table_checksum = get_table(f.getvalue(), name)
     checksum = checksum_of_block(table)
     if checksum != table_checksum:
         f.seek(table_index + 4)
         f.write(struct.pack(b'>I', checksum))
+
 
 def remove_embed_restriction(raw):
     ok, sig = is_truetype_font(raw)
@@ -310,6 +328,27 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
+
+def is_font_embeddable(raw):
+    # https://www.microsoft.com/typography/otspec/os2.htm#fst
+    ok, sig = is_truetype_font(raw)
+    if not ok:
+        raise UnsupportedFont('Not a supported font, sfnt_version: %r'%sig)
+
+    table, table_index, table_offset = get_table(raw, 'os/2')[:3]
+    if table is None:
+        raise UnsupportedFont('Not a supported font, has no OS/2 table')
+    fs_type_offset = struct.calcsize(b'>HhHH')
+    fs_type = struct.unpack_from(b'>H', table, fs_type_offset)[0]
+    if fs_type == 0 or fs_type & 0x8:
+        return True, fs_type
+    if fs_type & 1:
+        return False, fs_type
+    if fs_type & 0x200:
+        return False, fs_type
+    return True, fs_type
+
+
 def read_bmp_prefix(table, bmp):
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
     array_len = segcount //2
@@ -330,6 +369,7 @@ def read_bmp_prefix(table, bmp):
             array_sz)
     return (start_count, end_count, range_offset, id_delta, glyph_id_len,
             glyph_id_map, array_len)
+
 
 def get_bmp_glyph_ids(table, bmp, codes):
     (start_count, end_count, range_offset, id_delta, glyph_id_len,
@@ -355,8 +395,9 @@ def get_bmp_glyph_ids(table, bmp, codes):
         if not found:
             yield 0
 
+
 def get_glyph_ids(raw, text, raw_is_table=False):
-    if not isinstance(text, unicode):
+    if not isinstance(text, unicode_type):
         raise TypeError('%r is not a unicode object'%text)
     if raw_is_table:
         table = raw
@@ -366,7 +407,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
             raise UnsupportedFont('Not a supported font, has no cmap table')
     version, num_tables = struct.unpack_from(b'>HH', table)
     bmp_table = None
-    for i in xrange(num_tables):
+    for i in range(num_tables):
         platform_id, encoding_id, offset = struct.unpack_from(b'>HHL', table,
                 4 + (i*8))
         if platform_id == 3 and encoding_id == 1:
@@ -380,8 +421,9 @@ def get_glyph_ids(raw, text, raw_is_table=False):
     for glyph_id in get_bmp_glyph_ids(table, bmp_table, map(ord, text)):
         yield glyph_id
 
+
 def supports_text(raw, text, has_only_printable_chars=False):
-    if not isinstance(text, unicode):
+    if not isinstance(text, unicode_type):
         raise TypeError('%r is not a unicode object'%text)
     if not has_only_printable_chars:
         text = get_printable_characters(text)
@@ -392,6 +434,7 @@ def supports_text(raw, text, has_only_printable_chars=False):
     except:
         return False
     return True
+
 
 def get_font_for_text(text, candidate_font_data=None):
     ok = False
@@ -405,6 +448,7 @@ def get_font_for_text(text, candidate_font_data=None):
                 candidate_font_data = f.read()
     return candidate_font_data
 
+
 def test_glyph_ids():
     from calibre.utils.fonts.free_type import FreeType
     data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
@@ -416,21 +460,23 @@ def test_glyph_ids():
     if ft_glyphs != glyphs:
         raise Exception('My code and FreeType differ on the glyph ids')
 
+
 def test_supports_text():
     data = P('fonts/calibreSymbols.otf', data=True)
-    if not supports_text(data, '.\u2605★'):
+    if not supports_text(data, '.★½'):
         raise RuntimeError('Incorrectly returning that text is not supported')
     if supports_text(data, 'abc'):
         raise RuntimeError('Incorrectly claiming that text is supported')
+
 
 def test_find_font():
     from calibre.utils.fonts.scanner import font_scanner
     abcd = '诶比西迪'
     family = font_scanner.find_font_for_text(abcd)[0]
-    print ('Family for Chinese text:', family)
+    print('Family for Chinese text:', family)
     family = font_scanner.find_font_for_text(abcd)[0]
     abcd = 'لوحة المفاتيح العربية'
-    print ('Family for Arabic text:', family)
+    print('Family for Arabic text:', family)
 
 
 def test():
@@ -438,19 +484,20 @@ def test():
     test_supports_text()
     test_find_font()
 
+
 def main():
     import sys, os
-    for f in sys.argv[1:]:
-        print (os.path.basename(f))
-        raw = open(f, 'rb').read()
-        print (get_font_names(raw))
+    for arg in sys.argv[1:]:
+        print(os.path.basename(arg))
+        with open(arg, 'rb') as f:
+            raw = f.read()
+        print(get_font_names(raw))
         characs = get_font_characteristics(raw)
-        print (characs)
-        print (panose_to_css_generic_family(characs[5]))
+        print(characs)
+        print(panose_to_css_generic_family(characs[5]))
         verify_checksums(raw)
         remove_embed_restriction(raw)
 
 
 if __name__ == '__main__':
     main()
-

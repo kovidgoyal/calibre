@@ -1,10 +1,13 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Arbetaren_SE(BasicNewsRecipe):
     title = u'Arbetaren'
-    __author__ = 'Joakim Lindskog'
-    description = 'Nyheter fr\xc3\xa5n Arbetaren'
+    __author__ = 'Jonatan Nyberg'
+    description = u'Nyheter fr\xe5n Arbetaren'
     publisher = 'Arbetaren'
     category = 'news, politics, socialism, Sweden'
     oldest_article = 7
@@ -14,19 +17,9 @@ class Arbetaren_SE(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
     language = 'sv'
+    auto_cleanup   = True
+    auto_cleanup_keep = '//div[@class="thumbnail"]'
+    auto_cleanup_keep = '//div[@id="article-image"]'
+    auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    keep_only_tags = [dict(name='div', attrs={'id': 'article'})]
-    remove_tags_before = dict(name='div', attrs={'id': 'article'})
-    remove_tags_after = dict(name='p', attrs={'id': 'byline'})
-    remove_tags = [
-        dict(name=['object', 'link', 'base']),
-        dict(name='p', attrs={'class': 'print'}),
-        dict(name='a', attrs={'class': 'addthis_button_compact'}),
-        dict(name='script')
-    ]
-
-    feeds = [(u'Nyheter', u'http://www.arbetaren.se/rss/arbetaren.rss?rev=123')]
+    feeds = [(u'Nyheter', u'https://www.arbetaren.se/feed')]

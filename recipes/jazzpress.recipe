@@ -33,7 +33,7 @@ class jazzpress(BasicNewsRecipe):
 
         # find the link
         epublink = browser.find_link(
-            url_regex=re.compile('e_jazzpress\d\d\d\d\_epub'))
+            url_regex=re.compile(r'e_jazzpress\d\d\d\d\_epub'))
 
         # download ebook
         self.report_progress(0, _('Downloading ePUB'))

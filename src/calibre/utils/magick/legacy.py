@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 from io import BytesIO
 
@@ -16,10 +15,12 @@ from calibre.utils.img import (
 )
 from calibre.utils.imghdr import identify
 
+
 class PixelWand(object):
 
     def __init__(self):
         self.color = '#ffffff'
+
 
 class Image(object):
 
@@ -55,43 +56,43 @@ class Image(object):
     def to_qimage(self):
         return clone_image(self.img)
 
-    @dynamic_property
+    @property
     def type(self):
-        def fget(self):
-            if len(self.img.colorTable()) > 0:
-                return 'PaletteType'
-            return 'TrueColorType'
-        def fset(self, t):
-            if t == 'GrayscaleType':
-                self.img = grayscale_image(self.img)
-            elif t == 'PaletteType':
-                self.img = quantize_image(self.img)
-        return property(fget=fget, fset=fset)
+        if len(self.img.colorTable()) > 0:
+            return 'PaletteType'
+        return 'TrueColorType'
 
-    @dynamic_property
+    @type.setter
+    def type(self, t):
+        if t == 'GrayscaleType':
+            self.img = grayscale_image(self.img)
+        elif t == 'PaletteType':
+            self.img = quantize_image(self.img)
+
+    @property
     def format(self):
-        def fget(self):
-            return self.write_format or self.read_format
-        def fset(self, val):
-            self.write_format = val
-        return property(fget=fget, fset=fset)
+        return self.write_format or self.read_format
 
-    @dynamic_property
+    @format.setter
+    def format(self, val):
+        self.write_format = val
+
+    @property
     def colorspace(self):
-        def fget(self):
-            return 'RGBColorspace'
-        def fset(self, val):
-            raise NotImplementedError('Changing image colorspace is not supported')
-        return property(fget=fget, fset=fset)
+        return 'RGBColorspace'
 
-    @dynamic_property
+    @colorspace.setter
+    def colorspace(self, val):
+        raise NotImplementedError('Changing image colorspace is not supported')
+
+    @property
     def size(self):
-        def fget(self):
-            return self.img.width(), self.img.height()
-        def fset(self, val):
-            w, h = val[:2]
-            self.img = resize_image(self.img, w, h)
-        return property(fget=fget, fset=fset)
+        return self.img.width(), self.img.height()
+
+    @size.setter
+    def size(self, val):
+        w, h = val[:2]
+        self.img = resize_image(self.img, w, h)
 
     def save(self, path, format=None):
         if format is None:

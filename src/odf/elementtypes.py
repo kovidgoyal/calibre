@@ -19,7 +19,11 @@
 # Contributor(s):
 #
 
-from namespaces import *
+from __future__ import print_function, unicode_literals, absolute_import, division
+from .namespaces import (
+    ANIMNS, CHARTNS, DR3DNS, DRAWNS, FORMNS, MANIFESTNS, METANS, NUMBERNS, OFFICENS,
+    PRESENTATIONNS, SCRIPTNS, STYLENS, SVGNS, TABLENS, TEXTNS
+)
 
 # Inline element don't cause a box
 # They are analogous to the HTML elements SPAN, B, I etc.

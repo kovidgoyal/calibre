@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import QTextBlockUserData
 from calibre.gui2.tweak_book import verify_link
 from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from polyglot.builtins import iteritems
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')
@@ -141,6 +141,7 @@ IN_DQS = 3
 IN_CONTENT = 4
 IN_COMMENT_CONTENT = 5
 
+
 class CSSState(object):
 
     __slots__ = ('parse', 'blocks')
@@ -165,6 +166,7 @@ class CSSState(object):
         return "CSSState(parse=%s, blocks=%s)" % (self.parse, self.blocks)
     __str__ = __repr__
 
+
 class CSSUserData(QTextBlockUserData):
 
     def __init__(self):
@@ -175,6 +177,7 @@ class CSSUserData(QTextBlockUserData):
     def clear(self, state=None, doc_name=None):
         self.state = CSSState() if state is None else state
         self.doc_name = doc_name
+
 
 def normal(state, text, i, formats, user_data):
     ' The normal state (outside content blocks {})'
@@ -201,6 +204,7 @@ def normal(state, text, i, formats, user_data):
             return [(len(m.group()), formats[fmt])]
 
     return [(len(text) - i, formats['unknown-normal'])]
+
 
 def content(state, text, i, formats, user_data):
     ' Inside content blocks '
@@ -241,6 +245,7 @@ def content(state, text, i, formats, user_data):
 
     return [(len(text) - i, formats['unknown-normal'])]
 
+
 def comment(state, text, i, formats, user_data):
     ' Inside a comment '
     pos = text.find('*/', i)
@@ -248,6 +253,7 @@ def comment(state, text, i, formats, user_data):
         return [(len(text), formats['comment'])]
     state.parse = NORMAL if state.parse == IN_COMMENT_NORMAL else IN_CONTENT
     return [(pos - i + 2, formats['comment'])]
+
 
 def in_string(state, text, i, formats, user_data):
     'Inside a string'
@@ -262,6 +268,7 @@ def in_string(state, text, i, formats, user_data):
     state.parse = (NORMAL if state.blocks < 1 else IN_CONTENT)
     return [(pos - i + len(q), formats['string'])]
 
+
 state_map = {
     NORMAL:normal,
     IN_COMMENT_NORMAL: comment,
@@ -270,6 +277,7 @@ state_map = {
     IN_DQS: in_string,
     IN_CONTENT: content,
 }
+
 
 def create_formats(highlighter):
     theme = highlighter.theme
@@ -287,10 +295,10 @@ def create_formats(highlighter):
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
     }
-    for name, msg in {
+    for name, msg in iteritems({
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
-    }.iteritems():
+    }):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     formats['link'] = syntax_text_char_format(theme['Link'])
@@ -333,4 +341,3 @@ li[rel="mewl"], p.mewl {
 }
 
 ''', path_is_raw=True, syntax='css')
-

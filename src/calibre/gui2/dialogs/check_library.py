@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -15,6 +17,8 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre import prints, as_unicode
+from polyglot.builtins import unicode_type
+
 
 class DBCheck(QDialog):  # {{{
 
@@ -36,7 +40,6 @@ class DBCheck(QDialog):  # {{{
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.db = db.new_api
-        self.closed_orig_conn = False
         self.rejected = False
 
     def start(self):
@@ -70,8 +73,10 @@ class DBCheck(QDialog):  # {{{
 
 # }}}
 
+
 class Item(QTreeWidgetItem):
     pass
+
 
 class CheckLibraryDialog(QDialog):
 
@@ -79,7 +84,7 @@ class CheckLibraryDialog(QDialog):
         QDialog.__init__(self, parent)
         self.db = db
 
-        self.setWindowTitle(_('Check Library -- Problems Found'))
+        self.setWindowTitle(_('Check library -- Problems found'))
         self.setWindowIcon(QIcon(I('debug.png')))
 
         self._tl = QHBoxLayout()
@@ -230,8 +235,8 @@ class CheckLibraryDialog(QDialog):
         return True
 
     def accept(self):
-        self.db.new_api.set_pref('check_library_ignore_extensions', unicode(self.ext_ignores.text()))
-        self.db.new_api.set_pref('check_library_ignore_names', unicode(self.name_ignores.text()))
+        self.db.new_api.set_pref('check_library_ignore_extensions', unicode_type(self.ext_ignores.text()))
+        self.db.new_api.set_pref('check_library_ignore_names', unicode_type(self.name_ignores.text()))
         QDialog.accept(self)
 
     def box_to_list(self, txt):
@@ -239,8 +244,8 @@ class CheckLibraryDialog(QDialog):
 
     def run_the_check(self):
         checker = CheckLibrary(self.db.library_path, self.db)
-        checker.scan_library(self.box_to_list(unicode(self.name_ignores.text())),
-                             self.box_to_list(unicode(self.ext_ignores.text())))
+        checker.scan_library(self.box_to_list(unicode_type(self.name_ignores.text())),
+                             self.box_to_list(unicode_type(self.ext_ignores.text())))
 
         plaintext = []
 
@@ -333,7 +338,7 @@ class CheckLibraryDialog(QDialog):
         for it in items:
             if it.checkState(1):
                 try:
-                    p = os.path.join(self.db.library_path ,unicode(it.text(1)))
+                    p = os.path.join(self.db.library_path, unicode_type(it.text(1)))
                     if os.path.isdir(p):
                         delete_tree(p)
                     else:
@@ -341,7 +346,7 @@ class CheckLibraryDialog(QDialog):
                 except:
                     prints('failed to delete',
                             os.path.join(self.db.library_path,
-                                unicode(it.text(1))))
+                                unicode_type(it.text(1))))
         self.run_the_check()
 
     def fix_missing_formats(self):
@@ -351,9 +356,9 @@ class CheckLibraryDialog(QDialog):
             item = tl.child(i)
             id = int(item.data(0, Qt.UserRole))
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
-            all = set([f.strip() for f in all.split(',')]) if all else set()
+            all = {f.strip() for f in all.split(',')} if all else set()
             valid = self.db.formats(id, index_is_id=True, verify_formats=True)
-            valid = set([f.strip() for f in valid.split(',')]) if valid else set()
+            valid = {f.strip() for f in valid.split(',')} if valid else set()
             for fmt in all-valid:
                 self.db.remove_format(id, fmt, index_is_id=True, db_only=True)
 
@@ -393,4 +398,3 @@ if __name__ == '__main__':
     from calibre.library import db
     d = CheckLibraryDialog(None, db())
     d.exec_()
-

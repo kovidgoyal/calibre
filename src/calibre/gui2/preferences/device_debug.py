@@ -12,6 +12,7 @@ from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
 
 from calibre.gui2 import error_dialog
 
+
 class DebugDevice(QDialog):
 
     def __init__(self, gui, parent=None):
@@ -63,6 +64,7 @@ class DebugDevice(QDialog):
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.log.toPlainText())
+
 
 if __name__ == '__main__':
     app = QApplication([])

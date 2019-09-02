@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +11,7 @@ import sys, os, shutil
 from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6
 from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
+
 
 def inspect_mobi(path_or_stream, ddir=None):  # {{{
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
@@ -36,13 +36,14 @@ def inspect_mobi(path_or_stream, ddir=None):  # {{{
     else:
         inspect_mobi8(f, ddir)
 
-    print ('Debug data saved to:', ddir)
+    print('Debug data saved to:', ddir)
 
 # }}}
+
 
 def main():
     inspect_mobi(sys.argv[1])
 
+
 if __name__ == '__main__':
     main()
-

@@ -27,7 +27,7 @@ class Gameplay_pl(BasicNewsRecipe):
             return url
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and '../' in a['href']:  # noqa
+        for a in soup('a', href=True):
+            if '../' in a['href']:
                 a['href'] = self.index + a['href'][2:]
         return soup

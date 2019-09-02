@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, weakref
 from collections import OrderedDict, namedtuple
 from functools import partial
-from future_builtins import zip
+from polyglot.builtins import iteritems, itervalues, zip, unicode_type, range, map
 
 from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
@@ -32,6 +31,7 @@ Widgets = namedtuple('Widgets', 'new old label button')
 
 # Widgets {{{
 
+
 class LineEdit(EditWithComplete):
 
     changed = pyqtSignal()
@@ -48,28 +48,28 @@ class LineEdit(EditWithComplete):
             self.set_separator(sep)
         self.textChanged.connect(self.changed)
 
-    @dynamic_property
+    @property
     def value(self):
-        def fget(self):
-            val = unicode(self.text()).strip()
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = []
-                else:
-                    val = val.strip(ism['list_to_ui'].strip())
-                    val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
-            return val
-        def fset(self, val):
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = ''
-                else:
-                    val = ism['list_to_ui'].join(val)
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+        val = unicode_type(self.text()).strip()
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = []
+            else:
+                val = val.strip(ism['list_to_ui'].strip())
+                val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
+        return val
+
+    @value.setter
+    def value(self, val):
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = ''
+            else:
+                val = ism['list_to_ui'].join(val)
+        self.setText(val)
+        self.setCursorPosition(0)
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='') or ''
@@ -83,14 +83,14 @@ class LineEdit(EditWithComplete):
         elif self.field == 'authors':
             mi.set('author_sort', authors_to_sort_string(val))
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return unicode(self.text())
-        def fset(self, val):
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+        return unicode_type(self.text())
+
+    @current_val.setter
+    def current_val(self, val):
+        self.setText(val)
+        self.setCursorPosition(0)
 
     @property
     def is_blank(self):
@@ -116,13 +116,13 @@ class LanguagesEdit(LE):
         if not is_new:
             self.lineEdit().setReadOnly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.lang_codes
-        def fset(self, val):
-            self.lang_codes = val
-        return property(fget=fget, fset=fset)
+        return self.lang_codes
+
+    @current_val.setter
+    def current_val(self, val):
+        self.lang_codes = val
 
     def from_mi(self, mi):
         self.lang_codes = mi.languages
@@ -137,6 +137,7 @@ class LanguagesEdit(LE):
     def same_as(self, other):
         return self.current_val == other.current_val
 
+
 class RatingsEdit(RatingEdit):
 
     changed = pyqtSignal()
@@ -146,23 +147,21 @@ class RatingsEdit(RatingEdit):
         self.is_new = is_new
         self.field = field
         self.metadata = metadata
-        self.valueChanged.connect(self.changed)
-        if not is_new:
-            self.setReadOnly(True)
+        self.currentIndexChanged.connect(self.changed)
 
     def from_mi(self, mi):
-        val = (mi.get(self.field, default=0) or 0)/2
-        self.setValue(val)
+        self.current_val = mi.get(self.field, default=0)
 
     def to_mi(self, mi):
-        mi.set(self.field, self.value() * 2)
+        mi.set(self.field, self.current_val)
 
     @property
     def is_blank(self):
-        return self.value() == 0
+        return self.current_val == 0
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class DateEdit(PubdateEdit):
 
@@ -191,6 +190,7 @@ class DateEdit(PubdateEdit):
     def same_as(self, other):
         return self.text() == other.text()
 
+
 class SeriesEdit(LineEdit):
 
     def __init__(self, *args, **kwargs):
@@ -208,7 +208,7 @@ class SeriesEdit(LineEdit):
         self.setCursorPosition(0)
 
     def to_mi(self, mi):
-        val = unicode(self.text()).strip()
+        val = unicode_type(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
         except:
@@ -228,6 +228,7 @@ class SeriesEdit(LineEdit):
         sidx = fmt_sidx(num)
         self.setText(self.text() + ' [%s]' % sidx)
 
+
 class IdentifiersEdit(LineEdit):
 
     def from_mi(self, mi):
@@ -236,16 +237,17 @@ class IdentifiersEdit(LineEdit):
     def to_mi(self, mi):
         mi.set_identifiers(self.as_dict)
 
-    @dynamic_property
+    @property
     def as_dict(self):
-        def fget(self):
-            parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-            return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.iteritems() if k and v}
-        def fset(self, val):
-            val = ('%s:%s' % (k, v) for k, v in val.iteritems())
-            self.setText(', '.join(val))
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+        parts = (x.strip() for x in self.current_val.split(',') if x.strip())
+        return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
+
+    @as_dict.setter
+    def as_dict(self, val):
+        val = ('%s:%s' % (k, v) for k, v in iteritems(val))
+        self.setText(', '.join(val))
+        self.setCursorPosition(0)
+
 
 class CommentsEdit(Editor):
 
@@ -262,14 +264,14 @@ class CommentsEdit(Editor):
             self.hide_toolbars()
             self.set_readonly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.html
-        def fset(self, val):
-            self.html = val or ''
-            self.changed.emit()
-        return property(fget=fget, fset=fset)
+        return self.html
+
+    @current_val.setter
+    def current_val(self, val):
+        self.html = val or ''
+        self.changed.emit()
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='')
@@ -287,6 +289,7 @@ class CommentsEdit(Editor):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class CoverView(QWidget):
 
@@ -306,15 +309,15 @@ class CoverView(QWidget):
     def is_blank(self):
         return self.pixmap is None
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.pixmap
-        def fset(self, val):
-            self.pixmap = val
-            self.changed.emit()
-            self.update()
-        return property(fget=fget, fset=fset)
+        return self.pixmap
+
+    @current_val.setter
+    def current_val(self, val):
+        self.pixmap = val
+        self.changed.emit()
+        self.update()
 
     def from_mi(self, mi):
         p = getattr(mi, 'cover', None)
@@ -376,6 +379,7 @@ class CoverView(QWidget):
         p.end()
 # }}}
 
+
 class CompareSingle(QWidget):
 
     def __init__(
@@ -420,7 +424,8 @@ class CompareSingle(QWidget):
             else:
                 continue
             neww = cls(field, True, self, m, extra)
-            neww.changed.connect(partial(self.changed, field))
+            neww.setObjectName(field)
+            connect_lambda(neww.changed, self, lambda self: self.changed(self.sender().objectName()))
             if isinstance(neww, EditWithComplete):
                 try:
                     neww.update_items_cache(db.new_api.all_field_names(field))
@@ -433,7 +438,8 @@ class CompareSingle(QWidget):
             newl.setBuddy(neww)
             button = RightClickButton(self)
             button.setIcon(QIcon(I('back.png')))
-            button.clicked.connect(partial(self.revert, field))
+            button.setObjectName(field)
+            connect_lambda(button.clicked, self, lambda self: self.revert(self.sender().objectName()))
             button.setToolTip(revert_tooltip % m['name'])
             if field == 'identifiers':
                 button.m = m = QMenu(button)
@@ -506,19 +512,20 @@ class CompareSingle(QWidget):
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
         self.initial_vals = {}
-        for field, widgets in self.widgets.iteritems():
+        for field, widgets in iteritems(self.widgets):
             widgets.old.from_mi(oldmi)
             widgets.new.from_mi(newmi)
             self.initial_vals[field] = widgets.new.current_val
 
     def apply_changes(self):
         changed = False
-        for field, widgets in self.widgets.iteritems():
+        for field, widgets in iteritems(self.widgets):
             val = widgets.new.current_val
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)
                 changed = True
         return changed
+
 
 class CompareMany(QDialog):
 
@@ -562,13 +569,13 @@ class CompareMany(QDialog):
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
-            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.NoRole)
+            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.ActionRole)
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
-            self.sb = b = bb.addButton(_('&Reject'), bb.ActionRole)
-            b.clicked.connect(partial(self.next_item, False))
+            self.sb = b = bb.addButton(_('R&eject'), bb.ActionRole)
+            connect_lambda(b.clicked, self, lambda self: self.next_item(False))
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
@@ -585,14 +592,14 @@ class CompareMany(QDialog):
             b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.NativeText))
             self.next_action.triggered.connect(b.click)
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
-        b.clicked.connect(partial(self.next_item, True))
+        connect_lambda(b.clicked, self, lambda self: self.next_item(True))
         b.setDefault(True), b.setAutoDefault(True)
         self.bbh = h = QHBoxLayout()
         h.setContentsMargins(0, 0, 0, 0)
         l.addLayout(h)
         self.markq = m = QCheckBox(_('&Mark rejected books'))
         m.setChecked(gprefs['metadata_diff_mark_rejected'])
-        m.stateChanged[int].connect(lambda : gprefs.set('metadata_diff_mark_rejected', m.isChecked()))
+        connect_lambda(m.stateChanged[int], self, lambda self: gprefs.set('metadata_diff_mark_rejected', self.markq.isChecked()))
         m.setToolTip(_('Mark rejected books in the book list after this dialog is closed'))
         h.addWidget(m), h.addWidget(bb)
 
@@ -656,7 +663,10 @@ class CompareMany(QDialog):
 
     def reject_all_remaining(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
-        if not confirm(_('Are you sure you want to reject all %d remaining results?') % len(self.ids), 'confirm_metadata_review_reject', parent=self):
+        if not confirm(ngettext(
+                'Are you sure you want to reject the remaining result?',
+                'Are you sure you want to reject all {} remaining results?', len(self.ids)).format(len(self.ids)),
+                       'confirm_metadata_review_reject', parent=self):
             return
         self.next_item(False)
         for id_ in self.ids:
@@ -672,17 +682,18 @@ class CompareMany(QDialog):
             return
         return QDialog.keyPressEvent(self, ev)
 
+
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
     from calibre.library import db
+    app = Application([])
     db = db()
     ids = sorted(db.all_ids(), reverse=True)
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
-    get_metadata = lambda x:map(gm, ids[x])
-    d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata, db=db)
+    get_metadata = lambda x:list(map(gm, ids[x]))
+    d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     if d.exec_() == d.Accepted:
-        for changed, mi in d.accepted.itervalues():
+        for changed, mi in itervalues(d.accepted):
             if changed and mi is not None:
-                print (mi)
-
+                print(mi)

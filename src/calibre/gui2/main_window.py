@@ -1,17 +1,18 @@
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import StringIO, traceback, sys, gc, weakref
+import sys, gc, weakref
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
-                      pyqtSignal, QObject)
+                      QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
-from calibre import prints
+from calibre import prints, force_unicode, as_unicode
+from polyglot.io import PolyglotBytesIO
+
 
 def option_parser(usage='''\
 Usage: %prog [options]
@@ -20,6 +21,7 @@ Launch the Graphical User Interface
 '''):
     parser = OptionParser(usage)
     return parser
+
 
 class GarbageCollector(QObject):
 
@@ -49,24 +51,25 @@ class GarbageCollector(QObject):
         # return self.debug_cycles()
         l0, l1, l2 = gc.get_count()
         if self.debug:
-            print ('gc_check called:', l0, l1, l2)
+            print('gc_check called:', l0, l1, l2)
         if l0 > self.threshold[0]:
             num = gc.collect(0)
             if self.debug:
-                print ('collecting gen 0, found:', num, 'unreachable')
+                print('collecting gen 0, found:', num, 'unreachable')
             if l1 > self.threshold[1]:
                 num = gc.collect(1)
                 if self.debug:
-                    print ('collecting gen 1, found:', num, 'unreachable')
+                    print('collecting gen 1, found:', num, 'unreachable')
                 if l2 > self.threshold[2]:
                     num = gc.collect(2)
                     if self.debug:
-                        print ('collecting gen 2, found:', num, 'unreachable')
+                        print('collecting gen 2, found:', num, 'unreachable')
 
     def debug_cycles(self):
         gc.collect()
         for obj in gc.garbage:
-            print (obj, repr(obj), type(obj))
+            print(obj, repr(obj), type(obj))
+
 
 class ExceptionHandler(object):
 
@@ -80,15 +83,12 @@ class ExceptionHandler(object):
         else:
             sys.__excepthook__(type, value, tb)
 
+
 class MainWindow(QMainWindow):
 
     ___menu_bar = None
     ___menu     = None
     __actions   = []
-
-    # See https://bugreports.qt-project.org/browse/QTBUG-42281
-    window_blocked = pyqtSignal()
-    window_unblocked = pyqtSignal()
 
     @classmethod
     def create_application_menubar(cls):
@@ -129,22 +129,24 @@ class MainWindow(QMainWindow):
     def set_exception_handler(self):
         sys.excepthook = ExceptionHandler(self)
 
-    def unhandled_exception(self, type, value, tb):
-        if type is KeyboardInterrupt:
+    def unhandled_exception(self, exc_type, value, tb):
+        if exc_type is KeyboardInterrupt:
             return
+        import traceback
         try:
-            sio = StringIO.StringIO()
+            sio = PolyglotBytesIO(errors='replace')
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)
             except:
                 pass
-            traceback.print_exception(type, value, tb, file=sio)
+            traceback.print_exception(exc_type, value, tb, file=sio)
             if getattr(value, 'locking_debug_msg', None):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
-            msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
+            fe = force_unicode(fe)
+            msg = '<b>%s</b>:'%exc_type.__name__ + as_unicode(value)
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:
@@ -152,19 +154,12 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-    def event(self, ev):
-        # See https://bugreports.qt-project.org/browse/QTBUG-42281
-        etype = ev.type()
-        if etype == ev.WindowBlocked:
-            self.window_blocked.emit()
-        elif etype == ev.WindowUnblocked:
-            self.window_unblocked.emit()
-        return QMainWindow.event(self, ev)
 
 def clone_menu(menu):
     # This is needed to workaround a bug in Qt 5.5+ and Unity. When the same
     # QAction object is used in both a QMenuBar and a QMenu, sub-menus of the
     # QMenu flicker when rendered under Unity.
+
     def clone_action(ac, parent):
         if ac.isSeparator():
             ans = QAction(parent)
@@ -172,7 +167,10 @@ def clone_menu(menu):
             return ans
         sc = ac.shortcut()
         sc = '' if sc.isEmpty() else sc.toString(sc.NativeText)
-        ans = QAction(ac.icon(), ac.text() + '\t' + sc, parent)
+        text = ac.text()
+        if '\t' not in text:
+            text += '\t' + sc
+        ans = QAction(ac.icon(), text, parent)
         ans.triggered.connect(ac.trigger)
         ans.setEnabled(ac.isEnabled())
         ans.setStatusTip(ac.statusTip())
@@ -180,6 +178,7 @@ def clone_menu(menu):
         return ans
 
     def clone_one_menu(m):
+        m.aboutToShow.emit()
         ans = QMenu(m.parent())
         for ac in m.actions():
             cac = clone_action(ac, ans)

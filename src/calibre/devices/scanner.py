@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -12,6 +13,7 @@ from threading import Lock
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
         isnetbsd)
+from polyglot.builtins import range
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
@@ -19,25 +21,22 @@ if iswindows:
     drive_ok_lock = Lock()
 
     def drive_is_ok(letter, max_tries=10, debug=False):
-        import win32api, win32file
+        import win32file
         with drive_ok_lock:
-            oldError = win32api.SetErrorMode(1)  # SEM_FAILCRITICALERRORS = 1
-            try:
-                for i in xrange(max_tries):
-                    try:
-                        win32file.GetDiskFreeSpaceEx(letter+':\\')
-                        return True
-                    except Exception as e:
-                        if i >= max_tries - 1 and debug:
-                            prints('Unable to get free space for drive:', letter)
-                            prints(as_unicode(e))
-                        time.sleep(0.2)
-                return False
-            finally:
-                win32api.SetErrorMode(oldError)
+            for i in range(max_tries):
+                try:
+                    win32file.GetDiskFreeSpaceEx(letter+':\\')
+                    return True
+                except Exception as e:
+                    if i >= max_tries - 1 and debug:
+                        prints('Unable to get free space for drive:', letter)
+                        prints(as_unicode(e))
+                    time.sleep(0.2)
+            return False
 
 _USBDevice = namedtuple('USBDevice',
     'vendor_id product_id bcd manufacturer product serial')
+
 
 class USBDevice(_USBDevice):
 
@@ -55,6 +54,7 @@ class USBDevice(_USBDevice):
 
     __str__ = __repr__
     __unicode__ = __repr__
+
 
 class LibUSBScanner(object):
 
@@ -77,7 +77,7 @@ class LibUSBScanner(object):
             dev = USBDevice(*dev)
             dev.busnum, dev.devnum = fingerprint[:2]
             ans.add(dev)
-        extra = set(self.libusb.cache.iterkeys()) - seen
+        extra = set(self.libusb.cache) - seen
         for x in extra:
             self.libusb.cache.pop(x, None)
         return ans
@@ -88,12 +88,13 @@ class LibUSBScanner(object):
         memory()
         for num in (1, 10, 100):
             start = memory()
-            for i in xrange(num):
+            for i in range(num):
                 self()
-            for i in xrange(3):
+            for i in range(3):
                 gc.collect()
-            print 'Mem consumption increased by:', memory() - start, 'MB',
-            print 'after', num, 'repeats'
+            print('Mem consumption increased by:', memory() - start, 'MB', end=' ')
+            print('after', num, 'repeats')
+
 
 class LinuxScanner(object):
 
@@ -106,7 +107,7 @@ class LinuxScanner(object):
         self.ok = os.path.exists(self.base)
 
     def __call__(self):
-        ans = set([])
+        ans = set()
         if not self.ok:
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
@@ -127,96 +128,43 @@ class LinuxScanner(object):
                 # Ignore USB HUBs
                 if read(os.path.join(base, 'bDeviceClass')) == b'09':
                     continue
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(ven), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(prod), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(bcd), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(read(man).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(prod_string).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(serial).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
 
             dev = USBDevice(*dev)
             try:
                 dev.busnum = int(read(os.path.join(base, 'busnum')))
-            except:
+            except Exception:
                 pass
             try:
                 dev.devnum = int(read(os.path.join(base, 'devnum')))
-            except:
+            except Exception:
                 pass
             ans.add(dev)
-        return ans
-
-class FreeBSDScanner(object):
-
-    def __call__(self):
-        ans = set([])
-        import dbus
-
-        try:
-            bus = dbus.SystemBus()
-            manager = dbus.Interface(bus.get_object('org.freedesktop.Hal',
-                          '/org/freedesktop/Hal/Manager'), 'org.freedesktop.Hal.Manager')
-            paths = manager.FindDeviceStringMatch('freebsd.driver','da')
-            for path in paths:
-                obj = bus.get_object('org.freedesktop.Hal', path)
-                objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
-                parentdriver = None
-                while parentdriver != 'umass':
-                    try:
-                        obj = bus.get_object('org.freedesktop.Hal',
-                              objif.GetProperty('info.parent'))
-                        objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
-                        try:
-                            parentdriver = objif.GetProperty('freebsd.driver')
-                        except dbus.exceptions.DBusException as e:
-                            continue
-                    except dbus.exceptions.DBusException as e:
-                        break
-                if parentdriver != 'umass':
-                    continue
-                dev = []
-                try:
-                    dev.append(objif.GetProperty('usb.vendor_id'))
-                    dev.append(objif.GetProperty('usb.product_id'))
-                    dev.append(objif.GetProperty('usb.device_revision_bcd'))
-                except dbus.exceptions.DBusException as e:
-                    continue
-                try:
-                    dev.append(objif.GetProperty('info.vendor'))
-                except:
-                    dev.append('')
-                try:
-                    dev.append(objif.GetProperty('info.product'))
-                except:
-                    dev.append('')
-                try:
-                    dev.append(objif.GetProperty('usb.serial'))
-                except:
-                    dev.append('')
-                dev.append(path)
-                ans.add(tuple(dev))
-        except dbus.exceptions.DBusException as e:
-            print >>sys.stderr, "Execution failed:", e
         return ans
 
 
@@ -236,11 +184,12 @@ if False and isosx:
     osx_scanner = usbobserver.get_usb_devices
 
 if isfreebsd:
-    freebsd_scanner = FreeBSDScanner()
+    freebsd_scanner = libusb_scanner
 
 ''' NetBSD support currently not written yet '''
 if isnetbsd:
     netbsd_scanner = None
+
 
 class DeviceScanner(object):
 
@@ -263,6 +212,7 @@ class DeviceScanner(object):
         return device.is_usb_connected(self.devices, debug=debug,
                 only_presence=only_presence)
 
+
 def test_for_mem_leak():
     from calibre.utils.mem import memory, gc_histogram, diff_hists
     import gc
@@ -270,17 +220,17 @@ def test_for_mem_leak():
     scanner = DeviceScanner()
     scanner.scan()
     memory()  # load the psutil library
-    for i in xrange(3):
+    for i in range(3):
         gc.collect()
 
     for reps in (1, 10, 100, 1000):
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         h1 = gc_histogram()
         startmem = memory()
-        for i in xrange(reps):
+        for i in range(reps):
             scanner.scan()
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,
@@ -289,9 +239,11 @@ def test_for_mem_leak():
         diff_hists(h1, gc_histogram())
         prints()
 
+
 def main(args=sys.argv):
     test_for_mem_leak()
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

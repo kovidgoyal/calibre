@@ -1,0 +1,117 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.theme import get_color
+from dom import build_rule, clear, set_css, svgicon
+from session import get_interface_data
+from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
+
+DETAILS_LIST_CLASS = 'book-list-details-list'
+ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
+
+def description():
+    return _('A list with thumbnails and some book details')
+
+THUMBNAIL_MAX_WIDTH = 35 * 3
+THUMBNAIL_MAX_HEIGHT = 35 * 4
+BORDER_RADIUS = 6
+
+
+def details_list_css():
+    ans = ''
+    sel = '.' + DETAILS_LIST_CLASS
+    ans += build_rule(sel, cursor='pointer', user_select='none')
+    ans += build_rule(sel + ' > div', margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left', transform='scale(1.2)')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:active .details-list-left', transform='scale(2)')
+    s = sel + ' .details-list-left'
+    ans += build_rule(s, margin_right='1em', min_width=f'{THUMBNAIL_MAX_WIDTH}px')
+    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', max_height=f'{THUMBNAIL_MAX_HEIGHT}px', max_width=f'{THUMBNAIL_MAX_WIDTH}px')
+    s = sel + ' .details-list-right'
+    ans += build_rule(s, flex_grow='10', overflow='hidden', display='flex', flex_direction='column')
+    top = s + ' > div:first-child'
+    extra_data = top + ' > div:last-child'
+    ans += f'{extra_data} {{ text-align: right }}'
+    narrow_style = f'{s} iframe {{ display: none }} {top} {{ flex-direction: column }} {extra_data} {{ text-align: left; margin-top: 1ex }}'
+    ans += f'@media (max-width: 450px) {{ {narrow_style} }}'
+    s += ' iframe'
+    # To enable clicking anywhere on the item to load book details to work, we
+    # have to set pointer-events: none
+    # That has the side effect of disabling text selection
+    ans += build_rule(s, flex_grow='10', height='50px', cursor='pointer', pointer_events='none')
+    return ans
+
+
+def init(container):
+    clear(container)
+    container.appendChild(E.div(class_=DETAILS_LIST_CLASS))
+
+
+def on_img_load(img, load_type):
+    div = img.parentNode
+    if not div:
+        return
+    if load_type is not 'load':
+        clear(div)
+        div.appendChild(E.div(
+            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
+            E.div(_('by'), style='text-align: center'),
+            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
+        ))
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+
+
+def sandbox_css():
+    if not sandbox_css.ans:
+        sandbox_css.ans = 'html {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
+    return sandbox_css.ans
+
+
+def create_item(book_id, metadata, create_image, show_book_details, href):
+    authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
+    img.dataset.title, img.dataset.authors = metadata.title, authors
+    img_div = E.div(img, class_='details-list-left')
+    extra_data = E.div()
+    comments = sandboxed_html(metadata.comments, sandbox_css())
+    if not metadata.comments:
+        comments.style.display = 'none'
+    comments.style.marginTop = '1ex'
+    interface_data = get_interface_data()
+    if metadata.rating:
+        stars = E.span(style='white-space:nowrap')
+        for i in range(int(metadata.rating) // 2):
+            stars.appendChild(svgicon('star'))
+        extra_data.appendChild(stars), extra_data.appendChild(E.br())
+    if metadata.series:
+        try:
+            ival = float(metadata.series_index)
+        except Exception:
+            ival = 1.0
+        ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+        extra_data.appendChild(safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, metadata.series)))
+    right = E.div(
+        class_='details-list-right',
+            E.div(style='display:flex; justify-content: space-between; overflow: hidden',
+            E.div(
+                E.b(metadata.title or _('Unknown')), E.br(), authors,
+            ),
+            extra_data
+        ),
+        comments,
+    )
+    ans = E.div(E.a(img_div, right, href=href,
+                style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
+                class_=ITEM_CLASS,
+    ))
+    ans.addEventListener('click', show_book_details, True)
+    return ans
+
+
+def append_item(container, item):
+    container.lastChild.appendChild(item)

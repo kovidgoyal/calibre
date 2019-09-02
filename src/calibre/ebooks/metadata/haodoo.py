@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Read meta information from Haodoo.net pdb files.
@@ -10,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.haodoo.reader import Reader
+
 
 def get_metadata(stream, extract_cover=True):
     '''

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,12 +12,14 @@ from select import select
 from calibre.constants import islinux, isosx
 from calibre.srv.utils import eintr_retry_call
 
+
 def file_metadata(fileobj):
     try:
         fd = fileobj.fileno()
         return os.fstat(fd)
     except Exception:
         pass
+
 
 def copy_range(src_file, start, size, dest):
     total_sent = 0
@@ -33,11 +34,14 @@ def copy_range(src_file, start, size, dest):
         del data
     return total_sent
 
+
 class CannotSendfile(Exception):
     pass
 
+
 class SendfileInterrupted(Exception):
     pass
+
 
 sendfile_to_socket = sendfile_to_socket_async = None
 

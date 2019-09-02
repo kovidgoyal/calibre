@@ -5,10 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, httplib, ssl
-from cookielib import CookieJar, Cookie
+import copy, ssl
 
 from mechanize import Browser as B, HTTPSHandler
+
+from polyglot import http_client
+from polyglot.http_cookie import CookieJar, Cookie
+
 
 class ModernHTTPSHandler(HTTPSHandler):
 
@@ -20,8 +23,10 @@ class ModernHTTPSHandler(HTTPSHandler):
                 req.get_full_url())
             if cert_file:
                 self.ssl_context.load_cert_chain(cert_file, key_file)
-        def conn_factory(hostport):
-            return httplib.HTTPSConnection(hostport, context=self.ssl_context)
+
+        def conn_factory(hostport, **kw):
+            kw['context'] = self.ssl_context
+            return http_client.HTTPSConnection(hostport, **kw)
         return self.do_open(conn_factory, req)
 
 
@@ -50,6 +55,31 @@ class Browser(B):
     @property
     def https_handler(self):
         return self._ua_handlers['https']
+
+    def set_current_header(self, header, value=None):
+        found = False
+        q = header.lower()
+        remove = []
+        for i, (k, v) in enumerate(tuple(self.addheaders)):
+            if k.lower() == q:
+                if value:
+                    self.addheaders[i] = (header, value)
+                    found = True
+                else:
+                    remove.append(i)
+        if not found:
+            self.addheaders.append((header, value))
+        if remove:
+            for i in reversed(remove):
+                del self.addheaders[i]
+
+    def current_user_agent(self):
+        for k, v in self.addheaders:
+            if k.lower() == 'user-agent':
+                return v
+
+    def set_user_agent(self, newval):
+        self.set_current_header('User-agent', newval)
 
     def set_handle_refresh(self, *args, **kwargs):
         B.set_handle_refresh(self, *args, **kwargs)
@@ -121,13 +151,14 @@ class Browser(B):
         self._clone_actions['add_proxy_password'] = ('add_proxy_password', args, kwargs)
 
     def clone_browser(self):
-        clone = Browser()
+        clone = self.__class__()
         clone.https_handler.ssl_context = self.https_handler.ssl_context
         clone.addheaders = copy.deepcopy(self.addheaders)
         for func, args, kwargs in self._clone_actions.values():
             func = getattr(clone, func)
             func(*args, **kwargs)
         return clone
+
 
 if __name__ == '__main__':
     from calibre import browser
@@ -140,5 +171,3 @@ if __name__ == '__main__':
     assert orig._ua_handlers['_cookies'].cookiejar is \
             clone._ua_handlers['_cookies'].cookiejar
     assert orig.addheaders == clone.addheaders
-
-

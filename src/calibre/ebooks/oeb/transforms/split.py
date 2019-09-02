@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -9,25 +9,29 @@ forced at "likely" locations to conform to size limitations. This transform
 assumes a prior call to the flatcss transform.
 '''
 
-import os, math, functools, collections, re, copy
+import os, functools, collections, re, copy
 from collections import OrderedDict
 
 from lxml.etree import XPath as _XPath
 from lxml import etree
 
-from calibre import as_unicode
+from calibre import as_unicode, force_unicode
 from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
-        urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
+        urldefrag, rewrite_links, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
+from polyglot.builtins import iteritems, range, map, unicode_type
+from polyglot.urllib import unquote
 from css_selectors import Select, SelectorError
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_POINT_ATTR = 'csp'
 
+
 def tostring(root):
     return etree.tostring(root, encoding='utf-8')
+
 
 class SplitError(ValueError):
 
@@ -37,6 +41,7 @@ class SplitError(ValueError):
             _('Could not find reasonable point at which to split: '
                 '%(path)s Sub-tree size: %(size)d KB')%dict(
                             path=path, size=size))
+
 
 class Split(object):
 
@@ -72,7 +77,7 @@ class Split(object):
         if splitter.was_split:
             am = splitter.anchor_map
             self.map[item.href] = collections.defaultdict(
-                    am.default_factory, **am)
+                    am.default_factory, am)
 
     def find_page_breaks(self, item):
         if self.page_break_selectors is None:
@@ -80,10 +85,10 @@ class Split(object):
             stylesheets = [x.data for x in self.oeb.manifest if x.media_type in
                     OEB_STYLES]
             for rule in rules(stylesheets):
-                before = getattr(rule.style.getPropertyCSSValue(
-                    'page-break-before'), 'cssText', '').strip().lower()
-                after  = getattr(rule.style.getPropertyCSSValue(
-                    'page-break-after'), 'cssText', '').strip().lower()
+                before = force_unicode(getattr(rule.style.getPropertyCSSValue(
+                    'page-break-before'), 'cssText', '').strip().lower())
+                after  = force_unicode(getattr(rule.style.getPropertyCSSValue(
+                    'page-break-after'), 'cssText', '').strip().lower())
                 try:
                     if before and before not in {'avoid', 'auto', 'inherit'}:
                         self.page_break_selectors.add((rule.selectorText, True))
@@ -118,7 +123,7 @@ class Split(object):
 
         for i, elem in enumerate(item.data.iter('*')):
             try:
-                elem.set('pb_order', str(i))
+                elem.set('pb_order', unicode_type(i))
             except TypeError:  # Cant set attributes on comment nodes etc.
                 continue
 
@@ -175,7 +180,7 @@ class Split(object):
             nhref = anchor_map[frag if frag else None]
             nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join((urlunquote(nhref), frag))
+                nhref = '#'.join((unquote(nhref), frag))
 
             return nhref
         return url
@@ -197,7 +202,7 @@ class FlowSplitter(object):
         self.csp_counter    = 0
 
         base, ext = os.path.splitext(self.base)
-        self.base = base.replace('%', '%%')+u'_split_%.3d'+ext
+        self.base = base.replace('%', '%%')+'_split_%.3d'+ext
 
         self.trees = [self.item.data.getroottree()]
         self.splitting_on_page_breaks = True
@@ -239,9 +244,9 @@ class FlowSplitter(object):
 
         self.trees = [orig_tree]
         while ordered_ids:
-            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            pb_id, (pattern, before) = next(iteritems(ordered_ids))
             del ordered_ids[pb_id]
-            for i in xrange(len(self.trees)-1, -1, -1):
+            for i in range(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]
                 elem = pattern(tree)
                 if elem:
@@ -251,7 +256,7 @@ class FlowSplitter(object):
                     self.trees[i:i+1] = [before_tree, after_tree]
                     break
 
-        trees, ids = [], set([])
+        trees, ids = [], set()
         for tree in self.trees:
             root = tree.getroot()
             if self.is_page_empty(root):
@@ -264,10 +269,10 @@ class FlowSplitter(object):
                 if ids:
                     body = self.get_body(root)
                     if body is not None:
-                        for x in ids:
-                            body.insert(0, body.makeelement(XHTML('div'),
-                                id=x, style='height:0pt'))
-                ids = set([])
+                        existing_ids = frozenset(body.xpath('//*/@id'))
+                        for x in ids - existing_ids:
+                            body.insert(0, body.makeelement(XHTML('div'), id=x, style='height:0pt'))
+                ids = set()
                 trees.append(tree)
         self.trees = trees
 
@@ -290,8 +295,8 @@ class FlowSplitter(object):
         body = self.get_body(root)
         if body is None:
             return False
-        txt = re.sub(ur'\s+|\xa0', '',
-                etree.tostring(body, method='text', encoding=unicode))
+        txt = re.sub(r'\s+|\xa0', '',
+                etree.tostring(body, method='text', encoding='unicode'))
         if len(txt) > 1:
             return False
         for img in root.xpath('//h:img', namespaces=NAMESPACES):
@@ -333,7 +338,7 @@ class FlowSplitter(object):
                 for frag in frags:
                     pre2 = copy.copy(pre)
                     pre2.text = frag
-                    pre2.tail = u''
+                    pre2.tail = ''
                     new_pres.append(pre2)
                 new_pres[-1].tail = pre.tail
                 p = pre.getparent()
@@ -385,7 +390,7 @@ class FlowSplitter(object):
                 elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') !=
                         '1']
                 if elems:
-                    i = int(math.floor(len(elems)/2.))
+                    i = int(len(elems)//2)
                     elems[i].set(SPLIT_POINT_ATTR, '1')
                     return elems[i]
 

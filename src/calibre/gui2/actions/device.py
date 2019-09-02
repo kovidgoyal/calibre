@@ -1,60 +1,51 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
+from PyQt5.Qt import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
 
-from PyQt5.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
-
-from calibre.gui2.actions import InterfaceAction
-from calibre.utils.smtp import config as email_config
-from calibre.utils.config import tweaks
-from calibre.constants import iswindows, isosx, get_osx_version
-from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog, question_dialog
-from calibre.library.server import server_config as content_server_config
+from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
+from calibre.utils.icu import primary_sort_key
+from calibre.utils.smtp import config as email_config
+from polyglot.builtins import unicode_type
+
 
 class ShareConnMenu(QMenu):  # {{{
 
     connect_to_folder = pyqtSignal()
-    connect_to_itunes = pyqtSignal()
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
-    dont_add_to = frozenset(['context-menu-device'])
+    server_state_changed_signal = pyqtSignal(object, object)
+    dont_add_to = frozenset(('context-menu-device',))
 
     DEVICE_MSGS = [_('Start wireless device connection'),
             _('Stop wireless device connection')]
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
+        self.ip_text = ''
         mitem = self.addAction(QIcon(I('devices/folder.png')), _('Connect to folder'))
         mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_folder.emit())
+        connect_lambda(mitem.triggered, self, lambda self: self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
-        mitem = self.addAction(QIcon(I('devices/itunes.png')),
-                _('Connect to iTunes'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
-        self.connect_to_itunes_action = mitem
-        itunes_ok = iswindows or (isosx and get_osx_version() < (10, 9, 0))
-        mitem.setVisible(itunes_ok)
 
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
-            _('Start Content Server'))
-        self.toggle_server_action.triggered.connect(lambda x:
-                self.toggle_server.emit())
+            _('Start Content server'))
+        connect_lambda(self.toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
         self.control_smartdevice_action = \
             self.addAction(QIcon(I('dot_red.png')),
             self.DEVICE_MSGS[0])
-        self.control_smartdevice_action.triggered.connect(lambda x:
-                self.control_smartdevice.emit())
+        connect_lambda(self.control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -63,28 +54,30 @@ class ShareConnMenu(QMenu):  # {{{
             r = parent.keyboard.register_shortcut
             prefix = 'Share/Connect Menu '
             gr = ConnectShareAction.action_spec[0]
-            for attr in ('folder', 'itunes'):
-                if not (iswindows or isosx) and attr == 'itunes':
-                    continue
+            for attr in ('folder', ):
                 ac = getattr(self, 'connect_to_%s_action'%attr)
-                r(prefix + attr, unicode(ac.text()), action=ac,
+                r(prefix + attr, unicode_type(ac.text()), action=ac,
                         group=gr)
-            r(prefix+' content server', _('Start/stop content server'),
+            r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ipV4_address
-        text = _('Start Content Server')
+        text = _('Start Content server')
         if running:
-            listen_on = (verify_ipV4_address(tweaks['server_listen_on']) or
-                    get_external_ip())
-            try :
-                cs_port = content_server_config().parse().port
-                ip_text = _(' [%(ip)s, port %(port)d]')%dict(ip=listen_on,
-                        port=cs_port)
-            except:
+            from calibre.srv.opts import server_config
+            opts = server_config()
+            listen_on = verify_ipV4_address(opts.listen_on) or get_external_ip()
+            try:
+                ip_text = _(' [%(ip)s, port %(port)d]')%dict(
+                    ip=listen_on, port=opts.port)
+            except Exception:
                 ip_text = ' [%s]'%listen_on
-            text = _('Stop Content Server') + ip_text
+            self.ip_text = ip_text
+            self.server_state_changed_signal.emit(running, ip_text)
+            text = _('Stop Content server') + ip_text
+        else:
+            self.ip_text = ''
         self.toggle_server_action.setText(text)
 
     def hide_smartdevice_menus(self):
@@ -104,7 +97,11 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_to_and_delete_menu = QMenu(
                     _('Email to and delete from library')+'...', self)
             keys = sorted(opts.accounts.keys())
-            for account in keys:
+
+            def sk(account):
+                return primary_sort_key(opts.aliases.get(account) or account)
+
+            for account in sorted(keys, key=sk):
                 formats, auto, default = opts.accounts[account]
                 subject = opts.subjects.get(account, '')
                 alias = opts.aliases.get(account, '')
@@ -115,7 +112,8 @@ class ShareConnMenu(QMenu):  # {{{
                         (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
-                map(self.memory.append, (action1, action2))
+                self.memory.append(action1)
+                self.memory.append(action2)
                 if default:
                     ac = DeviceAction(dest, False, False,
                             I('mail.png'), _('Email to') + ' ' +(alias or
@@ -131,12 +129,14 @@ class ShareConnMenu(QMenu):  # {{{
                     _('Select recipients') + ' ' + _('(delete from library)'))
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
-            map(self.memory.append, (action1, action2))
+            self.memory.append(action1)
+            self.memory.append(action2)
             tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
                     _('Email to selected recipients...'))
             self.addAction(tac1)
             tac1.a_s.connect(sync_menu.action_triggered)
-            self.memory.append(tac1), self.email_actions.append(tac1)
+            self.memory.append(tac1)
+            self.email_actions.append(tac1)
             ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
             action1.a_s.connect(sync_menu.action_triggered)
@@ -151,7 +151,6 @@ class ShareConnMenu(QMenu):  # {{{
 
     def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
-        self.connect_to_itunes_action.setEnabled(not device_connected)
 
 
 # }}}
@@ -160,7 +159,7 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)
@@ -169,6 +168,7 @@ class SendToDeviceAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def do_sync(self, *args):
         self.gui._sync_action_triggered()
@@ -182,20 +182,20 @@ class ConnectShareAction(InterfaceAction):
     popup_type = QToolButton.InstantPopup
 
     def genesis(self):
+        self.content_server_is_running = False
         self.share_conn_menu = ShareConnMenu(self.gui)
         self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
-        self.share_conn_menu.config_email.connect(partial(
-            self.gui.iactions['Preferences'].do_config,
-            initial_plugin=('Sharing', 'Email')))
+        connect_lambda(self.share_conn_menu.config_email, self, lambda self:
+            self.gui.iactions['Preferences'].do_config(initial_plugin=('Sharing', 'Email'), close_after_initial=True))
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
-        self.share_conn_menu.connect_to_itunes.connect(self.gui.connect_to_itunes)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def set_state(self, device_connected, device):
         self.share_conn_menu.set_state(device_connected, device)
@@ -207,17 +207,19 @@ class ConnectShareAction(InterfaceAction):
     def content_server_state_changed(self, running):
         self.share_conn_menu.server_state_changed(running)
         if running:
+            self.content_server_is_running = True
             self.qaction.setIcon(QIcon(I('connect_share_on.png')))
         else:
+            self.content_server_is_running = False
             self.qaction.setIcon(QIcon(I('connect_share.png')))
 
     def toggle_content_server(self):
         if self.gui.content_server is None:
             self.gui.start_content_server()
         else:
-            self.gui.content_server.threaded_exit()
+            self.gui.content_server.stop()
             self.stopping_msg = info_dialog(self.gui, _('Stopping'),
-                    _('Stopping server, this could take upto a minute, please wait...'),
+                    _('Stopping server, this could take up to a minute, please wait...'),
                     show_copy_button=False)
             QTimer.singleShot(1000, self.check_exited)
             self.stopping_msg.exec_()
@@ -284,5 +286,3 @@ class ConnectShareAction(InterfaceAction):
         ac = self.share_conn_menu.control_smartdevice_action
         ac.setIcon(QIcon(I('dot_%s.png'%icon)))
         ac.setText(text)
-
-

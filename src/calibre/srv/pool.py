@@ -1,16 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from Queue import Queue, Full
 from threading import Thread
 
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import range
+from polyglot.queue import Queue, Full
+
 
 class Worker(Thread):
 
@@ -46,11 +47,12 @@ class Worker(Thread):
     def handle_error(self, job_id):
         self.result_queue.put((job_id, False, sys.exc_info()))
 
+
 class ThreadPool(object):
 
     def __init__(self, log, notify_server, count=10, queue_size=1000):
         self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
-        self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in xrange(count)]
+        self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in range(count)]
 
     def start(self):
         for w in self.workers:
@@ -83,6 +85,7 @@ class ThreadPool(object):
     def idle(self):
         return sum(int(not w.working) for w in self.workers)
 
+
 class PluginPool(object):
 
     def __init__(self, loop, plugins):
@@ -101,7 +104,7 @@ class PluginPool(object):
         try:
             plugin.start(self.loop)
         except Exception:
-            self.loop.log.exception('Failed to start plugin: %s', self.plugin_name(plugin))
+            self.loop.log.exception('Failed to start plugin:', self.plugin_name(plugin))
 
     def start(self):
         for w in self.workers:
@@ -113,7 +116,7 @@ class PluginPool(object):
                 try:
                     w.plugin.stop()
                 except Exception:
-                    self.loop.log.exception('Failed to stop plugin: %s', self.plugin_name(w.plugin))
+                    self.loop.log.exception('Failed to stop plugin:', self.plugin_name(w.plugin))
         for w in self.workers:
             left = wait_till - monotonic()
             if left > 0:

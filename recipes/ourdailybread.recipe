@@ -65,7 +65,7 @@ class OurDailyBread(BasicNewsRecipe):
                 hr = div.makeelement('hr')
                 div.insert(0, hr)
                 # print html.tostring(div)
-                raw = html.tostring(root, encoding=unicode)
+                raw = html.tostring(root, encoding='unicode')
         return raw
 
     def preprocess_html(self, soup):

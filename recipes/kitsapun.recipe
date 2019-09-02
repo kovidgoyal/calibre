@@ -15,29 +15,17 @@ class Kitsapsun(BasicNewsRecipe):
     publisher = 'Scripps Interactive Newspapers Group'
     category = 'news, Kitsap county, USA'
     language = 'en'
-    oldest_article = 2
-    max_articles_per_feed = 100
+    oldest_article = 7
+    max_articles_per_feed = 50
     no_stylesheets = True
     encoding = 'cp1252'
     use_embedded_content = False
+    auto_cleanup = True
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': ['story_meta', 'story_content']})]
-
-    remove_tags = [dict(name=['object', 'link', 'embed', 'form', 'iframe'])]
-
-    feeds = [
-
-    (u'News', u'http://www.kitsapsun.com/rss/headlines/news/'),
-    (u'Business', u'http://www.kitsapsun.com/rss/headlines/business/'),
-    (u'Communities', u'http://www.kitsapsun.com/rss/headlines/communities/'),
-    (u'Entertainment', u'http://www.kitsapsun.com/rss/headlines/entertainment/'),
-    (u'Lifestyles', u'http://www.kitsapsun.com/rss/headlines/lifestyles/')
-    ]
-
-    def print_version(self, url):
-        return url.rpartition('/')[0] + '/?print=1'
+    feeds = [(u'News', u'http://www.kitsapsun.com/feeds/rss/news'),
+             (u'Sports', u'http://www.kitsapsun.com/feeds/rss/sports'),
+             (u'Entertainment',
+              u'http://www.kitsapsun.com/feeds/rss/entertainment'),
+             (u'Lifestyles', u'http://www.kitsapsun.com/feeds/rss/lifestyle'),
+             (u'Opinion', u'http://www.kitsapsun.com/feeds/rss/opinion'),
+             ]

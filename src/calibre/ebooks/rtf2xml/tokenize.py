@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -15,9 +16,13 @@ import os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import codepoint_to_chr, range, filter, map
+from . import open_for_read, open_for_write
+
 
 class Tokenize:
     """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -41,7 +46,7 @@ class Tokenize:
         self.__uc_bin = False
 
     def __remove_uc_chars(self, startchar, token):
-        for i in xrange(startchar, len(token)):
+        for i in range(startchar, len(token)):
             if self.__uc_char:
                 self.__uc_char -= 1
             else:
@@ -51,18 +56,18 @@ class Tokenize:
 
     def __unicode_process(self, token):
         # change scope in
-        if token == '\{':
+        if token == r'\{':
             self.__uc_value.append(self.__uc_value[-1])
             # basic error handling
             self.__reini_utf8_counters()
             return token
         # change scope out
-        elif token == '\}':
+        elif token == r'\}':
             self.__uc_value.pop()
             self.__reini_utf8_counters()
             return token
         # add a uc control
-        elif token[:3] == '\uc':
+        elif token[:3] == '\\uc':
             self.__uc_value[-1] = int(token[3:])
             self.__reini_utf8_counters()
             return token
@@ -91,7 +96,7 @@ class Tokenize:
             uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
-            uni_char = unichr(uni_char).encode('ascii', 'xmlcharrefreplace')
+            uni_char = codepoint_to_chr(uni_char).encode('ascii', 'xmlcharrefreplace').decode('ascii')
             self.__uc_char = self.__uc_value[-1]
             # there is only an unicode char
             if len(token)<= uni_len:
@@ -110,18 +115,18 @@ class Tokenize:
     def __sub_reg_split(self,input_file):
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
-        input_file = self.__par_exp.sub('\n\\par \n', input_file)
-        input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
-        input_file = self.__cs_ast.sub("\g<1>", input_file)
-        input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
-        input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
+        input_file = self.__par_exp.sub(r'\n\\par \n', input_file)
+        input_file = self.__cwdigit_exp.sub(r"\g<1>\n\g<2>", input_file)
+        input_file = self.__cs_ast.sub(r"\g<1>", input_file)
+        input_file = self.__ms_hex_exp.sub(r"\\mshex0\g<1> ", input_file)
+        input_file = self.__utf_ud.sub(r"\\{\\uc0 \g<1>\\}", input_file)
         # remove \n in bin data
         input_file = self.__bin_exp.sub(lambda x:
                                         x.group().replace('\n', '') + '\n', input_file)
         # split
         tokens = re.split(self.__splitexp, input_file)
         # remove empty tokens and \n
-        return filter(lambda x: len(x) > 0 and x != '\n', tokens)
+        return list(filter(lambda x: len(x) > 0 and x != '\n', tokens))
 
     def __compile_expressions(self):
         SIMPLE_RPL = {
@@ -172,7 +177,7 @@ class Tokenize:
         , uses method self.sub_reg to make basic substitutions,\
         and process tokens by itself"""
         # read
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             input_file = read_obj.read()
 
         # process simple replacements and split giving us a correct list
@@ -181,10 +186,10 @@ class Tokenize:
         # correct unicode
         tokens = map(self.__unicode_process, tokens)
         # remove empty items created by removing \uc
-        tokens = filter(lambda x: len(x) > 0, tokens)
+        tokens = list(filter(lambda x: len(x) > 0, tokens))
 
         # write
-        with open(self.__write_to, 'wb') as write_obj:
+        with open_for_write(self.__write_to) as write_obj:
             write_obj.write('\n'.join(tokens))
         # Move and copy
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

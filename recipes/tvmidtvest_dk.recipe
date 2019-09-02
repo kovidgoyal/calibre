@@ -1,0 +1,30 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+TV MIDTVEST
+'''
+
+
+class Tvmidtvest_dk(BasicNewsRecipe):
+    __author__            = 'CoderAllan.github.com'
+    title                 = 'TV MIDTVEST'
+    description           = ('Du skal bruge en browser som understøtter RSS (f.eks. '
+                             'Firefox ), eller en nyhedslæser (f.eks. SharpReader eller '
+                             'RSSReader). Se rss-feed på tvmidtvest.dk/rss. Du kan også '
+                             'bruge vores RSS feeds på online feed-readers som f.eks. '
+                             'Google eller Live.com. Du kan frit indsætte vores RSS '
+                             'feeds på din hjemmeside, via f.eks. www.feedburner.com '
+                             'eller www.rss2html.com.')
+    category              = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article        = 7
+    max_articles_per_feed = 50
+    auto_cleanup          = True
+    language              = 'da'
+
+    # Feed are found here: http://www.tvmidtvest.dk/tvmidtvest/rss-feed
+    feeds = [
+        ('TV MIDTVEST', 'http://tvmidtvest.dk/rss'),
+    ]

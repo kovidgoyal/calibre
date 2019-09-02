@@ -1,0 +1,115 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals reset_transforms'.split(' ')
+
+from read_book.globals import get_boss, viewport_mode_changer
+from utils import is_ios
+
+class ScrollViewport:
+
+    def __init__(self):
+        self.set_mode('flow')
+        self.window_width_from_parent = self.window_height_from_parent = None
+
+    def set_mode(self, mode):
+        prefix = ('flow' if mode is 'flow' else 'paged') + '_'
+        for attr in FUNCTIONS:
+            self[attr] = self[prefix + attr]
+
+    def flow_x(self):
+        return window.pageXOffset
+
+    def flow_y(self):
+        return window.pageYOffset
+
+    def paged_y(self):
+        return 0
+
+    def flow_scroll_to(self, x, y):
+        window.scrollTo(x, y)
+
+    def flow_scroll_into_view(self, elem):
+        elem.scrollIntoView()
+
+    def flow_reset_globals(self):
+        pass
+
+    def flow_reset_transforms(self):
+        pass
+
+    def paged_content_width(self):
+        return document.documentElement.scrollWidth
+
+    def update_window_size(self, w, h):
+        self.window_width_from_parent = w
+        self.window_height_from_parent = h
+
+    def width(self):
+        return window.innerWidth
+
+    def height(self):
+        return window.innerHeight
+
+
+class IOSScrollViewport(ScrollViewport):
+
+    def width(self):
+        return self.window_width_from_parent or window.innerWidth
+
+    def height(self):
+        return self.window_height_from_parent or window.innerHeight
+
+    def _scroll_implementation(self, x):
+        if x is 0:
+            document.documentElement.style.transform = 'none'
+        else:
+            x *= -1
+            document.documentElement.style.transform = f'translateX({x}px)'
+
+    def paged_scroll_to(self, x, y):
+        self._scroll_implementation(x)
+        boss = get_boss()
+        if boss:
+            boss.onscroll()
+
+    def paged_x(self):
+        raw = document.documentElement.style.transform
+        if not raw or raw is 'none':
+            return 0
+        raw = raw[raw.indexOf('(') + 1:]
+        ans = parseInt(raw)
+        if isNaN(ans):
+            return 0
+        ans *= -1
+        return ans
+
+    def paged_scroll_into_view(self, elem):
+        left = elem.offsetLeft
+        if left is None:
+            return  # element has display: none
+        elem.scrollIntoView()
+        window.scrollTo(0, 0)
+        p = elem.offsetParent
+        while p:
+            left += p.offsetLeft
+            p = p.offsetParent
+        # left -= window_width() // 2
+        self._scroll_implementation(max(0, left))
+
+    def paged_reset_transforms(self):
+        document.documentElement.style.transform = 'none'
+
+    def paged_reset_globals(self):
+        self.paged_reset_transforms()
+
+
+if is_ios:
+    scroll_viewport = IOSScrollViewport()
+else:
+    scroll_viewport = ScrollViewport()
+for attr in FUNCTIONS:
+    if not scroll_viewport['paged_' + attr]:
+        scroll_viewport['paged_' + attr] = scroll_viewport[attr]
+viewport_mode_changer(scroll_viewport.set_mode)

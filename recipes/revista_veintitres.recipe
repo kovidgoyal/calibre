@@ -1,0 +1,86 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2018, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.veintitres.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Veintitres(BasicNewsRecipe):
+    title = 'Revista Veintitres'
+    __author__ = 'Darko Miletic'
+    description = 'Últimas noticias de Política | Revista Veintitrés, información precisa sin perder la mirada crítica'
+    publisher = 'Grupo Crónica'
+    category = 'politica, Argentina'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    no_stylesheets = False
+    use_embedded_content = False
+    encoding = 'utf-8'
+    masthead_url = 'https://www.veintitres.com.ar/export/sites/cronica/arte/veintitres/logos/LogoVeintitres.svg_1890729140.svg'
+    language = 'es_AR'
+    remove_javascript = True
+    publication_type = 'magazine'
+    remove_empty_feeds = True
+    auto_cleanup = True
+    auto_cleanup_keep = '//h1'
+    resolve_internal_links = True
+    INDEX = "https://www.veintitres.com.ar"
+    extra_css = """
+                                img{margin-bottom: 0.8em}
+                            """
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    feeds = [
+        (u'Politica', u'https://www.veintitres.com.ar/seccion/politica/'),
+        (
+            u'Economia y consumo',
+            u'https://www.veintitres.com.ar/seccion/economia-y-consumo/'
+        ),
+        (u'Cultura', u'https://www.veintitres.com.ar/seccion/cultura/'),
+        (
+            u'Internacional',
+            u'https://www.veintitres.com.ar/seccion/internacionales/'
+        ),
+        (u'Deportes', u'https://www.veintitres.com.ar/seccion/deportes/'),
+        (u'Personajes', u'https://www.veintitres.com.ar/seccion/personajes/'),
+        (u'Salud', u'https://www.veintitres.com.ar/seccion/salud/'),
+        (u'Negocios', u'https://www.veintitres.com.ar/seccion/negocios/'),
+        (u'Especial', u'https://www.veintitres.com.ar/seccion/especial/'),
+        (u'Opinion', u'https://www.veintitres.com.ar/seccion/opinion/'),
+        (u'Tecnologia', u'https://www.veintitres.com.ar/seccion/tecnologia/'),
+    ]
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(
+                0,
+                _('Fetching feed') + ' %s...' %
+                (feedtitle if feedtitle else feedurl)
+            )
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('a', attrs={'class': 'cover-link'}):
+                url = self.INDEX + item['href']
+                title = item['title']
+                articles.append({
+                    'title': title,
+                    'date': '',
+                    'url': url,
+                    'description': ''
+                })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds

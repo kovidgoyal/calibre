@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -15,11 +17,12 @@ from calibre.devices.prs505 import MEDIA_XML, MEDIA_EXT, CACHE_XML, CACHE_EXT, \
 from calibre import __appname__, prints
 from calibre.devices.usbms.books import CollectionsBookList
 
+
 class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with Sony eBook readers older than the'
+    description    = _('Communicate with Sony e-book readers older than the'
             ' PRST1.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -66,15 +69,15 @@ class PRS505(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+
-        'series, tags, authors' +
-        _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
+            'to turn into collections on the device. Possibilities include: '
+            '%(coll)s. Two special collections are available: '
+            '%(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add '
             'these values to the list to enable them. The collections will be '
             'given the name provided after the ":" character.')%dict(
-                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
+            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR, coll='series, tags, authors'),
         _('Upload separate cover thumbnails for books (newer readers)') + ':::'+
         _('Normally, the SONY readers get the cover image from the'
-                ' ebook file itself. With this option, calibre will send a '
+                ' e-book file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you are '
                 'sending DRMed books in which you cannot change the cover.'
                 ' WARNING: This option should only be used with newer '
@@ -129,15 +132,15 @@ class PRS505(USBMS):
                     dname = os.path.dirname(cachep)
                     if not os.path.exists(dname):
                         try:
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                         except:
                             time.sleep(5)
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                     with lopen(cachep, 'wb') as f:
-                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                        f.write(b'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
-                            '''.encode('utf8'))
+                            ''')
                         fsync(f)
                 return True
             except:
@@ -297,4 +300,3 @@ class PRS505(USBMS):
             with lopen(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
             debug_print('Cover uploaded to: %r'%cpath)
-

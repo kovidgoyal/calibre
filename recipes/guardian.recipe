@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 www.guardian.co.uk
 '''
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
@@ -14,11 +15,11 @@ class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
-        base_url = "http://www.guardian.co.uk/theobserver"
+        base_url = "https://www.theguardian.com/theobserver"
         cover_pic = 'Observer digital edition'
         masthead_url = 'http://static.guim.co.uk/sys-images/Guardian/Pix/site_furniture/2010/10/19/1287478087992/The-Observer-001.gif'
     else:
-        base_url = "http://www.guardian.co.uk/theguardian"
+        base_url = "https://www.theguardian.com/uk"
         cover_pic = 'Guardian digital edition'
         masthead_url = 'http://static.guim.co.uk/static/f76b43f9dcfd761f0ecf7099a127b603b2922118/common/images/logos/the-guardian/titlepiece.gif'
 
@@ -52,10 +53,21 @@ class Guardian(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'content__article-body' in x.split()}),
     ]
 
+    def get_browser(self, *a, **kw):
+        # This site returns images in JPEG-XR format if the user agent is IE
+        if not hasattr(self, 'non_ie_ua'):
+            try:
+                self.non_ie_ua = random_user_agent(allow_ie=False)
+            except TypeError:
+                self.non_ie_ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36'
+        kw['user_agent'] = self.non_ie_ua
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        return br
+
     def preprocess_raw_html(self, raw, url):
         import html5lib
         from lxml import html
-        return html.tostring(html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml'), encoding=unicode)
+        return html.tostring(html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml'), encoding='unicode')
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
@@ -83,5 +95,7 @@ class Guardian(BasicNewsRecipe):
     def parse_index(self):
         feeds = self.parse_section(self.base_url)
         feeds += self.parse_section(
-            'http://www.theguardian.com/uk/sport', 'Sport - ')
+            'https://www.theguardian.com/uk/sport', 'Sport - ')
+        if date.today().weekday() in (5, 6):
+            feeds += self.parse_section('https://www.theguardian.com/theguardian/weekend', 'Weekend - ')
         return feeds

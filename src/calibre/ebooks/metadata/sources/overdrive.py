@@ -1,6 +1,5 @@
-#!/usr/bin/env  python2
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+#!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal kovid@kovidgoyal.net'
@@ -11,7 +10,10 @@ Fetch metadata using Overdrive Content Reserve
 '''
 import re, random, copy, json
 from threading import RLock
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 
 from calibre.ebooks.metadata import check_isbn
@@ -20,12 +22,14 @@ from calibre.ebooks.metadata.book.base import Metadata
 
 ovrdrv_data_cache = {}
 cache_lock = RLock()
-base_url = 'http://search.overdrive.com/'
+base_url = 'https://search.overdrive.com/'
 
 
 class OverDrive(Source):
 
     name = 'Overdrive'
+    version = (1, 0, 1)
+    minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Overdrive\'s Content Reserve')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -44,7 +48,7 @@ class OverDrive(Source):
 
     config_help_message = '<p>'+_('Additional metadata can be taken from Overdrive\'s book detail'
             ' page. This includes a limited set of tags used by libraries, comments, language,'
-            ' and the ebook ISBN. Collecting this data is disabled by default due to the extra'
+            ' and the e-book ISBN. Collecting this data is disabled by default due to the extra'
             ' time required. Check the download all metadata option below to'
             ' enable downloading this data.')
 
@@ -134,11 +138,11 @@ class OverDrive(Source):
 
     def get_base_referer(self):  # to be used for passing referrer headers to cover download
         choices = [
-            'http://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
-            'http://emedia.clevnet.org/9D321DAD-EC0D-490D-BFD8-64AE2C96ECA8/10/241/en/',
-            'http://singapore.lib.overdrive.com/F11D55BE-A917-4D63-8111-318E88B29740/10/382/en/',
-            'http://ebooks.nypl.org/20E48048-A377-4520-BC43-F8729A42A424/10/257/en/',
-            'http://spl.lib.overdrive.com/5875E082-4CB2-4689-9426-8509F354AFEF/10/335/en/'
+            'https://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
+            'https://emedia.clevnet.org/9D321DAD-EC0D-490D-BFD8-64AE2C96ECA8/10/241/en/',
+            'https://singapore.lib.overdrive.com/F11D55BE-A917-4D63-8111-318E88B29740/10/382/en/',
+            'https://ebooks.nypl.org/20E48048-A377-4520-BC43-F8729A42A424/10/257/en/',
+            'https://spl.lib.overdrive.com/5875E082-4CB2-4689-9426-8509F354AFEF/10/335/en/'
         ]
         return choices[random.randint(0, len(choices)-1)]
 
@@ -146,7 +150,7 @@ class OverDrive(Source):
         fix_slashes = re.compile(r'\\/')
         thumbimage = fix_slashes.sub('/', thumbimage)
         worldcatlink = fix_slashes.sub('/', worldcatlink)
-        cover_url = re.sub('(?P<img>(Ima?g(eType-)?))200', '\g<img>100', thumbimage)
+        cover_url = re.sub(r'(?P<img>(Ima?g(eType-)?))200', r'\g<img>100', thumbimage)
         social_metadata_url = base_url+'TitleInfo.aspx?ReserveID='+reserveid+'&FormatID='+formatid
         series_num = ''
         if not series:
@@ -231,7 +235,7 @@ class OverDrive(Source):
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
-            for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
+            for m in re.finditer(type('')(r'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)'), raw):
                 if int(m.group('totalrecords')) == 0:
                     return ''
                 elif int(m.group('displayrecords')) >= 1:
@@ -252,9 +256,9 @@ class OverDrive(Source):
 
     def sort_ovrdrv_results(self, raw, log, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
         close_matches = []
-        raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
+        raw = re.sub(r'.*?\[\[(?P<content>.*?)\]\].*', r'[[\g<content>]]', raw)
         results = json.loads(raw)
-        # log.error('raw results are:'+str(results))
+        # log.error('raw results are:'+type('')(results))
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
@@ -332,7 +336,7 @@ class OverDrive(Source):
         req.add_header('Referer', search_url)
         req.add_header('Accept', 'application/json, text/javascript, */*')
         raw = br.open_novisit(req)
-        raw = str(list(raw))
+        raw = type('')(list(raw))
         clean_cj = mechanize.CookieJar()
         br.set_cookiejar(clean_cj)
         return self.sort_ovrdrv_results(raw, log, None, None, None, ovrdrv_id)
@@ -399,23 +403,24 @@ class OverDrive(Source):
                     cover_url)
 
     def get_book_detail(self, br, metadata_url, mi, ovrdrv_id, log):
+        from html5_parser import parse
         from lxml import html
         from calibre.ebooks.chardet import xml_to_unicode
-        from calibre.utils.soupparser import fromstring
         from calibre.library.comments import sanitize_comments_html
 
         try:
             raw = br.open_novisit(metadata_url).read()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return False
             raise
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
+
         try:
-            root = fromstring(raw)
-        except:
+            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        except Exception:
             return False
 
         pub_date = root.xpath("//div/label[@id='ctl00_ContentPlaceHolder1_lblPubDate']/text()")
@@ -438,7 +443,7 @@ class OverDrive(Source):
                 mi.language = lang
 
         if ebook_isbn:
-            # print "ebook isbn is "+str(ebook_isbn[0])
+            # print("ebook isbn is "+type('')(ebook_isbn[0]))
             isbn = check_isbn(ebook_isbn[0].strip())
             if isbn:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)
@@ -448,7 +453,7 @@ class OverDrive(Source):
 
         if desc:
             desc = desc[0]
-            desc = html.tostring(desc, method='html', encoding=unicode).strip()
+            desc = html.tostring(desc, method='html', encoding='unicode').strip()
             # remove all attributes from tags
             desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
             # Remove comments

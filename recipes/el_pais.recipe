@@ -64,7 +64,7 @@ class ElPais(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
             try:
-                img['src'] = filter(None, img['srcset'].split())[0]
+                img['src'] = list(filter(None, img['srcset'].split()))[0]
             except IndexError:
                 continue
         return soup

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Active Jobs</string>
+   <string>Active jobs</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
@@ -31,16 +31,12 @@
        <property name="text">
         <string>&amp;Search</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="clear_button">
-       <property name="toolTip">
-        <string>Find previous match</string>
-       </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
        </property>
       </widget>
      </item>

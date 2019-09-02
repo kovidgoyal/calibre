@@ -32,56 +32,16 @@ class pcAdvisor(BasicNewsRecipe):
 
     remove_javascript = True
     no_stylesheets = True
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'articlecontent'})
-    ]
-
-    remove_tags = [
-        dict(name='div', attrs={'id': ['crosssitesignup', 'submitarticle', 'dontPrint',
-                                       'commentsForm', 'userReviewFormContainer', 'reevooContainerId']}),
-        dict(name='div', attrs={'class': 'mpu'}),
-        dict(name='p', attrs={'id': 'articlePageList'}),
-        dict(name='div', attrs={
-             'style': ['margin: 0pt 10px 5px;', 'margin: 0pt 10px 5px;']}),
-        dict(name='p', attrs={'class': 'dontPrint'}),
-        dict(name='h2', attrs={'class': 'sectionTitle'}),
-        dict(name='a', attrs={'title': 'Subscribe to PC Advisor'}),
-        dict(name='a', attrs={'name': 'revooContent'}),
-        {'name': ['form', 'script', 'link']}
-    ]
-
-    remove_tags_after = [
-        dict(name='p', attrs={'id': 'crosssitesignup'})
-    ]
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
+    auto_cleanup = True
 
     feeds = [
-        (u'News Headlines', u'http://www.pcadvisor.co.uk/rss/feeds/pcanews.xml'),
-        (u'Reviews', u'http://www.pcadvisor.co.uk/rss/feeds/pcareviews.xml'),
-        (u'New Products',
-         u'http://www.pcadvisor.co.uk/rss/feeds/blog18.xml'),
-        (u'PC Advisor Blog',
-         u'http://www.pcadvisor.co.uk/rss/feeds/blog4.xml'),
-        (u'PC Security',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-security.xml'),
-        (u'Laptops', u'http://www.pcadvisor.co.uk/rss/feeds/pca-laptop.xml'),
-        (u'Green Computing',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-green-computing.xml'),
-        (u'Internet and broadband',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-internet.xml'),
-        (u'Prones and PDAs',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-phones.xml'),
-        (u'Software', u'http://www.pcadvisor.co.uk/rss/feeds/pca-software.xml'),
-        (u'Small Business',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-small-business.xml'),
-        (u'Photo and video',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-photo-video.xml'),
-        (u'Mac News', u'http://www.pcadvisor.co.uk/rss/feeds/pca-mac.xml'),
-        (u'Linux', u'http://www.pcadvisor.co.uk/rss/feeds/pca-linux.xml'),
-        (u'WiFi and Networking',
-         u'http://www.pcadvisor.co.uk/rss/feeds/pca-networking.xml'),
-        (u'Gadgets', u'http://www.pcadvisor.co.uk/rss/feeds/pca-gadgets.xml')
+        (u'Latest', u'http://www.pcadvisor.co.uk/latest/rss'),
+        (u'News', u'http://www.pcadvisor.co.uk/news/rss'),
+        (u'How-tos', u'http://www.pcadvisor.co.uk/how-to/rss'),
+        (u'Reviews', u'http://www.pcadvisor.co.uk/review/rss'),
+        (u'Video Content', u'http://www.pcadvisor.co.uk/video/rss'),
+        (u'iPhone', u'http://www.pcadvisor.co.uk/latest/iphone/rss'),
+        (u'iPad', u'http://www.pcadvisor.co.uk/latest/ipad/rss'),
+        (u'Mac', u'http://www.pcadvisor.co.uk/latest/mac/rss'),
+        (u'Apple', u'http://www.pcadvisor.co.uk/latest/apple/rss'),
     ]

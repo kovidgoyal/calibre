@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,7 @@ from calibre.ebooks.conversion.config import load_defaults
 from calibre.ebooks.oeb.base import XPath, OPF
 from calibre.ebooks.oeb.polish.cover import find_cover_page
 from calibre.ebooks.oeb.transforms.jacket import render_jacket as render, referenced_images
+
 
 def render_jacket(container, jacket):
     mi = container.mi
@@ -32,13 +32,16 @@ def render_jacket(container, jacket):
         img.set('src', href)
     return root
 
+
 def is_legacy_jacket(root):
     return len(root.xpath(
         '//*[starts-with(@class,"calibrerescale") and (local-name()="h1" or local-name()="h2")]')) > 0
 
+
 def is_current_jacket(root):
     return len(XPath(
         '//h:meta[@name="calibre-content" and @content="jacket"]')(root)) > 0
+
 
 def find_existing_jacket(container):
     for item in container.spine_items:
@@ -53,10 +56,12 @@ def find_existing_jacket(container):
                 if is_current_jacket(root) or is_legacy_jacket(root):
                     return name
 
+
 def replace_jacket(container, name):
     root = render_jacket(container, name)
     container.parsed_cache[name] = root
     container.dirty(name)
+
 
 def remove_jacket(container):
     ' Remove an existing jacket, if any. Returns False if no existing jacket was found. '
@@ -67,12 +72,14 @@ def remove_jacket(container):
         return True
     return False
 
+
 def remove_jacket_images(container, name):
     root = container.parsed_cache[name]
     for img in root.xpath('//*[local-name() = "img" and @src]'):
         iname = container.href_to_name(img.get('src'), name)
         if container.has_name(iname):
             container.remove_item(iname)
+
 
 def add_or_replace_jacket(container):
     ''' Either create a new jacket from the book's metadata or replace an
@@ -90,7 +97,7 @@ def add_or_replace_jacket(container):
     if not found:
         # Insert new jacket into spine
         index = 0
-        sp = container.abspath_to_name(container.spine_items.next())
+        sp = container.abspath_to_name(next(container.spine_items))
         if sp == find_cover_page(container):
             index = 1
         itemref = container.opf.makeelement(OPF('itemref'),

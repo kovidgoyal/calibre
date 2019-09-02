@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -9,6 +11,7 @@ from calibre.gui2 import gprefs, Application
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 from calibre.library.comments import comments_to_html
 from calibre.gui2.widgets2 import Dialog
+
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
 
@@ -73,6 +76,7 @@ class PlainTextDialog(Dialog):
 
     def sizeHint(self):
         return QSize(600, 400)
+
 
 if __name__ == '__main__':
     app = Application([])

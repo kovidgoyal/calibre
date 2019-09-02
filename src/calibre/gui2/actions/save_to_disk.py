@@ -1,24 +1,25 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, numbers
 from functools import partial
-from future_builtins import map
-
 
 from calibre.utils.config import prefs
 from calibre.gui2 import error_dialog, Dispatcher, choose_dir
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import itervalues, map
+
 
 class SaveToDiskAction(InterfaceAction):
 
     name = "Save To Disk"
     action_spec = (_('Save to disk'), 'save.png',
-                   _('Export ebook files from the calibre library'), _('S'))
+                   _('Export e-book files from the calibre library'), _('S'))
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = True
@@ -120,9 +121,9 @@ class SaveToDiskAction(InterfaceAction):
                     Dispatcher(self.books_saved), paths, path)
 
     def save_library_format_by_ids(self, book_ids, fmt, single_dir=True):
-        if isinstance(book_ids, int):
+        if isinstance(book_ids, numbers.Integral):
             book_ids = [book_ids]
-        rows = list(self.gui.library_view.ids_to_rows(book_ids).itervalues())
+        rows = list(itervalues(self.gui.library_view.ids_to_rows(book_ids)))
         rows = [self.gui.library_view.model().index(r, 0) for r in rows]
         self.save_to_disk(True, single_dir=single_dir, single_format=fmt,
                 rows=rows, write_opf=False, save_cover=False)

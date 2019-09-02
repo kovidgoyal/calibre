@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle
+import json
 
 from PyQt5.Qt import (
     Qt, QListWidget, QListWidgetItem, QItemSelectionModel, QAction,
@@ -14,6 +13,8 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import choose_save_file, choose_files
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type, range
+
 
 class BookmarksList(QListWidget):
 
@@ -140,12 +141,12 @@ class BookmarkManager(QWidget):
                 l.scrollToItem(item)
 
     def __iter__(self):
-        for i in xrange(self.bookmarks_list.count()):
+        for i in range(self.bookmarks_list.count()):
             yield self.item_to_bm(self.bookmarks_list.item(i))
 
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
-        title = unicode(item.data(Qt.DisplayRole))
+        title = unicode_type(item.data(Qt.DisplayRole))
         if not title:
             title = _('Unknown')
             item.setData(Qt.DisplayRole, title)
@@ -174,6 +175,7 @@ class BookmarkManager(QWidget):
 
     def sort_by_pos(self):
         from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+
         def pos_key(b):
             if b.get('type', None) == 'cfi':
                 return b['spine'], cfi_sort_key(b['pos'])
@@ -184,32 +186,35 @@ class BookmarkManager(QWidget):
         self.edited.emit(bm)
 
     def bm_to_item(self, bm):
-        return bytearray(cPickle.dumps(bm, -1))
+        return bm.copy()
 
     def item_to_bm(self, item):
-        return cPickle.loads(bytes(item.data(Qt.UserRole)))
+        return item.data(Qt.UserRole).copy()
 
     def get_bookmarks(self):
         return list(self)
 
     def export_bookmarks(self):
         filename = choose_save_file(
-            self, 'export-viewer-bookmarks', _('Export Bookmarks'),
-            filters=[(_('Saved Bookmarks'), ['pickle'])], all_files=False, initial_filename='bookmarks.pickle')
+            self, 'export-viewer-bookmarks', _('Export bookmarks'),
+            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, initial_filename='bookmarks.calibre-bookmarks')
         if filename:
-            with open(filename, 'wb') as fileobj:
-                cPickle.dump(self.get_bookmarks(), fileobj, -1)
+            data = json.dumps(self.get_bookmarks(), indent=True)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
+            with lopen(filename, 'wb') as fileobj:
+                fileobj.write(data)
 
     def import_bookmarks(self):
-        files = choose_files(self, 'export-viewer-bookmarks', _('Import Bookmarks'),
-            filters=[(_('Saved Bookmarks'), ['pickle'])], all_files=False, select_only_single_file=True)
+        files = choose_files(self, 'export-viewer-bookmarks', _('Import bookmarks'),
+            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, select_only_single_file=True)
         if not files:
             return
         filename = files[0]
 
         imported = None
-        with open(filename, 'rb') as fileobj:
-            imported = cPickle.load(fileobj)
+        with lopen(filename, 'rb') as fileobj:
+            imported = json.load(fileobj)
 
         if imported is not None:
             bad = False
@@ -228,4 +233,3 @@ class BookmarkManager(QWidget):
                         bookmarks.append(bm)
                 self.set_bookmarks([bm for bm in bookmarks if bm['title'] != 'calibre_current_page_bookmark'])
                 self.edited.emit(self.get_bookmarks())
-

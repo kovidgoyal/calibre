@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,8 +12,13 @@
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
+
 
 class ParagraphDef:
     """
@@ -48,6 +54,7 @@ be closed:
 'mi<mk<para-start'  changes state to in_paragraphs
 if another paragraph_def is found, the state changes to collect_tokens.
     """
+
     def __init__(self,
         in_file,
         bug_handler,
@@ -71,6 +78,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -125,7 +133,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'list-conti'    : 'list-continue',
         'list-hang_'    : 'list-hang',
         # 'list-tebef'    :	'list-text-before',
-        'list-level'    : 'level',
+        # 'list-level'    : 'level',
         'list-id___'    : 'list-id',
         'list-start'    : 'list-start',
         'nest-level'    : 'nest-level',
@@ -195,7 +203,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'bor-cel-to'    : 'border-cell-top',
         'bor-cel-le'    : 'border-cell-left',
         'bor-cel-ri'    : 'border-cell-right',
-        'bor-par-bo'    : 'border-paragraph-bottom',
+        # 'bor-par-bo'    : 'border-paragraph-bottom',
         'bor-par-to'    : 'border-paragraph-top',
         'bor-par-le'    : 'border-paragraph-left',
         'bor-par-ri'    : 'border-paragraph-right',
@@ -300,6 +308,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'mi<mk<fldbk-end_'      : self.__stop_block_func,
         'mi<mk<lst-txbeg_'      : self.__stop_block_func,
         }
+
     def __before_1st_para_def_func(self, line):
         """
         Required:
@@ -314,11 +323,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__found_para_def_func()
         else:
             self.__write_obj.write(line)
+
     def __found_para_def_func(self):
         self.__state = 'collect_tokens'
         # not exactly right--have to reset the dictionary--give it default
         # values
         self.__reset_dict()
+
     def __collect_tokens_func(self, line):
         """
         Required:
@@ -350,12 +361,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
                 token = self.__token_dict.get(line[6:16])
                 if token:
                     self.__att_val_dict[token] = line[20:-1]
+
     def __tab_stop_func(self, line):
         """
         """
         self.__att_val_dict['tabs'] += '%s:' % self.__tab_type
         self.__att_val_dict['tabs'] += '%s;' % line[20:-1]
         self.__tab_type = 'left'
+
     def __tab_type_func(self, line):
         """
         """
@@ -365,7 +378,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
+
     def __tab_leader_func(self, line):
         """
         """
@@ -375,13 +389,15 @@ if another paragraph_def is found, the state changes to collect_tokens.
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
+
     def __tab_bar_func(self, line):
         """
         """
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += 'bar:%s;' % (line[20:-1])
         self.__tab_type = 'left'
+
     def __parse_border(self, line):
         """
         Requires:
@@ -394,6 +410,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         border_dict = self.__border_obj.parse_border(line)
         self.__att_val_dict.update(border_dict)
+
     def __para_def_in_para_def_func(self, line):
         """
         Requires:
@@ -401,12 +418,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Returns:
             nothing
         Logic:
-            I have found a \pard while I am collecting tokens. I want to reset
+            I have found a \\pard while I am collecting tokens. I want to reset
             the dectionary and do nothing else.
         """
         # Change this
         self.__state = 'collect_tokens'
         self.__reset_dict()
+
     def __end_para_def_func(self, line):
         """
         Requires:
@@ -422,6 +440,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
+
     def __start_para_after_def_func(self, line):
         """
         Requires:
@@ -438,6 +457,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
+
     def __after_para_def_func(self, line):
         """
         Requires:
@@ -455,6 +475,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __in_paragraphs_func(self, line):
         """
         Requires:
@@ -469,6 +490,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __found_para_end_func(self,line):
         """
         Requires:
@@ -482,6 +504,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         self.__state = 'after_para_end'
         self.__write_obj.write(line)
+
     def __after_para_end_func(self, line):
         """
         Requires:
@@ -505,6 +528,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         action = self.__after_para_end_dict.get(self.__token_info)
         if action:
             action(line)
+
     def __continue_block_func(self, line):
         """
         Requires:
@@ -521,6 +545,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write(self.__text_string)
         self.__text_string = ''
     # found a new paragraph definition after an end of a paragraph
+
     def __new_para_def_func(self, line):
         """
         Requires:
@@ -536,6 +561,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_end_func()
         self.__found_para_def_func()
     # after a paragraph and found reason to stop this block
+
     def __stop_block_func(self, line):
         """
         Requires:
@@ -550,6 +576,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         self.__write_para_def_end_func()
         self.__state = 'after_para_def'
+
     def __write_para_def_end_func(self):
         """
         Requires:
@@ -571,6 +598,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write('mi<mk<font-end__\n')
         if 'caps' in keys:
             self.__write_obj.write('mi<mk<caps-end__\n')
+
     def __get_num_of_style(self):
         """
         Requires:
@@ -585,12 +613,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         # when determining uniqueness for a style, ingorne these values, since
         # they don't tell us if the style is unique
         ignore_values = ['style-num', 'nest-level', 'in-table']
-        keys = self.__att_val_dict.keys()
-        keys.sort()
-        for key in keys:
-            if key in ignore_values:
-                continue
-            my_string += '%s:%s' % (key, self.__att_val_dict[key])
+        for k in sorted(self.__att_val_dict):
+            if k not in ignore_values:
+                my_string += '%s:%s' % (k, self.__att_val_dict[k])
         if my_string in self.__style_num_strings:
             num = self.__style_num_strings.index(my_string)
             num += 1  # since indexing starts at zero, rather than 1
@@ -599,9 +624,10 @@ if another paragraph_def is found, the state changes to collect_tokens.
             num = len(self.__style_num_strings)
             new_style = 1
         num = '%04d' % num
-        self.__att_val_dict['style-num'] = 's' + str(num)
+        self.__att_val_dict['style-num'] = 's' + unicode_type(num)
         if new_style:
             self.__write_body_styles()
+
     def __write_body_styles(self):
         style_string = ''
         style_string += 'mi<tg<empty-att_<paragraph-style-in-body'
@@ -613,14 +639,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]
             style_string += ('<%s>%s' % ('tabs', the_value))
-        keys = self.__att_val_dict.keys()
-        keys.sort()
-        for key in keys:
-            if key != 'name' and key !='style-num' and key != 'in-table'\
-              and key not in tabs_list:
-                style_string += ('<%s>%s' % (key, self.__att_val_dict[key]))
+        exclude = frozenset(['name', 'style-num', 'in-table'] + tabs_list)
+        for k in sorted(self.__att_val_dict):
+            if k not in exclude:
+                style_string += ('<%s>%s' % (k, self.__att_val_dict[k]))
         style_string += '\n'
         self.__body_style_strings.append(style_string)
+
     def __write_para_def_beg(self):
         """
         Requires:
@@ -665,11 +690,10 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]
             self.__write_obj.write('<%s>%s' % ('tabs', the_value))
-        keys = self.__att_val_dict.keys()
-        keys.sort()
+        keys = sorted(self.__att_val_dict)
+        exclude = frozenset(['name', 'style-num', 'in-table'] + tabs_list)
         for key in keys:
-            if key != 'name' and key !='style-num' and key != 'in-table'\
-              and key not in tabs_list:
+            if key not in exclude:
                 self.__write_obj.write('<%s>%s' % (key, self.__att_val_dict[key]))
         self.__write_obj.write('\n')
         self.__write_obj.write(self.__start2_marker)
@@ -679,10 +703,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
         if 'caps' in keys:
             value = self.__att_val_dict['caps']
             self.__write_obj.write('mi<mk<caps______<%s\n' % value)
+
     def __empty_table_element_func(self, line):
         self.__write_obj.write('mi<mk<in-table__\n')
         self.__write_obj.write(line)
         self.__state = 'after_para_def'
+
     def __reset_dict(self):
         """
         Requires:
@@ -703,6 +729,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__att_val_dict['tabs-decimal'] = ''
         self.__att_val_dict['tabs-bar'] = ''
         self.__att_val_dict['tabs'] = ''
+
     def make_paragraph_def(self):
         """
         Requires:
@@ -714,8 +741,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the state.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

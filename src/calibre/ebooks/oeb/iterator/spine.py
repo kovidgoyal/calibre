@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from future_builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
+from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,6 +15,7 @@ from collections import namedtuple
 from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 
+
 def character_count(html):
     ''' Return the number of "significant" text characters in a HTML string. '''
     count = 0
@@ -23,6 +23,7 @@ def character_count(html):
     for match in re.finditer(r'>[^<]+<', html):
         count += len(strip_space.sub(' ', match.group()))-2
     return count
+
 
 def anchor_map(html):
     ''' Return map of all anchor names to their offsets in the html '''
@@ -33,6 +34,7 @@ def anchor_map(html):
         ans[anchor] = ans.get(anchor, match.start())
     return ans
 
+
 def all_links(html):
     ''' Return set of all links in the file '''
     ans = set()
@@ -41,7 +43,8 @@ def all_links(html):
         ans.add(replace_entities(match.group(2)))
     return ans
 
-class SpineItem(unicode):
+
+class SpineItem(unicode_type):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
             run_char_count=True, from_epub=False, read_links=True):
@@ -49,7 +52,7 @@ class SpineItem(unicode):
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
         obj = super(SpineItem, cls).__new__(cls, path)
-        with open(path, 'rb') as f:
+        with lopen(path, 'rb') as f:
             raw = f.read()
         if from_epub:
             # According to the spec, HTML in EPUB must be encoded in utf-8 or
@@ -81,6 +84,7 @@ class SpineItem(unicode):
         obj.mime_type = mime_type
         obj.is_single_page = None
         return obj
+
 
 class IndexEntry(object):
 
@@ -123,6 +127,7 @@ class IndexEntry(object):
             self.end_spine_pos = self.spine_count - 1
             self.end_anchor = None
 
+
 def create_indexing_data(spine, toc):
     if not toc:
         return
@@ -143,5 +148,3 @@ def create_indexing_data(spine, toc):
             start = i.anchor if i.spine_pos == spine_pos else None
             end = i.end_anchor if i.spine_pos == spine_pos else None
             spine_item.index_entries.append(ie(i, start, end))
-
-

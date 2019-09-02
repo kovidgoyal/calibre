@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,11 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class ESLICK(USBMS):
 
     name           = 'ESlick Device Interface'
     gui_name       = 'Foxit ESlick'
-    description    = _('Communicate with the ESlick eBook reader.')
+    description    = _('Communicate with the ESlick e-book reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -45,7 +46,7 @@ class EBK52(ESLICK):
 
     name           = 'EBK-52 Device Interface'
     gui_name       = 'Sigmatek EBK'
-    description    = _('Communicate with the Sigmatek eBook reader.')
+    description    = _('Communicate with the Sigmatek e-book reader.')
 
     FORMATS     = ['epub', 'fb2', 'pdf', 'txt']
 
@@ -58,5 +59,3 @@ class EBK52(ESLICK):
     @classmethod
     def can_handle(cls, dev, debug=False):
         return (dev[3], dev[4]) == ('philips', 'Philips d')
-
-

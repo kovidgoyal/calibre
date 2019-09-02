@@ -1,0 +1,760 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from dom import add_extra_css, build_rule, clear, ensure_id
+from utils import safe_set_inner_html
+from widgets import create_button
+
+CLASS_NAME = 'conversion-option-group'
+indent = '↳\xa0'
+
+add_extra_css(def():
+    style = ''
+    sel = '.' + CLASS_NAME + ' '
+    style += build_rule(sel + 'input[type="checkbox"]', margin_left='0')
+    style += build_rule(sel + '[data-option-name]', margin_bottom='1ex', display='block', padding_bottom='0.5ex')
+    style += build_rule(sel + '.simple-group > label', display='table-row')
+    style += build_rule(sel + '.simple-group > label > *', display='table-cell', padding_bottom='1ex', padding_right='1rem')
+    style += build_rule(sel + 'label.vertical', display='block')
+    style += build_rule(sel + 'label.vertical > *', display='block', padding_bottom='1ex', padding_right='1rem')
+    style += build_rule(sel + '[data-profile]', margin_left='2em', text_indent='-2em', font_size='smaller', margin_bottom='1ex')
+    style += build_rule(sel + '.subset-choice label', display='block', margin_bottom='1ex')
+    return style
+)
+
+
+# globals {{{
+container_id = None
+get_option_value = get_option_default_value = is_option_disabled = get_option_help = profiles = ui_data = None
+entry_points = {}
+registry = {}
+listeners = {}
+
+
+def ep(func):
+    entry_points[func.name] = func
+    return func
+
+
+def add_listener(name, callback):
+    if not listeners[name]:
+        listeners[name] = v'[]'
+    listeners[name].push(callback)
+
+
+def on_change(name):
+    if listeners[name]:
+        for callback in listeners[name]:
+            callback(name)
+
+
+def sanitize_accelerator(text):
+    return text.replace('&', '')
+# }}}
+
+def subset_choice(name, choices, tooltip=None):  # {{{
+    if get_option_default_value(name) is undefined:
+        raise KeyError(f'{name} is not a known option')
+    ans = E.div(data_option_name=name, class_='subset-choice')
+    if tooltip is not None:
+        ans.setAttribute('title', tooltip or get_option_help(name))
+    names = Object.keys(choices)
+    for cname in names:
+        ans.appendChild(E.label(E.input(type='checkbox', name=cname), '\xa0' + choices[cname]))
+    ops = {
+        'get': def (container):
+            ans = v'[]'
+            for w in container.querySelectorAll('input'):
+                if w.checked:
+                    ans.push(w.name)
+            return ','.join(ans)
+        ,
+        'set': def (container, val):
+            q = {x.strip():True for x in (val or '').split(',')}
+            for w in container.querySelectorAll('input'):
+                w.checked = bool(q[w.name])
+        ,
+        'set_disabled': def (container, val):
+            pass
+    }
+    registry[name] = ops
+    ops.set(ans, get_option_value(name))
+    return ans
+# }}}
+
+def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suffix):  # {{{
+    if get_option_default_value(name) is undefined:
+        raise KeyError(f'{name} is not a known option')
+    if not text.endswith(':'):
+        text = text + ':'
+    label = E.label(E.span(sanitize_accelerator(text)), E.span(input_widget_))
+    if suffix:
+        label.lastChild.appendChild(document.createTextNode('\xa0' + suffix))
+    label.dataset.optionName = name
+    label.setAttribute('title', tooltip or get_option_help(name))
+
+    def straight_input_widget(container):
+        return container.lastChild.firstChild
+
+    input_widget = straight_input_widget
+
+    ops = {
+        'get': def (container):
+            return getter(input_widget(container))
+        ,
+        'set': def (container, val):
+            setter(input_widget(container), val)
+        ,
+        'set_disabled': def (container, val):
+            if val:
+                container.classList.add('disabled')
+                input_widget(container).setAttribute('disabled', 'disabled')
+            else:
+                container.classList.remove('disabled')
+                input_widget(container).removeAttribute('disabled')
+    }
+    registry[name] = ops
+    ops.set(label, get_option_value(name))
+    if is_option_disabled(name):
+        ops.set_disabled(label, True)
+    input_widget(label).addEventListener('change', on_change.bind(None, name))
+    if listeners[name]:
+        window.setTimeout(on_change.bind(None, name), 0)
+    return label
+# }}}
+
+def checkbox(name, text, tooltip):  # {{{
+    return create_simple_widget(name, text, tooltip, E.input(type='checkbox'),
+        def getter(w):  # noqa: unused-local
+            return bool(w.checked)
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.checked = bool(val)
+        ,
+    )
+# }}}
+
+def lineedit(name, text, width=25, tooltip=None, suffix=None):  # {{{
+    return create_simple_widget(name, text, tooltip, E.input(type='text', size=str(width)),
+            def getter(w):  # noqa: unused-local
+                ans = w.value
+                if ans and ans.strip():
+                    return ans.strip()
+            ,
+            def setter(w, val):  # noqa: unused-local
+                w.value = val or ''
+            , suffix=suffix
+    )
+# }}}
+
+def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  # {{{
+    f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
+    defval = get_option_default_value(name)
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            try:
+                return float(w.value)
+            except:
+                return defval
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = str(float(val))
+        ,
+        suffix=unit
+    )
+# }}}
+
+def int_spin(name, text, tooltip=None, step=1, min=0, max=100, unit=None):  # {{{
+    f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
+    defval = get_option_default_value(name)
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            try:
+                return int(w.value)
+            except:
+                return defval
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = str(int(val))
+        ,
+        suffix=unit
+    )
+# }}}
+
+def choices(name, text, choices, tooltip):  # {{{
+    f = E.select()
+    if Array.isArray(choices):
+        for key in choices:
+            f.appendChild(E.option(key, value=key))
+    else:
+        for key in choices:
+            f.appendChild(E.option(choices[key], value=key))
+
+    return create_simple_widget(name, text, tooltip, f,
+        def getter(w):  # noqa: unused-local
+            return w.value
+        ,
+        def setter(w, val):  # noqa: unused-local
+            w.value = val
+    )
+# }}}
+
+def textarea(name, text, tooltip):  # {{{
+    ans = create_simple_widget(name, text, tooltip, E.textarea(rows='30', cols='70'),
+            def getter(w):  # noqa: unused-local
+                ans = w.value
+                if ans and ans.strip():
+                    return ans.strip()
+            ,
+            def setter(w, val):  # noqa: unused-local
+                w.value = val or ''
+    )
+    ans.classList.add('vertical')
+    return ans
+# }}}
+
+def container_for_option(name):
+    return document.getElementById(container_id).querySelector(f'[data-option-name="{name}"]')
+
+
+def get(name):
+    return registry[name].get(container_for_option(name))
+
+
+def set(name, val):
+    registry[name].set(container_for_option(name), val)
+
+
+def set_disabled(name, val):
+    registry[name].set_disabled(container_for_option(name), val)
+
+
+# Look & feel {{{
+@ep
+def look_and_feel(container):
+    def subhead(text):
+        container.appendChild(E.div(
+            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex; max-width: 35em', E.b(sanitize_accelerator(text))))
+
+    subhead(_('&Fonts'))
+    add_listener('disable_font_rescaling', def (name):
+        disabled = get('disable_font_rescaling')
+        for dname in 'font_size_mapping', 'base_font_size':
+            set_disabled(dname, disabled)
+    )
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('disable_font_rescaling', _('&Disable font size rescaling')))
+    g.appendChild(float_spin('base_font_size', _('Base font si&ze:'), max=50, unit='pt'))
+    g.appendChild(lineedit('font_size_mapping', _('Font size &key:')))
+    g.appendChild(float_spin('minimum_line_height', _('Minim&um line height:'), max=900, unit='%'))
+    g.appendChild(float_spin('line_height', _('Line hei&ght:'), unit='%'))
+    g.appendChild(lineedit('embed_font_family', _('Embed font fami&ly:')))
+    g.appendChild(checkbox('embed_all_fonts', _('&Embed all fonts in document')))
+    g.appendChild(checkbox('subset_embedded_fonts', _('&Subset all embedded fonts')))
+    g.appendChild(checkbox('keep_ligatures', _('Keep &ligatures')))
+
+    subhead(_('Te&xt'))
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('input_encoding', _('I&nput character encoding:')))
+    g.appendChild(choices('change_justification', _('Text &justification:'),
+        {'original': _('Original'), 'left': _('Left align'), 'justify': _('Justify text')}
+    ))
+    g.appendChild(checkbox('smarten_punctuation', _('Smarten &punctuation')))
+    g.appendChild(checkbox('unsmarten_punctuation', _('&UnSmarten punctuation')))
+    g.appendChild(checkbox('asciiize', _('&Transliterate unicode characters to ASCII')))
+
+    subhead(_('Lay&out'))
+    add_listener('remove_paragraph_spacing', def (name):
+        disabled = get('remove_paragraph_spacing')
+        set_disabled('remove_paragraph_spacing_indent_size', not disabled)
+    )
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('remove_paragraph_spacing', _('Remove &spacing between paragraphs')))
+    g.appendChild(float_spin('remove_paragraph_spacing_indent_size', indent + _('I&ndent size:'), min=-0.1, unit='em'))
+    g.appendChild(checkbox('insert_blank_line', _('Insert &blank line between paragraphs')))
+    g.appendChild(float_spin('insert_blank_line_size', indent + _('&Line size:'), unit='em'))
+    g.appendChild(checkbox('linearize_tables', _('&Linearize tables')))
+
+    subhead(_('St&yling'))
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('filter_css', _('Filter Style Information'), 40))
+    container.appendChild(textarea('extra_css', 'E&xtra CSS'))
+# }}}
+
+# Heuristics {{{
+@ep
+def heuristics(container):
+    settings = v'[]'
+    def add(func, name, text, **kw):
+        g.appendChild(func(name, text, **kw))
+        settings.push(name)
+
+    add_listener('enable_heuristics', def (name):
+        disabled = not get('enable_heuristics')
+        for dname in settings:
+            set_disabled(dname, disabled)
+    )
+    blurb = _(
+    '<b>Heuristic processing</b> means that calibre will scan your book for common patterns and fix them.'
+    ' As the name implies, this involves guesswork, which means that it could end up worsening the result'
+    ' of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion'
+    ' does not turn out as you expect, turning on heuristics can improve matters. Read more about the various'
+    ' heuristic processing options in the <a href="%s">User Manual</a>.''').replace(
+        '%s', 'https://manual.calibre-ebook.com/conversion.html#heuristic-processing')
+    container.appendChild(E.div(style='margin-bottom: 1ex'))
+    safe_set_inner_html(container.lastChild, blurb)
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('enable_heuristics', _('Enable &heuristic processing')))
+    add(checkbox, 'unwrap_lines', _('Unwrap lines'))
+    add(float_spin, 'html_unwrap_factor', indent + _('Line &un-wrap factor:'), max=1, step=0.05)
+
+    add(checkbox, 'markup_chapter_headings', _('Detect and markup unformatted chapter headings and sub headings'))
+    add(checkbox, 'renumber_headings', _('Renumber sequences of <h1> or <h2> tags to prevent splitting'))
+    add(checkbox, 'delete_blank_paragraphs', _('Delete blank lines between paragraphs'))
+    add(checkbox, 'format_scene_breaks', _('Ensure scene breaks are consistently formatted'))
+    add(lineedit, 'replace_scene_breaks', _('Rep&lace soft scene breaks:'))
+    add(checkbox, 'dehyphenate', _('Remove unnecessary hyphens'))
+    add(checkbox, 'italicize_common_cases', _('Italicize common words and patterns'))
+    add(checkbox, 'fix_indents', _('Replace entity indents with CSS indents'))
+# }}}
+
+# Page setup {{{
+@ep
+def page_setup(container):
+    def show_profile_desc(name):
+        profile = get(name)
+        data = profiles.input if name is 'input_profile' else profiles.output
+        profile = data[profile]
+        container_for_option(name).parentNode.querySelector('[data-profile="{}"'.format(
+            'input' if name is 'input_profile' else 'output')).textContent = indent + profile.description
+
+    add_listener('input_profile', show_profile_desc)
+    add_listener('output_profile', show_profile_desc)
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('margin_left', _('Left page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_top', _('Top page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_right', _('Right page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(float_spin('margin_bottom', _('Bottom page margin'), unit='pt', step=0.1, min=-1, max=200))
+    g.appendChild(choices('input_profile', _('&Input profile:'), {name: profiles.input[name].name for name in profiles.input}))
+    g.appendChild(E.div(data_profile='input'))
+    g.appendChild(choices('output_profile', _('&Output profile:'), {name: profiles.output[name].name for name in profiles.output}))
+    g.appendChild(E.div(data_profile='output'))
+# }}}
+
+# Structure detection {{{
+@ep
+def structure_detection(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('chapter', _('Detect chapters at'), 50))
+    g.appendChild(choices('chapter_mark', _('Chap&ter mark:'), ['pagebreak', 'rule', 'both', 'none']))
+    g.appendChild(checkbox('remove_first_image', _('Remove first &image')))
+    g.appendChild(checkbox('remove_fake_margins', _('Remove &fake margins')))
+    g.appendChild(checkbox('insert_metadata', _('Insert metadata at start of book')))
+    g.appendChild(lineedit('page_breaks_before', _('Insert page breaks before'), 50))
+    g.appendChild(lineedit('start_reading_at', _('Start reading at'), 50))
+# }}}
+
+# ToC {{{
+@ep
+def toc(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('use_auto_toc', _('&Force use of auto-generated Table of Contents')))
+    g.appendChild(checkbox('no_chapters_in_toc', _('Do not add &detected chapters to the Table of Contents')))
+    g.appendChild(checkbox('duplicate_links_in_toc', _('Allow &duplicate links when creating the Table of Contents')))
+    g.appendChild(int_spin('max_toc_links', _('Number of &links to add to Table of Contents:')))
+    g.appendChild(int_spin('toc_threshold', _('Chapter &threshold:')))
+    g.appendChild(lineedit('toc_filter', _('TOC &filter:')))
+    g.appendChild(lineedit('level1_toc', _('Level &1 TOC (XPath expression):')))
+    g.appendChild(lineedit('level2_toc', _('Level &2 TOC (XPath expression):')))
+    g.appendChild(lineedit('level3_toc', _('Level &3 TOC (XPath expression):')))
+# }}}
+
+# Search & replace {{{
+@ep
+def search_and_replace(container):
+
+    def add(val):
+        c = container_for_option('search_replace')
+        c.appendChild(E.div(
+            class_='simple-group sr-instance',
+            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex',
+            E.label(
+                E.span(_('Search:')), E.input(type='text', name='search')
+            ),
+            E.label(
+                E.span(_('Replace:')), E.input(type='text', name='replace')
+            ),
+        ))
+        if val and val[0]:
+            c.lastChild.querySelector('input[name="search"]').value = val[0]
+            c.lastChild.querySelector('input[name="replace"]').value = val[1]
+        return c.lastChild
+
+    container.appendChild(E.div(data_option_name='search_replace'))
+
+    ops = {
+        'get': def get(container):  # noqa: unused-local
+            ans = v'[]'
+            for div in container.querySelectorAll('.sr-instance'):
+                search, replace = div.querySelectorAll('input')
+                if search.value:
+                    r = replace.value or ''  # noqa: unused-local
+                    ans.push(v'[search.value, r]')
+            return JSON.stringify(ans)
+        ,
+        'set': def set(container, encval):  # noqa: unused-local
+            try:
+                vals = JSON.parse(encval)
+            except:
+                vals = v'[]'
+            vals = vals or v'[]'
+            clear(container)
+            for val in vals:
+                add(val)
+            add()
+        ,
+        'set_disabled': def set_disabled(container, disabled):  # noqa: unused-local
+            pass
+    }
+    registry['search_replace'] = ops
+    ops.set(container.lastChild, get_option_value('search_replace'))
+
+    container.appendChild(E.div(
+        create_button(_('Add'), 'plus', action=def(): add();)
+    ))
+# }}}
+
+# Comic Input {{{
+@ep
+def comic_input(container):
+    settings = v'[]'
+    def add(func, name, text, **kw):
+        g.appendChild(func(name, text, **kw))
+        settings.push(name)
+
+    add_listener('no_process', def (name):
+        disabled = get('no_process')
+        for dname in settings:
+            set_disabled(dname, disabled)
+    )
+
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_process', _('&Disable comic processing')))
+    add(checkbox, 'dont_grayscale', _('Disable conversion of images to &black and white'))
+    add(checkbox, 'dont_add_comic_pages_to_toc', _('Don\'t add links to &pages to the Table of Contents for CBC files'))
+    add(int_spin, 'colors', _('&Number of colors:'), max=256, step=8)
+    add(lineedit, 'comic_image_size', _('Override image si&ze:'))
+    add(checkbox, 'dont_normalize', _('Disable &normalize'))
+    add(checkbox, 'keep_aspect_ratio', _('Keep &aspect ratio'))
+    add(checkbox, 'dont_sharpen', _('Disable &Sharpening'))
+    add(checkbox, 'disable_trim', _('Disable &Trimming'))
+    add(checkbox, 'wide', _('&Wide'))
+    add(checkbox, 'landscape', _('&Landscape'))
+    add(checkbox, 'right2left', _('&Right to left'))
+    add(checkbox, 'no_sort', _('Don\'t so&rt'))
+    add(checkbox, 'despeckle', _('De&speckle'))
+    g.appendChild(choices('output_format', _('O&utput format:'), v"['png', 'jpg']"))
+    settings.push('output_format')
+
+# }}}
+
+# FB2 Input {{{
+@ep
+def fb2_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_inline_fb2_toc', _('Do not insert a Table of Contents at the beginning of the book')))
+# }}}
+
+# PDF Input {{{
+@ep
+def pdf_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(float_spin('unwrap_factor', _('Line &un-wrapping factor:'), max=1, step=0.01))
+    g.appendChild(checkbox('no_images', _('No &images')))
+# }}}
+
+# RTF Input {{{
+@ep
+def rtf_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('ignore_wmf', _('Ignore &WMF images in the RTF file')))
+# }}}
+
+# DOCX Input {{{
+@ep
+def docx_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('docx_no_cover', _('Do not try to autodetect a &cover from images in the document')))
+    g.appendChild(checkbox('docx_no_pagebreaks_between_notes', _('Do not add a page after every &endnote')))
+    g.appendChild(checkbox('docx_inline_subsup', _('Render &superscripts and subscripts so that they do not affect the line height')))
+# }}}
+
+# TXT Input {{{
+@ep
+def txt_input(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('paragraph_type', _('Para&graph style:'), ui_data.paragraph_types))
+    g.appendChild(choices('formatting_type', _('Forma&tting style:'), ui_data.formatting_types))
+    g.appendChild(checkbox('preserve_spaces', _('Preserve &spaces')))
+    g.appendChild(checkbox('txt_in_remove_indents', _('Remove &indents at the beginning of lines')))
+
+    container.appendChild(E.div(
+        style='margin-top: 1ex',
+        _('Allowed Markdown extensions:'),
+        E.div(
+            style='margin-left: 1em; margin-top: 1ex',
+            subset_choice('markdown_extensions', ui_data.md_extensions)
+        )
+    ))
+# }}}
+
+# EPUB Output {{{
+@ep
+def epub_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('dont_split_on_page_breaks', _('Do not &split on page breaks')))
+    g.appendChild(checkbox('no_default_epub_cover', _('No default &cover')))
+    g.appendChild(checkbox('epub_flatten', _('&Flatten EPUB file structure')))
+    g.appendChild(checkbox('no_svg_cover', _('No &SVG cover')))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve cover &aspect ratio')))
+    g.appendChild(checkbox('epub_inline_toc', _('Insert inline &Table of Contents')))
+    g.appendChild(checkbox('epub_toc_at_end', _('Put inserted Table of Contents at the &end of the book')))
+    g.appendChild(lineedit('toc_title', _('&Title for inserted ToC:')))
+    g.appendChild(int_spin('flow_size', _('Split files &larger than:'), unit='KB', max=1000000, step=20))
+    g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
+# }}}
+
+# DOCX Output {{{
+@ep
+def docx_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('docx_page_size', _('Paper si&ze:'), ui_data.page_sizes))
+    g.appendChild(lineedit('docx_custom_page_size', _('&Custom size:')))
+    g.appendChild(float_spin('docx_page_margin_left', _('Page &left margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_top', _('Page &top margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_right', _('Page &right margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('docx_page_margin_bottom', _('Page &bottom margin'), unit='pt', min=-100, max=500))
+    g.appendChild(checkbox('docx_no_toc', _('Do not insert the &Table of Contents as a page at the start of the document')))
+    g.appendChild(checkbox('docx_no_cover', _('Do not insert &cover as image at start of document')))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve the aspect ratio of the image inserted as cover')))
+# }}}
+
+# FB2 Output {{{
+@ep
+def fb2_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('sectionize', _('Sec&tionize:'), ui_data.sectionize))
+    g.appendChild(choices('fb2_genre', _('&Genre:'), ui_data.genres))
+# }}}
+
+# LRF Output {{{
+@ep
+def lrf_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('autorotation', _('Enable &auto-rotation of wide images')))
+    g.appendChild(float_spin('wordspace', _('&Wordspace:'), min=1, max=20, unit='pt'))
+    g.appendChild(float_spin('minimum_indent', _('Minim&um para. indent:'), unit='pt'))
+    g.appendChild(checkbox('render_tables_as_images', _('Render &tables as images')))
+    g.appendChild(float_spin(
+        'text_size_multiplier_for_rendered_tables', indent + _('Text size multiplier for text in rendered tables:'), step=0.01))
+    g.appendChild(checkbox('header', _('Add &header')))
+    g.appendChild(float_spin('header_separation', indent + _('Header &separation:'), unit='pt'))
+    g.appendChild(lineedit('header_format', indent + _('Header &format:')))
+    g.appendChild(lineedit('serif_family', _('Serif fon&t family:')))
+    g.appendChild(lineedit('sans_family', _('Sans-serif font fami&ly:')))
+    g.appendChild(lineedit('mono_family', _('&Monospace font family:')))
+# }}}
+
+# MOBI Output {{{
+@ep
+def mobi_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_inline_toc', _('Do not add &Table of Contents to book')))
+    g.appendChild(lineedit('toc_title', indent + _('&Title for Table of Contents:')))
+    g.appendChild(checkbox('mobi_toc_at_start', _('Put generated Table of Contents at &start of book instead of end')))
+    g.appendChild(checkbox('mobi_ignore_margins', _('Ignore &margins')))
+    g.appendChild(checkbox('prefer_author_sort', _('Use author &sort for author')))
+    g.appendChild(checkbox('mobi_keep_original_images', _('Do not convert all images to &JPEG (may result in images not working in older viewers)')))
+    g.appendChild(checkbox('dont_compress', _('Disable &compression of the file contents')))
+    g.appendChild(choices('mobi_file_type', _('MOBI fi&le type:'), ui_data.file_types))
+    g.appendChild(lineedit('personal_doc', _('Personal Doc tag:')))
+    g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
+# }}}
+
+# AZW3 Output {{{
+@ep
+def azw3_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('no_inline_toc', _('Do not add &Table of Contents to book')))
+    g.appendChild(lineedit('toc_title', indent + _('&Title for Table of Contents:')))
+    g.appendChild(checkbox('mobi_toc_at_start', _('Put generated Table of Contents at &start of book instead of end')))
+    g.appendChild(checkbox('prefer_author_sort', _('Use author &sort for author')))
+    g.appendChild(checkbox('dont_compress', _('Disable &compression of the file contents')))
+    g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
+# }}}
+
+# PDB Output {{{
+@ep
+def pdb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('format', _('Forma&t:'), ui_data.formats))
+    g.appendChild(lineedit('pdb_output_encoding', _('O&utput encoding:')))
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+# }}}
+
+# PDF Output {{{
+@ep
+def pdf_output(container):
+    add_listener('use_profile_size', def (name):
+        disabled = get('use_profile_size')
+        for dname in 'paper_size', 'custom_size', 'unit':
+            set_disabled(dname, disabled)
+    )
+    add_listener('pdf_use_document_margins', def (name):
+        disabled = get('pdf_use_document_margins')
+        for dname in 'left', 'top', 'right', 'bottom':
+            set_disabled(f'pdf_page_margin_{dname}', disabled)
+    )
+
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('use_profile_size', _('&Use the paper size set in output profile')))
+    g.appendChild(choices('paper_size', indent + _('&Paper size:'), ui_data.paper_sizes))
+    g.appendChild(lineedit('custom_size', indent + _('&Custom size:')))
+    g.appendChild(choices('unit', indent + _('Custom size unit:'), ui_data.units))
+    g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve &aspect ratio of cover')))
+    g.appendChild(checkbox('pdf_page_numbers', _('Add page &numbers to the bottom of every page')))
+    g.appendChild(checkbox('pdf_hyphenate', _('&Break long words at the end of lines')))
+    g.appendChild(checkbox('pdf_add_toc', _('Add a printable &Table of Contents at the end')))
+    g.appendChild(lineedit('toc_title', indent + _('&Title for ToC:')))
+    g.appendChild(lineedit('pdf_serif_family', _('Serif famil&y:')))
+    g.appendChild(lineedit('pdf_sans_family', _('Sans fami&ly:')))
+    g.appendChild(lineedit('pdf_mono_family', _('&Monospace family:')))
+    g.appendChild(choices('pdf_standard_font', _('S&tandard font:'), ui_data.font_types))
+    g.appendChild(int_spin('pdf_default_font_size', _('Default font si&ze:'), unit='px'))
+    g.appendChild(int_spin('pdf_mono_font_size', _('Default font si&ze:'), unit='px'))
+    g.appendChild(lineedit('pdf_page_number_map', _('Page number &map:')))
+    g.appendChild(checkbox('pdf_use_document_margins', _('Use page margins from the &document being converted')))
+    g.appendChild(float_spin('pdf_page_margin_left', indent + _('Left page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_top', indent + _('Top page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_right', indent + _('Right page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_page_margin_bottom', indent + _('Bottom page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(lineedit('pdf_header_template', _('&Header template:')))
+    g.appendChild(lineedit('pdf_footer_template', _('&Footer template:')))
+# }}}
+
+# PMLZ Output {{{
+@ep
+def pml_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('pml_output_encoding', _('O&utput encoding:')))
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+    g.appendChild(checkbox('full_image_depth', _('Do not &reduce image size and depth')))
+# }}}
+
+# RB Output {{{
+@ep
+def rb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+# }}}
+
+# TXT Output {{{
+@ep
+def txt_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(lineedit('txt_output_encoding', _('O&utput encoding:')))
+    g.appendChild(choices('newline', _('&Line ending style:'), ui_data.newline_types))
+    g.appendChild(choices('txt_output_formatting', _('Forma&tting:'), ui_data.formatting_types))
+    g = E.div(E.div(_('Options for plain text output:')), E.div(class_='simple-group', style='margin-left: 1rem; margin-top: 1ex'))
+    container.appendChild(g)
+    g = g.lastChild
+    g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
+    g.appendChild(int_spin('max_line_length', _('&Maximum line length:'), max=1000))
+    g.appendChild(checkbox('force_max_line_length', _('Force maximum line &length')))
+    g = E.div(E.div(_('Options for Markdown and TexTile output:')), E.div(class_='simple-group', style='margin-left: 1rem; margin-top: 1ex'))
+    container.appendChild(g)
+    g = g.lastChild
+    g.appendChild(checkbox('keep_links', _('Do not remove links (<a> tags) before processing')))
+    g.appendChild(checkbox('keep_image_references', _('Do not remove image &references before processing')))
+    g.appendChild(checkbox('keep_color', _('Keep text &color, when possible')))
+
+@ep
+def txtz_output(container):
+    return txt_output(container)
+# }}}
+
+# HTMLZ Output {{{
+@ep
+def htmlz_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(choices('htmlz_css_type', _('How to handle &CSS'), ui_data.css_choices))
+    g.appendChild(choices('htmlz_class_style', _('How to handle &CSS'), ui_data.sheet_choices))
+    g.appendChild(checkbox('htmlz_title_filename', _('Use book title as the filename for the HTML file')))
+# }}}
+
+# SNB Output {{{
+@ep
+def snb_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('snb_insert_empty_line', _('Insert &empty line between paragraphs')))
+    g.appendChild(checkbox('snb_dont_indent_first_line', _('Don\'t indent the &first line for each paragraph')))
+    g.appendChild(checkbox('snb_hide_chapter_name', _('Hide &chapter name')))
+    g.appendChild(checkbox('snb_full_screen', _('Optimize for full-&screen view ')))
+# }}}
+
+def restore_defaults():
+    for setting in registry:
+        set(setting, get_option_default_value(setting))
+
+
+def create_option_group(group_name, ui_data_, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
+    nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles, ui_data
+    get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
+    profiles, ui_data = profiles_, ui_data_
+    registry = {}
+    listeners = {}
+    container_id = ensure_id(container)
+    container.classList.add(CLASS_NAME)
+    entry_points[group_name](container)
+    container.appendChild(E.div(
+        style='margin-top: 2ex; padding-top: 2ex; border-top: solid 1px currentColor',
+        create_button(_('Done'), action=on_close),
+        '\xa0\xa0',
+        create_button(_('Restore defaults'), action=restore_defaults),
+    ))
+
+
+def commit_changes(set_option_value):
+    for name in registry:
+        set_option_value(name, get(name))

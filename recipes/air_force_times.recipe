@@ -26,13 +26,17 @@ class AirForceTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-
-        ('News',   'http://www.airforcetimes.com/rss_news.php'),
-        ('Benefits',   'http://www.airforcetimes.com/rss_benefits.php'),
-        ('Money',   'http://www.airforcetimes.com/rss_money.php'),
-        ('Careers & Education',  'http://www.airforcetimes.com/rss_careers.php'),
-        ('Community',  'http://www.airforcetimes.com/rss_community.php'),
-        ('Off Duty',   'http://www.airforcetimes.com/rss_off_duty.php'),
-        ('Entertainment',  'http://www.airforcetimes.com/rss_entertainment.php'),
-        ('Guard & Reserve',  'http://www.airforcetimes.com/rss_guard.php'),
+        ('Home','http://feeds.feedburner.com/rss/category/air-home?format=xml'),
+        ('Health Benefits','http://feeds.feedburner.com/rss/category/air-healthbenefits?format=xml'),
+        ('Retirement Benefits','http://feeds.feedburner.com/rss/category/air-retirementbenefits?format=xml'),
+        ('Veterans Benefits','http://feeds.feedburner.com/rss/category/air-VeteransBenefits?format=xml'),
+        ('Education Benefits','http://feeds.feedburner.com/rss/category/air-educationbenefits?format=xml'),
+        ('Adventure','http://feeds.feedburner.com/rss/category/air-adventure?format=xml'),
+        ('Entertainment','http://feeds.feedburner.com/rss/category/air-Entertainment?format=xml'),
+        ('Careers','http://feeds.feedburner.com/rss/category/air-careers?format=xml'),
+        ('Technology','http://feeds.feedburner.com/rss/category/air-technology?format=xml'),
+        ('Opinion','http://feeds.feedburner.com/rss/category/air-opinion?format=xml'),
+        ('Pay','http://feeds.feedburner.com/rss/category/air-pay?format=xml'),
+        ('Guard','http://feeds.feedburner.com/rss/category/air-guard?format=xml'),
+        ('Your Air Force','http://feeds.feedburner.com/rss/category/air-yourairforce?format=xml'),
     ]

@@ -2,6 +2,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, Comment
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class GlennBeckRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -71,7 +78,7 @@ class GlennBeckRecipe(BasicNewsRecipe):
 
                 if (txt.parent.name == 'body' and len(raw) > 0) and not (len(raw) == 6 and raw == '&nbsp;'):
                     # This is our content; ignore the rest.
-                    para = Tag(freshSoup, 'p')
+                    para = new_tag(freshSoup, 'p')
                     para.append(raw)
                     freshSoup.body.append(para)
                     counter += 1

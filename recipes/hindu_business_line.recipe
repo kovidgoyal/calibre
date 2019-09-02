@@ -1,9 +1,18 @@
-from __future__ import with_statement
-__license__ = 'GPL 3'
-__copyright__ = '2013, dhiru <dhirendralal@yahoo.com>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-import time
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class TheHindu(BasicNewsRecipe):
@@ -15,39 +24,38 @@ class TheHindu(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
 
-    keep_only_tags = [dict(id='content')]
-    remove_tags = [dict(attrs={'class': ['article-links', 'breadcr']}),
-                   dict(id=['email-section', 'right-column', 'printfooter', 'topover',
-                            'slidebox', 'th_footer'])]
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('textbyline article-image contentbody'),
+    ]
+    remove_tags = [
+    ]
 
     extra_css = '.photo-caption { font-size: smaller }'
 
-    def preprocess_raw_html(self, raw, url):
-        return raw.replace('<body><p>', '<p>').replace('</p></body>', '</p>')
-
-    def postprocess_html(self, soup, first_fetch):
-        for t in soup.findAll(['table', 'tr', 'td', 'center']):
-            t.name = 'div'
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll(attrs={'data-proxy-image': True}):
+            img['src'] = re.sub(r'/alternates/[^/]+', '/alternates/LANDSCAPE_730', img['data-proxy-image'], flags=re.I)
         return soup
 
     def parse_index(self):
-        today = time.strftime('%Y-%m-%d')
         soup = self.index_to_soup(
-            'http://www.thehindubusinessline.com/todays-paper/tp-index/?date=' + today)
-        div = soup.find(id='left-column')
+            'https://www.thehindubusinessline.com/todays-paper/tp-index')
+        div = soup.find(attrs={'class': 'left-column'})
         feeds = []
         current_section = None
         current_articles = []
-        for x in div.findAll(['h3', 'div']):
-            if current_section and x.get('class', '') == 'tpaper':
+        for x in div.findAll(['h2', 'li']):
+            if current_section and x.name == 'li':
                 a = x.find('a', href=True)
                 if a is not None:
-                    current_articles.append({'url': a['href'] + '?css=print',
-                                             'title': self.tag_to_string(a), 'date': '',
-                                             'description': ''})
-            if x.name == 'h3':
+                    title = self.tag_to_string(a)
+                    current_articles.append({'url': a['href'], 'title': title, 'date': '', 'description': ''})
+                    self.log('\t' + title)
+            if x.name == 'h2':
                 if current_section and current_articles:
                     feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(x)
+                current_section = self.tag_to_string(x).strip().capitalize()
+                self.log(current_section)
                 current_articles = []
         return feeds

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from io import BytesIO
 from calibre.constants import iswindows
 from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
+
 
 class FilesystemTest(BaseTest):
 
@@ -35,26 +35,26 @@ class FilesystemTest(BaseTest):
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
 
         # Test that changing metadata on a book with no formats/cover works
-        ae(sf('title', {3:'moved1'}), set([3]))
-        ae(sf('authors', {3:'moved1'}), set([3]))
-        ae(sf('title', {3:'Moved1'}), set([3]))
-        ae(sf('authors', {3:'Moved1'}), set([3]))
+        ae(sf('title', {3:'moved1'}), {3})
+        ae(sf('authors', {3:'moved1'}), {3})
+        ae(sf('title', {3:'Moved1'}), {3})
+        ae(sf('authors', {3:'Moved1'}), {3})
         ae(cache.field_for('title', 3), 'Moved1')
         ae(cache.field_for('authors', 3), ('Moved1',))
 
         # Now try with a book that has covers and formats
         orig_data = self.get_filesystem_data(cache, 1)
         orig_fpath = cache.format_abspath(1, 'FMT1')
-        ae(sf('title', {1:'moved'}), set([1]))
-        ae(sf('authors', {1:'moved'}), set([1]))
-        ae(sf('title', {1:'Moved'}), set([1]))
-        ae(sf('authors', {1:'Moved'}), set([1]))
+        ae(sf('title', {1:'moved'}), {1})
+        ae(sf('authors', {1:'moved'}), {1})
+        ae(sf('title', {1:'Moved'}), {1})
+        ae(sf('authors', {1:'Moved'}), {1})
         ae(cache.field_for('title', 1), 'Moved')
         ae(cache.field_for('authors', 1), ('Moved',))
         cache2 = self.init_cache(cl)
         for c in (cache, cache2):
             data = self.get_filesystem_data(c, 1)
-            ae(set(orig_data.iterkeys()), set(data.iterkeys()))
+            ae(set(orig_data), set(data))
             ae(orig_data, data, 'Filesystem data does not match')
             ae(c.field_for('path', 1), 'Moved/Moved (1)')
             ae(c.field_for('path', 3), 'Moved1/Moved1 (3)')
@@ -74,12 +74,11 @@ class FilesystemTest(BaseTest):
         cl = self.cloned_library
         cache = self.init_cache(cl)
         fpath = cache.format_abspath(1, 'FMT1')
-        f = open(fpath, 'rb')
-        with self.assertRaises(IOError):
-            cache.set_field('title', {1:'Moved'})
-        with self.assertRaises(IOError):
-            cache.remove_books({1})
-        f.close()
+        with open(fpath, 'rb') as f:
+            with self.assertRaises(IOError):
+                cache.set_field('title', {1:'Moved'})
+            with self.assertRaises(IOError):
+                cache.remove_books({1})
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
         # Test on folder with hardlinks
@@ -172,11 +171,14 @@ class FilesystemTest(BaseTest):
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule
         strip = lambda files: frozenset({os.path.basename(x) for x in files})
+
         def q(one, two):
             one, two = {strip(a) for a in one}, {strip(b) for b in two}
             self.assertEqual(one, two)
+
         def r(action='ignore', match_type='startswith', query=''):
             return {'action':action, 'match_type':match_type, 'query':query}
+
         def c(*rules):
             return tuple(map(compile_rule, rules))
 

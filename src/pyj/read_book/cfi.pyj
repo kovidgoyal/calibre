@@ -21,6 +21,7 @@ from __python__ import hash_literals
 #    scroll_to(cfi): which scrolls the browser to a point corresponding to the
 #                    given cfi, and returns the x and y co-ordinates of the point.
 
+from read_book.viewport import scroll_viewport
 
 # CFI escaping {{{
 escape_pat = /[\[\],^();~@!-]/g
@@ -134,7 +135,7 @@ def encode(doc, node, offset, tail):  # {{{
 
     # Handle the offset, if any
     if node.nodeType is Node.ELEMENT_NODE:
-        if type(offset) is 'number':
+        if jstype(offset) is 'number':
             node = node.childNodes.item(offset)
     elif Node.TEXT_NODE <= node.nodeType <= Node.ENTITY_NODE:
         offset = offset or 0
@@ -388,7 +389,7 @@ def point(cfi, doc):  # {{{
     y = None
     range_ = None
 
-    if type(r.offset) is "number":
+    if jstype(r.offset) is "number":
         # Character offset
         range_ = ndoc.createRange()
         if r.forward:
@@ -435,7 +436,7 @@ def scroll_to(cfi, callback, doc):  # {{{
     if not point_:
         print("No point found for cfi: " + cfi)
         return
-    if type(point_.time) is 'number':
+    if jstype(point_.time) is 'number':
         set_current_time(point_.node, point_.time)
 
     if point_.range is not None:
@@ -447,7 +448,8 @@ def scroll_to(cfi, callback, doc):  # {{{
         span = ndoc.createElement('span')
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
-        span.scrollIntoView()
+        scroll_viewport.scroll_into_view(span)
+        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -481,16 +483,17 @@ def scroll_to(cfi, callback, doc):  # {{{
                 callback(x, y)
     else:
         node = point_.node
-        node.scrollIntoView()
+        scroll_viewport.scroll_into_view(node)
+        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
         fn = def():
             r = node.getBoundingClientRect()
             x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
-            if type(point_.x) is 'number' and node.offsetWidth:
+            if jstype(point_.x) is 'number' and node.offsetWidth:
                 x += (point_.x*node.offsetWidth)/100
-            if type(point_.y) is 'number' and node.offsetHeight:
+            if jstype(point_.y) is 'number' and node.offsetHeight:
                 y += (point_.y*node.offsetHeight)/100
-            window.scrollTo(x, y)
+            scroll_viewport.scroll_to(x, y)
             if callback:
                 callback(x, y)
 
@@ -508,28 +511,28 @@ def at_point(ox, oy):  # {{{
         Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
 
     try:
-        cfi = window.cfi.at(ox, oy)
-        point = window.cfi.point(cfi)
+        cfi = at(ox, oy)
+        p = point(cfi)
     except Exception:
         cfi = None
 
 
     if cfi:
-        if point.range is not None:
-            r = point.range
+        if p.range is not None:
+            r = p.range
             rect = r.getClientRects()[0]
 
-            x = (point.a*rect.left + (1-point.a)*rect.right)
+            x = (p.a*rect.left + (1-p.a)*rect.right)
             y = (rect.top + rect.bottom)/2
             x, y = viewport_to_document(x, y, r.startContainer.ownerDocument)
         else:
-            node = point.node
+            node = p.node
             r = node.getBoundingClientRect()
             x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
-            if type(point.x) is 'number' and node.offsetWidth:
-                x += (point.x*node.offsetWidth)/100
-            if type(point.y) is 'number' and node.offsetHeight:
-                y += (point.y*node.offsetHeight)/100
+            if jstype(p.x) is 'number' and node.offsetWidth:
+                x += (p.x*node.offsetWidth)/100
+            if jstype(p.y) is 'number' and node.offsetHeight:
+                y += (p.y*node.offsetHeight)/100
 
         if dist(viewport_to_document(ox, oy), v'[x, y]') > 50:
             cfi = None
@@ -539,8 +542,7 @@ def at_point(ox, oy):  # {{{
 
 def at_current():  # {{{
     winx, winy = window_scroll_pos()
-    winw, winh = window.innerWidth, window.innerHeight
-    max = Math.max
+    winw, winh = scroll_viewport.width(), scroll_viewport.height()
     winw = max(winw, 400)
     winh = max(winh, 600)
     deltay = Math.floor(winh/50)

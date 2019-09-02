@@ -11,16 +11,19 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import sys, os, errno
+from datetime import date
 
 # If your extensions are in another directory, add it here.
-sys.path.append(os.path.abspath('.'))
-import init_calibre
-init_calibre
-from calibre.constants import __appname__, __version__
+base = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(base)
+sys.path.insert(0, os.path.dirname(base))
+ispy3 = sys.version_info.major > 2
+from setup import __appname__, __version__
 import calibre.utils.localization as l  # Ensure calibre translations are installed
-del l
 import custom
+del sys.path[0]
+del l
 custom
 # General configuration
 # ---------------------
@@ -29,7 +32,7 @@ needs_sphinx = '1.2'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'custom', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'custom', 'sidebar_toc', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
@@ -50,8 +53,19 @@ if tags.has('gettext'):  # noqa
 
 # The language
 language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
+
+
+def generated_langs():
+    try:
+        return os.listdir(os.path.join(base, 'generated'))
+    except EnvironmentError as e:
+        if e.errno != errno.ENOENT:
+            raise
+    return ()
+
+
 # ignore generated files in languages other than the language we are building for
-ge = {'generated/' + x for x in os.listdir('generated')} | {
+ge = {'generated/' + x for x in generated_langs()} | {
     'generated/' + x for x in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split()}
 ge.discard('generated/' + language)
 exclude_patterns += list(ge)
@@ -87,7 +101,7 @@ if language not in {'en', 'eng'}:
     except IOError:
         pass
     else:
-        title = t.ugettext(title)
+        title = getattr(t, 'gettext' if ispy3 else 'ugettext')(title)
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
@@ -110,11 +124,22 @@ pygments_style = 'sphinx'
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_theme = 'default'
-html_theme_options = {'stickysidebar':'true', 'relbarbgcolor':'black'}
-# Put the quick search box on top
+html_theme = 'alabaster'
 html_sidebars = {
-        '**' : ['searchbox.html', 'localtoc.html', 'relations.html']
+    '**': [
+        'about.html',
+        'searchbox.html',
+        'localtoc.html',
+        'relations.html',
+    ]
+}
+html_theme_options = {
+    'logo': 'logo.png',
+    'show_powered_by': False,
+    'fixed_sidebar': True,
+    'sidebar_collapse': True,
+    'analytics_id': 'UA-20736318-1',
+    'github_button': False,
 }
 
 # The favicon
@@ -129,33 +154,36 @@ html_static_path = ['resources', '../icons/favicon.ico']
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-html_use_smartypants = True
-
 # Overall title of the documentation
-html_title       = title
-html_short_title = 'Start'
-html_logo        = 'resources/logo.png'
+# html_title       = title
+html_short_title = _('Start')
 
 from calibre.utils.localization import get_language
 html_context = {}
 html_context['other_languages'] = [
     (lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]
+
+
 def sort_languages(x):
     from calibre.utils.icu import sort_key
     lc, name = x
     if lc == language:
         return ''
-    return sort_key(unicode(name))
+    return sort_key(type(u'')(name))
+
+
 html_context['other_languages'].sort(key=sort_languages)
+html_context['support_text'] = _('Support calibre')
+html_context['support_tooltip'] = _('Contribute to support calibre development')
 del sort_languages, get_language
 
-epub_author      = 'Kovid Goyal'
-epub_publisher   = 'Kovid Goyal'
-epub_identifier  = 'https://manual.calibre-ebook.com'
-epub_scheme      = 'url'
-epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
+epub_author      = u'Kovid Goyal'
+epub_publisher   = u'Kovid Goyal'
+epub_copyright   = u'© {} Kovid Goyal'.format(date.today().year)
+epub_description = u'Comprehensive documentation for calibre'
+epub_identifier  = u'https://manual.calibre-ebook.com'
+epub_scheme      = u'url'
+epub_uid         = u'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
 epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')

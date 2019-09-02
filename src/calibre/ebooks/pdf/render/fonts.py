@@ -1,22 +1,22 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from itertools import izip, groupby
+from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from future_builtins import map
+from polyglot.builtins import iteritems, map, zip, unicode_type, codepoint_to_chr
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
     Dictionary, Name)
 from calibre.utils.fonts.sfnt.subset import pdf_subset, UnsupportedFont, NoGlyphs
+from calibre.utils.short_uuid import uuid4
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -47,6 +47,7 @@ first. Each number gets mapped to a glyph id equal to itself by the
 
 import textwrap
 
+
 class FontStream(Stream):
 
     def __init__(self, is_otf, compress=False):
@@ -58,8 +59,13 @@ class FontStream(Stream):
         if self.is_otf:
             d['Subtype'] = Name('CIDFontType0C')
 
+
 def to_hex_string(c):
-    return bytes(hex(int(c))[2:]).rjust(4, b'0').decode('ascii')
+    ans = hex(int(c))[2:]
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans.rjust(4, '0')
+
 
 class CMap(Stream):
 
@@ -102,21 +108,31 @@ class CMap(Stream):
             maps.append(current_map)
         mapping = []
         for m in maps:
-            meat = '\n'.join('%s %s'%(k, v) for k, v in m.iteritems())
+            meat = '\n'.join('%s %s'%(k, v) for k, v in iteritems(m))
             mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
+        try:
+            name = name.encode('ascii').decode('ascii')
+        except Exception:
+            name = uuid4()
         self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
+
 
 class Font(object):
 
     def __init__(self, metrics, num, objects, compress):
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
-        self.subset_tag = bytes(re.sub('.', lambda m: chr(int(m.group())+ord('A')),
-                                  oct(num))).rjust(6, b'A').decode('ascii')
+        self.subset_tag = unicode_type(
+            re.sub('.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
+        )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
+        try:
+            psname = metrics.postscript_name
+        except Exception:
+            psname = uuid4()
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
-            'FontName': Name('%s+%s'%(self.subset_tag, metrics.postscript_name)),
+            'FontName': Name('%s+%s'%(self.subset_tag, psname)),
             'Flags': 0b100,  # Symbolic font
             'FontBBox': Array(metrics.pdf_bbox),
             'ItalicAngle': metrics.post.italic_angle,
@@ -172,23 +188,26 @@ class Font(object):
             self.metrics.sfnt(self.font_stream)
 
     def write_to_unicode(self, objects):
-        cmap = CMap(self.metrics.postscript_name, self.metrics.glyph_map,
-                    compress=self.compress)
+        try:
+            name = self.metrics.postscript_name
+        except KeyError:
+            name = uuid4()
+        cmap = CMap(name, self.metrics.glyph_map, compress=self.compress)
         self.font_dict['ToUnicode'] = objects.add(cmap)
 
     def write_widths(self, objects):
         glyphs = sorted(self.used_glyphs|{0})
-        widths = {g:self.metrics.pdf_scale(w) for g, w in izip(glyphs,
+        widths = {g:self.metrics.pdf_scale(w) for g, w in zip(glyphs,
                                         self.metrics.glyph_widths(glyphs))}
         counter = Counter()
-        for g, w in widths.iteritems():
+        for g, w in iteritems(widths):
             counter[w] += 1
         most_common = counter.most_common(1)[0][0]
         self.descendant_font['DW'] = most_common
-        widths = {g:w for g, w in widths.iteritems() if w != most_common}
+        widths = {g:w for g, w in iteritems(widths) if w != most_common}
 
         groups = Array()
-        for k, g in groupby(enumerate(widths.iterkeys()), lambda i_x:i_x[0]-i_x[1]):
+        for k, g in groupby(enumerate(widths), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(itemgetter(1), g))
             gwidths = [widths[g] for g in group]
             if len(set(gwidths)) == 1 and len(group) > 1:
@@ -223,7 +242,7 @@ class FontManager(object):
         if name not in STANDARD_FONTS:
             raise ValueError('%s is not a standard font'%name)
         if name not in self.std_map:
-                self.std_map[name] = self.objects.add(Dictionary({
+            self.std_map[name] = self.objects.add(Dictionary({
                 'Type':Name('Font'),
                 'Subtype':Name('Type1'),
                 'BaseFont':Name(name)
@@ -233,5 +252,3 @@ class FontManager(object):
     def embed_fonts(self, debug):
         for font in self.fonts:
             font.embed(self.objects, debug)
-
-

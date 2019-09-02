@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -11,6 +13,7 @@ from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
 from calibre.gui2 import gprefs
+from polyglot.builtins import unicode_type
 
 
 class AddEmptyBookDialog(QDialog):
@@ -77,7 +80,7 @@ class AddEmptyBookDialog(QDialog):
         self.tclear_button.clicked.connect(self.title_edit.clear)
         self._layout.addWidget(self.tclear_button, 7, 1, 1, 1)
 
-        self.format_label = QLabel(_('Also create an empty ebook in format:'))
+        self.format_label = QLabel(_('Also create an empty e-book in format:'))
         self._layout.addWidget(self.format_label, 8, 0, 1, 2)
         c = self.format_value = QComboBox(self)
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
@@ -97,7 +100,7 @@ class AddEmptyBookDialog(QDialog):
 
         self.copy_formats = cf = QCheckBox(_('Also copy book &formats when duplicating a book'), self)
         cf.setToolTip(_(
-            'Also copy all ebook files into the newly created duplicate'
+            'Also copy all e-book files into the newly created duplicate'
             ' books.'))
         cf.setChecked(gprefs.get('create_empty_copy_dup_formats', False))
         self._layout.addWidget(cf, 10, 0, 1, -1)
@@ -161,15 +164,16 @@ class AddEmptyBookDialog(QDialog):
 
     @property
     def selected_authors(self):
-        return string_to_authors(unicode(self.authors_combo.text()))
+        return string_to_authors(unicode_type(self.authors_combo.text()))
 
     @property
     def selected_series(self):
-        return unicode(self.series_combo.text())
+        return unicode_type(self.series_combo.text())
 
     @property
     def selected_title(self):
         return self.title_edit.text().strip()
+
 
 if __name__ == '__main__':
     from calibre.library import db

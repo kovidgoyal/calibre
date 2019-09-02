@@ -2,11 +2,10 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
-from future_builtins import map
+from polyglot.builtins import map, unicode_type
 
 from calibre.db.adding import compile_glob, filter_filename, compile_rule
 from calibre.gui2 import elided_text, Application, error_dialog
@@ -18,6 +17,7 @@ from calibre.gui2.tag_mapper import (
 from calibre.utils.config import JSONConfig
 
 add_filters = JSONConfig('add-filter-rules')
+
 
 class RuleEdit(RuleEditBase):
 
@@ -65,12 +65,12 @@ class RuleEdit(RuleEditBase):
     def rule(self, rule):
         def sc(name):
             c = getattr(self, name)
-            idx = c.findData(unicode(rule.get(name, '')))
+            idx = c.findData(unicode_type(rule.get(name, '')))
             if idx < 0:
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.query.setText(unicode(rule.get('query', '')).strip())
+        self.query.setText(unicode_type(rule.get('query', '')).strip())
 
     def validate(self):
         ans = super(RuleEdit, self).validate()
@@ -84,6 +84,7 @@ class RuleEdit(RuleEditBase):
                         '%s is not a valid glob expression') % rule['query'], show=True)
                     return False
         return ans
+
 
 class RuleEditDialog(RuleEditDialogBase):
 
@@ -101,6 +102,7 @@ class RuleItem(RuleItemBase):
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         return text
 
+
 class Rules(RulesBase):
 
     RuleItemClass = RuleItem
@@ -110,14 +112,15 @@ class Rules(RulesBase):
             ' when auto-adding. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every file until either an'
             ' "add" or an "ignore" rule matches. If no rules match, the file will be added only'
-            ' if its file extension is of a known ebook type.')
+            ' if its file extension is of a known e-book type.')
+
 
 class Tester(TesterBase):
 
     DIALOG_TITLE = _('Test filename filter rules')
     PREFS_NAME = 'test-file-filter-rules'
     LABEL = _('Enter a filename to test:')
-    PLACEHOLDER = _('Enter filename and click the Test button')
+    PLACEHOLDER = _('Enter filename and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
     def do_test(self):
@@ -136,6 +139,7 @@ class RulesDialog(RulesDialogBase):
     RulesClass = Rules
     TesterClass = Tester
     PREFS_OBJECT = add_filters
+
 
 if __name__ == '__main__':
     app = Application([])

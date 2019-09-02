@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from Queue import Queue, Empty
 from threading import Thread, Event
 from io import BytesIO
 
@@ -17,6 +15,8 @@ from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.utils.img import save_cover_data_to, remove_borders_from_image, image_to_data, image_from_data
 from calibre.utils.imghdr import identify
+from polyglot.queue import Queue, Empty
+
 
 class Worker(Thread):
 
@@ -51,11 +51,13 @@ class Worker(Thread):
                         self.plugin.name)
         self.time_spent = time.time() - start_time
 
+
 def is_worker_alive(workers):
     for w in workers:
         if w.is_alive():
             return True
     return False
+
 
 def process_result(log, result):
     plugin, data = result
@@ -75,6 +77,7 @@ def process_result(log, result):
         log.exception('Invalid cover from', plugin.name)
         return None
     return (plugin, width, height, fmt, data)
+
 
 def run_download(log, results, abort,
         title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
@@ -188,7 +191,3 @@ def download_cover(log,
     results.sort(key=keygen)
 
     return results[0] if results else None
-
-
-
-

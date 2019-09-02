@@ -2,17 +2,17 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
-from binascii import hexlify
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows, filesystem_encoding
+from calibre.constants import config_dir, iswindows
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
+from polyglot.builtins import iteritems, raw_input, error_message, unicode_type
+from polyglot.binary import as_hex_unicode
 
 
 # Export {{{
@@ -26,6 +26,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
         m.update(raw)
         to_obj.write(raw)
     return type('')(m.hexdigest())
+
 
 class FileDest(object):
 
@@ -131,7 +132,7 @@ class Exporter(object):
         return FileDest(key, self, mtime=mtime)
 
     def export_dir(self, path, dir_key):
-        pkey = hexlify(dir_key)
+        pkey = as_hex_unicode(dir_key)
         self.metadata[dir_key] = files = []
         for dirpath, dirnames, filenames in os.walk(path):
             for fname in filenames:
@@ -148,6 +149,7 @@ class Exporter(object):
                     with lopen(fpath, 'rb') as f:
                         self.add_file(f, key)
                 files.append((key, rpath))
+
 
 def all_known_libraries():
     from calibre.gui2 import gprefs
@@ -166,17 +168,18 @@ def all_known_libraries():
                 added[path] = lus.get(path, 1)
     return added
 
+
 def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import Cache
     from calibre.db.backend import DB
     if library_paths is None:
         library_paths = all_known_libraries()
     dbmap = dbmap or {}
-    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in dbmap.iteritems()}
+    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in iteritems(dbmap)}
     exporter = Exporter(destdir)
     exporter.metadata['libraries'] = libraries = {}
     total = len(library_paths) + 1
-    for i, (lpath, count) in enumerate(library_paths.iteritems()):
+    for i, (lpath, count) in enumerate(iteritems(library_paths)):
         if abort is not None and abort.is_set():
             return
         if progress1 is not None:
@@ -205,6 +208,7 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
 
 # Import {{{
 
+
 class FileSource(object):
 
     def __init__(self, f, size, digest, description, mtime, importer):
@@ -229,6 +233,7 @@ class FileSource(object):
         if self.hasher.hexdigest() != self.digest:
             self.importer.corrupted_files.append(self.description)
         self.hasher = self.f = None
+
 
 class Importer(object):
 
@@ -259,7 +264,7 @@ class Importer(object):
             raise ValueError('The last part of this exported data set is missing')
         if len(nums) != nums[-1]:
             raise ValueError('There are some parts of the exported data set missing')
-        self.part_map = {num:path for num, (path, is_last) in part_map.iteritems()}
+        self.part_map = {num:path for num, (path, is_last) in iteritems(part_map)}
         msf = struct.calcsize(Exporter.MDATA_SZ_FMT)
         offset = tail_size + msf
         with self.part(nums[-1]) as f:
@@ -301,7 +306,7 @@ class Importer(object):
         except Exception:
             lpath = None
         c = create_global_prefs(StringConfig(raw, 'calibre wide preferences'))
-        c.set('installation_uuid', str(uuid.uuid4()))
+        c.set('installation_uuid', unicode_type(uuid.uuid4()))
         c.set('library_path', lpath)
         raw = c.src
         if not isinstance(raw, bytes):
@@ -311,13 +316,14 @@ class Importer(object):
         gprefs = JSONConfig('gui', base_path=base_dir)
         gprefs['library_usage_stats'] = dict(library_usage_stats)
 
+
 def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import import_library
     config_location = config_location or config_dir
     config_location = os.path.abspath(os.path.realpath(config_location))
     total = len(library_path_map) + 1
     library_usage_stats = Counter()
-    for i, (library_key, dest) in enumerate(library_path_map.iteritems()):
+    for i, (library_key, dest) in enumerate(iteritems(library_path_map)):
         if abort is not None and abort.is_set():
             return
         if progress1 is not None:
@@ -351,12 +357,17 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
                         raise
                     time.sleep(1)
                     shutil.rmtree(config_location)
-    os.rename(base_dir, config_location)
+    try:
+        os.rename(base_dir, config_location)
+    except EnvironmentError:
+        time.sleep(2)
+        os.rename(base_dir, config_location)
     from calibre.gui2 import gprefs
     gprefs.refresh()
 
     if progress1 is not None:
         progress1(_('Completed'), total, total)
+
 
 def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     importer = Importer(export_dir)
@@ -366,14 +377,44 @@ def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     import_data(importer, {k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries'] if 'largelib' not in k},
                 config_location=os.path.join(import_dir, 'calibre-config'), progress1=print, progress2=print)
 
+
 def cli_report(*args, **kw):
     try:
         prints(*args, **kw)
     except EnvironmentError:
         pass
 
-def run_exporter():
-    export_dir = raw_input('Enter path to an empty folder (all exported data will be saved inside it): ').decode(filesystem_encoding)
+
+def input_unicode(prompt):
+    ans = raw_input(prompt)
+    if isinstance(ans, bytes):
+        ans = ans.decode(sys.stdin.encoding)
+    return ans
+
+
+def run_exporter(export_dir=None, args=None):
+    if args:
+        if len(args) < 2:
+            raise SystemExit('You must specify the export dir and libraries to export')
+        export_dir = args[0]
+        if not os.path.exists(export_dir):
+            os.makedirs(export_dir)
+        if os.listdir(export_dir):
+            raise SystemExit('%s is not empty' % export_dir)
+        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in iteritems(all_known_libraries())}
+        if 'all' in args[1:]:
+            libraries = set(all_libraries)
+        else:
+            libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
+        if libraries - set(all_libraries):
+            raise SystemExit('Unknown library: ' + tuple(libraries - all_libraries)[0])
+        libraries = {p: all_libraries[p] for p in libraries}
+        print('Exporting libraries:', ', '.join(sorted(libraries)), 'to:', export_dir)
+        export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=libraries)
+        return
+
+    export_dir = export_dir or input_unicode(
+        'Enter path to an empty folder (all exported data will be saved inside it): ').rstrip('\r')
     if not os.path.exists(export_dir):
         os.makedirs(export_dir)
     if not os.path.isdir(export_dir):
@@ -381,24 +422,25 @@ def run_exporter():
     if os.listdir(export_dir):
         raise SystemExit('%s is not empty' % export_dir)
     library_paths = {}
-    for lpath, lus in all_known_libraries().iteritems():
-        if raw_input('Export the library %s [y/n]: ' % lpath) == b'y':
+    for lpath, lus in iteritems(all_known_libraries()):
+        if input_unicode('Export the library %s [y/n]: ' % lpath).strip().lower() == 'y':
             library_paths[lpath] = lus
     if library_paths:
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)
     else:
         raise SystemExit('No libraries selected for export')
 
+
 def run_importer():
-    export_dir = raw_input('Enter path to folder containing previously exported data: ').decode(filesystem_encoding)
+    export_dir = input_unicode('Enter path to folder containing previously exported data: ').rstrip('\r')
     if not os.path.isdir(export_dir):
         raise SystemExit('%s is not a folder' % export_dir)
     try:
         importer = Importer(export_dir)
     except ValueError as err:
-        raise SystemExit(err.message)
+        raise SystemExit(error_message(err))
 
-    import_dir = raw_input('Enter path to an empty folder (all libraries will be created inside this folder): ').decode(filesystem_encoding)
+    import_dir = input_unicode('Enter path to an empty folder (all libraries will be created inside this folder): ').rstrip('\r')
     if not os.path.exists(import_dir):
         os.makedirs(import_dir)
     if not os.path.isdir(import_dir):
@@ -409,6 +451,7 @@ def run_importer():
         k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries']}, progress1=cli_report, progress2=cli_report)
 
 # }}}
+
 
 if __name__ == '__main__':
     export(sys.argv[-1], progress1=print, progress2=print)

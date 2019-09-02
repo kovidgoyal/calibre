@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2006, Ed Summers <ehs@pobox.com>'
 __docformat__ = 'restructuredtext en'
 
-from urlparse import urlparse, urlunparse, parse_qs
-from urllib import urlencode
+from polyglot.urllib import parse_qs, urlencode, urlparse, urlunparse
+
 
 class Query(object):
     '''
@@ -71,4 +71,3 @@ class Query(object):
 
     def has_macro(self, macro):
         return macro in self.macro_map
-

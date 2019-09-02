@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +10,7 @@ import traceback, sys
 from threading import Lock, Condition, current_thread
 from calibre.utils.config_base import tweaks
 
+
 class LockingError(RuntimeError):
 
     is_locking_error = True
@@ -19,8 +19,10 @@ class LockingError(RuntimeError):
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
 
+
 class DowngradeLockError(LockingError):
     pass
+
 
 def create_locks():
     '''
@@ -47,6 +49,7 @@ def create_locks():
     l = SHLock()
     wrapper = DebugRWLockWrapper if tweaks.get('newdb_debug_locking', False) else RWLockWrapper
     return wrapper(l), wrapper(l, is_shared=False)
+
 
 class SHLock(object):  # {{{
     '''
@@ -207,6 +210,7 @@ class SHLock(object):  # {{{
 
 # }}}
 
+
 class RWLockWrapper(object):
 
     def __init__(self, shlock, is_shared=True):
@@ -225,29 +229,31 @@ class RWLockWrapper(object):
     def owns_lock(self):
         return self._shlock.owns_lock()
 
+
 class DebugRWLockWrapper(RWLockWrapper):
 
     def __init__(self, *args, **kwargs):
         RWLockWrapper.__init__(self, *args, **kwargs)
 
     def acquire(self):
-        print ('#' * 120, file=sys.stderr)
-        print ('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        print('#' * 120, file=sys.stderr)
+        print('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
         traceback.print_stack()
         RWLockWrapper.acquire(self)
-        print ('acquire done: thread id:', current_thread(), file=sys.stderr)
-        print ('_' * 120, file=sys.stderr)
+        print('acquire done: thread id:', current_thread(), file=sys.stderr)
+        print('_' * 120, file=sys.stderr)
 
     def release(self, *args):
-        print ('*' * 120, file=sys.stderr)
-        print ('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        print('*' * 120, file=sys.stderr)
+        print('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
         traceback.print_stack()
         RWLockWrapper.release(self)
-        print ('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
-        print ('_' * 120, file=sys.stderr)
+        print('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
+        print('_' * 120, file=sys.stderr)
 
     __enter__ = acquire
     __exit__ = release
+
 
 class SafeReadLock(object):
 

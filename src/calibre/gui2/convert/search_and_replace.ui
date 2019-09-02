@@ -32,7 +32,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Search/Replace Definition Edit</string>
+      <string>Edit search/replace definition</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="sizeConstraint">
@@ -57,7 +57,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>&amp;Replacement Text</string>
+         <string>&amp;Replacement text:</string>
         </property>
         <property name="buddy">
          <cstring>sr_replace</cstring>
@@ -254,7 +254,7 @@
   <customwidget>
    <class>RegexEdit</class>
    <extends>QWidget</extends>
-   <header>regex_builder.h</header>
+   <header>calibre/gui2/convert/regex_builder.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

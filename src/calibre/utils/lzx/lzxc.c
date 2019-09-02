@@ -107,15 +107,15 @@ static int cmp_leaves(const void *in_a, const void *in_b)
 {
   const struct h_elem *a = in_a;
   const struct h_elem *b = in_b;
-  
+
   if (!a->freq && b->freq)
     return 1;
   if (a->freq && !b->freq)
     return -1;
-  
+
   if (a->freq == b->freq)
     return a->sym - b->sym;
-      
+
   return a->freq - b->freq;
 }
 
@@ -124,7 +124,7 @@ cmp_pathlengths(const void *in_a, const void *in_b)
 {
   const struct h_elem *a = in_a;
   const struct h_elem *b = in_b;
-  
+
   if (a->pathlength == b->pathlength)
 #if 0
     return a->sym - b->sym;
@@ -136,7 +136,7 @@ cmp_pathlengths(const void *in_a, const void *in_b)
 }
 
 /* standard huffman building algorithm */
-static void 
+static void
 build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
 {
   h_elem *leaves = malloc(nelem * sizeof(h_elem));
@@ -180,13 +180,13 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
 	}
 	assert (!codes_too_long);
       }
-      
+
       cur_leaf = leaves;
       next_inode = cur_inode = inodes;
-      
+
       do {
 	f1 = f2 = NULL;
-	if (leaves_left && 
+	if (leaves_left &&
 	    ((cur_inode == next_inode) ||
 	     (cur_leaf->freq <= cur_inode->freq))) {
 	  f1 = (ih_elem *)cur_leaf++;
@@ -195,8 +195,8 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
 	else if (cur_inode != next_inode) {
 	  f1 = cur_inode++;
 	}
-	
-	if (leaves_left && 
+
+	if (leaves_left &&
 	    ((cur_inode == next_inode) ||
 	     (cur_leaf->freq <= cur_inode->freq))) {
 	  f2 = (ih_elem *)cur_leaf++;
@@ -205,7 +205,7 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
 	else if (cur_inode != next_inode) {
 	  f2 = cur_inode++;
 	}
-	
+
 #ifdef DEBUG_HUFFMAN
 	fprintf(stderr, "%d %d\n", f1, f2);
 #endif
@@ -231,11 +231,11 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       while (f1 && f2);
     }
     while (codes_too_long);
-    
+
 #ifdef DEBUG_HUFFMAN
     cur_inode = inodes;
     while (cur_inode < next_inode) {
-      fprintf(stderr, "%d l: %3d%c  r: %3d%c  freq: %8d\n", 
+      fprintf(stderr, "%d l: %3d%c  r: %3d%c  freq: %8d\n",
 	      cur_inode - inodes,
 	      (cur_inode->left->sym!=-1)?(((struct h_elem *)cur_inode->left)-leaves):(cur_inode->left-inodes),
 	      (cur_inode->left->sym!=-1)?'l':'i',
@@ -246,7 +246,7 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       cur_inode++;
     }
 #endif
-    
+
     /* now traverse tree depth-first */
     cur_inode = next_inode - 1;
     pathlength = 0;
@@ -262,17 +262,17 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       else {
 	/* mark node */
 	cur_inode->pathlength = pathlength;
-#if 0 
+#if 0
 	if (cur_inode->right) {
 	  /* right node of previously unmarked node is unmarked */
 	  cur_inode = cur_inode->right;
 	  cur_inode->pathlength = -1;
 	  pathlength++;
 	}
-	else 
+	else
 #endif
 	  {
-	    
+
 	    /* time to come up.  Keep coming up until an unmarked node is reached */
 	    /* or the tree is exhausted */
 	    do {
@@ -292,16 +292,16 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       }
     }
     while (cur_inode);
-    
+
 #ifdef DEBUG_HUFFMAN
     cur_inode = inodes;
     while (cur_inode < next_inode) {
-      fprintf(stderr, "%d l: %3d%c  r: %3d%c  freq: %8d  pathlength %4d\n", 
+      fprintf(stderr, "%d l: %3d%c  r: %3d%c  freq: %8d  pathlength %4d\n",
 	      cur_inode - inodes,
 	      (cur_inode->left->sym!=-1)?(((struct h_elem *)cur_inode->left)-leaves):(cur_inode->left-inodes),
 	      (cur_inode->left->sym!=-1)?'l':'i',
 	      (cur_inode->right->sym!=-1)?(((struct h_elem *)cur_inode->right)-leaves):(cur_inode->right-inodes),
-	      (cur_inode->right->sym!=-1)?'l':'i',	
+	      (cur_inode->right->sym!=-1)?'l':'i',
 	      (cur_inode->freq),
 	      (cur_inode->pathlength)
 	      );
@@ -309,11 +309,11 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
     }
 #endif
     free(inodes);
-    
+
     /* the pathlengths are already in order, so this sorts by symbol */
     qsort(leaves, nelem, sizeof(h_elem), cmp_pathlengths);
-    
-    /** 
+
+    /**
 	Microsoft's second condition on its canonical huffman codes is:
 
 	For each level, starting at the deepest level of the tree and then
@@ -321,13 +321,13 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
 	alternative way of stating this constraint is that if any tree node
 	has children then all tree nodes to the left of it with the same path
 	length must also have children.
-	
+
 	These 'alternatives' are not equivalent.  The latter alternative gives
 	the common canonical code where the longest code is all zeros.  The former
 	gives an opposite code where the longest code is all ones.  Microsoft uses the
 	former alternative.
     **/
-    
+
 #if 0
     pathlength = leaves[0].pathlength;
     cur_code = 0;
@@ -355,12 +355,12 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       cur_code++;
     }
 #endif
-    
+
 #ifdef DEBUG_HUFFMAN
     for (i = 0; i < nleaves; i++) {
       char code[18];
       int j;
-      
+
       cur_code = leaves[i].code;
       code[leaves[i].pathlength] = 0;
       for (j = leaves[i].pathlength-1; j >= 0; j--) {
@@ -387,19 +387,19 @@ build_huffman_tree(int nelem, int max_code_length, int *freq, huff_entry *tree)
       leaves[1].code = 0;
     }
   }
-   
+
   memset(tree, 0, nelem * sizeof(huff_entry));
   for (i = 0; i < nleaves; i++) {
     tree[leaves[i].sym].codelength = leaves[i].pathlength;
     tree[leaves[i].sym].code = leaves[i].code;
   }
-  
+
   free(leaves);
 }
-  
+
 /* from Stuart Caie's code -- I'm hoping this code is too small to encumber
    this file.  If not, you could rip it out and hard-code the tables */
-   
+
 static void lzx_init_static(void)
 {
   int i, j;
@@ -478,7 +478,7 @@ lzx_get_chars(lz_info *lzi, int n, unsigned char *buf)
   lzud->left_in_block -= chars_read;
 #else
   lzud->left_in_frame -= chars_read % LZX_FRAME_SIZE;
-  if (lzud->left_in_frame < 0) 
+  if (lzud->left_in_frame < 0)
     lzud->left_in_frame += LZX_FRAME_SIZE;
 #endif
   if ((chars_read < n) && (lzud->left_in_frame)) {
@@ -559,7 +559,7 @@ static int find_match_at(lz_info *lzi, int loc, int match_len, int *match_locp)
   return -1;
 }
 #endif
-static void check_entropy(lzxc_data *lzud, int main_index) 
+static void check_entropy(lzxc_data *lzud, int main_index)
 {
   /* entropy = - sum_alphabet P(x) * log2 P(x) */
   /* entropy = - sum_alphabet f(x)/N * log2 (f(x)/N) */
@@ -567,12 +567,12 @@ static void check_entropy(lzxc_data *lzud, int main_index)
   /* entropy = - 1/N (sum_alphabet f(x) * log2 f(x)) - sum_alphabet f(x) log2 N */
   /* entropy = - 1/N (sum_alphabet f(x) * log2 f(x)) - log2 N sum_alphabet f(x)  */
   /* entropy = - 1/N (sum_alphabet f(x) * log2 f(x)) - N * log2 N   */
-  
+
   /* entropy = - 1/N ((sum_alphabet f(x) * log2 f(x) ) - N * log2 N) */
   /* entropy = - 1/N ((sum_alphabet f(x) * ln f(x) * 1/ln 2) - N * ln N * 1/ln 2) */
   /* entropy = 1/(N ln 2) (N * ln N - (sum_alphabet f(x) * ln f(x))) */
   /* entropy = 1/(N ln 2) (N * ln N + (sum_alphabet -f(x) * ln f(x))) */
-  
+
   /* entropy = 1/(N ln 2) ( sum_alphabet ln N * f(x) + (sum_alphabet -f(x) * ln f(x))) */
   /* entropy = 1/(N ln 2) ( sum_alphabet ln N * f(x) +  (-f(x) * ln f(x))) */
   /* entropy = -1/(N ln 2) ( sum_alphabet -ln N * f(x) +  (f(x) * ln f(x))) */
@@ -582,14 +582,14 @@ static void check_entropy(lzxc_data *lzud, int main_index)
   /* entropy = -1/N  ( sum_alphabet f(x)(log2 f(x)/N)) */
   /* entropy = -  ( sum_alphabet f(x)/N(log2 f(x)/N)) */
   /* entropy = -  ( sum_alphabet P(x)(log2 P(x))) */
-  
+
 
     double freq;
     double n_ln_n;
     double rn_ln2;
     double cur_ratio;
     int n;
-    
+
     /* delete old entropy accumulation */
     if (lzud->main_freq_table[main_index] != 1) {
       freq = (double)lzud->main_freq_table[main_index]-1;
@@ -638,7 +638,7 @@ lzx_output_match(lz_info *lzi, int match_pos, int match_len)
     int i;
     int pos;
     for (i = 0; i < match_len; i++) {
-      
+
 #ifdef NONSLIDE
       pos = match_pos + lzi->block_loc + i;
       fprintf(stderr, "%c", lzi->block_buf[pos]);
@@ -701,13 +701,13 @@ lzx_output_match(lz_info *lzi, int match_pos, int match_len)
     lzud->R0 = -match_pos;
 
   /* calculate position base using binary search of table; if log2 can be
-     done in hardware, approximation might work; 
+     done in hardware, approximation might work;
      trunc(log2(formatted_offset*formatted_offset)) gets either the proper
      position slot or the next one, except for slots 0, 1, and 39-49
 
      Slots 0-1 are handled by the R0-R1 procedures
 
-     Slots 36-49 (formatted_offset >= 262144) can be found by 
+     Slots 36-49 (formatted_offset >= 262144) can be found by
      (formatted_offset/131072) + 34 ==
      (formatted_offset >> 17) + 34;
   */
@@ -796,7 +796,7 @@ lzx_output_match(lz_info *lzi, int match_pos, int match_len)
   return 0; /* accept the match */
 }
 
-static void 
+static void
 lzx_output_literal(lz_info *lzi, unsigned char ch)
 {
   lzxc_data *lzud = (lzxc_data *)lzi->user_data;
@@ -847,7 +847,7 @@ static void lzx_write_bits(lzxc_data *lzxd, int nbits, uint32_t bits)
     nbits -= shift_bits;
     cur_bits = 0;
   }
-  /* (cur_bits + nbits) < 16.  If nbits = 0, we're done. 
+  /* (cur_bits + nbits) < 16.  If nbits = 0, we're done.
      otherwise move bits in */
   shift_bits = nbits;
   mask_bits = (1U << shift_bits) - 1;
@@ -893,18 +893,18 @@ lzx_write_compressed_literals(lzxc_data *lzxd, int block_type)
       /*
        *    0x80000000 |                bit 31 in intelligent bit ordering
        * (position_slot << 25) |        bits 30-25
-       * (position_footer << 8) |       bits 8-24 
+       * (position_footer << 8) |       bits 8-24
        * (match_len - MIN_MATCH);       bits 0-7
        *
        */
-      
+
       match_len_m2 = block_code & 0xFF; /* 8 bits */
       position_footer = (block_code >> 8)& 0x1FFFF; /* 17 bits */
       position_slot = (block_code >> 25) & 0x3F; /* 6 bits */
 
 #ifdef DEBUG_MATCHES_2
       fprintf(stderr, "%08x, %3d %2d %d\n", lzxd->len_uncompressed_input + frame_count, match_len_m2, position_slot, position_footer);
-#endif      
+#endif
       if (match_len_m2 < NUM_PRIMARY_LENGTHS) {
 	length_header = match_len_m2;
 	length_footer = 255; /* personal encoding for NULL */
@@ -955,7 +955,7 @@ lzx_write_compressed_literals(lzxc_data *lzxd, int block_type)
   lzxd->len_uncompressed_input += frame_count;
 }
 
-static int 
+static int
 lzx_write_compressed_tree(struct lzxc_data *lzxd,
 			  struct huff_entry *tree, uint8_t *prevlengths,
 			  int treesize)
@@ -1011,7 +1011,7 @@ lzx_write_compressed_tree(struct lzxc_data *lzxd,
 	  *codep++ = 19;
 	  *runp++ = excess;
 	  freqs[19]++;
-	  /* right, MS lies again.  Code is NOT 
+	  /* right, MS lies again.  Code is NOT
 	     prev_len + len (mod 17), it's prev_len - len (mod 17)*/
 	  *codep = prevlengths[i-cur_run] - last_len;
 	  if (*codep > 16) *codep += 17;
@@ -1078,7 +1078,7 @@ lzx_write_compressed_tree(struct lzxc_data *lzxd,
   return 0;
 }
 
-void 
+void
 lzxc_reset(lzxc_data *lzxd)
 {
   lzxd->need_1bit_header = 1;
@@ -1097,7 +1097,7 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
   long comp_bits;
   long comp_bits_ovh;
   long uncomp_length;
-  
+
   if ((lzxd->block_size != block_size) || (lzxd->block_codes == NULL)) {
     if (lzxd->block_codes != NULL) free(lzxd->block_codes);
     lzxd->block_size = block_size;
@@ -1118,13 +1118,13 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
     lz_compress(lzxd->lzi, lzxd->left_in_block);
     if (lzxd->left_in_frame == 0)
       lzxd->left_in_frame = LZX_FRAME_SIZE;
-    
-    if ((lzxd->subdivide<0) || !lzxd->left_in_block || 
+
+    if ((lzxd->subdivide<0) || !lzxd->left_in_block ||
 	(!lz_left_to_process(lzxd->lzi) && lzxd->at_eof(lzxd->in_arg))) {
       /* now one block is LZ-analyzed. */
       /* time to write it out */
       uncomp_length = lzxd->block_size - lzxd->left_in_block - written_sofar;
-      /* uncomp_length will sometimes be 0 when input length is 
+      /* uncomp_length will sometimes be 0 when input length is
 	 an exact multiple of frame size */
       if (uncomp_length == 0)
 	  continue;
@@ -1134,7 +1134,7 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
 #endif
 	lzxd->subdivide = 1;
       }
-      
+
       if (lzxd->need_1bit_header) {
 	/* one bit Intel preprocessing header */
 	/* always 0 because this implementation doesn't do Intel preprocessing */
@@ -1169,32 +1169,32 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
       /* now write out the aligned offset trees if present */
       if (block_type == LZX_ALIGNED_OFFSET_BLOCK) {
 	for (i = 0; i < LZX_ALIGNED_SIZE; i++) {
-	  lzx_write_bits(lzxd, 3, lzxd->aligned_tree[i].codelength); 
+	  lzx_write_bits(lzxd, 3, lzxd->aligned_tree[i].codelength);
 	}
       }
       /* end extra bits */
       build_huffman_tree(lzxd->main_tree_size, LZX_MAX_CODE_LENGTH,
 			 lzxd->main_freq_table, lzxd->main_tree);
-      build_huffman_tree(NUM_SECONDARY_LENGTHS, 16, 
+      build_huffman_tree(NUM_SECONDARY_LENGTHS, 16,
 			 lzxd->length_freq_table, lzxd->length_tree);
 
 
 
       /* now write the pre-tree and tree for main 1 */
       lzx_write_compressed_tree(lzxd, lzxd->main_tree, lzxd->prev_main_treelengths, NUM_CHARS);
-    
+
       /* now write the pre-tree and tree for main 2*/
       lzx_write_compressed_tree(lzxd, lzxd->main_tree + NUM_CHARS,
 				lzxd->prev_main_treelengths + NUM_CHARS,
 				lzxd->main_tree_size - NUM_CHARS);
-      
+
       /* now write the pre tree and tree for length */
       lzx_write_compressed_tree(lzxd, lzxd->length_tree, lzxd->prev_length_treelengths,
 				NUM_SECONDARY_LENGTHS);
-      
+
       /* now write literals */
       lzx_write_compressed_literals(lzxd, block_type);
-      
+
       /* copy treelengths somewhere safe to do delta compression */
       for (i = 0; i < lzxd->main_tree_size; i++) {
 	lzxd->prev_main_treelengths[i] = lzxd->main_tree[i].codelength;
@@ -1205,7 +1205,7 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
       lzxd->main_entropy = 0.0;
       lzxd->last_ratio = 9999999.0;
       lzxd->block_codesp = lzxd->block_codes;
-      
+
       memset(lzxd->length_freq_table, 0, NUM_SECONDARY_LENGTHS * sizeof(int));
       memset(lzxd->main_freq_table, 0, lzxd->main_tree_size * sizeof(int));
       memset(lzxd->aligned_freq_table, 0, LZX_ALIGNED_SIZE * sizeof(int));
@@ -1215,7 +1215,7 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
   return 0;
 }
 
-int lzxc_init(struct lzxc_data **lzxdp, int wsize_code, 
+int lzxc_init(struct lzxc_data **lzxdp, int wsize_code,
 	     lzxc_get_bytes_t get_bytes, void *get_bytes_arg,
 	     lzxc_at_eof_t at_eof,
 	     lzxc_put_bytes_t put_bytes, void *put_bytes_arg,

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
+from __future__ import print_function
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -10,6 +12,8 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
+
+
 class OverrideTable:
     """
     Parse a line of text to make the override table. Return a string
@@ -18,6 +22,7 @@ class OverrideTable:
     dictionary that is first passed to this module. This module
     modifies the dictionary, assigning lists numbers to each list.
     """
+
     def __init__(
                 self,
                 list_of_lists,
@@ -26,6 +31,7 @@ class OverrideTable:
         self.__list_of_lists = list_of_lists
         self.__initiate_values()
         self.__run_level = run_level
+
     def __initiate_values(self):
         self.__override_table_final = ''
         self.__state = 'default'
@@ -39,6 +45,7 @@ class OverrideTable:
             'cw<ls<lis-tbl-id'  :       'list-table-id',
             'cw<ls<list-id___'  :       'list-id',
         }
+
     def __override_func(self, line):
         """
         Requires:
@@ -46,7 +53,7 @@ class OverrideTable:
         Returns:
             nothing
         Logic:
-            The group {\override has been found.
+            The group {\\override has been found.
             Check for the end of the group.
             Otherwise, add appropriate tokens to the override dictionary.
         """
@@ -59,6 +66,7 @@ class OverrideTable:
             if att:
                 value = line[20:]
                 self.__override_list[-1][att] = value
+
     def __parse_override_dict(self):
         """
         Requires:
@@ -83,11 +91,11 @@ class OverrideTable:
         list_id = override_dict.get('list-id')
         if list_id is None and self.__level > 3:
             msg = 'This override does not appear to have a list-id\n'
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         current_table_id = override_dict.get('list-table-id')
         if current_table_id is None and self.__run_level > 3:
             msg = 'This override does not appear to have a list-table-id\n'
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         counter = 0
         for list in self.__list_of_lists:
             info_dict = list[0]
@@ -96,6 +104,7 @@ class OverrideTable:
                 self.__list_of_lists[counter][0]['list-id'].append(list_id)
                 break
             counter += 1
+
     def __parse_lines(self, line):
         """
         Requires:
@@ -119,10 +128,11 @@ class OverrideTable:
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
             if action is None:
-                print self.__state
+                print(self.__state)
             action(line)
         self.__write_final_string()
         # self.__add_to_final_line()
+
     def __default_func(self, line):
         """
         Requires:
@@ -134,6 +144,7 @@ class OverrideTable:
         """
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
+
     def __after_bracket_func(self, line):
         """
         Requires:
@@ -156,7 +167,8 @@ class OverrideTable:
         elif self.__run_level > 3:
             msg = 'No matching token after open bracket\n'
             msg += 'token is "%s\n"' % (line)
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
+
     def __write_final_string(self):
         """
         Requires:
@@ -183,6 +195,7 @@ class OverrideTable:
         self.__override_table_final += \
         'mi<mk<overri-end\n' + 'mi<tg<close_____<override-table\n'
         self.__override_table_final += 'mi<mk<overribend_\n'
+
     def parse_override_table(self, line):
         """
         Requires:

@@ -32,7 +32,7 @@ class TNR(BasicNewsRecipe):
         br['pass'] = self.password
         self.log('Logging in...')
         raw = br.submit().read()
-        if 'SIGN OUT' not in raw:
+        if b'SIGN OUT' not in raw:
             raise ValueError(
                 'Failed to log in to tnr.com, check your username and password')
         self.log('Logged in successfully')
