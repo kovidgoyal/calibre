@@ -45,7 +45,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('upload_news_to_device', config)
         r('delete_news_from_library_on_upload', config)
 
-        output_formats = list(sorted(available_output_formats()))
+        output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)

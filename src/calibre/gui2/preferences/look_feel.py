@@ -496,7 +496,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices |= {'search'}
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
-          choices=sorted(list(choices), key=sort_key))
+          choices=sorted(choices, key=sort_key))
 
         fm = db.field_metadata
         choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
