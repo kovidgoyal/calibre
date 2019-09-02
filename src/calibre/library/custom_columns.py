@@ -536,7 +536,7 @@ class CustomColumns(object):
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] == 'composite':
-            return set([])
+            return set()
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -549,7 +549,7 @@ class CustomColumns(object):
             if extra is None:
                 extra = 1.0
 
-        books_to_refresh = set([])
+        books_to_refresh = set()
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
@@ -563,7 +563,7 @@ class CustomColumns(object):
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
             if not existing:
-                existing = set([])
+                existing = set()
             else:
                 existing = set(existing)
             # preserve the order in set_val

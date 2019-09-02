@@ -417,7 +417,7 @@ def get_devices():
 
 
 def get_manufacturers():
-    mans = set([])
+    mans = set()
     for x in get_devices():
         mans.add(x.manufacturer)
     if Device.manufacturer in mans:
