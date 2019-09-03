@@ -12,7 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def get_cache():
@@ -24,7 +24,7 @@ def get_cache():
 
 
 def needs_recompile(obj, srcs):
-    if isinstance(srcs, type('')):
+    if isinstance(srcs, unicode_type):
         srcs = [srcs]
     try:
         obj_mtime = os.stat(obj).st_mtime

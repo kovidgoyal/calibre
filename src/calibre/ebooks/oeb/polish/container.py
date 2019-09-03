@@ -14,7 +14,6 @@ import time
 import unicodedata
 import uuid
 from collections import defaultdict
-from polyglot.builtins import iteritems, unicode_type, zip, map
 from io import BytesIO
 from itertools import count
 
@@ -54,6 +53,7 @@ from calibre.utils.filenames import hardlink_file, nlinks_file
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
+from polyglot.builtins import iteritems, map, unicode_type, zip
 from polyglot.urllib import urlparse
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
@@ -672,7 +672,7 @@ class Container(ContainerBase):  # {{{
         ''' The names of all manifest items whose media-type matches predicate.
         `predicate` can be a set, a list, a string or a function taking a single
         argument, which will be called with the media-type. '''
-        if isinstance(predicate, type('')):
+        if isinstance(predicate, unicode_type):
             predicate = predicate.__eq__
         elif hasattr(predicate, '__contains__'):
             predicate = predicate.__contains__

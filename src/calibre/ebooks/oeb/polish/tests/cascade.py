@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 class VirtualContainer(ContainerBase):
@@ -83,7 +83,7 @@ class CascadeTest(BaseTest):
             elem = next(select(selector))
             ans = resolve_property(elem, name)
             if val is None:
-                val = type('')(DEFAULTS[name])
+                val = unicode_type(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
         def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False):
@@ -94,7 +94,7 @@ class CascadeTest(BaseTest):
                     self.assertTrue(ans is None)
                     return
             if val is None:
-                val = type('')(DEFAULTS[name])
+                val = unicode_type(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
         def get_maps(html, styles=None, pseudo=False):

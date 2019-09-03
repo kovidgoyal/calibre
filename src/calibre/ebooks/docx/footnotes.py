@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 class Note(object):
@@ -52,8 +52,8 @@ class Footnotes(object):
         if note is not None and note.type == 'normal':
             self.counter += 1
             anchor = 'note_%d' % self.counter
-            self.notes[anchor] = (type('')(self.counter), note)
-            return anchor, type('')(self.counter)
+            self.notes[anchor] = (unicode_type(self.counter), note)
+            return anchor, unicode_type(self.counter)
         return None, None
 
     def __iter__(self):

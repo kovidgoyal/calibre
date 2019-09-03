@@ -613,7 +613,7 @@ class ChooseTheme(Dialog):
         w.l = l = QGridLayout(w)
 
         def add_row(x, y=None):
-            if isinstance(x, type('')):
+            if isinstance(x, unicode_type):
                 x = QLabel(x)
             row = l.rowCount()
             if y is None:

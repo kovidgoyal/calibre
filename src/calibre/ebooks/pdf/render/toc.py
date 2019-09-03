@@ -9,7 +9,8 @@ import os
 
 from lxml.html import tostring
 from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H2, STYLE)
-from polyglot.builtins import range
+
+from polyglot.builtins import range, unicode_type
 
 
 def calculate_page_number(num, map_expression, evaljs):
@@ -36,7 +37,7 @@ def convert_node(toc, table, level, pdf, pdf_page_number_map, evaljs):
     a = anchors[path]
     dest = a.get(frag, a[None])
     num = calculate_page_number(pdf.page_tree.obj.get_num(dest[0]), pdf_page_number_map, evaljs)
-    tr[1].text = type('')(num)
+    tr[1].text = unicode_type(num)
     table.append(tr)
 
 

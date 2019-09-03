@@ -265,7 +265,7 @@ class FilesModel(FileCollection):
                 return entry.basename
             if col == 2:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
 
@@ -447,9 +447,9 @@ class ImagesModel(FileCollection):
                 return entry.basename
             if col == 1:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
             if col == 3:
                 return '%d x %d' % (entry.width, entry.height)
         elif role == Qt.UserRole:
@@ -713,7 +713,7 @@ class WordsModel(FileCollection):
                     ans += ' (%s)' % entry.locale.countrycode
                 return ans
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -802,7 +802,7 @@ class CharsModel(FileCollection):
             if col == 2:
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
-                return type('')(entry.count)
+                return unicode_type(entry.count)
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]

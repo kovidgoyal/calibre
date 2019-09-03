@@ -528,7 +528,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False):
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
-        is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
+        is_text = isinstance(left_text, unicode_type) and isinstance(right_text, unicode_type)
         left_name = left_name or '[%s]'%_('This file was added')
         right_name = right_name or '[%s]'%_('This file was removed')
         self.left.headers.append((self.left.blockCount() - 1, left_name))

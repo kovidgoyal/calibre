@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
 from collections import Counter
 
@@ -25,7 +25,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
             break
         m.update(raw)
         to_obj.write(raw)
-    return type('')(m.hexdigest())
+    return unicode_type(m.hexdigest())
 
 
 class FileDest(object):
@@ -55,7 +55,7 @@ class FileDest(object):
     def close(self):
         if not self._discard:
             size = self.exporter.f.tell() - self.start_pos
-            digest = type('')(self.hasher.hexdigest())
+            digest = unicode_type(self.hasher.hexdigest())
             self.exporter.file_metadata[self.key] = (len(self.exporter.parts), self.start_pos, size, digest, self.mtime)
         del self.exporter, self.hasher
 
