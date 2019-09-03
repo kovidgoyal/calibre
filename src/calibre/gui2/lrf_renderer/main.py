@@ -1,6 +1,8 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import sys, logging, os, traceback, time
 
 from PyQt5.Qt import (
@@ -199,9 +201,9 @@ class Main(MainWindow, Ui_MainWindow):
             print('Error rendering document', file=sys.stderr)
             print(exception, file=sys.stderr)
             print(self.renderer.formatted_traceback, file=sys.stderr)
-            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + as_unicode(exception) + u'</p>'
-            msg += u'<p>Failed to render document</p>'
-            msg += u'<p>Detailed <b>traceback</b>:<pre>'
+            msg =  '<p><b>%s</b>: '%(exception.__class__.__name__,) + as_unicode(exception) + '</p>'
+            msg += '<p>Failed to render document</p>'
+            msg += '<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'
             d = ConversionErrorDialog(self, 'Error while rendering file', msg)
             d.exec_()

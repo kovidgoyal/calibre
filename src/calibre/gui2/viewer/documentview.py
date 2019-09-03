@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 # Imports {{{
 import math, json
 from functools import partial
-from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, QPainter, QPalette, QBrush,
@@ -32,6 +33,7 @@ from calibre.gui2.viewer.footnote import Footnotes
 from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
+from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 from polyglot.binary import as_base64_unicode
 # }}}
 
@@ -205,7 +207,7 @@ class Document(QWebPage):  # {{{
         evaljs('window.calibre_utils.setup_epub_reading_system(%s, %s, %s, %s)' % tuple(map(json.dumps, (
             'calibre-desktop', __version__, 'paginated' if self.in_paged_mode else 'scrolling',
             'dom-manipulation layout-changes mouse-events keyboard-events'.split()))))
-        self.javascript(u'window.mathjax.base = %s'%(json.dumps(self.nam.mathjax_base, ensure_ascii=False)))
+        self.javascript('window.mathjax.base = %s'%(json.dumps(self.nam.mathjax_base, ensure_ascii=False)))
         for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
         evaljs('py_bridge.mark_element.connect(window.calibre_extract.mark)')
@@ -299,7 +301,7 @@ class Document(QWebPage):  # {{{
     def column_boundaries(self):
         if not self.loaded_javascript:
             return (0, 1)
-        ans = self.javascript(u'JSON.stringify(paged_display.column_boundaries())')
+        ans = self.javascript('JSON.stringify(paged_display.column_boundaries())')
         return tuple(int(x) for x in json.loads(ans))
 
     def after_resize(self):
@@ -359,7 +361,7 @@ class Document(QWebPage):  # {{{
             except (TypeError, ValueError):
                 return 0.0
         if typ == 'string':
-            return ans or u''
+            return ans or ''
         if typ in {bool, 'bool'}:
             return bool(ans)
         return ans
@@ -656,11 +658,11 @@ class DocumentView(QWebView):  # {{{
 
     @property
     def selected_text(self):
-        return self.document.selectedText().replace(u'\u00ad', u'').strip()
+        return self.document.selectedText().replace('\u00ad', '').strip()
 
     @property
     def selected_html(self):
-        return self.document.selectedHtml().replace(u'\u00ad', u'').strip()
+        return self.document.selectedHtml().replace('\u00ad', '').strip()
 
     def selection_changed(self):
         if self.manager is not None:
@@ -669,10 +671,10 @@ class DocumentView(QWebView):  # {{{
     def _selectedText(self):
         t = unicode_type(self.selectedText()).strip()
         if not t:
-            return u''
+            return ''
         if len(t) > 40:
-            t = t[:40] + u'...'
-        t = t.replace(u'&', u'&&')
+            t = t[:40] + '...'
+        t = t.replace('&', '&&')
         return _("S&earch online for '%s'")%t
 
     def popup_table(self):
@@ -696,7 +698,7 @@ class DocumentView(QWebView):  # {{{
         table = None
         parent = elem
         while not parent.isNull():
-            if (unicode_type(parent.tagName()) == u'table' or unicode_type(parent.localName()) == u'table'):
+            if (unicode_type(parent.tagName()) == 'table' or unicode_type(parent.localName()) == 'table'):
                 table = parent
                 break
             parent = parent.parent()
@@ -937,7 +939,7 @@ class DocumentView(QWebView):  # {{{
                 self.scrollbar.setRange(0, delta)
                 self.scrollbar.setValue(0)
                 self.scrollbar.setSingleStep(1)
-                self.scrollbar.setPageStep(int(delta/10.))
+                self.scrollbar.setPageStep(int(delta//10))
             self.scrollbar.setVisible(delta > 0)
             self.scrollbar.blockSignals(False)
             self._ignore_scrollbar_signals = False
@@ -1294,7 +1296,7 @@ class DocumentView(QWebView):  # {{{
         amt =  dim * scroll_amount
         mult = -1 if amt < 0 else 1
         if self.document.wheel_scroll_fraction != 100:
-            amt = mult * max(1, abs(int(amt * self.document.wheel_scroll_fraction / 100.)))
+            amt = mult * max(1, abs(int(amt * self.document.wheel_scroll_fraction / 100)))
         self.scroll_by(0, amt) if vertical else self.scroll_by(amt, 0)
 
         if self.manager is not None:
@@ -1334,7 +1336,7 @@ class DocumentView(QWebView):  # {{{
                 if (not self.document.line_scrolling_stops_on_pagebreaks and self.document.at_bottom):
                     self.manager.next_document()
                 else:
-                    amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                    amt = int((self.document.line_scroll_fraction / 100) * 15)
                     self.scroll_by(y=amt)
         elif key == 'Up':
             if self.document.in_paged_mode:
@@ -1344,19 +1346,19 @@ class DocumentView(QWebView):  # {{{
                 if (not self.document.line_scrolling_stops_on_pagebreaks and self.document.at_top):
                     self.manager.previous_document()
                 else:
-                    amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                    amt = int((self.document.line_scroll_fraction / 100) * 15)
                     self.scroll_by(y=-amt)
         elif key == 'Left':
             if self.document.in_paged_mode:
                 self.paged_col_scroll(forward=False)
             else:
-                amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                amt = int((self.document.line_scroll_fraction / 100) * 15)
                 self.scroll_by(x=-amt)
         elif key == 'Right':
             if self.document.in_paged_mode:
                 self.paged_col_scroll()
             else:
-                amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                amt = int((self.document.line_scroll_fraction / 100) * 15)
                 self.scroll_by(x=amt)
         elif key == 'Back':
             if self.manager is not None:

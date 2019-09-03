@@ -1175,7 +1175,7 @@ class Cover(ImageView):  # {{{
             except IOError as e:
                 d = error_dialog(
                         self, _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+unicode_type(e))
                 d.exec_()
             if cover:
                 orig = self.current_val

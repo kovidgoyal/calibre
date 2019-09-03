@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -37,7 +38,7 @@ Counts = namedtuple('Counts', 'library_total total current')
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
-    return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
+    return ('%.'+unicode_type(precision)+'f') % (size/(1024*1024))
 
 
 TIME_FMT = '%d %b %Y'
@@ -71,7 +72,7 @@ class ColumnColor(object):  # {{{
         self.formatter = formatter
 
     def __call__(self, id_, key, fmt, db, color_cache, template_cache):
-        key += str(hash(fmt))
+        key += unicode_type(hash(fmt))
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
             color = color_cache[id_][key]
@@ -112,7 +113,7 @@ class ColumnIcon(object):  # {{{
             icons = []
             for dex, (kind, fmt) in enumerate(fmts):
                 rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi,
-                                    column_name=cache_index+str(dex),
+                                    column_name=cache_index+unicode_type(dex),
                                     template_cache=template_cache)
                 if not rule_icons:
                     continue
@@ -774,14 +775,14 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return None if bt else bn
                     return by if val else bn
             elif field == 'size':
-                sz_mult = 1.0/(1024**2)
+                sz_mult = 1/(1024**2)
 
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
                     if val == 0:
                         return None
-                    ans = u'%.1f' % (val * sz_mult)
-                    return (u'<0.1' if ans == u'0.0' else ans)
+                    ans = '%.1f' % (val * sz_mult)
+                    return ('<0.1' if ans == '0.0' else ans)
             elif field == 'languages':
                 def func(idx):
                     return (', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
@@ -874,7 +875,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         def stars_tooltip(func, allow_half=True):
             def f(idx):
                 ans = val = int(func(idx))
-                ans = str(val // 2)
+                ans = unicode_type(val // 2)
                 if allow_half and val % 2:
                     ans += '.5'
                 return _('%s stars') % ans
@@ -1152,7 +1153,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(u'\\s', u' ', unicode_type(value or '').strip()))
+                    else re.sub('\\s', ' ', unicode_type(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = {id}
             if column == 'rating':

@@ -7,7 +7,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, json
 from bisect import bisect_right
-from polyglot.builtins import map, unicode_type, filter
 from threading import Thread
 from functools import partial
 
@@ -27,6 +26,7 @@ from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
+from polyglot.builtins import filter, map, native_string_type, unicode_type
 from polyglot.urllib import urlparse
 from polyglot.queue import Queue, Empty
 from polyglot.binary import as_base64_unicode
@@ -295,7 +295,7 @@ class WebPage(QWebPage):
         mf.addToJavaScriptWindowObject("py_bridge", self)
         mf.evaluateJavaScript(self.js)
 
-    @pyqtSlot(str, str, str)
+    @pyqtSlot(native_string_type, native_string_type, native_string_type)
     def request_sync(self, tag_name, href, sourceline_address):
         try:
             self.sync_requested.emit(unicode_type(tag_name), unicode_type(href), json.loads(unicode_type(sourceline_address)))
@@ -304,9 +304,9 @@ class WebPage(QWebPage):
 
     def go_to_anchor(self, anchor, lnum):
         self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.go_to_anchor(%s, %s)' % (
-            json.dumps(anchor), json.dumps(str(lnum))))
+            json.dumps(anchor), json.dumps(unicode_type(lnum))))
 
-    @pyqtSlot(str, str)
+    @pyqtSlot(native_string_type, native_string_type)
     def request_split(self, loc, totals):
         actions['split-in-preview'].setChecked(False)
         loc, totals = json.loads(unicode_type(loc)), json.loads(unicode_type(totals))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, re
 from contextlib import closing
-
 
 from PyQt5.Qt import (QWizard, QWizardPage, QIcon, Qt, QAbstractListModel,
     QItemSelectionModel, pyqtSignal, QItemSelection, QDir)
@@ -573,7 +572,7 @@ class StanzaPage(QWizardPage, StanzaUI):
                 try:
                     s.bind(('0.0.0.0', p))
                     t = unicode_type(self.instructions.text())
-                    t = re.sub(r':\d+', ':'+str(p), t)
+                    t = re.sub(r':\d+', ':'+unicode_type(p), t)
                     self.instructions.setText(t)
                     return p
                 except:
@@ -686,10 +685,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         for item in items:
             self.language.addItem(item[1], (item[0]))
         self.language.blockSignals(False)
-        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
+        prefs['language'] = unicode_type(self.language.itemData(self.language.currentIndex()) or '')
 
     def change_language(self, idx):
-        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
+        prefs['language'] = unicode_type(self.language.itemData(self.language.currentIndex()) or '')
         from polyglot.builtins import builtins
         builtins.__dict__['_'] = lambda x: x
         from calibre.utils.localization import set_translators
@@ -766,7 +765,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         if not lp:
             fname = _('Calibre Library')
             try:
-                base = os.path.expanduser(u'~')
+                base = os.path.expanduser('~')
             except ValueError:
                 base = QDir.homePath().replace('/', os.sep)
 
@@ -778,7 +777,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                 except:
                     traceback.print_exc()
                     try:
-                        lp = os.path.expanduser(u'~')
+                        lp = os.path.expanduser('~')
                     except ValueError:
                         lp = QDir.homePath().replace('/', os.sep)
         self.location.setText(lp)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 import functools
 import os
 import sys
@@ -421,7 +421,7 @@ class EbookViewer(MainWindow):
 
     def lookup(self, word):
         from polyglot.urllib import quote
-        word = word.replace(u'\u00ad', '')
+        word = word.replace('\u00ad', '')
         word = quote(word.encode('utf-8'))
         lang = canonicalize_lang(self.view.current_language) or get_lang() or 'en'
         try:

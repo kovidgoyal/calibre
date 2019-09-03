@@ -1277,7 +1277,7 @@ class EpubContainer(Container):
                     break
         if raw_unique_identifier is not None:
             idpf_key = raw_unique_identifier
-            idpf_key = re.sub(u'[\u0020\u0009\u000d\u000a]', u'', idpf_key)
+            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in self.opf_xpath('//*[local-name()="metadata"]/*'

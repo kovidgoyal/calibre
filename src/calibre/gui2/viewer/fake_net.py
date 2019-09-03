@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 
 from PyQt5.Qt import QNetworkReply, QNetworkAccessManager, QUrl, QNetworkRequest, QTimer, pyqtSignal, QByteArray
@@ -12,6 +12,7 @@ from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, DEBUG
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.oeb.display.webview import cleanup_html, load_as_html
 from calibre.utils.short_uuid import uuid4
+from polyglot.builtins import unicode_type
 
 
 def guess_type(x):
@@ -101,7 +102,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def __init__(self, parent=None):
         QNetworkAccessManager.__init__(self, parent)
-        self.mathjax_prefix = str(uuid4())
+        self.mathjax_prefix = unicode_type(uuid4())
         self.mathjax_base = '%s://%s/%s/' % (FAKE_PROTOCOL, FAKE_HOST, self.mathjax_prefix)
         self.root = self.orig_root = os.path.dirname(P('viewer/blank.html', allow_user_override=False))
         self.mime_map, self.single_pages, self.codec_map = {}, set(), {}

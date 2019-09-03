@@ -188,7 +188,7 @@ class TagsView(QTreeView):  # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-        '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
+        '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb))
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
         self.itemDelegate().old_look = gprefs['tag_browser_old_look']
