@@ -121,9 +121,9 @@ def convert_to_registry_data(value, has_expansions=False):
         return buf, winreg.REG_MULTI_SZ, len(buf) * 2
     if isinstance(value, numbers.Integral):
         try:
-            raw, dtype = struct.pack(str('L'), value), winreg.REG_DWORD
+            raw, dtype = struct.pack('L', value), winreg.REG_DWORD
         except struct.error:
-            raw = struct.pack(str('Q'), value), win32con.REG_QWORD
+            raw = struct.pack('Q', value), win32con.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
     if isinstance(value, bytes):
