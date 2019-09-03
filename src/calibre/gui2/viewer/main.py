@@ -69,7 +69,7 @@ def migrate_previous_viewer_prefs():
             cps['landscape'] = cp
         if cps['portrait'] or cps['landscape']:
             sd['columns_per_screen'] = cps
-        if not vprefs['in_paged_mode']:
+        if vprefs.get('in_paged_mode') is False:
             sd['read_mode'] = 'flow'
 
         new_prefs.set('session_data', sd)
