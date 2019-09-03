@@ -12,11 +12,10 @@ import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
 import dukpy
-from polyglot.builtins import reraise
 
 from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import error_message, getcwd
+from polyglot.builtins import error_message, getcwd, reraise, unicode_type
 
 Context_, undefined = dukpy.Context, dukpy.undefined
 
@@ -112,7 +111,7 @@ def load_file(base_dirs, builtin_modules, name):
                     raise
         raise EnvironmentError('No module named: %s found in the base directories: %s' % (name, os.pathsep.join(base_dirs)))
     except Exception as e:
-        return [False, str(e)]
+        return [False, unicode_type(e)]
 
 
 def readfile(path, enc='utf-8'):
@@ -156,7 +155,7 @@ class Function(object):
     def __repr__(self):
         # For some reason x._Formals is undefined in duktape
         x = self.func
-        return str('[Function: %s(...) from file: %s]' % (x.name, x.fileName))
+        return unicode_type('[Function: %s(...) from file: %s]' % (x.name, x.fileName))
 
     def __call__(self, *args, **kwargs):
         try:

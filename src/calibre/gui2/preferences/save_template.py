@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -34,12 +34,12 @@ class SaveTemplate(QWidget, Ui_Form):
                 ' by clicking the device icon and choosing "Configure this device".'))
         rows = []
         for var in variables:
-            rows.append(u'<tr><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%
+            rows.append('<tr><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%
                     (var, FORMAT_ARG_DESCS[var]))
-        rows.append(u'<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
+        rows.append('<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
             _('Any custom field'),
             _('The lookup name of any custom field (these names begin with "#").')))
-        table = u'<table>%s</table>'%(u'\n'.join(rows))
+        table = '<table>%s</table>'%('\n'.join(rows))
         self.template_variables.setText(table)
 
         self.field_metadata = field_metadata
@@ -75,7 +75,7 @@ class SaveTemplate(QWidget, Ui_Form):
         except Exception as err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl +
-                    '<br>'+str(err), show=True)
+                    '<br>'+unicode_type(err), show=True)
             return False
         return True
 

@@ -520,7 +520,7 @@ class CharModel(QAbstractListModel):
         return ['application/calibre_charcode_indices']
 
     def mimeData(self, indexes):
-        data = ','.join(str(i.row()) for i in indexes)
+        data = ','.join(unicode_type(i.row()) for i in indexes)
         md = QMimeData()
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md

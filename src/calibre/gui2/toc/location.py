@@ -17,7 +17,7 @@ from PyQt5.QtWebKit import QWebElement
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.gui2 import error_dialog, question_dialog, gprefs, secure_web_page
 from calibre.utils.logging import default_log
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import native_string_type, range, unicode_type
 from polyglot.binary import as_base64_unicode
 
 
@@ -36,7 +36,7 @@ class Page(QWebPage):  # {{{
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
-        self.log(u'JS:', unicode_type(msg))
+        self.log('JS:', unicode_type(msg))
 
     def javaScriptAlert(self, frame, msg):
         self.log(unicode_type(msg))
@@ -45,11 +45,11 @@ class Page(QWebPage):  # {{{
     def shouldInterruptJavaScript(self):
         return True
 
-    @pyqtSlot(QWebElement, str, str, float)
+    @pyqtSlot(QWebElement, native_string_type, native_string_type, float)
     def onclick(self, elem, loc, totals, frac):
         elem_id = unicode_type(elem.attribute('id')) or None
         tag = unicode_type(elem.tagName()).lower()
-        self.elem_clicked.emit(tag, frac, elem_id, json.loads(str(loc)), json.loads(str(totals)))
+        self.elem_clicked.emit(tag, frac, elem_id, json.loads(unicode_type(loc)), json.loads(unicode_type(totals)))
 
     def load_js(self):
         if self.js is None:

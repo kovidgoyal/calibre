@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import sys, os, textwrap
 from threading import Thread
 from functools import partial
-from polyglot.builtins import map, unicode_type, range
 
 from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog, QCheckBox,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
@@ -24,6 +23,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.utils.logging import GUILog
+from polyglot.builtins import map, unicode_type, range
 
 ICON_SIZE = 24
 
@@ -80,7 +80,7 @@ class XPathDialog(QDialog):  # {{{
             if name:
                 saved = self.prefs.get('xpath_toc_settings', {})
                 # in JSON all keys have to be strings
-                saved[name] = {str(i):x for i, x in enumerate(xpaths)}
+                saved[name] = {unicode_type(i):x for i, x in enumerate(xpaths)}
                 self.prefs.set('xpath_toc_settings', saved)
                 self.setup_load_button()
 
@@ -103,7 +103,7 @@ class XPathDialog(QDialog):  # {{{
     def load_settings(self, name):
         saved = self.prefs.get('xpath_toc_settings', {}).get(name, {})
         for i, w in enumerate(self.widgets):
-            txt = saved.get(str(i), '')
+            txt = saved.get(unicode_type(i), '')
             w.edit.setText(txt)
 
     def check(self):

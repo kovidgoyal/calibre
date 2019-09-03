@@ -118,7 +118,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         fmt = '%d'
         if leading_zeros:
             largest = num + number - 1
-            fmt = '%0{0}d'.format(len(str(largest)))
+            fmt = '%0{0}d'.format(len(unicode_type(largest)))
         ans['prefix'] = prefix + fmt
         ans['start'] = num
         if allow_spine_order:

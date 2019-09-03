@@ -99,7 +99,7 @@ class PDFCovers(QDialog):
             pass
 
     def render(self):
-        self.current_tdir = os.path.join(self.tdir, str(self.first))
+        self.current_tdir = os.path.join(self.tdir, unicode_type(self.first))
         self.error = None
         try:
             os.mkdir(self.current_tdir)
