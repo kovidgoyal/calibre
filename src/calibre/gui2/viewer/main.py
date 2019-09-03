@@ -114,7 +114,7 @@ def default_lookup_website(lang):
     if lang == 'en':
         prefix = 'https://www.wordnik.com/words/'
     else:
-        prefix = 'http://%s.wiktionary.org/wiki/' % lang
+        prefix = 'https://%s.wiktionary.org/wiki/' % lang
     return prefix + '{word}'
 
 
