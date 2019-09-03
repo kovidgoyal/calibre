@@ -39,7 +39,7 @@ def update_rapydscript():
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
     raw = subprocess.check_output(['node', '--harmony', os.path.join(base, 'bin', 'export')])
-    if isinstance(raw, type('')):
+    if isinstance(raw, unicode_type):
         raw = raw.encode('utf-8')
     path = P(COMPILER_PATH, allow_user_override=False)
     with open(path, 'wb') as f:
@@ -273,7 +273,7 @@ def leading_whitespace(line):
 
 
 def format_error(data):
-    return ':'.join(map(type(''), (data['file'], data['line'], data['col'], data['message'])))
+    return ':'.join(map(unicode_type, (data['file'], data['line'], data['col'], data['message'])))
 
 
 class Repl(Thread):

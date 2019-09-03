@@ -184,7 +184,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     '''
 
     root = container.parsed(name)
-    if isinstance(loc_or_xpath, type('')):
+    if isinstance(loc_or_xpath, unicode_type):
         split_point = root.xpath(loc_or_xpath)[0]
     else:
         try:

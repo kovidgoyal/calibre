@@ -128,7 +128,7 @@ class TextRun(object):
     def style_weight(self):
         ans = 0
         for text, preserve_whitespace, bookmark in self.texts:
-            if isinstance(text, type('')):
+            if isinstance(text, unicode_type):
                 ans += len(text)
         return ans
 

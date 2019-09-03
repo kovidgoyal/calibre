@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import deque
-from polyglot.builtins import filter
+
+from polyglot.builtins import filter, unicode_type
 
 
 def compile_pat(pat):
@@ -144,9 +145,9 @@ def find_tests():
             def run(rules, tags, expected):
                 if isinstance(rules, dict):
                     rules = [rules]
-                if isinstance(tags, type('')):
+                if isinstance(tags, unicode_type):
                     tags = [x.strip() for x in tags.split(',')]
-                if isinstance(expected, type('')):
+                if isinstance(expected, unicode_type):
                     expected = [x.strip() for x in expected.split(',')]
                 ans = map_tags(tags, rules)
                 self.assertEqual(ans, expected)

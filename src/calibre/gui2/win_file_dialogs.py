@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys, subprocess, struct, os
 from threading import Thread
 from uuid import uuid4
@@ -59,7 +59,7 @@ def serialize_binary(key, val):
 
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
-    val = type('')(val).encode('utf-8')
+    val = unicode_type(val).encode('utf-8')
     if len(val) > 2**16 - 1:
         raise ValueError('%s is too long' % key)
     return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
@@ -198,7 +198,7 @@ def run_file_dialog(
     from calibre import prints
     from calibre.constants import DEBUG
     if DEBUG:
-        prints('stdout+stderr from file dialog helper:', type('')([h.stdoutdata, h.stderrdata]))
+        prints('stdout+stderr from file dialog helper:', unicode_type([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
         raise Exception('File dialog failed (return code %s): %s' % (h.rc, get_errors()))
@@ -211,7 +211,7 @@ def run_file_dialog(
         return ()
     parts = list(filter(None, server.data.split(b'\0')))
     if DEBUG:
-        prints('piped data from file dialog helper:', type('')(parts))
+        prints('piped data from file dialog helper:', unicode_type(parts))
     if len(parts) < 2:
         return ()
     if parts[0] != secret:
@@ -310,7 +310,7 @@ class PipeServer(Thread):
 
         def as_unicode(err):
             try:
-                self.err_msg = type('')(err)
+                self.err_msg = unicode_type(err)
             except Exception:
                 self.err_msg = repr(err)
         try:

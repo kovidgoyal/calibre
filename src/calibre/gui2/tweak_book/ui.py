@@ -320,7 +320,7 @@ class Main(MainWindow):
                 toolbar_actions[sid] = ac
             if target is not None:
                 ac.triggered.connect(target)
-            if isinstance(keys, type('')):
+            if isinstance(keys, unicode_type):
                 keys = (keys,)
             self.keyboard.register_shortcut(
                 sid, unicode_type(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)

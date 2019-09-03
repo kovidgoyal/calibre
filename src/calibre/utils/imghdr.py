@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 from struct import unpack, error
 import os
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.constants import ispy3
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, unicode_type
 
 """ Recognize image file formats and sizes based on their first few bytes."""
 
@@ -43,7 +43,7 @@ def identify(src):
     recognized. '''
     width = height = -1
 
-    if isinstance(src, type('')):
+    if isinstance(src, unicode_type):
         stream = lopen(src, 'rb')
     elif isinstance(src, bytes):
         stream = ReadOnlyFileBuffer(src)

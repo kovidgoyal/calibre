@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import socket, os, struct, errno, numbers
 from collections import deque, namedtuple
 from functools import partial
@@ -132,7 +132,7 @@ class WSClient(object):
     def write_message(self, msg, chunk_size=None):
         if isinstance(msg, tuple):
             opcode, msg = msg
-            if isinstance(msg, type('')):
+            if isinstance(msg, unicode_type):
                 msg = msg.encode('utf-8')
             return self.write_frame(1, opcode, msg)
         w = MessageWriter(msg, self.mask, chunk_size)
@@ -147,7 +147,7 @@ class WSClient(object):
         self.socket.sendall(frame)
 
     def write_close(self, code, reason=b''):
-        if isinstance(reason, type('')):
+        if isinstance(reason, unicode_type):
             reason = reason.encode('utf-8')
         self.write_frame(1, CLOSE, struct.pack(b'!H', code) + reason)
 

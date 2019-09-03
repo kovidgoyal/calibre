@@ -112,7 +112,7 @@ def create_anchor_map(root):
 def complete_anchor(name, data_conn):
     if name not in file_cache:
         data = raw = get_data(data_conn, 'file_data', name)
-        if isinstance(raw, type('')):
+        if isinstance(raw, unicode_type):
             try:
                 root = parse(raw, decoder=lambda x:x.decode('utf-8'))
             except Exception:

@@ -32,7 +32,7 @@ encode_name, decode_name
 
 
 def http_date(timeval=None):
-    return type('')(formatdate(timeval=timeval, usegmt=True))
+    return unicode_type(formatdate(timeval=timeval, usegmt=True))
 
 
 class MultiDict(dict):  # {{{

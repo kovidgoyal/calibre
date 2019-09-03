@@ -69,7 +69,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, map
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, map, unicode_type
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -376,7 +376,7 @@ class Boss(QObject):
                     import traceback
                     traceback.print_exc()
             if ef:
-                if isinstance(ef, type('')):
+                if isinstance(ef, unicode_type):
                     ef = [ef]
                 tuple(map(self.gui.file_list.request_edit, ef))
             else:

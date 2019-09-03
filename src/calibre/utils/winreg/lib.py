@@ -8,6 +8,8 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import ctypes, ctypes.wintypes as types, struct, datetime, numbers
 import winerror, win32con
 
+from polyglot.builtins import unicode_type
+
 try:
     import winreg
 except ImportError:
@@ -111,11 +113,11 @@ def expand_environment_strings(src):
 def convert_to_registry_data(value, has_expansions=False):
     if value is None:
         return None, winreg.REG_NONE, 0
-    if isinstance(value, (type(''), bytes)):
+    if isinstance(value, (unicode_type, bytes)):
         buf = ctypes.create_unicode_buffer(value)
         return buf, (winreg.REG_EXPAND_SZ if has_expansions else winreg.REG_SZ), len(buf) * 2
     if isinstance(value, (list, tuple)):
-        buf = ctypes.create_unicode_buffer('\0'.join(map(type(''), value)) + '\0\0')
+        buf = ctypes.create_unicode_buffer('\0'.join(map(unicode_type, value)) + '\0\0')
         return buf, winreg.REG_MULTI_SZ, len(buf) * 2
     if isinstance(value, numbers.Integral):
         try:

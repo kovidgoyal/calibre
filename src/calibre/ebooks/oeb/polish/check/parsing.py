@@ -203,7 +203,7 @@ class NonUTF8(BaseError):
 
     def __call__(self, container):
         raw = container.raw_data(self.name)
-        if isinstance(raw, type('')):
+        if isinstance(raw, unicode_type):
             raw, changed = replace_encoding_declarations(raw)
             if changed:
                 container.open(self.name, 'wb').write(raw.encode('utf-8'))

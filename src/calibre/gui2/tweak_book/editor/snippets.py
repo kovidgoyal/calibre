@@ -173,7 +173,7 @@ def snippets(refresh=False):
     if _snippets is None or refresh:
         _snippets = copy.deepcopy(builtin_snippets)
         for snip in user_snippets.get('snippets', []):
-            if snip['trigger'] and isinstance(snip['trigger'], type('')):
+            if snip['trigger'] and isinstance(snip['trigger'], unicode_type):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
         _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)

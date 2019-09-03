@@ -120,16 +120,15 @@ def as_machine_data(book_ids, data, metadata):
 
 def prepare_output_table(fields, book_ids, data, metadata):
     ans = []
-    u = type('')
     for book_id in book_ids:
         row = []
         ans.append(row)
         for field in fields:
             if field == 'id':
-                row.append(u(book_id))
+                row.append(unicode_type(book_id))
                 continue
             val = data.get(field.replace('*', '#'), {}).get(book_id)
-            row.append(u(val).replace('\n', ' '))
+            row.append(unicode_type(val).replace('\n', ' '))
     return ans
 
 

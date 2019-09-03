@@ -143,7 +143,7 @@ class Route(object):
                     default = self.defaults[name] = eval(default)
                     if isinstance(default, numbers.Number):
                         self.type_checkers[name] = type(default)
-                    if is_sponge and not isinstance(default, type('')):
+                    if is_sponge and not isinstance(default, unicode_type):
                         raise route_error('Soak up path component must have a default value of string type')
                 else:
                     if found_optional_part is not False:

@@ -64,7 +64,7 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
 </container>''')
         zf.writestr('content.opf', opf.encode('utf-8'))
         for name, data, properties in manifest:
-            if isinstance(data, type('')):
+            if isinstance(data, unicode_type):
                 data = data.encode('utf-8')
             zf.writestr(name, data)
     buf.seek(0)

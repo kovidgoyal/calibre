@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import errno
@@ -54,7 +53,7 @@ def get_exe_path(name):
 
 def load_jxr_data(data):
     with TemporaryDirectory() as tdir:
-        if iswindows and isinstance(tdir, type('')):
+        if iswindows and isinstance(tdir, unicode_type):
             tdir = tdir.encode('mbcs')
         with lopen(os.path.join(tdir, 'input.jxr'), 'wb') as f:
             f.write(data)
@@ -97,7 +96,7 @@ def image_from_path(path):
 
 def image_from_x(x):
     ' Create an image from a bytestring or a path or a file like object. '
-    if isinstance(x, type('')):
+    if isinstance(x, unicode_type):
         return image_from_path(x)
     if hasattr(x, 'read'):
         return image_from_data(x.read())
@@ -512,7 +511,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             # encodeable in mbcs, so we fail here, where it is more explicit,
             # instead.
             cmd = [x.encode('mbcs') if isinstance(x, unicode_type) else x for x in cmd]
-            if isinstance(cwd, type('')):
+            if isinstance(cwd, unicode_type):
                 cwd = cwd.encode('mbcs')
         stdin = subprocess.PIPE if as_filter else None
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT

@@ -23,7 +23,7 @@ from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
@@ -451,7 +451,7 @@ class ServerLoop(object):
         self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            ba = ':'.join(map(type(''), ba))
+            ba = ':'.join(map(unicode_type, ba))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir

@@ -13,7 +13,7 @@ from calibre.constants import filesystem_encoding, cache_dir
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
 
 
 def parse_localized_key(key):
@@ -66,7 +66,7 @@ def parse_desktop_file(path):
                     name, lang = parse_localized_key(k)
                     if name not in ans:
                         ans[name] = {}
-                    if isinstance(ans[name], type('')):
+                    if isinstance(ans[name], unicode_type):
                         ans[name] = {None:ans[name]}
                     ans[name][lang] = v
                 else:
