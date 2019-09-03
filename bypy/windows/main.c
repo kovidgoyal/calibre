@@ -53,18 +53,22 @@ static int show_last_error(wchar_t *preamble) {
 }
 
 typedef int (__cdecl *ENTRYPROC)(const char*, const char*, const char*, int);
+typedef void (__cdecl *SIMPLEPRINT)(const wchar_t*);
+typedef BOOL (*SETDEFAULTDIRS)(DWORD);
+static ENTRYPROC entrypoint = NULL;
+static SIMPLEPRINT simple_print = NULL;
+static HMODULE dll = 0;
 
-static ENTRYPROC load_launcher_dll() {
-    wchar_t buf[MAX_PATH];  // Cannot use a zero initializer for the array as it generates an implicit call to memset()
+static void
+load_launcher_dll() {
+    static wchar_t buf[MAX_PATH];  // Cannot use a zero initializer for the array as it generates an implicit call to memset()
     wchar_t *dll_point = NULL;
     int i = 0;
     DWORD sz = 0;
-    HMODULE dll = 0;
-    ENTRYPROC entrypoint = NULL;
 
     if ((sz = GetModuleFileNameW(NULL, buf, MAX_PATH)) >= MAX_PATH - 30) {
         show_error(L"Installation directory path too long", L"", 1);
-        return NULL;
+        return;
     }
 
     while (sz > 0) {
@@ -73,33 +77,36 @@ static ENTRYPROC load_launcher_dll() {
     }
     if (dll_point == NULL) {
         show_error(L"Executable path has no path separators", L"", 1);
-        return NULL;
+        return;
     }
-    wsprintf(dll_point, L"%s\0\0", L"app\\DLLs");
+    wsprintf(dll_point, L"%s\0\0", L"app\\bin");
+    // Restrict the directories from which DLLs can be loaded
+    SETDEFAULTDIRS SetDefaultDllDirectories = (SETDEFAULTDIRS)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "SetDefaultDllDirectories");
+    if (SetDefaultDllDirectories) SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
     if (SetDllDirectoryW(buf) == 0) {
         show_last_error(L"Failed to set DLL directory");
-        return NULL;
+        return;
     }
     // Have to load ucrtbase manually first, otherwise loading fails on systems where the
     // Universal CRT is not installed.
     if (!LoadLibraryW(L"ucrtbase.dll")) {
         show_last_error(L"Unable to find ucrtbase.dll. You should install all Windows updates on your computer to get this file.");
-        return NULL;
+        return;
     }
     if (!(dll = LoadLibraryW(L"calibre-launcher.dll"))) {
         show_last_error(L"Failed to load: calibre-launcher.dll");
-        return NULL;
+        return;
     }
     if (!(entrypoint = (ENTRYPROC) GetProcAddress(dll, "execute_python_entrypoint"))) {
         show_last_error(L"Failed to get the calibre-launcher dll entry point");
-        return NULL;
+        return;
     }
-    return entrypoint;
+    simple_print = (SIMPLEPRINT) GetProcAddress(dll, "simple_print");
 }
 
 int __stdcall start_here() {
     int ret = 0;
-    ENTRYPROC entrypoint = load_launcher_dll();
+    load_launcher_dll();
     if (entrypoint) {
 #ifdef GUI_APP
         // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
@@ -108,6 +115,10 @@ int __stdcall start_here() {
         ret = entrypoint(BASENAME, MODULE, FUNCTION, 0);
 #endif
     } else ret = 1;
+    if (dll != 0) {
+        FreeLibrary(dll);
+        dll = 0;
+    }
     ExitProcess(ret);
     return ret;
 }

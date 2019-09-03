@@ -28,6 +28,7 @@ dlls = [
     # 'WebSockets',
     # 'WebView',
     'Positioning',
+    'PositioningQuick',
     'Sensors',
     'Sql',
     'Svg',
@@ -178,10 +179,11 @@ def build_c_extensions(ext_dir):
 
 
 def run_tests(path_to_calibre_debug, cwd_on_failure):
-    if run(path_to_calibre_debug, '--test-build') != 0:
+    ret = run(path_to_calibre_debug, '--test-build')
+    if ret != 0:
         os.chdir(cwd_on_failure)
         print(
-            'running calibre build tests failed with:', path_to_calibre_debug, file=sys.stderr)
+            'running calibre build tests failed with return code:', ret, 'and exe:', path_to_calibre_debug, file=sys.stderr)
         run_shell()
         raise SystemExit('running calibre build tests failed')
 

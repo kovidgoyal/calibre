@@ -103,7 +103,7 @@ class Env(object):
         self.py_ver = '.'.join(map(str, python_major_minor_version()))
         self.lib_dir = j(self.app_base, 'Lib')
         self.pylib = j(self.app_base, 'pylib.zip')
-        self.dll_dir = j(self.app_base, 'DLLs')
+        self.dll_dir = j(self.app_base, 'bin')
         self.portable_base = j(d(self.base), 'Calibre Portable')
         self.obj_dir = j(build_dir, 'launcher')
         self.installer_dir = j(build_dir, 'wix')
@@ -165,10 +165,11 @@ def freeze(env, ext_dir):
     printf('Adding Qt...')
     for x in QT_DLLS:
         copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
+    copybin(os.path.join(QT_PREFIX, 'bin', 'QtWebEngineProcess.exe'))
     for x in 'libGLESv2 libEGL'.split():
         copybin(os.path.join(QT_PREFIX, 'bin', x + '.dll'))
     plugdir = j(QT_PREFIX, 'plugins')
-    tdir = j(env.app_base, 'qt_plugins')
+    tdir = j(env.app_base, 'plugins')
     for d in QT_PLUGINS:
         imfd = os.path.join(plugdir, d)
         tg = os.path.join(tdir, d)
@@ -178,6 +179,9 @@ def freeze(env, ext_dir):
     for f in walk(tdir):
         if not f.lower().endswith('.dll'):
             os.remove(f)
+    for data_file in os.listdir(j(QT_PREFIX, 'resources')):
+        shutil.copy2(j(QT_PREFIX, 'resources', data_file), j(env.app_base, 'resources'))
+    shutil.copytree(j(QT_PREFIX, 'translations'), j(env.app_base, 'translations'))
 
     printf('Adding python...')
 
@@ -205,6 +209,12 @@ def freeze(env, ext_dir):
     for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
         if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
             os.remove(j(pyqt, x))
+    with open(j(pyqt, '__init__.py') , 'r+b') as f:
+        raw = f.read()
+        nraw = raw.replace(b'def find_qt():', b'def find_qt():\n    return # disabled for calibre')
+        if nraw == raw:
+            raise Exception('Failed to patch PyQt to disable dll directory manipulation')
+        f.seek(0), f.truncate(), f.write(nraw)
 
     printf('Adding calibre sources...')
     for x in glob.glob(j(CALIBRE_DIR, 'src', '*')):
@@ -636,8 +646,8 @@ def archive_lib_dir(env):
     shutil.rmtree(env.lib_dir)
 
 
-def copy_crt(env):
-    printf('Copying CRT...')
+def copy_crt_and_d3d(env):
+    printf('Copying CRT and D3D...')
     plat = ('x64' if is64bit else 'x86')
     for key, val in worker_env.items():
         if 'COMNTOOLS' in key.upper():
@@ -653,17 +663,27 @@ def copy_crt(env):
         'ucrt', 'DLLs', plat)
     if not os.path.exists(sdk_path):
         raise SystemExit('Windows 10 Universal CRT redistributable not found at: %r' % sdk_path)
-    for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
+    d3d_path = os.path.join(
+        worker_env['WINDOWSSDKDIR'], 'Redist', 'D3D', plat)
+    if not os.path.exists(d3d_path):
+        raise SystemExit('Windows 10 D3D redistributable not found at: %r' % d3d_path)
+
+    def copy_dll(dll):
         shutil.copy2(dll, env.dll_dir)
         os.chmod(os.path.join(env.dll_dir, b(dll)), stat.S_IRWXU)
+
+    for dll in glob.glob(os.path.join(d3d_path, '*.dll')):
+        if os.path.basename(dll).lower().startswith('d3dcompiler_'):
+            copy_dll(dll)
+    for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
+        copy_dll(dll)
     for dll in glob.glob(os.path.join(vc_path, '*.dll')):
         bname = os.path.basename(dll)
         if not bname.startswith('vccorlib') and not bname.startswith('concrt'):
             # Those two DLLs are not required vccorlib is for the CORE CLR
             # I think concrt is the concurrency runtime for C++ which I believe
             # nothing in calibre currently uses
-            shutil.copy(dll, env.dll_dir)
-            os.chmod(os.path.join(env.dll_dir, bname), stat.S_IRWXU)
+            copy_dll(dll)
 
 
 def sign_executables(env):
@@ -685,7 +705,7 @@ def main():
     build_utils(env)
     freeze(env, ext_dir)
     embed_manifests(env)
-    copy_crt(env)
+    copy_crt_and_d3d(env)
     archive_lib_dir(env)
     if not args.skip_tests:
         run_tests(os.path.join(env.base, 'calibre-debug.exe'), env.base)

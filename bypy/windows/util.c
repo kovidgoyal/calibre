@@ -16,6 +16,7 @@
 #include <io.h>
 #include <fcntl.h>
 
+#define arraysz(x) (sizeof((x))/sizeof((x)[0]))
 
 static int GUI_APP = 0;
 static char python_dll[] = PYDLL;
@@ -25,29 +26,16 @@ void set_gui_app(int yes) { GUI_APP = yes; }
 int calibre_show_python_error(const wchar_t *preamble, int code);
 
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
-    wchar_t *buf;
-    char *cbuf;
-    buf = (wchar_t*)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*
-            (wcslen(msg) + wcslen(preamble) + 80));
+    static wchar_t buf[4096];
 
-    _snwprintf_s(buf,
-        LocalSize(buf) / sizeof(wchar_t), _TRUNCATE,
-        L"%s\r\n  %s (Error Code: %d)\r\n",
-        preamble, msg, code);
+    fwprintf(stderr, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
+    fflush(stderr);
 
     if (GUI_APP) {
+        _snwprintf_s(buf, arraysz(buf), _TRUNCATE, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
         MessageBeep(MB_ICONERROR);
         MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
     }
-    else {
-        cbuf = (char*) calloc(10+(wcslen(buf)*4), sizeof(char));
-        if (cbuf) {
-            if (WideCharToMultiByte(CP_UTF8, 0, buf, -1, cbuf, (int)(10+(wcslen(buf)*4)), NULL, NULL) != 0) printf_s(cbuf);
-            free(cbuf);
-        }
-    }
-
-    LocalFree(buf);
     return code;
 }
 
@@ -83,72 +71,72 @@ int show_last_error(wchar_t *preamble) {
     return ret;
 }
 
-char* get_app_dir() {
-    char *buf, *buf2, *buf3;
+static char    app_dir[MAX_PATH] = {0};
+static wchar_t dll_dir[MAX_PATH] = {0};
+static wchar_t qt_prefix_dir[MAX_PATH] = {0};
+static char    program_name[MAX_PATH] = {0};
+static wchar_t w_program_name[MAX_PATH] = {0};
+static wchar_t w_app_dir[MAX_PATH] = {0};
+#if PY_VERSION_MAJOR >= 3
+static wchar_t python_path[MAX_PATH] = {0};
+#else
+static char python_path[MAX_PATH] = {0};
+#endif
+
+static void
+get_app_dir(void) {
     char drive[4] = "\0\0\0";
     DWORD sz; errno_t err;
+    char buf[MAX_PATH] = {0};
 
-    buf = (char*)calloc(MAX_PATH, sizeof(char));
-    buf2 = (char*)calloc(MAX_PATH, sizeof(char));
-    buf3 = (char*)calloc(MAX_PATH, sizeof(char));
-    if (!buf || !buf2 || !buf3) ExitProcess(_show_error(L"Out of memory", L"", 1));
-    sz = GetModuleFileNameA(NULL, buf, MAX_PATH);
+    sz = GetModuleFileNameA(NULL, program_name, MAX_PATH);
     if (sz >= MAX_PATH-1) ExitProcess(_show_error(L"Installation directory path too long", L"", 1));
-    err = _splitpath_s(buf, drive, 4, buf2, MAX_PATH, NULL, 0, NULL, 0);
+    err = _splitpath_s(program_name, drive, 4, buf, MAX_PATH, NULL, 0, NULL, 0);
     if (err != 0) ExitProcess(show_last_error_crt(L"Failed to find application directory"));
-    _snprintf_s(buf3, MAX_PATH, _TRUNCATE, "%s%s", drive, buf2);
-    free(buf); free(buf2);
-    return buf3;
+    _snprintf_s(app_dir, MAX_PATH, _TRUNCATE, "%s%s", drive, buf);
 }
 
-wchar_t* get_app_dirw() {
-    wchar_t *buf, *buf2, *buf3;
+static void
+get_app_dirw(void) {
+    wchar_t buf[MAX_PATH] = {0};
     wchar_t drive[4] = L"\0\0\0";
     DWORD sz; errno_t err;
 
-    buf = (wchar_t*)calloc(MAX_PATH, sizeof(wchar_t));
-    buf2 = (wchar_t*)calloc(MAX_PATH, sizeof(wchar_t));
-    buf3 = (wchar_t*)calloc(MAX_PATH, sizeof(wchar_t));
-    if (!buf || !buf2 || !buf3) ExitProcess(_show_error(L"Out of memory", L"", 1));
-    sz = GetModuleFileNameW(NULL, buf, MAX_PATH);
+    sz = GetModuleFileNameW(NULL, w_program_name, MAX_PATH);
     if (sz >= MAX_PATH-1) ExitProcess(_show_error(L"Installation directory path too long", L"", 1));
-    err = _wsplitpath_s(buf, drive, 4, buf2, MAX_PATH, NULL, 0, NULL, 0);
+    err = _wsplitpath_s(w_program_name, drive, 4, buf, MAX_PATH, NULL, 0, NULL, 0);
     if (err != 0) ExitProcess(show_last_error_crt(L"Failed to find application directory"));
-    _snwprintf_s(buf3, MAX_PATH, _TRUNCATE, L"%s%s", drive, buf2);
-    free(buf); free(buf2);
-    return buf3;
+    _snwprintf_s(w_app_dir, MAX_PATH, _TRUNCATE, L"%s%s", drive, buf);
 }
 
+static void
+get_install_locations(void) {
+    get_app_dir();
+    get_app_dirw();
+    _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%s\\app", w_app_dir);
+    _wputenv_s(L"CALIBRE_QT_PREFIX", qt_prefix_dir);
+    _snwprintf_s(dll_dir, MAX_PATH-1, _TRUNCATE, L"%s\\app\\bin", w_app_dir);
+#if PY_VERSION_MAJOR >= 3
+    _snwprintf_s(python_path, MAX_PATH-1, _TRUNCATE, L"%s\\app\\pylib.zip", w_app_dir);
+#else
+    _snprintf_s(python_path, MAX_PATH-1, _TRUNCATE, "%s\\app\\pylib.zip", app_dir);
+#endif
 
-void load_python_dll() {
-    char *app_dir, *dll_dir, *qt_plugin_dir;
-    size_t l;
+}
 
-    app_dir = get_app_dir();
-    l = strlen(app_dir)+25;
-    dll_dir = (char*) calloc(l, sizeof(char));
-    qt_plugin_dir = (char*) calloc(l, sizeof(char));
-    if (!dll_dir || !qt_plugin_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
-    _snprintf_s(dll_dir, l, _TRUNCATE, "%s\\app\\DLLs", app_dir);
-    _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%s\\app\\qt_plugins", app_dir);
-    free(app_dir);
-
-    _putenv_s("QT_PLUGIN_PATH", qt_plugin_dir);
-
-    if (!SetDllDirectoryA(dll_dir)) ExitProcess(show_last_error(L"Failed to set DLL directory."));
+static void
+load_python_dll() {
+    get_install_locations();
     if (FAILED(__HrLoadAllImportsForDll(python_dll)))
         ExitProcess(_show_error(L"Failed to delay load the python dll", L"", 1));
 }
 
-static char program_name[MAX_PATH];
-static char python_home[MAX_PATH];
+const static wchar_t out_of_memory[] = L"Out of memory";
 
-static wchar_t out_of_memory[] = L"Out of memory";
-
-void setup_stream(const char *name, const char *errors, UINT cp) {
+static void
+setup_stream(const char *name, const char *errors, UINT cp) {
     PyObject *stream;
-    char *buf = (char *)calloc(100, sizeof(char));
-    if (!buf) ExitProcess(_show_error(out_of_memory, L"", 1));
+    char buf[128] = {0};
 
     if (cp == CP_UTF8) _snprintf_s(buf, 100, _TRUNCATE, "%s", "utf-8");
     else if (cp == CP_UTF7) _snprintf_s(buf, 100, _TRUNCATE, "%s", "utf-7");
@@ -158,9 +146,6 @@ void setup_stream(const char *name, const char *errors, UINT cp) {
 
     if (!PyFile_SetEncodingAndErrors(stream, buf, (char*)errors))
         ExitProcess(calibre_show_python_error(L"Failed to set stream encoding", 1));
-
-    free(buf);
-
 }
 
 UINT
@@ -187,29 +172,11 @@ setup_streams() {
 
 UINT
 initialize_interpreter(const char *basename, const char *module, const char *function) {
-    DWORD sz; char *buf, *path; HMODULE dll;
+    DWORD sz; HMODULE dll;
     int *flag, i, argc;
-    wchar_t *app_dir, **wargv;
+    wchar_t **wargv;
     PyObject *argv, *v;
     char *dummy_argv[1] = {""};
-
-    buf  = (char*)calloc(MAX_PATH, sizeof(char));
-    path = (char*)calloc(MAX_PATH, sizeof(char));
-    if (!buf || !path) ExitProcess(_show_error(L"Out of memory", L"", 1));
-
-    sz = GetModuleFileNameA(NULL, buf, MAX_PATH);
-    if (sz >= MAX_PATH-1) ExitProcess(_show_error(L"Installation directory path too long", L"", 1));
-
-    _snprintf_s(program_name, MAX_PATH, _TRUNCATE, "%s", buf);
-    free(buf);
-
-    buf = get_app_dir();
-    buf[strlen(buf)-1] = '\0';
-
-    _snprintf_s(python_home, MAX_PATH, _TRUNCATE, "%s", buf);
-    _snprintf_s(path, MAX_PATH, _TRUNCATE, "%s\\app\\pylib.zip", buf);
-    free(buf);
-
 
     dll = GetModuleHandleA(python_dll);
     if (!dll) ExitProcess(show_last_error(L"Failed to get python dll handle"));
@@ -238,8 +205,13 @@ initialize_interpreter(const char *basename, const char *module, const char *fun
     if (!flag) ExitProcess(_show_error(L"Failed to get debug flag", L"", 1));
     //*flag = 1;
 
+#if PY_VERSION_MAJOR >= 3
+    Py_SetProgramName(w_program_name);
+    Py_SetPythonHome(w_app_dir);
+#else
     Py_SetProgramName(program_name);
-    Py_SetPythonHome(python_home);
+    Py_SetPythonHome(app_dir);
+#endif
 
     //printf("Path before Py_Initialize(): %s\r\n\n", Py_GetPath());
     Py_Initialize();
@@ -247,11 +219,10 @@ initialize_interpreter(const char *basename, const char *module, const char *fun
 
     PySys_SetArgv(1, dummy_argv);
     //printf("Path after Py_Initialize(): %s\r\n\n", Py_GetPath());
-    PySys_SetPath(path);
+    PySys_SetPath(python_path);
     //printf("Path set by me: %s\r\n\n", path);
     PySys_SetObject("gui_app", PyBool_FromLong((long)GUI_APP));
-    app_dir = get_app_dirw();
-    PySys_SetObject("app_dir", PyUnicode_FromWideChar(app_dir, wcslen(app_dir)));
+    PySys_SetObject("app_dir", PyUnicode_FromWideChar(w_app_dir, wcslen(w_app_dir)));
 
     PySys_SetObject("calibre_basename", PyBytes_FromString(basename));
     PySys_SetObject("calibre_module", PyBytes_FromString(module));
@@ -271,22 +242,21 @@ initialize_interpreter(const char *basename, const char *module, const char *fun
 }
 
 
-wchar_t* pyobject_to_wchar(PyObject *o) {
-    PyUnicodeObject *t;
+static const wchar_t*
+pyobject_to_wchar(PyObject *o) {
+    PyObject *t = NULL;
     size_t s;
-    wchar_t *ans;
+    static wchar_t ans[4096];
 
     if (!PyUnicode_Check(o)) {
-        t = (PyUnicodeObject*)PyUnicode_FromEncodedObject(o, NULL, "replace");
+        t = PyUnicode_FromEncodedObject(o, NULL, "replace");
         if (t == NULL) return NULL;
-    } else t = (PyUnicodeObject*)o;
+    }
 
-
-    s = 2*PyUnicode_GET_SIZE(t) +1;
-    ans = (wchar_t*)calloc(s, sizeof(wchar_t));
-    if (ans == NULL) return NULL;
-    s = PyUnicode_AsWideChar(t, ans, s-1);
-    ans[s] = L'\0';
+    s = PyUnicode_AsWideChar(t ? t : o, ans, arraysz(ans)-1);
+    Py_XDECREF(t);
+    if (s >= 0) ans[s] = 0;
+    else ans[s] = 0;
 
     return ans;
 }
@@ -315,7 +285,7 @@ int handle_sysexit(PyObject *e) {
 int calibre_show_python_error(const wchar_t *preamble, int code) {
     PyObject *exc, *val, *tb, *str, **system_exit;
     HMODULE dll;
-    int ret, issysexit = 0; wchar_t *i;
+    int ret, issysexit = 0; const wchar_t *i;
 
     if (!PyErr_Occurred()) return code;
     dll = GetModuleHandleA(python_dll);
@@ -340,7 +310,6 @@ int calibre_show_python_error(const wchar_t *preamble, int code) {
             }
             i = pyobject_to_wchar(str);
             ret = _show_error(preamble, (i==NULL)?out_of_memory:i, code);
-            if (i) free(i);
             if (tb != NULL) {
                 PyErr_Restore(exc, val, tb);
                 PyErr_Print();
@@ -373,6 +342,10 @@ null_invalid_parameter_handler(
     // to return errors instead of aborting the program. So get the windows CRT
     // to do that.
 }
+__declspec(dllexport) int __cdecl
+simple_print(const wchar_t *msg) {
+    wprintf(L"%s", msg); fflush(stdout);
+}
 
 __declspec(dllexport) int __cdecl
 execute_python_entrypoint(const char *basename, const char *module, const char *function, int is_gui_app) {
@@ -398,51 +371,35 @@ execute_python_entrypoint(const char *basename, const char *module, const char *
     if (site == NULL)
         ret = calibre_show_python_error(L"Failed to import site module",  1);
     else {
-        Py_XINCREF(site);
+        Py_INCREF(site);
 
         main = PyObject_GetAttrString(site, "main");
         if (main == NULL || !PyCallable_Check(main))
             ret = calibre_show_python_error(L"site module has no main function", 1);
         else {
-            Py_XINCREF(main);
+            Py_INCREF(main);
             res = PyObject_CallObject(main, NULL);
 
             if (res == NULL)
                 ret = calibre_show_python_error(L"Python function terminated unexpectedly", 1);
             else {
+#if PY_VERSION_MAJOR < 3
+                if (PyInt_Check(res)) {
+                    ret = PyInt_AS_LONG(res);
+                }
+#else
+                if (PyLong_Check(res)) {
+                    ret = PyLong_AsLong(res);
+                }
+#endif
+                Py_DECREF(res);
             }
         }
     }
     PyErr_Clear();
     Py_Finalize();
     if (code_page != CP_UTF8) SetConsoleOutputCP(code_page);
+    /* printf("111111111111 returning: %d\r\n", ret); */
 
-    //printf("11111 Returning: %d\r\n", ret);
     return ret;
-}
-
-
-wchar_t* get_temp_filename(const wchar_t *prefix) {
-    DWORD dwRetVal;
-    UINT uRetVal;
-
-    wchar_t *szTempName;
-    wchar_t lpPathBuffer[MAX_PATH];
-    szTempName = (wchar_t *)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*MAX_PATH);
-
-    dwRetVal = GetTempPath(MAX_PATH, lpPathBuffer);
-
-    if (dwRetVal > MAX_PATH || (dwRetVal == 0)) {
-        ExitProcess(show_last_error(L"Failed to get temp path."));
-    }
-
-    uRetVal = GetTempFileName(lpPathBuffer, // directory for tmp files
-                              prefix,       // temp file name prefix
-                              0,            // create unique name
-                              szTempName);  // buffer for name
-
-     if (uRetVal == 0) {
-         ExitProcess(show_last_error(L"Failed to get temp file name"));
-     }
-     return szTempName;
 }
