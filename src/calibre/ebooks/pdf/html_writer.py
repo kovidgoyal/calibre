@@ -208,7 +208,9 @@ class RenderManager(QObject):
         self.opts = opts
         self.workers = []
         self.max_workers = detect_ncpus()
-        if not iswindows:
+        if iswindows:
+            self.original_signal_handlers = {}
+        else:
             self.original_signal_handlers = setup_unix_signals(self)
 
     def create_worker(self):
