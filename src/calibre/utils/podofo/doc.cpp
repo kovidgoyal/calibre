@@ -313,6 +313,7 @@ PDFDoc_create_outline(PDFDoc *self, PyObject *args) {
         try {
             page = self->doc->GetPage(pagenum - 1);
         } catch (const PdfError &err) {
+            (void)err;
             PyErr_Format(PyExc_ValueError, "Invalid page number: %u", pagenum - 1); goto error;
         }
         PdfDestination dest(page, left, top, zoom);
@@ -490,6 +491,7 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 										try {
 											page = self->doc->GetPage(pagenum - 1);
 										} catch(const PdfError &err) {
+                                            (void)err;
 											PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
 											return NULL;
 										}

@@ -61,7 +61,7 @@ create(PDFOutlineItem *self, PyObject *args) {
         PdfString title = podofo_convert_pystring(title_buf);
         try {
             page = self->doc->GetPage(num - 1);
-        } catch(const PdfError &err) { page = NULL; }
+        } catch(const PdfError &err) { (void)err; page = NULL; }
         if (page == NULL) { PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num); goto error; }
         PdfDestination dest(page, left, top, zoom);
         if (PyObject_IsTrue(as_child)) {

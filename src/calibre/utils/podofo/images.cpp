@@ -97,7 +97,7 @@ dedup_images(PDFDoc *self, PyObject *args) {
                             const PdfReference &r = ref_map.at(x.second->GetReference());
                             new_xobject.AddKey(x.first.GetName(), r);
                             changed = true;
-                        } catch (const std::out_of_range &err) { continue; }
+                        } catch (const std::out_of_range &err) { (void)err; continue; }
                     }
                 }
                 if (changed) resources.AddKey("XObject", new_xobject);

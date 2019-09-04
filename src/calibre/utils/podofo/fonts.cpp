@@ -58,7 +58,7 @@ replace_font_references_in_resources(PdfDictionary &resources, const std::unorde
                 try {
                     r = ref_map.at(key);
                 } catch (const std::out_of_range &err) { (void)err; continue; }
-                PdfReference new_ref(static_cast<uint32_t>(r & 0xffffffff), r >> 32);
+                PdfReference new_ref(static_cast<pdf_objnum>(r & 0xffffffff), static_cast<pdf_gennum>(r >> 32));
                 new_font.AddKey(k.first.GetName(), new_ref);
                 changed = true;
             }
@@ -325,12 +325,12 @@ merge_fonts(PDFDoc *self, PyObject *args) {
         c++;
         unsigned long num, gen;
         if (!PyArg_ParseTuple(key, "kk", &num, &gen)) return NULL;
-        uint64_t k = ref_as_integer(num, gen);
-        PdfReference ref(num, gen);
+        uint64_t k = ref_as_integer(static_cast<pdf_objnum>(num), static_cast<pdf_gennum>(gen));
+        PdfReference ref(num, static_cast<pdf_gennum>(gen));
         PdfObject *font = objects.GetObject(ref);
         if (font) remove_font(objects, font);
         if (!PyArg_ParseTuple(value, "kk", &num, &gen)) return NULL;
-        uint64_t v = ref_as_integer(num, gen);
+        uint64_t v = ref_as_integer(num, static_cast<pdf_gennum>(gen));
         ref_map[k] = v;
     }
     if (c > 0) replace_font_references(self, ref_map);
@@ -341,7 +341,7 @@ merge_fonts(PDFDoc *self, PyObject *args) {
         const char *data, *tounicode_data;
         Py_ssize_t sz, tounicode_sz;
         if (!PyArg_ParseTuple(PyTuple_GET_ITEM(items, i), "(ll)(ll)O!O!s#s#", &num, &gen, &t0num, &t0gen, &PyList_Type, &W, &PyList_Type, &W2, &data, &sz, &tounicode_data, &tounicode_sz)) return NULL;
-        PdfReference ref(num, gen);
+        PdfReference ref(num, static_cast<pdf_gennum>(gen));
         PdfObject *font = objects.GetObject(ref);
         if (font) {
             if (PyObject_IsTrue(W)) {
@@ -362,7 +362,7 @@ merge_fonts(PDFDoc *self, PyObject *args) {
             }
         }
         if (tounicode_sz) {
-            PdfObject *t0font = objects.GetObject(PdfReference(t0num, t0gen));
+            PdfObject *t0font = objects.GetObject(PdfReference(t0num, static_cast<pdf_gennum>(t0gen)));
             if (t0font) {
                 PdfObject *s = t0font->GetIndirectKey("ToUnicode");
                 if (!s) { PyErr_SetString(PyExc_ValueError, "Type0 font has no ToUnicode stream"); return NULL; }
