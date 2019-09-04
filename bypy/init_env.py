@@ -165,17 +165,20 @@ def run(*args, **extra_env):
     return subprocess.call(list(args), env=env, cwd=CALIBRE_DIR)
 
 
-def build_c_extensions(ext_dir):
+def build_c_extensions(ext_dir, args):
     bdir = os.path.join(build_dir(), 'calibre-extension-objects')
-    if run(
+    cmd = [
         PYTHON, 'setup.py', 'build',
         '--output-dir', ext_dir, '--build-dir', bdir,
-        COMPILER_CWD=bdir
-    ) != 0:
+    ]
+    if args.build_only:
+        cmd.extend(('--only', args.build_only))
+    if run(*cmd, COMPILER_CWD=bdir) != 0:
         print('Building of calibre C extensions failed', file=sys.stderr)
         os.chdir(CALIBRE_DIR)
         run_shell()
         raise SystemExit('Building of calibre C extensions failed')
+    return ext_dir
 
 
 def run_tests(path_to_calibre_debug, cwd_on_failure):

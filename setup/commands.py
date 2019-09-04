@@ -14,7 +14,7 @@ __all__ = [
         'develop', 'install',
         'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
         'check', 'to3', 'unicode_check', 'iterators_check', 'test',
-        'sdist', 'bootstrap',
+        'sdist', 'bootstrap', 'extdev',
         'manual', 'tag_release',
         'upload_to_server',
         'upload_installers',
@@ -23,10 +23,11 @@ __all__ = [
         'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx',
         ]
 
-from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64
+from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev
 linux, linux32, linux64 = Linux(), Linux32(), Linux64()
 win, win32, win64 = Win(), Win32(), Win64()
 osx = OSX()
+extdev = ExtDev()
 
 from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
 pot = POT()
