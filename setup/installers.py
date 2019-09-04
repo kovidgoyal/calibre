@@ -188,12 +188,16 @@ class ExtDev(Command):
             if not isinstance(enc, bytes):
                 enc = enc.encode('utf-8')
             enc = binascii.hexlify(enc).decode('ascii')
-            cmd = ['"{}"'.format(os.path.join(bin_dir, 'calibre-debug')), '-c', '"'
-                    'import sys, json, binascii, os; cmd = json.loads(binascii.unhexlify(sys.argv[-1]));'
-                    '''os.environ['CALIBRE_DEVELOP_FROM'] = os.path.expanduser('~/calibre-src/src');'''
+            wcmd = ['"{}"'.format(os.path.join(bin_dir, 'calibre-debug')), '-c', '"'
+                    'import sys, json, binascii, os, subprocess; cmd = json.loads(binascii.unhexlify(sys.argv[-1]));'
+                    'env = os.environ.copy();'
+                    '''env[str('CALIBRE_DEVELOP_FROM')] = str(os.path.abspath('calibre-src/src'));'''
                     'from calibre.debug import get_debug_executable; exe_dir = os.path.dirname(get_debug_executable());'
-                    'os.execv(os.path.join(exe_dir, cmd[0]), cmd)'
+                    'cmd[0] = os.path.join(exe_dir, cmd[0]); ret = subprocess.Popen(cmd, env=env).wait();'
+                    'sys.stdout.flush(); sys.stderr.flush(); sys.exit(ret)'
                     '"', enc]
-            subprocess.check_call(['ssh', '-S', control_path, host] + cmd)
+            ret = subprocess.Popen(['ssh', '-S', control_path, host] + wcmd).wait()
+            if ret != 0:
+                raise SystemExit('The test command "{}" failed with exit code: {}'.format(' '.join(cmd), ret))
         finally:
             subprocess.Popen(['ssh', '-O', 'exit', '-S', control_path, host])
