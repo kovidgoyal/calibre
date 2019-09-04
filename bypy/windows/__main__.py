@@ -667,6 +667,9 @@ def copy_crt_and_d3d(env):
         worker_env['WINDOWSSDKDIR'], 'Redist', 'D3D', plat)
     if not os.path.exists(d3d_path):
         raise SystemExit('Windows 10 D3D redistributable not found at: %r' % d3d_path)
+    mesa_path = os.path.join(os.environ['MESA'], ('64' if is64bit else '32'), 'opengl32sw.dll')
+    if not os.path.exists(mesa_path):
+        raise SystemExit('Mesa DLLs (opengl32sw.dll) not found at: %r' % mesa_path)
 
     def copy_dll(dll):
         shutil.copy2(dll, env.dll_dir)
@@ -675,6 +678,7 @@ def copy_crt_and_d3d(env):
     for dll in glob.glob(os.path.join(d3d_path, '*.dll')):
         if os.path.basename(dll).lower().startswith('d3dcompiler_'):
             copy_dll(dll)
+    copy_dll(mesa_path)
     for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
         copy_dll(dll)
     for dll in glob.glob(os.path.join(vc_path, '*.dll')):
