@@ -57,7 +57,7 @@ replace_font_references_in_resources(PdfDictionary &resources, const std::unorde
                 uint64_t key = ref_as_integer(k.second->GetReference()), r;
                 try {
                     r = ref_map.at(key);
-                } catch (const std::out_of_range &err) { continue; }
+                } catch (const std::out_of_range &err) { (void)err; continue; }
                 PdfReference new_ref(static_cast<uint32_t>(r & 0xffffffff), r >> 32);
                 new_font.AddKey(k.first.GetName(), new_ref);
                 changed = true;
