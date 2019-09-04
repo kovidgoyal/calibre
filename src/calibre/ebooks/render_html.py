@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import must_use_qt
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.monotonic import monotonic
+from calibre.utils.filenames import atomic_rename
 
 LOAD_TIMEOUT = 20
 PRINT_TIMEOUT = 10
@@ -79,7 +80,7 @@ def main(path_to_html, tdir, image_format='jpeg'):
     if ret == 0:
         page_images('rendered.pdf', image_format=image_format)
         ext = {'jpeg': 'jpg'}.get(image_format, image_format)
-        os.rename('page-images-1.' + ext, 'rendered.' + image_format)
+        atomic_rename('page-images-1.' + ext, 'rendered.' + image_format)
     return ret == 0
 
 
