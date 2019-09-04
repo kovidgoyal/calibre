@@ -194,10 +194,10 @@ class BuildTest(unittest.TestCase):
         # Ensure that images can be read before QApplication is constructed.
         # Note that this requires QCoreApplication.libraryPaths() to return the
         # path to the Qt plugins which it always does in the frozen build,
-        # because the QT_PLUGIN_PATH env var is set. On non-frozen builds,
-        # it should just work because the hard-coded paths of the Qt
-        # installation should work. If they do not, then it is a distro
-        # problem.
+        # because Qt is patched to know the layout of the calibre application
+        # package. On non-frozen builds, it should just work because the
+        # hard-coded paths of the Qt installation should work. If they do not,
+        # then it is a distro problem.
         fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))  # no2to3
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)

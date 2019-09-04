@@ -1112,7 +1112,7 @@ def sanitize_env_vars():
     if islinux and isfrozen:
         env_vars = {'LD_LIBRARY_PATH':'/lib'}
     elif iswindows:
-        env_vars = {k:None for k in 'QT_PLUGIN_PATH'.split()}
+        env_vars = {}
     elif isosx:
         env_vars = {k:None for k in (
                     'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE').split()}
