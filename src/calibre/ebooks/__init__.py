@@ -118,12 +118,13 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
 def render_html_data(path_to_html, width, height):
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+    result = {}
 
     def report_error(text=''):
         prints('Failed to render', path_to_html, 'with errors:', file=sys.stderr)
         if text:
             prints(text, file=sys.stderr)
-        if result['stdout_stderr']:
+        if result and result['stdout_stderr']:
             with open(result['stdout_stderr'], 'rb') as f:
                 prints(f.read(), file=sys.stderr)
 
