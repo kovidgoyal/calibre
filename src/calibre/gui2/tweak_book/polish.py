@@ -166,7 +166,7 @@ class CompressImages(Dialog):
             x = QListWidgetItem(name, i)
             x.setData(Qt.UserRole, c.filesize(name))
         i.setSelectionMode(i.ExtendedSelection)
-        i.setMinimumHeight(500), i.setMinimumWidth(350)
+        i.setMinimumHeight(350), i.setMinimumWidth(350)
         i.selectAll(), i.setSpacing(5)
         self.delegate = ImageItemDelegate(self)
         i.setItemDelegate(self.delegate)
