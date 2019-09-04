@@ -323,6 +323,9 @@ class Inspector(QWidget):
             self.view_to_debug.page().setDevToolsPage(self.view.page())
             self.layout.addWidget(self.view)
 
+    def sizeHint(self):
+        return QSize(600, 1200)
+
 
 class WebView(RestartingWebEngineView):
 
