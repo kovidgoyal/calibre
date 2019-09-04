@@ -11,25 +11,24 @@ from setup import Command
 def build_single(which, bitness, shutdown=True):
     d = os.path.dirname
     base = d(d(os.path.abspath(__file__)))
-    build_calibre = os.path.join(d(base), 'build-calibre')
-    build_calibre = os.environ.get('BUILD_CALIBRE_LOCATION', build_calibre)
-    if not os.path.isdir(build_calibre):
+    bypy = os.path.join(d(base), 'bypy')
+    bypy = os.environ.get('BYPY_LOCATION', bypy)
+    if not os.path.isdir(bypy):
         raise SystemExit(
-            'Cannot find the build-calibre code. Set the environment variable BUILD_CALIBRE_LOCATION to point to it'
+            'Cannot find the bypy code. Set the environment variable BYPY_LOCATION to point to it'
         )
-    cmd = [sys.executable, os.path.join(build_calibre, which)]
-    if bitness:
+    exe = 'python3' if sys.version_info.major == 2 else sys.executable
+    cmd = [exe, bypy, which]
+    if bitness and bitness == '32':
         cmd.append(bitness)
-    cmd.append('calibre')
+    cmd.append('program')
     if not sys.stdout.isatty():
         cmd.append('--no-tty')
     cmd.append('--sign-installers')
-    env = os.environ.copy()
-    env['CALIBRE_SRC_DIR'] = base
-    ret = subprocess.Popen(cmd, env=env, cwd=build_calibre).wait()
+    ret = subprocess.Popen(cmd).wait()
     if ret != 0:
         raise SystemExit(ret)
-    dist = os.path.join(build_calibre, 'build', which)
+    dist = os.path.join(base, 'bypy', 'b', which)
     if bitness:
         dist = os.path.join(dist, bitness)
     for q in 'dist sw/dist'.split():
@@ -45,8 +44,8 @@ def build_single(which, bitness, shutdown=True):
             pass
         os.link(os.path.join(dist, x), dest)
     if shutdown:
-        cmd = [sys.executable, os.path.join(build_calibre, which), 'shutdown']
-        subprocess.Popen(cmd, env=env, cwd=build_calibre).wait()
+        cmd = [exe, bypy, which, 'shutdown']
+        subprocess.Popen(cmd).wait()
 
 
 class BuildInstaller(Command):
@@ -89,19 +88,19 @@ class Linux64(BuildInstaller):
 
 
 class Win32(BuildInstaller):
-    OS = 'win'
+    OS = 'windows'
     BITNESS = '32'
     description = 'Build the 32-bit windows calibre installers'
 
 
 class Win64(BuildInstaller):
-    OS = 'win'
+    OS = 'windows'
     BITNESS = '64'
     description = 'Build the 64-bit windows calibre installer'
 
 
 class OSX(BuildInstaller):
-    OS = 'osx'
+    OS = 'macos'
 
 
 class Linux(BuildInstallers):
