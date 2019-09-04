@@ -170,15 +170,15 @@ list_fonts(PDFDoc *self, PyObject *args) {
     pyunique_ptr ans(PyList_New(0));
     if (!ans) return NULL;
     const PdfVecObjects &objects = self->doc->GetObjects();
-    for (TCIVecObjects it = objects.begin(); it != objects.end(); it++) {
-        if ((*it)->IsDictionary()) {
-            const PdfDictionary &dict = (*it)->GetDictionary();
+    for (auto &it : objects) {
+        if (it->IsDictionary()) {
+            const PdfDictionary &dict = it->GetDictionary();
             if (dictionary_has_key_name(dict, PdfName::KeyType, "Font") && dict.HasKey("BaseFont")) {
                 const std::string &name = dict.GetKey("BaseFont")->GetName().GetName();
                 const std::string &subtype = dict.GetKey(PdfName::KeySubtype)->GetName().GetName();
-                const PdfReference &ref = (*it)->Reference();
+                const PdfReference &ref = it->Reference();
                 unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
-                const PdfObject *descriptor = (*it)->GetIndirectKey("FontDescriptor");
+                const PdfObject *descriptor = it->GetIndirectKey("FontDescriptor");
                 pyunique_ptr descendant_font, stream_ref, encoding, w, w2;
                 PyBytesOutputStream stream_data, to_unicode;
                 if (dict.HasKey("W")) {

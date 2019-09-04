@@ -130,9 +130,9 @@ PDFDoc_save_to_fileobj(PDFDoc *self, PyObject *args) {
 
 static PyObject *
 PDFDoc_uncompress_pdf(PDFDoc *self, PyObject *args) {
-    for (TIVecObjects it = self->doc->GetObjects().begin(); it != self->doc->GetObjects().end(); it++) {
-        if((*it)->HasStream()) {
-            PdfMemStream* stream = dynamic_cast<PdfMemStream*>((*it)->GetStream());
+    for (auto &it : self->doc->GetObjects()) {
+        if(it->HasStream()) {
+            PdfMemStream* stream = dynamic_cast<PdfMemStream*>(it->GetStream());
             stream->Uncompress();
         }
     }
@@ -175,16 +175,13 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
     const PdfObject* obj_type = NULL;
     const PdfObject* obj_sub_type = NULL;
     try {
-        TCIVecObjects it = self->doc->GetObjects().begin();
-         while( it != self->doc->GetObjects().end() ) {
-             if( (*it)->IsDictionary() ) {
-                 obj_type = (*it)->GetDictionary().GetKey( PdfName::KeyType );
-                 obj_sub_type = (*it)->GetDictionary().GetKey( PdfName::KeySubtype );
+         for (auto &it : self->doc->GetObjects()) {
+             if( it->IsDictionary() ) {
+                 obj_type = it->GetDictionary().GetKey( PdfName::KeyType );
+                 obj_sub_type = it->GetDictionary().GetKey( PdfName::KeySubtype );
                  if( ( obj_type && obj_type->IsName() && ( obj_type->GetName().GetName() == "XObject" ) ) ||
                         ( obj_sub_type && obj_sub_type->IsName() && ( obj_sub_type->GetName().GetName() == "Image" ) ) ) count++;
-                 self->doc->FreeObjectMemory( *it );
              }
-             it++;
          }
     } catch(const PdfError & err) {
         podofo_set_exception(err);
