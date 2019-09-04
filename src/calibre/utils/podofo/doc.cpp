@@ -458,6 +458,38 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
 
 // alter_links() {{{
 
+static void
+alter_link(PDFDoc *self, PdfDictionary &link, PyObject *alter_callback, bool mark_links, PdfArray &border, PdfArray &link_color) {
+    if (mark_links) {
+        link.AddKey("Border", border);
+        link.AddKey("C", link_color);
+    }
+    PdfDictionary &A = link.GetKey("A")->GetDictionary();
+    PdfObject *uo = A.GetKey("URI");
+    const std::string &uri = uo->GetString().GetStringUtf8();
+    pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace"))));
+    if (!ret) { return; }
+    if (PyTuple_Check(ret.get()) && PyTuple_GET_SIZE(ret.get()) == 4) {
+        int pagenum; double left, top, zoom;
+        if (PyArg_ParseTuple(ret.get(), "iddd", &pagenum, &left, &top, &zoom)) {
+            PdfPage *page = NULL;
+            try {
+                page = self->doc->GetPage(pagenum - 1);
+            } catch(const PdfError &err) {
+                (void)err;
+                PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
+                return ;
+            }
+            if (page) {
+                PdfDestination dest(page, left, top, zoom);
+                link.RemoveKey("A");
+                dest.AddToDictionary(link);
+            }
+        }
+    }
+
+}
+
 static PyObject *
 PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
     int count = 0;
@@ -468,46 +500,27 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 		PdfArray border, link_color;
 		border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)1);
 		link_color.push_back(1.); link_color.push_back(0.); link_color.push_back(0.);
-        for(TCIVecObjects it = self->doc->GetObjects().begin(); it != self->doc->GetObjects().end(); it++) {
-			if((*it)->IsDictionary()) {
-				PdfDictionary &link = (*it)->GetDictionary();
+        std::vector<PdfReference> links;
+        for (auto &it : self->doc->GetObjects()) {
+			if(it->IsDictionary()) {
+				PdfDictionary &link = it->GetDictionary();
 				if (dictionary_has_key_name(link, PdfName::KeyType, "Annot") && dictionary_has_key_name(link, PdfName::KeySubtype, "Link")) {
-					if (mark_links) {
-						link.AddKey("Border", border);
-						link.AddKey("C", link_color);
-					}
 					if (link.HasKey("A") && link.GetKey("A")->IsDictionary()) {
 						PdfDictionary &A = link.GetKey("A")->GetDictionary();
 						if (dictionary_has_key_name(A, PdfName::KeyType, "Action") && dictionary_has_key_name(A, "S", "URI")) {
 							PdfObject *uo = A.GetKey("URI");
 							if (uo && uo->IsString()) {
-								const std::string &uri = uo->GetString().GetStringUtf8();
-								pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace"))));
-								if (!ret) { return NULL; }
-								if (PyTuple_Check(ret.get()) && PyTuple_GET_SIZE(ret.get()) == 4) {
-									int pagenum; double left, top, zoom;
-									if (PyArg_ParseTuple(ret.get(), "iddd", &pagenum, &left, &top, &zoom)) {
-										PdfPage *page = NULL;
-										try {
-											page = self->doc->GetPage(pagenum - 1);
-										} catch(const PdfError &err) {
-                                            (void)err;
-											PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file", pagenum);
-											return NULL;
-										}
-										if (page) {
-                                            PdfDestination dest(page, left, top, zoom);
-											link.RemoveKey("A");
-                                            dest.AddToDictionary(link);
-										}
-									}
-								}
+                                links.push_back(it->Reference());
 							}
 						}
 					}
 				}
 			}
 		}
+        for (auto const & ref: links) {
+            PdfObject *lo = self->doc->GetObjects().GetObject(ref);
+            if (lo) alter_link(self, lo->GetDictionary(), alter_callback, mark_links, border, link_color);
+        }
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
