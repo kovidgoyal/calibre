@@ -511,6 +511,12 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
+    } catch(const std::exception & err) {
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to alter links: %s", err.what());
+        return NULL;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to alter links");
+        return NULL;
     }
     return Py_BuildValue("i", count);
 } // }}}
