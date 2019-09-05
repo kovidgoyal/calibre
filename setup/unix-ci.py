@@ -19,10 +19,10 @@ def setenv(key, val):
     os.environ[key] = os.path.expandvars(val)
 
 
-SWBASE = '/sw'
-SW = SWBASE + '/sw'
-
 if ismacos:
+
+    SWBASE = '/Users/Shared/calibre-build/sw'
+    SW = SWBASE + '/sw'
 
     def install_env():
         setenv('SWBASE', SWBASE)
@@ -36,6 +36,9 @@ if ismacos:
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('CALIBRE_QT_PREFIX', '$SW/qt')
 else:
+
+    SWBASE = '/sw'
+    SW = SWBASE + '/sw'
 
     def install_env():
         setenv('SW', SW)
@@ -77,8 +80,6 @@ def download_and_decompress(url, dest, compression=None):
 
 def run_python(*args):
     python = os.path.expandvars('$SW/bin/python')
-    if ismacos:
-        python += '2'
     if len(args) == 1:
         args = shlex.split(args[0])
     args = [python] + list(args)
