@@ -36,3 +36,28 @@ jobs:
   - script: |
       python3 setup/unix-ci.py test
     displayName: 'Test calibre'
+
+- job: 'macOS'
+  pool:
+    vmImage: 'macos-latest'
+
+  steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.7'
+      architecture: 'x64'
+
+  - script: |
+      python3 setup/unix-ci.py install
+    displayName: 'Install calibre dependencies'
+
+  - script: |
+      python3 setup/unix-ci.py bootstrap
+    displayName: 'Bootstrap calibre'
+
+  - script: |
+      python3 setup/unix-ci.py test
+    displayName: 'Test calibre'
