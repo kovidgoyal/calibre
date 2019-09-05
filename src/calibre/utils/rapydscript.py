@@ -11,7 +11,6 @@ import subprocess
 from io import BytesIO
 from lzma.xz import compress, decompress
 
-from calibre import force_unicode
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
@@ -214,50 +213,8 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
 has_external_compiler = None
 
 
-def detect_external_compiler():
-    from calibre.utils.filenames import find_executable_in_path
-    rs = find_executable_in_path('rapydscript')
-    try:
-        raw = subprocess.check_output([rs, '--version'])
-    except Exception:
-        raw = b''
-    if raw.startswith(b'rapydscript-ng '):
-        ver = raw.partition(b' ')[-1]
-        try:
-            ver = tuple(map(int, ver.split(b'.')))
-        except Exception:
-            ver = (0, 0, 0)
-        if ver >= (0, 7, 5):
-            return rs
-    return False
-
-
 def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=None, omit_baselib=False, js_version=None):
-    global has_external_compiler
-    if has_external_compiler is None:
-        has_external_compiler = detect_external_compiler()
-    if not has_external_compiler:
-        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6)
-    args = ['--cache-dir', module_cache_dir()]
-    if libdir:
-        args += ['--import-path', libdir]
-    if not beautify:
-        args.append('--uglify')
-    if not private_scope:
-        args.append('--bare')
-    if omit_baselib:
-        args.append('--omit-baselib')
-    if js_version:
-        args.append('--js-version=' + str(js_version))
-    if not isinstance(data, bytes):
-        data = data.encode('utf-8')
-    if filename:
-        args.append('--filename-for-stdin'), args.append(filename)
-    p = subprocess.Popen([has_external_compiler, 'compile'] + args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    js, stderr = p.communicate(data)
-    if p.wait() != 0:
-        raise CompileFailure(force_unicode(stderr, 'utf-8'))
-    return js.decode('utf-8')
+    return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6)
 
 
 def create_manifest(html):
