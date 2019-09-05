@@ -77,6 +77,8 @@ def download_and_decompress(url, dest, compression=None):
 
 def run_python(*args):
     python = os.path.expandvars('$SW/bin/python')
+    if ismacos:
+        python += 2
     if len(args) == 1:
         args = shlex.split(args[0])
     args = [python] + list(args)
