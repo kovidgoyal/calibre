@@ -12,20 +12,19 @@ import time
 from tempfile import NamedTemporaryFile
 
 _plat = sys.platform.lower()
-isosx = 'darwin' in _plat
+ismacos = 'darwin' in _plat
 
 
 def setenv(key, val):
     os.environ[key] = os.path.expandvars(val)
 
 
-if isosx:
+SWBASE = '/sw'
+SW = SWBASE + '/sw'
 
-    SWBASE = '/sw'
-    SW = SWBASE + '/sw'
+if ismacos:
 
     def install_env():
-        # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
         setenv('SWBASE', SWBASE)
         setenv('SW', SW)
         setenv(
@@ -35,10 +34,8 @@ if isosx:
         setenv('CFLAGS', '-I$SW/include')
         setenv('LDFLAGS', '-L$SW/lib')
         setenv('QMAKE', '$SW/qt/bin/qmake')
-        setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
+        setenv('CALIBRE_QT_PREFIX', '$SW/qt')
 else:
-
-    SW = os.path.expanduser('~/sw')
 
     def install_env():
         setenv('SW', SW)
@@ -48,7 +45,7 @@ else:
         setenv('LD_LIBRARY_PATH', '$SW/qt/lib:$SW/lib')
         setenv('PKG_CONFIG_PATH', '$SW/lib/pkgconfig')
         setenv('QMAKE', '$SW/qt/bin/qmake')
-        setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
+        setenv('CALIBRE_QT_PREFIX', '$SW/qt')
 
 
 def run(*args):
@@ -89,28 +86,20 @@ def run_python(*args):
 def main():
     action = sys.argv[1]
     if action == 'install':
-        if isosx:
-            run('sudo', 'mkdir', '-p', SW)
-            run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
-            tball = 'osx'
-        else:
-            tball = 'linux-64'
-            os.makedirs(SW)
-        download_and_decompress(
-            'https://download.calibre-ebook.com/travis/{}.tar.xz'.format(tball), SW
-        )
+        run('sudo', 'mkdir', '-p', SW)
+        run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
 
-        run('npm install --no-optional rapydscript-ng uglify-js regenerator')
-        print(os.environ['PATH'])
-        run('which rapydscript')
-        run('rapydscript --version')
+        tball = 'macos' if ismacos else 'linux-64'
+        download_and_decompress(
+            'https://download.calibre-ebook.com/ci/calibre/{}.tar.xz'.format(tball), SW
+        )
 
     elif action == 'bootstrap':
         install_env()
         run_python('setup.py bootstrap --ephemeral')
 
     elif action == 'test':
-        if isosx:
+        if ismacos:
             os.environ['SSL_CERT_FILE'
                        ] = os.path.abspath('resources/mozilla-ca-certs.pem')
 

@@ -4,17 +4,35 @@ trigger:
     include:
         - '*'
     exclude:
-        - master
+        - 'master'
 
+jobs:
 
-pool:
-  vmImage: 'ubuntu-latest'
+- job: 'Linux'
+  pool:
+    vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  steps:
+  - checkout: self
+    fetchDepth: 1
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.7'
+      architecture: 'x64'
+
+  - script: |
+      sudo apt-get install -y gettext
+    displayName: 'Install needed OS libs'
+
+  - script: |
+      python3 setup/unix-ci.py install
+    displayName: 'Install calibre dependencies'
+
+  - script: |
+      python3 setup/unix-ci.py bootstrap
+    displayName: 'Bootstrap calibre'
+
+  - script: |
+      python3 setup/unix-ci.py test
+    displayName: 'Test calibre'
