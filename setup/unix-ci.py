@@ -35,8 +35,8 @@ if ismacos:
         setenv('LDFLAGS', '-L$SW/lib')
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('QTWEBENGINE_DISABLE_SANDBOX', '1')
-        old = os.environ.get('DYLD_FALLBACK_LIBRARY_PATH', '')
         setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
+        old = os.environ.get('DYLD_FALLBACK_LIBRARY_PATH', '')
         if old:
             old += ':'
         setenv('DYLD_FALLBACK_LIBRARY_PATH', old + '$SW/lib')
@@ -107,6 +107,7 @@ def main():
         run_python('setup.py bootstrap --ephemeral')
 
     elif action == 'test':
+        os.environ['CI'] = 'true'
         if ismacos:
             os.environ['SSL_CERT_FILE'
                        ] = os.path.abspath('resources/mozilla-ca-certs.pem')
