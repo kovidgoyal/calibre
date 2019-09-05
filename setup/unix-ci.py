@@ -89,7 +89,7 @@ def main():
         run('sudo', 'mkdir', '-p', SW)
         run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
 
-        tball = 'macos' if ismacos else 'linux-64'
+        tball = 'macos-64' if ismacos else 'linux-64'
         download_and_decompress(
             'https://download.calibre-ebook.com/ci/calibre/{}.tar.xz'.format(tball), SW
         )
