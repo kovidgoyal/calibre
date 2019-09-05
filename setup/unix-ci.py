@@ -36,6 +36,7 @@ if ismacos:
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('QTWEBENGINE_DISABLE_SANDBOX', '1')
         old = os.environ.get('DYLD_FALLBACK_LIBRARY_PATH', '')
+        setenv('QT_PLUGIN_PATH', '$SW/qt/plugins')
         if old:
             old += ':'
         setenv('DYLD_FALLBACK_LIBRARY_PATH', old + '$SW/lib')
