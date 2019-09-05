@@ -140,7 +140,7 @@ document.title = 'compiler initialized';
                 print('{}:{}:{}'.format(source_id, line_num, msg))
 
         def __call__(self, src, options):
-            self.compiler_result = None
+            self.compiler_result = null = object()
             self.errors = []
             self.working = True
             options['basedir'] = '__stdlib__'
@@ -150,7 +150,7 @@ document.title = 'compiler initialized';
             self.runJavaScript(src, QWebEngineScript.ApplicationWorld, self.compilation_done)
             while self.working:
                 self.spin_loop()
-            if self.compiler_result is None:
+            if self.compiler_result is null:
                 raise CompileFailure('Failed to compile rapydscript code with error: ' + '\n'.join(self.errors))
             write_cache = self.compiler_result[1]
             with open(cache_path, 'wb') as f:
@@ -158,13 +158,13 @@ document.title = 'compiler initialized';
             return self.compiler_result[0]
 
         def eval(self, js):
-            self.compiler_result = None
+            self.compiler_result = null = object()
             self.errors = []
             self.working = True
             self.runJavaScript(js, QWebEngineScript.ApplicationWorld, self.compilation_done)
             while self.working:
                 self.spin_loop()
-            if self.compiler_result is None:
+            if self.compiler_result is null:
                 raise CompileFailure('Failed to eval JS with error: ' + '\n'.join(self.errors))
             return self.compiler_result
 
