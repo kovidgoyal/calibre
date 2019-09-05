@@ -88,6 +88,15 @@ def build_single(which='windows', bitness='64', shutdown=True):
         subprocess.Popen(cmd).wait()
 
 
+def build_dep(args):
+    base, bypy = get_paths()
+    exe = get_exe()
+    cmd = [exe, bypy] + list(args)
+    ret = subprocess.Popen(cmd).wait()
+    if ret != 0:
+        raise SystemExit(ret)
+
+
 class BuildInstaller(Command):
 
     OS = BITNESS = ''
@@ -149,6 +158,18 @@ class Linux(BuildInstallers):
 
 class Win(BuildInstallers):
     OS = 'win'
+
+
+class BuildDep(Command):
+
+    description = (
+        'Build a calibre dependency. For e.g. build_dep windows expat.'
+        ' Without arguments builds all deps for specified platform. Use windows 32 for 32bit.'
+    )
+
+    def run(self, opts):
+        args = opts.cli_args
+        build_dep(args)
 
 
 class ExtDev(Command):

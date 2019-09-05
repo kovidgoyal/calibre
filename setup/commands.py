@@ -7,27 +7,28 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 __all__ = [
-        'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
-        'build', 'mathjax', 'man_pages',
-        'gui',
-        'git_version',
-        'develop', 'install',
-        'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
-        'check', 'to3', 'unicode_check', 'iterators_check', 'test',
-        'sdist', 'bootstrap', 'extdev',
-        'manual', 'tag_release',
-        'upload_to_server',
-        'upload_installers',
-        'upload_user_manual', 'upload_demo', 'reupload',
-        'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
-        'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx',
-        ]
+    'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
+    'build', 'mathjax', 'man_pages',
+    'gui',
+    'git_version',
+    'develop', 'install',
+    'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
+    'check', 'to3', 'unicode_check', 'iterators_check', 'test',
+    'sdist', 'bootstrap', 'extdev',
+    'manual', 'tag_release',
+    'upload_to_server',
+    'upload_installers',
+    'upload_user_manual', 'upload_demo', 'reupload',
+    'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
+    'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx', 'build_dep',
+]
 
-from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev
+from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev, BuildDep
 linux, linux32, linux64 = Linux(), Linux32(), Linux64()
 win, win32, win64 = Win(), Win32(), Win64()
 osx = OSX()
 extdev = ExtDev()
+build_dep = BuildDep()
 
 from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
 pot = POT()
