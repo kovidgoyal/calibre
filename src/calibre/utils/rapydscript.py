@@ -157,6 +157,17 @@ document.title = 'compiler initialized';
                 f.write(as_bytes(json.dumps(write_cache)))
             return self.compiler_result[0]
 
+        def eval(self, js):
+            self.compiler_result = None
+            self.errors = []
+            self.working = True
+            self.runJavaScript(js, QWebEngineScript.ApplicationWorld, self.compilation_done)
+            while self.working:
+                self.spin_loop()
+            if self.compiler_result is None:
+                raise CompileFailure('Failed to eval JS with error: ' + '\n'.join(self.errors))
+            return self.compiler_result
+
         def compilation_done(self, js):
             self.working = False
             self.compiler_result = js
@@ -342,27 +353,25 @@ def compile_srv():
 
 
 def create_pot(source_files):
-    ctx = compiler()
-    ctx.g.gettext_options = {
+    c = compiler()
+    gettext_options = json.dumps({
         'package_name': __appname__,
         'package_version': __version__,
         'bugs_address': 'https://bugs.launchpad.net/calibre'
-    }
-    ctx.eval('catalog = {}')
+    })
+    c.eval('window.catalog = {{}}; window.gettext_options = {}; 1'.format(gettext_options))
     for fname in source_files:
         with open(fname, 'rb') as f:
-            ctx.g.code = f.read().decode('utf-8')
-            ctx.g.fname = fname
-        ctx.eval('exports.gettext_parse(catalog, code, fname)')
-    buf = []
-    ctx.g.pywrite = buf.append
-    ctx.eval('exports.gettext_output(catalog, gettext_options, pywrite)')
+            code = f.read().decode('utf-8')
+            fname = fname
+        c.eval('RapydScript.gettext_parse(window.catalog, {}, {}); 1'.format(*map(json.dumps, (code, fname))))
+
+    buf = c.eval('ans = []; RapydScript.gettext_output(window.catalog, window.gettext_options, ans.push.bind(ans)); ans;')
     return ''.join(buf)
 
 
 def msgfmt(po_data_as_string):
-    ctx = compiler()
-    ctx.g.po_data = po_data_as_string
-    ctx.g.msgfmt_options = {'use_fuzzy': False}
-    return ctx.eval('exports.msgfmt(po_data, msgfmt_options)')
+    c = compiler()
+    return c.eval('RapydScript.msgfmt({}, {})'.format(
+        json.dumps(po_data_as_string), json.dumps({'use_fuzzy': False})))
 # }}}
