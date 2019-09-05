@@ -21,14 +21,16 @@ __all__ = [
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
     'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx', 'build_dep',
+    'export_packages',
 ]
 
-from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev, BuildDep
+from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev, BuildDep, ExportPackages
 linux, linux32, linux64 = Linux(), Linux32(), Linux64()
 win, win32, win64 = Win(), Win32(), Win64()
 osx = OSX()
 extdev = ExtDev()
 build_dep = BuildDep()
+export_packages = ExportPackages()
 
 from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
 pot = POT()

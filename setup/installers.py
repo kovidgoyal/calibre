@@ -172,6 +172,19 @@ class BuildDep(Command):
         build_dep(args)
 
 
+class ExportPackages(Command):
+
+    description = 'Export built deps to a server for CI testing'
+
+    def run(self, opts):
+        base, bypy = get_paths()
+        exe = get_exe()
+        cmd = [exe, bypy, 'export'] + list(opts.cli_args) + ['download.calibre-ebook.com:/srv/download/ci/calibre']
+        ret = subprocess.Popen(cmd).wait()
+        if ret != 0:
+            raise SystemExit(ret)
+
+
 class ExtDev(Command):
 
     description = 'Develop a single native extension conveniently'
