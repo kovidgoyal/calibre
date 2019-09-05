@@ -34,7 +34,7 @@ if ismacos:
         setenv('CFLAGS', '-I$SW/include')
         setenv('LDFLAGS', '-L$SW/lib')
         setenv('QMAKE', '$SW/qt/bin/qmake')
-        setenv('CALIBRE_QT_PREFIX', '$SW/qt')
+        setenv('QTWEBENGINE_DISABLE_SANDBOX', '1')
 else:
 
     SWBASE = '/sw'
