@@ -35,6 +35,7 @@ if ismacos:
         setenv('LDFLAGS', '-L$SW/lib')
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('QTWEBENGINE_DISABLE_SANDBOX', '1')
+        setenv('DYLD_LIBRARY_PATH', '$SW/lib')
 else:
 
     SWBASE = '/sw'
