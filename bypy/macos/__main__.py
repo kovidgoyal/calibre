@@ -259,10 +259,6 @@ class Freeze(object):
         for x, is_id in self.get_dependencies(path_to_lib):
             if x.startswith('@rpath/Qt'):
                 yield x, x[len('@rpath/'):], is_id
-            elif x.startswith('@rpath/libjpeg'):
-                yield x, x[len('@rpath/'):], is_id
-            elif x.startswith('@rpath/libpoppler'):
-                yield x, x[len('@rpath/'):], is_id
             else:
                 for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
                     if x.startswith(y):
