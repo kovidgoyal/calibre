@@ -43,7 +43,9 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import as_bytes, filter, iteritems, map, range, unicode_type
+from polyglot.builtins import (
+    as_bytes, as_unicode, filter, iteritems, map, range, unicode_type
+)
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -736,7 +738,7 @@ def merge_cmaps(cmaps):
         headerlines = []
         footerlines = []
         prefix_ended = False
-        for line in cmap.decode('utf-8', 'replace').splitlines():
+        for line in as_unicode(cmap, errors='replace').splitlines():
             line = line.strip()
             if state is header:
                 headerlines.append(line)
