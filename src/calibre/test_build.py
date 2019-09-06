@@ -91,14 +91,6 @@ class BuildTest(unittest.TestCase):
 
     def test_plugins(self):
         exclusions = set()
-        if is_ci:
-            if isosx:
-                # The compiler version on OS X is different between the
-                # machine on which the dependencies are built and the
-                # machine on which the calibre modules are built, which causes
-                # C++ name mangling incompatibilities preventing some modules
-                # from loading
-                exclusions.update(set('podofo'.split()))
         if islinux and (not os.path.exists('/dev/bus/usb') and not os.path.exists('/proc/bus/usb')):
             # libusb fails to initialize in containers without USB subsystems
             exclusions.update(set('libusb libmtp'.split()))
@@ -299,7 +291,6 @@ class BuildTest(unittest.TestCase):
         import psutil
         psutil.Process(os.getpid())
 
-    @unittest.skipIf(is_ci and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
     def test_podofo(self):
         from calibre.utils.podofo import test_podofo as dotest
         dotest()
