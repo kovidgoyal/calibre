@@ -723,5 +723,27 @@ def main():
         sign_installers(env)
 
 
+def develop_launcher():
+    import subprocess
+
+    def r(*a):
+        subprocess.check_call(list(a))
+
+    r(
+        'cl.EXE', '/c', '/EHsc', '/MT', '/W3', '/O1', '/nologo', '/D_UNICODE', '/DUNICODE', '/GS-',
+        '/DMODULE="calibre.debug"', '/DBASENAME="calibre-debug"', '/DFUNCTION="main"',
+        r'/TcC:\r\src\bypy\windows\main.c', r'/Fo..\launcher\calibre-debug.obj'
+    )
+    r(
+        'link.EXE', '/MACHINE:X86', '/NODEFAULTLIB', '/ENTRY:start_here',
+        r'/LIBPATH:..\launcher', '/SUBSYSTEM:CONSOLE',
+        r'/LIBPATH:C:\r\sw32\sw\private\python/libs', '/RELEASE',
+        '/MANIFEST:EMBED', r'/MANIFESTINPUT:..\launcher\calibre-debug.obj.manifest',
+        'user32.lib', 'kernel32.lib', r'/OUT:calibre-debug.exe',
+        'user32.lib', '/INCREMENTAL:NO', r'..\launcher\calibre-debug.exe.res',
+        r'..\launcher\calibre-debug.obj', r'..\launcher\calibre-launcher.lib'
+    )
+
+
 if __name__ == '__main__':
     main()

@@ -80,9 +80,13 @@ load_launcher_dll() {
         return;
     }
     wsprintf(dll_point, L"%s\0\0", L"app\\bin");
+#if _WIN64
     // Restrict the directories from which DLLs can be loaded
+    // For some reason I cannot determine, using this in 32bit builds causes
+    // a crash even if no dlls are loaded.
     SETDEFAULTDIRS SetDefaultDllDirectories = (SETDEFAULTDIRS)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "SetDefaultDllDirectories");
     if (SetDefaultDllDirectories) SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+#endif
     if (SetDllDirectoryW(buf) == 0) {
         show_last_error(L"Failed to set DLL directory");
         return;
