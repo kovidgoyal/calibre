@@ -366,7 +366,7 @@ def install_site_py(env):
 
 
 def build_portable_installer(env):
-    zf = a(j(env.dist, 'calibre-portable-%s.zip.lz' % VERSION))
+    zf = a(j(env.dist, 'calibre-portable-%s.zip.lz' % VERSION)).replace(os.sep, '/')
     usz = env.portable_uncompressed_size or os.path.getsize(zf)
 
     def cc(src, obj):
