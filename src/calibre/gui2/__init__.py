@@ -1203,6 +1203,8 @@ def ensure_app(headless=True):
                 args += ['-platformpluginpath', plugins_loc, '-platform', 'headless']
                 if isosx:
                     os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
+            if headless and iswindows:
+                QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL, True)
             _store_app = QApplication(args)
             if headless and has_headless:
                 _store_app.headless = True
@@ -1222,6 +1224,12 @@ def ensure_app(headless=True):
                 except:
                     pass
             sys.excepthook = eh
+    return _store_app
+
+
+def destroy_app():
+    global _store_app
+    _store_app = None
 
 
 def app_is_headless():

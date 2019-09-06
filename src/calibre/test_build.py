@@ -187,6 +187,7 @@ class BuildTest(unittest.TestCase):
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
         from PyQt5.QtCore import QTimer
+        from PyQt5.QtWidgets import QApplication
         from PyQt5.QtWebEngineWidgets import QWebEnginePage
         from PyQt5.QtGui import QImageReader, QFontDatabase
         from PyQt5.QtNetwork import QNetworkAccessManager
@@ -210,42 +211,38 @@ class BuildTest(unittest.TestCase):
         # Run the imaging tests
         test()
 
-        from calibre.gui2 import Application
+        from calibre.gui2 import ensure_app, destroy_app
         os.environ.pop('DISPLAY', None)
-        has_headless = isosx or islinux
-        app = Application([], headless=has_headless)
+        ensure_app()
         self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-        if has_headless:
-            from calibre.ebooks.covers import create_cover
-            create_cover('xxx', ['yyy'])
+        from calibre.ebooks.covers import create_cover
+        create_cover('xxx', ['yyy'])
         na = QNetworkAccessManager()
         self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
         if iswindows:
             from PyQt5.Qt import QtWin
             QtWin
-        if has_headless:
-            # Causes crash on exit under windows+cygwin+ssh
-            p = QWebEnginePage()
+        p = QWebEnginePage()
 
-            def callback(result):
-                callback.result = result
-                if hasattr(print_callback, 'result'):
-                    Application.instance().quit()
+        def callback(result):
+            callback.result = result
+            if hasattr(print_callback, 'result'):
+                QApplication.instance().quit()
 
-            def print_callback(result):
-                print_callback.result = result
-                if hasattr(callback, 'result'):
-                    Application.instance().quit()
+        def print_callback(result):
+            print_callback.result = result
+            if hasattr(callback, 'result'):
+                QApplication.instance().quit()
 
-            p.runJavaScript('1 + 1', callback)
-            p.printToPdf(print_callback)
-            QTimer.singleShot(5000, lambda: Application.instance().quit())
-            app.exec_()
-            self.assertEqual(callback.result, 2)
-            self.assertIn(b'Skia/PDF', bytes(print_callback.result))
-            del p
+        p.runJavaScript('1 + 1', callback)
+        p.printToPdf(print_callback)
+        QTimer.singleShot(5000, lambda: QApplication.instance().quit())
+        QApplication.instance().exec_()
+        self.assertEqual(callback.result, 2)
+        self.assertIn(b'Skia/PDF', bytes(print_callback.result))
+        del p
         del na
-        del app
+        destroy_app()
         del QWebEnginePage
 
     def test_imaging(self):
