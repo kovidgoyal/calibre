@@ -720,7 +720,7 @@ class Freeze(object):
                                                  'lib', 'python' + py_ver))
 
     @flush
-    def makedmg(self, d, volname, internet_enable=True, format='ULFO'):
+    def makedmg(self, d, volname, internet_enable=True, dmg_fmt='ULFO'):
         ''' Copy a directory d into a dmg named volname '''
         print('\nSigning...')
         sys.stdout.flush()
@@ -743,7 +743,7 @@ class Freeze(object):
             print('Signing completed in %d minutes %d seconds' % tuple(times))
         os.symlink('/Applications', join(tdir, 'Applications'))
         size_in_mb = int(subprocess.check_output(['du', '-s', '-k', tdir]).decode('utf-8').split()[0]) / 1024.
-        cmd = ['/usr/bin/hdiutil', 'create', '-srcfolder', tdir, '-volname', volname, '-format', format]
+        cmd = ['/usr/bin/hdiutil', 'create', '-srcfolder', tdir, '-volname', volname, '-format', dmg_fmt]
         if 190 < size_in_mb < 250:
             # We need -size 255m because of a bug in hdiutil. When the size of
             # srcfolder is close to 200MB hdiutil fails with
