@@ -162,7 +162,7 @@ class PublishBetas(Command):
 
     def pre_sub_commands(self, opts):
         require_clean_git()
-        require_git_master()
+        # require_git_master()
 
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
