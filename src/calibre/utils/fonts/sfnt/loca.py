@@ -21,14 +21,18 @@ def four_byte_type_code():
             return c
 
 
+def read_array(data, fmt='H'):
+    ans = array.array(fmt, data)
+    if sys.byteorder != 'big':
+        ans.byteswap()
+    return ans
+
+
 class LocaTable(UnknownTable):
 
     def load_offsets(self, head_table, maxp_table):
         fmt = 'H' if head_table.index_to_loc_format == 0 else four_byte_type_code()
-        locs = array.array(fmt)
-        locs.fromstring(self.raw)
-        if sys.byteorder != "big":
-            locs.byteswap()
+        locs = read_array(self.raw, fmt)
         self.offset_map = locs.tolist()
         if fmt == 'H':
             self.offset_map = [2*i for i in self.offset_map]

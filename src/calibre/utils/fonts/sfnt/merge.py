@@ -30,6 +30,26 @@ def merge_truetype_fonts_for_pdf(*fonts):
     head = ans[b'head']
     loca = ans[b'loca']
     maxp = ans[b'maxp']
+    advance_widths = advance_heights = (0,)
+    hhea = ans.get(b'hhea')
+    if hhea is not None:
+        hhea.read_data(ans[b'hmtx'])
+        advance_widths = tuple(x/head.units_per_em for x in hhea.advance_widths)
+    vhea = ans.get(b'vhea')
+    if vhea is not None:
+        vhea.read_data(ans[b'vmtx'])
+        advance_heights = tuple(x/head.units_per_em for x in hhea.advance_heights)
+
+    def width_for_glyph_id(gid):
+        if gid >= len(advance_widths):
+            gid = -1
+        return advance_widths[gid]
+
+    def height_for_glyph_id(gid):
+        if gid >= len(advance_widths):
+            gid = -1
+        return advance_heights[gid]
+
     gmap = OrderedDict()
     for glyph_id in sorted(all_glyphs):
         gmap[glyph_id] = partial(all_glyphs.__getitem__, glyph_id)
@@ -39,4 +59,4 @@ def merge_truetype_fonts_for_pdf(*fonts):
     head.update()
     maxp.num_glyphs = len(loca.offset_map) - 1
     maxp.update()
-    return ans
+    return ans, width_for_glyph_id, height_for_glyph_id

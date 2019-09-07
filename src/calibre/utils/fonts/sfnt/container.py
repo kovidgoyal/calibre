@@ -1,29 +1,25 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-from struct import pack, calcsize
-from io import BytesIO
 from collections import OrderedDict
+from io import BytesIO
+from struct import calcsize, pack
 
-from calibre.utils.fonts.utils import (get_tables, checksum_of_block,
-        verify_checksums)
-from calibre.utils.fonts.sfnt import align_block, UnknownTable, max_power_of_two
-from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-
-from calibre.utils.fonts.sfnt.head import (HeadTable, HorizontalHeader,
-                                           OS2Table, PostTable)
-from calibre.utils.fonts.sfnt.maxp import MaxpTable
-from calibre.utils.fonts.sfnt.loca import LocaTable
-from calibre.utils.fonts.sfnt.glyf import GlyfTable
-from calibre.utils.fonts.sfnt.cmap import CmapTable
-from calibre.utils.fonts.sfnt.kern import KernTable
-from calibre.utils.fonts.sfnt.gsub import GSUBTable
+from calibre.utils.fonts.sfnt import UnknownTable, align_block, max_power_of_two
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
+from calibre.utils.fonts.sfnt.cmap import CmapTable
+from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from calibre.utils.fonts.sfnt.glyf import GlyfTable
+from calibre.utils.fonts.sfnt.gsub import GSUBTable
+from calibre.utils.fonts.sfnt.head import (
+    HeadTable, HorizontalHeader, OS2Table, PostTable
+)
+from calibre.utils.fonts.sfnt.kern import KernTable
+from calibre.utils.fonts.sfnt.loca import LocaTable
+from calibre.utils.fonts.sfnt.maxp import MaxpTable
+from calibre.utils.fonts.utils import checksum_of_block, get_tables, verify_checksums
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 
@@ -99,6 +95,9 @@ class Sfnt(object):
 
     def pop(self, key, default=None):
         return self.tables.pop(key, default)
+
+    def get(self, key, default=None):
+        return self.tables.get(key, default)
 
     def sizes(self):
         ans = OrderedDict()
