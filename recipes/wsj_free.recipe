@@ -34,7 +34,7 @@ def classes(classes):
 
 class WSJ(BasicNewsRecipe):
 
-    title = 'The Wall Street Journal'
+    title = 'The Wall Street Journal (free)'
     __author__ = 'Kovid Goyal'
     description = 'News and current affairs'
     language = 'en'
