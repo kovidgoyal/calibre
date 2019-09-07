@@ -17,10 +17,14 @@ def merge_truetype_fonts_for_pdf(*fonts):
         glyf = font[b'glyf']
         loca.load_offsets(font[b'head'], font[b'maxp'])
         for glyph_id in range(len(loca.offset_map) - 1):
-            if glyph_id not in all_glyphs:
-                offset, sz = loca.glyph_location(glyph_id)
-                if sz > 0:
+            offset, sz = loca.glyph_location(glyph_id)
+            if sz > 0:
+                prev_glyph_data = all_glyphs.get(glyph_id)
+                if prev_glyph_data is None:
                     all_glyphs[glyph_id] = glyf.glyph_data(offset, sz, as_raw=True)
+                else:
+                    if sz != len(prev_glyph_data):
+                        raise Exception('Size mismatch for glyph id: {}'.format(glyph_id))
 
     glyf = ans[b'glyf']
     head = ans[b'head']
