@@ -7,7 +7,7 @@ import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows
+from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
@@ -326,6 +326,8 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
     for i, (library_key, dest) in enumerate(iteritems(library_path_map)):
         if abort is not None and abort.is_set():
             return
+        if isinstance(dest, bytes):
+            dest = dest.decode(filesystem_encoding)
         if progress1 is not None:
             progress1(dest, i, total)
         try:
@@ -336,7 +338,8 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
         if not os.path.isdir(dest):
             raise ValueError('%s is not a directory' % dest)
         import_library(library_key, importer, dest, progress=progress2, abort=abort).close()
-        library_usage_stats[dest] = importer.metadata['libraries'].get(library_key, 1)
+        stats_key = os.path.abspath(dest).replace(os.sep, '/')
+        library_usage_stats[stats_key] = importer.metadata['libraries'].get(library_key, 1)
     if progress1 is not None:
         progress1(_('Settings and plugins'), total - 1, total)
 
