@@ -109,7 +109,7 @@ class MarkBooksAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot mark'), _('No books selected'))
             d.exec_()
-            return set([])
+            return set()
         return set(map(self.gui.library_view.model().id, rows))
 
     def toggle_ids(self, book_ids):

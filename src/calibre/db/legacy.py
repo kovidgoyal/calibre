@@ -29,7 +29,7 @@ def cleanup_tags(tags):
     tags = [x.decode(preferred_encoding, 'replace')
                 if isbytestring(x) else x for x in tags]
     tags = [u' '.join(x.split()) for x in tags]
-    ans, seen = [], set([])
+    ans, seen = [], set()
     for tag in tags:
         if tag.lower() not in seen:
             seen.add(tag.lower())

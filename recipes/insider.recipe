@@ -43,7 +43,7 @@ class insider(BasicNewsRecipe):
             raise ValueError('Could not find category content')
 
         articles = []
-        seen_titles = set([])
+        seen_titles = set()
         for title in titles:
             if title.string in seen_titles:
                 continue

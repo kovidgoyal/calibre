@@ -1125,7 +1125,7 @@ class BooksView(QTableView):  # {{{
         rows = {x.row() if hasattr(x, 'row') else x for x in
             identifiers}
         if using_ids:
-            rows = set([])
+            rows = set()
             identifiers = set(identifiers)
             m = self.model()
             for row in range(m.rowCount(QModelIndex())):

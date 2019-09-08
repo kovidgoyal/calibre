@@ -159,7 +159,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_lock = threading.RLock()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
-        self.listeners = set([])
+        self.listeners = set()
         self.library_path = os.path.abspath(library_path)
         self.row_factory = row_factory
         self.dbpath = os.path.join(library_path, 'metadata.db')
@@ -1122,7 +1122,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 title = pat.sub(repl, title)
             return title
 
-        identical_book_ids = set([])
+        identical_book_ids = set()
         if mi.authors:
             try:
                 quathors = mi.authors[:10]  # Too many authors causes parsing of
@@ -1247,7 +1247,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def all_formats(self):
         formats = self.conn.get('SELECT DISTINCT format from data')
         if not formats:
-            return set([])
+            return set()
         return {f[0] for f in formats}
 
     def format_files(self, index, index_is_id=False):
@@ -1700,7 +1700,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
     def get_books_for_category(self, category, id_):
-        ans = set([])
+        ans = set()
 
         if category not in self.field_metadata:
             return ans
@@ -2984,7 +2984,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         'SELECT name FROM tags WHERE id IN (SELECT tag FROM books_tags_link WHERE book=?)',
         (id,), all=True)
         if not result:
-            return set([])
+            return set()
         return {r[0] for r in result}
 
     @classmethod
@@ -2993,7 +2993,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tags = [x.decode(preferred_encoding, 'replace')
                     if isbytestring(x) else x for x in tags]
         tags = [u' '.join(x.split()) for x in tags]
-        ans, seen = [], set([])
+        ans, seen = [], set()
         for tag in tags:
             if tag.lower() not in seen:
                 seen.add(tag.lower())
@@ -3580,7 +3580,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_top_level_move_items(self):
         items = set(os.listdir(self.library_path))
-        paths = set([])
+        paths = set()
         for x in self.data.universal_set():
             path = self.path(x, index_is_id=True)
             path = path.split(os.sep)[0]
@@ -3602,7 +3602,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             progress = lambda x:x
         if not os.path.exists(newloc):
             os.makedirs(newloc)
-        old_dirs = set([])
+        old_dirs = set()
         items, path_map = self.get_top_level_move_items()
         for x in items:
             src = os.path.join(self.library_path, x)

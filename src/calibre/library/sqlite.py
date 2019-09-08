@@ -94,7 +94,7 @@ class DynamicFilter(object):
 
     def __init__(self, name):
         self.name = name
-        self.ids = frozenset([])
+        self.ids = frozenset()
 
     def __call__(self, id_):
         return int(id_ in self.ids)

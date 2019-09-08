@@ -388,7 +388,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def __call__(self, id_):
         self.book_id = id_
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.metadata_before_fetch = None
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)

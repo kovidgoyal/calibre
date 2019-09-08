@@ -297,7 +297,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
     def get_matches(self, location, query, candidates=None):
         if candidates is None:
             candidates = self.universal_set()
-        ans = set([])
+        ans = set()
         if not query:
             return ans
         query = lower(query)

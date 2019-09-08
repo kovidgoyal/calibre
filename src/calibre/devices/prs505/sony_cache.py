@@ -192,7 +192,7 @@ class XMLCache(object):
 
     def ensure_unique_playlist_titles(self):
         for i, root in self.record_roots.items():
-            seen = set([])
+            seen = set()
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 title = playlist.get('title', None)
                 if title is None:

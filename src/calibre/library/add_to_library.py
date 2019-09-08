@@ -29,7 +29,7 @@ def find_folders_under(root, db, add_root=True,  # {{{
 
     root = os.path.abspath(root)
 
-    ans = set([])
+    ans = set()
     for dirpath, dirnames, __ in os.walk(root, topdown=True, followlinks=follow_links):
         if cancel_callback():
             break

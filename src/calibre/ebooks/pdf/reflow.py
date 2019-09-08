@@ -491,7 +491,7 @@ class Page(object):
         for i, x in enumerate(self.elements):
             x.idx = i
         current_region = Region(self.opts, self.log)
-        processed = set([])
+        processed = set()
         for x in self.elements:
             if x in processed:
                 continue
@@ -526,8 +526,8 @@ class Page(object):
         # closer to the avg number of cols in the set, if equal use larger
         # region)
         found = True
-        absorbed = set([])
-        processed = set([])
+        absorbed = set()
+        processed = set()
         while found:
             found = False
             for i, region in enumerate(self.regions):

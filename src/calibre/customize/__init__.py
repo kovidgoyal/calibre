@@ -405,7 +405,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
     '''
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
@@ -437,7 +437,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
     '''
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
@@ -473,7 +473,7 @@ class CatalogPlugin(Plugin):  # {{{
 
     #: Output file type for which this plugin should be run.
     #: For example: 'epub' or 'xml'
-    file_types = set([])
+    file_types = set()
 
     type = _('Catalog generator')
 

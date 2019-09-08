@@ -90,11 +90,11 @@ class InterfaceAction(QObject):
 
     #: Set of locations to which this action must not be added.
     #: See :attr:`all_locations` for a list of possible locations
-    dont_add_to = frozenset([])
+    dont_add_to = frozenset()
 
     #: Set of locations from which this action must not be removed.
     #: See :attr:`all_locations` for a list of possible locations
-    dont_remove_from = frozenset([])
+    dont_remove_from = frozenset()
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
         'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',

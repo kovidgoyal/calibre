@@ -342,7 +342,7 @@ class SearchFilter(SearchQueryParser):
         self.srs.add(search_result)
 
     def clear_search_results(self):
-        self.srs = set([])
+        self.srs = set()
 
     def universal_set(self):
         return self.srs
@@ -391,8 +391,8 @@ class SearchFilter(SearchQueryParser):
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
-            return set([])
-        matches = set([])
+            return set()
+        matches = set()
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {

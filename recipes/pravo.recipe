@@ -21,7 +21,7 @@ class pravo(BasicNewsRecipe):
     no_stylesheets = True
 
     # our variables
-    seen_titles = set([])
+    seen_titles = set()
     # only yesterday's articles are online
     parent_url = 'http://pravo.novinky.cz/minule/'
     feeds = [

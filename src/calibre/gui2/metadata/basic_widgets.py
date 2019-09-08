@@ -390,7 +390,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         return self.original_val != self.current_val
 
     def initialize(self, db, id_):
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.set_separator('&')
         self.set_space_before_sep(True)
         self.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -602,7 +602,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.lineEdit().textChanged.connect(self.data_changed)
 
     @property
@@ -618,7 +618,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.lineEdit().setCursorPosition(0)
 
     def initialize(self, db, id_):
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         all_series = db.all_series()
         all_series.sort(key=lambda x: sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_series])
@@ -908,7 +908,7 @@ class FormatsManager(QWidget):
         self.changed = False
         self.formats.clear()
         exts = db.formats(id_, index_is_id=True)
-        self.original_val = set([])
+        self.original_val = set()
         if exts:
             exts = exts.split(',')
             for ext in exts:
@@ -1370,7 +1370,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         EditWithComplete.__init__(self, parent)
         self.currentTextChanged.connect(self.data_changed)
         self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
 
@@ -1386,7 +1386,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.setCursorPosition(0)
 
     def initialize(self, db, id_):
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
@@ -1753,7 +1753,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
         self.clear_button.setToolTip(_('Clear publisher'))
@@ -1772,7 +1772,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.lineEdit().setCursorPosition(0)
 
     def initialize(self, db, id_):
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         all_publishers = db.all_publishers()
         all_publishers.sort(key=lambda x: sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])

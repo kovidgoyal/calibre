@@ -181,7 +181,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                 self.dataChanged.emit(idx, idx)
 
         # Update parallel jobs
-        jobs = set([])
+        jobs = set()
         while True:
             try:
                 jobs.add(self.server.changed_jobs_queue.get_nowait())

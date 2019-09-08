@@ -74,7 +74,7 @@ class xISBN(object):
 
     def get_associated_isbns(self, isbn):
         data = self.get_data(isbn)
-        ans = set([])
+        ans = set()
         for rec in data:
             for i in rec.get('isbn', []):
                 ans.add(i)

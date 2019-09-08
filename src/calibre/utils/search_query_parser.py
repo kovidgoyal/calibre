@@ -337,7 +337,7 @@ class SearchQueryParser(object):
     def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
-        self.searches_seen = set([])
+        self.searches_seen = set()
         candidates = self.universal_set()
         return self._parse(query, candidates=candidates)
 

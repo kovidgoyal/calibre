@@ -297,7 +297,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         query = query.strip().lower()
         if not query:
             return self.universal_set()
-        results = set([])
+        results = set()
         for urn in self.universal_set():
             recipe = self.recipe_from_urn(urn)
             if query in recipe.get('title', '').lower() or \

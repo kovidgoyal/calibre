@@ -55,7 +55,7 @@ class Pagina12(BasicNewsRecipe):
 
         feeds = []
 
-        seen_titles = set([])
+        seen_titles = set()
         for section in soup.findAll('div', 'seccionx'):
             numero += 1
             print(numero)

@@ -432,7 +432,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     }
 
     def get_numeric_matches(self, location, query, candidates, val_func=None):
-        matches = set([])
+        matches = set()
         if len(query) == 0:
             return matches
 
@@ -499,7 +499,7 @@ class ResultCache(SearchQueryParser):  # {{{
         return matches
 
     def get_user_category_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if self.db_prefs is None or len(query) < 2:
             return matches
         user_cats = self.db_prefs.get('user_categories', [])
@@ -522,7 +522,7 @@ class ResultCache(SearchQueryParser):  # {{{
         return matches
 
     def get_keypair_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if query.find(':') >= 0:
             q = [q.strip() for q in query.split(':')]
             if len(q) != 2:
@@ -640,7 +640,7 @@ class ResultCache(SearchQueryParser):  # {{{
             allow_recursion=True):
         # If candidates is not None, it must not be modified. Changing its
         # value will break query optimization in the search parser
-        matches = set([])
+        matches = set()
         if candidates is None:
             candidates = self.universal_set()
         if len(candidates) == 0:
@@ -681,7 +681,7 @@ class ResultCache(SearchQueryParser):  # {{{
             # apply the limit if appropriate
             if location == 'all' and prefs['limit_search_columns'] and \
                             prefs['limit_search_columns_to']:
-                terms = set([])
+                terms = set()
                 for l in prefs['limit_search_columns_to']:
                     l = icu_lower(l.strip())
                     if l and l != 'all' and l in self.all_search_locations:
