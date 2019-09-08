@@ -230,8 +230,8 @@ class BuildTest(unittest.TestCase):
         p.printToPdf(print_callback)
         QTimer.singleShot(5000, lambda: QApplication.instance().quit())
         QApplication.instance().exec_()
-        self.assertEqual(callback.result, 2)
-        self.assertIn(b'Skia/PDF', bytes(print_callback.result))
+        self.assertEqual(callback.result, 2, 'Simple JS computation failed')
+        self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
         del p
         del na
         destroy_app()
