@@ -157,7 +157,7 @@ class Linux(BuildInstallers):
 
 
 class Win(BuildInstallers):
-    OS = 'win'
+    OS = 'windows'
 
 
 class BuildDep(Command):
