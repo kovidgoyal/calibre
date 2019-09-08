@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess, glob, tempfile, json, time, filecmp, atexit, sys
+import os, shutil, subprocess, tempfile, json, time, filecmp, sys
 
 from setup import Command, __version__, require_clean_git, require_git_master
 from setup.upload import installers
@@ -37,79 +37,36 @@ class Stage2(Command):
     description = 'Stage 2 of the publish process, builds the binaries'
 
     def run(self, opts):
-        from setup.multitail import pipe, multitail
-        for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
-            os.remove(x)
-        build = os.path.join(self.d(self.SRC), 'build')
-        if os.path.exists(build):
-            shutil.rmtree(build)
-        processes = []
-        tdir = tempfile.mkdtemp('_build_logs')
-        atexit.register(shutil.rmtree, tdir)
+        base = os.path.join(self.d(self.SRC))
+        for x in ('dist', 'build'):
+            x = os.path.join(base, x)
+            if os.path.exists(x):
+                shutil.rmtree(x)
+            os.mkdir(x)
+
         self.info('Starting builds for all platforms, this will take a while...')
 
-        def kill_child_on_parent_death():
-            import ctypes, signal
-            libc = ctypes.CDLL("libc.so.6")
-            libc.prctl(1, signal.SIGTERM)
+        session = ['layout vertical']
+        platforms = 'linux', 'osx', 'win'
+        for x in platforms:
+            cmd = (
+                '''{exe} -c "import subprocess; subprocess.Popen(['{exe}', './setup.py', '{x}']).wait() != 0 and'''
+                ''' input('Build of {x} failed, press Enter to exit');"'''
+            ).format(exe=sys.executable, x=x)
+            session.append('title ' + x)
+            session.append('launch ' + cmd)
 
-        for x in ('linux', 'osx', 'win'):
-            r, w = pipe()
-            p = subprocess.Popen([sys.executable, 'setup.py', x],
-                                 stdout=w,
-                                 stderr=subprocess.STDOUT,
-                                 cwd=self.d(self.SRC),
-                                 preexec_fn=kill_child_on_parent_death)
-            p.log, p.start_time, p.bname = r, time.time(), x
-            p.save = open(os.path.join(tdir, x), 'w+b')
-            p.duration = None
-            processes.append(p)
+        p = subprocess.Popen([
+            'kitty', '-o', 'enabled_layouts=vertical,stack', '-o', 'scrollback_lines=20000',
+            '-o', 'close_on_child_death=y', '--session=-'
+        ], stdin=subprocess.PIPE)
 
-        def workers_running():
-            running = False
-            for p in processes:
-                rc = p.poll()
-                if rc is not None:
-                    if p.duration is None:
-                        p.duration = int(time.time() - p.start_time)
-                else:
-                    running = True
-            return running
-
-        stop_multitail = multitail([proc.log for proc in processes],
-                                   name_map={
-                                       proc.log: proc.bname
-                                       for proc in processes
-                                   },
-                                   copy_to=[proc.save for proc in processes])[0]
-
-        while workers_running():
-            os.waitpid(-1, 0)
-
-        stop_multitail()
-
-        failed = False
-        for p in processes:
-            if p.poll() != 0:
-                failed = True
-                log = p.save
-                log.flush()
-                log.seek(0)
-                raw = log.read()
-                self.info('Building of %s failed' % p.bname)
-                sys.stderr.write(raw)
-                sys.stderr.write(b'\n\n')
-        if failed:
-            raise SystemExit('Building of installers failed!')
-
-        for p in sorted(processes, key=lambda p: p.duration):
-            self.info(
-                'Built %s in %d minutes and %d seconds' %
-                (p.bname, p.duration // 60, p.duration % 60)
-            )
+        p.communicate('\n'.join(session).encode('utf-8'))
+        p.wait()
 
         for installer in installers(include_source=False):
-            if not os.path.exists(self.j(self.d(self.SRC), installer)):
+            installer = self.j(self.d(self.SRC), installer)
+            if not os.path.exists(installer) or os.path.getsize(installer) < 10000:
                 raise SystemExit(
                     'The installer %s does not exist' % os.path.basename(installer)
                 )
