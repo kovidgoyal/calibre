@@ -21,7 +21,7 @@ from calibre.srv.loop import (
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client
-from polylot.builtins import unicode_type
+from polyglot.builtins import unicode_type
 from polyglot.binary import as_base64_unicode
 from polyglot.queue import Empty, Queue
 
