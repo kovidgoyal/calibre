@@ -9,7 +9,6 @@ import os
 import re
 import subprocess
 from io import BytesIO
-from lzma.xz import compress, decompress
 
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__
 from calibre.ptempfile import TemporaryDirectory
@@ -27,6 +26,7 @@ def abspath(x):
 
 
 def update_rapydscript():
+    from lzma.xz import compress
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
@@ -47,6 +47,7 @@ def to_dict(obj):
 
 
 def compiler():
+    from lzma.xz import decompress
     ans = getattr(compiler, 'ans', None)
     if ans is not None:
         return ans
