@@ -3,12 +3,16 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, subprocess, struct, os
+import os
+import struct
+import subprocess
+import sys
 from threading import Thread
 from uuid import uuid4
 
-from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
-from polyglot.builtins import string_or_bytes, filter
+from PyQt5.Qt import QEventLoop, Qt, pyqtSignal
+
+from polyglot.builtins import filter, string_or_bytes, unicode_type
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
