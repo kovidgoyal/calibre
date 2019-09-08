@@ -477,6 +477,7 @@ class Document(QGraphicsScene):
         return chapter, chapter.page(num)
 
     def show_page(self, num):
+        num = int(num)
         if num < 1 or num > self.num_of_pages or num == self.current_page:
             return
         odd = num%2 == 1
