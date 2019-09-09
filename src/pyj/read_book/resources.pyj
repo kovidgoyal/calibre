@@ -6,7 +6,7 @@ from elementmaker import E
 from encodings import base64decode, utf8_decode
 
 from dom import clear, remove_all_attributes
-from read_book.globals import ui_operations
+from read_book.globals import ui_operations, runtime
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -234,7 +234,10 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     clear(document.head, document.body)
     remove_all_attributes(document.head, document.body)
     # Default stylesheet
-    document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+    if not runtime.is_standalone_viewer:
+        # for the standalone viewer the default font family is set
+        # in the viewer settings
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
     resource_urls = {}
     load_required = set()
     proceeded = False
