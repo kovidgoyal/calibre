@@ -249,7 +249,7 @@ def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=
     if omit_baselib:
         args.append('--omit-baselib')
     if js_version:
-        args.append('--js-version=' + str(js_version))
+        args.append('--js-version={}'.format(js_version or 6))
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     if filename:
@@ -294,7 +294,7 @@ def compile_editor():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'editor.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname, js_version=6).replace('__SPECIAL_TITLE__', special_title, 1)
+        js = compile_fast(f.read(), fname).replace('__SPECIAL_TITLE__', special_title, 1)
     base = os.path.join(base, 'resources')
     atomic_write(base, 'editor.js', js)
 
@@ -313,7 +313,7 @@ def compile_viewer():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname, js_version=6).replace(
+        js = compile_fast(f.read(), fname).replace(
             '__SPECIAL_TITLE__', special_title, 1).replace(
             '__FAKE_PROTOCOL__', FAKE_PROTOCOL, 1).replace(
             '__FAKE_HOST__', FAKE_HOST, 1)
@@ -338,7 +338,7 @@ def compile_srv():
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname).replace(
+        js = compile_fast(f.read(), fname, js_version=5).replace(
             '__RENDER_VERSION__', rv, 1).replace(
             '__MATHJAX_VERSION__', mathjax_version, 1).replace(
             '__CALIBRE_VERSION__', __version__, 1).encode('utf-8')
