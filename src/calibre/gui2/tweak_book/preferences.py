@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import numbers
 from operator import attrgetter, methodcaller
+from functools import partial
 from collections import namedtuple
 from polyglot.builtins import (
         iteritems, itervalues, map, unicode_type, range)
@@ -19,6 +20,7 @@ from PyQt5.Qt import (
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
+from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 
 from calibre import prepare_string_for_xml
 from calibre.utils.localization import get_lang
@@ -342,17 +344,25 @@ class PreviewSettings(BasicSettings):
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
-        def family_getter(w):
-            return unicode_type(w.currentFont().family())
+        def default_font(which):
+            s = QWebEngineSettings.defaultSettings()
+            which = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[which])
+            return s.fontFamily(which)
 
-        def family_setter(w, val):
-            w.setCurrentFont(QFont(val))
+        def family_getter(which, w):
+            ans = unicode_type(w.currentFont().family())
+            if ans == default_font(which):
+                ans = None
+            return ans
+
+        def family_setter(which, w, val):
+            w.setCurrentFont(QFont(val or default_font(which)))
 
         families = {'serif':_('Serif text'), 'sans':_('Sans-serif text'), 'mono':_('Monospaced text')}
         for fam in sorted(families):
             text = families[fam]
             w = QFontComboBox(self)
-            self('preview_%s_family' % fam, widget=w, getter=family_getter, setter=family_setter)
+            self('engine_preview_%s_family' % fam, widget=w, getter=partial(family_getter, fam), setter=partial(family_setter, fam))
             l.addRow(_('Font family for &%s:') % text, w)
 
         w = self.choices_widget('preview_standard_font_family', families, 'serif', 'serif')
