@@ -131,6 +131,7 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         </style>
         <style type="text/css">
             %s
+            table td.title { white-space: nowrap }
         </style>
         </head>
         <body>
@@ -141,17 +142,13 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
     comments = ''
     if comment_fields:
         comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
-    right_pane = '<div id="comments" class="comments">%s</div>'%comments
+    right_pane = comments
 
     if vertical:
         ans = templ%(table+right_pane)
     else:
-        if gprefs['book_details_narrow_comments_layout'] == 'columns':
-            ans = templ%('<table><tr><td valign="top" '
-                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
-                    % (table, right_pane))
-        else:
-            ans = templ%('<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
+        ans = templ % (
+                '<table><tr><td valign="top" width="40%">{}</td><td valign="top" width="60%">{}</td></tr></table>'.format(
                     table, right_pane))
     return ans
 
