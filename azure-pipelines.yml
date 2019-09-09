@@ -3,8 +3,6 @@ trigger:
   branches:
     include:
         - '*'
-    exclude:
-        - 'master'
 
 jobs:
 
