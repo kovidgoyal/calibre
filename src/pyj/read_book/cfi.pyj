@@ -585,6 +585,8 @@ def at_point(ox, oy):  # {{{
     except Exception:
         cfi = None
 
+    if not p:
+        return None
 
     if cfi:
         if p.range is not None:
