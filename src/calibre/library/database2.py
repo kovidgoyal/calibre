@@ -3517,10 +3517,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream = lopen(npath, 'rb')
-            format = check_ebook_format(stream, format)
-            self.add_format(id, format, stream, index_is_id=True)
-            stream.close()
+            with lopen(npath, 'rb') as stream:
+                format = check_ebook_format(stream, format)
+                self.add_format(id, format, stream, index_is_id=True)
             postimport.append((id, format))
         self.conn.commit()
         self.data.refresh_ids(self, ids)  # Needed to update format list and size

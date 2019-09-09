@@ -2961,7 +2961,8 @@ class CatalogBuilder(object):
         left = max(int((MI_WIDTH - width) / 2.), 0)
         top = max(int((MI_HEIGHT - height) / 2.), 0)
         draw.text((left, top), text, fill=(0, 0, 0), font=font)
-        img.save(open(out_path, 'wb'), 'GIF')
+        with open(out_path, 'wb') as f:
+            img.save(f, 'GIF')
 
     def generate_ncx_header(self):
         """ Generate the basic NCX file.
