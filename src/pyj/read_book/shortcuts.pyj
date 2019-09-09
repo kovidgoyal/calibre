@@ -206,7 +206,7 @@ SHORTCUTS = {
     ),
 
     'show_chrome': desc(
-        v"['Escape']",
+        v"['Escape', 'ContextMenu']",
         'ui',
         _('Show the viewer controls'),
     ),
