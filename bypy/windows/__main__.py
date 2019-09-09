@@ -237,7 +237,7 @@ def freeze(env, ext_dir):
     extract_pyd_modules(env, sp_dir)
 
     printf('Byte-compiling all python modules...')
-    for x in ('test', 'lib2to3', 'distutils'):
+    for x in ('test', 'lib2to3'):
         x = j(env.lib_dir, x)
         if os.path.exists(x):
             shutil.rmtree(x)
