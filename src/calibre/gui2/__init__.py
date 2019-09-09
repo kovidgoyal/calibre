@@ -1161,7 +1161,7 @@ def safe_open_url(qurl):
     if qurl.scheme() in ('', 'file'):
         path = qurl.toLocalFile()
         ext = os.path.splitext(path)[-1].lower()[1:]
-        if ext in ('exe', 'com', 'cmd', 'bat', 'sh', 'psh', 'ps1', 'vbs', 'js', 'wsf', 'vba', 'py', 'rb', 'pl'):
+        if ext in ('exe', 'com', 'cmd', 'bat', 'sh', 'psh', 'ps1', 'vbs', 'js', 'wsf', 'vba', 'py', 'rb', 'pl', 'app'):
             prints('Refusing to open file:', path)
             return
     open_url(qurl)
