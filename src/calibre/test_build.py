@@ -247,6 +247,8 @@ class BuildTest(unittest.TestCase):
         _imaging, _imagingmath, _imagingft
         i = Image.open(I('lt.png', allow_user_override=False))
         self.assertGreaterEqual(i.size, (20, 20))
+        i = Image.open(P('catalog/DefaultCover.jpg', allow_user_override=False))
+        self.assertGreaterEqual(i.size, (20, 20))
 
     @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-itegration)')
     def test_file_dialog_helper(self):
