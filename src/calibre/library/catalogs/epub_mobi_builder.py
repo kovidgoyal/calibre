@@ -2953,11 +2953,7 @@ class CatalogBuilder(object):
         if not font_path or not os.access(font_path, os.R_OK):
             font_path = default_font
 
-        try:
-            from PIL import Image, ImageDraw, ImageFont
-            Image, ImageDraw, ImageFont
-        except ImportError:
-            import Image, ImageDraw, ImageFont
+        from PIL import Image, ImageDraw, ImageFont
 
         img = Image.new('RGB', (MI_WIDTH, MI_HEIGHT), 'white')
         draw = ImageDraw.Draw(img)

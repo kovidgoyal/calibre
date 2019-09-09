@@ -89,13 +89,7 @@ def getimagesize(url):
 
     """
 
-    try:
-        from PIL import ImageFile
-    except ImportError:
-        try:
-            import ImageFile
-        except ImportError:
-            return None
+    from PIL import ImageFile
 
     try:
         p = ImageFile.Parser()

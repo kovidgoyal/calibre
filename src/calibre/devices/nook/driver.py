@@ -48,11 +48,7 @@ class NOOK(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata, filepath):
-        try:
-            from PIL import Image, ImageDraw
-            Image, ImageDraw
-        except ImportError:
-            import Image, ImageDraw
+        from PIL import Image, ImageDraw
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:

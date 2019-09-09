@@ -42,11 +42,7 @@ I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
 
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
+from PIL import Image as PILImage
 
 
 def update_css(ncss, ocss):

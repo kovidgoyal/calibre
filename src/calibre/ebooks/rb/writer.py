@@ -9,11 +9,7 @@ import io
 import struct
 import zlib
 
-try:
-    from PIL import Image
-    Image
-except ImportError:
-    import Image
+from PIL import Image
 
 from calibre.ebooks.rb.rbml import RBMLizer
 from calibre.ebooks.rb import HEADER
