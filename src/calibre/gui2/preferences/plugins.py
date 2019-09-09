@@ -459,8 +459,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def check_for_add_to_editor_toolbar(self, plugin, previously_installed):
         if not previously_installed:
-            from calibre.gui2.tweak_book.plugin import install_plugin
-            install_plugin(plugin)
+            from calibre.utils.config import JSONConfig
+            prefs = JSONConfig('newly-installed-editor-plugins')
+            pl = set(prefs.get('newly_installed_plugins', ()))
+            pl.add(plugin.name)
+            prefs['newly_installed_plugins'] = sorted(pl)
 
 
 if __name__ == '__main__':

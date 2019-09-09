@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 
 from calibre import prints
 from calibre.constants import __appname__, get_version, isosx, DEBUG
+from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.keyboard import Manager as KeyboardManager
@@ -29,7 +30,7 @@ from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
-from calibre.gui2.tweak_book.plugin import create_plugin_actions
+from calibre.gui2.tweak_book.plugin import create_plugin_actions, install_plugin
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.check_links import CheckExternalLinks
@@ -231,6 +232,18 @@ class CursorPositionWidget(QWidget):  # {{{
 # }}}
 
 
+def install_new_plugins():
+    from calibre.utils.config import JSONConfig
+    prefs = JSONConfig('newly-installed-editor-plugins')
+    pl = prefs.get('newly_installed_plugins', ())
+    if pl:
+        for name in pl:
+            plugin = find_plugin(name)
+            if plugin is not None:
+                install_plugin(plugin)
+        prefs['newly_installed_plugins'] = []
+
+
 class Main(MainWindow):
 
     APP_NAME = _('Edit book')
@@ -238,6 +251,11 @@ class Main(MainWindow):
 
     def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
+        try:
+            install_new_plugins()
+        except Exception:
+            import traceback
+            traceback.print_exc()
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
         self.setWindowIcon(QIcon(I('tweak.png')))
