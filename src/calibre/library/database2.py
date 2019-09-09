@@ -3526,9 +3526,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id, fmt in postimport:
             run_plugins_on_postimport(self, book_id, fmt)
         if duplicates:
-            paths    = list(duplicate[0] for duplicate in duplicates)
-            formats  = list(duplicate[1] for duplicate in duplicates)
-            metadata = list(duplicate[2] for duplicate in duplicates)
+            paths    = [duplicate[0] for duplicate in duplicates]
+            formats  = [duplicate[1] for duplicate in duplicates]
+            metadata = [duplicate[2] for duplicate in duplicates]
             return (paths, formats, metadata), (ids if return_ids else
                     len(ids))
         return None, (ids if return_ids else len(ids))
