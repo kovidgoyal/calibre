@@ -25,12 +25,14 @@ from widgets import create_button, create_spinner
 
 class LoadingMessage:  # {{{
 
-    def __init__(self, msg):
+    def __init__(self, msg, current_color_scheme):
         self.msg = msg or ''
+        self.current_color_scheme = current_color_scheme
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        container.style.backgroundColor = get_color('window-background')
+        container.style.backgroundColor = self.current_color_scheme.background
+        container.style.color = self.current_color_scheme.foreground
         container.appendChild(
             E.div(
                 style='text-align:center',
@@ -500,7 +502,7 @@ class Overlay:
             self.hide_current_panel()
 
     def show_loading_message(self, msg):
-        lm = LoadingMessage(msg)
+        lm = LoadingMessage(msg, self.view.current_color_scheme)
         self.panels.push(lm)
         self.show_current_panel()
 

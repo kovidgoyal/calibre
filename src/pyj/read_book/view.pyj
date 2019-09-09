@@ -191,6 +191,7 @@ class View:
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
+        self.current_color_scheme = resolve_color_scheme()
         self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'), runtime.FAKE_PROTOCOL, runtime.FAKE_HOST)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
@@ -418,6 +419,7 @@ class View:
 
     def get_color_scheme(self, apply_to_margins):
         ans = resolve_color_scheme()
+        self.current_color_scheme = ans
         if apply_to_margins:
             for which in 'left top right bottom'.split(' '):
                 m = document.getElementById('book-{}-margin'.format(which))
@@ -442,7 +444,7 @@ class View:
         title = self.book.metadata.title
         name = self.currently_showing.name
         self.show_loading_message(_(
-            'Loading <i>{name}</i> from <i>{title}</i>, please wait...').format(name=name, title=title))
+            'Loading next section from <i>{title}</i>, please wait...').format(name=name, title=title))
 
     def hide_loading(self):
         self.overlay.hide_loading_message()
