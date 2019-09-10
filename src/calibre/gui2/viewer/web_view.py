@@ -425,7 +425,10 @@ class WebView(RestartingWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        self.bridge.create_view(vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata())
+        f = QApplication.instance().font()
+        self.bridge.create_view(
+            vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata(),
+            f.family(), f.pointSize())
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
