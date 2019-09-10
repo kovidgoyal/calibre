@@ -372,8 +372,8 @@ class CatalogBuilder(object):
                 self.thumb_height = self.thumb_width * 1.33
                 if 'kindle' in x.short_name and self.opts.fmt == 'mobi':
                     # Kindle DPI appears to be off by a factor of 2
-                    self.thumb_width = self.thumb_width / 2
-                    self.thumb_height = self.thumb_height / 2
+                    self.thumb_width = self.thumb_width // 2
+                    self.thumb_height = self.thumb_height // 2
                 break
         if self.opts.verbose:
             self.opts.log(" Thumbnails:")
