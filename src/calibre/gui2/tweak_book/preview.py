@@ -190,7 +190,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 QTimer.singleShot(0, self.check_for_parse)
             else:
                 data = get_data(name)
-                if isinstance(data, type('')):
+                if isinstance(data, unicode_type):
                     data = data.encode('utf-8')
                 mime_type = {
                     # Prevent warning in console about mimetype of fonts
