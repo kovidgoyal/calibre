@@ -107,7 +107,7 @@ class CSV_XML(CatalogPlugin):
             outfile = codecs.open(path_to_output, 'w', 'utf8')
 
             # Write a UTF-8 BOM
-            outfile.write('\xef\xbb\xbf')
+            outfile.write(u'\ufeff')
 
             # Output the field headers
             outfile.write(u'%s\n' % u','.join(fields))
