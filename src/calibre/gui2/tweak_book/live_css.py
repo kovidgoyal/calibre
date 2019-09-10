@@ -16,7 +16,6 @@ from calibre.gui2.tweak_book import editors, actions, tprefs
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from css_selectors import parse, SelectorError
-from polyglot.builtins import unicode_type
 
 
 lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
