@@ -156,9 +156,9 @@ class CSV_XML(CatalogPlugin):
 
                     # Convert HTML to markdown text
                     if isinstance(item, unicode_type):
-                        opening_tag = re.search('<(\\w+)(\x20|>)', item)
+                        opening_tag = re.search(r'<(\w+)( |>)', item)
                         if opening_tag:
-                            closing_tag = re.search('<\\/%s>$' % opening_tag.group(1), item)
+                            closing_tag = re.search(r'<\/%s>$' % opening_tag.group(1), item)
                             if closing_tag:
                                 item = html2text(item)
 

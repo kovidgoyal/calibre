@@ -90,8 +90,8 @@ class NumberToText(object):  # {{{
         # Special case ordinals
         if re.search('[st|nd|rd|th]',self.number):
             self.number = re.sub(',','',self.number)
-            ordinal_suffix = re.search('[\\D]', self.number)
-            ordinal_number = re.sub('\\D','',re.sub(',','',self.number))
+            ordinal_suffix = re.search(r'[\D]', self.number)
+            ordinal_number = re.sub(r'\D','',re.sub(',','',self.number))
             if self.verbose:
                 self.log("Ordinal: %s" % ordinal_number)
             self.number_as_float = ordinal_number
@@ -155,8 +155,8 @@ class NumberToText(object):  # {{{
             if self.verbose:
                 self.log("Hybrid: %s" % self.number)
             # Split the token into number/text
-            number_position = re.search('\\d',self.number).start()
-            text_position = re.search('\\D',self.number).start()
+            number_position = re.search(r'\d',self.number).start()
+            text_position = re.search(r'\D',self.number).start()
             if number_position < text_position:
                 number = self.number[:text_position]
                 text = self.number[text_position:]

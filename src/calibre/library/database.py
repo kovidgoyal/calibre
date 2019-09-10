@@ -60,7 +60,7 @@ def _connect(path):
     conn =  sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
-    title_pat = re.compile('^(A|The|An)\\s+', re.IGNORECASE)
+    title_pat = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
 
     def title_sort(title):
         match = title_pat.search(title)
