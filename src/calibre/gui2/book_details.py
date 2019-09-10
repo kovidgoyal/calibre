@@ -57,8 +57,6 @@ def css():
     global _css
     if _css is None:
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        col = QApplication.instance().palette().color(QPalette.Link).name()
-        val = val.replace('LINK_COLOR', col)
         _css = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
     return _css
 
