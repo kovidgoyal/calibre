@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,7 +15,7 @@ from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import format_isbn
-from polyglot.builtins import string_or_bytes, filter
+from polyglot.builtins import filter, string_or_bytes, unicode_type
 
 
 class BIBTEX(CatalogPlugin):
@@ -126,9 +127,9 @@ class BIBTEX(CatalogPlugin):
 
             bibtex_entry = []
             if mode != "misc" and check_entry_book_valid(entry) :
-                bibtex_entry.append(u'@book{')
+                bibtex_entry.append('@book{')
             elif mode != "book" :
-                bibtex_entry.append(u'@misc{')
+                bibtex_entry.append('@misc{')
             else :
                 # case strict book
                 return ''
@@ -137,7 +138,7 @@ class BIBTEX(CatalogPlugin):
                 # Citation tag
                 bibtex_entry.append(make_bibtex_citation(entry, template_citation,
                     bibtexdict))
-                bibtex_entry = [u' '.join(bibtex_entry)]
+                bibtex_entry = [' '.join(bibtex_entry)]
 
             for field in fields:
                 if field.startswith('#'):
@@ -161,68 +162,68 @@ class BIBTEX(CatalogPlugin):
                     pass
 
                 if field == 'authors' :
-                    bibtex_entry.append(u'author = "%s"' % bibtexdict.bibtex_author_format(item))
+                    bibtex_entry.append('author = "%s"' % bibtexdict.bibtex_author_format(item))
 
                 elif field == 'id' :
-                    bibtex_entry.append(u'calibreid = "%s"' % int(item))
+                    bibtex_entry.append('calibreid = "%s"' % int(item))
 
                 elif field == 'rating' :
-                    bibtex_entry.append(u'rating = "%s"' % int(item))
+                    bibtex_entry.append('rating = "%s"' % int(item))
 
                 elif field == 'size' :
-                    bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
+                    bibtex_entry.append('%s = "%s octets"' % (field, int(item)))
 
                 elif field == 'tags' :
                     # A list to flatten
-                    bibtex_entry.append(u'tags = "%s"' % bibtexdict.utf8ToBibtex(u', '.join(item)))
+                    bibtex_entry.append('tags = "%s"' % bibtexdict.utf8ToBibtex(', '.join(item)))
 
                 elif field == 'comments' :
                     # \n removal
-                    item = item.replace(u'\r\n',u' ')
-                    item = item.replace(u'\n',u' ')
+                    item = item.replace('\r\n', ' ')
+                    item = item.replace('\n', ' ')
                     # unmatched brace removal (users should use \leftbrace or \rightbrace for single braces)
-                    item = bibtexdict.stripUnmatchedSyntax(item, u'{', u'}')
+                    item = bibtexdict.stripUnmatchedSyntax(item, '{', '}')
                     # html to text
                     try:
                         item = html2text(item)
                     except:
                         log.warn("Failed to convert comments to text")
-                    bibtex_entry.append(u'note = "%s"' % bibtexdict.utf8ToBibtex(item))
+                    bibtex_entry.append('note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
-                    bibtex_entry.append(u'isbn = "%s"' % format_isbn(item))
+                    bibtex_entry.append('isbn = "%s"' % format_isbn(item))
 
                 elif field == 'formats' :
                     # Add file path if format is selected
                     formats = [format.rpartition('.')[2].lower() for format in item]
-                    bibtex_entry.append(u'formats = "%s"' % u', '.join(formats))
+                    bibtex_entry.append('formats = "%s"' % ', '.join(formats))
                     if calibre_files:
-                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())
+                        files = [':%s:%s' % (format, format.rpartition('.')[2].upper())
                             for format in item]
-                        bibtex_entry.append(u'file = "%s"' % u', '.join(files))
+                        bibtex_entry.append('file = "%s"' % ', '.join(files))
 
                 elif field == 'series_index' :
-                    bibtex_entry.append(u'volume = "%s"' % int(item))
+                    bibtex_entry.append('volume = "%s"' % int(item))
 
                 elif field == 'timestamp' :
-                    bibtex_entry.append(u'timestamp = "%s"' % isoformat(item).partition('T')[0])
+                    bibtex_entry.append('timestamp = "%s"' % isoformat(item).partition('T')[0])
 
                 elif field == 'pubdate' :
-                    bibtex_entry.append(u'year = "%s"' % item.year)
-                    bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
+                    bibtex_entry.append('year = "%s"' % item.year)
+                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
 
                 elif field.startswith('#') and isinstance(item, string_or_bytes):
-                    bibtex_entry.append(u'custom_%s = "%s"' % (field[1:],
+                    bibtex_entry.append('custom_%s = "%s"' % (field[1:],
                         bibtexdict.utf8ToBibtex(item)))
 
                 elif isinstance(item, string_or_bytes):
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
                     # 'author_sort', 'series', 'title_sort'] :
-                    bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
+                    bibtex_entry.append('%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
-            bibtex_entry = u',\n    '.join(bibtex_entry)
-            bibtex_entry += u' }\n\n'
+            bibtex_entry = ',\n    '.join(bibtex_entry)
+            bibtex_entry += ' }\n\n'
 
             return bibtex_entry
 
@@ -241,7 +242,7 @@ class BIBTEX(CatalogPlugin):
             # define a function to replace the template entry by its value
             def tpl_replace(objtplname) :
 
-                tpl_field = re.sub(u'[\\{\\}]', u'', objtplname.group())
+                tpl_field = re.sub('[\\{\\}]', '', objtplname.group())
 
                 if tpl_field in TEMPLATE_ALLOWED_FIELDS :
                     if tpl_field in ['pubdate', 'timestamp'] :
@@ -249,26 +250,26 @@ class BIBTEX(CatalogPlugin):
                     elif tpl_field in ['tags', 'authors'] :
                         tpl_field =entry[tpl_field][0]
                     elif tpl_field in ['id', 'series_index'] :
-                        tpl_field = str(entry[tpl_field])
+                        tpl_field = unicode_type(entry[tpl_field])
                     else :
                         tpl_field = entry[tpl_field]
                     return ascii_text(tpl_field)
                 else:
-                    return u''
+                    return ''
 
             if len(template_citation) >0 :
                 tpl_citation = bibtexclass.utf8ToBibtex(
-                    bibtexclass.ValidateCitationKey(re.sub(u'\\{[^{}]*\\}',
+                    bibtexclass.ValidateCitationKey(re.sub('\\{[^{}]*\\}',
                         tpl_replace, template_citation)))
 
                 if len(tpl_citation) >0 :
                     return tpl_citation
 
             if len(entry["isbn"]) > 0 :
-                template_citation = u'%s' % re.sub(u'[\\D]',u'', entry["isbn"])
+                template_citation = '%s' % re.sub('[\\D]','', entry["isbn"])
 
             else :
-                template_citation = u'%s' % str(entry["id"])
+                template_citation = '%s' % unicode_type(entry["id"])
 
             return bibtexclass.ValidateCitationKey(template_citation)
 
@@ -394,8 +395,8 @@ class BIBTEX(CatalogPlugin):
                 for entry in data:
                     entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
-            outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
-            outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
+            outfile.write('%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
+            outfile.write('@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
                 % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
 
             for entry in data:

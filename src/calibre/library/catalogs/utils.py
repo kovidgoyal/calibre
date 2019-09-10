@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 __docformat__ = 'restructuredtext en'
@@ -44,7 +44,7 @@ class NumberToText(object):  # {{{
 
         # Build the hundreds component
         if hundredsComponent:
-            hundredsComponentString = "%s hundred" % self.hundreds[hundredsComponent/100]
+            hundredsComponentString = "%s hundred" % self.hundreds[hundredsComponent//100]
         else:
             hundredsComponentString = ""
 
@@ -56,7 +56,7 @@ class NumberToText(object):  # {{{
             onesPart = ""
 
             # Get the tens part
-            tensPart = self.tens[tensComponent / 10]
+            tensPart = self.tens[tensComponent // 10]
             onesPart = self.lessThanTwenty[tensComponent % 10]
 
             if intToTranslate % 10:
@@ -183,8 +183,8 @@ class NumberToText(object):  # {{{
                 self.text = "one billion"
             else :
                 # Isolate the three-digit number groups
-                millionsNumber  = number/10**6
-                thousandsNumber = (number - (millionsNumber * 10**6))/10**3
+                millionsNumber  = number//10**6
+                thousandsNumber = (number - (millionsNumber * 10**6))//10**3
                 hundredsNumber  = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
                 if self.verbose:
                     print("Converting %s %s %s" % (millionsNumber, thousandsNumber, hundredsNumber))
@@ -196,7 +196,7 @@ class NumberToText(object):  # {{{
                 # Convert thousandsNumber
                 if thousandsNumber:
                     if number > 1099 and number < 2000:
-                        resultString = '%s %s' % (self.lessThanTwenty[number/100],
+                        resultString = '%s %s' % (self.lessThanTwenty[number//100],
                                                     self.stringFromInt(number % 100))
                         self.text = resultString.strip().capitalize()
                         return
@@ -222,6 +222,6 @@ class NumberToText(object):  # {{{
                     resultString = "zero"
 
                 if self.verbose:
-                    self.log(u'resultString: %s' % resultString)
+                    self.log('resultString: %s' % resultString)
                 self.text = resultString.strip().capitalize()
 # }}}
