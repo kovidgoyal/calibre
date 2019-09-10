@@ -652,14 +652,21 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.init_languages()
         self.language.currentIndexChanged[int].connect(self.change_language)
         self.location.textChanged.connect(self.location_text_changed)
+        self.set_move_lib_label_text()
+
+    def location_text_changed(self, newtext):
+        self.completeChanged.emit()
+
+    def set_move_lib_label_text(self):
         self.move_lib_label.setText(_(
             'If you are moving calibre from an old computer to a new one,'
             ' please read <a href="{0}">the instructions</a>.').format(
                 localize_user_manual_link(
         'https://manual.calibre-ebook.com/faq.html#how-do-i-move-my-calibre-data-from-one-computer-to-another')))
 
-    def location_text_changed(self, newtext):
-        self.completeChanged.emit()
+    def retranslateUi(self, widget):
+        LibraryUI.retranslateUi(self, widget)
+        self.set_move_lib_label_text()
 
     def init_languages(self):
         self.language.blockSignals(True)
