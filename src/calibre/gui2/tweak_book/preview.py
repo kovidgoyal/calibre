@@ -373,7 +373,7 @@ class WebView(RestartingWebEngineView):
         return self._size_hint
 
     def refresh(self):
-        self.pageAction(QWebEnginePage.Reload).trigger()
+        self.pageAction(QWebEnginePage.ReloadAndBypassCache).trigger()
 
     def clear(self):
         self.setHtml(_(
