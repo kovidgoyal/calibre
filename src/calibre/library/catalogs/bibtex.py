@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re, codecs, os, numbers
 from collections import namedtuple
 
-from calibre import (strftime)
+from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
