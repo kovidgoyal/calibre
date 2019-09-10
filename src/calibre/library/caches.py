@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -466,7 +466,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 cast = lambda x: int(x)
             elif dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x/2
+                adjust = lambda x: x//2
             elif dt in ('float', 'composite'):
                 cast = lambda x : float(x)
             else:  # count operation
@@ -851,7 +851,7 @@ class ResultCache(SearchQueryParser):  # {{{
     def _build_restriction_string(self, restriction):
         if self.base_restriction:
             if restriction:
-                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+                return '(%s) and (%s)' % (self.base_restriction, restriction)
             else:
                 return self.base_restriction
         else:
@@ -867,7 +867,7 @@ class ResultCache(SearchQueryParser):  # {{{
         else:
             q = query
             if search_restriction:
-                q = u'(%s) and (%s)' % (search_restriction, query)
+                q = '(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
@@ -924,7 +924,7 @@ class ResultCache(SearchQueryParser):  # {{{
         '''
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
+            self.marked_ids_dict = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
             self.marked_ids_dict = dict(zip(iter(id_dict), map(unicode_type,
@@ -1214,7 +1214,7 @@ class SortKeyGenerator(object):
                 else:
                     if self.library_order:
                         try:
-                            lang = record[self.lang_idx].partition(u',')[0]
+                            lang = record[self.lang_idx].partition(',')[0]
                         except (AttributeError, ValueError, KeyError,
                                 IndexError, TypeError):
                             lang = None

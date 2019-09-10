@@ -1,6 +1,8 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 ''' Code to manage ebook library'''
 
 
@@ -64,7 +66,7 @@ def generate_test_db(library_path,  # {{{
 
     t = time.time() - start
     print('\nGenerated', num_of_records, 'records in:', t, 'seconds')
-    print('Time per record:', t/float(num_of_records))
+    print('Time per record:', t/num_of_records)
 # }}}
 
 

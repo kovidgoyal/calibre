@@ -1,4 +1,5 @@
-from __future__ import print_function, with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -7,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
 '''
+
 import sqlite3 as sqlite, traceback, time, uuid, os
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
@@ -20,7 +22,7 @@ from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins, plugins_loc
 from calibre.utils.icu import sort_key
 from calibre import prints
-from polyglot.builtins import unicode_type, cmp
+from polyglot.builtins import cmp, native_string_type, unicode_type
 from polyglot import reprlib
 from polyglot.queue import Queue
 
@@ -78,7 +80,7 @@ def adapt_datetime(dt):
 
 
 sqlite.register_adapter(datetime, adapt_datetime)
-sqlite.register_converter('timestamp', convert_timestamp)
+sqlite.register_converter(native_string_type('timestamp'), convert_timestamp)
 
 
 def convert_bool(val):
@@ -86,8 +88,8 @@ def convert_bool(val):
 
 
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
-sqlite.register_converter('bool', convert_bool)
-sqlite.register_converter('BOOL', convert_bool)
+sqlite.register_converter(native_string_type('bool'), convert_bool)
+sqlite.register_converter(native_string_type('BOOL'), convert_bool)
 
 
 class DynamicFilter(object):
@@ -162,7 +164,7 @@ class IdentifiersConcat(object):
         self.ans = []
 
     def step(self, key, val):
-        self.ans.append(u'%s:%s'%(key, val))
+        self.ans.append('%s:%s'%(key, val))
 
     def finalize(self):
         try:
@@ -262,15 +264,15 @@ def do_connect(path, row_factory=None):
     conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row : list(row))
     conn.create_aggregate('concat', 1, Concatenate)
     conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
-    conn.create_collation('PYNOCASE', partial(pynocase,
+    conn.create_collation(native_string_type('PYNOCASE'), partial(pynocase,
         encoding=encoding))
     conn.create_function('title_sort', 1, title_sort)
     conn.create_function('author_to_author_sort', 1,
             _author_to_author_sort)
-    conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+    conn.create_function('uuid4', 0, lambda : unicode_type(uuid.uuid4()))
     # Dummy functions for dynamically created filters
     conn.create_function('books_list_filter', 1, lambda x: 1)
-    conn.create_collation('icucollate', icu_collator)
+    conn.create_collation(native_string_type('icucollate'), icu_collator)
     return conn
 
 
@@ -320,7 +322,7 @@ class DBThread(Thread):
                                 break
                             except OperationalError as err:
                                 # Retry if unable to open db file
-                                e = str(err)
+                                e = unicode_type(err)
                                 if 'unable to open' not in e or i == 2:
                                     if 'unable to open' in e:
                                         prints('Unable to open database for func',
