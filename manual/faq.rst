@@ -96,7 +96,7 @@ unless the file is marked as a Personal document, Amazon assumes you bought the
 book from it and tries to download the cover thumbnail for it from its servers. When the
 download fails, it refuses to fallback to the cover defined in the MOBI file.
 This is likely deliberate on Amazon's part to try to force authors to sell only
-through them. In other words, Kindle's only display covers for books marked as
+through them. In other words, the Kindle only displays covers for books marked as
 Personal Documents or books bought directly from Amazon.
 
 If you send a MOBI file to an e-ink Kindle with calibre using a USB connection,
