@@ -20,17 +20,18 @@
 #
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import zipfile, re, io
+import zipfile, re, io, os
 import xml.sax.saxutils
 
 from odf.namespaces import OFFICENS, DCNS, METANS
 from odf.opendocument import load as odLoad
 from odf.draw import Image as odImage, Frame as odFrame
 
-from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn, authors_to_string
+
 from calibre.utils.imghdr import identify
 from calibre.utils.date import parse_date
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from polyglot.builtins import string_or_bytes
 
 whitespace = re.compile(r'\s+')
@@ -157,16 +158,19 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
     def data(self):
         return normalize(''.join(self._data))
 
-
-def get_metadata(stream, extract_cover=True):
-    zin = zipfile.ZipFile(stream, 'r')
-    odfs = odfmetaparser()
+def get_odf_meta_parsed(stream, mode = 'r', deletefields={}, yieldfields={}, addfields={}):
+    zin = zipfile.ZipFile(stream, mode)
+    odfs = odfmetaparser(deletefields, yieldfields, addfields)
     parser = xml.sax.make_parser()
     parser.setFeature(xml.sax.handler.feature_namespaces, True)
     parser.setFeature(xml.sax.handler.feature_external_ges, False)
     parser.setContentHandler(odfs)
     content = zin.read('meta.xml')
     parser.parse(io.BytesIO(content))
+    return (zin, odfs)
+
+def get_metadata(stream, extract_cover=True):
+    zin, odfs = get_odf_meta_parsed(stream)
     data = odfs.seenfields
     mi = MetaInformation(None, [])
     if 'title' in data:
@@ -219,6 +223,28 @@ def get_metadata(stream, extract_cover=True):
             pass  # Do not let an error reading the cover prevent reading other data
 
     return mi
+
+def get_meta_doc_props(mi):
+    metaFields = {}
+    metaFields[fields.get('title')] = mi.title
+    metaFields[fields.get('creator')] = authors_to_string(mi.authors)
+    if mi.tags:
+        metaFields[fields.get('keyword')] = ', '.join(mi.tags)
+    if mi.comments:
+        metaFields[fields.get('description')] = mi.comments
+    if mi.languages:
+        l = canonicalize_lang(mi.languages[0])
+        metaFields[fields.get('language')] = lang_as_iso639_1(l) or l
+    return metaFields
+
+def set_metadata(stream, mi):
+    from calibre.utils.zipfile import safe_replace
+    metaFields = get_meta_doc_props(mi)
+
+    zin, odfs = get_odf_meta_parsed(stream, addfields=metaFields, deletefields=metaFields)
+    stream.seek(os.SEEK_SET)
+    safe_replace(stream, "meta.xml", io.BytesIO(str(odfs.meta())))
+
 
 
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
