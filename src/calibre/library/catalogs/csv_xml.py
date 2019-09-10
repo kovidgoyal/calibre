@@ -235,6 +235,6 @@ class CSV_XML(CatalogPlugin):
                 if 'library_name' in fields:
                     record.append(E.library_name(current_library))
 
-            with open(path_to_output, 'w') as f:
+            with open(path_to_output, 'wb') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))
