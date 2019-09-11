@@ -65,13 +65,14 @@ QT_PLUGINS = [
     'platformthemes',
     # 'playlistformats',
     'sqldrivers',
-    'styles',
     # 'webview',
     # 'audio', 'printsupport', 'bearer', 'position',
 ]
 
 if not ismacos and not iswindows:
     QT_PLUGINS.append('platforminputcontexts')
+else:
+    QT_PLUGINS.append('styles')
 
 if islinux:
     QT_PLUGINS += [
