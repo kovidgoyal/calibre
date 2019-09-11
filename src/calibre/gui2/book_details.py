@@ -129,14 +129,14 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
         </style>
         <style type="text/css">
             %s
-            table td.title { white-space: nowrap }
+            table td.title { white-space: %s }
         </style>
         </head>
         <body>
         %%s
         </body>
     <html>
-    '''%(c, css)
+    '''%(c, css, 'normal' if vertical else 'nowrap')
     comments = ''
     if comment_fields:
         comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
