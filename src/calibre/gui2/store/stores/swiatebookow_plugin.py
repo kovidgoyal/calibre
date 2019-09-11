@@ -63,7 +63,7 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         while counter:
-            with closing(br.open('https://www.swiatebookow.pl/ebooki/?q=' + quote(query) + '&page=' + str(page), timeout=timeout)) as f:
+            with closing(br.open('https://www.swiatebookow.pl/ebooki/?q=' + quote(query) + '&page={}'.format(page), timeout=timeout)) as f:
                 doc = html.fromstring(f.read().decode('utf-8'))
                 for data in doc.xpath('//div[@class="category-item-container"]//div[@class="book-large"]'):
                     if counter <= 0:

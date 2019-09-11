@@ -58,7 +58,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP=' + str(max_results) + '&q=' + quote(query)
+        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP={}&q={}'.format(max_results, quote(query))
 
         br = browser()
 

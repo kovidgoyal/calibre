@@ -57,7 +57,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
         counter = max_results
 
         while counter:
-            with closing(br.open(url + '&_offset=' + str(offset), timeout=timeout)) as f:
+            with closing(br.open(url + '&_offset={}'.format(offset), timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//ul[@class="productslist"]/li'):
                     if counter <= 0:
@@ -76,7 +76,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     title = re.sub(r' – ebook', '', title)
                     author = ', '.join(data.xpath('.//div[@class="col-7"]//h4//a/text()'))
                     formats = ', '.join(data.xpath('.//ul[@class="formats"]/li//b/text()'))
-                    DrmFree = re.search(r'znak', str(data.xpath('.//ul[@class="formats"]/li//b/@title')))
+                    DrmFree = re.search(r'znak', type('')(data.xpath('.//ul[@class="formats"]/li//b/@title')))
 
                     counter -= 1
 
