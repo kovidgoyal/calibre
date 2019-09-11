@@ -65,7 +65,7 @@ QT_PLUGINS = [
     'platformthemes',
     # 'playlistformats',
     'sqldrivers',
-    # 'styles',
+    'styles',
     # 'webview',
     # 'audio', 'printsupport', 'bearer', 'position',
 ]
