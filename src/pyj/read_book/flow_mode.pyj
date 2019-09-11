@@ -128,7 +128,7 @@ def scroll_by_page(direction):
 
 def handle_shortcut(sc_name, evt):
     if sc_name is 'down':
-        smooth_y_scroll(True)
+        smooth_y_scroll(False)
         return True
     if sc_name is 'up':
         smooth_y_scroll(True)
