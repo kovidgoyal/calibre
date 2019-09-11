@@ -212,13 +212,40 @@ class IframeBoss:
             opts.color_scheme = data.color_scheme
             apply_colors()
 
+    def fix_fullscreen_svg_images(self):
+        # Full screen images using SVG no longer render correctly
+        # webengine. This is because it sets the width to the
+        # viewport width and simply adjusts the height accordingly
+        # So we replace 100% with 100vw and 100vh to get the desired
+        # rendering
+        child_names = v'[]'
+        for node in document.body.childNodes:
+            if node.tagName:
+                name = node.tagName.toLowerCase()
+                if name is not 'style' and name is not 'script':
+                    child_names.push(name)
+                if child_names.length > 1:
+                    break
+        if child_names.length is 1 and child_names[0] is 'div':
+            names = []
+            svg = None
+            for node in document.body.querySelectorAll('*'):
+                if node.tagName:
+                    name = node.tagName.toLowerCase()
+                    if name is not 'style' and name is not 'script':
+                        names.push(name)
+                        if name is 'svg':
+                            svg = node
+            if names == ['div', 'svg', 'image'] or names == ['svg', 'image']:
+                if svg.getAttribute('width') is '100%' and svg.getAttribute('height') is '100%':
+                    svg.setAttribute('width', '100vw')
+                    svg.setAttribute('height', '100vh')
+
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
-        # document.body.appendChild(
-        #     E.style()  # TODO: User style sheet
-        # )
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
+        self.fix_fullscreen_svg_images()
         self.do_layout()
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
