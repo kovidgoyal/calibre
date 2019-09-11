@@ -6,7 +6,7 @@ Created on 13 Jan 2011
 
 @author: charles
 '''
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -838,7 +838,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['size']) for k,v in iteritems(fmt_data))
+            return ','.join(k.upper()+':'+unicode_type(v['size']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -857,7 +857,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
         try:
-            return ','.join(k.upper()+':'+str(v['path']) for k,v in iteritems(fmt_data))
+            return ','.join(k.upper()+':'+unicode_type(v['path']) for k,v in iteritems(fmt_data))
         except:
             return ''
 
@@ -1088,7 +1088,7 @@ class BuiltinBooksize(BuiltinFormatterFunction):
             try:
                 v = mi._proxy_metadata.book_size
                 if v is not None:
-                    return str(mi._proxy_metadata.book_size)
+                    return unicode_type(mi._proxy_metadata.book_size)
                 return ''
             except:
                 pass

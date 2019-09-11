@@ -1,6 +1,7 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, sengian <sengian1@gmail.com>'
-__docformat__ = 'restructuredtext en'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
 from polyglot.builtins import codepoint_to_chr, map, range, filter
@@ -24,7 +25,7 @@ def ascii_pat(for_binary=False):
     if ans is None:
         chars = set(range(32)) - {9, 10, 13}
         chars.add(127)
-        pat = u'|'.join(map(codepoint_to_chr, chars))
+        pat = '|'.join(map(codepoint_to_chr, chars))
         if for_binary:
             pat = pat.encode('ascii')
         ans = re.compile(pat)
@@ -38,14 +39,14 @@ def clean_ascii_chars(txt, charlist=None):
     This is all control chars except \t, \n and \r
     '''
     is_binary = isinstance(txt, bytes)
-    empty = b'' if is_binary else u''
+    empty = b'' if is_binary else ''
     if not txt:
         return empty
 
     if charlist is None:
         pat = ascii_pat(is_binary)
     else:
-        pat = u'|'.join(map(codepoint_to_chr, charlist))
+        pat = '|'.join(map(codepoint_to_chr, charlist))
         if is_binary:
             pat = pat.encode('utf-8')
     return pat.sub(empty, txt)
@@ -57,15 +58,15 @@ def allowed(x):
 
 
 def py_clean_xml_chars(unicode_string):
-    return u''.join(filter(allowed, unicode_string))
+    return ''.join(filter(allowed, unicode_string))
 
 
 clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
 
 
 def test_clean_xml_chars():
-    raw = u'asd\x02a\U00010437x\ud801b\udffe\ud802'
-    if native_clean_xml_chars(raw) != u'asda\U00010437xb':
+    raw = 'asd\x02a\U00010437x\ud801b\udffe\ud802'
+    if native_clean_xml_chars(raw) != 'asda\U00010437xb':
         raise ValueError('Failed to XML clean: %r' % raw)
 
 
@@ -75,7 +76,7 @@ def test_clean_xml_chars():
 # @param text The HTML (or XML) source text.
 # @return The plain text, as a Unicode string, if necessary.
 
-def unescape(text, rm=False, rchar=u''):
+def unescape(text, rm=False, rchar=''):
     def fixup(m, rm=rm, rchar=rchar):
         text = m.group(0)
         if text[:2] == "&#":
