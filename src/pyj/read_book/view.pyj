@@ -138,6 +138,7 @@ class View:
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.report_cfi_callbacks = {}
         self.show_chrome_counter = 0
+        self.show_loading_callback_timer = None
         self.clock_timer_id = 0
         sd = get_session_data()
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
@@ -441,11 +442,13 @@ class View:
         self.overlay.show_loading_message(msg)
 
     def show_loading(self):
-        title = self.book.metadata.title
-        self.show_loading_message(_(
-            'Loading next section from <i>{title}</i>, please wait...').format(title=title))
+        msg = _('Loading next section from <i>{title}</i>, please wait…').format(title=self.book.metadata.title)
+        self.show_loading_callback_timer = setTimeout(self.show_loading_message.bind(None, msg), 200)
 
     def hide_loading(self):
+        if self.show_loading_callback_timer is not None:
+            clearTimeout(self.show_loading_callback_timer)
+            self.show_loading_callback_timer = None
         self.overlay.hide_loading_message()
 
     def parse_cfi(self, encoded_cfi, book):
