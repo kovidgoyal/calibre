@@ -14,9 +14,11 @@ import zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
+from lxml import etree
+
 from calibre import (
-    as_unicode, force_unicode, isbytestring, replace_entities, strftime,
-    xml_replace_entities
+    as_unicode, force_unicode, isbytestring, prepare_string_for_xml,
+    replace_entities, strftime, xml_replace_entities
 )
 from calibre.constants import cache_dir, isosx
 from calibre.customize.conversion import DummyReporter
@@ -26,6 +28,7 @@ from calibre.ebooks.BeautifulSoup import (
 )
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import (
     AuthorSortMismatchException, EmptyCatalogException,
     InvalidGenresSourceFieldException
@@ -41,9 +44,19 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import unicode_type, iteritems, map, zip
+from polyglot.builtins import iteritems, map, unicode_type, zip
 
 NBSP = '\u00a0'
+
+
+def makeelement(tag_name, parent, **attrs):
+    ans = parent.makeelement(tag_name)
+    for k, v in attrs.items():
+        k = k.replace('_', '-').rstrip('-')
+        ans.set(k, v)
+    parent.append(ans)
+    ans.tail = '\n'
+    return ans
 
 
 class Formatter(TemplateFormatter):
@@ -4032,159 +4045,78 @@ class CatalogBuilder(object):
             lang = lang_as_iso639_1(lang)
 
         header = '''\
-<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="calibre_id">
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf"
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
             xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <dc:language>LANG</dc:language>
+        <dc:title>{title}</dc:title>
+        <dc:creator>{creator}</dc:creator>
+        <dc:language>{lang}</dc:language>
+        <meta name="calibre:publication_type" content="{pt}"/>
     </metadata>
     <manifest></manifest>
     <spine toc="ncx"></spine>
     <guide></guide>
 </package>
-            '''.replace('LANG', lang)
-        # Add the supplied metadata tags
-        soup = BeautifulStoneSoup(header)
-        metadata = soup.find('metadata')
-        mtc = 0
-
-        titleTag = soup.new_tag("dc:title")
-        titleTag.insert(0, NavigableString(self.opts.catalog_title))
-        metadata.insert(mtc, titleTag)
-        mtc += 1
-
-        creatorTag = soup.new_tag("dc:creator")
-        creatorTag.insert(0, self.opts.creator)
-        metadata.insert(mtc, creatorTag)
-        mtc += 1
-
-        if self.generate_for_kindle_mobi:
-            periodicalTag = soup.new_tag("meta")
-            periodicalTag['name'] = "calibre:publication_type"
-            periodicalTag['content'] = "periodical:default"
-            metadata.insert(mtc, periodicalTag)
-            mtc += 1
+            '''.format(
+                title=prepare_string_for_xml(self.opts.catalog_title),
+                creator=prepare_string_for_xml(self.opts.creator),
+                lang=prepare_string_for_xml(lang),
+                pt="periodical:default" if self.generate_for_kindle_mobi else ""
+        )
+        root = etree.fromstring(header)
+        manifest = root.xpath('//*[local-name()="manifest"]')[0]
+        spine = root.xpath('//*[local-name()="spine"]')[0]
+        guide = root.xpath('//*[local-name()="guide"]')[0]
 
         # Create the OPF tags
-        manifest = soup.find('manifest')
-        mtc = 0
-        spine = soup.find('spine')
-        stc = 0
-        guide = soup.find('guide')
+        def manifest_item(id, href, media_type, add_to_spine=False):
+            ans = makeelement('item', manifest, id=id, href=href, media_type=media_type)
+            if add_to_spine:
+                makeelement('itemref', spine, idref=id)
+            return ans
 
-        itemTag = soup.new_tag("item")
-        itemTag['id'] = "ncx"
-        itemTag['href'] = '%s.ncx' % self.opts.basename
-        itemTag['media-type'] = "application/x-dtbncx+xml"
-        manifest.insert(mtc, itemTag)
-        mtc += 1
-
-        itemTag = soup.new_tag("item")
-        itemTag['id'] = 'stylesheet'
-        itemTag['href'] = self.stylesheet
-        itemTag['media-type'] = 'text/css'
-        manifest.insert(mtc, itemTag)
-        mtc += 1
+        manifest_item(id='ncx', href='%s.ncx' % self.opts.basename, media_type="application/x-dtbncx+xml")
+        manifest_item(id='stylesheet', href=self.stylesheet, media_type='text/css')
 
         if self.generate_for_kindle_mobi:
-            itemTag = soup.new_tag("item")
-            itemTag['id'] = 'mastheadimage-image'
-            itemTag['href'] = "images/mastheadImage.gif"
-            itemTag['media-type'] = 'image/gif'
-            manifest.insert(mtc, itemTag)
-            mtc += 1
+            manifest_item('mastheadimage-image', "images/mastheadImage.gif", 'image/gif')
 
         # Write the thumbnail images, descriptions to the manifest
         if self.opts.generate_descriptions:
             for thumb in self.thumbs:
-                itemTag = soup.new_tag("item")
-                itemTag['href'] = "images/%s" % (thumb)
                 end = thumb.find('.jpg')
-                itemTag['id'] = "%s-image" % thumb[:end]
-                itemTag['media-type'] = 'image/jpeg'
-                manifest.insert(mtc, itemTag)
-                mtc += 1
+                manifest_item("%s-image" % thumb[:end], "images/%s" % (thumb), 'image/jpeg')
 
         # Add html_files to manifest and spine
-
         for file in self.html_filelist_1:
             # By Author, By Title, By Series,
-            itemTag = soup.new_tag("item")
             start = file.find('/') + 1
             end = file.find('.')
-            itemTag['href'] = file
-            itemTag['id'] = file[start:end].lower()
-            itemTag['media-type'] = "application/xhtml+xml"
-            manifest.insert(mtc, itemTag)
-            mtc += 1
-
-            # spine
-            itemrefTag = soup.new_tag("itemref")
-            itemrefTag['idref'] = file[start:end].lower()
-            spine.insert(stc, itemrefTag)
-            stc += 1
+            manifest_item(file[start:end].lower(), file, "application/xhtml+xml", add_to_spine=True)
 
         # Add genre files to manifest and spine
         for genre in self.genres:
-            itemTag = soup.new_tag("item")
             start = genre['file'].find('/') + 1
             end = genre['file'].find('.')
-            itemTag['href'] = genre['file']
-            itemTag['id'] = genre['file'][start:end].lower()
-            itemTag['media-type'] = "application/xhtml+xml"
-            manifest.insert(mtc, itemTag)
-            mtc += 1
-
-            # spine
-            itemrefTag = soup.new_tag("itemref")
-            itemrefTag['idref'] = genre['file'][start:end].lower()
-            spine.insert(stc, itemrefTag)
-            stc += 1
+            manifest_item(genre['file'][start:end].lower(), genre['file'], "application/xhtml+xml", add_to_spine=True)
 
         for file in self.html_filelist_2:
             # By Date Added, By Date Read
-            itemTag = soup.new_tag("item")
             start = file.find('/') + 1
             end = file.find('.')
-            itemTag['href'] = file
-            itemTag['id'] = file[start:end].lower()
-            itemTag['media-type'] = "application/xhtml+xml"
-            manifest.insert(mtc, itemTag)
-            mtc += 1
-
-            # spine
-            itemrefTag = soup.new_tag("itemref")
-            itemrefTag['idref'] = file[start:end].lower()
-            spine.insert(stc, itemrefTag)
-            stc += 1
+            manifest_item(file[start:end].lower(), file, "application/xhtml+xml", add_to_spine=True)
 
         for book in self.books_by_description:
             # manifest
-            itemTag = soup.new_tag("item")
-            itemTag['href'] = "content/book_%d.html" % int(book['id'])
-            itemTag['id'] = "book%d" % int(book['id'])
-            itemTag['media-type'] = "application/xhtml+xml"
-            manifest.insert(mtc, itemTag)
-            mtc += 1
-
-            # spine
-            itemrefTag = soup.new_tag("itemref")
-            itemrefTag['idref'] = "book%d" % int(book['id'])
-            spine.insert(stc, itemrefTag)
-            stc += 1
+            manifest_item("book%d" % int(book['id']), "content/book_%d.html" % int(book['id']), "application/xhtml+xml", add_to_spine=True)
 
         # Guide
         if self.generate_for_kindle_mobi:
-            referenceTag = soup.new_tag("reference")
-            referenceTag['type'] = 'masthead'
-            referenceTag['title'] = 'mastheadimage-image'
-            referenceTag['href'] = 'images/mastheadImage.gif'
-            guide.insert(0, referenceTag)
+            makeelement('reference', guide, type='masthead', title='masthead-image', href='images/mastheadImage.gif')
 
         # Write the OPF file
-        output = soup.prettify(encoding='utf-8')
-        if isinstance(output, unicode_type):
-            output = output.encode('utf-8')
+        pretty_opf(root), pretty_xml_tree(root)
+        output = etree.tostring(root, encoding='utf-8')
         with lopen("%s/%s.opf" % (self.catalog_path, self.opts.basename), 'wb') as outfile:
             outfile.write(output.strip())
 
