@@ -140,10 +140,10 @@ def handle_shortcut(sc_name, evt):
         goto_boundary(1)
         return True
     if sc_name is 'left':
-        window.scrollBy(-15)
+        window.scrollBy(-15, 0)
         return True
     if sc_name is 'right':
-        window.scrollBy(-15)
+        window.scrollBy(15, 0)
         return True
     if sc_name is 'start_of_book':
         get_boss().send_message('goto_doc_boundary', start=True)
