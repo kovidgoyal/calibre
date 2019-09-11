@@ -1,10 +1,10 @@
 #ifndef UNICODE
 #define UNICODE
-#endif 
+#endif
 
 #ifndef _UNICODE
 #define _UNICODE
-#endif 
+#endif
 
 #include <Windows.h>
 #include <Shlobj.h>
@@ -34,7 +34,7 @@ static void show_detailed_error(LPCWSTR preamble, LPCWSTR msg, int code) {
     buf = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(WCHAR)*
             (wcslen(msg) + wcslen(preamble) + 80));
 
-    _snwprintf_s(buf, 
+    _snwprintf_s(buf,
         LocalSize(buf) / sizeof(WCHAR), _TRUNCATE,
         L"%s\r\n  %s (Error Code: %d)\r\n",
         preamble, msg, code);
@@ -52,7 +52,7 @@ static void show_zip_error(LPCWSTR preamble, LPCWSTR msg, ZRESULT code) {
     buf = (LPWSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(WCHAR)*
             (wcslen(preamble) + wcslen(msg) + 1100));
 
-    _snwprintf_s(buf, 
+    _snwprintf_s(buf,
         LocalSize(buf) / sizeof(WCHAR), _TRUNCATE,
         L"%s\r\n  %s (Error: %S)\r\n",
         preamble, msg, msgbuf);
@@ -61,21 +61,12 @@ static void show_zip_error(LPCWSTR preamble, LPCWSTR msg, ZRESULT code) {
     LocalFree(buf);
 }
 
-static void show_last_error_crt(LPCWSTR preamble) {
-    WCHAR buf[BUFSIZE];
-    int err = 0;
-
-    _get_errno(&err);
-    _wcserror_s(buf, BUFSIZE, err);
-    show_detailed_error(preamble, buf, err);
-}
-
 static void show_last_error(LPCWSTR preamble) {
     WCHAR *msg = NULL;
-    DWORD dw = GetLastError(); 
+    DWORD dw = GetLastError();
 
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
@@ -118,7 +109,7 @@ static BOOL unzip(HZIP zipf, int nitems, IProgressDialog *pd) {
     for (i = 0; i < nitems; i++) {
         res = GetZipItem(zipf, i, &ze);
         if (res != ZR_OK) { show_zip_error(L"Failed to get zip item", L"", res); return false;}
-        
+
         res = UnzipItem(zipf, i, ze.name, 0, ZIP_FILENAME);
         if (res != ZR_OK) { CloseZip(zipf); show_zip_error(L"Failed to extract zip item (is your disk full?):", ze.name, res); return false;}
 
@@ -145,43 +136,43 @@ static HANDLE temp_file(LPWSTR name) {
 
 }
 
-struct DataStream  
-{  
+struct DataStream
+{
     const unsigned char *in_data;
-    size_t in_len; 
-   
+    size_t in_len;
+
     HANDLE out;
     IProgressDialog *pd;
 };
 
-static int  
-input_callback(void *ctx, void *buf, size_t * size)  
-{  
-    size_t rd = 0;  
-    struct DataStream * ds = (struct DataStream *) ctx;  
-      
-    rd = (ds->in_len < *size) ? ds->in_len : *size;  
-   
-    if (rd > 0) {  
-        memcpy(buf, (void*) ds->in_data, rd);  
-        ds->in_data += rd;  
-        ds->in_len -= rd;  
-    }  
-   
-    *size = rd;  
-   
-    return 0;  
-}  
+static int
+input_callback(void *ctx, void *buf, size_t * size)
+{
+    size_t rd = 0;
+    struct DataStream * ds = (struct DataStream *) ctx;
+
+    rd = (ds->in_len < *size) ? ds->in_len : *size;
+
+    if (rd > 0) {
+        memcpy(buf, (void*) ds->in_data, rd);
+        ds->in_data += rd;
+        ds->in_len -= rd;
+    }
+
+    *size = rd;
+
+    return 0;
+}
 
 static int output_error_shown = 0;
 
-static size_t  
-output_callback(void *ctx, const void *buf, size_t size)  
-{  
-    struct DataStream * ds = (struct DataStream *) ctx;  
+static size_t
+output_callback(void *ctx, const void *buf, size_t size)
+{
+    struct DataStream * ds = (struct DataStream *) ctx;
     DWORD written = 0;
-      
-    if (size > 0) {  
+
+    if (size > 0) {
         if (!WriteFile(ds->out, buf, size, &written, NULL)) {
             show_last_error(L"Failed to write uncompressed data to temp file");
             output_error_shown = 1;
@@ -189,10 +180,10 @@ output_callback(void *ctx, const void *buf, size_t size)
         }
         written = SetFilePointer(ds->out, 0, NULL, FILE_CURRENT);
         ds->pd->SetProgress(written, UNCOMPRESSED_SIZE);
-    }  
-   
-    return size;  
-}  
+    }
+
+    return size;
+}
 
 static BOOL decompress(LPVOID src, DWORD src_sz, HANDLE out, IProgressDialog *pd) {
     elzma_decompress_handle h;
@@ -211,13 +202,13 @@ static BOOL decompress(LPVOID src, DWORD src_sz, HANDLE out, IProgressDialog *pd
     rc = elzma_decompress_run(h, input_callback, (void *) &ds, output_callback,
             (void *) &ds, ELZMA_lzip);
 
-    if (rc != ELZMA_E_OK) {  
+    if (rc != ELZMA_E_OK) {
         if (!output_error_shown) show_detailed_error(L"Failed to decompress portable data", L"", rc);
-        elzma_decompress_free(&h);  
-        return false;  
+        elzma_decompress_free(&h);
+        return false;
     }
 
-    elzma_decompress_free(&h);  
+    elzma_decompress_free(&h);
 
     return true;
 }
@@ -300,7 +291,7 @@ static LPWSTR get_directory_from_user() {
     if (path == NULL) { show_error(L"Out of memory"); return NULL; }
 
     int image = 0;
-    BROWSEINFO bi = { NULL, NULL, name, 
+    BROWSEINFO bi = { NULL, NULL, name,
         L"Select the folder where you want to install or update Calibre Portable",
         BIF_RETURNONLYFSDIRS | BIF_DONTGOBELOWDOMAIN | BIF_USENEWUI,
         NULL, NULL, image };
@@ -353,7 +344,7 @@ static BOOL find_portable_dir(LPCWSTR base, LPWSTR *result, BOOL *existing) {
         return true;
     }
 
-    WIN32_FIND_DATA fdFile; 
+    WIN32_FIND_DATA fdFile;
     HANDLE hFind = NULL;
     _snwprintf_s(buf, 4*MAX_PATH, _TRUNCATE, L"%s\\*", base);
 
@@ -370,7 +361,7 @@ static BOOL find_portable_dir(LPCWSTR base, LPWSTR *result, BOOL *existing) {
                     FindClose(hFind);
                     return true;
                 }
-            } 
+            }
         } while(FindNextFile(hFind, &fdFile));
         FindClose(hFind);
     }
@@ -411,7 +402,7 @@ static LPWSTR make_unpack_dir() {
 }
 
 static BOOL move_program() {
-    if (MoveFileEx(L"Calibre Portable\\calibre-portable.exe", 
+    if (MoveFileEx(L"Calibre Portable\\calibre-portable.exe",
                 L"..\\calibre-portable.exe", MOVEFILE_REPLACE_EXISTING) == 0) {
         show_last_error(L"Failed to move calibre-portable.exe, make sure calibre is not running");
         return false;
@@ -444,7 +435,7 @@ static BOOL move_program() {
 }
 // }}}
 
-static BOOL ensure_not_running(LPCWSTR dest) {
+static BOOL ensure_not_running() {
     DWORD processes[4096], needed, num;
     unsigned int i;
     WCHAR name[4*MAX_PATH] = L"<unknown>";
@@ -514,7 +505,7 @@ void makedirs(LPWSTR path) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-
+	(void)hPrevInstance; (void)pCmdLine; (void)nCmdShow;
     LPVOID cdata = NULL;
     DWORD csz = 0;
     int ret = 1, argc;
@@ -564,7 +555,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         free(dest); dest = NULL;
 
         if (wcslen(fdest) > 58) {
-            _snwprintf_s(buf, 4*MAX_PATH, _TRUNCATE, 
+            _snwprintf_s(buf, 4*MAX_PATH, _TRUNCATE,
                 L"Path to Calibre Portable (%s) too long. Must be less than 59 characters.", fdest);
             if (!existing) RemoveDirectory(fdest);
             show_error(buf);
@@ -575,7 +566,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     // Confirm the user wants to upgrade
     if (existing && !automated) {
-        _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE, 
+        _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE,
             L"An existing install of Calibre Portable was found at %s. Do you want to upgrade it?",
             fdest);
         if (MessageBox(NULL, mb_msg,
@@ -584,7 +575,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     if (existing) {
-        if (!ensure_not_running(fdest)) goto end;
+        if (!ensure_not_running()) goto end;
     }
 
     // Make a temp dir to unpack into
@@ -601,7 +592,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     ret = 0;
     if (!automated) {
-        _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE, 
+        _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE,
             L"Calibre Portable successfully installed to %s. Launch calibre?",
             fdest);
         launch = MessageBox(NULL, mb_msg,
@@ -614,5 +605,3 @@ end:
     if (launch) launch_calibre();
     return ret;
 }
-
-
