@@ -69,18 +69,16 @@ QT_PLUGINS = [
     # 'audio', 'printsupport', 'bearer', 'position',
 ]
 
-if not ismacos and not iswindows:
-    QT_PLUGINS.append('platforminputcontexts')
-else:
-    QT_PLUGINS.append('styles')
-
 if islinux:
     QT_PLUGINS += [
+        'platforminputcontexts',
         'wayland-decoration-client',
         'wayland-graphics-integration-client',
         'wayland-shell-integration',
         'xcbglintegrations',
     ]
+else:
+    QT_PLUGINS.append('styles')
 
 PYQT_MODULES = (
     'Qt',
