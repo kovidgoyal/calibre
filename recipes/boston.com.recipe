@@ -17,6 +17,25 @@ def new_tag(soup, name, attrs=()):
     return Tag(soup, name, attrs=attrs or None)
 
 
+def class_as_string(x):
+    if isinstance(x, (list, tuple)):
+        x = ' '.join(x)
+    return x
+
+
+def class_startswith(*prefixes):
+
+    def q(x):
+        if x:
+            x = class_as_string(x)
+            for prefix in prefixes:
+                if x.startswith(prefix):
+                    return True
+        return False
+
+    return dict(attrs={'class': q})
+
+
 class BostonGlobeSubscription(BasicNewsRecipe):
 
     title = "Boston Globe Subscription"
@@ -27,15 +46,11 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and (
-            x.startswith('headline |') or x.startswith('subheader |') or
-            x.startswith('byline |') or x.startswith('image |') or
-            x.startswith('lead |') or x.startswith('body |')
-        )}),
+        class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |'),
         classes('comic article__title methode__story article-header__headline lead-media figure article-header__byline article-content'),
     ]
     remove_tags = [
-        classes('inline-newsletter ad skip-nav article-footer sharebar'),
+        classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'),
         dict(id='continue_button'),
         dict(name=['meta', 'link'])
     ]
@@ -43,7 +58,6 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     remove_attributes = ['style']
     no_stylesheets = True
     # simultaneous_downloads = 1
-    cover_url = "http://ecx.images-amazon.com/images/I/419qC6zeKSL._SL500_AA300_.jpg"
     comics_to_fetch = {
         "ADAM@HOME",
         "ARLO & JANIS",
@@ -77,9 +91,9 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
     def absolutize_url(self, url):
         if url.startswith("//"):
-            return "http:" + url
+            return "https:" + url
         if url.startswith('/'):
-            url = "http://www.bostonglobe.com" + url
+            url = "https://www.bostonglobe.com" + url
         return url
 
     def parse_index(self):
@@ -165,7 +179,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         def get_comics():
             articles = []
             comicSoup = self.index_to_soup(
-                "http://www.bostonglobe.com/lifestyle/comics")
+                "https://www.bostonglobe.com/lifestyle/comics")
             for personIndex in comicSoup.findAll("ol", {"class": re.compile("person-index.*")}):
                 for li in personIndex.findAll("li"):
                     title = self.tag_to_string(li.p)
@@ -209,7 +223,20 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
         return soup
 
+    def preprocess_raw_html(self, raw, *a):
+        # open('/t/raw.html', 'wb').write(raw)
+        # The article content is present as JSON in one of th escript tags
+        # but I cant be bothered extracting it. News organizations need their
+        # heads examined
+        raw = re.sub(r'<script.+?</script>', '', raw, flags=re.DOTALL)
+        raw = re.sub(r'<svg.+?</svg>', '', raw, flags=re.DOTALL)
+        return raw
+
     def preprocess_html(self, soup):
+        body = soup.find('body')
+        title = soup.find('title')
+        title.name = 'h1'
+        body.insert(0, title)
         images = soup.findAll("img")
         for img in images:
             fs = img.get('data-fullsrc')
