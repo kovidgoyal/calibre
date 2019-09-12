@@ -20,7 +20,8 @@ def available_translations():
         stats = P('localization/stats.calibre_msgpack', allow_user_override=False)
         if os.path.exists(stats):
             from calibre.utils.serialize import msgpack_loads
-            stats = msgpack_loads(open(stats, 'rb').read())
+            with open(stats, 'rb') as f:
+                stats = msgpack_loads(f.read())
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
