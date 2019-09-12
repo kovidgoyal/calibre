@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -20,7 +20,8 @@ def available_translations():
         stats = P('localization/stats.calibre_msgpack', allow_user_override=False)
         if os.path.exists(stats):
             from calibre.utils.serialize import msgpack_loads
-            stats = msgpack_loads(open(stats, 'rb').read())
+            with open(stats, 'rb') as f:
+                stats = msgpack_loads(f.read())
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
@@ -180,18 +181,18 @@ def get_translator(bcp_47_code):
 
 
 lcdata = {
-    u'abday': (u'Sun', u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat'),
-    u'abmon': (u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec'),
-    u'd_fmt': u'%m/%d/%Y',
-    u'd_t_fmt': u'%a %d %b %Y %r %Z',
-    u'day': (u'Sunday', u'Monday', u'Tuesday', u'Wednesday', u'Thursday', u'Friday', u'Saturday'),
-    u'mon': (u'January', u'February', u'March', u'April', u'May', u'June', u'July', u'August', u'September', u'October', u'November', u'December'),
-    u'noexpr': u'^[nN].*',
-    u'radixchar': u'.',
-    u't_fmt': u'%r',
-    u't_fmt_ampm': u'%I:%M:%S %p',
-    u'thousep': u',',
-    u'yesexpr': u'^[yY].*'
+    'abday': ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'),
+    'abmon': ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'),
+    'd_fmt': '%m/%d/%Y',
+    'd_t_fmt': '%a %d %b %Y %r %Z',
+    'day': ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+    'mon': ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
+    'noexpr': '^[nN].*',
+    'radixchar': '.',
+    't_fmt': '%r',
+    't_fmt_ampm': '%I:%M:%S %p',
+    'thousep': ',',
+    'yesexpr': '^[yY].*'
 }
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function, with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -134,7 +134,7 @@ if islinux:
 
     def create_listener(authkey, backlog=4):
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
-        prefix = u'\0calibre-ipc-listener-%d-%%d' % os.getpid()
+        prefix = '\0calibre-ipc-listener-%d-%%d' % os.getpid()
         while True:
             address = (prefix % next(_name_counter))
             if not ispy3 and not isinstance(address, bytes):
@@ -214,8 +214,8 @@ class Server(Thread):
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
-        fd, rfile = tempfile.mkstemp(prefix=u'ipc_result_%d_%d_'%(self.id, id),
-                dir=base_dir(), suffix=u'.pickle')
+        fd, rfile = tempfile.mkstemp(prefix='ipc_result_%d_%d_'%(self.id, id),
+                dir=base_dir(), suffix='.pickle')
         os.close(fd)
         if redirect_output is None:
             redirect_output = not gui

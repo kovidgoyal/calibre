@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -41,17 +41,13 @@ else:
                         raise
                     arg = repr(arg)
             if not isinstance(arg, bytes):
+                arg = unicode_type(arg)
                 try:
-                    arg = str(arg)
-                except ValueError:
-                    arg = unicode_type(arg)
-                if isinstance(arg, unicode_type):
-                    try:
-                        arg = arg.encode(enc)
-                    except UnicodeEncodeError:
-                        if not safe_encode:
-                            raise
-                        arg = repr(arg)
+                    arg = arg.encode(enc)
+                except UnicodeEncodeError:
+                    if not safe_encode:
+                        raise
+                    arg = repr(arg)
 
             file.write(arg)
             if i != len(args)-1:
