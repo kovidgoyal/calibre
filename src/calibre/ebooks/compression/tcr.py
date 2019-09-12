@@ -6,7 +6,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from polyglot.builtins import range, int_to_byte
+from polyglot.builtins import int_to_byte, is_py3, range
 
 
 class TCRCompressor(object):
@@ -42,8 +42,10 @@ class TCRCompressor(object):
                 possible_codes.append(single_code.pop())
 
         for code in possible_codes:
+            if not is_py3:
+                code = bytearray(code)
             self.coded_txt = self.coded_txt.replace(code, code[0:1])
-            self.codes[ord(code[0:1])] = b'%s%s' % (self.codes[ord(code[0:1])], self.codes[ord(code[1:2])])
+            self.codes[code[0]] = b'%s%s' % (self.codes[code[0]], self.codes[code[1]])
 
     def _free_unused_codes(self):
         '''
@@ -79,8 +81,9 @@ class TCRCompressor(object):
         self.codes = list(set(re.findall(b'(?ms).', txt)))
 
         # Replace the text with their corresponding code
-        for c in txt:
-            self.coded_txt += int_to_byte(self.codes.index(c))
+        # FIXME: python3 is native bytearray, but all we want are bytes
+        for c in bytearray(txt):
+            self.coded_txt += int_to_byte(self.codes.index(int_to_byte(c)))
 
         # Zero the unused codes and record which are unused.
         for i in range(len(self.codes), 256):
@@ -95,9 +98,9 @@ class TCRCompressor(object):
                 unused_code = self.unused_codes.pop()
                 # Take the last possible codes and split it into individual
                 # codes. The last possible code is the most often occurring.
-                code1, code2 = possible_codes.pop()
-                self.codes[unused_code] = b'%s%s' % (self.codes[ord(code1)], self.codes[ord(code2)])
-                self.coded_txt = self.coded_txt.replace(b'%s%s' % (code1, code2), int_to_byte(unused_code))
+                code = possible_codes.pop()
+                self.codes[unused_code] = b'%s%s' % (self.codes[ord(code[0:1])], self.codes[ord(code[1:2])])
+                self.coded_txt = self.coded_txt.replace(code, int_to_byte(unused_code))
             self._combine_codes()
             self._free_unused_codes()
             possible_codes = self._new_codes()
