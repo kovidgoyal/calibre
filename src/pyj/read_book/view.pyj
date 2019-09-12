@@ -33,9 +33,10 @@ from utils import html_escape, is_ios, parse_url_params, username_key, safe_set_
 
 add_extra_css(def():
     sel = '.book-side-margin'
-    ans = build_rule(sel, cursor='pointer', color='rgba(0, 0, 0, 0)', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
-    ans += build_rule(sel + ':hover', background_color=get_color('window-background') + ' !important', color=get_color('window-foreground') + ' !important')
-    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), transform='scale(2)')
+    ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
+    ans += build_rule(sel + ' > svg', visibility='hidden')
+    ans += build_rule(sel + ':hover > svg', visibility='visible')
+    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), visibility='visible', transform='scale(2)')
     return ans
 )
 
@@ -425,8 +426,7 @@ class View:
             for which in 'left top right bottom'.split(' '):
                 m = document.getElementById('book-{}-margin'.format(which))
                 s = m.style
-                if which is 'top' or which is 'bottom':
-                    s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
+                s.color = ans.foreground
                 s.backgroundColor = ans.background
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
