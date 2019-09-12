@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from
 https://github.com/edsu/opensearch .
