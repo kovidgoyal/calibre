@@ -83,7 +83,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 152
+    supported_dbversion = 155
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1349,7 +1349,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 152
+    supported_dbversion             = 155
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1361,7 +1361,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 15, 12920)
+    max_supported_fwversion         = (4, 17, 13579)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1374,6 +1374,7 @@ class KOBOTOUCH(KOBO):
     min_fwversion_overdrive         = (4,  0,  7523)
     min_clarahd_fwversion           = (4,  8, 11090)
     min_forma_fwversion             = (4, 11, 11879)
+    min_librah20_fwversion          = (4, 16, 13337) # "Reviewers" release.
 
     has_kepubs = True
 
@@ -1402,6 +1403,7 @@ class KOBOTOUCH(KOBO):
     FORMA_PRODUCT_ID    = [0x4229]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
+    LIBRA_H2O_PRODUCT_ID = [0x4232]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
@@ -1409,7 +1411,7 @@ class KOBOTOUCH(KOBO):
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401]
 
@@ -1474,6 +1476,10 @@ class KOBOTOUCH(KOBO):
                           # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
                           #       choosing instead to follow the Aura One codepath.
                           ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
+                          }
+    LIBRA_H2O_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -3311,6 +3317,9 @@ class KOBOTOUCH(KOBO):
     def isGloHD(self):
         return self.detected_device.idProduct in self.GLO_HD_PRODUCT_ID
 
+    def isLibraH2O(self):
+        return self.detected_device.idProduct in self.LIBRA_H2O_PRODUCT_ID
+
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
 
@@ -3341,6 +3350,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isGloHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isLibraH2O():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch():
@@ -3377,6 +3388,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Glo'
         elif self.isGloHD():
             device_name = 'Kobo Glo HD'
+        elif self.isLibraH2O():
+            device_name = 'Kobo Libra H2O'
         elif self.isMini():
             device_name = 'Kobo Mini'
         elif self.isTouch():
