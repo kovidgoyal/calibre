@@ -503,7 +503,7 @@ class View:
             self.show_name(name, initial_position=pos)
         sd = get_session_data()
         c = sd.get('controls_help_shown_count', 0)
-        if c < 1:
+        if c < 2:
             show_controls_help()
             sd.set('controls_help_shown_count', c + 1)
 
