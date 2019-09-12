@@ -1148,9 +1148,9 @@ class KOBO(USBMS):
         def resolve_bookmark_paths(storage, path_map):
             pop_list = []
             book_ext = {}
-            for id in path_map:
+            for book_id in path_map:
                 file_fmts = set()
-                for fmt in path_map[id]['fmts']:
+                for fmt in path_map[book_id]['fmts']:
                     file_fmts.add(fmt)
                 bookmark_extension = None
                 if file_fmts.intersection(epub_formats):
@@ -1159,37 +1159,37 @@ class KOBO(USBMS):
 
                 if bookmark_extension:
                     for vol in storage:
-                        bkmk_path = path_map[id]['path']
+                        bkmk_path = path_map[book_id]['path']
                         bkmk_path = bkmk_path
                         if os.path.exists(bkmk_path):
-                            path_map[id] = bkmk_path
-                            book_ext[id] = book_extension
+                            path_map[book_id] = bkmk_path
+                            book_ext[book_id] = book_extension
                             break
                     else:
-                        pop_list.append(id)
+                        pop_list.append(book_id)
                 else:
-                    pop_list.append(id)
+                    pop_list.append(book_id)
 
             # Remove non-existent bookmark templates
-            for id in pop_list:
-                path_map.pop(id)
+            for book_id in pop_list:
+                path_map.pop(book_id)
             return path_map, book_ext
 
         storage = get_storage()
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
-        with closing(self.device_database_connection()) as connection:
-            for id in path_map:
-                extension =  os.path.splitext(path_map[id])[1]
-                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[id])
-                ContentID = self.contentid_from_path(path_map[id], ContentType)
+        with closing(self.device_database_connection(use_row_factory=True)) as connection:
+            for book_id in path_map:
+                extension =  os.path.splitext(path_map[book_id])[1]
+                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[book_id])
+                ContentID = self.contentid_from_path(path_map[book_id], ContentType)
                 debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
                 bookmark_ext = extension
 
-                myBookmark = Bookmark(connection, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
-                bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
+                myBookmark = Bookmark(connection, ContentID, path_map[book_id], book_id, book_ext[book_id], bookmark_ext)
+                bookmarked_books[book_id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -2431,7 +2431,7 @@ class KOBOTOUCH(KOBO):
                             category_added = False
 
                             if book.contentID is None:
-                                debug_print('    Do not know ContentID - Title="%s, Authors=%s"'%(book.title, book.author))
+                                debug_print('    Do not know ContentID - Title="%s", Authors="%s", path="%s"'%(book.title, book.author, book.path))
                                 extension =  os.path.splitext(book.path)[1]
                                 ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
