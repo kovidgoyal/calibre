@@ -207,8 +207,8 @@ class CHMFile:
     "A class to manage access to CHM files."
     filename = ""
     file = None
-    title = ""
-    home = "/"
+    title = b""
+    home = b"/"
     index = None
     topics = None
     encoding = None
@@ -248,8 +248,8 @@ class CHMFile:
             chmlib.chm_close(self.file)
             self.file = None
             self.filename = ''
-            self.title = ""
-            self.home = "/"
+            self.title = b""
+            self.home = b"/"
             self.index = None
             self.topics = None
             self.encoding = None
