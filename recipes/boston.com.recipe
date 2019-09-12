@@ -1,6 +1,6 @@
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 from datetime import date, timedelta
 
 
@@ -235,6 +235,9 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     def preprocess_html(self, soup):
         body = soup.find('body')
         title = soup.find('title')
+        t = type('')(title.contents[0]).partition('-')[0].strip()
+        del title.contents[0]
+        title.contents.append(NavigableString(t))
         title.name = 'h1'
         body.insert(0, title)
         images = soup.findAll("img")
