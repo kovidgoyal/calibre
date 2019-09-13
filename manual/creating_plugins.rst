@@ -248,6 +248,30 @@ The container object and various useful utility functions that can be reused in
 your plugin code are documented in :ref:`polish_api`.
 
 
+Running User Interface plugins in a separate process
+-----------------------------------------------------------
+
+If you are writing a user interface plugin that needs to make use
+of Qt WebEngine, it cannot be run in the main calibre process as it
+is not possible to use WebEngine there. Instead you can copy the data
+your plugin needs to a temporary directory and run the plugin with that
+data in a separate process. A simple example plugin follows that shows how
+to do this.
+
+You can download the plugin from
+`webengine_demo_plugin.zip  <https://calibre-ebook.com/downloads/webengine_demo_plugin.zip>`_.
+
+The important part of the plugin is in two functions:
+
+.. literalinclude:: plugin_examples/webengine_demo/ui.py
+    :lines: 47-
+
+
+The ``show_demo()`` function asks the user for a URL and then runs
+the ``main()`` function passing it that URL. The ``main()`` function
+displays the URL in a ``QWebEngineView``.
+
+
 Adding translations to your plugin
 --------------------------------------
 

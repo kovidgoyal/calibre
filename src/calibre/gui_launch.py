@@ -88,6 +88,16 @@ def store_dialog(args=sys.argv):
     main(args)
 
 
+def webengine_dialog(**kw):
+    detach_gui()
+    init_dbus()
+    from calibre.debug import load_user_plugins
+    load_user_plugins()
+    import importlib
+    m = importlib.import_module(kw.pop('module'))
+    getattr(m, kw.pop('entry_func', 'main'))(**kw)
+
+
 def toc_dialog(**kw):
     detach_gui()
     init_dbus()
