@@ -266,6 +266,9 @@ The important part of the plugin is in two functions:
 .. literalinclude:: plugin_examples/webengine_demo/ui.py
     :lines: 47-
 
+.. literalinclude:: plugin_examples/webengine_demo/main.py
+    :lines: 12-
+
 
 The ``show_demo()`` function asks the user for a URL and then runs
 the ``main()`` function passing it that URL. The ``main()`` function
