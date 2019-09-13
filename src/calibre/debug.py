@@ -22,7 +22,7 @@ def get_debug_executable():
         return os.path.join(base, 'MacOS', 'calibre-debug')
     if getattr(sys, 'frozen', False):
         return os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-debug' + ('.exe' if iswindows else ''))
-    return 'calibre-debug'
+    return os.path.join(sys.executables_location, 'calibre-debug')
 
 
 def run_calibre_debug(*args, **kw):
