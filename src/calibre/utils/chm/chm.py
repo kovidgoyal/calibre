@@ -406,7 +406,7 @@ class CHMFile:
                 st = long_type(start)
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
         else:
-            return (0, '')
+            return 0, b''
 
     def IsSearchable(self):
         '''Indicates if the full-text search is available for this
