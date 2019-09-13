@@ -9,7 +9,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu,
-    QMimeData, QPainter, QPalette, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
+    QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
     QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
 )
 
@@ -99,7 +99,7 @@ def init_manage_action(ac, field, value):
     return ac
 
 
-def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
+def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     func = render_data_func or render_data
     try:
         table, comment_fields = func(mi, all_fields=all_fields,
@@ -116,27 +116,14 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
                 ans = unicode_type(col.name())
         return ans
 
-    c = color_to_string(QApplication.palette().color(QPalette.Normal,
-                    QPalette.WindowText))
     templ = '''\
     <html>
-        <head>
-        <style type="text/css">
-            body, td {
-                background-color: transparent;
-                color: %s
-            }
-        </style>
-        <style type="text/css">
-            %s
-            table td.title { white-space: %s }
-        </style>
-        </head>
-        <body>
+        <head></head>
+        <body class="%s">
         %%s
         </body>
     <html>
-    '''%(c, css, 'normal' if vertical else 'nowrap')
+    '''%('vertical' if vertical else 'horizontal')
     comments = ''
     if comment_fields:
         comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
@@ -568,6 +555,10 @@ class BookInfo(HTMLDisplay):
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
         self.setFocusPolicy(Qt.NoFocus)
+        self.document().setDefaultStyleSheet(css())
+
+    def refresh_css(self):
+        self.document().setDefaultStyleSheet(css(True))
 
     def remove_item_triggered(self):
         field, value, book_id = self.remove_item_action.data
@@ -612,7 +603,7 @@ class BookInfo(HTMLDisplay):
         self.link_clicked.emit(link)
 
     def show_data(self, mi):
-        html = render_html(mi, css(), self.vertical, self.parent())
+        html = render_html(mi, self.vertical, self.parent())
         set_html(mi, html, self)
 
     def mouseDoubleClickEvent(self, ev):

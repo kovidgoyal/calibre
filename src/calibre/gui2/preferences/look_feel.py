@@ -782,6 +782,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return rr
 
     def refresh_gui(self, gui):
+        gui.book_details.book_info.refresh_css()
         m = gui.library_view.model()
         m.beginResetModel(), m.endResetModel()
         self.update_font_display()

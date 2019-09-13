@@ -1,3 +1,9 @@
+body, td {
+    background-color: transparent;
+}
+
+body.horizontal table td.title { white-space: nowrap }
+
 a {
     text-decoration: none;
 }
