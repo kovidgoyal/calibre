@@ -2,10 +2,6 @@ a {
     text-decoration: none;
 }
 
-a:hover {
-    color: red
-}
-
 .comments {
     margin-top: 0;
     padding-top: 0;
