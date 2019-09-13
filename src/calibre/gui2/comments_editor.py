@@ -26,6 +26,7 @@ from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
 from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
+from calibre.gui2.book_details import css
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
 
 # Cleanup Qt markup {{{
@@ -185,6 +186,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
+        self.document().setDefaultStyleSheet(css())
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
