@@ -83,6 +83,7 @@ class Details(HTMLDisplay):
     def __init__(self, book_info, parent=None):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
+        self.document().setDefaultStyleSheet(css())
 
     def sizeHint(self):
         return QSize(350, 350)
@@ -115,7 +116,6 @@ class BookInfo(QDialog):
 
         self.details = Details(parent.book_details.book_info, self)
         self.details.anchor_clicked.connect(self.on_link_clicked)
-        self.css = css()
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.details.palette()
@@ -282,7 +282,7 @@ class BookInfo(QDialog):
             dpr = self.devicePixelRatio()
         self.cover_pixmap.setDevicePixelRatio(dpr)
         self.resize_cover()
-        html = render_html(mi, self.css, True, self, pref_name='popup_book_display_fields')
+        html = render_html(mi, True, self, pref_name='popup_book_display_fields')
         set_html(mi, html, self.details)
         self.marked = mi.marked
         self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
