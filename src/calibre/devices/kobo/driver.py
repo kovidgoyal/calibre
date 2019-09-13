@@ -1374,7 +1374,7 @@ class KOBOTOUCH(KOBO):
     min_fwversion_overdrive         = (4,  0,  7523)
     min_clarahd_fwversion           = (4,  8, 11090)
     min_forma_fwversion             = (4, 11, 11879)
-    min_librah20_fwversion          = (4, 16, 13337) # "Reviewers" release.
+    min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
 
     has_kepubs = True
 
