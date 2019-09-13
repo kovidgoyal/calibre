@@ -971,8 +971,10 @@ class BooksView(QTableView):  # {{{
         rmap = {i:x for i, x in enumerate(self.column_map)}
         return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
-    def refresh_book_details(self):
+    def refresh_book_details(self, force=False):
         idx = self.currentIndex()
+        if not idx.isValid() and force:
+            idx = self.model().index(0, 0)
         if idx.isValid():
             self._model.current_changed(idx, idx)
             return True

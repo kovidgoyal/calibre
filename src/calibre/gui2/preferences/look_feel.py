@@ -788,7 +788,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.set_look_and_feel()
         gui.tags_view.reread_collapse_parameters()
-        gui.library_view.refresh_book_details()
+        gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_grid()
         gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
