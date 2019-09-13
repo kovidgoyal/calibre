@@ -20,6 +20,20 @@
 #   new recipes:
 #     - title:
 
+- version: 3.48.0
+  date: 2019-09-13
+
+  new features:
+    - title: "Driver for Kobo Libra H2O"
+
+  bug fixes:
+    - title: "Kobo driver: Fix some annotations getting missed for kepubs"
+
+  improved recipes:
+    - Boston Globe
+    - Scientific American
+
+
 - version: 3.47.1
   date: 2019-08-30
 
