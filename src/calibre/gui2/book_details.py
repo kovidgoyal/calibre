@@ -36,7 +36,6 @@ from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
 from polyglot.builtins import unicode_type
 
-_css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
 
@@ -53,12 +52,13 @@ def set_html(mi, html, text_browser):
     text_browser.setHtml(html)
 
 
-def css():
-    global _css
-    if _css is None:
+def css(reset=False):
+    if reset:
+        del css.ans
+    if not hasattr(css, 'ans'):
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        _css = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
-    return _css
+        css.ans = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
+    return css.ans
 
 
 def copy_all(text_browser):

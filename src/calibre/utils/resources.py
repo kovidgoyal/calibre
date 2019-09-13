@@ -13,6 +13,9 @@ from calibre import config_dir
 from polyglot.builtins import builtins
 
 
+user_dir = os.path.join(config_dir, 'resources')
+
+
 class PathResolver(object):
 
     def __init__(self):
@@ -39,11 +42,10 @@ class PathResolver(object):
                 self.default_path = dev_path
                 self.using_develop_from = True
 
-        user_path = os.path.join(config_dir, 'resources')
         self.user_path = None
-        if suitable(user_path):
-            self.locations.insert(0, user_path)
-            self.user_path = user_path
+        if suitable(user_dir):
+            self.locations.insert(0, user_dir)
+            self.user_path = user_dir
 
     def __call__(self, path, allow_user_override=True):
         path = path.replace(os.sep, '/')
@@ -65,6 +67,19 @@ class PathResolver(object):
 
         return ans
 
+    def set_data(self, path, data=None):
+        self.cache.pop((path, True), None)
+        fpath = os.path.join(user_dir, *path.split('/'))
+        if data is None:
+            if os.path.exists(fpath):
+                os.remove(fpath)
+        else:
+            base = os.path.dirname(fpath)
+            if not os.path.exists(base):
+                os.makedirs(base)
+            with open(fpath, 'wb') as f:
+                f.write(data)
+
 
 _resolver = PathResolver()
 
@@ -81,6 +96,10 @@ def get_image_path(path, data=False, allow_user_override=True):
     if not path:
         return get_path('images', allow_user_override=allow_user_override)
     return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
+
+
+def set_data(path, data=None):
+    return _resolver.set_data(path, data)
 
 
 builtins.__dict__['P'] = get_path
