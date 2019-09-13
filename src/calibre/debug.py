@@ -22,14 +22,16 @@ def get_debug_executable():
     if getattr(sys, 'run_local', None):
         return [sys.run_local, exe_name]
     nearby = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), exe_name)
-    if getattr(sys, 'frozen', False) or os.path.exists(nearby):
+    if getattr(sys, 'frozen', False):
         return [nearby]
     exloc = getattr(sys, 'executables_location', None)
     if exloc:
         ans = os.path.join(exloc, exe_name)
         if os.path.exists(ans):
-            return ans
-    return exe_name
+            return [ans]
+    if os.path.exists(nearby):
+        return [nearby]
+    return [exe_name]
 
 
 def run_calibre_debug(*args, **kw):
