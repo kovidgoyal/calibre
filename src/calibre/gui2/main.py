@@ -406,9 +406,17 @@ def run_gui(opts, args, listener, app, gui_debug=None):
                 os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
                 if iswindows and hasattr(winutil, 'prepare_for_restart'):
                     winutil.prepare_for_restart()
-                args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
-                prints('Restarting with:', ' '.join([e] + args))
-                subprocess.Popen([e] + args)
+                if hasattr(sys, 'run_local'):
+                    cmd = [sys.run_local]
+                    if DEBUG:
+                        cmd += ['calibre-debug', '-g']
+                    else:
+                        cmd.append('calibre')
+                else:
+                    args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
+                    cmd = [e] + args
+                prints('Restarting with:', ' '.join(cmd))
+                subprocess.Popen(cmd)
     else:
         if iswindows:
             try:
