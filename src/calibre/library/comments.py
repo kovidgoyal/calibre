@@ -95,6 +95,7 @@ def comments_to_html(comments):
     open_pTag = False
 
     all_tokens = list(soup.contents)
+    inline_tags = ('br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a', 'hr')
     for token in all_tokens:
         if isinstance(token,  (CData, Comment, Declaration, ProcessingInstruction)):
             continue
@@ -105,8 +106,7 @@ def comments_to_html(comments):
                 ptc = 0
             pTag.insert(ptc, token)
             ptc += 1
-        elif token.name in ['br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a',
-                'hr']:
+        elif token.name in inline_tags:
             if not open_pTag:
                 pTag = result.new_tag('p')
                 open_pTag = True
