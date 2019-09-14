@@ -156,6 +156,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
 
                 send_reply(rq, mt, raw)
+        elif not name:
+            send_reply(rq, 'text/html', viewer_html())
 
 # }}}
 
@@ -298,7 +300,7 @@ class WebPage(QWebEnginePage):
 def viewer_html():
     ans = getattr(viewer_html, 'ans', None)
     if ans is None:
-        ans = viewer_html.ans = P('viewer.html', data=True, allow_user_override=False).decode('utf-8')
+        ans = viewer_html.ans = P('viewer.html', data=True, allow_user_override=False)
     return ans
 
 
@@ -420,7 +422,7 @@ class WebView(RestartingWebEngineView):
         self.pageAction(QWebEnginePage.Reload).trigger()
 
     def clear(self):
-        self.setHtml(viewer_html(), QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
+        self.setUrl(QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
 
     @property
     def bridge(self):
