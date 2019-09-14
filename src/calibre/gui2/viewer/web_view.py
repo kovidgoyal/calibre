@@ -282,6 +282,7 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in ('http', 'https'):
             safe_open_url(url)
+        prints('Blocking navigation request to:', url.toString())
         return False
 
     def go_to_anchor(self, anchor):
