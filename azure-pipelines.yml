@@ -24,7 +24,7 @@ jobs:
     displayName: 'Install calibre dependencies'
 
   - checkout: self
-    fetchDepth: 1
+    fetchDepth: 10
 
   - script: |
       python setup.py bootstrap --ephemeral
@@ -43,7 +43,7 @@ jobs:
 
   steps:
   - checkout: self
-    fetchDepth: 1
+    fetchDepth: 10
 
   - task: UsePythonVersion@0
     inputs:
@@ -72,7 +72,7 @@ jobs:
 
   steps:
   - checkout: self
-    fetchDepth: 1
+    fetchDepth: 10
 
   - task: UsePythonVersion@0
     inputs:
@@ -97,7 +97,7 @@ jobs:
 
   steps:
   - checkout: self
-    fetchDepth: 1
+    fetchDepth: 10
 
   - task: UsePythonVersion@0
     inputs:
