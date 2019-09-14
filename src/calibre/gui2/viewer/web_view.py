@@ -372,7 +372,7 @@ class WebView(RestartingWebEngineView):
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
-        self.clear()
+        self.setUrl(QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
         self.urlChanged.connect(self.url_changed)
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
@@ -420,9 +420,6 @@ class WebView(RestartingWebEngineView):
 
     def refresh(self):
         self.pageAction(QWebEnginePage.Reload).trigger()
-
-    def clear(self):
-        self.setUrl(QUrl('{}://{}/'.format(FAKE_PROTOCOL, FAKE_HOST)))
 
     @property
     def bridge(self):
