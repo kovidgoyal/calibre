@@ -548,17 +548,16 @@ def write_completion(bash_comp_dest, zsh):
         complete = os.path.join(getattr(sys, 'frozen_path'), complete)
 
     with open(bash_comp_dest or os.devnull, 'wb') as f:
-        w = polyglot_write(f)
 
         def o_and_e(*args, **kwargs):
-            w(opts_and_exts(*args, **kwargs))
+            f.write(opts_and_exts(*args, **kwargs))
             zsh.opts_and_exts(*args, **kwargs)
 
         def o_and_w(*args, **kwargs):
-            w(opts_and_words(*args, **kwargs))
+            f.write(opts_and_words(*args, **kwargs))
             zsh.opts_and_words(*args, **kwargs)
 
-        w('# calibre Bash Shell Completion\n')
+        f.write(b'# calibre Bash Shell Completion\n')
         o_and_e('calibre', guiop, BOOK_EXTENSIONS)
         o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
         o_and_e('ebook-meta', metaop,
@@ -581,7 +580,7 @@ def write_completion(bash_comp_dest, zsh):
             '--inspect-mobi':['mobi', 'azw', 'azw3'],
             '--viewer':sorted(available_input_formats()),
         })
-        w(textwrap.dedent('''
+        f.write((textwrap.dedent('''
         _ebook_device_ls()
         {
         local pattern search listing prefix
@@ -654,7 +653,7 @@ def write_completion(bash_comp_dest, zsh):
         complete -o nospace  -F _ebook_device ebook-device
 
         complete -o nospace -C %s ebook-convert
-        ''')%complete)
+        ''')%complete).encode('utf-8'))
     zsh.write()
 # }}}
 
@@ -760,7 +759,7 @@ class PostInstall:
             appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
             with open(dest, 'wb') as f:
-                polyglot_write(f)(raw)
+                f.write(raw.encode('utf-8'))
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:
                 os.chown(dest, 0, 0)
@@ -858,21 +857,21 @@ class PostInstall:
                 mimetypes.discard('application/octet-stream')
 
                 def write_mimetypes(f):
-                    polyglot_write(f)('MimeType=%s;\n'%';'.join(mimetypes))
+                    f.write(('MimeType=%s;\n'%';'.join(mimetypes)).encode('utf-8'))
 
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
                 with open('calibre-lrfviewer.desktop', 'wb') as f:
-                    polyglot_write(f)(VIEWER)
+                    f.write(VIEWER)
                 with open('calibre-ebook-viewer.desktop', 'wb') as f:
-                    polyglot_write(f)(EVIEWER)
+                    f.write(EVIEWER)
                     write_mimetypes(f)
                 with open('calibre-ebook-edit.desktop', 'wb') as f:
-                    polyglot_write(f)(ETWEAK)
+                    f.write(ETWEAK)
                     mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
-                    polyglot_write(f)('MimeType=%s;\n'%';'.join(mt))
+                    f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
                 with open('calibre-gui.desktop', 'wb') as f:
-                    polyglot_write(f)(GUI)
+                    f.write(GUI)
                     write_mimetypes(f)
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
@@ -968,7 +967,7 @@ def opts_and_words(name, op, words, takes_files=False):
     esac
 
 }
-complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n")
+complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
 pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
@@ -995,7 +994,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
 
-    return '_'+fname+'()'+\
+    return ('_'+fname+'()'+\
 '''
 {
     local cur prev opts
@@ -1023,10 +1022,10 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-VIEWER = '''\
+VIEWER = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1040,7 +1039,7 @@ MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
 '''
 
-EVIEWER = '''\
+EVIEWER = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1053,7 +1052,7 @@ Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
 
-ETWEAK = '''\
+ETWEAK = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1066,7 +1065,7 @@ Icon=calibre-ebook-edit
 Categories=Office;
 '''
 
-GUI = '''\
+GUI = b'''\
 [Desktop Entry]
 Version=1.0
 Type=Application
