@@ -140,7 +140,7 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
         text = ' & '.join(metadata.authors or v'[]')
     elif field is 'series':
         if metadata.series:
-            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            ival = fmt_sidx(metadata.series_index, use_roman=interface_data.use_roman_numerals_for_series_number)
             text = _('{0} of {1}').format(ival, metadata.series)
     elif field is 'clock':
         text = time_formatter.format(Date())
