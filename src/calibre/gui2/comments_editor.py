@@ -565,7 +565,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     url = self.url.text()
                     if url.lower().split(':', 1)[0] in ('http', 'https'):
                         error_dialog(self, _('Remote images not supported'), _(
-                            'You must download the image to you computer, URLs pointing'
+                            'You must download the image to your computer, URLs pointing'
                             ' to remote images are not supported.'), show=True)
                         return
                 QDialog.accept(self)
