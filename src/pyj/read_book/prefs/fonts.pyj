@@ -90,7 +90,7 @@ def create_fonts_panel(container):
 
     container.append(E.div(_('Zoom related settings'), style='margin-top: 1rem'))
     container.append(E.table(style='margin-top: 1rem',
-        row(_('Zoom step size (%s)'), zoom_step_size(settings)),
+        row(_('Zoom step size (%)'), zoom_step_size(settings)),
         row(_('Minimum font size (px)'), minimum_font_size(settings)),
     ))
 
