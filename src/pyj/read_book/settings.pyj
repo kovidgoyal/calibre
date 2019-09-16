@@ -19,7 +19,7 @@ update_settings()
 
 
 def apply_font_size():
-    document.documentElement.style.fontSize = document.body.style.fontSize = '{}px'.format(opts.base_font_size)
+    document.documentElement.style.fontSize = '{}px'.format(opts.base_font_size)
 
 
 def apply_colors():
