@@ -38,12 +38,13 @@ def apply_colors():
 
 
 def apply_stylesheet():
-    sid = 'calibre-browser-viewer-user-stylesheet'
-    style = document.getElementById(sid)
-    if not style:
-        style = E.style(type='text/css', id=sid)
-        document.body.appendChild(style)
-    style.textContent = opts.user_stylesheet or ''
+    if opts.user_stylesheet:
+        sid = 'calibre-browser-viewer-user-stylesheet'
+        style = document.getElementById(sid)
+        if not style:
+            style = E.style(type='text/css', id=sid)
+            document.documentElement.appendChild(style)
+        style.textContent = opts.user_stylesheet
 
 
 def apply_settings():
