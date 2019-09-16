@@ -444,7 +444,7 @@ class WebView(RestartingWebEngineView):
             self.pending_bridge_ready_actions[action] = args
 
     def show_preparing_message(self):
-        msg = _('Preparing book for first read, please wait…')
+        msg = _('Preparing book for first read, please wait') + '…'
         self.execute_when_ready('show_preparing_message', msg)
 
     def goto_toc_node(self, node_id):

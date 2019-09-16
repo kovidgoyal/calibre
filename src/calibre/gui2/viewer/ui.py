@@ -231,7 +231,7 @@ class EbookViewer(MainWindow):
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         if open_at:
             self.pending_open_at = open_at
-        self.setWindowTitle(_('Loading book… — {}').format(self.base_window_title))
+        self.setWindowTitle(_('Loading book') + '… — {}'.format(self.base_window_title))
         self.web_view.show_preparing_message()
         self.save_annotations()
         self.current_book_data = {}
