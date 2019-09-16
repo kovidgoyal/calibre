@@ -178,7 +178,7 @@ class SourcesEditor(Dialog):
         entries = self.all_entries
         if not entries:
             return error_dialog(self, _('No sources'), _(
-                'You ust specify at least one lookup source'), show=True)
+                'You must specify at least one lookup source'), show=True)
         if entries == vprefs.defaults['lookup_locations']:
             del vprefs['lookup_locations']
         else:
