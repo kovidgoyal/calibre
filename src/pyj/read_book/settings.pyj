@@ -3,6 +3,7 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from read_book.globals import runtime
 
 opts = {}
 
@@ -19,7 +20,8 @@ update_settings()
 
 
 def apply_font_size():
-    document.documentElement.style.fontSize = '{}px'.format(opts.base_font_size)
+    if not runtime.is_standalone_viewer:
+        document.documentElement.style.fontSize = '{}px'.format(opts.base_font_size)
 
 
 def apply_colors():

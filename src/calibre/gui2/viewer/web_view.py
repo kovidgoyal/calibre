@@ -463,9 +463,9 @@ class WebView(RestartingWebEngineView):
         elif key != '*':
             sd = vprefs['session_data']
             sd[key] = val
-            if key == 'standalone_font_settings':
-                apply_font_settings(self._page)
             vprefs['session_data'] = sd
+            if key in ('standalone_font_settings', 'base_font_size'):
+                apply_font_settings(self._page)
 
     def do_callback(self, func_name, callback):
         cid = next(self.callback_id_counter)
