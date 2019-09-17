@@ -16,6 +16,7 @@ from bypy.utils import current_dir
 
 CODESIGN_CREDS = os.path.expanduser('~/cert-cred')
 CODESIGN_CERT = os.path.expanduser('~/maccert.p12')
+path_to_entitlements = os.path.expanduser('~/calibre-entitlements.plist')
 
 
 def run(*args):
@@ -65,10 +66,21 @@ def codesign(items):
         items = [items]
     # If you get errors while codesigning that look like "A timestamp was
     # expected but not found" it means that codesign  failed to contact Apple's time
-    # servers, probably due to network congestion, so add --timestamp=none to
-    # this command line. That means the signature will fail once your code
-    # signing key expires and key revocation wont work, but...
-    subprocess.check_call(['codesign', '-s', 'Kovid Goyal'] + list(items))
+    # servers, probably due to network congestion
+    #
+    # --options=runtime enables the Hardened Runtime
+    subprocess.check_call([
+        'codesign', '--options=runtime', '--entitlements=' + path_to_entitlements,
+        '--timestamp', '-s', 'Kovid Goyal'
+    ] + list(items))
+
+
+def notarize():
+    # See
+    # https://developer.apple.com/documentation/xcode/notarizing_your_app_before_distribution/customizing_the_notarization_workflow?language=objc
+    # and
+    # https://developer.apple.com/documentation/xcode/notarizing_your_app_before_distribution/resolving_common_notarization_issues?language=objc
+    pass
 
 
 def files_in(folder):
@@ -77,18 +89,37 @@ def files_in(folder):
             yield os.path.join(record[0], f)
 
 
-def expand_dirs(items):
+def expand_dirs(items, exclude=lambda x: x.endswith('.so')):
     items = set(items)
     dirs = set(x for x in items if os.path.isdir(x))
     items.difference_update(dirs)
     for x in dirs:
-        items.update(set(files_in(x)))
+        items.update({y for y in files_in(x) if not exclude(y)})
     return items
 
 
 def get_executable(info_path):
     with open(info_path, 'rb') as f:
         return plistlib.load(f)['CFBundleExecutable']
+
+
+def create_entitlements_file():
+    ans = {
+        # MAP_JIT is used by libpcre which is bundled with Qt
+        'com.apple.security.cs.allow-jit': True,
+
+        # v8 and therefore WebEngine need this as they dont use MAP_JIT
+        'com.apple.security.cs.allow-unsigned-executable-memory': True,
+
+        # calibre itself does not use DYLD env vars, but dont know about its
+        # dependencies.
+        'com.apple.security.cs.allow-dyld-environment-variables': True,
+
+        # Allow loading of unsigned plugins or frameworks
+        # 'com.apple.security.cs.disable-library-validation': True,
+    }
+    with open(path_to_entitlements, 'wb') as f:
+        f.write(plistlib.dumps(ans))
 
 
 def find_sub_apps(contents_dir='.'):
@@ -121,12 +152,16 @@ def do_sign_app(appdir):
             sign_MacOS(os.path.join(sa, 'Contents'))
         codesign(sub_apps)
 
+        # Sign all .so files
+        so_files = {x for x in files_in('.') if x.endswith('.so')}
+        codesign(so_files)
+
         # Sign everything in PlugIns
         with current_dir('PlugIns'):
             items = set(os.listdir('.'))
             codesign(expand_dirs(items))
 
-        # Sign everything in Frameworks
+        # Sign everything else in Frameworks
         with current_dir('Frameworks'):
             fw = set(glob('*.framework'))
             codesign(fw)
@@ -136,12 +171,13 @@ def do_sign_app(appdir):
     # Now sign the main app
     codesign(appdir)
     # Verify the signature
-    subprocess.check_call(['codesign', '--deep', '--verify', '-v', appdir])
+    subprocess.check_call(['codesign', '-vvv', '--deep', '--strict', appdir])
     subprocess.check_call('spctl --verbose=4 --assess --type execute'.split() + [appdir])
 
     return 0
 
 
 def sign_app(appdir):
+    create_entitlements_file()
     with make_certificate_useable():
         do_sign_app(appdir)
