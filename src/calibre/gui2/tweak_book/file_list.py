@@ -13,9 +13,9 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout,
     QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
-    QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal
+    QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QRawFont, QScrollArea,
+    QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import human_readable, plugins, sanitize_file_name
@@ -38,8 +38,8 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, filter, map
 from polyglot.binary import as_hex_unicode
+from polyglot.builtins import filter, iteritems, itervalues, map, range, unicode_type
 
 try:
     from PyQt5 import sip
@@ -233,6 +233,7 @@ class FileList(QTreeWidget):
         self.root = self.invisibleRootItem()
         self.emblem_cache = {}
         self.rendered_emblem_cache = {}
+        self.font_name_cache = {}
         self.top_level_pixmap_cache = {
             name : QIcon(I(icon)).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in iteritems({
@@ -467,6 +468,13 @@ class FileList(QTreeWidget):
                 # Duplicate entry in spine
                 emblems.append('dialog_error.png')
                 tooltips.append(_('This file occurs more than once in the spine'))
+            if category == 'fonts':
+                fname = self.get_font_family_name(name)
+                if fname:
+                    tooltips.append(fname)
+                else:
+                    emblems.append('dialog_error.png')
+                    tooltips.append(_('Not a valid font'))
 
             render_emblems(item, emblems)
             if tooltips:
@@ -493,6 +501,24 @@ class FileList(QTreeWidget):
             item = self.item_from_name(self.current_edited_name)
             if item is not None:
                 self.mark_item_as_current(item)
+
+    def get_font_family_name(self, name):
+        try:
+            with current_container().open(name) as f:
+                f.seek(0, os.SEEK_END)
+                sz = f.tell()
+        except Exception:
+            sz = 0
+        key = name, sz
+        if key not in self.font_name_cache:
+            raw = current_container().raw_data(name, decode=False)
+            f = QRawFont(raw, 12)
+            if f.isValid():
+                ans = f.familyName() + ' ' + f.styleName()
+            else:
+                ans = None
+            self.font_name_cache[key] = ans
+        return self.font_name_cache[key]
 
     def show_context_menu(self, point):
         item = self.itemAt(point)
