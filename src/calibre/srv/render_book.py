@@ -19,6 +19,7 @@ from css_parser.css import CSSRule
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
+from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.oeb.base import (
     EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath, rewrite_links,
     urlunquote
@@ -175,10 +176,11 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None):
         log = log or default_log
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
+        self.book_metadata = book_metadata
         if save_bookmark_data:
             bm_file = 'META-INF/calibre_bookmarks.txt'
             self.bookmark_data = None
@@ -263,26 +265,46 @@ class Container(ContainerBase):
         }
         </style></head><body><img src="%s"/></body></html>
         '''
+        blank = {'q': False}
         if input_fmt == 'epub':
             def cover_path(action, data):
                 if action == 'write_image':
                     data.write(BLANK_JPEG)
-            return set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
-        raster_cover_name = find_cover_image(self, strict=True)
-        if raster_cover_name is None:
-            item = self.generate_item(name='cover.jpeg', id_prefix='cover')
-            raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
-        with self.open(raster_cover_name, 'wb') as dest:
-            dest.write(BLANK_JPEG)
-        item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
-        titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
-        raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)
-        with self.open(titlepage_name, 'wb') as f:
-            f.write(raw.encode('utf-8'))
-        spine = self.opf_xpath('//opf:spine')[0]
-        ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
-        self.insert_into_xml(spine, ref, index=0)
-        self.dirty(self.opf_name)
+                    blank['q'] = True
+            raster_cover_name, titlepage_name = set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
+        else:
+            raster_cover_name = find_cover_image(self, strict=True)
+            if raster_cover_name is None:
+                item = self.generate_item(name='cover.jpeg', id_prefix='cover')
+                raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
+                with self.open(raster_cover_name, 'wb') as dest:
+                    dest.write(BLANK_JPEG)
+                    blank['q'] = True
+            item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
+            titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
+            raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)
+            with self.open(titlepage_name, 'wb') as f:
+                f.write(raw.encode('utf-8'))
+            spine = self.opf_xpath('//opf:spine')[0]
+            ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
+            self.insert_into_xml(spine, ref, index=0)
+            self.dirty(self.opf_name)
+        if blank['q'] and self.book_metadata is not None:
+            authors = authors_to_string(self.book_metadata.authors)
+            title = self.book_metadata.title
+            with self.open(titlepage_name, 'wb') as f:
+                f.write('''
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <head><meta charset="utf-8"/></head>
+        <body>
+            <div style="position: fixed; top: 50%; width: 100vw; transform: translateY(-50%)">
+            <h1 style="text-align: center; margin: auto">{title}</h1>
+            <p>&nbsp;</p>
+            <h3 style="text-align: center; margin: auto; font-style: italic">{authors}</h3>
+            </div>
+        </body>
+        </html>
+        '''.format(title=title, authors=authors).encode('utf-8'))
         return raster_cover_name, titlepage_name
 
     def transform_css(self):
@@ -592,21 +614,23 @@ def get_stored_annotations(container):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False):
-    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations)
+    mi = None
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.utils.serialize import json_dumps
-        from calibre.ebooks.metadata.book.serialize import metadata_as_dict
         with lopen(pathtoebook, 'rb') as f:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
-            d = metadata_as_dict(mi)
-            serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
-            cdata = d.pop('cover_data', None)
-            if cdata and cdata[1] and container.book_render_data['raster_cover_name']:
-                with lopen(os.path.join(output_dir, container.book_render_data['raster_cover_name']), 'wb') as f:
-                    f.write(cdata[1])
-            with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
-                f.write(json_dumps(d))
+    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations, book_metadata=mi)
+    if serialize_metadata:
+        from calibre.utils.serialize import json_dumps
+        from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+        d = metadata_as_dict(mi)
+        serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
+        cdata = d.pop('cover_data', None)
+        if cdata and cdata[1] and container.book_render_data['raster_cover_name']:
+            with lopen(os.path.join(output_dir, container.book_render_data['raster_cover_name']), 'wb') as f:
+                f.write(cdata[1])
+        with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
+            f.write(json_dumps(d))
     if extract_annotations:
         annotations = None
         if container.bookmark_data:
