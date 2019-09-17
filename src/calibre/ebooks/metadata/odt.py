@@ -179,8 +179,9 @@ def get_metadata(stream, extract_cover=True):
         mi.comments = data['description']
     if 'language' in data:
         mi.language = data['language']
-    if data.get('keyword', ''):
-        mi.tags = [x.strip() for x in data['keyword'].split(',') if x.strip()]
+    kw = data.get('keyword') or data.get('keywords')
+    if kw:
+        mi.tags = [x.strip() for x in kw.split(',') if x.strip()]
     opfmeta = False  # we need this later for the cover
     opfnocover = False
     if data.get('opf.metadata','') == 'true':
