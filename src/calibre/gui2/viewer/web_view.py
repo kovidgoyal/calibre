@@ -19,7 +19,7 @@ from PyQt5.QtWebEngineWidgets import (
 
 from calibre import as_unicode, prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
+    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, isosx, iswindows
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -172,7 +172,8 @@ def create_profile():
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
         ans = QWebEngineProfile(QApplication.instance())
-        ua = 'calibre-viewer ' + __version__
+        osname = 'windows' if iswindows else ('macos' if isosx else 'linux')
+        ua = 'calibre-viewer {} {}'.format(__version__, osname)
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer

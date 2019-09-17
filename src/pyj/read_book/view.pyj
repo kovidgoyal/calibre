@@ -78,7 +78,9 @@ def show_controls_help():
         div = div.nextSibling
         safe_set_inner_html(div, _('Use the <b>PageUp/PageDn</b> or <b>Arrow keys</b> to turn pages'))
         div = div.nextSibling
-        safe_set_inner_html(div, _('Press the <b>Esc</b> key or <b>right click</b> to show the viewer controls'))
+        safe_set_inner_html(div, _('Press the <b>Esc</b> key or <b>{} click</b> to show the viewer controls').format(
+            'control' if 'macos' in window.navigator.userAgent else _('right')
+        ))
         div = div.nextSibling
         safe_set_inner_html(div, _('Press any key to continue…'))
         focus()
