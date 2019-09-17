@@ -299,7 +299,7 @@ class Container(ContainerBase):
         <body>
             <div style="position: fixed; top: 50%; width: 100vw; transform: translateY(-50%)">
             <h1 style="text-align: center; margin: auto">{title}</h1>
-            <p>&nbsp;</p>
+            <p>\xa0</p>
             <h3 style="text-align: center; margin: auto; font-style: italic">{authors}</h3>
             </div>
         </body>
