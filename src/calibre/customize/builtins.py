@@ -578,12 +578,21 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
+class ODTMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set ODT metadata'
+    file_types  = {'odt'}
+    description = _('Set metadata from %s files')%'ODT'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.odt import set_metadata
+        return set_metadata(stream, mi)
 
 class DocXMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set DOCX metadata'
     file_types  = {'docx'}
-    description = _('Read metadata from %s files')%'DOCX'
+    description = _('Set metadata from %s files')%'DOCX'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.docx import set_metadata
