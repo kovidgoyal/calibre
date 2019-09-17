@@ -21,6 +21,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import io
+import json
 import os
 import re
 
@@ -29,13 +30,14 @@ from lxml.etree import fromstring, tostring
 from calibre.ebooks.metadata import (
     MetaInformation, authors_to_string, check_isbn, string_to_authors
 )
-from calibre.utils.date import parse_date
+from calibre.utils.date import isoformat, parse_date
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile, safe_replace
 from odf.draw import Frame as odFrame, Image as odImage
 from odf.namespaces import DCNS, METANS, OFFICENS
 from odf.opendocument import load as odLoad
+from polyglot.builtins import as_unicode
 
 fields = {
     'title':            (DCNS, 'title'),
@@ -117,6 +119,16 @@ def get_metadata(stream, extract_cover=True):
                 mi.publisher = data['opf.publisher']
             if data.get('opf.pubdate', ''):
                 mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
+            if data.get('opf.identifiers'):
+                try:
+                    mi.identifiers = json.loads(data['opf.identifiers'])
+                except Exception:
+                    pass
+            if data.get('opf.rating'):
+                try:
+                    mi.rating = max(0, min(float(data['opf.rating']), 10))
+                except Exception:
+                    pass
             if data.get('opf.series', ''):
                 mi.series = data['opf.series']
                 if data.get('opf.seriesindex', ''):
@@ -142,6 +154,7 @@ def set_metadata(stream, mi):
 
     with ZipFile(stream) as zf:
         raw = _set_metadata(zf.open('meta.xml').read(), mi)
+        # print(raw.decode('utf-8'))
 
     stream.seek(os.SEEK_SET)
     safe_replace(stream, "meta.xml", io.BytesIO(raw))
@@ -168,15 +181,45 @@ def _set_metadata(raw, mi):
         meta.append(ans)
         return ans
 
+    def remove_user_metadata(*names):
+        for x in xpath('//meta:user-defined'):
+            q = (x.get('{%s}name' % METANS) or '').lower()
+            if q in names:
+                x.getparent().remove(x)
+
+    def add_um(name, val, vtype='string'):
+        ans = add('user-defined', val)
+        ans.set('{%s}value-type' % METANS, vtype)
+        ans.set('{%s}name' % METANS, name)
+
+    def add_user_metadata(name, val):
+        if not hasattr(add_user_metadata, 'sentinel_added'):
+            add_user_metadata.sentinel_added = True
+            remove_user_metadata('opf.metadata')
+            add_um('opf.metadata', 'true', 'boolean')
+        val_type = 'string'
+        if hasattr(val, 'strftime'):
+            val = isoformat(val, as_utc=True).split('T')[0]
+            val_type = 'date'
+        add_um(name, val, val_type)
+
     meta = xpath('//office:meta')[0]
 
     if not mi.is_null('title'):
         remove('title')
         add('title', mi.title)
+        if not mi.is_null('title_sort'):
+            remove_user_metadata('opf.titlesort')
+            add_user_metadata('opf.titlesort', mi.title_sort)
     if not mi.is_null('authors'):
         remove('initial-creator', 'creator')
         val = authors_to_string(mi.authors)
         add('initial-creator', val), add('creator', val)
+        remove_user_metadata('opf.authors')
+        add_user_metadata('opf.authors', val)
+        if not mi.is_null('author_sort'):
+            remove_user_metadata('opf.authorsort')
+            add_user_metadata('opf.authorsort', mi.author_sort)
     if not mi.is_null('comments'):
         remove('description')
         add('description', mi.comments)
@@ -188,6 +231,22 @@ def _set_metadata(raw, mi):
         if lang:
             remove('language')
             add('language', lang)
+    if not mi.is_null('pubdate'):
+        remove_user_metadata('opf.pubdate')
+        add_user_metadata('opf.pubdate', mi.pubdate)
+    if not mi.is_null('publisher'):
+        remove_user_metadata('opf.publisher')
+        add_user_metadata('opf.publisher', mi.publisher)
+    if not mi.is_null('series'):
+        remove_user_metadata('opf.series', 'opf.seriesindex')
+        add_user_metadata('opf.series', mi.series)
+        add_user_metadata('opf.seriesindex', '{}'.format(mi.series_index))
+    if not mi.is_null('identifiers'):
+        remove_user_metadata('opf.identifiers')
+        add_user_metadata('opf.identifiers', as_unicode(json.dumps(mi.identifiers)))
+    if not mi.is_null('rating'):
+        remove_user_metadata('opf.rating')
+        add_user_metadata('opf.rating', '%.2g' % mi.rating)
 
     return tostring(root, encoding='utf-8', pretty_print=True)
 
