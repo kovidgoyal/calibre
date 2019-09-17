@@ -23,7 +23,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import io
 import os
 import re
-import xml.sax.saxutils
 
 from lxml.etree import fromstring, tostring
 
@@ -37,9 +36,6 @@ from calibre.utils.zipfile import ZipFile, safe_replace
 from odf.draw import Frame as odFrame, Image as odImage
 from odf.namespaces import DCNS, METANS, OFFICENS
 from odf.opendocument import load as odLoad
-from polyglot.builtins import string_or_bytes
-
-whitespace = re.compile(r'\s+')
 
 fields = {
     'title':            (DCNS, 'title'),
@@ -61,122 +57,12 @@ fields = {
 }
 
 
-def normalize(s):
-    """
-    The normalize-space function returns the argument string with whitespace
-    normalized by stripping leading and trailing whitespace and replacing
-    sequences of whitespace characters by a single space.
-    """
-    return whitespace.sub(' ', s).strip()
-
-
-class MetaCollector:
-    """
-    The MetaCollector is a pseudo file object, that can temporarily ignore write-calls
-    It could probably be replaced with a StringIO object.
-    """
-
-    def __init__(self):
-        self._content = []
-        self.dowrite = True
-
-    def write(self, s):
-        if self.dowrite:
-            self._content.append(s)
-
-    def content(self):
-        return ''.join(self._content)
-
-
-class odfmetaparser(xml.sax.saxutils.XMLGenerator):
-    """ Parse a meta.xml file with an event-driven parser and replace elements.
-        It would probably be a cleaner approach to use a DOM based parser and
-        then manipulate in memory.
-        Small issue: Reorders elements
-    """
-
-    def __init__(self, deletefields={}, yieldfields={}, addfields={}):
-        self.deletefields = deletefields
-        self.yieldfields = yieldfields
-        self.addfields = addfields
-        self._mimetype = ''
-        self.output = MetaCollector()
-        self._data = []
-        self.seenfields = {}
-        xml.sax.saxutils.XMLGenerator.__init__(self, self.output, 'utf-8')
-
-    def startElementNS(self, name, qname, attrs):
-        self._data = []
-        field = name
-# I can't modify the template until the tool replaces elements at the same
-# location and not at the end
-#       if name == (METANS,u'template'):
-#           self._data = [attrs.get((XLINKNS,u'title'),'')]
-        if name == (METANS, 'user-defined'):
-            field = attrs.get((METANS, 'name'))
-        if field in self.deletefields:
-            self.output.dowrite = False
-        elif field in self.yieldfields:
-            del self.addfields[field]
-            xml.sax.saxutils.XMLGenerator.startElementNS(self, name, qname, attrs)
-        else:
-            xml.sax.saxutils.XMLGenerator.startElementNS(self, name, qname, attrs)
-        self._tag = field
-
-    def endElementNS(self, name, qname):
-        field = name
-        if name == (METANS, 'user-defined'):
-            field = self._tag
-        if name == (OFFICENS, 'meta'):
-            for k,v in self.addfields.items():
-                if len(v) > 0:
-                    if isinstance(k, string_or_bytes):
-                        xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS, 'user-defined'),None,{(METANS, 'name'):k})
-                        xml.sax.saxutils.XMLGenerator.characters(self, v)
-                        xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS, 'user-defined'),None)
-                    else:
-                        xml.sax.saxutils.XMLGenerator.startElementNS(self, k, None, {})
-                        xml.sax.saxutils.XMLGenerator.characters(self, v)
-                        xml.sax.saxutils.XMLGenerator.endElementNS(self, k, None)
-        if isinstance(self._tag, tuple):
-            texttag = self._tag[1]
-        else:
-            texttag = self._tag
-        self.seenfields[texttag] = self.data()
-        # OpenOffice has the habit to capitalize custom properties, so we add a
-        # lowercase version for easy access
-        if texttag[:4].lower() == 'opf.':
-            self.seenfields[texttag.lower()] = self.data()
-
-        if field in self.deletefields:
-            self.output.dowrite = True
-        else:
-            xml.sax.saxutils.XMLGenerator.endElementNS(self, name, qname)
-
-    def characters(self, content):
-        xml.sax.saxutils.XMLGenerator.characters(self, content)
-        self._data.append(content)
-
-    def meta(self):
-        return self.output.content()
-
-    def data(self):
-        return normalize(''.join(self._data))
-
-
-def get_odf_meta_parsed(stream, mode='r', deletefields={}, yieldfields={}, addfields={}):
-    zin = ZipFile(stream, mode)
-    odfs = odfmetaparser(deletefields, yieldfields, addfields)
-    parser = xml.sax.make_parser()
-    parser.setFeature(xml.sax.handler.feature_namespaces, True)
-    parser.setFeature(xml.sax.handler.feature_external_ges, False)
-    parser.setContentHandler(odfs)
-    content = zin.read('meta.xml')
-    parser.parse(io.BytesIO(content))
-    return (zin, odfs)
-
-
 def get_metadata(stream, extract_cover=True):
+    whitespace = re.compile(r'\s+')
+
+    def normalize(s):
+        return whitespace.sub(' ', s).strip()
+
     with ZipFile(stream) as zf:
         meta = zf.read('meta.xml')
         root = fromstring(meta)
@@ -185,7 +71,7 @@ def get_metadata(stream, extract_cover=True):
             ns, tag = fields[field]
             ans = root.xpath('//ns0:{}'.format(tag), namespaces={'ns0': ns})
             if ans:
-                return tostring(ans[0], method='text', encoding='unicode', with_tail=False).strip()
+                return normalize(tostring(ans[0], method='text', encoding='unicode', with_tail=False)).strip()
 
         mi = MetaInformation(None, [])
         title = find('title')
@@ -252,26 +138,58 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def get_meta_doc_props(mi):
-    metaFields = {}
-    metaFields[fields.get('title')] = mi.title
-    metaFields[fields.get('creator')] = authors_to_string(mi.authors)
-    if mi.tags:
-        metaFields[fields.get('keyword')] = ', '.join(mi.tags)
-    if mi.comments:
-        metaFields[fields.get('description')] = mi.comments
-    if mi.languages:
-        l = canonicalize_lang(mi.languages[0])
-        metaFields[fields.get('language')] = lang_as_iso639_1(l) or l
-    return metaFields
-
-
 def set_metadata(stream, mi):
-    metaFields = get_meta_doc_props(mi)
 
-    zin, odfs = get_odf_meta_parsed(stream, addfields=metaFields, deletefields=metaFields)
+    with ZipFile(stream) as zf:
+        raw = _set_metadata(zf.open('meta.xml').read(), mi)
+
     stream.seek(os.SEEK_SET)
-    safe_replace(stream, "meta.xml", io.BytesIO(odfs.meta().encode('utf-8')))
+    safe_replace(stream, "meta.xml", io.BytesIO(raw))
+
+
+def _set_metadata(raw, mi):
+    root = fromstring(raw)
+    namespaces = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
+    nsrmap = {v: k for k, v in namespaces.items()}
+
+    def xpath(expr, parent=root):
+        return parent.xpath(expr, namespaces=namespaces)
+
+    def remove(*tag_names):
+        for tag_name in tag_names:
+            ns = fields[tag_name][0]
+            tag_name = '{}:{}'.format(nsrmap[ns], tag_name)
+            for x in xpath('descendant::' + tag_name, meta):
+                x.getparent().remove(x)
+
+    def add(tag, val=None):
+        ans = meta.makeelement('{%s}%s' % fields[tag])
+        ans.text = val
+        meta.append(ans)
+        return ans
+
+    meta = xpath('//office:meta')[0]
+
+    if not mi.is_null('title'):
+        remove('title')
+        add('title', mi.title)
+    if not mi.is_null('authors'):
+        remove('initial-creator', 'creator')
+        val = authors_to_string(mi.authors)
+        add('initial-creator', val), add('creator', val)
+    if not mi.is_null('comments'):
+        remove('description')
+        add('description', mi.comments)
+    if not mi.is_null('tags'):
+        remove('keyword')
+        add('keyword', ', '.join(mi.tags))
+    if not mi.is_null('languages'):
+        lang = lang_as_iso639_1(mi.languages[0])
+        if lang:
+            remove('language')
+            add('language', lang)
+
+    return tostring(root, encoding='utf-8', pretty_print=True)
 
 
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
