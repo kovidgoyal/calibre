@@ -148,9 +148,9 @@ class WSJ(BasicNewsRecipe):
             self.log('Performing login callback...')
             res = br.submit()
             self.wsj_itp_page = raw = res.read()
-            if b'>Sign Out<' not in raw:
-                raise ValueError(
-                    'Failed to login (callback URL failed), check username and password')
+            #if b'>Sign Out<' not in raw:
+            #    raise ValueError(
+            #        'Failed to login (callback URL failed), check username and password')
             return br
     else:
         def get_browser(self, *a, **kw):
