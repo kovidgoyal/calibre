@@ -8,6 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from dom import unique_id
 from widgets import create_button
+from session import defaults
 
 CONTAINER = unique_id('standalone-misc-settings')
 DEFAULTS = {
@@ -21,6 +22,7 @@ def restore_defaults():
     container = get_container()
     for q in Object.keys(DEFAULTS):
         container.querySelector(f'[name={q}]').checked = DEFAULTS[q]
+    container.querySelector(f'[name=hide_tooltips]').checked = defaults.hide_tooltips
 
 
 def get_container():
@@ -32,6 +34,7 @@ def create_misc_panel(container):
     container = container.lastChild
     sd = get_session_data()
     settings = sd.get('standalone_misc_settings')
+    settings.hide_tooltips = sd.get('hide_tooltips')
 
     def cb(name, text):
         ans = E.input(type='checkbox', name=name)
@@ -41,6 +44,7 @@ def create_misc_panel(container):
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
+    container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
 
     container.appendChild(E.div(
         style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)
@@ -59,3 +63,6 @@ def commit_misc(onchange):
         if val is not DEFAULTS[q]:
             vals[q] = val
     sd.set('standalone_misc_settings', vals)
+    hide_tooltips = container.querySelector(f'[name=hide_tooltips]').checked
+    sd.set('hide_tooltips', None if hide_tooltips is defaults.hide_tooltips else hide_tooltips)
+    onchange()

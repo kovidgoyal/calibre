@@ -6,7 +6,8 @@ from elementmaker import E
 from encodings import base64decode, utf8_decode
 
 from dom import clear, remove_all_attributes
-from read_book.globals import ui_operations, runtime
+from read_book.globals import runtime, ui_operations
+from read_book.settings import opts
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -168,6 +169,7 @@ js_types = {k: True for k in 'text/javascript text/ecmascript application/javasc
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
 ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml'}
 ns_count = 0
+hide_tooltips = False
 
 def get_prefix(ns):
     nonlocal ns_count
@@ -186,6 +188,8 @@ def apply_attributes(src, elem, ns_map):
             ns = ns_map[a[2]]
             elem.setAttributeNS(ns, get_prefix(ns) + a[0], a[1])
         else:
+            if hide_tooltips and (a[0] is 'title' or a[0] is 'alt'):
+                continue
             elem.setAttribute(a[0], a[1])
 
 def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
@@ -225,6 +229,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
             stack.push(v'[node[i], elem]')
 
 def unserialize_html(serialized_data, proceed, postprocess_dom):
+    nonlocal hide_tooltips
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
     ns_map = serialized_data.ns_map
@@ -243,6 +248,7 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     load_required = set()
     proceeded = False
     hang_timeout = 5
+    hide_tooltips = opts.hide_tooltips
 
     def hangcheck():
         nonlocal proceeded
