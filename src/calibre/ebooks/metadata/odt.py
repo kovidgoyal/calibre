@@ -243,7 +243,7 @@ def set_metadata(stream, mi):
 
     zin, odfs = get_odf_meta_parsed(stream, addfields=metaFields, deletefields=metaFields)
     stream.seek(os.SEEK_SET)
-    safe_replace(stream, "meta.xml", io.BytesIO(str(odfs.meta())))
+    safe_replace(stream, "meta.xml", io.BytesIO(odfs.meta().encode('utf-8')))
 
 
 
