@@ -20,18 +20,23 @@
 #
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import zipfile, re, io, os
+import io
+import os
+import re
 import xml.sax.saxutils
 
-from odf.namespaces import OFFICENS, DCNS, METANS
-from odf.opendocument import load as odLoad
-from odf.draw import Image as odImage, Frame as odFrame
+from lxml.etree import fromstring, tostring
 
-from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn, authors_to_string
-
-from calibre.utils.imghdr import identify
+from calibre.ebooks.metadata import (
+    MetaInformation, authors_to_string, check_isbn, string_to_authors
+)
 from calibre.utils.date import parse_date
+from calibre.utils.imghdr import identify
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.zipfile import ZipFile, safe_replace
+from odf.draw import Frame as odFrame, Image as odImage
+from odf.namespaces import DCNS, METANS, OFFICENS
+from odf.opendocument import load as odLoad
 from polyglot.builtins import string_or_bytes
 
 whitespace = re.compile(r'\s+')
@@ -160,7 +165,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
 
 
 def get_odf_meta_parsed(stream, mode='r', deletefields={}, yieldfields={}, addfields={}):
-    zin = zipfile.ZipFile(stream, mode)
+    zin = ZipFile(stream, mode)
     odfs = odfmetaparser(deletefields, yieldfields, addfields)
     parser = xml.sax.make_parser()
     parser.setFeature(xml.sax.handler.feature_namespaces, True)
@@ -172,58 +177,77 @@ def get_odf_meta_parsed(stream, mode='r', deletefields={}, yieldfields={}, addfi
 
 
 def get_metadata(stream, extract_cover=True):
-    zin, odfs = get_odf_meta_parsed(stream)
-    data = odfs.seenfields
-    mi = MetaInformation(None, [])
-    if 'title' in data:
-        mi.title = data['title']
-    if data.get('initial-creator', '').strip():
-        mi.authors = string_to_authors(data['initial-creator'])
-    elif 'creator' in data:
-        mi.authors = string_to_authors(data['creator'])
-    if 'description' in data:
-        mi.comments = data['description']
-    if 'language' in data:
-        mi.language = data['language']
-    kw = data.get('keyword') or data.get('keywords')
-    if kw:
-        mi.tags = [x.strip() for x in kw.split(',') if x.strip()]
-    opfmeta = False  # we need this later for the cover
-    opfnocover = False
-    if data.get('opf.metadata','') == 'true':
-        # custom metadata contains OPF information
-        opfmeta = True
-        if data.get('opf.titlesort', ''):
-            mi.title_sort = data['opf.titlesort']
-        if data.get('opf.authors', ''):
-            mi.authors = string_to_authors(data['opf.authors'])
-        if data.get('opf.authorsort', ''):
-            mi.author_sort = data['opf.authorsort']
-        if data.get('opf.isbn', ''):
-            isbn = check_isbn(data['opf.isbn'])
-            if isbn is not None:
-                mi.isbn = isbn
-        if data.get('opf.publisher', ''):
-            mi.publisher = data['opf.publisher']
-        if data.get('opf.pubdate', ''):
-            mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
-        if data.get('opf.series', ''):
-            mi.series = data['opf.series']
-            if data.get('opf.seriesindex', ''):
-                try:
-                    mi.series_index = float(data['opf.seriesindex'])
-                except Exception:
-                    mi.series_index = 1.0
-        if data.get('opf.language', ''):
-            cl = canonicalize_lang(data['opf.language'])
-            if cl:
-                mi.languages = [cl]
-        opfnocover = data.get('opf.nocover', 'false') == 'true'
-    if not opfnocover:
-        try:
-            read_cover(stream, zin, mi, opfmeta, extract_cover)
-        except Exception:
-            pass  # Do not let an error reading the cover prevent reading other data
+    with ZipFile(stream) as zf:
+        meta = zf.read('meta.xml')
+        root = fromstring(meta)
+
+        def find(field):
+            ns, tag = fields[field]
+            ans = root.xpath('//ns0:{}'.format(tag), namespaces={'ns0': ns})
+            if ans:
+                return tostring(ans[0], method='text', encoding='unicode', with_tail=False).strip()
+
+        mi = MetaInformation(None, [])
+        title = find('title')
+        if title:
+            mi.title = title
+        creator = find('initial-creator') or find('creator')
+        if creator:
+            mi.authors = string_to_authors(creator)
+        desc = find('description')
+        if desc:
+            mi.comments = desc
+        lang = find('language')
+        if lang and canonicalize_lang(lang):
+            mi.languages = [canonicalize_lang(lang)]
+        kw = find('keyword') or find('keywords')
+        if kw:
+            mi.tags = [x.strip() for x in kw.split(',') if x.strip()]
+        data = {}
+        for tag in root.xpath('//ns0:user-defined', namespaces={'ns0': fields['user-defined'][0]}):
+            name = (tag.get('{%s}name' % METANS) or '').lower()
+            vtype = tag.get('{%s}value-type' % METANS) or 'string'
+            val = tag.text
+            if name and val:
+                if vtype == 'boolean':
+                    val = val == 'true'
+                data[name] = val
+        opfmeta = False  # we need this later for the cover
+        opfnocover = False
+        if data.get('opf.metadata'):
+            # custom metadata contains OPF information
+            opfmeta = True
+            if data.get('opf.titlesort', ''):
+                mi.title_sort = data['opf.titlesort']
+            if data.get('opf.authors', ''):
+                mi.authors = string_to_authors(data['opf.authors'])
+            if data.get('opf.authorsort', ''):
+                mi.author_sort = data['opf.authorsort']
+            if data.get('opf.isbn', ''):
+                isbn = check_isbn(data['opf.isbn'])
+                if isbn is not None:
+                    mi.isbn = isbn
+            if data.get('opf.publisher', ''):
+                mi.publisher = data['opf.publisher']
+            if data.get('opf.pubdate', ''):
+                mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
+            if data.get('opf.series', ''):
+                mi.series = data['opf.series']
+                if data.get('opf.seriesindex', ''):
+                    try:
+                        mi.series_index = float(data['opf.seriesindex'])
+                    except Exception:
+                        mi.series_index = 1.0
+            if data.get('opf.language', ''):
+                cl = canonicalize_lang(data['opf.language'])
+                if cl:
+                    mi.languages = [cl]
+            opfnocover = data.get('opf.nocover', False)
+        if not opfnocover:
+            try:
+                read_cover(stream, zf, mi, opfmeta, extract_cover)
+            except Exception:
+                pass  # Do not let an error reading the cover prevent reading other data
 
     return mi
 
@@ -243,7 +267,6 @@ def get_meta_doc_props(mi):
 
 
 def set_metadata(stream, mi):
-    from calibre.utils.zipfile import safe_replace
     metaFields = get_meta_doc_props(mi)
 
     zin, odfs = get_odf_meta_parsed(stream, addfields=metaFields, deletefields=metaFields)
