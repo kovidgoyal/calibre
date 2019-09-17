@@ -321,7 +321,7 @@ class BuiltinEval(BuiltinFormatterFunction):
             'template program mode.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
-        from formatter import EvalFormatter
+        from calibre.utils.formatter import EvalFormatter
         template = template.replace('[[', '{').replace(']]', '}')
         return EvalFormatter().safe_format(template, locals, 'EVAL', None)
 
@@ -644,7 +644,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
             "{series:'re_group($, \"(\\S* )(.*)\", \"[[$:uppercase()]]\", \"[[$]]\")'}")
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, *args):
-        from formatter import EvalFormatter
+        from calibre.utils.formatter import EvalFormatter
 
         def repl(mo):
             res = ''
@@ -1348,7 +1348,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, include_re,
                  search_re, *args):
-        from formatter import EvalFormatter
+        from calibre.utils.formatter import EvalFormatter
 
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
         res = []
