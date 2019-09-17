@@ -53,6 +53,11 @@ def show_controls_help():
             document.getElementById('controls-help-overlay').style.display = 'none'
             ui_operations.focus_iframe()
         )
+        container.addEventListener('contextmenu', def(evt):
+            evt.preventDefault(), evt.stopPropagation()
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
+        , {'passive': False})
         container.addEventListener('keydown', def(event):
             event.preventDefault(), event.stopPropagation()
             document.getElementById('controls-help-overlay').style.display = 'none'
