@@ -147,8 +147,8 @@ class Develop(Command):
         self.consolidate_paths()
         self.install_files()
         self.write_templates()
-        self.run_postinstall()
         self.install_env_module()
+        self.run_postinstall()
         self.success()
 
     def install_env_module(self):
@@ -164,6 +164,7 @@ class Develop(Command):
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
                 f.write(HEADER.format(**self.template_args()).encode('utf-8'))
+            self.manifest.append(path)
 
     def install_files(self):
         pass
