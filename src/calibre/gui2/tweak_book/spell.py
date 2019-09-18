@@ -447,7 +447,7 @@ class ManageDictionaries(Dialog):  # {{{
         b = self.bb.addButton(_('Manage &user dictionaries'), self.bb.ActionRole)
         b.setIcon(QIcon(I('user_profile.png')))
         b.setToolTip(_(
-            'Mange the list of user dictionaries (dictionaries to which you can add words)'))
+            'Manage the list of user dictionaries (dictionaries to which you can add words)'))
         b.clicked.connect(self.manage_user_dictionaries)
         b = self.bb.addButton(_('&Add dictionary'), self.bb.ActionRole)
         b.setToolTip(_(
