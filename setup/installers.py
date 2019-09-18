@@ -26,15 +26,17 @@ def get_exe():
     return 'python3' if sys.version_info.major == 2 else sys.executable
 
 
-def get_cmd(exe, bypy, which, bitness, sign_installers):
+def get_cmd(exe, bypy, which, bitness, sign_installers, notarize=True):
     cmd = [exe, bypy, which]
     if bitness and bitness == '32':
         cmd.append(bitness)
     cmd.append('program')
     if not sys.stdout.isatty():
         cmd.append('--no-tty')
-    if sign_installers:
+    if sign_installers or notarize:
         cmd.append('--sign-installers')
+    if notarize:
+        cmd.append('--notarize')
     return cmd
 
 
@@ -65,10 +67,10 @@ def build_only(which, bitness, spec, shutdown=False):
     return dist
 
 
-def build_single(which='windows', bitness='64', shutdown=True, sign_installers=True):
+def build_single(which='windows', bitness='64', shutdown=True, sign_installers=True, notarize=True):
     base, bypy = get_paths()
     exe = get_exe()
-    cmd = get_cmd(exe, bypy, which, bitness, sign_installers)
+    cmd = get_cmd(exe, bypy, which, bitness, sign_installers, notarize)
     ret = subprocess.Popen(cmd).wait()
     if ret != 0:
         raise SystemExit(ret)
@@ -115,9 +117,15 @@ class BuildInstaller(Command):
             action='store_true',
             help='Do not sign the installers'
         )
+        parser.add_option(
+            '--dont-notarize',
+            default=False,
+            action='store_true',
+            help='Do not notarize the installers'
+        )
 
     def run(self, opts):
-        build_single(self.OS, self.BITNESS, not opts.dont_shutdown, not opts.dont_sign)
+        build_single(self.OS, self.BITNESS, not opts.dont_shutdown, not opts.dont_sign, not opts.dont_notarize)
 
 
 class BuildInstallers(BuildInstaller):

@@ -2,20 +2,29 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+import json
 import os
 import plistlib
 import re
 import shlex
 import subprocess
 import tempfile
-from glob import glob
-from uuid import uuid4
+import time
 from contextlib import contextmanager
+from glob import glob
+from pprint import pprint
+from urllib.request import urlopen
+from uuid import uuid4
 
-from bypy.utils import current_dir
+from bypy.utils import current_dir, run_shell, timeit
 
 CODESIGN_CREDS = os.path.expanduser('~/cert-cred')
 CODESIGN_CERT = os.path.expanduser('~/maccert.p12')
+# The apple id file contains the apple id and an app specific password which
+# can be generated from appleid.apple.com
+# Note that apple accounts require two-factor authentication which is currntly
+# setup on ox and via SMS on my phone
+APPLE_ID = os.path.expanduser('~/aid')
 path_to_entitlements = os.path.expanduser('~/calibre-entitlements.plist')
 
 
@@ -75,12 +84,71 @@ def codesign(items):
     ] + list(items))
 
 
-def notarize():
+def notarize_app(app_path):
     # See
     # https://developer.apple.com/documentation/xcode/notarizing_your_app_before_distribution/customizing_the_notarization_workflow?language=objc
     # and
     # https://developer.apple.com/documentation/xcode/notarizing_your_app_before_distribution/resolving_common_notarization_issues?language=objc
-    pass
+    with open(APPLE_ID) as f:
+        un, pw = f.read().strip().split(':')
+
+    with open(os.path.join(app_path, 'Contents', 'Info.plist'), 'rb') as f:
+        primary_bundle_id = plistlib.load(f)['CFBundleIdentifier']
+
+    zip_path = os.path.join(os.path.dirname(app_path), 'calibre.zip')
+    print('Creating zip file for notarization')
+    with timeit() as times:
+        run('ditto', '-c', '-k', '--zlibCompressionLevel', '9', '--keepParent', app_path, zip_path)
+    print('ZIP file of {} MB created in {} minutes and {} seconds'.format(os.path.getsize(zip_path) // 1024**2, *times))
+
+    def altool(*args):
+        args = ['xcrun', 'altool'] + list(args) + ['--username', un, '--password', pw]
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
+        output = stdout + '\n' + stderr
+        print(output)
+        if p.wait() != 0:
+            print('The command {} failed with error code: {}'.format(args, p.returncode))
+            try:
+                run_shell()
+            finally:
+                raise SystemExit(1)
+        return output
+
+    print('Submitting for notarization')
+    with timeit() as times:
+        try:
+            stdout = altool('--notarize-app', '-f', zip_path, '--primary-bundle-id', primary_bundle_id)
+        finally:
+            os.remove(zip_path)
+        request_id = re.search(r'RequestUUID = (\S+)', stdout).group(1)
+        status = 'in progress'
+    print('Submission done in {} minutes and {} seconds'.format(*times))
+
+    print('Waiting for notarization')
+    with timeit() as times:
+        start_time = time.monotonic()
+        while status == 'in progress':
+            time.sleep(30)
+            print('Checking if notarization is complete, time elapsed: {:.1f} seconds', time.monotonic() - start_time)
+            stdout = altool('--notarization-info', request_id)
+            status = re.search(r'Status\s*:\s+(.+)', stdout).group(1).strip()
+    print('Notarization done in {} minutes and {} seconds'.format(*times))
+
+    if status.lower() != 'success':
+        log_url = re.search(r'LogFileURL\s*:\s+(.+)', stdout).group(1).strip()
+        if log_url != '(null)':
+            log = json.loads(urlopen(log_url).read())
+            pprint(log)
+        raise SystemExit('Notarization failed, see JSON log above')
+    with timeit() as times:
+        print('Stapling notarization ticket')
+        run('xcrun', 'stapler', 'staple', '-v', app_path)
+        run('xcrun', 'stapler', 'validate', '-v', app_path)
+        run('spctl', '--verbose=4', '--assess', '--type', 'execute', app_path)
+    print('Stapling took {} minutes and {} seconds'.format(*times))
 
 
 def files_in(folder):
@@ -171,13 +239,15 @@ def do_sign_app(appdir):
     # Now sign the main app
     codesign(appdir)
     # Verify the signature
-    subprocess.check_call(['codesign', '-vvv', '--deep', '--strict', appdir])
-    subprocess.check_call('spctl --verbose=4 --assess --type execute'.split() + [appdir])
+    run('codesign', '-vvv', '--deep', '--strict', appdir)
+    run('spctl', '--verbose=4', '--assess', '--type', 'execute', appdir)
 
     return 0
 
 
-def sign_app(appdir):
+def sign_app(appdir, notarize):
     create_entitlements_file()
     with make_certificate_useable():
         do_sign_app(appdir)
+        if notarize:
+            notarize_app(appdir)

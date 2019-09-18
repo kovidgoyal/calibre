@@ -157,9 +157,10 @@ class Freeze(object):
 
     FID = '@executable_path/../Frameworks'
 
-    def __init__(self, build_dir, ext_dir, test_runner, test_launchers=False, dont_strip=False, sign_installers=False):
+    def __init__(self, build_dir, ext_dir, test_runner, test_launchers=False, dont_strip=False, sign_installers=False, notarize=False):
         self.build_dir = os.path.realpath(build_dir)
         self.sign_installers = sign_installers
+        self.notarize = notarize
         self.ext_dir = os.path.realpath(ext_dir)
         self.test_runner = test_runner
         self.dont_strip = dont_strip
@@ -737,9 +738,9 @@ class Freeze(object):
         tdir = tempfile.mkdtemp()
         appdir = join(tdir, os.path.basename(d))
         shutil.copytree(d, appdir, symlinks=True)
-        if self.sign_installers:
+        if self.sign_installers or self.notarize:
             with timeit() as times:
-                sign_app(appdir)
+                sign_app(appdir, self.notarize)
             print('Signing completed in %d minutes %d seconds' % tuple(times))
         os.symlink('/Applications', join(tdir, 'Applications'))
         size_in_mb = int(subprocess.check_output(['du', '-s', '-k', tdir]).decode('utf-8').split()[0]) / 1024.
@@ -765,7 +766,7 @@ def main(args, ext_dir, test_runner):
     build_dir = abspath(join(mkdtemp('frozen-'), APPNAME + '.app'))
     if args.skip_tests:
         test_runner = lambda *a: None
-    Freeze(build_dir, ext_dir, test_runner, dont_strip=args.dont_strip, sign_installers=args.sign_installers)
+    Freeze(build_dir, ext_dir, test_runner, dont_strip=args.dont_strip, sign_installers=args.sign_installers, notarize=args.notarize)
 
 
 if __name__ == '__main__':
