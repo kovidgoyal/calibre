@@ -539,6 +539,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             url = unicode_type(url.toString(NO_URL_FORMATTING))
             self.focus_self()
             with self.editing_cursor() as c:
+                selected_text = c.selectedText()
                 if is_image:
                     c.insertImage(url)
                 else:
@@ -550,7 +551,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     fmt.setForeground(QBrush(QColor('blue')))
                     prev_fmt = c.charFormat()
                     c.mergeCharFormat(fmt)
-                    c.insertText(url)
+                    c.insertText(selected_text or url)
                     c.setCharFormat(prev_fmt)
         else:
             error_dialog(self, _('Invalid URL'),
