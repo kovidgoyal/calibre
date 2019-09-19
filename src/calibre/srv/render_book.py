@@ -272,8 +272,7 @@ class Container(ContainerBase):
                 from calibre.ebooks.covers import create_cover
                 mi = self.book_metadata
                 return create_cover(mi.title, mi.authors, mi.series, mi.series_index)
-            else:
-                return BLANK_JPEG
+            return BLANK_JPEG
 
         if input_fmt == 'epub':
             def cover_path(action, data):
