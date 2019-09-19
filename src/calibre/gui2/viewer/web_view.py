@@ -52,7 +52,6 @@ def set_book_path(path, pathtoebook):
     set_book_path.path = os.path.abspath(path)
     set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
     set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
-    set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
     set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
     set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
 
