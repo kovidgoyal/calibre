@@ -26,7 +26,9 @@ from calibre.ebooks.oeb.base import (
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
+from calibre.ebooks.oeb.polish.cover import (
+    find_cover_image, find_cover_page, set_epub_cover
+)
 from calibre.ebooks.oeb.polish.css import transform_css
 from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
@@ -267,10 +269,12 @@ class Container(ContainerBase):
         '''
         blank = {'q': False}
         if input_fmt == 'epub':
+            if not find_cover_page(self) and not find_cover_image(self):
+                blank['q'] = True
+
             def cover_path(action, data):
                 if action == 'write_image':
                     data.write(BLANK_JPEG)
-                    blank['q'] = True
             raster_cover_name, titlepage_name = set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
         else:
             raster_cover_name = find_cover_image(self, strict=True)
