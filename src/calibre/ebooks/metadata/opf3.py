@@ -432,7 +432,8 @@ def is_relators_role(props, q):
     for role in props.get('role'):
         if role:
             scheme_ns, scheme, role = role
-            return role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators'))
+            if role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                return True
     return False
 
 
