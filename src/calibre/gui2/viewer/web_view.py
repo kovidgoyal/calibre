@@ -9,8 +9,8 @@ import sys
 from itertools import count
 
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QFontDatabase, QHBoxLayout, QSize, Qt, QTimer,
-    QUrl, QWidget, pyqtSignal
+    QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QHBoxLayout, QSize,
+    Qt, QTimer, QUrl, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -427,9 +427,10 @@ class WebView(RestartingWebEngineView):
 
     def on_bridge_ready(self):
         f = QApplication.instance().font()
+        fi = QFontInfo(f)
         self.bridge.create_view(
             vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata(),
-            f.family(), f.pointSize())
+            f.family(), '{}px'.format(fi.pixelSize()))
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
