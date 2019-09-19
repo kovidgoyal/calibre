@@ -140,6 +140,7 @@ class IframeBoss:
         self.content_ready = False
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.is_titlepage = data.is_titlepage
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
         reset_paged_mode_globals()
@@ -243,6 +244,8 @@ class IframeBoss:
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
+        if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
+            document.body.classList.add('cover-fill')
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
         self.fix_fullscreen_svg_images()

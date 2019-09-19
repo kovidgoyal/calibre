@@ -15,7 +15,8 @@ def update_settings(settings):
     opts.color_scheme = settings.color_scheme
     opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
     opts.user_stylesheet = settings.user_stylesheet or ''
-    opts.hide_tooltips = settings.hide_tooltips or False
+    opts.hide_tooltips = settings.hide_tooltips
+    opts.cover_preserve_aspect_ratio = settings.cover_preserve_aspect_ratio
 
 update_settings()
 

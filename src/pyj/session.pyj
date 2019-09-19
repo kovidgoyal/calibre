@@ -29,6 +29,7 @@ defaults = {
     'margin_top': 20,
     'margin_bottom': 20,
     'read_mode': 'paged',
+    'cover_preserve_aspect_ratio': True,
     'max_text_height': 0,
     'max_text_width': 0,
     'columns_per_screen': {'portrait':0, 'landscape':0},

@@ -532,6 +532,7 @@ class View:
             'user_stylesheet': sd.get('user_stylesheet'),
             'keyboard_shortcuts': sd.get('keyboard_shortcuts'),
             'hide_tooltips': sd.get('hide_tooltips'),
+            'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
         }
 
     def show_name(self, name, initial_position=None):
@@ -744,6 +745,7 @@ class View:
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,
             settings=self.currently_showing.settings,
+            is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
         )
 
     def on_content_loaded(self, data):

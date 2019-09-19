@@ -61,6 +61,10 @@ def create_layout_panel(container):
         E.tr(E.td(_('Max. height:')), E.td(E.input(type='number', name='height', min='0', step='10', value=str(sd.get('max_text_height'))))),
     ))
 
+    sec(_('Control how the cover is displayed'))
+    container.appendChild(E.div(style='margin: 1ex 2rem; display: flex;',
+        E.label(E.input(type='checkbox', name='cover_preserve_aspect_ratio', checked=sd.get('cover_preserve_aspect_ratio')), _('Preserve cover aspect ratio'))))
+
 
 develop = create_layout_panel
 
@@ -102,6 +106,11 @@ def commit_layout(onchange, container):
         if val is not sd.get('max_text_' + which):
             was_changed = True
             sd.set('max_text_' + which, val)
+
+    cover_preserve_aspect_ratio = element(CONTAINER, 'input[name=cover_preserve_aspect_ratio]').checked
+    if cover_preserve_aspect_ratio is not sd.get('cover_preserve_aspect_ratio'):
+        was_changed = True
+        sd.set('cover_preserve_aspect_ratio', cover_preserve_aspect_ratio)
 
     if was_changed:
         onchange()

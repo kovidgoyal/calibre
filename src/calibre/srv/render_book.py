@@ -258,12 +258,14 @@ class Container(ContainerBase):
         <head><style>
         html, body, img { height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }
         img {
-            width: auto; height: auto;
+            width: 100%%; height: 100%%;
+            object-fit: contain;
             margin-left: auto; margin-right: auto;
             max-width: 100vw; max-height: 100vh;
             top: 50vh; transform: translateY(-50%%);
             position: relative;
         }
+        body.cover-fill img { object-fit: fill; }
         </style></head><body><img src="%s"/></body></html>
         '''
 
