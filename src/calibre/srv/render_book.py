@@ -19,16 +19,13 @@ from css_parser.css import CSSRule
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
-from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.oeb.base import (
     EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath, rewrite_links,
     urlunquote
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.cover import (
-    find_cover_image, find_cover_page, set_epub_cover
-)
+from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
 from calibre.ebooks.oeb.polish.css import transform_css
 from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
@@ -269,14 +266,19 @@ class Container(ContainerBase):
         }
         </style></head><body><img src="%s"/></body></html>
         '''
-        blank = {'q': False}
-        if input_fmt == 'epub':
-            if not find_cover_page(self) and not find_cover_image(self):
-                blank['q'] = True
 
+        def generic_cover():
+            if self.book_metadata is not None:
+                from calibre.ebooks.covers import create_cover
+                mi = self.book_metadata
+                return create_cover(mi.title, mi.authors, mi.series, mi.series_index)
+            else:
+                return BLANK_JPEG
+
+        if input_fmt == 'epub':
             def cover_path(action, data):
                 if action == 'write_image':
-                    data.write(BLANK_JPEG)
+                    data.write(generic_cover())
             raster_cover_name, titlepage_name = set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
         else:
             raster_cover_name = find_cover_image(self, strict=True)
@@ -284,8 +286,7 @@ class Container(ContainerBase):
                 item = self.generate_item(name='cover.jpeg', id_prefix='cover')
                 raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
                 with self.open(raster_cover_name, 'wb') as dest:
-                    dest.write(BLANK_JPEG)
-                    blank['q'] = True
+                    dest.write(generic_cover())
             item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
             titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
             raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)
@@ -295,22 +296,6 @@ class Container(ContainerBase):
             ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
             self.insert_into_xml(spine, ref, index=0)
             self.dirty(self.opf_name)
-        if blank['q'] and self.book_metadata is not None:
-            authors = authors_to_string(self.book_metadata.authors)
-            title = self.book_metadata.title
-            with self.open(titlepage_name, 'wb') as f:
-                f.write('''
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-        <head><meta charset="utf-8"/></head>
-        <body>
-            <div style="position: fixed; top: 50%; width: 100vw; transform: translateY(-50%)">
-            <h1 style="text-align: center; margin: auto">{title}</h1>
-            <p>\xa0</p>
-            <h3 style="text-align: center; margin: auto; font-style: italic">{authors}</h3>
-            </div>
-        </body>
-        </html>
-        '''.format(title=title, authors=authors).encode('utf-8'))
         return raster_cover_name, titlepage_name
 
     def transform_css(self):
