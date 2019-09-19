@@ -40,12 +40,12 @@ class PDFOutput(OutputFormatPlugin):
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure for page sizes. Default is inch. Choices '
             'are {} '
-            'Note: This does not override the unit for margins!').format(UNITS)),
+            'Note: This does not override the unit for margins!').format(', '.join(UNITS))),
         OptionRecommendation(name='paper_size', recommended_value='letter',
             level=OptionRecommendation.LOW, choices=PAPER_SIZES,
             help=_('The size of the paper. This size will be overridden when a '
             'non default output profile is used. Default is letter. Choices '
-            'are {}').format(PAPER_SIZES)),
+            'are {}').format(', '.join(PAPER_SIZES))),
         OptionRecommendation(name='custom_size', recommended_value=None,
             help=_('Custom size of the document. Use the form widthxheight '
             'e.g. `123x321` to specify the width and height. '
