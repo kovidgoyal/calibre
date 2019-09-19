@@ -730,6 +730,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         else:
             menu.addAction(self.action_paste_and_match_style)
         st = self.text()
+        m = QMenu(_('Fonts'))
+        m.addAction(self.action_bold), m.addAction(self.action_italic), m.addAction(self.action_underline)
+        menu.addMenu(m)
+
         if st and st.strip():
             self.create_change_case_menu(menu)
         parent = self._parent()
