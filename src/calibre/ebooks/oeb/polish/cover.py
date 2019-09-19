@@ -487,7 +487,7 @@ def set_epub_cover(container, cover_path, report, options=None):
         if wrapped_image is not None:
             # The cover page is a simple wrapper around a single cover image,
             # we can remove it safely.
-            log('Existing cover page is a simple wrapper, removing it')
+            log('Existing cover page {} is a simple wrapper, removing it'.format(cover_page))
             container.remove_item(cover_page)
             if wrapped_image != existing_image:
                 container.remove_item(wrapped_image)

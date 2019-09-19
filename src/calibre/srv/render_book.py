@@ -263,7 +263,9 @@ class Container(ContainerBase):
         img {
             width: auto; height: auto;
             margin-left: auto; margin-right: auto;
-            max-width: 100vw; max-height: 100vh
+            max-width: 100vw; max-height: 100vh;
+            top: 50vh; transform: translateY(-50%%);
+            position: relative;
         }
         </style></head><body><img src="%s"/></body></html>
         '''
