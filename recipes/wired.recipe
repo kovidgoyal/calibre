@@ -40,13 +40,16 @@ class WiredDailyNews(BasicNewsRecipe):
                             ul li{display: inline}
                             """
 
+    keep_only_tags = [
+        classes('content-header lead-asset article__body'),
+    ]
     remove_tags = [
-        classes('related-cne-video-component tags-component podcast_storyboard inset-left-component'),
+        classes(
+            'related-cne-video-component tags-component callout--related-list iframe-embed podcast_storyboard'
+            ' inset-left-component ad consumer-marketing-component social-icons'
+        ),
         dict(name=['meta', 'link']),
         dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
-    ]
-    keep_only_tags = [
-        dict(name='main', attrs={'class': lambda x: x and 'article-main-component__content' in x}),
     ]
 
     def parse_wired_index_page(self, currenturl, seen):
