@@ -1121,7 +1121,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             jobs = [job_for_name(container, tocname, None, page_layout)]
             results = manager.convert_html_files(jobs, settle_time=1)
             tocdoc = data_as_pdf_doc(results[tocname])
-            page_margins_map.extend(repeat(resolve_margins(None, page_layout), doc.page_count()))
+            page_margins_map.extend(repeat(resolve_margins(None, page_layout), tocdoc.page_count()))
             pdf_doc.append(tocdoc)
 
     report_progress(0.7, _('Rendered all HTML as PDF'))
