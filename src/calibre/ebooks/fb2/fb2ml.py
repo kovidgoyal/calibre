@@ -307,11 +307,13 @@ class FB2MLizer(object):
                 continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    if item.media_type != 'image/jpeg':
+                    if item.media_type not in ('image/jpeg', 'image/png'):
                         imdata = save_cover_data_to(item.data, compression_quality=70)
                         raw_data = as_base64_unicode(imdata)
+                        content_type = 'image/jpeg'
                     else:
                         raw_data = as_base64_unicode(item.data)
+                        content_type = item.media_type
                     # Don't put the encoded image on a single line.
                     data = ''
                     col = 1
@@ -321,7 +323,7 @@ class FB2MLizer(object):
                             col = 1
                         col += 1
                         data += char
-                    images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
+                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs[item.href], content_type, data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
