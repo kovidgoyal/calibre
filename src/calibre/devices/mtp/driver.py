@@ -176,6 +176,7 @@ class MTP_DEVICE(BASE):
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = json.dumps(dinfo, default=to_json)
+        raw = bytes(raw,encoding='utf8') if isinstance(raw, str) else raw
         self.put_calibre_file(storage, 'driveinfo', BytesIO(raw), len(raw))
         self.driveinfo[location_code] = dinfo
 
