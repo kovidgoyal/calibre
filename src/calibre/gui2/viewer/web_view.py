@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+import shutil
 import sys
 from itertools import count
 
@@ -19,11 +20,12 @@ from PyQt5.QtWebEngineWidgets import (
 
 from calibre import as_unicode, prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, isosx, iswindows
+    FAKE_HOST, FAKE_PROTOCOL, __version__, config_dir, is_running_from_develop,
+    isosx, iswindows
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.gui2 import error_dialog, safe_open_url
+from calibre.gui2 import choose_images, error_dialog, safe_open_url
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
@@ -31,7 +33,7 @@ from calibre.gui2.webengine import (
 from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import iteritems
+from polyglot.builtins import as_bytes, iteritems
 
 try:
     from PyQt5 import sip
@@ -39,6 +41,7 @@ except ImportError:
     import sip
 
 vprefs = JSONConfig('viewer-webengine')
+viewer_config_dir = os.path.join(config_dir, 'viewer')
 vprefs.defaults['session_data'] = {}
 vprefs.defaults['main_window_state'] = None
 vprefs.defaults['main_window_geometry'] = None
@@ -75,6 +78,20 @@ def get_data(name):
     except EnvironmentError as err:
         prints('Failed to read from book file: {} with error: {}'.format(name, as_unicode(err)))
     return None, None
+
+
+def background_image():
+    ans = getattr(background_image, 'ans', None)
+    if ans is None:
+        img_path = os.path.join(viewer_config_dir, 'bg-image.data')
+        if os.path.exists(img_path):
+            with open(img_path, 'rb') as f:
+                data = f.read()
+                mt, data = data.split(b'|', 1)
+        else:
+            ans = b'image/jpeg', b''
+        ans = background_image.ans = mt.decode('utf-8'), data
+    return ans
 
 
 def send_reply(rq, mime_type, data):
@@ -131,6 +148,12 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         elif name == 'manifest':
             data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
             send_reply(rq, set_book_path.manifest_mime, data)
+        elif name == 'reader-background':
+            mt, data = background_image()
+            if data:
+                send_reply(rq, mt, data)
+            else:
+                rq.fail(rq.UrlNotFound)
         elif name.startswith('mathjax/'):
             from calibre.gui2.viewer.mathjax import monkeypatch_mathjax
             if name == 'mathjax/manifest.json':
@@ -206,6 +229,7 @@ class ViewerBridge(Bridge):
     selection_changed = from_js(object)
     copy_selection = from_js(object)
     view_image = from_js(object)
+    change_background_image = from_js(object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -215,6 +239,7 @@ class ViewerBridge(Bridge):
     full_screen_state_changed = to_js()
     get_current_cfi = to_js()
     show_home_page = to_js()
+    background_image_changed = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -369,6 +394,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.selection_changed.connect(self.selection_changed)
         self.bridge.view_image.connect(self.view_image)
         self.bridge.report_cfi.connect(self.call_callback)
+        self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
         self.setAcceptDrops(False)
@@ -483,3 +509,13 @@ class WebView(RestartingWebEngineView):
 
     def show_home_page(self):
         self.execute_when_ready('show_home_page')
+
+    def change_background_image(self, img_id):
+        files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg'])
+        if files:
+            img = files[0]
+            with open(img, 'rb') as src, open(os.path.join(viewer_config_dir, 'bg-image.data'), 'wb') as dest:
+                dest.write(as_bytes(guess_type(img)[0] or 'image/jpeg') + b'|')
+                shutil.copyfileobj(src, dest)
+            background_image.ans = None
+            self.execute_when_ready('background_image_changed', img_id)

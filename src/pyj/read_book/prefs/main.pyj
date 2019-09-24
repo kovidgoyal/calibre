@@ -69,7 +69,7 @@ class Prefs:
         items = [
             create_item(_('Colors'), def():self.show_panel('colors');, _('Colors of the page and text')),
             create_item(_('Page layout'), def():self.show_panel('layout');, _('Page margins and number of pages per screen')),
-            create_item(_('User style sheet'), def():self.show_panel('user_stylesheet');, _('Style rules for text')),
+            create_item(_('Styles'), def():self.show_panel('user_stylesheet');, _('Style rules for text and background image')),
             create_item(_('Headers and footers'), def():self.show_panel('head_foot');, _('Customize the headers and footers')),
             create_item(_('Keyboard shortcuts'), def():self.show_panel('keyboard');, _('Customize the keyboard shortcuts')),
         ]
@@ -109,7 +109,7 @@ class Prefs:
         commit_layout(self.onchange, self.container)
 
     def display_user_stylesheet(self, container):
-        document.getElementById(self.title_id).textContent = _('User style sheet')
+        document.getElementById(self.title_id).textContent = _('Styles')
         create_user_stylesheet_panel(container)
 
     def close_user_stylesheet(self):

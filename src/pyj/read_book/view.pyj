@@ -29,7 +29,10 @@ from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
-from utils import html_escape, is_ios, parse_url_params, username_key, safe_set_inner_html
+from utils import (
+    html_escape, is_ios, parse_url_params, safe_set_inner_html, username_key
+)
+from viewer.constants import READER_BACKGROUND_URL
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -435,7 +438,17 @@ class View:
                 s = m.style
                 s.color = ans.foreground
                 s.backgroundColor = ans.background
+            sd = get_session_data()
             self.iframe.style.backgroundColor = ans.background or 'white'
+            bg_image = sd.get('background_image')
+            if bg_image:
+                if runtime.is_standalone_viewer:
+                    self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL})'
+                else:
+                    self.iframe.style.backgroundImage = f'url({bg_image})'
+            else:
+                self.iframe.style.backgroundImage = 'none'
+
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
         return ans

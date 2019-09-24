@@ -22,7 +22,7 @@ from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
 from session import session_defaults
 from utils import encode_query_with_path, parse_url_params
-from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
+from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
 
 runtime.is_standalone_viewer = True
 runtime.FAKE_HOST = FAKE_HOST
@@ -237,6 +237,14 @@ def get_current_cfi(request_id):
     view.get_current_cfi(request_id, ui_operations.report_cfi)
 
 
+@from_python
+def background_image_changed(img_id):
+    img = document.getElementById(img_id)
+    if img:
+        img.src = ''
+        img.src = READER_BACKGROUND_URL
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error
@@ -295,6 +303,8 @@ if window is window.top:
         to_python.copy_selection(text or None)
     ui_operations.view_image = def(name):
         to_python.view_image(name)
+    ui_operations.change_background_image = def(img_id):
+        to_python.change_background_image(img_id)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

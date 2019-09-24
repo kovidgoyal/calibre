@@ -17,7 +17,6 @@ from PyQt5.Qt import (
 )
 
 from calibre import prints
-from calibre.constants import config_dir
 from calibre.customize.ui import available_input_formats
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.image_popup import ImagePopup
@@ -30,14 +29,15 @@ from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.web_view import (
-    WebView, get_path_for_name, get_session_pref, set_book_path, vprefs
+    WebView, get_path_for_name, get_session_pref, set_book_path, viewer_config_dir,
+    vprefs
 )
 from calibre.utils.date import utcnow
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import as_bytes, itervalues
 
-annotations_dir = os.path.join(config_dir, 'viewer', 'annots')
+annotations_dir = os.path.join(viewer_config_dir, 'annots')
 
 
 def dock_defs():

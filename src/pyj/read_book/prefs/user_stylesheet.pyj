@@ -6,18 +6,54 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from read_book.globals import runtime
+from read_book.globals import runtime, ui_operations
+from viewer.constants import READER_BACKGROUND_URL
+from widgets import create_button
+from dom import unique_id
+
+
+BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+
+
+def change_background_image(img_id):
+    ui_operations.change_background_image(img_id)
+
+
+def clear_image(img_id):
+    document.getElementById(img_id).src = BLANK
+
+
+def background_widget(sd):
+    if sd.get('background_image'):
+        src = READER_BACKGROUND_URL
+    else:
+        src = BLANK
+    img_id = unique_id('bg-image')
+
+    return E.div(
+        style='display: flex; align-items: center',
+        E.div(E.img(src=src, id=img_id, class_='bg-image-preview', style='width: 75px; height: 75px; border: solid 1px')),
+        E.div('\xa0', style='margin: 0.5rem'),
+        create_button(_('Change image'), action=change_background_image.bind(None, img_id)),
+        E.div('\xa0', style='margin: 0.5rem'),
+        create_button(_('Clear image'), action=clear_image.bind(None, img_id)),
+    )
 
 
 def create_user_stylesheet_panel(container):
     sd = get_session_data()
     container.appendChild(
         E.div(
-            style='min-height: 80vh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
+            style='min-height: 75vh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
+            E.div(
+                style='border-bottom: solid 1px; margin-bottom: 1.5ex; padding-bottom: 1.5ex',
+                E.div(_('Choose a background image to display behind the book text'), style='margin-bottom: 1.5ex'),
+                background_widget(sd),
+            ),
             E.div(
                 style='flex-grow: 10; display: flex; flex-flow: column',
                 E.div(
-                    _('A CSS style sheet that can be used to control the look and feel of books. For examples, click'), ' ',
+                    _('A CSS style sheet that can be used to control the look and feel of the text. For examples, click'), ' ',
                     E.a(class_='blue-link', title=_("Examples of user style sheets"),
                         target=('_self' if runtime.is_standalone_viewer else '_blank'),
                         href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here'))
@@ -38,6 +74,16 @@ def commit_user_stylesheet(onchange, container):
     ta = container.querySelector('[name=user-stylesheet]')
     val = ta.value or ''
     old = sd.get('user_stylesheet')
+    changed = False
     if old is not val:
         sd.set('user_stylesheet', val)
+        changed = True
+    bg_image = container.querySelector('img.bg-image-preview').src
+    if bg_image is BLANK:
+        bg_image = None
+    old = sd.get('background_image')
+    if old is not bg_image:
+        sd.set('background_image', bg_image)
+        changed = True
+    if changed:
         onchange()
