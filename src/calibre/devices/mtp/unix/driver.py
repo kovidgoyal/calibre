@@ -396,12 +396,11 @@ class MTP_DEVICE(MTPDeviceBase):
                 raise ValueError('Cannot upload file %s, it already exists'%(
                     e.full_path,))
             self.delete_file_or_folder(e)
-        ename = name.encode('utf-8') if isinstance(name, unicode_type) else name
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0xFFFFFFFF
 
-        ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
+        ans, errs = self.dev.put_file(sid, pid, name, stream, size, callback)
         if ans is None:
             raise DeviceError('Failed to upload file named: %s to %s: %s'
                     %(name, parent.full_path, self.format_errorstack(errs)))
