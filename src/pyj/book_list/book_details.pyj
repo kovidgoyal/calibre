@@ -170,7 +170,7 @@ def render_metadata(mi, table, book_id):  # {{{
                 v += ''
             if is_searchable:
                 table.lastChild.lastChild.appendChild(E.a(
-                    title=_('Click to see books with {0}: {1}').format(name, v), href=href_for_search(is_searchable, v), v))
+                    title=_('Click to see books with {0}: {1}').format(name, v), class_='blue-link', href=href_for_search(is_searchable, v), v))
             else:
                 if v.appendChild:
                     table.lastChild.lastChild.appendChild(v)
@@ -213,7 +213,7 @@ def render_metadata(mi, table, book_id):  # {{{
             for fmt in val:
                 fmt = fmt.toUpperCase()
                 td.appendChild(E.a(
-                    fmt, class_='simple-link', href='javascript:void(0)',
+                    fmt, class_='blue-link', href='javascript:void(0)',
                     title=_('Read or download this book in the {} format').format(fmt),
                     onclick=on_fmt_click.bind(v'[mi.title, mi.format_sizes[fmt] || 0]'),
                     data_format=fmt, data_book_id='' + book_id))
@@ -239,7 +239,7 @@ def render_metadata(mi, table, book_id):  # {{{
                     if x:
                         if td.childNodes.length:
                             td.appendChild(document.createTextNode(', '))
-                        td.appendChild(E.a(title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+                        td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
                 if td.childNodes.length:
                     table.appendChild(E.tr(E.td(name + ':'), td))
 
@@ -253,6 +253,7 @@ def render_metadata(mi, table, book_id):  # {{{
                 else:
                     lang = k
                 td.appendChild(E.a(lang,
+                    class_='blue-link',
                     title=_('Click to see books with language: {}').format(lang),
                     href=href_for_search(field, k)
                 ))
@@ -381,9 +382,6 @@ def basic_table_rules(sel):
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
-    style += build_rule(sel + 'table.metadata a[href]', color='blue')
-    style += build_rule(sel + 'table.metadata a[href]:hover', color=get_color('window-hover-foreground'))
-    style += build_rule(sel + 'table.metadata a[href]:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
 
     sel = '.' + SEARCH_INTERNET_CLASS
     style += build_rule(sel, margin='1ex 1em')

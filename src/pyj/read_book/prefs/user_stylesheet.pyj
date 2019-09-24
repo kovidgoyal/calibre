@@ -18,7 +18,7 @@ def create_user_stylesheet_panel(container):
                 style='flex-grow: 10; display: flex; flex-flow: column',
                 E.div(
                     _('A CSS style sheet that can be used to control the look and feel of books. For examples, click'), ' ',
-                    E.a(class_='simple-link', style='color: blue', title=_("Examples of user style sheets"),
+                    E.a(class_='blue-link', title=_("Examples of user style sheets"),
                         target=('_self' if runtime.is_standalone_viewer else '_blank'),
                         href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here'))
                 ),

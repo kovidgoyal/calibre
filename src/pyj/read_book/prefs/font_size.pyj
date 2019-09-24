@@ -65,8 +65,8 @@ def create_font_size_panel(container, close):
             display='inline-block', font_size=sz + 'px', padding='5px', cursor='pointer', border_radius='2px'))
 
     container.appendChild(E.div(
-        E.a(_('Custom size'), href='javascript:void', onclick=show_custom_size, style='cursor:pointer'),
-        style='text-align: right; color: blue; font-size: smaller; margin-top: 2ex'
+        E.a(_('Custom size'), class_='blue-link', href='javascript:void', onclick=show_custom_size, style='cursor:pointer'),
+        style='text-align: right; font-size: smaller; margin-top: 2ex'
     ))
 
     container.appendChild(E.div(style='display:none',
