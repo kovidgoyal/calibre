@@ -29,7 +29,9 @@ def apply_font_size():
 def apply_colors():
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
-        elem.style.backgroundColor = opts.color_scheme.background
+        # set background color to transparent so that the users background
+        # color which is set on the iframe is used instead
+        elem.style.backgroundColor = 'transparent'
     ss = document.getElementById('calibre-color-scheme-style-overrides')
     if not ss:
         ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')

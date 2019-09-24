@@ -435,6 +435,7 @@ class View:
                 s = m.style
                 s.color = ans.foreground
                 s.backgroundColor = ans.background
+            self.iframe.style.backgroundColor = ans.background or 'white'
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
         return ans
