@@ -16,7 +16,7 @@ from calibre.constants import plugins, islinux, isosx, ispy3
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -396,10 +396,10 @@ class MTP_DEVICE(MTPDeviceBase):
                 raise ValueError('Cannot upload file %s, it already exists'%(
                     e.full_path,))
             self.delete_file_or_folder(e)
-        ename = name.encode('utf-8') if isinstance(name, unicode_type) else name
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0xFFFFFFFF
+        ename = name if ispy3 else as_bytes(name)
 
         ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
         if ans is None:
