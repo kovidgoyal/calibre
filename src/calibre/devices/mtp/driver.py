@@ -16,7 +16,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, as_bytes
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -175,7 +175,7 @@ class MTP_DEVICE(BASE):
         dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
-        raw = json.dumps(dinfo, default=to_json)
+        raw = as_bytes(json.dumps(dinfo, default=to_json))
         self.put_calibre_file(storage, 'driveinfo', BytesIO(raw), len(raw))
         self.driveinfo[location_code] = dinfo
 
