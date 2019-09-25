@@ -35,7 +35,7 @@ defaults = {
     'columns_per_screen': {'portrait':0, 'landscape':0},
     'user_stylesheet': '',
     'background_image': None,
-    'background_image_style': 'stretch',
+    'background_image_style': 'scaled',
     'current_color_scheme': 'white',
     'user_color_schemes': {},
     'base_font_size': 16,

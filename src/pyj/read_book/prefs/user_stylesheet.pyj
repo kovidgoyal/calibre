@@ -40,6 +40,18 @@ def background_widget(sd):
     )
 
 
+def background_style_widget(sd):
+    ans = E.div(E.label(
+        _('Background image style') + ':\xa0',
+        E.select(name='background_image_style',
+            E.option(_('Scaled'), value='scaled'),
+            E.option(_('Tiled'), value='tiled'),
+        ),
+    ))
+    ans.querySelector('select').value = sd.get('background_image_style')
+    return ans
+
+
 def create_user_stylesheet_panel(container):
     sd = get_session_data()
     container.appendChild(
@@ -49,6 +61,7 @@ def create_user_stylesheet_panel(container):
                 style='border-bottom: solid 1px; margin-bottom: 1.5ex; padding-bottom: 1.5ex',
                 E.div(_('Choose a background image to display behind the book text'), style='margin-bottom: 1.5ex'),
                 background_widget(sd),
+                background_style_widget(sd),
             ),
             E.div(
                 style='flex-grow: 10; display: flex; flex-flow: column',
@@ -85,5 +98,10 @@ def commit_user_stylesheet(onchange, container):
     if old is not bg_image:
         sd.set('background_image', bg_image)
         changed = True
+    old = sd.get('background_image_style')
+    bis = container.querySelector('select[name=background_image_style]').value
+    if bis is not old:
+        changed = True
+        sd.set('background_image_style', bis)
     if changed:
         onchange()

@@ -442,12 +442,19 @@ class View:
             self.iframe.style.backgroundColor = ans.background or 'white'
             bg_image = sd.get('background_image')
             if bg_image:
-                if runtime.is_standalone_viewer:
-                    self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL})'
-                else:
-                    self.iframe.style.backgroundImage = f'url({bg_image})'
+                self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL})' if runtime.is_standalone_viewer else f'url({bg_image})'
             else:
                 self.iframe.style.backgroundImage = 'none'
+            if sd.get('background_image_style') is 'scaled':
+                self.iframe.style.backgroundSize = '100% 100%'
+                self.iframe.style.backgroundRepeat = 'no-repeat'
+                self.iframe.style.backgroundAttachment = 'scroll'
+                self.iframe.style.backgroundPosition = 'center'
+            else:
+                self.iframe.style.backgroundSize = 'auto'
+                self.iframe.style.backgroundRepeat = 'repeat'
+                self.iframe.style.backgroundAttachment = 'scroll'
+                self.iframe.style.backgroundPosition = '0 0'
 
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
