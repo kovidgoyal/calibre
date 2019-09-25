@@ -17,6 +17,7 @@ def update_settings(settings):
     opts.user_stylesheet = settings.user_stylesheet or ''
     opts.hide_tooltips = settings.hide_tooltips
     opts.cover_preserve_aspect_ratio = settings.cover_preserve_aspect_ratio
+    opts.bg_image_fade = settings.bg_image_fade or 'transparent'
 
 update_settings()
 
@@ -32,6 +33,7 @@ def apply_colors():
         # set background color to transparent so that the users background
         # color which is set on the iframe is used instead
         elem.style.backgroundColor = 'transparent'
+    document.documentElement.style.backgroundColor = opts.bg_image_fade
     ss = document.getElementById('calibre-color-scheme-style-overrides')
     if not ss:
         ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')

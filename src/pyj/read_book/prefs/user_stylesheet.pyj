@@ -50,7 +50,7 @@ def background_widget(sd):
 
 
 def background_style_widget(sd):
-    ans = E.div(E.label(
+    ans = E.div(style='margin-bottom: 1ex', E.label(
         _('Background image style') + ':\xa0',
         E.select(name='background_image_style',
             E.option(_('Scaled'), value='scaled'),
@@ -59,6 +59,17 @@ def background_style_widget(sd):
     ))
     ans.querySelector('select').value = sd.get('background_image_style')
     return ans
+
+
+def background_fade_widget(sd):
+    return E.div(E.label(
+        _('Background image fade (%)') + ':\xa0',
+        E.input(
+            name='background_image_fade', type='number', max='100', min='0', step='1',
+            value='' + sd.get('background_image_fade'),
+            title=_('Fading of the background image is done by blending it with the background color')
+        ),
+    ))
 
 
 def create_user_stylesheet_panel(container):
@@ -71,6 +82,7 @@ def create_user_stylesheet_panel(container):
                 E.div(_('Choose a background image to display behind the book text'), style='margin-bottom: 1.5ex'),
                 background_widget(sd),
                 background_style_widget(sd),
+                background_fade_widget(sd),
             ),
             E.div(
                 style='flex-grow: 10; display: flex; flex-flow: column',
@@ -115,5 +127,10 @@ def commit_user_stylesheet(onchange, container):
     if bis is not old:
         changed = True
         sd.set('background_image_style', bis)
+    old = int(sd.get('background_image_fade'))
+    bif = int(container.querySelector('input[name=background_image_fade]').value)
+    if old is not bif:
+        changed = True
+        sd.set('background_image_fade', bif)
     if changed:
         onchange()

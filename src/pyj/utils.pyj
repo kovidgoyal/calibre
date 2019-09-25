@@ -241,6 +241,18 @@ def sandboxed_html(html, style, sandbox):
     ans.srcdoc = final_html
     return ans
 
+
+def color_to_rgba(color):
+    # take an arbitrary color spec and return it as [r, g, b, a]
+    cvs = document.createElement('canvas')
+    cvs.height = 1
+    cvs.width = 1
+    ctx = cvs.getContext('2d')
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, 1, 1)
+    return ctx.getImageData(0, 0, 1, 1).data
+
+
 if __name__ is '__main__':
     from pythonize import strings
     strings()
