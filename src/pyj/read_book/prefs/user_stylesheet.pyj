@@ -23,7 +23,7 @@ def clear_image(img_id):
     document.getElementById(img_id).src = BLANK
 
 
-def background_widget(sd):
+def standalone_background_widget(sd):
     if sd.get('background_image'):
         src = READER_BACKGROUND_URL
     else:
@@ -38,6 +38,15 @@ def background_widget(sd):
         E.div('\xa0', style='margin: 0.5rem'),
         create_button(_('Clear image'), action=clear_image.bind(None, img_id)),
     )
+
+
+def background_widget(sd):
+    if runtime.is_standalone_viewer:
+        return standalone_background_widget(sd)
+    return E.div(style='margin-bottom: 1ex', E.label(
+        _('Image URL') + ':\xa0',
+        E.input(type='url', name='background_image', value=sd.get('background_image') or '')
+    ))
 
 
 def background_style_widget(sd):
@@ -91,9 +100,12 @@ def commit_user_stylesheet(onchange, container):
     if old is not val:
         sd.set('user_stylesheet', val)
         changed = True
-    bg_image = container.querySelector('img.bg-image-preview').src
-    if bg_image is BLANK:
-        bg_image = None
+    if runtime.is_standalone_viewer:
+        bg_image = container.querySelector('img.bg-image-preview').src
+        if bg_image is BLANK:
+            bg_image = None
+    else:
+        bg_image = container.querySelector('input[name=background_image]').value
     old = sd.get('background_image')
     if old is not bg_image:
         sd.set('background_image', bg_image)
