@@ -50,8 +50,29 @@ DEFAULT_FONTS = {
     'main': 'sans-serif'
 }
 
+
 def get_color(name):
     return DEFAULT_COLORS[name]
+
+
+def color_to_rgba(color):
+    # take an arbitrary color spec and return it as [r, g, b, a]
+    cvs = document.createElement('canvas')
+    cvs.height = 1
+    cvs.width = 1
+    ctx = cvs.getContext('2d')
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, 1, 1)
+    return ctx.getImageData(0, 0, 1, 1).data
+
+
+def get_color_as_rgba(name):
+    cache = get_color_as_rgba.cache
+    if not cache[name]:
+        cache[name] = color_to_rgba(get_color(name))
+    return cache[name]
+get_color_as_rgba.cache = {}
+
 
 def get_font_size(name):
     return DEFAULT_SIZES[name]
