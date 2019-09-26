@@ -380,7 +380,10 @@ class IframeBoss:
     def onwheel(self, evt):
         if self.content_ready:
             evt.preventDefault()
-            self.handle_wheel(evt)
+            if evt.deltaY and evt.ctrlKey and not evt.shiftKey and not evt.altKey and not evt.metaKey:
+                self.send_message('handle_shortcut', name='increase_font_size' if evt.deltaY < 0 else 'decrease_font_size')
+            else:
+                self.handle_wheel(evt)
 
     def onkeydown(self, evt):
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':
