@@ -241,8 +241,7 @@ def get_current_cfi(request_id):
 def background_image_changed(img_id):
     img = document.getElementById(img_id)
     if img:
-        img.src = ''
-        img.src = READER_BACKGROUND_URL
+        img.src = READER_BACKGROUND_URL + '?' + Date().getTime()
 
 
 def onerror(msg, script_url, line_number, column_number, error_object):

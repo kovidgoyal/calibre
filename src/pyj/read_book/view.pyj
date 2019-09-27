@@ -442,7 +442,7 @@ class View:
             self.iframe.style.backgroundColor = ans.background or 'white'
             bg_image = sd.get('background_image')
             if bg_image:
-                self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL})' if runtime.is_standalone_viewer else f'url({bg_image})'
+                self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
             else:
                 self.iframe.style.backgroundImage = 'none'
             if sd.get('background_image_style') is 'scaled':
