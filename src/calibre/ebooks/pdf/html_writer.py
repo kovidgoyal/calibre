@@ -980,7 +980,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'page-break-after': 'always',
             'display': 'flex',
             'flex-direction': 'column',
-            'height': '100%',
+            'height': '100vh',
             'justify-content': justify,
             'margin-left': '{}pt'.format(margins.left),
             'margin-right': '{}pt'.format(margins.right),
