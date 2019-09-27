@@ -94,7 +94,7 @@ class SourceEditor(Dialog):
                 'You must specify a name'), show=True)
         if not self.initial_name and q in self.all_names:
             return error_dialog(self, _('Name already exists'), _(
-                'A look up source with the name {} already exists').format(q), show=True)
+                'A lookup source with the name {} already exists').format(q), show=True)
         if not self.url:
             return error_dialog(self, _('No name'), _(
                 'You must specify a URL'), show=True)
