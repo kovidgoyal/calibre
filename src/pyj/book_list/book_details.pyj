@@ -431,6 +431,14 @@ def download_book(book_id):
     download_format(book_id, fmt)
 
 
+def next_book(book_id, delta):
+    next_book_id = book_after(book_id, delta)
+    if next_book_id:
+        q = parse_url_params()
+        q.book_id = next_book_id + ''
+        show_panel('book_details', query=q, replace=True)
+
+
 def render_book(container_id, book_id):
     render_book.book_id = book_id
     c = document.getElementById(container_id)
@@ -443,20 +451,13 @@ def render_book(container_id, book_id):
     alt = _('{} by {}\nClick to read').format(metadata.title, authors)
     bsrgb = get_color_as_rgba('button-start')
 
-    def next_book(delta):
-        next_book_id = book_after(book_id, delta)
-        if next_book_id:
-            q = parse_url_params()
-            q.book_id = next_book_id + ''
-            show_panel('book_details', query=q, replace=True)
-
     def prev_next_button(is_prev):
         return E.div(
             style=f'cursor: pointer; border-radius: {border_radius//5}px; background-color:rgba({bsrgb[0]}, {bsrgb[1]}, {bsrgb[2]}, 0.75);',
             title=_('Previous book') if is_prev else _('Next book'),
             class_='next-book-button',
             svgicon('chevron-left' if is_prev else 'chevron-right'),
-            onclick=next_book.bind(None, (-1 if is_prev else 1))
+            onclick=next_book.bind(None, book_id, (-1 if is_prev else 1))
         )
 
     border_radius = 20
@@ -598,6 +599,17 @@ def check_for_books_loaded():
     create_book_details(container)
 
 
+def onkeydown(container_id, ev):
+    if render_book.book_id:
+        if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+            if ev.key is 'ArrowLeft':
+                next_book(render_book.book_id, -1)
+                ev.preventDefault(), ev.stopPropagation()
+            elif ev.key is 'ArrowRight':
+                next_book(render_book.book_id, 1)
+                ev.preventDefault(), ev.stopPropagation()
+
+
 def init(container_id):
     container = document.getElementById(container_id)
     close_action, close_icon = back, 'close'
@@ -610,7 +622,9 @@ def init(container_id):
             show_panel('book_list', {'book_id':q.book_id})
     create_top_bar(container, title=_('Book details'), action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
-    container.appendChild(E.div(class_=CLASS_NAME))
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0'))
+    container.lastChild.addEventListener('keydown', onkeydown.bind(None, container_id), {'passive': False, 'capture': True})
+    container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
