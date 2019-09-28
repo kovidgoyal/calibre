@@ -26,6 +26,10 @@ def decode_fqdn(fqdn):
     return fqdn
 
 
+def sanitize_hostname(hostname):
+    return hostname.replace('..', '_')
+
+
 def safe_localhost():
     # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
     # if that can't be calculated, that we should use a domain literal
@@ -119,7 +123,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
     import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work
-    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
+    kwargs = dict(timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
     if debug_output is not None:
         kwargs['debug_to'] = debug_output
     s = smtplib.SMTP(**kwargs)
@@ -160,7 +164,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
     port = int(port)
     if port < 0:
         port = 25 if encryption != 'SSL' else 465
-    kwargs = dict(host=relay, port=port, timeout=timeout, local_hostname=localhost or safe_localhost())
+    kwargs = dict(host=relay, port=port, timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
     if debug_output is not None:
         kwargs['debug_to'] = debug_output
     cls = get_smtp_class(use_ssl=encryption == 'SSL', debuglevel=verbose)
