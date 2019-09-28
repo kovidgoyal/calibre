@@ -333,7 +333,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     if list_to_ui:
         div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
-            'Edit the "{0}" below. Multiple items can be separated by {1}.').format(name, list_to_ui.strip())))
+            'Edit the "{0}" below. Multiple items can be separated by "{1}".').format(name, list_to_ui.strip())))
     else:
         div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
             'Edit the "{0}" below.').format(name)))
