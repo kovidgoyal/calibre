@@ -454,7 +454,9 @@ def map_epub_type(epub_type, attribs, elem):
         if in_attribs is None:
             attribs.append(['role', role])
         else:
-            attribs[i] = ['role', role]
+            attribs[in_attribs] = ['role', role]
+        return True
+    return False
 
 
 known_tags = ('img', 'script', 'link', 'image', 'style')
