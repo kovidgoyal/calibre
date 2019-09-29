@@ -154,7 +154,7 @@ document.title = 'compiler initialized';
             self.runJavaScript(src, QWebEngineScript.ApplicationWorld, self.compilation_done)
             while self.working:
                 self.spin_loop()
-            if self.compiler_result is null:
+            if self.compiler_result is null or self.compiler_result is None:
                 raise CompileFailure('Failed to compile rapydscript code with error: ' + '\n'.join(self.errors))
             write_cache = self.compiler_result[1]
             with open(cache_path, 'wb') as f:
