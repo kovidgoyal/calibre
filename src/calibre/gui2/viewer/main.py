@@ -51,7 +51,7 @@ def migrate_previous_viewer_prefs():
 
         for k in ('top', 'bottom'):
             v = old_prefs.get(k + '_margin')
-            if v != 20:
+            if v != 20 and v is not None:
                 sd['margin_' + k] = v
         v = old_prefs.get('side_margin')
         if v is not None and v != 40:
@@ -62,10 +62,10 @@ def migrate_previous_viewer_prefs():
 
         cps = {'portrait': 0, 'landscape': 0}
         cp = old_prefs.get('cols_per_screen_portrait')
-        if cp > 1:
+        if cp and cp > 1:
             cps['portrait'] = cp
         cl = old_prefs.get('cols_per_screen_landscape')
-        if cl > 1:
+        if cl and cl > 1:
             cps['landscape'] = cp
         if cps['portrait'] or cps['landscape']:
             sd['columns_per_screen'] = cps
