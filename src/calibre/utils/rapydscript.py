@@ -242,7 +242,8 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         stdout = p.communicate(as_bytes(data))[0]
         if p.wait() != 0:
             raise SystemExit(p.returncode)
-        result = as_unicode(stdout)
+        idx = stdout.find(OUTPUT_SENTINEL)
+        result = as_unicode(stdout[idx+len(OUTPUT_SENTINEL):])
     else:
         c = compiler()
         result = c(data, options)
