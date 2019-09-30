@@ -139,6 +139,7 @@ class ModalContainer:
 
     def onkeydown(self, event):
         if (event.key is 'Escape' or event.key is 'Esc') and not event.altKey and not event.ctrlKey and not event.metaKey and not event.shiftKey:
+            event.preventDefault(), event.stopPropagation()
             self.close_current_modal(event)
 
 
