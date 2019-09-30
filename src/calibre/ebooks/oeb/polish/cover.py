@@ -440,7 +440,7 @@ def remove_cover_image_in_page(container, page, cover_images):
         break
 
 
-def set_epub_cover(container, cover_path, report, options=None):
+def set_epub_cover(container, cover_path, report, options=None, image_callback=None):
     existing_image = options is not None and options.get('existing_image', False)
     if existing_image:
         existing_image = cover_path
@@ -455,6 +455,7 @@ def set_epub_cover(container, cover_path, report, options=None):
     # TODO: Handle possible_removals and also iterate over links in the removed
     # pages and handle possibly removing stylesheets referred to by them.
 
+    image_callback_called = False
     spine_items = tuple(container.spine_items)
     if cover_page is None and spine_items:
         # Check if the first item in the spine is a simple cover wrapper
@@ -490,9 +491,15 @@ def set_epub_cover(container, cover_path, report, options=None):
             log('Existing cover page {} is a simple wrapper, removing it'.format(cover_page))
             container.remove_item(cover_page)
             if wrapped_image != existing_image:
+                if image_callback is not None and not image_callback_called:
+                    image_callback(cover_image, wrapped_image)
+                    image_callback_called = True
                 container.remove_item(wrapped_image)
             updated = True
 
+    if image_callback is not None and not image_callback_called:
+        image_callback_called = True
+        image_callback(cover_image, wrapped_image)
     if cover_image and cover_image != wrapped_image:
         # Remove the old cover image
         if cover_image != existing_image:

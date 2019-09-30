@@ -277,10 +277,21 @@ class Container(ContainerBase):
             return BLANK_JPEG
 
         if input_fmt == 'epub':
+
+            def image_callback(cover_image, wrapped_image):
+                if cover_image:
+                    image_callback.cover_data = self.raw_data(cover_image, decode=False)
+                if wrapped_image and not getattr(image_callback, 'cover_data', None):
+                    image_callback.cover_data = self.raw_data(wrapped_image, decode=False)
+
             def cover_path(action, data):
                 if action == 'write_image':
-                    data.write(generic_cover())
-            raster_cover_name, titlepage_name = set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
+                    cdata = getattr(image_callback, 'cover_data', None) or generic_cover()
+                    data.write(cdata)
+
+            raster_cover_name, titlepage_name = set_epub_cover(
+                    self, cover_path, (lambda *a: None), options={'template':templ},
+                    image_callback=image_callback)
         else:
             raster_cover_name = find_cover_image(self, strict=True)
             if raster_cover_name is None:
@@ -611,18 +622,16 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
     mi = None
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
-        with lopen(pathtoebook, 'rb') as f:
+        from calibre.customize.ui import quick_metadata
+        with lopen(pathtoebook, 'rb') as f, quick_metadata:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
     container = Container(pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations, book_metadata=mi)
     if serialize_metadata:
         from calibre.utils.serialize import json_dumps
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict
         d = metadata_as_dict(mi)
+        d.pop('cover_data', None)
         serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
-        cdata = d.pop('cover_data', None)
-        if cdata and cdata[1] and container.book_render_data['raster_cover_name']:
-            with lopen(os.path.join(output_dir, container.book_render_data['raster_cover_name']), 'wb') as f:
-                f.write(cdata[1])
         with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
             f.write(json_dumps(d))
     if extract_annotations:
