@@ -75,6 +75,7 @@ class SearchOverlay:
 
     def hide(self):
         self.container.style.display = 'none'
+        ui_operations.focus_iframe()
 
     def show(self):
         c = self.container
