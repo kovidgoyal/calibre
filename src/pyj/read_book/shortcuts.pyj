@@ -164,13 +164,15 @@ SHORTCUTS = {
     ),
 
     'toggle_toc': desc(
-        v"['Ctrl+t']",
+        # on windows ctrl+t results in ctrl+\u0014
+        v"['Ctrl+t', 'Ctrl+\u0014']",
         'ui',
         _('Show/hide Table of Contents'),
     ),
 
     'start_search': desc(
-        v"['/', 'Ctrl+f']",
+        # on windows ctrl+f results in ctrl+\u0006
+        v"['/', 'Ctrl+f', 'Ctrl+\u0006']",
         'ui',
         _('Start search'),
     ),
