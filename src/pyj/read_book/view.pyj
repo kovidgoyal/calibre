@@ -325,13 +325,20 @@ class View:
 
     def on_find_in_spine(self, data):
         if data.searched_in_spine:
-            warning_dialog(_('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)))
+            warning_dialog(
+                _('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)),
+                on_close=def():
+                    self.search_overlay.show()
+            )
             return
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)
         if idx < 0:
             error_dialog(_('Missing file'), _(
-                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name))
+                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name),
+                on_close=def():
+                    self.search_overlay.show()
+            )
             return
         names = v'[]'
         item_groups = [range(idx-1, -1, -1), range(spine.length-1, idx, -1)] if data.backwards else [range(idx + 1, spine.length), range(idx)]
@@ -611,7 +618,9 @@ class View:
             idx = spine.indexOf(name)
             if idx is -1:
                 error_dialog(_('Destination does not exist'), _(
-                    'The file {} does not exist in this book').format(name))
+                    'The file {} does not exist in this book').format(name), on_close=def():
+                        ui_operations.focus_iframe()
+                )
                 return False
             self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
         return True

@@ -174,8 +174,8 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     )
 
 
-def create_simple_dialog(title, msg, details, icon, prefix):
-    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
+def create_simple_dialog(title, msg, details, icon, prefix, on_close=None):
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix), on_close=on_close)
 
 
 def create_custom_dialog(title, content_generator_func):
@@ -245,11 +245,11 @@ def close_all_modals():
     return modal_container.close_all_modals()
 
 
-def error_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+def error_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'bug', _('Error:'), on_close)
 
-def warning_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
+def warning_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'warning', _('Warning:'), on_close)
 
 def progress_dialog(msg, on_close=None):
     # Show a modal dialog with a progress bar and an optional close button.
