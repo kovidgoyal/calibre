@@ -139,6 +139,18 @@ SHORTCUTS = {
         _('Scroll forwards by screen-fulls'),
     ),
 
+    'previous_section': desc(
+        'Ctrl+PageUp',
+        'scroll',
+        _('Scroll to the previous section')
+    ),
+
+    'next_section': desc(
+        'Ctrl+PageDown',
+        'scroll',
+        _('Scroll to the next section')
+    ),
+
     'back': desc(
         v"['Alt+ArrowLeft', 'Shift+ArrowLeft']",
         'scroll',

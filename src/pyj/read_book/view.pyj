@@ -314,6 +314,10 @@ class View:
             if self.currently_showing.selected_text:
                 self.search_overlay.set_text(self.currently_showing.selected_text)
                 self.search_overlay.find_next()
+        elif data.name is 'next_section':
+            self.on_next_section({'forward': True})
+        elif data.name is 'previous_section':
+            self.on_next_section({'forward': False})
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
