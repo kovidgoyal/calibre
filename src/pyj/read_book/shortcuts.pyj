@@ -45,11 +45,22 @@ def shortcut_differs(a, b):
     return not (a.key is b.key and a.altKey is b.altKey and a.ctrlKey is b.ctrlKey and a.metaKey is b.metaKey and a.shiftKey is b.shiftKey)
 
 
+def get_key_text(evt):
+    key = evt.key
+    if key:
+        cc = key.charCodeAt(0)
+        # on windows in webengine pressing ctrl+ascii char gives us an ascii
+        # control code
+        if 0 < cc < 32 and evt.ctrlKey and not evt.metaKey and not evt.shiftKey and not evt.altKey:
+            key = chr(96 + cc)
+    return key
+
+
 def keyevent_to_index(evt):
     parts = v'[]'
     for mod in v"['altKey', 'ctrlKey', 'metaKey', 'shiftKey']":
         parts.push('y' if evt[mod] else 'n')
-    return parts.join('') + evt.key
+    return parts.join('') + get_key_text(evt)
 
 
 def key_as_text(evt):
@@ -60,7 +71,7 @@ def key_as_text(evt):
     mods = '+'.join(mods)
     if mods:
         mods += '+'
-    key = evt.key
+    key = get_key_text(evt)
     if key is ' ':
         key = 'Space'
     return mods + key
@@ -164,15 +175,13 @@ SHORTCUTS = {
     ),
 
     'toggle_toc': desc(
-        # on windows ctrl+t results in ctrl+\u0014
-        v"['Ctrl+t', 'Ctrl+\u0014']",
+        'Ctrl+t',
         'ui',
         _('Show/hide Table of Contents'),
     ),
 
     'start_search': desc(
-        # on windows ctrl+f results in ctrl+\u0006
-        v"['/', 'Ctrl+f', 'Ctrl+\u0006']",
+        v"['/', 'Ctrl+f']",
         'ui',
         _('Start search'),
     ),
