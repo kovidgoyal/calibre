@@ -292,7 +292,7 @@ def next_screen_location():
     if limit < col_and_gap:
         return -1
     if ans > limit:
-        ans = limit if current_scroll_offset() < limit else -1
+        ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
     return ans
 
 def previous_screen_location():
@@ -317,8 +317,9 @@ def next_col_location():
     cc = current_column_location()
     ans = cc + col_and_gap
     limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
+    # print(f'cc={cc} col_and_gap={col_and_gap} ans={ans} limit={limit} content_width={scroll_viewport.paged_content_width()} vw={scroll_viewport.width()} current_scroll_offset={current_scroll_offset()}')
     if ans > limit:
-        ans = limit if current_scroll_offset() < limit else -1
+        ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
     return ans
 
 def previous_col_location():
@@ -330,7 +331,7 @@ def previous_col_location():
     cc = current_column_location()
     ans = cc - col_and_gap
     if ans < 0:
-        ans = 0 if current_scroll_offset() > 0 else -1
+        ans = 0 if Math.floor(current_scroll_offset()) > 0 else -1
     return ans
 
 def jump_to_anchor(name):
@@ -413,7 +414,7 @@ def current_cfi():
             while cury < scroll_viewport.height():
                 curx = left
                 while curx < right - gap:
-                    cfi = cfi_at_point(curx-current_scroll_offset(), cury-window.pageYOffset)
+                    cfi = cfi_at_point(curx-Math.ceil(current_scroll_offset()), cury-Math.ceil(window.pageYOffset))
                     if cfi:
                         # print('Viewport cfi:', cfi)
                         return cfi
