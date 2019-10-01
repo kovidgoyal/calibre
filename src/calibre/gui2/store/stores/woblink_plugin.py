@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 14  # Needed for dynamic plugin loading
+store_version = 15  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
@@ -95,7 +95,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         detail_url = None
 
         if detail_item:
-            detail_url = aff_root + as_base64('https://woblink.com' + detail_item)
+            detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
