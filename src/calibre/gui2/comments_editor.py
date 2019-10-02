@@ -576,6 +576,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 if is_image:
                     c.insertImage(url)
                 else:
+                    oldfmt = QTextCharFormat(c.charFormat())
                     fmt = QTextCharFormat()
                     fmt.setAnchor(True)
                     fmt.setAnchorHref(url)
@@ -590,6 +591,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                             cur = self.textCursor()
                             cur.setPosition(i), cur.setPosition(i + 1, c.KeepAnchor)
                             cur.mergeCharFormat(fmt)
+                    c.setPosition(c.position())
+                    c.setCharFormat(oldfmt)
 
         else:
             error_dialog(self, _('Invalid URL'),
