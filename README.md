@@ -10,7 +10,7 @@ reading. It is cross platform, running on Linux, Windows and macOS.
 
 For more information, see the [calibre About page](https://calibre-ebook.com/about)
 
-[![Build Status](https://dev.azure.com/divok/calibre/_apis/build/status/kovidgoyal.calibre?branchName=master)](https://dev.azure.com/divok/calibre/_build/latest?definitionId=1&branchName=master)
+![Build Status](https://github.com/kovidgoyal/calibre/workflows/Continuous%20Integration/badge.svg)
 
 ## Screenshots  
 

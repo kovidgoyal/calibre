@@ -13,6 +13,7 @@ from tempfile import NamedTemporaryFile
 
 _plat = sys.platform.lower()
 ismacos = 'darwin' in _plat
+iswindows = 'win32' in _plat or 'win64' in _plat
 
 
 def setenv(key, val):
@@ -92,6 +93,10 @@ def run_python(*args):
 
 
 def main():
+    if iswindows:
+        import runpy
+        m = runpy.run_path('setup/win-ci.py')
+        return m['main']()
     action = sys.argv[1]
     if action == 'install':
         run('sudo', 'mkdir', '-p', SW)
@@ -101,6 +106,8 @@ def main():
         download_and_decompress(
             'https://download.calibre-ebook.com/ci/calibre/{}.tar.xz'.format(tball), SW
         )
+        if not ismacos:
+            run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev')
 
     elif action == 'bootstrap':
         install_env()
