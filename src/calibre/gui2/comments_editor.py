@@ -23,10 +23,10 @@ from PyQt5.Qt import (
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
+from calibre.gui2.book_details import css
 from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from calibre.gui2.book_details import css
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
 
 # Cleanup Qt markup {{{
@@ -132,6 +132,38 @@ def use_implicit_styling_for_a(a, style_map):
         break
 
 
+def merge_contiguous_links(root):
+    all_hrefs = set(root.xpath('//a/@href'))
+    for href in all_hrefs:
+        tags = root.xpath('//a[@href="{}"]'.format(href))
+        processed = set()
+
+        def insert_tag(parent, child):
+            parent.tail = child.tail
+            if child.text:
+                children = parent.getchildren()
+                if children:
+                    children[-1].tail = (children[-1].tail or '') + child.text
+                else:
+                    parent.text = (parent.text or '') + child.text
+            for gc in child.iterchildren('*'):
+                parent.append(gc)
+
+        for a in tags:
+            if a in processed or a.tail:
+                continue
+            processed.add(a)
+            n = a
+            remove = []
+            while not n.tail and n.getnext() is not None and getattr(n.getnext(), 'tag', None) == 'a' and n.getnext().get('href') == href:
+                n = n.getnext()
+                processed.add(n)
+                remove.append(n)
+            for n in remove:
+                insert_tag(a, n)
+                n.getparent().remove(n)
+
+
 def cleanup_qt_markup(root):
     from calibre.ebooks.docx.cleanup import lift
     style_map = defaultdict(dict)
@@ -158,6 +190,8 @@ def cleanup_qt_markup(root):
             tag.attrib.pop('style', None)
     for span in root.xpath('//span[not(@style)]'):
         lift(span)
+
+    merge_contiguous_links(root)
 # }}}
 
 
@@ -539,20 +573,25 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             url = unicode_type(url.toString(NO_URL_FORMATTING))
             self.focus_self()
             with self.editing_cursor() as c:
-                selected_text = c.selectedText()
                 if is_image:
                     c.insertImage(url)
                 else:
-                    name = name or url
                     fmt = QTextCharFormat()
                     fmt.setAnchor(True)
                     fmt.setAnchorHref(url)
                     fmt.setFontUnderline(True)
                     fmt.setForeground(QBrush(QColor('blue')))
-                    prev_fmt = c.charFormat()
-                    c.mergeCharFormat(fmt)
-                    c.insertText(selected_text or url)
-                    c.setCharFormat(prev_fmt)
+                    if name or not c.hasSelection():
+                        c.mergeCharFormat(fmt)
+                        c.insertText(name or url)
+                    else:
+                        pos, anchor = c.position(), c.anchor()
+                        start, end = min(pos, anchor), max(pos, anchor)
+                        for i in range(start, end):
+                            cur = self.textCursor()
+                            cur.setPosition(i), cur.setPosition(i + 1, c.KeepAnchor)
+                            cur.mergeCharFormat(fmt)
+
         else:
             error_dialog(self, _('Invalid URL'),
                          _('The url %r is invalid') % link, show=True)
@@ -1138,5 +1177,6 @@ if __name__ == '__main__':
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
+    w.html = '<div><p>Testing <em>a</em> link.</p></div>'
     app.exec_()
     # print w.html
