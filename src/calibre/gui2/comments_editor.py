@@ -579,7 +579,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     fmt = QTextCharFormat()
                     fmt.setAnchor(True)
                     fmt.setAnchorHref(url)
-                    fmt.setFontUnderline(True)
                     fmt.setForeground(QBrush(QColor('blue')))
                     if name or not c.hasSelection():
                         c.mergeCharFormat(fmt)
