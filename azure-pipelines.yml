@@ -51,7 +51,7 @@ jobs:
       architecture: 'x64'
 
   - script: |
-      sudo apt-get install -y gettext
+      sudo apt-get install -y gettext libgl1-mesa-dev
     displayName: 'Install needed OS libs'
 
   - script: |
