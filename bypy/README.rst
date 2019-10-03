@@ -31,48 +31,48 @@ To build the 64bit and 32bit dependencies for calibre, run::
     ./setup.py build_dep linux
     ./setup.py build_dep linux 32
 
-The output (after a very long time) will be in :file:`bypy/b/linux/[32|64]`
+The output (after a very long time) will be in :literal:`bypy/b/linux/[32|64]`
 
 Now you can build the calibre Linux tarballs with::
 
     ./setup.py linux
 
-The output will be in :file:`dist`
+The output will be in :literal:`dist`
 
 
 macOS
 --------------
 
 You need a VirtualBox virtual machine of macOS 10.14 (Mojave). Name the
-VM using ``vm_name`` from :file:`bypy/macos.conf`. To setup macOS inside the VM,
+VM using ``vm_name`` from :literal:`bypy/macos.conf`. To setup macOS inside the VM,
 follow the steps:
 
   * Turn on Remote Login under Network (SSHD)
   * Create a user account named ``kovid`` and enable password-less login for SSH
     for that account (setup `~/.ssh/authorized_keys`)
   * Setup ssh into the VM from the host using the ``vm_name`` from above.
-  * Install the needed software mentioned in :file:`bypy/macos.conf`.
+  * Install the needed software mentioned in :literal:`bypy/macos.conf`.
 
 To build the dependencies for calibre, run::
 
     ./setup.py build_dep macos
 
-The output (after a very long time) will be in :file:`bypy/b/macos`.
+The output (after a very long time) will be in :literal:`bypy/b/macos`.
 Now you can build the calibre ``.dmg`` with::
 
     ./setup.py osx --dont-sign --dont-notarize
 
-The output will be in :file:`dist`
+The output will be in :literal:`dist`
 
 
 Windows
 -------------
 
 You need a VirtualBox virtual machine of Windows 7 64bit. Name the
-VM using ``vm_name`` from :file:`bypy/windows.conf`. To setup windows inside the VM,
+VM using ``vm_name`` from :literal:`bypy/windows.conf`. To setup windows inside the VM,
 follow the steps:
 
-    * Install all the software mentioned in :file:`bypy/windows.conf`
+    * Install all the software mentioned in :literal:`bypy/windows.conf`
     * Install cygwin, with the: vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, patch, bash-completion, curl
       packages
     * Edit /etc/passwd and replace all occurrences of /bin/bash with /bin/zsh (in
@@ -119,9 +119,9 @@ To build the dependencies for calibre, run::
     ./setup.py build_dep windows
     ./setup.py build_dep windows 32
 
-The output (after a very long time) will be in :file:`bypy/b/windows/[32|64]`.
+The output (after a very long time) will be in :literal:`bypy/b/windows/[32|64]`.
 Now you can build the calibre windows installers with::
 
     ./setup.py win --dont-sign
 
-The output will be in :file:`dist`
+The output will be in :literal:`dist`
