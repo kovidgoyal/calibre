@@ -49,7 +49,7 @@ follow the steps:
 
 * Turn on Remote Login under Network (SSHD)
 * Create a user account named ``kovid`` and enable password-less login for SSH
-  for that account (setup `~/.ssh/authorized_keys`)
+  for that account (setup ``~/.ssh/authorized_keys``)
 * Setup ssh into the VM from the host using the ``vm_name`` from above.
 * Install the needed software mentioned in :literal:`bypy/macos.conf`.
 
@@ -77,7 +77,7 @@ follow the steps:
 * Install cygwin, with the: vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, patch, bash-completion, curl
   packages
 
-* Edit /etc/passwd and replace all occurrences of /bin/bash with /bin/zsh (in
+* Edit ``/etc/passwd`` and replace all occurrences of ``/bin/bash`` with ``/bin/zsh`` (in
   a cygwin prompt)
 
 * Setup a password for your windows user account
@@ -100,7 +100,7 @@ follow the steps:
     mkgroup --local > /etc/group
 
 * Assign the necessary rights to the normal user account (administrator
-  cygwin command prompt needed - editrights is available in \cygwin\bin)::
+  cygwin command prompt needed - editrights is available in ``\cygwin\bin``)::
 
     editrights.exe -a SeAssignPrimaryTokenPrivilege -u kovid
     editrights.exe -a SeCreateTokenPrivilege -u kovid
