@@ -162,6 +162,22 @@ def get_sheet_rules(sheet):
     return sheet.cssRules
 
 
+def selector_matches(node, selector):
+    try:
+        return node.matches(selector)
+    except:
+        # happens if the selector uses epub|type
+        if 'epub|' in selector:
+            sanitized_sel = str.replace(selector, 'epub|', '*|')
+            try:
+                # TODO: Actually parse the selector and extract the attribute
+                # and check it manually
+                return node.matches(sanitized_sel)
+            except:
+                return False
+        return False
+
+
 def process_rules(node, rules, address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans):
     for rule_index in range(rules.length):
         rule = rules[rule_index]
@@ -172,7 +188,7 @@ def process_rules(node, rules, address, sheet, sheet_index, all_properties, node
         if rule.type is not CSSRule.STYLE_RULE:
             continue
         st = rule.selectorText
-        if not node.matches(st):
+        if not selector_matches(node, st):
             continue
         type = 'sheet'
         href = sheet.href
@@ -184,7 +200,7 @@ def process_rules(node, rules, address, sheet, sheet_index, all_properties, node
         parts = st.split(',')
         if parts.length > 1:
             for q in parts:
-                if node.matches(q):
+                if selector_matches(node, q):
                     st = q
                     break
         properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
