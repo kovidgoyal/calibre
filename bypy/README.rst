@@ -89,6 +89,7 @@ follow the steps:
   enable SSH logins to the machine
 
 * First clean out any existing cygwin ssh setup with::
+
     net stop sshd
     cygrunsrv -R sshd
     net user sshd /DELETE
@@ -100,24 +101,21 @@ follow the steps:
 
 * Assign the necessary rights to the normal user account (administrator
   cygwin command prompt needed - editrights is available in \cygwin\bin)::
+
     editrights.exe -a SeAssignPrimaryTokenPrivilege -u kovid
     editrights.exe -a SeCreateTokenPrivilege -u kovid
     editrights.exe -a SeTcbPrivilege -u kovid
     editrights.exe -a SeServiceLogonRight -u kovid
 
 * Run::
+
     ssh-host-config
     And answer (yes) to all questions. If it asks do you want to use a
     different user name, specify the name of your user account and enter
     username and password
 
-* On Windows XP, I also had to run::
-    passwd -R
-    to allow sshd to use my normal user account even with public key
-    authentication. See http://cygwin.com/cygwin-ug-net/ntsec.html for
-    details. On Windows 7 this wasn't necessary for some reason.
-
 * Start sshd with::
+
     net start sshd
 
 * See http://www.kgx.net.nz/2010/03/cygwin-sshd-and-windows-7/ for details
