@@ -9,7 +9,6 @@
 using namespace pdf;
 
 
-// create_outline() {{{
 static PyObject *
 create_outline(PDFDoc *self, PyObject *args) {
     PDFOutlineItem *ans;
@@ -53,6 +52,59 @@ error:
     Py_XDECREF(ans);
     return NULL;
 
-} // }}}
+}
+
+static PyObject*
+create_outline_node() {
+	pyunique_ptr ans(PyDict_New());
+	if (!ans) return NULL;
+	pyunique_ptr children(PyList_New(0));
+	if (!children) return NULL;
+	if (PyDict_SetItemString(ans.get(), "children", children.get()) != 0) return NULL;
+	return ans.release();
+}
+
+static void
+convert_outline(PDFDoc *self, PyObject *parent, PdfOutlineItem *item) {
+	pyunique_ptr title(podofo_convert_pdfstring(item->GetTitle()));
+	if (!title) return;
+	pyunique_ptr node(create_outline_node());
+	if (!node) return;
+	if (PyDict_SetItemString(node.get(), "title", title.get()) != 0) return;
+	PdfDestination* dest = item->GetDestination(self->doc);
+	if (dest) {
+		PdfPage *page = dest->GetPage(self->doc);
+		long pnum = page ? page->GetPageNumber() : -1;
+		pyunique_ptr d(Py_BuildValue("{sl sd sd sd}", "page", pnum, "top", dest->GetTop(), "left", dest->GetLeft(), "zoom", dest->GetZoom()));
+		if (!d) return;
+		if (PyDict_SetItemString(node.get(), "dest", d.get()) != 0) return;
+	}
+	PyObject *children = PyDict_GetItemString(parent, "children");
+	if (PyList_Append(children, node.get()) != 0) return;
+
+	if (item->First()) {
+		convert_outline(self, node.get(), item->First());
+		if (PyErr_Occurred()) return;
+	}
+
+	if (item->Next()) {
+		convert_outline(self, parent, item->Next());
+		if (PyErr_Occurred()) return;
+	}
+}
+
+static PyObject *
+get_outline(PDFDoc *self, PyObject *args) {
+	PdfOutlines *root = self->doc->GetOutlines(PoDoFo::ePdfDontCreateObject);
+	if (!root || !root->First()) Py_RETURN_NONE;
+	PyObject *ans = create_outline_node();
+	if (!ans) return NULL;
+	convert_outline(self, ans, root->First());
+	if (PyErr_Occurred()) { Py_DECREF(ans); return NULL; }
+	if (!ans) return NULL;
+
+	return ans;
+}
 
 PYWRAP(create_outline)
+PYWRAP(get_outline)

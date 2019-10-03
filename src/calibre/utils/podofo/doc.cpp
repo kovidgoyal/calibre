@@ -752,6 +752,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"create_outline", (PyCFunction)py_create_outline, METH_VARARGS,
      "create_outline(title, pagenum) -> Create an outline, return the first outline item."
     },
+    {"get_outline", (PyCFunction)py_get_outline, METH_NOARGS,
+     "get_outline() -> Get the outline if any in the PDF file."
+    },
     {"get_xmp_metadata", (PyCFunction)PDFDoc_get_xmp_metadata, METH_VARARGS,
      "get_xmp_metadata(raw) -> Get the XMP metadata as raw bytes"
     },

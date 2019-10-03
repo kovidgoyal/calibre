@@ -103,6 +103,7 @@ PyObject* py_dedup_type3_fonts(PDFDoc *self, PyObject *args);
 PyObject* py_impose(PDFDoc *self, PyObject *args);
 PyObject* py_dedup_images(PDFDoc *self, PyObject *args);
 PyObject* py_create_outline(PDFDoc *self, PyObject *args);
+PyObject* py_get_outline(PDFDoc *self, PyObject *args);
 }
 }
 

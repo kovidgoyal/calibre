@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import shutil
+import sys
 
 from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
@@ -115,6 +116,17 @@ def get_xmp_metadata(path):
     return p.get_xmp_metadata()
 
 
+def get_outline(path=None):
+    if path is None:
+        path = sys.argv[-1]
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(path, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    return p.get_outline()['children']
+
+
 def get_image_count(path):
     podofo = get_podofo()
     p = podofo.PDFDoc()
@@ -214,5 +226,4 @@ def test_podofo():
 
 
 if __name__ == '__main__':
-    import sys
     get_xmp_metadata(sys.argv[-1])
