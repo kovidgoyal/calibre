@@ -38,3 +38,7 @@ calibre is a result of the efforts of many volunteers from all over the world.
 If you find it useful, please consider contributing to support its development.
 [Donate to support calibre development](https://calibre-ebook.com/donate).
 
+## Building calibre binaries
+
+See [Build instructions](bypy/README.rst) for instructions on how to build the
+calibre binaries and installers for all the platforms calibre supports.
