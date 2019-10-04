@@ -25,7 +25,7 @@ class Stage1(Command):
         # 'pot',
         'build',
         'resources',
-        'translations',
+        # 'translations',
         'iso639',
         'iso3166',
         'gui',
