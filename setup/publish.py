@@ -22,7 +22,7 @@ class Stage1(Command):
         'check',
         'test',
         'cacerts',
-        'pot',
+        # 'pot',
         'build',
         'resources',
         'translations',
