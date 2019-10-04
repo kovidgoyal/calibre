@@ -20,6 +20,19 @@
 #   new recipes:
 #     - title:
 
+- version: 4.0.0
+  date: 2019-10-04
+
+  new features:
+    - title: "For details on the major changes in calibre between 3.0 and 4.0, see https://calibre-ebook.com/new-in/thirteen"
+      type: major
+
+    - title: "A completely re-written E-book viewer with an emphasis on presenting the book text, distraction free"
+      type: major
+
+    - title: "Note that the system requirements needed for calibre have been increased, details are present on the calibre download pages for each operating system"
+
+
 - version: 3.48.0
   date: 2019-09-13
 
