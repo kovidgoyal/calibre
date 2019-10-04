@@ -56,10 +56,14 @@ class Stage2(Command):
             session.append('title ' + x)
             session.append('launch ' + cmd)
 
+        env = os.environ.copy()
+        if 'DISPLAY' not in env:
+            env['DISPLAY'] = ':0'
+
         p = subprocess.Popen([
             'kitty', '-o', 'enabled_layouts=vertical,stack', '-o', 'scrollback_lines=20000',
             '-o', 'close_on_child_death=y', '--session=-'
-        ], stdin=subprocess.PIPE)
+        ], stdin=subprocess.PIPE, env=env)
 
         p.communicate('\n'.join(session).encode('utf-8'))
         p.wait()
