@@ -59,6 +59,17 @@ def robust_rmtree(x):
     return False
 
 
+def robust_rename(a, b):
+    retries = 10 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
+    for i in range(retries):
+        try:
+            os.rename(a, b)
+            return True
+        except EnvironmentError:
+            time.sleep(0.1)
+    return False
+
+
 def clear_temp(temp_path):
     now = time.time()
     for x in os.listdir(temp_path):
@@ -159,7 +170,12 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False):
         entries = metadata['entries']
         instances = entries.setdefault(key, [])
         os.rmdir(ans)
-        os.rename(src_path, ans)
+        if not robust_rename(src_path, ans):
+            raise Exception((
+                'Failed to rename: "{}" to "{}" probably some software such as an antivirus or file sync program'
+                ' running on your computer has locked the files'
+            ).format(src_path, ans))
+
         instance['status'] = 'finished'
         for q in instances:
             if q['id'] == instance['id']:
