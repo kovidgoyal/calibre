@@ -37,6 +37,8 @@ def create_item(region, label):
             opt(_('Time to read book'), 'time-book'),
             opt(_('Time to read chapter'), 'time-chapter'),
             opt(_('Time to read chapter and book'), 'time-chapter-book'),
+            opt(_('Position in book'), 'pos-book'),
+            opt(_('Position in chapter'), 'pos-chapter'),
             opt(_('Clock'), 'clock'),
         ))
     )
@@ -125,7 +127,13 @@ def format_time_left(seconds):
     return _('{} h {} mins').format(hours, minutes)
 
 
-def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time):
+def format_pos(progress_frac, length):
+    pages = Math.ceil(length / 1000)
+    pos = progress_frac * pages
+    return f'{pos:.1f} / {pages}'
+
+
+def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -161,6 +169,11 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
                 text = format_time_left(chapter_time)
             else:
                 text = '{} ({})'.format(format_time_left(chapter_time), format_time_left(book_time))
+    elif field.startswith('pos-'):
+        if field is 'pos-book':
+            text = format_pos(pos.current_progress_frac, pos.book_length)
+        else:
+            text = format_pos(pos.current_file_progress_frac, pos.chapter_length)
     if not text:
         text = '\xa0'
     if text is not div.textContent:

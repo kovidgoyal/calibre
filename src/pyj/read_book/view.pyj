@@ -726,6 +726,7 @@ class View:
             chapter_length = self.book.manifest.files[name]?.length or 0
         else:
             book_length = chapter_length = 0
+        pos = {'current_progress_frac': self.current_progress_frac, 'book_length': book_length, 'chapter_length': chapter_length, 'current_file_progress_frac': self.current_file_progress_frac}
         book_length *= max(0, 1 - self.current_progress_frac)
         chapter_length *=  max(0, 1 - self.current_file_progress_frac)
         book_time = self.timers.time_for(book_length)
@@ -735,9 +736,9 @@ class View:
             nonlocal has_clock
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
+                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 has_clock = hca or hcb or hcc
                 if textc and not textb and not texta:
                     # Want right-aligned
