@@ -164,6 +164,16 @@ def merge_contiguous_links(root):
                 n.getparent().remove(n)
 
 
+def convert_anchors_to_ids(root):
+    anchors = root.xpath('//a[@name]')
+    for a in anchors:
+        p = a.getparent()
+        if len(a.attrib) == 1 and not p.text and a is p[0] and not a.text and not p.get('id') and a.get('name') and len(a) == 0:
+            p.text = a.tail
+            p.set('id', a.get('name'))
+            p.remove(a)
+
+
 def cleanup_qt_markup(root):
     from calibre.ebooks.docx.cleanup import lift
     style_map = defaultdict(dict)
@@ -192,6 +202,7 @@ def cleanup_qt_markup(root):
         lift(span)
 
     merge_contiguous_links(root)
+    convert_anchors_to_ids(root)
 # }}}
 
 
@@ -1179,6 +1190,6 @@ if __name__ == '__main__':
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
-    w.html = '<div><p>Testing <em>a</em> link.</p></div>'
+    w.html = '<div><p id="moo">Testing <em>a</em> link.</p></div>'
     app.exec_()
     # print w.html
