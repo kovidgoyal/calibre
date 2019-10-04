@@ -60,7 +60,7 @@ def robust_rmtree(x):
 
 
 def robust_rename(a, b):
-    retries = 10 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
+    retries = 20 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
             os.rename(a, b)
