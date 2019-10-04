@@ -132,7 +132,7 @@ def notarize_app(app_path):
         start_time = time.monotonic()
         while status == 'in progress':
             time.sleep(30)
-            print('Checking if notarization is complete, time elapsed: {:.1f} seconds', time.monotonic() - start_time)
+            print('Checking if notarization is complete, time elapsed: {:.1f} seconds'.format(time.monotonic() - start_time))
             stdout = altool('--notarization-info', request_id)
             status = re.search(r'Status\s*:\s+(.+)', stdout).group(1).strip()
     print('Notarization done in {} minutes and {} seconds'.format(*times))
