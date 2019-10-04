@@ -161,6 +161,8 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
                 text = format_time_left(chapter_time)
             else:
                 text = '{} ({})'.format(format_time_left(chapter_time), format_time_left(book_time))
+    if not text:
+        text = '\xa0'
     if text is not div.textContent:
         div.textContent = text
     div.style.display = 'block' if text else 'none'
