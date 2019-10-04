@@ -204,40 +204,44 @@ class BuildTest(unittest.TestCase):
         test()
 
         from calibre.gui2 import ensure_app, destroy_app
-        os.environ.pop('DISPLAY', None)
-        ensure_app()
-        self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-        from calibre.ebooks.covers import create_cover
-        create_cover('xxx', ['yyy'])
-        na = QNetworkAccessManager()
-        self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
-        if iswindows:
-            from PyQt5.Qt import QtWin
-            QtWin
-        p = QWebEnginePage()
+        display_env_var = os.environ.pop('DISPLAY', None)
+        try:
+            ensure_app()
+            self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
+            from calibre.ebooks.covers import create_cover
+            create_cover('xxx', ['yyy'])
+            na = QNetworkAccessManager()
+            self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+            if iswindows:
+                from PyQt5.Qt import QtWin
+                QtWin
+            p = QWebEnginePage()
 
-        def callback(result):
-            callback.result = result
-            if hasattr(print_callback, 'result'):
-                QApplication.instance().quit()
+            def callback(result):
+                callback.result = result
+                if hasattr(print_callback, 'result'):
+                    QApplication.instance().quit()
 
-        def print_callback(result):
-            print_callback.result = result
-            if hasattr(callback, 'result'):
-                QApplication.instance().quit()
+            def print_callback(result):
+                print_callback.result = result
+                if hasattr(callback, 'result'):
+                    QApplication.instance().quit()
 
-        p.runJavaScript('1 + 1', callback)
-        p.printToPdf(print_callback)
-        QTimer.singleShot(5000, lambda: QApplication.instance().quit())
-        QApplication.instance().exec_()
-        test_flaky = isosx and not is_ci
-        if not test_flaky:
-            self.assertEqual(callback.result, 2, 'Simple JS computation failed')
-            self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
-        del p
-        del na
-        destroy_app()
-        del QWebEnginePage
+            p.runJavaScript('1 + 1', callback)
+            p.printToPdf(print_callback)
+            QTimer.singleShot(5000, lambda: QApplication.instance().quit())
+            QApplication.instance().exec_()
+            test_flaky = isosx and not is_ci
+            if not test_flaky:
+                self.assertEqual(callback.result, 2, 'Simple JS computation failed')
+                self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
+            del p
+            del na
+            destroy_app()
+            del QWebEnginePage
+        finally:
+            if display_env_var is not None:
+                os.environ['DISPLAY'] = display_env_var
 
     def test_imaging(self):
         from PIL import Image

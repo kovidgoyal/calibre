@@ -19,13 +19,8 @@ class Stage1(Command):
     description = 'Stage 1 of the publish process'
 
     sub_commands = [
-        'check',
-        'test',
         'cacerts',
-        # 'pot',
-        'build',
         'resources',
-        # 'translations',
         'iso639',
         'iso3166',
         'gui',
@@ -56,14 +51,10 @@ class Stage2(Command):
             session.append('title ' + x)
             session.append('launch ' + cmd)
 
-        env = os.environ.copy()
-        if 'DISPLAY' not in env:
-            env['DISPLAY'] = ':0'
-
         p = subprocess.Popen([
             'kitty', '-o', 'enabled_layouts=vertical,stack', '-o', 'scrollback_lines=20000',
             '-o', 'close_on_child_death=y', '--session=-'
-        ], stdin=subprocess.PIPE, env=env)
+        ], stdin=subprocess.PIPE)
 
         p.communicate('\n'.join(session).encode('utf-8'))
         p.wait()
@@ -112,7 +103,11 @@ class Publish(Command):
         require_git_master()
         require_clean_git()
         if 'PUBLISH_BUILD_DONE' not in os.environ:
+            subprocess.check_call([sys.executable, 'setup.py', 'check'])
             subprocess.check_call([sys.executable, 'setup.py', 'build'])
+            subprocess.check_call([sys.executable, 'setup.py', 'test'])
+            subprocess.check_call([sys.executable, 'setup.py', 'pot'])
+            subprocess.check_call([sys.executable, 'setup.py', 'translations'])
             os.environ['PUBLISH_BUILD_DONE'] = '1'
             os.execl(os.path.abspath('setup.py'), './setup.py', 'publish')
 
