@@ -93,10 +93,36 @@ def transform_declaration(decl):
     return changed
 
 
+def replace_epub_type_selector(m):
+    which = m.group(2)
+    roleval = EPUB_TYPE_MAP.get(which)
+    if roleval is None:
+        return m.group()
+    return 'role{}"{}"'.format(m.group(1), roleval)
+
+
+def epub_type_pat():
+    ans = getattr(epub_type_pat, 'ans', None)
+    if ans is None:
+        ans = epub_type_pat.ans = re.compile(r'epub\|type([$*~]?=)"(\S+)"')
+    return ans
+
+
+def transform_selector(rule):
+    selector = rule.selectorText
+    if 'epub|type' in selector:
+        ns, num = epub_type_pat().subn(replace_epub_type_selector, selector)
+        if num > 0 and ns != selector:
+            rule.selectorText = ns
+            return True
+
+
 def transform_sheet(sheet):
     changed = False
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         if transform_declaration(rule.style):
+            changed = True
+        if transform_selector(rule):
             changed = True
     return changed
 
