@@ -304,6 +304,8 @@ if window is window.top:
         to_python.view_image(name)
     ui_operations.change_background_image = def(img_id):
         to_python.change_background_image(img_id)
+    ui_operations.quit = def():
+        to_python.quit()
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

@@ -118,6 +118,7 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
+        self.web_view.quit.connect(self.quit)
         self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
@@ -355,6 +356,9 @@ class EbookViewer(MainWindow):
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
             self.inspector_dock.setVisible(False)
+
+    def quit(self):
+        self.close()
 
     def closeEvent(self, ev):
         try:

@@ -237,6 +237,7 @@ SHORTCUTS = {
 
 
 def add_standalone_viewer_shortcuts():
+    ismacos = 'macos' in window.navigator.userAgent
     SHORTCUTS['toggle_bookmarks'] = desc(
         v"['Ctrl+b']",
         'ui',
@@ -255,6 +256,12 @@ def add_standalone_viewer_shortcuts():
         _('Show/hide the word lookup panel'),
     )
 
+    quit_shortcut = 'Meta+q' if ismacos else 'Ctrl+q'
+    SHORTCUTS['quit'] = desc(
+        quit_shortcut,
+        'ui',
+        _('Quit the viewer'),
+    )
 
 def create_shortcut_map(custom_shortcuts):
     ans = {}

@@ -296,6 +296,8 @@ class View:
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
             ui_operations.toggle_lookup()
+        elif data.name is 'quit':
+            ui_operations.quit()
         elif data.name is 'start_search':
             self.show_search()
         elif data.name is 'next_match':
