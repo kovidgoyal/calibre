@@ -28,6 +28,7 @@ class LoadingMessage:  # {{{
     def __init__(self, msg, current_color_scheme):
         self.msg = msg or ''
         self.current_color_scheme = current_color_scheme
+        self.is_not_escapable = True  # prevent Esc key from closing
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
@@ -440,6 +441,7 @@ class OpenBook: # {{{
     def __init__(self, overlay, closeable):
         self.overlay = overlay
         self.closeable = closeable
+        self.is_not_escapable = not closeable  # prevent Esc key from closing
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
@@ -515,6 +517,14 @@ class Overlay:
         if p and callable(p.on_hide):
             p.on_hide()
         self.show_current_panel()
+
+    def handle_escape(self):
+        if self.panels.length:
+            p = self.panels[-1]
+            if not p.is_not_escapable:
+                self.hide_current_panel()
+                return True
+        return False
 
     def show_current_panel(self):
         if self.panels.length:

@@ -272,10 +272,9 @@ class View:
 
     def handle_keypress(self, evt):
         if self.overlay.is_visible and evt.key is 'Escape':
-            self.overlay.hide_current_panel()
-            if evt.preventDefault:
-                evt.preventDefault(), evt.stopPropagation()
-            return
+            if self.overlay.handle_escape():
+                if evt.preventDefault:
+                    evt.preventDefault(), evt.stopPropagation()
 
     def overlay_visibility_changed(self, visible):
         if self.iframe_wrapper.send_message:
