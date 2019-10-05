@@ -24,7 +24,7 @@ from calibre.library.field_metadata import category_icon_map
 from polyglot.builtins import iteritems, itervalues, range, filter, unicode_type
 from polyglot.urllib import quote
 
-IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
+IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 
 
 def encode_datetime(dateval):
