@@ -67,6 +67,11 @@ def key_as_text(evt):
     mods = v'[]'
     for x in ('alt', 'ctrl', 'meta', 'shift'):
         if evt[x + 'Key']:
+            if 'macos' in window.navigator.userAgent:
+                if x is 'alt':
+                    x = 'option'
+                elif x is 'meta':
+                    x = '⌘'
             mods.push(x.capitalize())
     mods = '+'.join(mods)
     if mods:
