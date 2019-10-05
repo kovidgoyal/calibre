@@ -233,7 +233,7 @@ class Lookup(QWidget):
         l.addWidget(self.view)
         self.populate_sources()
         self.source_box.currentIndexChanged.connect(self.source_changed)
-        self.view.setHtml('<p>' + _('Double click on a word in the viewer window'
+        self.view.setHtml('<p>' + _('Double click on a word in the book\'s text'
             ' to look it up.'))
         self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add more sources'))
         b.clicked.connect(self.add_sources)

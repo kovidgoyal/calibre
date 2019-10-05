@@ -24,8 +24,8 @@ def create_goto_list(onclick, current_cfi):
         items.push(create_item(_('Next section'), icon='caret-right', subtitle=after.title, action=onclick.bind(None, after.dest, after.frag)))
     if before:
         items.push(create_item(_('Previous section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
-    items.push(create_item(_('Document start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
-    items.push(create_item(_('Document end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
+    items.push(create_item(_('Book start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
+    items.push(create_item(_('Book end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
     items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view):
         view.overlay.show_metadata()
     )))
