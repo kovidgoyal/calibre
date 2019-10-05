@@ -15,6 +15,7 @@ DEFAULTS = {
     'remember_window_geometry': False,
     'remember_last_read': True,
     'save_annotations_in_ebook': True,
+    'singleinstance': False,
 }
 
 
@@ -44,6 +45,7 @@ def create_misc_panel(container):
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
+    container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
     container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
 
     container.appendChild(E.div(

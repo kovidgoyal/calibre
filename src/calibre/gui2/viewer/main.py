@@ -18,16 +18,16 @@ from calibre.gui2.viewer.ui import EbookViewer
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import RC, viewer_socket_address
+from calibre.gui2.viewer.web_view import vprefs, get_session_pref
 
-vprefs = JSONConfig('viewer')
-vprefs.defaults['singleinstance'] = False
 singleinstance_name = 'calibre_viewer'
 
 
 def migrate_previous_viewer_prefs():
-    from calibre.gui2.viewer.web_view import vprefs as new_prefs
+    new_prefs = vprefs
     if new_prefs['old_prefs_migrated']:
         return
+    old_vprefs = JSONConfig('viewer')
     old_prefs = JSONConfig('viewer.py')
     with new_prefs:
         sd = new_prefs['session_data']
@@ -47,6 +47,7 @@ def migrate_previous_viewer_prefs():
         ms['remember_window_geometry'] = bool(old_prefs.get('remember_window_size', False))
         ms['remember_last_read'] = bool(old_prefs.get('remember_current_page', True))
         ms['save_annotations_in_ebook'] = bool(old_prefs.get('copy_bookmarks_to_file', True))
+        ms['singleinstance'] = bool(old_vprefs.get('singleinstance', False))
         sd['standalone_misc_settings'] = ms
 
         for k in ('top', 'bottom'):
@@ -69,7 +70,7 @@ def migrate_previous_viewer_prefs():
             cps['landscape'] = cp
         if cps['portrait'] or cps['landscape']:
             sd['columns_per_screen'] = cps
-        if vprefs.get('in_paged_mode') is False:
+        if old_vprefs.get('in_paged_mode') is False:
             sd['read_mode'] = 'flow'
 
         new_prefs.set('session_data', sd)
@@ -180,7 +181,7 @@ def main(args=sys.argv):
     scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
     override = 'calibre-ebook-viewer' if islinux else None
-    app = Application(args, override_program_name=override, color_prefs=vprefs, windows_app_uid=VIEWER_APP_UID)
+    app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
@@ -189,7 +190,7 @@ def main(args=sys.argv):
         raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
     listener = None
-    if vprefs['singleinstance']:
+    if get_session_pref('singleinstance', False):
         try:
             listener = ensure_single_instance(args, opts.open_at)
         except Exception as e:
