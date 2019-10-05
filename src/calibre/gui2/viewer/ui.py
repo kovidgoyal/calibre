@@ -66,6 +66,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None):
         MainWindow.__init__(self, None)
+        self.maximized_at_last_fullscreen = False
         self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
@@ -153,9 +154,13 @@ class EbookViewer(MainWindow):
     # Fullscreen {{{
     def set_full_screen(self, on):
         if on:
+            self.maximized_at_last_fullscreen = self.isMaximized()
             self.showFullScreen()
         else:
-            self.showNormal()
+            if self.maximized_at_last_fullscreen:
+                self.showMaximized()
+            else:
+                self.showNormal()
 
     def changeEvent(self, ev):
         if ev.type() == QEvent.WindowStateChange:
