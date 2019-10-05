@@ -49,6 +49,7 @@ fields = {
     'generator':        (METANS, 'generator'),
     'initial-creator':  (METANS, 'initial-creator'),
     'keyword':          (METANS, 'keyword'),
+    'keywords':         (METANS, 'keywords'),
     'editing-duration': (METANS, 'editing-duration'),
     'editing-cycles':   (METANS, 'editing-cycles'),
     'printed-by':       (METANS, 'printed-by'),
