@@ -748,6 +748,7 @@ class Main(MainWindow):
         self.preview.inspector.setParent(d)
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
         d.close()  # By default the inspector window is closed
+        QTimer.singleShot(10, self.preview.inspector.connect_to_dock)
 
         d = create(_('Table of Contents'), 'toc-viewer')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)

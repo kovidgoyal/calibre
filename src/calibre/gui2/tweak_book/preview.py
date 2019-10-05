@@ -320,17 +320,8 @@ class Inspector(QWidget):
         self.view = None
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.connection_attempts = 0
-        QTimer.singleShot(0, self.connect_to_dock)
 
     def connect_to_dock(self):
-        if 'inspector-dock' not in actions:
-            self.connection_attempts += 1
-            if self.connection_attempts < 1000:
-                QTimer.singleShot(10, self.connect_to_dock)
-            else:
-                print('Failed to connect to inspector dock')
-            return
         ac = actions['inspector-dock']
         ac.toggled.connect(self.visibility_changed)
         if ac.isChecked():
