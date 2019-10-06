@@ -19,7 +19,7 @@ from calibre.constants import __appname__, __version__
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, range
 from polyglot.binary import as_base64_unicode
 
 
@@ -315,14 +315,8 @@ class FB2MLizer(object):
                         raw_data = as_base64_unicode(item.data)
                         content_type = item.media_type
                     # Don't put the encoded image on a single line.
-                    data = ''
-                    col = 1
-                    for char in raw_data:
-                        if col == 72:
-                            data += '\n'
-                            col = 1
-                        col += 1
-                        data += char
+                    step = 72
+                    data = '\n'.join(raw_data[i:i+step] for i in range(0, len(raw_data), step))
                     images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs[item.href], content_type, data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
