@@ -78,7 +78,7 @@ class FB2MLizer(object):
         # Clean up pargraph endings.
         text = re.sub(r'(?miu)\s*</p>', '</p>', text)
         # Put paragraphs following a paragraph on a separate line.
-        text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
+        text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n<p>', text)
 
         # Remove empty title elements.
         text = re.sub(r'(?miu)<title>\s*</title>', '', text)
@@ -88,11 +88,11 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
         # Clean up sections start and ends.
         text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
-        text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
+        text = re.sub(r'(?miu)</section>\s*', '</section>\n', text)
         text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
         text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
         # Put sectnions followed by sections on a separate line.
-        text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n\n<section>', text)
+        text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n<section>', text)
 
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
@@ -223,7 +223,7 @@ class FB2MLizer(object):
                 </description>\n''') % metadata
 
     def fb2_footer(self):
-        return '\n</FictionBook>'
+        return '</FictionBook>'
 
     def get_cover(self):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
@@ -291,7 +291,8 @@ class FB2MLizer(object):
             text.append('</section>')
             self.section_level -= 1
 
-        return ''.join(text) + '</body>'
+        text.append('</body>')
+        return ''.join(text) + '\n'
 
     def fb2mlize_images(self):
         '''
@@ -316,11 +317,11 @@ class FB2MLizer(object):
                     # Don't put the encoded image on a single line.
                     step = 72
                     data = '\n'.join(raw_data[i:i+step] for i in range(0, len(raw_data), step))
-                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs[item.href], content_type, data))
+                    images.append('<binary id="%s" content-type="%s">%s</binary>' % (self.image_hrefs[item.href], content_type, data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
-        return ''.join(images)
+        return '\n'.join(images) + '\n'
 
     def create_flat_toc(self, nodes, level):
         for item in nodes:
