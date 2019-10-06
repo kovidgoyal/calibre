@@ -1376,7 +1376,7 @@ class KOBOTOUCH(KOBO):
     min_forma_fwversion             = (4, 11, 11879)
     min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
     min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
-    min_fwversion_dropbox           = (4, 17, 13737)  # The Forma only at this point.
+    min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
 
     has_kepubs = True
 
