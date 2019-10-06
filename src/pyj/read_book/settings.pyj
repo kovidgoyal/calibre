@@ -45,7 +45,7 @@ def apply_colors():
     else:
         text = ''
 
-    ss.textContent = text + '\n\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none }'
+    ss.textContent = text + '\n\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'
 
 
 def apply_stylesheet():
