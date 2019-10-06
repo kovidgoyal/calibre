@@ -166,7 +166,7 @@ class View:
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts allow-popups-to-escape-sandbox', style='flex-grow: 2', allowfullscreen='true'),
-                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin'),
+                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked),
                         ),
                         right_margin,
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
@@ -227,19 +227,24 @@ class View:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
-            self.focus_iframe()
+        self.focus_iframe()
 
     def right_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
-            self.focus_iframe()
+        self.focus_iframe()
 
     def top_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             self.show_chrome()
+        else:
+            self.focus_iframe()
+
+    def bottom_margin_clicked(self, event):
+        self.focus_iframe()
 
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
