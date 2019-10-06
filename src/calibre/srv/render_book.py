@@ -590,13 +590,25 @@ def html_as_dict(root):
     stack = [(root, tree)]
     while stack:
         elem, node = stack.pop()
-        for child in elem.iterchildren('*'):
-            cnode = serialize_elem(child, nsmap)
-            if cnode is not None:
-                tags.append(cnode)
-                child_tree_node = [len(tags)-1]
-                node.append(child_tree_node)
-                stack.append((child, child_tree_node))
+        prev_child_node = None
+        for child in elem.iterchildren():
+            tag = getattr(child, 'tag', None)
+            if tag is None or callable(tag):
+                tail = getattr(child, 'tail', None)
+                if tail:
+                    if prev_child_node is None:
+                        parent_node = tags[node[-1]]
+                        parent_node['x'] = parent_node.get('x', '') + tail
+                    else:
+                        prev_child_node['l'] = prev_child_node.get('l', '') + tail
+            else:
+                cnode = serialize_elem(child, nsmap)
+                if cnode is not None:
+                    tags.append(cnode)
+                    child_tree_node = [len(tags)-1]
+                    node.append(child_tree_node)
+                    stack.append((child, child_tree_node))
+                prev_child_node = cnode
     ns_map = [ns for ns, nsnum in sorted(iteritems(nsmap), key=lambda x: x[1])]
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
