@@ -230,6 +230,7 @@ class ViewerBridge(Bridge):
     selection_changed = from_js(object)
     copy_selection = from_js(object)
     view_image = from_js(object)
+    copy_image = from_js(object)
     change_background_image = from_js(object)
 
     create_view = to_js()
@@ -371,6 +372,7 @@ class WebView(RestartingWebEngineView):
     ask_for_open = pyqtSignal(object)
     selection_changed = pyqtSignal(object)
     view_image = pyqtSignal(object)
+    copy_image = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -396,6 +398,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.ask_for_open.connect(self.ask_for_open)
         self.bridge.selection_changed.connect(self.selection_changed)
         self.bridge.view_image.connect(self.view_image)
+        self.bridge.copy_image.connect(self.copy_image)
         self.bridge.report_cfi.connect(self.call_callback)
         self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
