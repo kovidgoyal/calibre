@@ -921,7 +921,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     root = container.parsed(name)
     body = last_tag(root)
     body.attrib.pop('id', None)
-    body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset')
+    body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset;')
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
 
     def m(tag_name, text=None, style=None, **attrs):
@@ -1006,7 +1006,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         style = ans.get('style') or ''
         style = (
             'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
-            'display: flex; align-items: center; overflow: hidden; background-color: unset').format(height=height) + style
+            'display: flex; align-items: center; overflow: hidden; background-color: unset;').format(height=height) + style
         ans.set('style', style)
         for child in ans.xpath('descendant-or-self::*[@class]'):
             cls = frozenset(child.get('class').split())
