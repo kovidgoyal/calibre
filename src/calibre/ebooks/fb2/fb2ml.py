@@ -196,7 +196,7 @@ class FB2MLizer(object):
             metadata['comments'] = '<annotation>{}</annotation>'.format(prepare_string_for_xml(html2text(comments.value.strip())))
 
         return textwrap.dedent('''
-            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
                 <description>
                     <title-info>
                         <genre>%(genre)s</genre>
@@ -255,7 +255,7 @@ class FB2MLizer(object):
             # Only write the image tag if it is in the manifest.
             if cover_href in self.oeb_book.manifest.hrefs and cover_href not in self.image_hrefs:
                 self.image_hrefs[cover_href] = 'img_%s' % len(self.image_hrefs)
-            return '<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+            return '<coverpage><image l:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
 
         return ''
 
@@ -466,7 +466,7 @@ class FB2MLizer(object):
                     p_txt, p_tag = self.ensure_p()
                     fb2_out += p_txt
                     tags += p_tag
-                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[ihref])
+                    fb2_out.append('<image l:href="#%s" />' % self.image_hrefs[ihref])
                 else:
                     self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
         if tag in ('br', 'hr') or ems >= 1:
