@@ -72,7 +72,7 @@ class FB2MLizer(object):
 
     def clean_text(self, text):
         # Condense empty paragraphs into a line break.
-        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line />', text)
+        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line/>', text)
         # Remove empty paragraphs.
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         # Clean up pargraph endings.
@@ -95,7 +95,7 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n<section>', text)
 
         if self.opts.insert_blank_line:
-            text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
+            text = re.sub(r'(?miu)</p>', '</p><empty-line/>', text)
 
         return text
 
@@ -152,7 +152,7 @@ class FB2MLizer(object):
             index = '1'
             if self.oeb_book.metadata.series_index:
                 index = self.oeb_book.metadata.series_index[0]
-            metadata['sequence'] = '<sequence name="%s" number="%s" />' % (prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
+            metadata['sequence'] = '<sequence name="%s" number="%s"/>' % (prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
 
         year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
@@ -255,7 +255,7 @@ class FB2MLizer(object):
             # Only write the image tag if it is in the manifest.
             if cover_href in self.oeb_book.manifest.hrefs and cover_href not in self.image_hrefs:
                 self.image_hrefs[cover_href] = 'img_%s' % len(self.image_hrefs)
-            return '<coverpage><image l:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+            return '<coverpage><image l:href="#%s"/></coverpage>' % self.image_hrefs[cover_href]
 
         return ''
 
@@ -466,7 +466,7 @@ class FB2MLizer(object):
                     p_txt, p_tag = self.ensure_p()
                     fb2_out += p_txt
                     tags += p_tag
-                    fb2_out.append('<image l:href="#%s" />' % self.image_hrefs[ihref])
+                    fb2_out.append('<image l:href="#%s"/>' % self.image_hrefs[ihref])
                 else:
                     self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
         if tag in ('br', 'hr') or ems >= 1:
@@ -483,12 +483,12 @@ class FB2MLizer(object):
                     closed_tags.append(t)
                     if t == 'p':
                         break
-                fb2_out.append('<empty-line />' * multiplier)
+                fb2_out.append('<empty-line/>' * multiplier)
                 closed_tags.reverse()
                 for t in closed_tags:
                     fb2_out.append('<%s>' % t)
             else:
-                fb2_out.append('<empty-line />' * multiplier)
+                fb2_out.append('<empty-line/>' * multiplier)
         if tag in ('div', 'li', 'p'):
             p_text, added_p = self.close_open_p(tag_stack+tags)
             fb2_out += p_text
