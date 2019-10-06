@@ -253,9 +253,8 @@ class FB2MLizer(object):
 
         if cover_href:
             # Only write the image tag if it is in the manifest.
-            if cover_href in self.oeb_book.manifest.hrefs.keys():
-                if cover_href not in self.image_hrefs.keys():
-                    self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
+            if cover_href in self.oeb_book.manifest.hrefs and cover_href not in self.image_hrefs:
+                self.image_hrefs[cover_href] = 'img_%s' % len(self.image_hrefs)
             return '<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
 
         return ''
@@ -462,7 +461,7 @@ class FB2MLizer(object):
                 ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
                 if ihref in self.oeb_book.manifest.hrefs:
                     if ihref not in self.image_hrefs:
-                        self.image_hrefs[ihref] = '_%s.jpg' % len(self.image_hrefs)
+                        self.image_hrefs[ihref] = 'img_%s' % len(self.image_hrefs)
                     p_txt, p_tag = self.ensure_p()
                     fb2_out += p_txt
                     tags += p_tag
