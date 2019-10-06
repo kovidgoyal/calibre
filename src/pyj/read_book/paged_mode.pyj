@@ -351,7 +351,7 @@ def scroll_to_elem(elem):
     scroll_viewport.scroll_into_view(elem)
     scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
-    if in_paged_mode:
+    if in_paged_mode():
         # Ensure we are scrolled to the column containing elem
 
         # Because of a bug in WebKit's getBoundingClientRect() in column
@@ -373,7 +373,7 @@ def scroll_to_elem(elem):
 def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
     # containing the start of the current selection
-    if in_paged_mode:
+    if in_paged_mode():
         scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         sel = window.getSelection()
         r = sel.getRangeAt(0).getBoundingClientRect()
@@ -390,7 +390,7 @@ def jump_to_cfi(cfi):
     # scroll is performed so that the column containing the position
     # pointed to by the cfi is the left most column in the viewport
     cfi_scroll_to(cfi, def(x, y):
-        if in_paged_mode:
+        if in_paged_mode():
             scroll_to_xpos(x)
         else:
             scroll_viewport.scroll_to(0, y)
@@ -400,7 +400,7 @@ def current_cfi():
     # The Conformal Fragment Identifier at the current position, returns
     # null if it could not be calculated.
     ans = None
-    if in_paged_mode:
+    if in_paged_mode():
         c = current_column_location()
         for x in c, c - col_and_gap, c + col_and_gap:
             # Try the current column, the previous column and the next
@@ -432,7 +432,7 @@ def current_cfi():
 
 def progress_frac(frac):
     # The current scroll position as a fraction between 0 and 1
-    if in_paged_mode:
+    if in_paged_mode():
         limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
         if limit <= 0:
             return 0.0
