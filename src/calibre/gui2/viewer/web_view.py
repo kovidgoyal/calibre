@@ -186,7 +186,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
 def get_session_pref(name, default=None, group='standalone_misc_settings'):
     sd = vprefs['session_data']
-    g = sd.get(group, {})
+    g = sd.get(group, {}) if group else sd
     return g.get(name, default)
 
 
@@ -232,6 +232,8 @@ class ViewerBridge(Bridge):
     view_image = from_js(object)
     copy_image = from_js(object)
     change_background_image = from_js(object)
+    notify_progress_frac = from_js(object, object, object)
+    overlay_visibility_changed = from_js(object)
 
     create_view = to_js()
     show_preparing_message = to_js()
@@ -242,6 +244,7 @@ class ViewerBridge(Bridge):
     get_current_cfi = to_js()
     show_home_page = to_js()
     background_image_changed = to_js()
+    goto_frac = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -373,6 +376,9 @@ class WebView(RestartingWebEngineView):
     selection_changed = pyqtSignal(object)
     view_image = pyqtSignal(object)
     copy_image = pyqtSignal(object)
+    scrollbar_visibility_changed = pyqtSignal()
+    notify_progress_frac = pyqtSignal(object, object, object)
+    overlay_visibility_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -399,6 +405,8 @@ class WebView(RestartingWebEngineView):
         self.bridge.selection_changed.connect(self.selection_changed)
         self.bridge.view_image.connect(self.view_image)
         self.bridge.copy_image.connect(self.copy_image)
+        self.bridge.notify_progress_frac.connect(self.notify_progress_frac)
+        self.bridge.overlay_visibility_changed.connect(self.overlay_visibility_changed)
         self.bridge.report_cfi.connect(self.call_callback)
         self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
@@ -499,6 +507,8 @@ class WebView(RestartingWebEngineView):
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
                 apply_font_settings(self._page)
+            elif key == 'standalone_scrollbar':
+                self.scrollbar_visibility_changed.emit()
 
     def do_callback(self, func_name, callback):
         cid = next(self.callback_id_counter)
@@ -525,3 +535,6 @@ class WebView(RestartingWebEngineView):
                 shutil.copyfileobj(src, dest)
             background_image.ans = None
             self.execute_when_ready('background_image_changed', img_id)
+
+    def goto_frac(self, frac):
+        self.execute_when_ready('goto_frac', frac)

@@ -48,6 +48,7 @@ defaults = {
     'keyboard_shortcuts': {},
     'standalone_font_settings': {},
     'standalone_misc_settings': {},
+    'standalone_scrollbar': False,
     'standalone_recently_opened': v'[]',
     'paged_wheel_scrolls_by_screen': False,
     'paged_margin_clicks_scroll_by_screen': True,
@@ -72,6 +73,7 @@ is_local_setting = {
     'standalone_font_settings': True,
     'standalone_misc_settings': True,
     'standalone_recently_opened': True,
+    'standalone_scrollbar': False,
 }
 
 

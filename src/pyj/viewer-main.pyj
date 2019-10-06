@@ -238,6 +238,12 @@ def get_current_cfi(request_id):
 
 
 @from_python
+def goto_frac(frac):
+    if view:
+        view.goto_frac(frac)
+
+
+@from_python
 def background_image_changed(img_id):
     img = document.getElementById(img_id)
     if img:
@@ -306,8 +312,12 @@ if window is window.top:
         to_python.copy_image(name)
     ui_operations.change_background_image = def(img_id):
         to_python.change_background_image(img_id)
+    ui_operations.notify_progress_frac = def (pf, fpf, book_length):
+        to_python.notify_progress_frac(pf, fpf, book_length)
     ui_operations.quit = def():
         to_python.quit()
+    ui_operations.overlay_visibility_changed = def(visible):
+        to_python.overlay_visibility_changed(visible)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

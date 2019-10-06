@@ -186,6 +186,7 @@ class View:
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
+            'update_progress_frac': self.on_update_progress_frac,
             'report_cfi': self.on_report_cfi,
             'update_toc_position': self.on_update_toc_position,
             'content_loaded': self.on_content_loaded,
@@ -288,6 +289,8 @@ class View:
     def overlay_visibility_changed(self, visible):
         if self.iframe_wrapper.send_message:
             self.iframe_wrapper.send_message('set_forward_keypresses', forward=v'!!visible')
+        if ui_operations.overlay_visibility_changed:
+            ui_operations.overlay_visibility_changed(visible)
 
     def on_handle_shortcut(self, data):
         if data.name is 'back':
@@ -621,6 +624,34 @@ class View:
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
         self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
 
+    def goto_frac(self, frac):
+        if not self.book or not self.book.manifest:
+            return
+        chapter_start_page = 0
+        total_length = self.book.manifest.spine_length
+        page = total_length * frac
+        chapter_frac = 0
+        chapter_name = None
+        for name in self.book.manifest.spine:
+            chapter_length = self.book.manifest.files[name]?.length or 0
+            chapter_end_page = chapter_start_page + chapter_length
+            if chapter_start_page <= page <= chapter_end_page:
+                num_pages = chapter_end_page - chapter_start_page - 1
+                if num_pages > 0:
+                    chapter_frac = (page - chapter_start_page) / num_pages
+                else:
+                    chapter_frac = 0
+                chapter_name = name
+                break
+            chapter_start_page = chapter_end_page
+        if not chapter_name:
+            chapter_name = self.book.manifest.spine[-1]
+        chapter_frac = max(0, min(chapter_frac, 1))
+        if self.currently_showing.name is chapter_name:
+            self.iframe_wrapper.send_message('scroll_to_frac', frac=chapter_frac)
+        else:
+            self.show_name(chapter_name, initial_position={'type':'frac', 'frac':chapter_frac, 'replace_history':True})
+
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
@@ -698,8 +729,7 @@ class View:
         if not self.book.last_read_position:
             self.book.last_read_position = {}
         self.book.last_read_position[unkey] = data.cfi
-        self.current_progress_frac = data.progress_frac
-        self.current_file_progress_frac = data.file_progress_frac
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
         if ui_operations.update_last_read_time:
             ui_operations.update_last_read_time(self.book)
@@ -715,6 +745,10 @@ class View:
                 'selected_text': data.selected_text,
             })
             v'delete self.report_cfi_callbacks[data.request_id]'
+
+    def on_update_progress_frac(self, data):
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+        self.update_header_footer()
 
     def on_update_cfi(self, data):
         overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible
@@ -741,7 +775,7 @@ class View:
         has_clock = False
 
         if self.book?.manifest:
-            book_length = self.book.manifest.total_length or 0
+            book_length = self.book.manifest.spine_length or 0
             name = self.currently_showing.name
             chapter_length = self.book.manifest.files[name]?.length or 0
         else:
@@ -815,10 +849,18 @@ class View:
     def on_content_loaded(self, data):
         self.processing_spine_item_display = False
         self.hide_loading()
-        frac = data.progress_frac or 0
-        self.current_progress_frac = frac
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
+
+    def set_progress_frac(self, progress_frac, file_progress_frac):
+        self.current_progress_frac = progress_frac or 0
+        self.current_file_progress_frac = file_progress_frac or 0
+        if ui_operations.notify_progress_frac:
+            book_length = 0
+            if self.book?.manifest:
+                book_length = self.book.manifest.spine_length or 0
+            ui_operations.notify_progress_frac(self.current_progress_frac, self.current_file_progress_frac, book_length)
 
     def update_font_size(self):
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))

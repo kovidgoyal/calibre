@@ -85,6 +85,7 @@ class IframeBoss:
             'initialize':self.initialize,
             'display': self.display,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'scroll_to_frac': self.on_scroll_to_frac,
             'next_screen': self.on_next_screen,
             'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
@@ -105,6 +106,7 @@ class IframeBoss:
         scroll_viewport.update_window_size(data.width, data.height)
         window.onerror = self.onerror
         window.addEventListener('scroll', debounce(self.onscroll, 1000))
+        window.addEventListener('scroll', self.no_latency_onscroll)
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel, {'passive': False})
         window.addEventListener('keydown', self.onkeydown, {'passive': False})
@@ -170,6 +172,9 @@ class IframeBoss:
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         self.resource_urls = unserialize_html(root_data, self.content_loaded)
+
+    def on_scroll_to_frac(self, data):
+        self.to_scroll_fraction(data.frac)
 
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
@@ -280,13 +285,13 @@ class IframeBoss:
                 if si:
                     self.length_before += files[si]?.length or 0
         self.onscroll()
-        self.send_message('content_loaded', progress_frac=self.get_progress_frac())
+        self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
 
-
-    def calculate_progress_frac(self, current_name, spine_index):
+    def calculate_progress_frac(self):
+        current_name = current_spine_item().name
         files = self.book.manifest.files
         file_length = files[current_name]?.length or 0
         if self.length_before is None:
@@ -294,14 +299,6 @@ class IframeBoss:
         frac = progress_frac()
         ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
         return ans
-
-    def get_progress_frac(self):
-        spine = self.book.manifest.spine
-        current_name = current_spine_item().name
-        index = spine.indexOf(current_name)
-        if index < 0:
-            return 0
-        return self.calculate_progress_frac(current_name, index)
 
     def get_current_cfi(self, data):
         cfi = at_current()
@@ -313,7 +310,7 @@ class IframeBoss:
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 self.send_message(
-                    'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(current_name, index),
+                    'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(),
                     file_progress_frac=progress_frac(), request_id=data.request_id, selected_text=selected_text)
                 return
         self.send_message(
@@ -327,14 +324,18 @@ class IframeBoss:
             index = spine.indexOf(current_name)
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                pf = self.calculate_progress_frac()
+                fpf = progress_frac()
                 if cfi is not self.last_cfi:
                     self.last_cfi = cfi
                     selected_text = window.getSelection().toString()
                     self.send_message(
                         'update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                        progress_frac=self.calculate_progress_frac(current_name, index),
-                        file_progress_frac=progress_frac(), selected_text=selected_text)
+                        progress_frac=pf, file_progress_frac=fpf, selected_text=selected_text)
                     self.replace_history_on_next_cfi_update = True
+                else:
+                    self.send_message(
+                        'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
 
     def update_toc_position(self):
         visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
@@ -344,6 +345,12 @@ class IframeBoss:
         if self.content_ready:
             self.update_cfi()
             self.update_toc_position()
+
+    def no_latency_onscroll(self):
+        pf = self.calculate_progress_frac()
+        fpf = progress_frac()
+        self.send_message(
+            'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
 
     def onresize(self):
         self.send_message('request_size')

@@ -172,7 +172,7 @@ def get_length(root):
         if elem.tail:
             num += len(strip_space.sub('', elem.tail))
         if tname in 'img svg':
-            num += 2000
+            num += 1000
         return num
 
     for body in root.iterdescendants(XHTML('body')):
