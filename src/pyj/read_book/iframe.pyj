@@ -260,6 +260,10 @@ class IframeBoss:
         self.content_loaded_stage2()
 
     def content_loaded_stage2(self):
+        # this is the loading styles used to suppress scrollbars during load
+        # added in unserialize_html
+        document.head.firstChild.textContent = ''
+
         self.connect_links()
         self.content_ready = True
         csi = current_spine_item()
