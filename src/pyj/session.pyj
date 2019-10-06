@@ -49,6 +49,8 @@ defaults = {
     'standalone_font_settings': {},
     'standalone_misc_settings': {},
     'standalone_recently_opened': v'[]',
+    'paged_wheel_scrolls_by_screen': False,
+    'paged_margin_clicks_scroll_by_screen': True,
 }
 
 is_local_setting = {

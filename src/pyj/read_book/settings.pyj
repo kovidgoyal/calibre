@@ -16,8 +16,9 @@ def update_settings(settings):
     opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
     opts.user_stylesheet = settings.user_stylesheet or ''
     opts.hide_tooltips = settings.hide_tooltips
-    opts.cover_preserve_aspect_ratio = settings.cover_preserve_aspect_ratio
+    opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
+    opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
 
 update_settings()
 

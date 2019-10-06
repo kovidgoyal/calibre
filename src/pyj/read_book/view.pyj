@@ -225,12 +225,14 @@ class View:
     def left_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
-            self.iframe_wrapper.send_message('next_screen', backwards=True)
+            sd = get_session_data()
+            self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
 
     def right_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
-            self.iframe_wrapper.send_message('next_screen', backwards=False)
+            sd = get_session_data()
+            self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
 
     def top_margin_clicked(self, event):
         if event.button is 0:
@@ -584,6 +586,7 @@ class View:
             'keyboard_shortcuts': sd.get('keyboard_shortcuts'),
             'hide_tooltips': sd.get('hide_tooltips'),
             'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
+            'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
         }
 
     def show_name(self, name, initial_position=None):

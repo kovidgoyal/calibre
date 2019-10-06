@@ -197,7 +197,7 @@ class IframeBoss:
         if current_layout_mode() is 'flow':
             flow_scroll_by_page(backwards)
         else:
-            paged_scroll_by_page(backwards, True)
+            paged_scroll_by_page(backwards, data.all_pages_on_screen)
 
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:

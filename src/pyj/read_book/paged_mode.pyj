@@ -446,7 +446,10 @@ def progress_frac(frac):
 def onwheel(evt):
     if evt.deltaY:
         backward = evt.deltaY < 0
-        x = previous_col_location() if backward else next_col_location()
+        if opts.paged_wheel_scrolls_by_screen:
+            x = previous_screen_location() if backward else next_screen_location()
+        else:
+            x = previous_col_location() if backward else next_col_location()
         if x is -1:
             get_boss().send_message('next_spine_item', previous=backward)
         else:
