@@ -221,6 +221,12 @@ SHORTCUTS = {
         _('Toggle full screen'),
     ),
 
+    'toggle_paged_mode': desc(
+        'Ctrl+m',
+        'ui',
+        _('Toggle between Paged mode and Flow mode for text layout')
+    ),
+
     'reload_book': desc(
         v"['F5', 'Ctrl+r']",
         'ui',

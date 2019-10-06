@@ -295,6 +295,8 @@ class View:
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
             ui_operations.toggle_lookup()
+        elif data.name is 'toggle_paged_mode':
+            self.toggle_paged_mode()
         elif data.name is 'quit':
             ui_operations.quit()
         elif data.name is 'start_search':
@@ -324,6 +326,13 @@ class View:
         self.currently_showing.selected_text = data.text
         if ui_operations.selection_changed:
             ui_operations.selection_changed(data.text)
+
+    def toggle_paged_mode(self):
+        sd = get_session_data()
+        mode = sd.get('read_mode')
+        new_mode = 'flow' if mode is 'paged' else 'paged'
+        sd.set('read_mode', new_mode)
+        ui_operations.redisplay_book()
 
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
