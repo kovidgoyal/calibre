@@ -1349,7 +1349,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 156
+    supported_dbversion             = 157
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1361,7 +1361,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 17, 13651)
+    max_supported_fwversion         = (4, 18, 13737)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1376,6 +1376,7 @@ class KOBOTOUCH(KOBO):
     min_forma_fwversion             = (4, 11, 11879)
     min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
     min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
+    min_fwversion_dropbox           = (4, 17, 13737)  # The Forma only at this point.
 
     has_kepubs = True
 
