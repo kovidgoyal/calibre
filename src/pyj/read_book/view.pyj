@@ -227,12 +227,14 @@ class View:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+            self.focus_iframe()
 
     def right_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+            self.focus_iframe()
 
     def top_margin_clicked(self, event):
         if event.button is 0:
