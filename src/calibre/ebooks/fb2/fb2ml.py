@@ -197,7 +197,7 @@ class FB2MLizer(object):
             metadata['comments'] = ''
         else:
             from calibre.utils.html2text import html2text
-            metadata['comments'] = '<annotation>{}</annotation>'.format(prepare_string_for_xml(html2text(comments.value.strip())))
+            metadata['comments'] = '<annotation><p>{}</p></annotation>'.format(prepare_string_for_xml(html2text(comments.value).strip()))
 
         header = textwrap.dedent('''\
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
