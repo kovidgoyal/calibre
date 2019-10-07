@@ -69,12 +69,12 @@ class BookScrollbar:
             evt.preventDefault(), evt.stopPropagation()
             self.down_y = evt.clientY - bob.getBoundingClientRect().top
             mouse_grab.style.display = 'block'
-            mouse_grab.addEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
-            mouse_grab.addEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
+            window.addEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
+            window.addEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
         elif which is 'up':
             self.down_y = 0
-            mouse_grab.removeEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
-            mouse_grab.removeEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
+            window.removeEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
+            window.removeEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
             window.setTimeout(def(): self.container.firstChild.nextSibling.style.display = 'none';, 10)
             evt.preventDefault(), evt.stopPropagation()
 
