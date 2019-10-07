@@ -637,8 +637,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         b.setIcon(QIcon(I('document_open.png')))
 
         def cf():
-            files = choose_files(d, 'select link file', _('Choose file'), [
-                (_('Images'), 'png jpeg jpg gif'.split())], select_only_single_file=True)
+            filetypes = []
+            if d.treat_as_image.isChecked():
+                filetypes = [(_('Images'), 'png jpeg jpg gif'.split())]
+            files = choose_files(d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True)
             if files:
                 path = files[0]
                 d.url.setText(path)
