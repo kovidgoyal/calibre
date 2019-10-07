@@ -312,8 +312,6 @@ if window is window.top:
         to_python.copy_image(name)
     ui_operations.change_background_image = def(img_id):
         to_python.change_background_image(img_id)
-    ui_operations.notify_progress_frac = def (pf, fpf, book_length):
-        to_python.notify_progress_frac(pf, fpf, book_length)
     ui_operations.quit = def():
         to_python.quit()
     ui_operations.overlay_visibility_changed = def(visible):

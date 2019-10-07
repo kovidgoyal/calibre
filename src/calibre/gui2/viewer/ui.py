@@ -12,8 +12,8 @@ from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QDockWidget, QEvent, QHBoxLayout, QMimeData, QModelIndex, QPixmap,
-    QScrollBar, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QDockWidget, QEvent, QMimeData, QModelIndex, QPixmap, QScrollBar,
+    Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prints
@@ -64,64 +64,6 @@ class ScrollBar(QScrollBar):
     def paintEvent(self, ev):
         if self.isEnabled():
             return QScrollBar.paintEvent(self, ev)
-
-
-class CentralWidget(QWidget):
-
-    def __init__(self, web_view, parent):
-        QWidget.__init__(self, parent)
-        self._ignore_value_changes = False
-        self.web_view = web_view
-        self.l = l = QHBoxLayout(self)
-        l.setContentsMargins(0, 0, 0, 0), l.setSpacing(0)
-        l.addWidget(web_view)
-        self.vertical_scrollbar = vs = ScrollBar(Qt.Vertical, self)
-        vs.valueChanged[int].connect(self.value_changed)
-        l.addWidget(vs)
-        self.current_book_length = None
-        web_view.notify_progress_frac.connect(self.update_scrollbar_positions_on_scroll)
-        web_view.scrollbar_visibility_changed.connect(self.apply_scrollbar_visibility)
-        web_view.overlay_visibility_changed.connect(self.overlay_visibility_changed)
-        self.apply_scrollbar_visibility()
-
-    def __enter__(self):
-        self._ignore_value_changes = True
-
-    def __exit__(self, *a):
-        self._ignore_value_changes = False
-
-    def apply_scrollbar_visibility(self):
-        visible = get_session_pref('standalone_scrollbar', default=False, group=None)
-        self.vertical_scrollbar.setVisible(bool(visible))
-
-    def overlay_visibility_changed(self, visible):
-        self.vertical_scrollbar.setEnabled(not visible)
-
-    def set_scrollbar_value(self, frac):
-        with self:
-            val = int(self.vertical_scrollbar.maximum() * frac)
-            self.vertical_scrollbar.setValue(val)
-
-    def value_changed(self, val):
-        if not self._ignore_value_changes:
-            frac = val / self.vertical_scrollbar.maximum()
-            self.web_view.goto_frac(frac)
-
-    def initialize_scrollbars(self, book_length):
-        with self:
-            self.current_book_length = book_length
-            maximum = book_length / 10
-            bar = self.vertical_scrollbar
-            bar.setMinimum(0)
-            bar.setMaximum(maximum)
-            bar.setSingleStep(10)
-            bar.setPageStep(100)
-
-    def update_scrollbar_positions_on_scroll(self, progress_frac, file_progress_frac, book_length):
-        if book_length != self.current_book_length:
-            self.initialize_scrollbars(book_length)
-        if not self.vertical_scrollbar.isSliderDown():
-            self.set_scrollbar_value(progress_frac)
 
 
 class EbookViewer(MainWindow):
@@ -192,8 +134,7 @@ class EbookViewer(MainWindow):
         self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
         self.web_view.view_image.connect(self.view_image, type=Qt.QueuedConnection)
         self.web_view.copy_image.connect(self.copy_image, type=Qt.QueuedConnection)
-        self.central_widget = CentralWidget(self.web_view, self)
-        self.setCentralWidget(self.central_widget)
+        self.setCentralWidget(self.web_view)
         self.restore_state()
         if continue_reading:
             self.continue_reading()
@@ -354,7 +295,6 @@ class EbookViewer(MainWindow):
             self.web_view.show_home_page()
             return
         set_book_path(data['base'], data['pathtoebook'])
-        self.central_widget.initialize_scrollbars(set_book_path.parsed_manifest['spine_length'])
         self.current_book_data = data
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'

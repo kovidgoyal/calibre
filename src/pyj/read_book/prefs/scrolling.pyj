@@ -10,8 +10,6 @@ from dom import unique_id
 from widgets import create_button
 from session import defaults
 
-from read_book.globals import runtime
-
 CONTAINER = unique_id('standalone-scrolling-settings')
 
 
@@ -43,10 +41,9 @@ def create_scrolling_panel(container):
     container.appendChild(cb(
         'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
 
-    if runtime.is_standalone_viewer:
-        container.appendChild(E.div(style='margin-top:1ex; border-top: solid 1px', '\xa0'))
-        container.appendChild(cb(
-            'standalone_scrollbar', _('Show a scrollbar')))
+    container.appendChild(E.div(style='margin-top:1ex; border-top: solid 1px', '\xa0'))
+    container.appendChild(cb(
+        'book_scrollbar', _('Show a scrollbar')))
 
     container.appendChild(E.div(
         style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)

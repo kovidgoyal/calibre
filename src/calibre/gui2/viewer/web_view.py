@@ -232,7 +232,6 @@ class ViewerBridge(Bridge):
     view_image = from_js(object)
     copy_image = from_js(object)
     change_background_image = from_js(object)
-    notify_progress_frac = from_js(object, object, object)
     overlay_visibility_changed = from_js(object)
 
     create_view = to_js()
@@ -376,8 +375,6 @@ class WebView(RestartingWebEngineView):
     selection_changed = pyqtSignal(object)
     view_image = pyqtSignal(object)
     copy_image = pyqtSignal(object)
-    scrollbar_visibility_changed = pyqtSignal()
-    notify_progress_frac = pyqtSignal(object, object, object)
     overlay_visibility_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -405,7 +402,6 @@ class WebView(RestartingWebEngineView):
         self.bridge.selection_changed.connect(self.selection_changed)
         self.bridge.view_image.connect(self.view_image)
         self.bridge.copy_image.connect(self.copy_image)
-        self.bridge.notify_progress_frac.connect(self.notify_progress_frac)
         self.bridge.overlay_visibility_changed.connect(self.overlay_visibility_changed)
         self.bridge.report_cfi.connect(self.call_callback)
         self.bridge.change_background_image.connect(self.change_background_image)
@@ -507,8 +503,6 @@ class WebView(RestartingWebEngineView):
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
                 apply_font_settings(self._page)
-            elif key == 'standalone_scrollbar':
-                self.scrollbar_visibility_changed.emit()
 
     def do_callback(self, func_name, callback):
         cid = next(self.callback_id_counter)

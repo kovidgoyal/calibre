@@ -13,6 +13,7 @@ from dom import add_extra_css, build_rule, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
+from read_book.scrollbar import BookScrollbar
 from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
@@ -150,7 +151,8 @@ class View:
         self.report_cfi_callbacks = {}
         self.show_chrome_counter = 0
         self.show_loading_callback_timer = None
-        self.clock_timer_id = 0
+        self.timer_ids = {'clock': 0}
+        self.book_scrollbar = BookScrollbar(self)
         sd = get_session_data()
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
@@ -169,6 +171,7 @@ class View:
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked),
                         ),
                         right_margin,
+                        self.book_scrollbar.create(),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
@@ -574,6 +577,7 @@ class View:
         # redisplay_book() is called when settings are changed
         sd = get_session_data()
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
+        self.book_scrollbar.apply_visibility()
         self.display_book(self.book)
 
     def iframe_settings(self, name):
@@ -813,12 +817,12 @@ class View:
         if div:
             render_template(div, 'margin_top', 'header')
         if has_clock:
-            if not self.clock_timer_id:
-                self.clock_timer_id = window.setInterval(self.update_header_footer, 60000)
+            if not self.timer_ids.clock:
+                self.timer_ids.clock = window.setInterval(self.update_header_footer, 60000)
         else:
-            if self.clock_timer_id:
-                window.clearInterval(self.clock_timer_id)
-                self.clock_timer_id = 0
+            if self.timer_ids.clock:
+                window.clearInterval(self.timer_ids.clock)
+                self.timer_ids.clock = 0
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
@@ -856,11 +860,7 @@ class View:
     def set_progress_frac(self, progress_frac, file_progress_frac):
         self.current_progress_frac = progress_frac or 0
         self.current_file_progress_frac = file_progress_frac or 0
-        if ui_operations.notify_progress_frac:
-            book_length = 0
-            if self.book?.manifest:
-                book_length = self.book.manifest.spine_length or 0
-            ui_operations.notify_progress_frac(self.current_progress_frac, self.current_file_progress_frac, book_length)
+        self.book_scrollbar.sync_to_contents(self.current_progress_frac)
 
     def update_font_size(self):
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
