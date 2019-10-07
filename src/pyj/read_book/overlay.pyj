@@ -471,7 +471,12 @@ class Overlay:
         self.view = view
         c = self.clear_container()
         c.addEventListener('click', self.container_clicked)
+        c.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
         self.panels = []
+
+    def oncontextmenu(self, evt):
+        evt.preventDefault()
+        self.handle_escape()
 
     def clear_container(self):
         c = self.container
