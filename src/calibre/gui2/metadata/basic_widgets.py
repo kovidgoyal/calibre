@@ -42,9 +42,9 @@ from calibre.db import SPOOL_SIZE
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 from polyglot.builtins import iteritems, unicode_type, range
 
-OK_COLOR = 'rgba(0, 255, 0, 12%)'
-ERR_COLOR = 'rgba(255, 0, 0, 12%)'
-INDICATOR_SHEET = 'QLineEdit { color: black; background-color: %s }'
+OK_COLOR = 'rgba(0, 255, 0, 50%)'
+ERR_COLOR = 'rgba(255, 0, 0, 50%)'
+INDICATOR_SHEET = 'QLineEdit { border: 2px solid %s; border-radius: 2px }'
 
 
 def save_dialog(parent, title, msg, det_msg=''):
