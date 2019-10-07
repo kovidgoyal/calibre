@@ -59,16 +59,18 @@ class FB2MLizer(object):
         return self.fb2mlize_spine()
 
     def fb2mlize_spine(self):
-        output = [self.fb2_header()]
-        output.append(self.get_text())
-        output.append(self.fb2mlize_images())
-        output.append(self.fb2_footer())
-        output = self.clean_text(''.join(output))
+        output = (
+            self.fb2_header(),
+            self.get_text(),
+            self.fb2mlize_images(),
+            self.fb2_footer(),
+        )
+        output = self.clean_text('\n'.join(output))
 
         if self.opts.pretty_print:
-            return '<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding='unicode', pretty_print=True)
-        else:
-            return '<?xml version="1.0" encoding="UTF-8"?>' + output
+            output = etree.tostring(etree.fromstring(output), encoding='unicode', pretty_print=True)
+
+        return '<?xml version="1.0" encoding="UTF-8"?>\n' + output
 
     def clean_text(self, text):
         # Condense empty paragraphs into a line break.
@@ -223,7 +225,7 @@ class FB2MLizer(object):
                 </description>''') % metadata
 
         # Remove empty lines.
-        return '\n'.join(filter(unicode_type.strip, header.splitlines())) + '\n'
+        return '\n'.join(filter(unicode_type.strip, header.splitlines()))
 
     def fb2_footer(self):
         return '</FictionBook>'
@@ -295,7 +297,7 @@ class FB2MLizer(object):
             self.section_level -= 1
 
         text.append('</body>')
-        return ''.join(text) + '\n'
+        return ''.join(text)
 
     def fb2mlize_images(self):
         '''
@@ -324,7 +326,7 @@ class FB2MLizer(object):
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
-        return '\n'.join(images) + '\n'
+        return '\n'.join(images)
 
     def create_flat_toc(self, nodes, level):
         for item in nodes:
