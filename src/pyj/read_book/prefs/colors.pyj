@@ -1,15 +1,16 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from gettext import gettext as _
-from dom import svgicon, set_css, add_extra_css, build_rule, clear, unique_id
 from elementmaker import E
-from book_list.globals import get_session_data
-from read_book.globals import default_color_schemes, ui_operations
-from modals import error_dialog
-from widgets import create_button
+from gettext import gettext as _
 
+from book_list.globals import get_session_data
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from modals import error_dialog
+from read_book.globals import default_color_schemes, ui_operations
+from read_book.prefs.utils import create_button_box
+from widgets import create_button
 
 CONTAINER = unique_id('reader-color-scheme')
 COLOR_LIST = unique_id()
@@ -173,7 +174,7 @@ def set_action_button_visibility():
         else:
             button.style.display = 'inline-block' if is_custom else 'none'
 
-def create_colors_panel(container):
+def create_colors_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
     cs = resolve_color_scheme()
@@ -207,9 +208,10 @@ def create_colors_panel(container):
             )),
         ),
         E.div(style="display:flex; justify-content: flex-end; margin: 1ex 1em",
-            create_button(_('OK'), 'check', add_color_scheme), E.span('\xa0'), create_button(_('Cancel'), 'close', add_color_scheme.bind('cancel'))
+            create_button(_('Apply'), 'check', add_color_scheme), E.span('\xa0'), create_button(_('Discard'), 'close', add_color_scheme.bind('cancel'))
     )))
     set_action_button_visibility()
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(None, apply_func, cancel_func)))
 
 develop = create_colors_panel
 
@@ -221,3 +223,4 @@ def commit_colors(onchange):
         sd = get_session_data()
         sd.set('current_color_scheme', ccs)
         ui_operations.update_color_scheme()
+        onchange()

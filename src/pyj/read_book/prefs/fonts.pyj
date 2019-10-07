@@ -8,7 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from dom import unique_id
 from read_book.globals import runtime
-from widgets import create_button
+from read_book.prefs.utils import create_button_box
 
 CONTAINER = unique_id('standalone-font-settings')
 DEFAULT_STANDARD_FONT = 'serif'
@@ -71,7 +71,7 @@ def get_container():
     return document.getElementById(CONTAINER)
 
 
-def create_fonts_panel(container):
+def create_fonts_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
     container = container.lastChild
     container.append(E.div(_('Choose fonts to use for un-styled text:'), style='margin-top: 1rem'))
@@ -94,9 +94,7 @@ def create_fonts_panel(container):
         row(_('Minimum font size (px)'), minimum_font_size(settings)),
     ))
 
-    container.appendChild(E.div(
-        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults)
-    ))
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 
 
 develop = create_fonts_panel

@@ -6,11 +6,12 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from dom import ensure_id, unique_id
 from read_book.globals import runtime, ui_operations
+from read_book.prefs.utils import create_button_box
+from session import defaults
 from viewer.constants import READER_BACKGROUND_URL
 from widgets import create_button
-from dom import unique_id
-
 
 BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
@@ -72,8 +73,20 @@ def background_fade_widget(sd):
     ))
 
 
-def create_user_stylesheet_panel(container):
+def restore_defaults():
+    container = document.getElementById(create_user_stylesheet_panel.container_id)
+    container.querySelector('[name=user-stylesheet]').value = ''
+    if runtime.is_standalone_viewer:
+        clear_image(container.querySelector('img').id)
+    else:
+        container.querySelector('[name=background_image]').value = ''
+    container.querySelector('select[name=background_image_style]').value = defaults.background_image_style
+    container.querySelector('input[name=background_image_fade]').value = str(defaults.background_image_fade)
+
+
+def create_user_stylesheet_panel(container, apply_func, cancel_func):
     sd = get_session_data()
+    create_user_stylesheet_panel.container_id = ensure_id(container)
     container.appendChild(
         E.div(
             style='min-height: 75vh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
@@ -99,6 +112,8 @@ def create_user_stylesheet_panel(container):
     val = sd.get('user_stylesheet')
     if val:
         container.querySelector('[name=user-stylesheet]').value = val
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
+
 
 develop = create_user_stylesheet_panel
 

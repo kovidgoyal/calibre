@@ -7,7 +7,8 @@ from gettext import gettext as _, ngettext
 
 from book_list.globals import get_session_data
 from dom import unique_id
-from session import get_interface_data
+from read_book.prefs.utils import create_button_box
+from session import defaults, get_interface_data
 from utils import fmt_sidx
 
 CONTAINER = unique_id('reader-hf-prefs')
@@ -76,7 +77,14 @@ def get_setting(table):
     return ans
 
 
-def create_head_foot_panel(container):
+def restore_defaults():
+    container = document.getElementById(CONTAINER)
+    for which in 'header footer'.split(' '):
+        table = container.querySelector(f'table[data-which={which}]')
+        apply_setting(table, defaults[which] or {})
+
+
+def create_head_foot_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
     container.appendChild(E.h4(_('Header'), style="margin: 1rem"))
@@ -89,6 +97,7 @@ def create_head_foot_panel(container):
     for which in 'header footer'.split(' '):
         table = container.querySelector(f'table[data-which={which}]')
         apply_setting(table, sd.get(which) or {})
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
 
 
 def commit_head_foot(onchange, container):

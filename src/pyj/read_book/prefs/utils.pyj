@@ -1,0 +1,25 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from widgets import create_button
+
+
+def create_button_box(restore_defaults_func, apply_func, cancel_func):
+    cbutton = create_button(_('Cancel'), action=cancel_func)
+    if restore_defaults_func:
+        rbutton = create_button(_('Restore defaults'), action=restore_defaults_func)
+    else:
+        rbutton = restore_defaults_func or E.div('\xa0')
+    cbutton.style.marginLeft = '1rem'
+    return E.div(
+        style='margin-top: 1rem; display: flex; justify-content: space-between',
+        rbutton,
+        E.div(
+            create_button(_('OK'), action=apply_func),
+            cbutton
+        ),
+    )
