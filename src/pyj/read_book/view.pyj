@@ -8,7 +8,7 @@ from gettext import gettext as _
 import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.globals import get_session_data
-from book_list.theme import color_to_rgba, get_color
+from book_list.theme import cached_color_to_rgba, get_color
 from dom import add_extra_css, build_rule, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
@@ -494,6 +494,8 @@ class View:
 
             m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
+            self.book_scrollbar.apply_color_scheme(ans)
+            self.iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
@@ -586,7 +588,7 @@ class View:
         cs = self.get_color_scheme(True)
         fade = int(sd.get('background_image_fade'))
         if self.iframe.style.backgroundImage is not 'none' and fade > 0:
-            rgba = color_to_rgba(cs.background)
+            rgba = cached_color_to_rgba(cs.background)
             bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
         return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),

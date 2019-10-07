@@ -2,9 +2,11 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import unique_id
 from elementmaker import E
+
 from book_list.globals import get_session_data
+from book_list.theme import cached_color_to_rgba
+from dom import unique_id
 
 
 class BookScrollbar:
@@ -32,7 +34,7 @@ class BookScrollbar:
                 onmousedown=self.on_bob_mousedown,
             ),
             E.div(
-                style='position: absolute; z-index: 30000; width: 100vw; height: 100vh; left: 0; top: 0; display: none;'
+                style='position: absolute; z-index: 2147483647; width: 100vw; height: 100vh; left: 0; top: 0; display: none;'
             )
         )
 
@@ -89,3 +91,19 @@ class BookScrollbar:
         if self.sync_to_contents_timer:
             window.clearTimeout(self.sync_to_contents_timer)
         self.sync_to_contents_timer = window.setTimeout(self.set_position.bind(None, frac), 100)
+
+    def apply_color_scheme(self, colors):
+        fg = cached_color_to_rgba(colors.foreground)
+        bg = cached_color_to_rgba(colors.background)
+
+        def mix(fg, bg, frac):
+            def m(x):  # noqa: unused-local
+                return frac * fg[x] + (1-frac) * bg[x]
+            return v'[m[0], m[1], m[2]]'
+
+        rbg = mix(fg, bg, 0.3)
+        rfg = mix(fg, bg, 0.7)
+
+        c = self.container
+        c.style.backgroundColor = f'rgb({rbg[0]}, {rbg[1]}, {rbg[2]})'
+        c.firstChild.style.backgroundColor = f'rgb({rfg[0]}, {rfg[1]}, {rfg[2]})'
