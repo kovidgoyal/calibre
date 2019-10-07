@@ -140,4 +140,4 @@ class Prefs:
 
 
 def create_prefs_panel(container, close_func, on_change):
-    Prefs(container, close_func, on_change)
+    return Prefs(container, close_func, on_change)
