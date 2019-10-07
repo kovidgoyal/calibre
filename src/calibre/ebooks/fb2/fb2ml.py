@@ -19,7 +19,7 @@ from calibre.constants import __appname__, __version__
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
-from polyglot.builtins import unicode_type, string_or_bytes, range
+from polyglot.builtins import unicode_type, string_or_bytes, range, filter
 from polyglot.binary import as_base64_unicode
 
 
@@ -195,12 +195,12 @@ class FB2MLizer(object):
             from calibre.utils.html2text import html2text
             metadata['comments'] = '<annotation>{}</annotation>'.format(prepare_string_for_xml(html2text(comments.value.strip())))
 
-        return textwrap.dedent('''
+        header = textwrap.dedent('''\
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
                 <description>
                     <title-info>
                         <genre>%(genre)s</genre>
-                            %(author)s
+                        %(author)s
                         <book-title>%(title)s</book-title>
                         %(cover)s
                         <lang>%(lang)s</lang>
@@ -220,7 +220,10 @@ class FB2MLizer(object):
                         %(year)s
                         %(isbn)s
                     </publish-info>
-                </description>\n''') % metadata
+                </description>''') % metadata
+
+        # Remove empty lines.
+        return '\n'.join(filter(unicode_type.strip, header.splitlines())) + '\n'
 
     def fb2_footer(self):
         return '</FictionBook>'
