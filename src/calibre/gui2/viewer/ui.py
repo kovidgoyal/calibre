@@ -70,18 +70,25 @@ class CentralWidget(QWidget):
 
     def __init__(self, web_view, parent):
         QWidget.__init__(self, parent)
+        self._ignore_value_changes = False
         self.web_view = web_view
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0), l.setSpacing(0)
         l.addWidget(web_view)
         self.vertical_scrollbar = vs = ScrollBar(Qt.Vertical, self)
-        vs.sliderMoved[int].connect(self.slider_moved)
+        vs.valueChanged[int].connect(self.value_changed)
         l.addWidget(vs)
         self.current_book_length = None
-        web_view.notify_progress_frac.connect(self.update_scrollbar_positions)
+        web_view.notify_progress_frac.connect(self.update_scrollbar_positions_on_scroll)
         web_view.scrollbar_visibility_changed.connect(self.apply_scrollbar_visibility)
         web_view.overlay_visibility_changed.connect(self.overlay_visibility_changed)
         self.apply_scrollbar_visibility()
+
+    def __enter__(self):
+        self._ignore_value_changes = True
+
+    def __exit__(self, *a):
+        self._ignore_value_changes = False
 
     def apply_scrollbar_visibility(self):
         visible = get_session_pref('standalone_scrollbar', default=False, group=None)
@@ -91,23 +98,26 @@ class CentralWidget(QWidget):
         self.vertical_scrollbar.setEnabled(not visible)
 
     def set_scrollbar_value(self, frac):
-        val = int(self.vertical_scrollbar.maximum() * frac)
-        self.vertical_scrollbar.setValue(val)
+        with self:
+            val = int(self.vertical_scrollbar.maximum() * frac)
+            self.vertical_scrollbar.setValue(val)
 
-    def slider_moved(self, val):
-        frac = val / self.vertical_scrollbar.maximum()
-        self.web_view.goto_frac(frac)
+    def value_changed(self, val):
+        if not self._ignore_value_changes:
+            frac = val / self.vertical_scrollbar.maximum()
+            self.web_view.goto_frac(frac)
 
     def initialize_scrollbars(self, book_length):
-        self.current_book_length = book_length
-        maximum = book_length / 10
-        bar = self.vertical_scrollbar
-        bar.setMinimum(0)
-        bar.setMaximum(maximum)
-        bar.setSingleStep(10)
-        bar.setPageStep(100)
+        with self:
+            self.current_book_length = book_length
+            maximum = book_length / 10
+            bar = self.vertical_scrollbar
+            bar.setMinimum(0)
+            bar.setMaximum(maximum)
+            bar.setSingleStep(10)
+            bar.setPageStep(100)
 
-    def update_scrollbar_positions(self, progress_frac, file_progress_frac, book_length):
+    def update_scrollbar_positions_on_scroll(self, progress_frac, file_progress_frac, book_length):
         if book_length != self.current_book_length:
             self.initialize_scrollbars(book_length)
         if not self.vertical_scrollbar.isSliderDown():
