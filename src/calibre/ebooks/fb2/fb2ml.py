@@ -73,6 +73,8 @@ class FB2MLizer(object):
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + output
 
     def clean_text(self, text):
+        # Remove empty tags.
+        text = re.sub(r'(?miu)<(strong|emphasis|strikethrough|sub|sup)>\s*</\1>', '', text)
         # Condense empty paragraphs into a line break.
         text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line/>', text)
         # Remove empty paragraphs.
