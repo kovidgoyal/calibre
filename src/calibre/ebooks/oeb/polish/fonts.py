@@ -91,7 +91,7 @@ def change_font_in_declaration(style, old_name, new_name=None):
 
 
 def remove_embedded_font(container, sheet, rule, sheet_name):
-    src = getattr(rule.style.getProperty('src'), 'value')
+    src = getattr(rule.style.getProperty('src'), 'value', None)
     if src is not None:
         if src.startswith('url('):
             src = src[4:-1]
