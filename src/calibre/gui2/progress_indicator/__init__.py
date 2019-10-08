@@ -51,20 +51,8 @@ class ProgressSpinner(QWidget):
         self.light = pal.color(pal.Window)
         self.errored_out = False
 
-    @property
-    def animation_interval(self):
-        return self.timer.interval()
-
-    @animation_interval.setter
-    def animation_interval(self, val):
-        self.timer.setInterval(val)
-
     def heightForWidth(self, w):
         return w
-
-    def set_colors(self, dark, light):
-        self.dark, self.light = dark, light
-        self.update()
 
     def start(self):
         self.loading_angle = 0
@@ -78,16 +66,8 @@ class ProgressSpinner(QWidget):
         self.update()
     stopAnimation = stop
 
-    @property
-    def is_animated(self):
-        return self.timer.isActive()
-
-    @is_animated.setter
-    def is_animated(self, val):
-        (self.start if val else self.stop)()
-
     def isAnimated(self):
-        return self.is_animated
+        return self.timer.isActive()
 
     def sizeHint(self):
         return self._size_hint
