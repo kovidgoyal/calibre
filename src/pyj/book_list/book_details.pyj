@@ -282,6 +282,7 @@ def render_metadata(mi, table, book_id):  # {{{
                 a = a[0]
                 a.setAttribute('href', href_for_search(field, val))
                 a.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
+                a.setAttribute('class', 'blue-link')
             else:
                 print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
             table.lastChild.lastChild.appendChild(s)
