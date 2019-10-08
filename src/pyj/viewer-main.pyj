@@ -188,7 +188,7 @@ def create_session_data(prefs):
 
 
 @from_python
-def create_view(prefs, all_font_families, field_metadata, ui_font_family, ui_font_sz):
+def create_view(prefs, all_font_families, field_metadata, ui_font_family, ui_font_sz, show_home_page_on_ready):
     nonlocal view
     runtime.all_font_families = all_font_families
     library_data.field_metadata = field_metadata
@@ -197,7 +197,8 @@ def create_view(prefs, all_font_families, field_metadata, ui_font_family, ui_fon
     if view is None:
         create_session_data(prefs)
         view = View(document.getElementById('view'))
-        view.overlay.open_book(False)
+        if show_home_page_on_ready:
+            view.overlay.open_book(False)
 
 
 @from_python

@@ -385,6 +385,7 @@ class WebView(RestartingWebEngineView):
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
         w = QApplication.instance().desktop().availableGeometry(self).width()
+        self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
@@ -467,7 +468,7 @@ class WebView(RestartingWebEngineView):
         fi = QFontInfo(f)
         self.bridge.create_view(
             vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata(),
-            f.family(), '{}px'.format(fi.pixelSize()))
+            f.family(), '{}px'.format(fi.pixelSize()), self.show_home_page_on_ready)
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
