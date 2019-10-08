@@ -666,6 +666,13 @@ else:
     choose_files, choose_images, choose_dir, choose_save_file
 
 
+def is_dark_theme():
+    pal = QApplication.instance().palette()
+    col = pal.color(pal.Window)
+    h, s, v, a = col.getHsvF()
+    return v < 0.45
+
+
 def choose_osx_app(window, name, title, default_dir='/Applications'):
     fd = FileDialog(title=title, parent=window, name=name, mode=QFileDialog.ExistingFile,
             default_dir=default_dir)

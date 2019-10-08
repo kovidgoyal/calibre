@@ -12,7 +12,7 @@ from PyQt5.Qt import (
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import (
-    css, details_context_menu_event, render_html, set_html
+    themed_css, details_context_menu_event, render_html, set_html
 )
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
@@ -83,7 +83,7 @@ class Details(HTMLDisplay):
     def __init__(self, book_info, parent=None):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
-        self.document().setDefaultStyleSheet(css())
+        self.document().setDefaultStyleSheet(themed_css())
 
     def sizeHint(self):
         return QSize(350, 350)
