@@ -133,7 +133,7 @@ def save_metadata(metadata, f):
     f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
 
 
-def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False):
+def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, prepare_notify=None):
     st = os.stat(path)
     key = book_hash(path, st.st_size, st.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
@@ -155,6 +155,8 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False):
                     instance['atime'] = time.time()
                     save_metadata(metadata, f)
                     return os.path.join(finished_path, instance['path'])
+        if prepare_notify:
+            prepare_notify()
         instance = prepare_convert(temp_path, key, st)
         instances.append(instance)
         save_metadata(metadata, f)

@@ -27,6 +27,7 @@ from calibre.gui2.viewer.annotations import (
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.lookup import Lookup
+from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.web_view import (
     WebView, get_path_for_name, get_session_pref, set_book_path, viewer_config_dir,
@@ -69,11 +70,14 @@ class ScrollBar(QScrollBar):
 class EbookViewer(MainWindow):
 
     msg_from_anotherinstance = pyqtSignal(object)
+    book_preparation_started = pyqtSignal()
     book_prepared = pyqtSignal(object, object)
     MAIN_WINDOW_STATE_VERSION = 1
 
     def __init__(self, open_at=None, continue_reading=None):
         MainWindow.__init__(self, None)
+        connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
+            'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
         self.maximized_at_last_fullscreen = False
         self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
@@ -134,7 +138,10 @@ class EbookViewer(MainWindow):
         self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
         self.web_view.view_image.connect(self.view_image, type=Qt.QueuedConnection)
         self.web_view.copy_image.connect(self.copy_image, type=Qt.QueuedConnection)
+        self.web_view.show_loading_message.connect(self.show_loading_message)
+        self.web_view.show_error.connect(self.show_error)
         self.setCentralWidget(self.web_view)
+        self.loading_overlay = LoadingOverlay(self)
         self.restore_state()
         if continue_reading:
             self.continue_reading()
@@ -142,6 +149,10 @@ class EbookViewer(MainWindow):
     def toggle_inspector(self):
         visible = self.inspector_dock.toggleViewAction().isChecked()
         self.inspector_dock.setVisible(not visible)
+
+    def resizeEvent(self, ev):
+        self.loading_overlay.resize(self.size())
+        return MainWindow.resizeEvent(self, ev)
 
     # IPC {{{
     def handle_commandline_arg(self, arg):
@@ -242,6 +253,16 @@ class EbookViewer(MainWindow):
 
     # Load book {{{
 
+    def show_loading_message(self, msg):
+        if msg:
+            self.loading_overlay(msg)
+        else:
+            self.loading_overlay.hide()
+
+    def show_error(self, title, msg, details):
+        self.loading_overlay.hide()
+        error_dialog(self, title, msg, det_msg=details or None, show=True)
+
     def ask_for_open(self, path=None):
         if path is None:
             files = choose_files(
@@ -263,7 +284,7 @@ class EbookViewer(MainWindow):
         if open_at:
             self.pending_open_at = open_at
         self.setWindowTitle(_('Loading book') + '… — {}'.format(self.base_window_title))
-        self.web_view.show_preparing_message()
+        self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
         self.current_book_data = {}
         t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book))
@@ -276,7 +297,7 @@ class EbookViewer(MainWindow):
 
     def _load_ebook_worker(self, pathtoebook, open_at, reload_book):
         try:
-            ans = prepare_book(pathtoebook, force=reload_book)
+            ans = prepare_book(pathtoebook, force=reload_book, prepare_notify=self.prepare_notify)
         except WorkerError as e:
             self.book_prepared.emit(False, {'exception': e, 'tb': e.orig_tb, 'pathtoebook': pathtoebook})
         except Exception as e:
@@ -284,6 +305,9 @@ class EbookViewer(MainWindow):
             self.book_prepared.emit(False, {'exception': e, 'tb': traceback.format_exc(), 'pathtoebook': pathtoebook})
         else:
             self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at})
+
+    def prepare_notify(self):
+        self.book_preparation_started.emit()
 
     def load_finished(self, ok, data):
         open_at, self.pending_open_at = self.pending_open_at, None

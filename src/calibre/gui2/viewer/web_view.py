@@ -233,9 +233,10 @@ class ViewerBridge(Bridge):
     copy_image = from_js(object)
     change_background_image = from_js(object)
     overlay_visibility_changed = from_js(object)
+    show_loading_message = from_js(object)
+    show_error = from_js(object, object, object)
 
     create_view = to_js()
-    show_preparing_message = to_js()
     start_book_load = to_js()
     goto_toc_node = to_js()
     goto_cfi = to_js()
@@ -295,10 +296,6 @@ class WebPage(QWebEnginePage):
             self.triggerAction(self.Copy)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        if level >= QWebEnginePage.ErrorMessageLevel and source_id == 'userscript:viewer.js':
-            error_dialog(self.parent(), _('Unhandled error'), _(
-                'There was an unhandled error: {} at line: {} of {}').format(
-                    msg, linenumber, source_id.partition(':')[2]), show=True)
         prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
                 level, 'ERROR')
         prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
@@ -376,6 +373,8 @@ class WebView(RestartingWebEngineView):
     view_image = pyqtSignal(object)
     copy_image = pyqtSignal(object)
     overlay_visibility_changed = pyqtSignal(object)
+    show_loading_message = pyqtSignal(object)
+    show_error = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -403,6 +402,8 @@ class WebView(RestartingWebEngineView):
         self.bridge.view_image.connect(self.view_image)
         self.bridge.copy_image.connect(self.copy_image)
         self.bridge.overlay_visibility_changed.connect(self.overlay_visibility_changed)
+        self.bridge.show_loading_message.connect(self.show_loading_message)
+        self.bridge.show_error.connect(self.show_error)
         self.bridge.report_cfi.connect(self.call_callback)
         self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
@@ -479,10 +480,6 @@ class WebView(RestartingWebEngineView):
             getattr(self.bridge, action)(*args)
         else:
             self.pending_bridge_ready_actions[action] = args
-
-    def show_preparing_message(self):
-        msg = _('Preparing book for first read, please wait') + '…'
-        self.execute_when_ready('show_preparing_message', msg)
 
     def goto_toc_node(self, node_id):
         self.execute_when_ready('goto_toc_node', node_id)

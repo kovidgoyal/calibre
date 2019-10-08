@@ -12,7 +12,7 @@ from book_list.globals import set_session_data
 from book_list.library_data import library_data
 from book_list.theme import get_color
 from dom import get_widget_css, set_css
-from modals import create_modal_container, error_dialog
+from modals import create_modal_container
 from qt import from_python, to_python
 from read_book.db import new_book
 from read_book.footnotes import main as footnotes_main
@@ -133,7 +133,7 @@ def on_pop_state():
 
 
 def show_error(title, msg, details):
-    error_dialog(title, msg, details)
+    to_python.show_error(title, msg, details)
 
 
 def manifest_received(key, initial_cfi, initial_toc_node, pathtoebook, end_type, xhr, ev):
@@ -150,7 +150,7 @@ def manifest_received(key, initial_cfi, initial_toc_node, pathtoebook, end_type,
         v'delete book.manifest["last_read_positions"]'
         view.display_book(book, initial_cfi, initial_toc_node)
     else:
-        error_dialog(_('Could not open book'), _(
+        show_error(_('Could not open book'), _(
             'Failed to load book manifest, click "Show details" for more info'),
         xhr.error_html or None)
 
@@ -206,11 +206,6 @@ def show_home_page():
 
 
 @from_python
-def show_preparing_message(msg):
-    view.show_loading_message(msg)
-
-
-@from_python
 def start_book_load(key, initial_cfi, initial_toc_node, pathtoebook):
     xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, initial_toc_node, pathtoebook), ok_code=0)
     xhr.responseType = 'json'
@@ -259,7 +254,7 @@ def onerror(msg, script_url, line_number, column_number, error_object):
     details = ''
     console.log(error_object)
     details = traceback.format_exception(error_object).join('')
-    error_dialog(_('Unhandled error'), msg, details)
+    show_error(_('Unhandled error'), msg, details)
     return True
 
 
@@ -316,6 +311,8 @@ if window is window.top:
         to_python.quit()
     ui_operations.overlay_visibility_changed = def(visible):
         to_python.overlay_visibility_changed(visible)
+    ui_operations.show_loading_message = def(msg):
+        to_python.show_loading_message(msg)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
