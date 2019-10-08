@@ -103,6 +103,10 @@ class FB2MLizer(object):
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line/>', text)
 
+        # Put line breaks between paragraphs on a separate line.
+        text = re.sub(r'(?miu)</(p|title)>\s*<empty-line/>', r'</\1>\n<empty-line/>', text)
+        text = re.sub(r'(?miu)<empty-line/>\s*<p>', '<empty-line/>\n<p>', text)
+
         return text
 
     def fb2_header(self):
