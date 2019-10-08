@@ -22,7 +22,7 @@ class LoadingOverlay(QWidget):
         self.move(0, 0)
         self.angle = 0
         self.timer = t = QTimer(self)
-        t.setInterval(10)
+        t.setInterval(60)
         t.timeout.connect(self.tick)
         f = self.font()
         f.setBold(True)
@@ -32,7 +32,7 @@ class LoadingOverlay(QWidget):
         self.calculate_rects()
 
     def tick(self):
-        self.angle -= 2
+        self.angle -= 6
         self.angle %= 360
         self.update()
 
@@ -43,6 +43,7 @@ class LoadingOverlay(QWidget):
         self.setVisible(True)
         self.raise_()
         self.setFocus(Qt.OtherFocusReason)
+        self.update()
 
     def hide(self):
         self.parent().web_view.setFocus(Qt.OtherFocusReason)
