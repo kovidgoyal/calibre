@@ -204,13 +204,13 @@ SHORTCUTS = {
     ),
 
     'increase_font_size': desc(
-        v"['Ctrl+=', 'Ctrl++', 'Ctrl+Shift++', 'Ctrl+Shift+=']",
+        v"['Ctrl+=', 'Ctrl++', 'Ctrl+Shift++', 'Ctrl+Shift+=', 'Meta++', 'Meta+Shift++', 'Meta+Shift+=']",
         'ui',
         _('Increase font size'),
     ),
 
     'decrease_font_size': desc(
-        v"['Ctrl+-', 'Ctrl+_', 'Ctrl+Shift+-', 'Ctrl+Shift+_']",
+        v"['Ctrl+-', 'Ctrl+_', 'Ctrl+Shift+-', 'Ctrl+Shift+_', 'Meta+-', 'Meta+_']",
         'ui',
         _('Decrease font size'),
     ),
