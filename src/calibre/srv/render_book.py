@@ -437,7 +437,9 @@ class Container(ContainerBase):
                 changed.add(name)
                 xlink = XLINK('href')
                 for elem in xlink_xpath(self.parsed(name)):
-                    elem.set(xlink, link_replacer(name, elem.get(xlink)))
+                    href = elem.get(xlink)
+                    if not href.startswith('#'):
+                        elem.set(xlink, link_replacer(name, href))
 
         for name, amap in iteritems(ltm):
             for k, v in tuple(iteritems(amap)):
