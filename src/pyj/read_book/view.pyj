@@ -447,7 +447,7 @@ class View:
                 # margin goes off the screen.
                 m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(margin_left + margin_right)
             set_css(m, width=val + 'px')
-            val = min(val, 75)
+            val = min(val, 25)
             m.firstChild.style.width = val + 'px'
             m.firstChild.style.height = val + 'px'
         side_margin('left', margin_left), side_margin('right', margin_right)
