@@ -85,12 +85,19 @@ class FB2MLizer(object):
         # Put the paragraph following a paragraph on a separate line.
         text = re.sub(r'(?mu)</p>\s*<p>', '</p>\n<p>', text)
 
+        if self.opts.insert_blank_line:
+            text = re.sub(r'(?mu)</p>', '</p><empty-line/>', text)
+
         # Clean up title endings.
         text = re.sub(r'(?mu)\s+</title>', '</title>', text)
         # Remove empty title elements.
         text = re.sub(r'(?mu)<title></title>\s*', '', text)
         # Put the paragraph following a title on a separate line.
         text = re.sub(r'(?mu)</title>\s*<p>', '</title>\n<p>', text)
+
+        # Put line breaks between paragraphs on a separate line.
+        text = re.sub(r'(?mu)</(p|title)>\s*<empty-line/>', r'</\1>\n<empty-line/>', text)
+        text = re.sub(r'(?mu)<empty-line/>\s*<p>', '<empty-line/>\n<p>', text)
 
         # Remove empty sections.
         text = re.sub(r'(?mu)<section>\s*</section>', '', text)
@@ -99,15 +106,6 @@ class FB2MLizer(object):
         text = re.sub(r'(?mu)<section>\s*', '<section>\n', text)
         text = re.sub(r'(?mu)\s*</section>', '\n</section>', text)
         text = re.sub(r'(?mu)</section>\s*', '</section>\n', text)
-        # Put the section following a section on a separate line.
-        text = re.sub(r'(?mu)</section>\s*<section>', '</section>\n<section>', text)
-
-        if self.opts.insert_blank_line:
-            text = re.sub(r'(?mu)</p>', '</p><empty-line/>', text)
-
-        # Put line breaks between paragraphs on a separate line.
-        text = re.sub(r'(?mu)</(p|title)>\s*<empty-line/>', r'</\1>\n<empty-line/>', text)
-        text = re.sub(r'(?mu)<empty-line/>\s*<p>', '<empty-line/>\n<p>', text)
 
         return text
 
