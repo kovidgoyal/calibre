@@ -200,32 +200,33 @@ class FB2MLizer(object):
             from calibre.utils.html2text import html2text
             metadata['comments'] = '<annotation><p>{}</p></annotation>'.format(prepare_string_for_xml(html2text(comments.value).strip()))
 
+        # Keep the indentation level of the description the same as the body.
         header = textwrap.dedent('''\
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
-                <description>
-                    <title-info>
-                        <genre>%(genre)s</genre>
-                        %(author)s
-                        <book-title>%(title)s</book-title>
-                        %(cover)s
-                        <lang>%(lang)s</lang>
-                        %(keywords)s
-                        %(sequence)s
-                        %(comments)s
-                    </title-info>
-                    <document-info>
-                        %(author)s
-                        <program-used>%(appname)s %(version)s</program-used>
-                        <date>%(date)s</date>
-                        <id>%(id)s</id>
-                        <version>1.0</version>
-                    </document-info>
-                    <publish-info>
-                        %(publisher)s
-                        %(year)s
-                        %(isbn)s
-                    </publish-info>
-                </description>''') % metadata
+            <description>
+                <title-info>
+                    <genre>%(genre)s</genre>
+                    %(author)s
+                    <book-title>%(title)s</book-title>
+                    %(cover)s
+                    <lang>%(lang)s</lang>
+                    %(keywords)s
+                    %(sequence)s
+                    %(comments)s
+                </title-info>
+                <document-info>
+                    %(author)s
+                    <program-used>%(appname)s %(version)s</program-used>
+                    <date>%(date)s</date>
+                    <id>%(id)s</id>
+                    <version>1.0</version>
+                </document-info>
+                <publish-info>
+                    %(publisher)s
+                    %(year)s
+                    %(isbn)s
+                </publish-info>
+            </description>''') % metadata
 
         # Remove empty lines.
         return '\n'.join(filter(unicode_type.strip, header.splitlines()))
