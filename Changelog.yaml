@@ -5,7 +5,7 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# - version: 3.?.?
+# - version: 4.?.?
 #   date: 2019-??-??
 #
 #   new features:
@@ -19,6 +19,77 @@
 #
 #   new recipes:
 #     - title:
+
+- version: 4.1.0
+  date: 2019-10-07
+
+  new features:
+    - title: "Viewer: Add an option to have a scrollbar (under Scrolling in the viewer preferences)"
+
+    - title: "Viewer: Allow showing the 'position in book', as was displayed in the top left of the viewer in calibre 3, in the header or footer of the viewer."
+      tickets: [1846700]
+
+    - title: "Viewer: Add options to control scrolling using the mouse in paged mode."
+      tickets: [1846800]
+
+    - title: "Viewer: Allow copying images by right clicking on them."
+      tickets: [1846903]
+
+    - title: "Viewer: Add a preference under Miscellaneous to allow only a single instance of the viewer"
+
+    - title: "Viewer: Add keyboard shortcuts to toggle between paged mode and flow mode and to quit"
+
+    - title: "Content server: Make the book size useable in custom book list templates."
+      tickets: [1846839]
+
+    - title: "Edit metadata: Use a border rather than background color to indicate correct title and author sort values. Works better with dark themes."
+      tickets: [1846967]
+
+    - title: "Kobo driver: Support for new firmware"
+
+  bug fixes:
+    - title: "Viewer: Fix a couple of bugs in flow mode. Scrolling to anchors was not working and remembering last read position was not working"
+
+    - title: "Viewer: Fix text after comments not being rendered. Note that the book has to be reloaded if already viewed for the fix to apply."
+      tickets: [1846875]
+
+    - title: "Viewer: Fix loading progress screen sometimes getting stuck if changing pages rapidly."
+      tickets: [1846751]
+
+    - title: "Viewer: Fix failing to open books if path to cache contains symbolic links."
+      tickets: [1846834]
+
+    - title: "Viewer: When restoring from fullscreen go back to maximized state if window was maximized when entering full screen."
+      tickets: [1846753]
+
+    - title: "Viewer: Fix shortcut changes not being applied after pressing OK if shortcut list is closed by pressing Esc."
+      tickets: [1846765]
+
+    - title: "Fix a regression that broke reading metadata from ODT files that do not have keywords."
+      tickets: [1846828]
+
+    - title: "PDF Output: Fix a bug that prevented the first style property in the header or footer template from being applied"
+
+    - title: "PDF Output: Fix error with a few embedded TTF fonts."
+      tickets: [1846982]
+
+    - title: "Edit book: Font manager: Fix removing embedded font failing if @font-face rule has no src."
+      tickets: [1847052]
+
+    - title: "Viewer: Hide the browser provided scrollbar that flashes momentarily on page load."
+      tickets: [1846922]
+
+    - title: "Viewer: Fix clicking on margins causing keyboard shortcuts to not work until the main text is clicked on again"
+
+    - title: "Comments editor: Workaround for Qt converting ids into anchors"
+
+    - title: "Possible workaround for some windows machines where the viewer is getting access denied errors while renaming a directory"
+
+    - title: "Viewer: When there is empty text for an header footer section render it as blank instead of moving the remaining sections to the left"
+
+  improved recipes:
+    - Fortune Magazine
+
 
 - version: 4.0.0
   date: 2019-10-04
