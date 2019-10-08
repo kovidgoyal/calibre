@@ -76,27 +76,28 @@ class FB2MLizer(object):
         # Remove pointless tags, but keep their contents.
         text = re.sub(r'(?miu)<(strong|emphasis|strikethrough|sub|sup)>(\s*)</\1>', r'\2', text)
 
+        # Clean up paragraphs endings.
+        text = re.sub(r'(?miu)\s+</p>', '</p>', text)
         # Condense empty paragraphs into a line break.
-        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line/>', text)
+        text = re.sub(r'(?miu)(?:<p></p>\s*){3,}', '<empty-line/>', text)
         # Remove empty paragraphs.
-        text = re.sub(r'(?miu)<p>\s*</p>', '', text)
-        # Clean up pargraph endings.
-        text = re.sub(r'(?miu)\s*</p>', '</p>', text)
-        # Put paragraphs following a paragraph on a separate line.
+        text = re.sub(r'(?miu)<p></p>', '', text)
+        # Put the paragraph following a paragraph on a separate line.
         text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n<p>', text)
 
-        # Remove empty title elements.
-        text = re.sub(r'(?miu)<title>\s*</title>', '', text)
+        # Clean up title endings.
         text = re.sub(r'(?miu)\s+</title>', '</title>', text)
+        # Remove empty title elements.
+        text = re.sub(r'(?miu)<title></title>', '', text)
+        # Put the paragraph following a title on a separate line.
+        text = re.sub(r'(?miu)</title>\s*<p>', '</title>\n<p>', text)
 
         # Remove empty sections.
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
-        # Clean up sections start and ends.
-        text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
-        text = re.sub(r'(?miu)</section>\s*', '</section>\n', text)
-        text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
-        text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
-        # Put sectnions followed by sections on a separate line.
+        # Clean up sections starts and ends.
+        text = re.sub(r'(?miu)\s*<section>\s*', '\n<section>\n', text)
+        text = re.sub(r'(?miu)\s*</section>\s*', '\n</section>\n', text)
+        # Put the section following a section on a separate line.
         text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n<section>', text)
 
         if self.opts.insert_blank_line:
