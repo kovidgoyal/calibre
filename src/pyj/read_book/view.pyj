@@ -215,6 +215,7 @@ class View:
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {}
+        self.book_scrollbar.apply_visibility()
 
     @property
     def iframe(self):
