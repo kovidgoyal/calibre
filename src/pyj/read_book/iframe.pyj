@@ -45,6 +45,10 @@ CALIBRE_VERSION = '__CALIBRE_VERSION__'
 ERS_SUPPORTED_FEATURES = {'dom-manipulation', 'layout-changes', 'touch-events', 'mouse-events', 'keyboard-events', 'spine-scripting'}
 
 
+def layout_style():
+    return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
+
+
 class EPUBReadingSystem:
 
     @property
@@ -57,7 +61,7 @@ class EPUBReadingSystem:
 
     @property
     def layoutStyle(self):
-        return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
+        return layout_style()
 
     def hasFeature(self, feature, version):
         return feature in ERS_SUPPORTED_FEATURES
@@ -251,7 +255,7 @@ class IframeBoss:
         document.documentElement.style.overflow = 'hidden'
         if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
             document.body.classList.add('cover-fill')
-        document.body.classList.add(f'calibre-viewer-{window.navigator.epubReadingSystem.layoutStyle}')
+        document.body.classList.add(f'calibre-viewer-{layout_style()}')
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
         self.fix_fullscreen_svg_images()
