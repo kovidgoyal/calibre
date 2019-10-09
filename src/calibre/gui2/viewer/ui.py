@@ -19,6 +19,7 @@ from PyQt5.Qt import (
 from calibre import prints
 from calibre.customize.ui import available_input_formats
 from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
@@ -320,9 +321,14 @@ class EbookViewer(MainWindow):
         open_at, self.pending_open_at = self.pending_open_at, None
         if not ok:
             self.setWindowTitle(self.base_window_title)
-            error_dialog(self, _('Loading book failed'), _(
-                'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
-                det_msg=data['tb'], show=True)
+            tb = data['tb']
+            last_line = tuple(tb.strip().splitlines())[-1]
+            if last_line.startswith('calibre.ebooks.DRMError'):
+                DRMErrorMessage(self).exec_()
+            else:
+                error_dialog(self, _('Loading book failed'), _(
+                    'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
+                    det_msg=data['tb'], show=True)
             self.web_view.show_home_page()
             return
         set_book_path(data['base'], data['pathtoebook'])
