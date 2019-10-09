@@ -144,14 +144,14 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos):
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
     text = ''
     has_clock = False
     if field is 'progress':
-        percent = min(100, max(Math.round(progress_frac * 100), 0))
+        percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
     elif field is 'title':
         text = metadata.title or _('Untitled')
@@ -182,9 +182,9 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
                 text = '{} ({})'.format(format_time_left(chapter_time), format_time_left(book_time))
     elif field.startswith('pos-'):
         if field is 'pos-book':
-            text = format_pos(pos.current_progress_frac, pos.book_length)
+            text = format_pos(pos.progress_frac, pos.book_length)
         else:
-            text = format_pos(pos.current_file_progress_frac, pos.chapter_length)
+            text = format_pos(pos.file_progress_frac, pos.chapter_length)
     if not text:
         text = '\xa0'
     if text is not div.textContent:

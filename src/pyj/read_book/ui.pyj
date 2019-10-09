@@ -66,6 +66,7 @@ class ReadUI:
         ui_operations.update_color_scheme = self.update_color_scheme.bind(self)
         ui_operations.update_font_size = self.update_font_size.bind(self)
         ui_operations.goto_bookpos = self.goto_bookpos.bind(self)
+        ui_operations.goto_frac = self.goto_frac.bind(self)
         ui_operations.delete_book = self.delete_book.bind(self)
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
@@ -161,6 +162,9 @@ class ReadUI:
 
     def goto_bookpos(self, bookpos):
         return self.view.goto_bookpos(bookpos)
+
+    def goto_frac(self, frac):
+        return self.view.goto_frac(frac)
 
     def delete_book(self, book, proceed):
         self.db.delete_book(book, proceed)

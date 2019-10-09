@@ -777,19 +777,29 @@ class View:
                         print('Failed to update last read position, AJAX call did not succeed')
             )
 
-    def update_header_footer(self):
-        sd = get_session_data()
-        has_clock = False
-
+    @property
+    def current_position_data(self):
         if self.book?.manifest:
             book_length = self.book.manifest.spine_length or 0
             name = self.currently_showing.name
             chapter_length = self.book.manifest.files[name]?.length or 0
         else:
             book_length = chapter_length = 0
-        pos = {'current_progress_frac': self.current_progress_frac, 'book_length': book_length, 'chapter_length': chapter_length, 'current_file_progress_frac': self.current_file_progress_frac}
-        book_length *= max(0, 1 - self.current_progress_frac)
-        chapter_length *=  max(0, 1 - self.current_file_progress_frac)
+        pos = {
+            'progress_frac': self.current_progress_frac,
+            'book_length': book_length, 'chapter_length': chapter_length,
+            'file_progress_frac': self.current_file_progress_frac,
+            'cfi': self.currently_showing?.bookpos
+        }
+        return pos
+
+    def update_header_footer(self):
+        sd = get_session_data()
+        has_clock = False
+        pos = self.current_position_data
+
+        book_length = pos.book_length * max(0, 1 - pos.progress_frac)
+        chapter_length =  pos.chapter_length * max(0, 1 - pos.file_progress_frac)
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
 
@@ -797,9 +807,9 @@ class View:
             nonlocal has_clock
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                texta, hca = render_head_foot(div.firstChild, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                textc, hcc = render_head_foot(div.lastChild, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 has_clock = hca or hcb or hcc
                 if textc and not textb and not texta:
                     # Want right-aligned
