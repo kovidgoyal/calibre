@@ -329,6 +329,7 @@ class EbookViewer(MainWindow):
                 error_dialog(self, _('Loading book failed'), _(
                     'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
                     det_msg=data['tb'], show=True)
+            self.loading_overlay.hide()
             self.web_view.show_home_page()
             return
         set_book_path(data['base'], data['pathtoebook'])
