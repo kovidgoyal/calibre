@@ -142,6 +142,7 @@ class EbookViewer(MainWindow):
         self.web_view.copy_image.connect(self.copy_image, type=Qt.QueuedConnection)
         self.web_view.show_loading_message.connect(self.show_loading_message)
         self.web_view.show_error.connect(self.show_error)
+        self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()
@@ -269,6 +270,10 @@ class EbookViewer(MainWindow):
     def show_error(self, title, msg, details):
         self.loading_overlay.hide()
         error_dialog(self, title, msg, det_msg=details or None, show=True)
+
+    def print_book(self):
+        from .printing import print_book
+        print_book(set_book_path.pathtoebook, book_title=self.current_book_data['metadata']['title'], parent=self)
 
     def ask_for_open(self, path=None):
         if path is None:

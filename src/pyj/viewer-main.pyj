@@ -318,6 +318,8 @@ if window is window.top:
         to_python.show_loading_message(msg)
     ui_operations.export_shortcut_map = def(smap):
         to_python.export_shortcut_map(smap)
+    ui_operations.print_book = def():
+        to_python.print_book()
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

@@ -276,6 +276,8 @@ class MainOverlay:  # {{{
             text = _('Exit full screen') if runtime.viewer_in_full_screen else _('Enter full screen')
             full_screen_actions.push(
                 ac(text, '', def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen'))
+            full_screen_actions.push(
+                ac(_('Print'), _('Print book to PDF'), def(): self.overlay.hide(), ui_operations.print_book();, 'print'))
         else:
             if not full_screen_element() and not is_ios:
                 # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen

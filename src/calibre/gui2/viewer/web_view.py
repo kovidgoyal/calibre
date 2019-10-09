@@ -236,6 +236,7 @@ class ViewerBridge(Bridge):
     show_loading_message = from_js(object)
     show_error = from_js(object, object, object)
     export_shortcut_map = from_js(object)
+    print_book = from_js()
 
     create_view = to_js()
     start_book_load = to_js()
@@ -376,6 +377,7 @@ class WebView(RestartingWebEngineView):
     overlay_visibility_changed = pyqtSignal(object)
     show_loading_message = pyqtSignal(object)
     show_error = pyqtSignal(object, object, object)
+    print_book = pyqtSignal()
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -406,6 +408,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.overlay_visibility_changed.connect(self.overlay_visibility_changed)
         self.bridge.show_loading_message.connect(self.show_loading_message)
         self.bridge.show_error.connect(self.show_error)
+        self.bridge.print_book.connect(self.print_book)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
