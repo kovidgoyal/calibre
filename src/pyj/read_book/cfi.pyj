@@ -311,6 +311,7 @@ def decode(cfi, doc): # {{{
         print(point.error)
 
     return point
+# }}}
 
 def cfi_sort_key(cfi): # {{{
     simple_node_regex = ///
