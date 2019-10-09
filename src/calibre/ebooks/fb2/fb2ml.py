@@ -21,12 +21,13 @@ from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
 from polyglot.builtins import unicode_type, string_or_bytes, range, filter
 from polyglot.binary import as_base64_unicode
+from polyglot.urllib import urlparse
 
 
 class FB2MLizer(object):
     '''
     Todo: * Include more FB2 specific tags in the conversion.
-          * Handle a tags.
+          * Handle notes and anchor links.
     '''
 
     def __init__(self, log):
@@ -508,6 +509,14 @@ class FB2MLizer(object):
             fb2_out += p_text
             if added_p:
                 tags.append('p')
+        if tag == 'a' and elem_tree.attrib.get('href', None):
+            # Handle only external links for now
+            if urlparse(elem_tree.attrib['href']).netloc:
+                p_txt, p_tag = self.ensure_p()
+                fb2_out += p_txt
+                tags += p_tag
+                fb2_out.append('<a l:href="%s">' % urlnormalize(elem_tree.attrib['href']))
+                tags.append('a')
         if tag == 'b' or style['font-weight'] in ('bold', 'bolder'):
             s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
             fb2_out += s_out
