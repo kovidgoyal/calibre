@@ -54,8 +54,12 @@ develop = create_scrolling_panel
 def commit_scrolling(onchange):
     sd = get_session_data()
     container = get_container()
+    changed = False
     for control in container.querySelectorAll('input[name]'):
         name = control.getAttribute('name')
         val = control.checked
-        sd.set(name, None if val is defaults[name] else val)
-    onchange()
+        if val is not sd.get(name):
+            sd.set(name, val)
+            changed = True
+    if changed:
+        onchange()
