@@ -103,9 +103,12 @@ def create_user_stylesheet_panel(container, apply_func, cancel_func):
                     _('A CSS style sheet that can be used to control the look and feel of the text. For examples, click'), ' ',
                     E.a(class_='blue-link', title=_("Examples of user style sheets"),
                         target=('_self' if runtime.is_standalone_viewer else '_blank'),
-                        href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here'))
+                        href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here.')),
+                    ' ', _(
+                        'Note that you can use the selectors body.calibre-viewer-paginated and body.calibre-viewer-scrolling'
+                        ' to target the Paged and Flow modes.')
                 ),
-                E.textarea(name='user-stylesheet', style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10')
+                E.textarea(name='user-stylesheet', style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10'),
             )
         )
     )

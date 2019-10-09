@@ -251,6 +251,7 @@ class IframeBoss:
         document.documentElement.style.overflow = 'hidden'
         if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
             document.body.classList.add('cover-fill')
+        document.body.classList.add(f'calibre-viewer-{window.navigator.epubReadingSystem.layoutStyle}')
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
         self.fix_fullscreen_svg_images()
