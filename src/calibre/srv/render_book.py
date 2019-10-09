@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
 from calibre.ebooks.oeb.polish.css import transform_css
-from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
+from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.srv.metadata import encode_datetime
 from calibre.utils.date import EPOCH
@@ -220,7 +220,10 @@ class Container(ContainerBase):
             name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
             name == 'mimetype' or not self.has_name_and_is_not_empty(name)}
         raster_cover_name, titlepage_name = self.create_cover_page(input_fmt.lower())
+
         toc = get_toc(self).to_dict(count())
+        if not toc or not toc.get('children'):
+            toc = from_xpaths(self, ['//h:h1', '//h:h2', '//h:h3']).to_dict(count())
         spine = [name for name, is_linear in self.spine_names]
         spineq = frozenset(spine)
         landmarks = [l for l in get_landmarks(self) if l['dest'] in spineq]
