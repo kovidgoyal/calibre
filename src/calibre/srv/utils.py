@@ -48,8 +48,10 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
+        if ispy3:
+            qs = as_unicode(qs)
         for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
-            dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
+            dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
     def update_from_listdict(self, ld):
