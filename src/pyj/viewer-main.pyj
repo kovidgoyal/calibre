@@ -316,6 +316,8 @@ if window is window.top:
         to_python.overlay_visibility_changed(visible)
     ui_operations.show_loading_message = def(msg):
         to_python.show_loading_message(msg)
+    ui_operations.export_shortcut_map = def(smap):
+        to_python.export_shortcut_map(smap)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

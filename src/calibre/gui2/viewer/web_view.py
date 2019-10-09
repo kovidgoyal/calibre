@@ -235,6 +235,7 @@ class ViewerBridge(Bridge):
     overlay_visibility_changed = from_js(object)
     show_loading_message = from_js(object)
     show_error = from_js(object, object, object)
+    export_shortcut_map = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -405,6 +406,8 @@ class WebView(RestartingWebEngineView):
         self.bridge.overlay_visibility_changed.connect(self.overlay_visibility_changed)
         self.bridge.show_loading_message.connect(self.show_loading_message)
         self.bridge.show_error.connect(self.show_error)
+        self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
+        self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
         self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
@@ -415,6 +418,9 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    def set_shortcut_map(self, smap):
+        self.shortcut_map = smap
 
     def url_changed(self, url):
         if url.hasFragment():

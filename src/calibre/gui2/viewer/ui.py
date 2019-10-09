@@ -120,8 +120,9 @@ class EbookViewer(MainWindow):
         connect_lambda(
             w.create_requested, self,
             lambda self: self.web_view.get_current_cfi(self.bookmarks_widget.create_new_bookmark))
-        self.bookmarks_widget.edited.connect(self.bookmarks_edited)
-        self.bookmarks_widget.activated.connect(self.bookmark_activated)
+        w.edited.connect(self.bookmarks_edited)
+        w.activated.connect(self.bookmark_activated)
+        w.toggle_requested.connect(self.toggle_bookmarks)
         self.bookmarks_dock.setWidget(w)
 
         self.web_view = WebView(self)
@@ -200,7 +201,12 @@ class EbookViewer(MainWindow):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
 
     def toggle_bookmarks(self):
-        self.bookmarks_dock.setVisible(not self.bookmarks_dock.isVisible())
+        is_visible = self.bookmarks_dock.isVisible()
+        self.bookmarks_dock.setVisible(not is_visible)
+        if is_visible:
+            self.web_view.setFocus(Qt.OtherFocusReason)
+        else:
+            self.bookmarks_widget.bookmarks_list.setFocus(Qt.OtherFocusReason)
 
     def toggle_lookup(self):
         self.lookup_dock.setVisible(not self.lookup_dock.isVisible())

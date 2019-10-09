@@ -13,6 +13,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import choose_files, choose_save_file
 from calibre.gui2.viewer.annotations import serialize_annotation
+from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.srv.render_book import parse_annotation
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import sort_key
@@ -69,6 +70,7 @@ class BookmarkManager(QWidget):
     edited = pyqtSignal(object)
     activated = pyqtSignal(object)
     create_requested = pyqtSignal()
+    toggle_requested = pyqtSignal()
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -102,7 +104,7 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
-        self.button_delete = b = QPushButton(_('Sort by &name'), self)
+        self.button_delete = b = QPushButton(_('Sort by na&me'), self)
         b.setToolTip(_('Sort bookmarks by name'))
         b.clicked.connect(self.sort_by_name)
         l.addWidget(b)
@@ -281,3 +283,9 @@ class BookmarkManager(QWidget):
         self.set_bookmarks(bookmarks)
         self.set_current_bookmark(bm)
         self.edited.emit(bookmarks)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Escape or get_shortcut_for(self, ev) == 'toggle_bookmarks':
+            self.toggle_requested.emit()
+            return
+        return QWidget.keyPressEvent(self, ev)
