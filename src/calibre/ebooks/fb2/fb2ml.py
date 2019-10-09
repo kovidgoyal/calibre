@@ -471,19 +471,18 @@ class FB2MLizer(object):
         # Process the XHTML tag and styles. Converted to an FB2 tag.
         # Use individual if statement not if else. There can be
         # only one XHTML tag but it can have multiple styles.
-        if tag == 'img':
-            if elem_tree.attrib.get('src', None):
-                # Only write the image tag if it is in the manifest.
-                ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
-                if ihref in self.oeb_book.manifest.hrefs:
-                    if ihref not in self.image_hrefs:
-                        self.image_hrefs[ihref] = 'img_%s' % len(self.image_hrefs)
-                    p_txt, p_tag = self.ensure_p()
-                    fb2_out += p_txt
-                    tags += p_tag
-                    fb2_out.append('<image l:href="#%s"/>' % self.image_hrefs[ihref])
-                else:
-                    self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
+        if tag == 'img' and elem_tree.attrib.get('src', None):
+            # Only write the image tag if it is in the manifest.
+            ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
+            if ihref in self.oeb_book.manifest.hrefs:
+                if ihref not in self.image_hrefs:
+                    self.image_hrefs[ihref] = 'img_%s' % len(self.image_hrefs)
+                p_txt, p_tag = self.ensure_p()
+                fb2_out += p_txt
+                tags += p_tag
+                fb2_out.append('<image l:href="#%s"/>' % self.image_hrefs[ihref])
+            else:
+                self.log.warn(u'Ignoring image not in manifest: %s' % ihref)
         if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1
