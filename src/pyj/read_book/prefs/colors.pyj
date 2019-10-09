@@ -56,14 +56,14 @@ def change_current_color(ev):
     set_action_button_visibility(ul.parentNode)
 
 def new_color_scheme(ev):
-    container = get_container()
-    container.lastChild.style.display = 'block'
-    for inp in container.lastChild.querySelectorAll('input'):
+    container = document.getElementById(EDIT_SCHEME)
+    container.style.display = 'block'
+    for inp in container.querySelectorAll('input'):
         if inp.name is 'link_color_type':
             inp.checked = inp.value is 'default'
         else:
             inp.value = {'name':'', 'bg':'#ffffff', 'fg':'#000000', 'link': '#0000ee'}[inp.name]
-    container.lastChild.querySelector('input').focus()
+    container.querySelector('input').focus()
     return container
 
 def edit_color_scheme(ev):
