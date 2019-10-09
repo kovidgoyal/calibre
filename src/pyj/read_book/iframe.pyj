@@ -6,7 +6,7 @@ import traceback
 from gettext import gettext as _
 
 from iframe_comm import IframeClient
-from read_book.cfi import at_current, scroll_to as scroll_to_cfi
+from read_book.cfi import scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, flow_onwheel, flow_to_scroll_fraction,
@@ -20,7 +20,7 @@ from read_book.globals import (
 )
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    anchor_funcs as paged_anchor_funcs, calc_columns_per_screen,
+    anchor_funcs as paged_anchor_funcs, calc_columns_per_screen, current_cfi,
     handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
     jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
     onwheel as paged_onwheel, progress_frac, reset_paged_mode_globals,
@@ -305,7 +305,7 @@ class IframeBoss:
         return ans
 
     def get_current_cfi(self, data):
-        cfi = at_current()
+        cfi = current_cfi()
         selected_text = window.getSelection().toString()
         if cfi:
             spine = self.book.manifest.spine
@@ -321,7 +321,7 @@ class IframeBoss:
             'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, selected_text=selected_text, request_id=data.request_id)
 
     def update_cfi(self):
-        cfi = at_current()
+        cfi = current_cfi()
         if cfi:
             spine = self.book.manifest.spine
             current_name = current_spine_item().name
