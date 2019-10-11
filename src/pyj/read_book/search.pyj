@@ -80,7 +80,8 @@ class SearchOverlay:
     def show(self):
         c = self.container
         c.style.display = 'block'
-        c.querySelector('input').focus()
+        inp = c.querySelector('input')
+        inp.focus(), inp.select()
 
     def find(self, text, backwards):
         if not text:
