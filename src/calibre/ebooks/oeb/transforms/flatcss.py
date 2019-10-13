@@ -475,9 +475,10 @@ class CSSFlattener(object):
 
         try:
             minlh = self.context.minimum_line_height / 100.
-            if not is_drop_cap and style['line-height'] < minlh * fsize:
+            slh = style['line-height']
+            if not is_drop_cap and isinstance(slh, numbers.Number) and slh < minlh * fsize:
                 cssdict['line-height'] = unicode_type(minlh)
-        except:
+        except Exception:
             self.oeb.logger.exception('Failed to set minimum line-height')
 
         if cssdict:

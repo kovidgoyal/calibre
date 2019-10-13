@@ -240,7 +240,7 @@ def split_string_separator(txt, size):
     '''
     Splits the text by putting \n\n at the point size.
     '''
-    if len(txt) > size:
+    if len(txt) > size and size > 2:
         size -= 2
         txt = []
         for part in (txt[i * size: (i + 1) * size] for i in range(0, len(txt), size)):
