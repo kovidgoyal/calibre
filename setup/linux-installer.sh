@@ -686,19 +686,24 @@ def extract_tarball(raw, destdir):
             raise SystemExit(1)
 
 
-def get_tarball_info():
+def get_tarball_info(version):
     global signature, calibre_version
     print ('Downloading tarball signature securely...')
-    raw = get_https_resource_securely(
-            'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
-    signature, calibre_version = raw.rpartition(b'@')[::2]
+    if version:
+        signature = get_https_resource_securely(
+                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz.sha512')
+        calibre_version = version
+    else:
+        raw = get_https_resource_securely(
+                'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
+        signature, calibre_version = raw.rpartition(b'@')[::2]
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
     calibre_version = calibre_version.decode('utf-8')
 
 
-def download_and_extract(destdir):
-    get_tarball_info()
+def download_and_extract(destdir, version):
+    get_tarball_info(version)
     raw = download_tarball()
 
     if os.path.exists(destdir):
@@ -715,7 +720,7 @@ def check_version():
         calibre_version = urlopen('http://code.calibre-ebook.com/latest').read()
 
 
-def run_installer(install_dir, isolated, bin_dir, share_dir):
+def run_installer(install_dir, isolated, bin_dir, share_dir, version):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
         prints(destdir, 'is not a valid install location. Choose', end='')
@@ -728,7 +733,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
             return 1
     print('Installing to', destdir)
 
-    download_and_extract(destdir)
+    download_and_extract(destdir, version)
 
     if not isolated:
         pi = [os.path.join(destdir, 'calibre_postinstall')]
@@ -776,7 +781,7 @@ def check_umask():
             raise SystemExit('The system umask is unsuitable, aborting')
 
 
-def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False, version=None):
     if not ignore_umask and not isolated:
         check_umask()
     machine = os.uname()[4]
@@ -785,7 +790,7 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             'You are running on an ARM system. The calibre binaries are only'
             ' available for x86 systems. You will have to compile from'
             ' source.')
-    run_installer(install_dir, isolated, bin_dir, share_dir)
+    run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
 try:
@@ -797,7 +802,8 @@ except NameError:
 
 def update_intaller_wrapper():
     # To run: python3 -c "import runpy; runpy.run_path('setup/linux-installer.py', run_name='update_wrapper')"
-    src = open(__file__, 'rb').read().decode('utf-8')
+    with open(__file__, 'rb') as f:
+        src = f.read().decode('utf-8')
     wrapper = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'linux-installer.sh')
     with open(wrapper, 'r+b') as f:
         raw = f.read().decode('utf-8')
@@ -815,7 +821,7 @@ def script_launch():
     def to_bool(x):
         return x.lower() in ('y', 'yes', '1', 'true')
 
-    type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask'.split()}
+    type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask version'.split()}
     type_map['isolated'] = type_map['ignore_umask'] = to_bool
     kwargs = {}
 
