@@ -11,13 +11,11 @@ import ssl, socket, stat
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
-DLURL = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
-DLURL = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', DLURL)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
 if enc.lower() == 'ascii':
     enc = 'utf-8'
-calibre_version = signature = None
+dl_url = calibre_version = signature = None
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
 if py3:
@@ -286,7 +284,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urlopen(DLURL)
+    rq = urlopen(dl_url)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
@@ -638,18 +636,21 @@ def extract_tarball(raw, destdir):
 
 
 def get_tarball_info(version):
-    global signature, calibre_version
+    global dl_url, signature, calibre_version
     print ('Downloading tarball signature securely...')
     if version:
         signature = get_https_resource_securely(
                 'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz.sha512')
         calibre_version = version
+        dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz'
     else:
         raw = get_https_resource_securely(
                 'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
         signature, calibre_version = raw.rpartition(b'@')[::2]
+        dl_url = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
+    dl_url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', dl_url)
     calibre_version = calibre_version.decode('utf-8')
 
 
