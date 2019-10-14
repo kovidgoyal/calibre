@@ -434,6 +434,13 @@ class HTMLDisplay(QTextBrowser):
 
     def __init__(self, parent=None):
         QTextBrowser.__init__(self, parent)
+        self.default_css = ''
+        app = QApplication.instance()
+        if app.is_dark_theme:
+            pal = app.palette()
+            col = pal.color(pal.Link)
+            self.default_css = 'a { color: %s }\n\n' % col.name(col.HexRgb)
+            self.document().setDefaultStyleSheet(self.default_css)
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1

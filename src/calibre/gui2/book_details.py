@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.search_internet import (
 )
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    is_dark_theme, pixmap_to_data, rating_font, safe_open_url
+    pixmap_to_data, rating_font, safe_open_url
 )
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
@@ -59,13 +59,6 @@ def css(reset=False):
         val = P('templates/book_details.css', data=True).decode('utf-8')
         css.ans = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
     return css.ans
-
-
-def themed_css(reset=False):
-    ans = css(reset)
-    if is_dark_theme():
-        ans = 'a { color: #6CB4EE }\n\n' + ans
-    return ans
 
 
 def copy_all(text_browser):
@@ -562,10 +555,10 @@ class BookInfo(HTMLDisplay):
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
         self.setFocusPolicy(Qt.NoFocus)
-        self.document().setDefaultStyleSheet(themed_css())
+        self.document().setDefaultStyleSheet(self.default_css + css())
 
     def refresh_css(self):
-        self.document().setDefaultStyleSheet(themed_css(True))
+        self.document().setDefaultStyleSheet(self.default_css + css(True))
 
     def remove_item_triggered(self):
         field, value, book_id = self.remove_item_action.data

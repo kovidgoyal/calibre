@@ -16,7 +16,7 @@ from threading import Lock, RLock
 from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QCoreApplication, QDateTime,
     QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo,
-    QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale,
+    QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QColor,
     QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
     QThread, QTimer, QTranslator, QUrl, pyqtSignal
 )
@@ -1011,6 +1011,11 @@ class Application(QApplication):
             prints('Using calibre Qt style:', self.using_calibre_style)
         if self.using_calibre_style:
             self.load_calibre_style()
+        self.is_dark_theme = is_dark_theme()
+        if self.is_dark_theme:
+            pal = self.palette()
+            pal.setColor(pal.Link, QColor('#6CB4EE'))
+            self.setPalette(pal)
 
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
