@@ -613,7 +613,8 @@ def html_as_dict(root):
                 tail = getattr(child, 'tail', None)
                 if tail:
                     if prev_child_node is None:
-                        parent_node = tags[node[-1]]
+                        parent_node = node[-1]
+                        parent_node = tags[parent_node]
                         parent_node['x'] = parent_node.get('x', '') + tail
                     else:
                         prev_child_node['l'] = prev_child_node.get('l', '') + tail
@@ -624,7 +625,7 @@ def html_as_dict(root):
                     child_tree_node = [len(tags)-1]
                     node.append(child_tree_node)
                     stack.append((child, child_tree_node))
-                prev_child_node = cnode
+                    prev_child_node = cnode
     ns_map = [ns for ns, nsnum in sorted(iteritems(nsmap), key=lambda x: x[1])]
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
