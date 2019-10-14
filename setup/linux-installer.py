@@ -1,23 +1,29 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
-import ssl, socket, stat
+import errno
+import hashlib
+import os
+import platform
+import re
+import shutil
+import signal
+import socket
+import ssl
+import stat
+import subprocess
+import sys
+import tempfile
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
-DLURL = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
-DLURL = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', DLURL)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
 if enc.lower() == 'ascii':
     enc = 'utf-8'
-calibre_version = signature = None
+dl_url = calibre_version = signature = None
 has_ssl_verify = hasattr(ssl, 'create_default_context')
 
 if py3:
@@ -286,7 +292,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urlopen(DLURL)
+    rq = urlopen(dl_url)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
@@ -637,19 +643,28 @@ def extract_tarball(raw, destdir):
             raise SystemExit(1)
 
 
-def get_tarball_info():
-    global signature, calibre_version
+def get_tarball_info(version):
+    global dl_url, signature, calibre_version
     print ('Downloading tarball signature securely...')
-    raw = get_https_resource_securely(
-            'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
-    signature, calibre_version = raw.rpartition(b'@')[::2]
+    if version:
+        signature = get_https_resource_securely(
+                'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz.sha512')
+        calibre_version = version
+        dl_url = 'https://download.calibre-ebook.com/' + version + '/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz'
+    else:
+        raw = get_https_resource_securely(
+                'https://code.calibre-ebook.com/tarball-info/' + ('x86_64' if is64bit else 'i686'))
+        signature, calibre_version = raw.rpartition(b'@')[::2]
+        dl_url = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
-    calibre_version = calibre_version.decode('utf-8')
+    dl_url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', dl_url)
+    if isinstance(calibre_version, bytes):
+        calibre_version = calibre_version.decode('utf-8')
 
 
-def download_and_extract(destdir):
-    get_tarball_info()
+def download_and_extract(destdir, version):
+    get_tarball_info(version)
     raw = download_tarball()
 
     if os.path.exists(destdir):
@@ -666,7 +681,7 @@ def check_version():
         calibre_version = urlopen('http://code.calibre-ebook.com/latest').read()
 
 
-def run_installer(install_dir, isolated, bin_dir, share_dir):
+def run_installer(install_dir, isolated, bin_dir, share_dir, version):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
         prints(destdir, 'is not a valid install location. Choose', end='')
@@ -679,7 +694,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
             return 1
     print('Installing to', destdir)
 
-    download_and_extract(destdir)
+    download_and_extract(destdir, version)
 
     if not isolated:
         pi = [os.path.join(destdir, 'calibre_postinstall')]
@@ -727,7 +742,7 @@ def check_umask():
             raise SystemExit('The system umask is unsuitable, aborting')
 
 
-def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False):
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_umask=False, version=None):
     if not ignore_umask and not isolated:
         check_umask()
     machine = os.uname()[4]
@@ -736,7 +751,7 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             'You are running on an ARM system. The calibre binaries are only'
             ' available for x86 systems. You will have to compile from'
             ' source.')
-    run_installer(install_dir, isolated, bin_dir, share_dir)
+    run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
 try:
@@ -767,7 +782,7 @@ def script_launch():
     def to_bool(x):
         return x.lower() in ('y', 'yes', '1', 'true')
 
-    type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask'.split()}
+    type_map = {x: path for x in 'install_dir isolated bin_dir share_dir ignore_umask version'.split()}
     type_map['isolated'] = type_map['ignore_umask'] = to_bool
     kwargs = {}
 
