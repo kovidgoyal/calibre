@@ -121,7 +121,7 @@ def show_controls_help():
 
 # }}}
 
-def margin_elem(sd, which, id, onclick):
+def margin_elem(sd, which, id, onclick, oncontextmenu):
     sz = sd.get(which, 20)
     fsz = min(max(0, sz - 6), 12)
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
@@ -132,6 +132,8 @@ def margin_elem(sd, which, id, onclick):
     )
     if onclick:
         ans.addEventListener('click', onclick)
+    if oncontextmenu:
+        ans.addEventListener('contextmenu', onclick)
     if is_ios and which is 'margin_bottom' and not window.navigator.standalone and not /CriOS\//.test(window.navigator.userAgent):
         # On iOS Safari 100vh includes the size of the navbar and there is no way to
         # go fullscreen, so to make the bottom bar visible we add a margin to
@@ -157,9 +159,15 @@ class View:
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         if ui_operations.export_shortcut_map:
             ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
-        left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
+        left_margin = E.div(
+            svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)),
+            class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked,
+            oncontextmenu=self.margin_context_menu.bind(None, 'left'))
         set_left_margin_handler(left_margin)
-        right_margin = E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked)
+        right_margin = E.div(
+            svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)),
+            class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked,
+            oncontextmenu=self.margin_context_menu.bind(None, 'right'))
         set_right_margin_handler(right_margin)
         iframe_id = unique_id('read-book-iframe')
         container.appendChild(
@@ -168,9 +176,9 @@ class View:
                     E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked),
+                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts allow-popups-to-escape-sandbox', style='flex-grow: 2', allowfullscreen='true'),
-                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked),
+                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
                         ),
                         right_margin,
                         self.book_scrollbar.create(),
@@ -234,6 +242,9 @@ class View:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+        elif event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
         self.focus_iframe()
 
     def right_margin_clicked(self, event):
@@ -241,17 +252,27 @@ class View:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
             self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+        elif event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
         self.focus_iframe()
 
     def top_margin_clicked(self, event):
-        if event.button is 0:
+        if event.button is 0 or event.button is 2:
             event.preventDefault(), event.stopPropagation()
             self.show_chrome()
         else:
             self.focus_iframe()
 
     def bottom_margin_clicked(self, event):
+        if event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
         self.focus_iframe()
+
+    def margin_context_menu(self, which, event):
+        event.preventDefault(), event.stopPropagation()
+        self.show_chrome()
 
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
