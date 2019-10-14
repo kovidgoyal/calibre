@@ -69,9 +69,12 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     Add a file as a new book. The file contents must be in the body of the request.
 
     The response will also have the title/authors/languages read from the
-    metadata of the file/filename. It will contain a `book_id` field specifying the id of the newly added book,
-    or if add_duplicates is not specified and a duplicate was found, no book_id will be present. It will also
-    return the value of `job_id` as the `id` field and `filename` as the `filename` field.
+    metadata of the file/filename. It will contain a `book_id` field specifying
+    the id of the newly added book, or if add_duplicates is not specified and a
+    duplicate was found, no book_id will be present, instead there will be a
+    `duplicates` field specifying the title and authors for all duplicate
+    matches. It will also return the value of `job_id` as the `id` field and
+    `filename` as the `filename` field.
     '''
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
@@ -96,6 +99,8 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     if ids:
         ans['book_id'] = ids[0]
         ctx.notify_changes(db.backend.library_path, books_added(ids))
+    else:
+        ans['duplicates'] = [{'title': m.title, 'authors': m.authors} for m, _ in duplicates]
     return ans
 
 
