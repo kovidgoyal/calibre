@@ -741,12 +741,10 @@ class TextEdit(PlainTextEdit):
             if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
-    def syntax_format_for_cursor(self, cursor):
-        return getattr(self.syntax_range_for_cursor(cursor), 'format', None)
-
     def show_tooltip(self, ev):
         c = self.cursorForPosition(ev.pos())
-        fmt = self.syntax_format_for_cursor(c)
+        fmt_range = self.syntax_range_for_cursor(c)
+        fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
             tt = unicode_type(fmt.toolTip())
             if tt:
