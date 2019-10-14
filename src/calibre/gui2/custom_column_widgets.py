@@ -42,6 +42,20 @@ class Base(object):
         self.initial_val = self.widgets = None
         self.signals_to_disconnect = []
         self.setup_ui(parent)
+        key = db.field_metadata.label_to_key(self.col_metadata['label'],
+                                                       prefer_custom=True)
+        description = self.col_metadata.get('display', {}).get('description', '')
+        if description:
+            description = key + ': ' + description
+        else:
+            description = key
+        try:
+            self.widgets[1].setToolTip(description)
+        except:
+            try:
+                self.widgets[0].setToolTip(description)
+            except:
+                pass
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
