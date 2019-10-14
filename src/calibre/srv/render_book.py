@@ -204,7 +204,7 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None, allow_no_cover=False):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None, allow_no_cover=True):
         log = log or default_log
         self.allow_no_cover = allow_no_cover
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)

@@ -290,6 +290,16 @@ class ReadUI:
         progress_track = {}
         pbar.setAttribute('max', total + '')
         raster_cover_name = book.manifest.raster_cover_name
+        if not raster_cover_name:
+            nnum = 1
+            base = 'raster-cover-image-{}.jpg'
+            inserted_name = base.format(nnum)
+            while inserted_name in files_left:
+                nnum += 1
+                inserted_name = base.format(nnum)
+            raster_cover_name = inserted_name
+            files_left.add(raster_cover_name)
+
         raster_cover_size = 0
 
         def update_progress():
@@ -338,7 +348,7 @@ class ReadUI:
             if this is raster_cover_name and not cover_total_updated:
                 raster_cover_size = ftotal
                 cover_total_updated = True
-                total = total - files[raster_cover_name].size + raster_cover_size
+                total = total - (files[raster_cover_name]?.size or 0) + raster_cover_size
                 pbar.setAttribute('max', total + '')
             progress_track[this] = loaded
             update_progress()
@@ -346,7 +356,7 @@ class ReadUI:
         def start_download(fname, path):
             xhr = ajax(path, on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=fname is raster_cover_name)
             xhr.responseType = 'text'
-            if not book.manifest.files[fname].is_virtualized:
+            if not book.manifest.files[fname]?.is_virtualized:
                 xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
             xhr.send()
             self.downloads_in_progress.append(xhr)
