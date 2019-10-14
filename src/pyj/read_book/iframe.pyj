@@ -262,15 +262,17 @@ class IframeBoss:
         self.do_layout(self.is_titlepage)
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
-        self.content_loaded_stage2()
+        window.setTimeout(self.content_loaded_stage2, 1000)
+        # self.content_loaded_stage2()
 
     def content_loaded_stage2(self):
-        # this is the loading styles used to suppress scrollbars during load
-        # added in unserialize_html
-        document.head.firstChild.textContent = ''
-
         self.connect_links()
         self.content_ready = True
+        # this is the loading styles used to suppress scrollbars during load
+        # added in unserialize_html and the overlay to hide flash of unstyled
+        # text
+        document.body.removeChild(document.body.firstChild)
+
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position

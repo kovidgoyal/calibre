@@ -236,7 +236,13 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     head, body = tree[1], tree[2]  # noqa: unused-local
     clear(document.head, document.body)
     remove_all_attributes(document.head, document.body)
-    document.head.appendChild(E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'))
+    # prevent flash of unstyled text during loading, showing
+    # a blank background instead
+    document.body.appendChild(E.div(
+        '\xa0',
+        style=f'position: absolute; z-index: 2147483647; width: 10000vw; height: 10000vh; background-color: {opts.color_scheme.background}',
+        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
+    ))
     # Default stylesheet
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
