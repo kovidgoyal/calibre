@@ -17,6 +17,7 @@ from css_parser import replaceUrls
 from css_parser.css import CSSRule
 
 from calibre import force_unicode, prepare_string_for_xml
+from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
@@ -335,6 +336,9 @@ class Container(ContainerBase):
                 raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
                 with self.open(raster_cover_name, 'wb') as dest:
                     dest.write(generic_cover())
+            input_plugin = plugin_for_input_format(input_fmt)
+            if getattr(input_plugin, 'is_image_collection', False):
+                return raster_cover_name, None
             item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
             titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
             raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)

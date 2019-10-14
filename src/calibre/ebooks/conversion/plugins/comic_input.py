@@ -204,10 +204,13 @@ class ComicInput(InputFormatPlugin):
                 return os.path.basename(x)
             return '/'.join(x.split(os.sep)[-2:])
 
+        cover_href = None
         for comic in comics:
             pages, wrappers = comic[1:]
-            entries += [(w, None) for w in map(href, wrappers)] + \
-                    [(x, None) for x in map(href, pages)]
+            page_entries = [(x, None) for x in map(href, pages)]
+            entries += [(w, None) for w in map(href, wrappers)] + page_entries
+            if cover_href is None and page_entries:
+                cover_href = page_entries[0][0]
         opf.create_manifest(entries)
         spine = []
         for comic in comics:
@@ -216,6 +219,8 @@ class ComicInput(InputFormatPlugin):
         for comic in comics:
             self._images.extend(comic[1])
         opf.create_spine(spine)
+        if self.for_viewer and cover_href:
+            opf.guide.set_cover(cover_href)
         toc = TOC()
         if len(comics) == 1:
             wrappers = comics[0][2]
