@@ -1015,10 +1015,11 @@ class Application(QApplication):
         if self.is_dark_theme:
             pal = self.palette()
             pal.setColor(pal.Link, QColor('#6CB4EE'))
-            self.setPalette(pal)
             if isosx and self.using_calibre_style:
                 # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
-                self.setStyleSheet('QComboBox { color: %s}' % pal.color(pal.WindowText).name(QColor.HexRgb))
+                # Buttontext is set to black for some reason
+                pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
+            self.setPalette(pal)
 
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
