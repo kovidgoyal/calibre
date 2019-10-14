@@ -440,6 +440,19 @@ def remove_cover_image_in_page(container, page, cover_images):
         break
 
 
+def has_epub_cover(container):
+    if find_cover_image(container):
+        return True
+    if find_cover_page(container):
+        return True
+    spine_items = tuple(container.spine_items)
+    if spine_items:
+        candidate = container.abspath_to_name(spine_items[0])
+        if find_cover_image_in_page(container, candidate) is not None:
+            return True
+    return False
+
+
 def set_epub_cover(container, cover_path, report, options=None, image_callback=None):
     existing_image = options is not None and options.get('existing_image', False)
     if existing_image:

@@ -25,7 +25,9 @@ from calibre.ebooks.oeb.base import (
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.cover import find_cover_image, set_epub_cover
+from calibre.ebooks.oeb.polish.cover import (
+    find_cover_image, has_epub_cover, set_epub_cover
+)
 from calibre.ebooks.oeb.polish.css import transform_css
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
@@ -201,8 +203,9 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None, allow_no_cover=False):
         log = log or default_log
+        self.allow_no_cover = allow_no_cover
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
         self.book_metadata = book_metadata
@@ -318,12 +321,16 @@ class Container(ContainerBase):
                     cdata = getattr(image_callback, 'cover_data', None) or generic_cover()
                     data.write(cdata)
 
+            if self.allow_no_cover and not has_epub_cover(self):
+                return None, None
             raster_cover_name, titlepage_name = set_epub_cover(
                     self, cover_path, (lambda *a: None), options={'template':templ},
                     image_callback=image_callback)
         else:
             raster_cover_name = find_cover_image(self, strict=True)
             if raster_cover_name is None:
+                if self.allow_no_cover:
+                    return None, None
                 item = self.generate_item(name='cover.jpeg', id_prefix='cover')
                 raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
                 with self.open(raster_cover_name, 'wb') as dest:
