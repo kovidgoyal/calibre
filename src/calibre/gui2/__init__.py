@@ -1016,6 +1016,9 @@ class Application(QApplication):
             pal = self.palette()
             pal.setColor(pal.Link, QColor('#6CB4EE'))
             self.setPalette(pal)
+            if isosx and self.using_calibre_style:
+                # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
+                self.setStyleSheet('QComboBox { color: %s}' % pal.color(pal.WindowText).name(QColor.HexRgb))
 
     def load_calibre_style(self):
         icon_map = self.__icon_map_memory_ = {}
