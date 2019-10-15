@@ -14,7 +14,10 @@ from read_book.cfi import (
 from read_book.globals import get_boss
 from read_book.settings import opts
 from read_book.viewport import scroll_viewport
-from utils import document_width, get_elem_data, set_elem_data, viewport_to_document
+from utils import (
+    document_height, document_width, get_elem_data, set_elem_data,
+    viewport_to_document
+)
 
 
 def first_child(parent):
@@ -136,7 +139,7 @@ def layout(is_single_page):
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
-        single_screen = (document.body.scrollHeight < scroll_viewport.height() + 75)
+        single_screen = (document_height() < scroll_viewport.height() + 75)
         first_layout = True
         has_svg = document.getElementsByTagName('svg').length > 0
         imgs = document.getElementsByTagName('img')
@@ -445,10 +448,10 @@ def progress_frac(frac):
         if limit <= 0:
             return 0.0
         return current_scroll_offset() / limit
-    limit = document.body.scrollHeight - scroll_viewport.height()
+    limit = document_height() - scroll_viewport.height()
     if limit <= 0:
         return 0.0
-    return window.pageYOffset / limit
+    return Math.max(0, Math.min(window.pageYOffset / limit, 1))
 
 
 def onwheel(evt):
