@@ -21,7 +21,7 @@ from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
-    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath, rewrite_links,
+    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath, rewrite_links,
     urlunquote
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
@@ -29,7 +29,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import (
     find_cover_image, has_epub_cover, set_epub_cover
 )
-from calibre.ebooks.oeb.polish.css import transform_css
+from calibre.ebooks.oeb.polish.css import transform_inline_styles
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.srv.metadata import encode_datetime
@@ -48,6 +48,16 @@ from polyglot.urllib import quote, urlparse
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
+
+
+def XPath(expr):
+    ans = XPath.cache.get(expr)
+    if ans is None:
+        ans = XPath.cache[expr] = _XPath(expr)
+    return ans
+
+
+XPath.cache = {}
 
 
 def encode_url(name, frag=''):
@@ -75,11 +85,14 @@ def convert_fontsize(length, unit, base_font_size=16.0, dpi=96.0):
     return length * length_factors.get(unit, 1) * pt_to_rem
 
 
+page_break_properties = ('page-break-before', 'page-break-after', 'page-break-inside')
+
+
 def transform_declaration(decl):
     decl = StyleDeclaration(decl)
     changed = False
     for prop, parent_prop in tuple(decl):
-        if prop.name in {'page-break-before', 'page-break-after', 'page-break-inside'}:
+        if prop.name in page_break_properties:
             changed = True
             name = prop.name.partition('-')[2]
             for prefix in ('', '-webkit-column-'):
@@ -252,7 +265,7 @@ class Container(ContainerBase):
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
             self.parsed(name), self.dirty(name)
-        self.transform_css()
+        self.transform_all()
         self.virtualized_names = set()
         self.virtualize_resources()
 
@@ -350,28 +363,65 @@ class Container(ContainerBase):
             self.dirty(self.opf_name)
         return raster_cover_name, titlepage_name
 
-    def transform_css(self):
-        transform_css(self, transform_sheet=transform_sheet, transform_style=transform_declaration)
-        # Firefox flakes out sometimes when dynamically creating <style> tags,
-        # so convert them to external stylesheets to ensure they never fail
+    def transform_html(self, name):
         style_xpath = XPath('//h:style')
+        img_xpath = XPath('//h:img[@src]')
+        res_link_xpath = XPath('//h:link[@href]')
+        head = ensure_head(self.parsed(name))
+        changed = False
+        root = self.parsed(name)
+        for style in style_xpath(root):
+            # Firefox flakes out sometimes when dynamically creating <style> tags,
+            # so convert them to external stylesheets to ensure they never fail
+            if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+                in_head = has_ancestor(style, head)
+                if not in_head:
+                    extract(style)
+                    head.append(style)
+                css = style.text
+                style.clear()
+                style.tag = XHTML('link')
+                style.set('type', 'text/css')
+                style.set('rel', 'stylesheet')
+                sname = self.add_file(name + '.css', css.encode('utf-8'), modify_name_if_needed=True)
+                style.set('href', self.name_to_href(sname, name))
+                changed = True
+
+        # Used for viewing images
+        for img in img_xpath(root):
+            img_name = self.href_to_name(img.get('src'), name)
+            if img_name:
+                img.set('data-calibre-src', img_name)
+                changed = True
+
+        # Disable non stylsheet link tags. This link will not be loaded by the
+        # browser anyway and will causes the resource load check to hang
+        for link in res_link_xpath(root):
+            ltype = (link.get('type') or 'text/css').lower()
+            rel = (link.get('rel') or 'stylesheet').lower()
+            if ltype != 'text/css' or rel != 'stylesheet':
+                link.attrib.clear()
+                changed = True
+
+        # Transform <style> and style=""
+        if transform_inline_styles(self, name, transform_sheet=transform_sheet, transform_style=transform_declaration):
+            changed = True
+
+        if changed:
+            self.dirty(name)
+
+    def transform_css(self, name):
+        sheet = self.parsed(name)
+        if transform_sheet(sheet):
+            self.dirty(name)
+
+    def transform_all(self):
         for name, mt in tuple(iteritems(self.mime_map)):
             mt = mt.lower()
             if mt in OEB_DOCS:
-                head = ensure_head(self.parsed(name))
-                for style in style_xpath(self.parsed(name)):
-                    if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
-                        in_head = has_ancestor(style, head)
-                        if not in_head:
-                            extract(style)
-                            head.append(style)
-                        css = style.text
-                        style.clear()
-                        style.tag = XHTML('link')
-                        style.set('type', 'text/css')
-                        style.set('rel', 'stylesheet')
-                        sname = self.add_file(name + '.css', css.encode('utf-8'), modify_name_if_needed=True)
-                        style.set('href', self.name_to_href(sname, name))
+                self.transform_html(name)
+            elif mt in OEB_STYLES:
+                self.transform_css(name)
 
     def virtualize_resources(self):
 
@@ -380,8 +430,6 @@ class Container(ContainerBase):
         resource_template = link_uid + '|{}|'
         xlink_xpath = XPath('//*[@xl:href]')
         link_xpath = XPath('//h:a[@href]')
-        img_xpath = XPath('//h:img[@src]')
-        res_link_xpath = XPath('//h:link[@href]')
 
         def link_replacer(base, url):
             if url.startswith('#'):
@@ -420,19 +468,6 @@ class Container(ContainerBase):
             elif mt in OEB_DOCS:
                 self.virtualized_names.add(name)
                 root = self.parsed(name)
-                for img in img_xpath(root):
-                    img_name = self.href_to_name(img.get('src'), name)
-                    if img_name:
-                        img.set('data-calibre-src', img_name)
-                        changed.add(name)
-                for link in res_link_xpath(root):
-                    ltype = (link.get('type') or 'text/css').lower()
-                    rel = (link.get('rel') or 'stylesheet').lower()
-                    if ltype != 'text/css' or rel != 'stylesheet':
-                        # This link will not be loaded by the browser anyway
-                        # and will causes the resource load check to hang
-                        link.attrib.clear()
-                        changed.add(name)
                 rewrite_links(root, partial(link_replacer, name))
                 for a in link_xpath(root):
                     href = a.get('href')
@@ -445,15 +480,17 @@ class Container(ContainerBase):
                     else:
                         a.set('target', '_blank')
                         a.set('rel', 'noopener noreferrer')
-                    changed.add(name)
             elif mt == 'image/svg+xml':
                 self.virtualized_names.add(name)
-                changed.add(name)
                 xlink = XLINK('href')
+                altered = False
                 for elem in xlink_xpath(self.parsed(name)):
                     href = elem.get(xlink)
                     if not href.startswith('#'):
                         elem.set(xlink, link_replacer(name, href))
+                        altered = True
+                if altered:
+                    changed.add(name)
 
         for name, amap in iteritems(ltm):
             for k, v in tuple(iteritems(amap)):
