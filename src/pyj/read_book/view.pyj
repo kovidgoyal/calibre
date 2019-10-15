@@ -499,27 +499,28 @@ class View:
                 s.color = ans.foreground
                 s.backgroundColor = ans.background
             sd = get_session_data()
-            self.iframe.style.backgroundColor = ans.background or 'white'
+            iframe = self.iframe
+            iframe.style.backgroundColor = ans.background or 'white'
             bg_image = sd.get('background_image')
             if bg_image:
-                self.iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
+                iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
             else:
-                self.iframe.style.backgroundImage = 'none'
+                iframe.style.backgroundImage = 'none'
             if sd.get('background_image_style') is 'scaled':
-                self.iframe.style.backgroundSize = '100% 100%'
-                self.iframe.style.backgroundRepeat = 'no-repeat'
-                self.iframe.style.backgroundAttachment = 'scroll'
-                self.iframe.style.backgroundPosition = 'center'
+                iframe.style.backgroundSize = '100% 100%'
+                iframe.style.backgroundRepeat = 'no-repeat'
+                iframe.style.backgroundAttachment = 'scroll'
+                iframe.style.backgroundPosition = 'center'
             else:
-                self.iframe.style.backgroundSize = 'auto'
-                self.iframe.style.backgroundRepeat = 'repeat'
-                self.iframe.style.backgroundAttachment = 'scroll'
-                self.iframe.style.backgroundPosition = '0 0'
+                iframe.style.backgroundSize = 'auto'
+                iframe.style.backgroundRepeat = 'repeat'
+                iframe.style.backgroundAttachment = 'scroll'
+                iframe.style.backgroundPosition = '0 0'
 
-            m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
+            iframe.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
             self.book_scrollbar.apply_color_scheme(ans)
-            self.iframe.parentNode.parentNode.style.backgroundColor = ans.background
+            iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
@@ -541,7 +542,9 @@ class View:
         if self.show_loading_callback_timer is not None:
             clearTimeout(self.show_loading_callback_timer)
             self.show_loading_callback_timer = None
+        self.iframe.style.visibility = 'visible'
         self.overlay.hide_loading_message()
+        self.focus_iframe()
 
     def parse_cfi(self, encoded_cfi, book):
         name = cfi = None
@@ -881,6 +884,7 @@ class View:
         # We cannot encrypt this message because the resource data contains
         # Blob objects which do not survive encryption
         self.processing_spine_item_display = True
+        self.iframe.style.visibility = 'hidden'
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,
