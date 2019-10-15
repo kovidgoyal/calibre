@@ -21,6 +21,7 @@ from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import as_bytes, as_unicode, iteritems
 
 DAY = 24 * 3600
+VIEWER_VERSION = 1
 
 
 def book_cache_dir():
@@ -33,7 +34,7 @@ def cache_lock():
 
 def book_hash(path, size, mtime):
     path = os.path.normcase(os.path.abspath(path))
-    raw = json.dumps((path, size, mtime, RENDER_VERSION))
+    raw = json.dumps((path, size, mtime, RENDER_VERSION, VIEWER_VERSION))
     if not isinstance(raw, bytes):
         raw = raw.encode('utf-8')
     return as_unicode(sha1(raw).hexdigest())
