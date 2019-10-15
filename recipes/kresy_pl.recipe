@@ -6,12 +6,9 @@ class Kresy(BasicNewsRecipe):
     __author__ = 'fenuks'
     description = u'portal społeczności kresowej'
     language = 'pl'
-    masthead_url = 'http://www.kresy.pl/public/img/logo.png'
-    cover_url = 'http://www.kresy.pl/public/img/logo.png'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    keep_only_tags = [dict(id='artykul')]
-    remove_tags = [
-        dict(attrs={'class': ['twitter-share-button', 'likefbborder', 'tagi']})]
-    feeds = [(u'Wszystkie', u'http://www.kresy.pl/rss')]
+    keep_only_tags = [dict(name='div', attrs={'class': ['big-slider big-preview single-big', 'entry-content-wrapper clearfix standard-content']})]
+    remove_tags = [dict(attrs={'class': ['entry-footer', 'kresy_donate']})]
+    feeds = [(u'Wszystkie', u'https://www.kresy.pl/rss')]

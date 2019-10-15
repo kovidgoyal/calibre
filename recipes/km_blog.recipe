@@ -14,7 +14,7 @@ class km_blog(BasicNewsRecipe):
     __author__ = 'teepel <teepel44@gmail.com>'
     language = 'pl'
     description = 'Wiadomości z bloga korwin-mikke.pl/blog'
-    INDEX = 'http://korwin-mikke.pl/blog'
+    INDEX = 'https://korwin-mikke.pl/blog'
     remove_empty_feeds = True
     oldest_article = 7
     max_articles_per_feed = 100
@@ -22,16 +22,8 @@ class km_blog(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
 
-    feeds = [(u'blog', u'http://korwin-mikke.pl/blog/rss')]
+    feeds = [(u'blog', u'https://korwin-mikke.pl/blog/rss')]
 
-    keep_only_tags = []
-    # this line should show title of the article, but it doesnt work
-    keep_only_tags.append(dict(name='div', attrs={'class': 'posts view'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'text'}))
-    keep_only_tags.append(dict(name='h1'))
+    keep_only_tags = [dict(name='div', attrs={'class': ['header-standard header-classic single-header', 'post-image', 'post-entry blockquote-style-1']})]
 
-    remove_tags = []
-    remove_tags.append(dict(name='p', attrs={'class': 'float_right'}))
-    remove_tags.append(dict(name='p', attrs={'class': 'date'}))
-
-    remove_tags_after = [(dict(name='div', attrs={'class': 'text'}))]
+    remove_tags = [dict(name='div', attrs={'class': 'penci-hide-tagupdated'})]
