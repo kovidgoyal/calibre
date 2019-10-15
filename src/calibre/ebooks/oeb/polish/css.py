@@ -221,6 +221,29 @@ def filter_sheet(sheet, properties=()):
     return changed
 
 
+def transform_inline_styles(container, name, transform_sheet, transform_style):
+    root = container.parsed(name)
+    changed = False
+    for style in root.xpath('//*[local-name()="style"]'):
+        if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+            sheet = container.parse_css(style.text)
+            if transform_sheet(sheet):
+                changed = True
+                style.text = force_unicode(sheet.cssText, 'utf-8')
+                pretty_script_or_style(container, style)
+    for elem in root.xpath('//*[@style]'):
+        text = elem.get('style', None)
+        if text:
+            style = container.parse_css(text, is_declaration=True)
+            if transform_style(style):
+                changed = True
+                if style.length == 0:
+                    del elem.attrib['style']
+                else:
+                    elem.set('style', force_unicode(style.getCssText(separator=' '), 'utf-8'))
+    return changed
+
+
 def transform_css(container, transform_sheet=None, transform_style=None, names=()):
     if not names:
         types = OEB_STYLES | OEB_DOCS
@@ -235,31 +258,11 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
         mt = container.mime_map[name]
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
-            filtered = transform_sheet(sheet)
-            if filtered:
+            if transform_sheet(sheet):
                 container.dirty(name)
                 doc_changed = True
         elif mt in OEB_DOCS:
-            root = container.parsed(name)
-            changed = False
-            for style in root.xpath('//*[local-name()="style"]'):
-                if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
-                    sheet = container.parse_css(style.text)
-                    if transform_sheet(sheet):
-                        changed = True
-                        style.text = force_unicode(sheet.cssText, 'utf-8')
-                        pretty_script_or_style(container, style)
-            for elem in root.xpath('//*[@style]'):
-                text = elem.get('style', None)
-                if text:
-                    style = container.parse_css(text, is_declaration=True)
-                    if transform_style(style):
-                        changed = True
-                        if style.length == 0:
-                            del elem.attrib['style']
-                        else:
-                            elem.set('style', force_unicode(style.getCssText(separator=' '), 'utf-8'))
-            if changed:
+            if transform_inline_styles(container, name, transform_sheet, transform_style):
                 container.dirty(name)
                 doc_changed = True
 
