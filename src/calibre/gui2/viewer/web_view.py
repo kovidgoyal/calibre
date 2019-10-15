@@ -115,25 +115,31 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.mathjax_dir = P('mathjax', allow_user_override=False)
         self.mathjax_manifest = None
+        self.allowed_hosts = (FAKE_HOST, FAKE_HOST.rpartition('.')[0] + '.sandbox')
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
             rq.fail(rq.RequestDenied)
             return
         url = rq.requestUrl()
-        if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
+        if url.host() not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
             rq.fail(rq.UrlNotFound)
             return
         name = url.path()[1:]
         if name.startswith('book/'):
             name = name.partition('/')[2]
+            if name == '__index__':
+                send_reply(rq, 'text/html', b'<div>\xa0</div>')
+                return
+            elif name == '__popup__':
+                send_reply(rq, 'text/html', b'<div id="calibre-viewer-footnote-iframe">\xa0</div>')
+                return
             try:
                 data, mime_type = get_data(name)
                 if data is None:
                     rq.fail(rq.UrlNotFound)
                     return
-                if isinstance(data, type('')):
-                    data = data.encode('utf-8')
+                data = as_bytes(data)
                 mime_type = {
                     # Prevent warning in console about mimetype of fonts
                     'application/vnd.ms-opentype':'application/x-font-ttf',

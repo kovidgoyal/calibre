@@ -85,6 +85,39 @@ def convert_fontsize(length, unit, base_font_size=16.0, dpi=96.0):
     return length * length_factors.get(unit, 1) * pt_to_rem
 
 
+def create_link_replacer(container, link_uid, changed):
+    resource_template = link_uid + '|{}|'
+
+    def link_replacer(base, url):
+        if url.startswith('#'):
+            frag = urlunquote(url[1:])
+            if not frag:
+                return url
+            changed.add(base)
+            return resource_template.format(encode_url(base, frag))
+        purl = urlparse(url)
+        if purl.netloc or purl.query:
+            return url
+        if purl.scheme and purl.scheme != 'file':
+            return url
+        if not purl.path or purl.path.startswith('/'):
+            return url
+        url, frag = purl.path, purl.fragment
+        name = container.href_to_name(url, base)
+        if name:
+            if container.has_name_and_is_not_empty(name):
+                frag = urlunquote(frag)
+                url = resource_template.format(encode_url(name, frag))
+            else:
+                if isinstance(name, unicode_type):
+                    name = name.encode('utf-8')
+                url = 'missing:' + force_unicode(quote(name), 'utf-8')
+            changed.add(base)
+        return url
+
+    return link_replacer
+
+
 page_break_properties = ('page-break-before', 'page-break-after', 'page-break-inside')
 
 
@@ -217,7 +250,10 @@ class Container(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False, book_metadata=None, allow_no_cover=True):
+    def __init__(
+        self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False,
+        book_metadata=None, allow_no_cover=True, virtualize_resources=True
+    ):
         log = log or default_log
         self.allow_no_cover = allow_no_cover
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
@@ -265,9 +301,8 @@ class Container(ContainerBase):
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
             self.parsed(name), self.dirty(name)
-        self.transform_all()
         self.virtualized_names = set()
-        self.virtualize_resources()
+        self.transform_all(virtualize_resources)
 
         def manifest_data(name):
             mt = (self.mime_map.get(name) or 'application/octet-stream').lower()
@@ -363,8 +398,9 @@ class Container(ContainerBase):
             self.dirty(self.opf_name)
         return raster_cover_name, titlepage_name
 
-    def transform_html(self, name):
+    def transform_html(self, name, virtualize_resources):
         style_xpath = XPath('//h:style')
+        link_xpath = XPath('//h:a[@href]')
         img_xpath = XPath('//h:img[@src]')
         res_link_xpath = XPath('//h:link[@href]')
         head = ensure_head(self.parsed(name))
@@ -407,6 +443,20 @@ class Container(ContainerBase):
         if transform_inline_styles(self, name, transform_sheet=transform_sheet, transform_style=transform_declaration):
             changed = True
 
+        if not virtualize_resources:
+            link_uid = self.book_render_data['link_uid']
+            link_replacer = create_link_replacer(self, link_uid, set())
+            ltm = self.book_render_data['link_to_map']
+            for a in link_xpath(root):
+                href = link_replacer(name, a.get('href'))
+                if href and href.startswith(link_uid):
+                    a.set('href', 'javascript:void(0)')
+                    parts = decode_url(href.split('|')[1])
+                    lname, lfrag = parts[0], parts[1]
+                    ltm.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+                    a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+                    changed = True
+
         if changed:
             self.dirty(name)
 
@@ -415,48 +465,30 @@ class Container(ContainerBase):
         if transform_sheet(sheet):
             self.dirty(name)
 
-    def transform_all(self):
+    def transform_all(self, virtualize_resources):
         for name, mt in tuple(iteritems(self.mime_map)):
             mt = mt.lower()
             if mt in OEB_DOCS:
-                self.transform_html(name)
-            elif mt in OEB_STYLES:
+                self.transform_html(name, virtualize_resources)
+        for name, mt in tuple(iteritems(self.mime_map)):
+            mt = mt.lower()
+            if mt in OEB_STYLES:
                 self.transform_css(name)
+        if virtualize_resources:
+            self.virtualize_resources()
+
+        ltm = self.book_render_data['link_to_map']
+        for name, amap in iteritems(ltm):
+            for k, v in tuple(iteritems(amap)):
+                amap[k] = tuple(v)  # needed for JSON serialization
 
     def virtualize_resources(self):
 
         changed = set()
         link_uid = self.book_render_data['link_uid']
-        resource_template = link_uid + '|{}|'
         xlink_xpath = XPath('//*[@xl:href]')
         link_xpath = XPath('//h:a[@href]')
-
-        def link_replacer(base, url):
-            if url.startswith('#'):
-                frag = urlunquote(url[1:])
-                if not frag:
-                    return url
-                changed.add(base)
-                return resource_template.format(encode_url(base, frag))
-            purl = urlparse(url)
-            if purl.netloc or purl.query:
-                return url
-            if purl.scheme and purl.scheme != 'file':
-                return url
-            if not purl.path or purl.path.startswith('/'):
-                return url
-            url, frag = purl.path, purl.fragment
-            name = self.href_to_name(url, base)
-            if name:
-                if self.has_name_and_is_not_empty(name):
-                    frag = urlunquote(frag)
-                    url = resource_template.format(encode_url(name, frag))
-                else:
-                    if isinstance(name, unicode_type):
-                        name = name.encode('utf-8')
-                    url = 'missing:' + force_unicode(quote(name), 'utf-8')
-                changed.add(base)
-            return url
+        link_replacer = create_link_replacer(self, link_uid, changed)
 
         ltm = self.book_render_data['link_to_map']
 
@@ -491,10 +523,6 @@ class Container(ContainerBase):
                         altered = True
                 if altered:
                     changed.add(name)
-
-        for name, amap in iteritems(ltm):
-            for k, v in tuple(iteritems(amap)):
-                amap[k] = tuple(v)  # needed for JSON serialization
 
         tuple(map(self.dirty, changed))
 
@@ -712,14 +740,17 @@ def get_stored_annotations(container):
                 yield {'type': 'last-read', 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
 
 
-def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False):
+def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True):
     mi = None
     if serialize_metadata:
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.customize.ui import quick_metadata
         with lopen(pathtoebook, 'rb') as f, quick_metadata:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
-    container = Container(pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations, book_metadata=mi)
+    container = Container(
+        pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations,
+        book_metadata=mi, virtualize_resources=virtualize_resources
+    )
     if serialize_metadata:
         from calibre.utils.serialize import json_dumps
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict

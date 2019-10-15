@@ -26,6 +26,7 @@ from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
 
 runtime.is_standalone_viewer = True
 runtime.FAKE_HOST = FAKE_HOST
+runtime.SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 runtime.FAKE_PROTOCOL = FAKE_PROTOCOL
 add_standalone_viewer_shortcuts()
 book = None
