@@ -108,7 +108,6 @@ class SearchBox2(QComboBox):  # {{{
 
     def __init__(self, parent=None, add_clear_action=True):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgba(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
@@ -161,8 +160,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
-        self.line_edit.setStyleSheet(
-            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
+        self.line_edit.setStyleSheet('')
 
     def text(self):
         return self.currentText()
@@ -190,10 +188,10 @@ class SearchBox2(QComboBox):  # {{{
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        col = 'rgba(0,255,0,20%)' if ok else 'rgba(255,0,0,20%)'
-        if not self.colorize:
-            col = self.normal_background
-        self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
+        if self.colorize:
+            self.line_edit.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not ok))
+        else:
+            self.line_edit.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
@@ -320,7 +318,6 @@ class SavedSearchBox(QComboBox):  # {{{
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgba(255, 255, 255, 0%)'
 
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)

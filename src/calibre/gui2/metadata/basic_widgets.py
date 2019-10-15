@@ -42,10 +42,6 @@ from calibre.db import SPOOL_SIZE
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 from polyglot.builtins import iteritems, unicode_type, range
 
-OK_COLOR = 'rgba(0, 255, 0, 50%)'
-ERR_COLOR = 'rgba(255, 0, 0, 50%)'
-INDICATOR_SHEET = 'QLineEdit { border: 2px solid %s; border-radius: 2px }'
-
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -297,8 +293,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
     def update_state(self, *args):
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
-        col = OK_COLOR if normal else ERR_COLOR
-        self.setStyleSheet(INDICATOR_SHEET % col)
+        self.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not normal))
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
@@ -508,8 +503,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         au = self.author_sort_from_authors(string_to_authors(au))
 
         normal = au == self.current_val
-        col = OK_COLOR if normal else ERR_COLOR
-        self.setStyleSheet(INDICATOR_SHEET % col)
+        self.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not normal))
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
@@ -1596,15 +1590,15 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         tt = self.BASE_TT
         extra = ''
         if not isbn:
-            col = 'none'
+            sheet = ''
         elif check_isbn(isbn) is not None:
-            col = OK_COLOR
+            sheet = QApplication.instance().stylesheet_for_line_edit()
             extra = '\n\n'+_('This ISBN is valid')
         else:
-            col = ERR_COLOR
+            sheet = QApplication.instance().stylesheet_for_line_edit(True)
             extra = '\n\n' + _('This ISBN is invalid')
         self.setToolTip(tt+extra)
-        self.setStyleSheet(INDICATOR_SHEET % col)
+        self.setStyleSheet(sheet)
 
     def paste_identifier(self):
         identifier_found = self.parse_clipboard_for_identifier()
@@ -1725,16 +1719,16 @@ class ISBNDialog(QDialog):  # {{{
     def checkText(self, txt):
         isbn = unicode_type(txt)
         if not isbn:
-            col = 'none'
+            sheet = ''
             extra = ''
         elif check_isbn(isbn) is not None:
-            col = OK_COLOR
+            sheet = QApplication.instance().stylesheet_for_line_edit()
             extra = _('This ISBN is valid')
         else:
-            col = ERR_COLOR
+            sheet = QApplication.instance().stylesheet_for_line_edit(True)
             extra = _('This ISBN is invalid')
         self.line_edit.setToolTip(extra)
-        self.line_edit.setStyleSheet(INDICATOR_SHEET % col)
+        self.line_edit.setStyleSheet(sheet)
 
     def text(self):
         return check_isbn(unicode_type(self.line_edit.text()))

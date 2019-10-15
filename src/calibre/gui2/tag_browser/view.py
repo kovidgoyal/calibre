@@ -167,8 +167,9 @@ class TagsView(QTreeView):  # {{{
         # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
         # anyway since the enter/spacebar keys do nothing
         self.setFocusPolicy(Qt.NoFocus)
+        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
-    def set_look_and_feel(self):
+    def set_style_sheet(self):
         stylish_tb = '''
                 QTreeView {
                     background-color: palette(window);
@@ -190,6 +191,9 @@ class TagsView(QTreeView):  # {{{
                 }
         '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb))
+
+    def set_look_and_feel(self):
+        self.set_style_sheet()
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
         self.itemDelegate().old_look = gprefs['tag_browser_old_look']
 

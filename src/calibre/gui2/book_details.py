@@ -555,10 +555,10 @@ class BookInfo(HTMLDisplay):
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
         self.setFocusPolicy(Qt.NoFocus)
-        self.document().setDefaultStyleSheet(self.default_css + css())
+        self.setDefaultStyleSheet(css())
 
     def refresh_css(self):
-        self.document().setDefaultStyleSheet(self.default_css + css(True))
+        self.setDefaultStyleSheet(css(True))
 
     def remove_item_triggered(self):
         field, value, book_id = self.remove_item_action.data

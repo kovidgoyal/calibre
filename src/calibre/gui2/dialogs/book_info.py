@@ -83,7 +83,7 @@ class Details(HTMLDisplay):
     def __init__(self, book_info, parent=None):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
-        self.document().setDefaultStyleSheet(self.default_css + css())
+        self.setDefaultStyleSheet(css())
 
     def sizeHint(self):
         return QSize(350, 350)

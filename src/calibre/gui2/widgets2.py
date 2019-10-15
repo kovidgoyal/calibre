@@ -434,13 +434,11 @@ class HTMLDisplay(QTextBrowser):
 
     def __init__(self, parent=None):
         QTextBrowser.__init__(self, parent)
-        self.default_css = ''
+        self.last_set_html = ''
+        self.default_css = self.external_css = ''
         app = QApplication.instance()
-        if app.is_dark_theme:
-            pal = app.palette()
-            col = pal.color(pal.Link)
-            self.default_css = 'a { color: %s }\n\n' % col.name(col.HexRgb)
-            self.document().setDefaultStyleSheet(self.default_css)
+        app.palette_changed.connect(self.palette_changed)
+        self.palette_changed()
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
@@ -455,6 +453,25 @@ class HTMLDisplay(QTextBrowser):
         self.setPalette(palette)
         self.setAcceptDrops(False)
         self.anchorClicked.connect(self.on_anchor_clicked)
+
+    def setHtml(self, html):
+        self.last_set_html = html
+        QTextBrowser.setHtml(self, html)
+
+    def setDefaultStyleSheet(self, css=''):
+        self.external_css = css
+        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+
+    def palette_changed(self):
+        app = QApplication.instance()
+        if app.is_dark_theme:
+            pal = app.palette()
+            col = pal.color(pal.Link)
+            self.default_css = 'a { color: %s }\n\n' % col.name(col.HexRgb)
+        else:
+            self.default_css = ''
+        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+        self.setHtml(self.last_set_html)
 
     def on_anchor_clicked(self, qurl):
         if not qurl.scheme() and qurl.hasFragment() and qurl.toString().startswith('#'):
