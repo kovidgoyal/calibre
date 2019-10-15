@@ -45,7 +45,7 @@ def load_resources(book, root_name, previous_resources, proceed):
 
     def got_one(data, name, mimetype):
         ans[name] = v'[data, mimetype]'
-        if jstype(data) is 'string':
+        if jstype(data) is 'string' and book.manifest.files[name]?.is_virtualized:
             find_virtualized_resources(data)
         return setTimeout(do_one, 0)
 
