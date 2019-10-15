@@ -517,9 +517,11 @@ class View:
                 iframe.style.backgroundAttachment = 'scroll'
                 iframe.style.backgroundPosition = '0 0'
 
-            iframe.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
             self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
             self.book_scrollbar.apply_color_scheme(ans)
+            # this is needed on iOS where the bottom margin has its own margin,
+            # so we dont want the body background color to bleed through
+            iframe.parentNode.style.backgroundColor = ans.background
             iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
