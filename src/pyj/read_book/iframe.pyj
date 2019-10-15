@@ -204,7 +204,7 @@ class IframeBoss:
     def on_next_screen(self, data):
         backwards = data.backwards
         if current_layout_mode() is 'flow':
-            flow_scroll_by_page(backwards)
+            flow_scroll_by_page(-1 if backwards else 1)
         else:
             paged_scroll_by_page(backwards, data.all_pages_on_screen)
 
