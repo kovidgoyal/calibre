@@ -166,9 +166,9 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 if self.mathjax_manifest is None:
                     import json
                     from calibre.srv.books import get_mathjax_manifest
-                    self.mathjax_manifest = json.dumps(get_mathjax_manifest()['files'])
-                    send_reply(rq, 'application/json', as_bytes(self.mathjax_manifest))
-                    return
+                    self.mathjax_manifest = as_bytes(json.dumps(get_mathjax_manifest()['files']))
+                send_reply(rq, 'application/json', self.mathjax_manifest)
+                return
             path = os.path.abspath(os.path.join(self.mathjax_dir, '..', name))
             if path.startswith(self.mathjax_dir):
                 mt = guess_type(name)
