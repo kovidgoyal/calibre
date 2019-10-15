@@ -1014,7 +1014,10 @@ class Application(QApplication):
         self.is_dark_theme = is_dark_theme()
         if self.is_dark_theme:
             pal = self.palette()
+            # dark blue is unreadable when using dark backgrounds
             pal.setColor(pal.Link, QColor('#6CB4EE'))
+            # alternating row colors look awful in most dark mode themes
+            pal.setColor(pal.AlternateBase, pal.color(pal.Base))
             if isosx and self.using_calibre_style:
                 # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
                 # Buttontext is set to black for some reason
