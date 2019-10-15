@@ -399,6 +399,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        if show_gui:
+            self.show()
         self.read_settings()
 
         self.finalize_layout()
@@ -418,10 +420,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
-        if show_gui:
-            # Note this has to come after restoreGeometry() because of
-            # https://bugreports.qt.io/browse/QTBUG-56831
-            self.show()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
