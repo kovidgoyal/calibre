@@ -994,11 +994,11 @@ class OPF(object):  # {{{
                     self.metadata):
             xid = x.get('id', None)
             is_package_identifier = uuid_id is not None and uuid_id == xid
-            typ = {val for attr, val in iteritems(x.attrib) if attr.endswith('scheme')}
+            typ = {val.lower() for attr, val in iteritems(x.attrib) if attr.endswith('scheme')}
             if is_package_identifier:
                 typ = tuple(typ)
-                if typ and typ[0].lower() in identifiers:
-                    self.set_text(x, identifiers.pop(typ[0].lower()))
+                if typ and typ[0] in identifiers:
+                    self.set_text(x, identifiers.pop(typ[0]))
                 continue
             if typ and not (typ & {'calibre', 'uuid'}):
                 x.getparent().remove(x)
