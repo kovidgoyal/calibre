@@ -11,43 +11,19 @@ class KrytykaPolitycznaRecipe(BasicNewsRecipe):
     category = u'News'
     description = u' Lewicowe pismo zaangażowane w bieg spraw publicznych w Polsce.'
     cover_url = ''
+    masthead_url = 'https://krytykapolityczna.pl/file/2015/09/krytyka-logo.png'
     remove_empty_feeds = True
     no_stylesheets = True
     oldest_article = 7
-    max_articles_per_feed = 100000
+    max_articles_per_feed = 50
     recursions = 0
 
-    no_stylesheets = True
-    remove_javascript = True
     simultaneous_downloads = 3
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='h1', attrs={'class': 'print-title'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'print-content'}))
+    keep_only_tags = [(dict(name='h1')),
+       (dict(name='div', attrs={'class': ['entry-meta','post-preview','entry-details', 'entry-content']}))]
 
-    remove_tags = []
-    remove_tags.append(dict(attrs={'class': ['field field-type-text field-field-story-switch', 'field field-type-filefield field-field-story-temp',
-                                             'field field-type-text field-field-story-author', 'field field-type-text field-field-story-lead-switch']}))
+    remove_tags = [(dict(attrs={'class': ['_ning_zone_inner','book-item site-commerc','wp-embedded-content',
+                    'read-also','meta-date-modified updated', 'textwidget']}))]
 
-    extra_css = '''
-                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
-                    td.contentheading{font-size: large; font-weight: bold;}
-                    '''
-
-    feeds = [
-        ('Wszystkie', 'http://www.krytykapolityczna.pl/rss.xml')
-    ]
-
-    def print_version(self, url):
-        soup = self.index_to_soup(url)
-        print_ico = soup.find(attrs={'class': 'print-page'})
-        print_uri = print_ico['href']
-        self.log('PRINT', print_uri)
-        return 'http://www.krytykapolityczna.pl/' + print_uri
-
-    def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-                tstr = alink.string
-                alink.replaceWith(tstr)
-        return soup
+    feeds = [('Wszystkie', 'https://www.krytykapolityczna.pl/rss')]
