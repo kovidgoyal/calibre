@@ -20,7 +20,7 @@ from read_book.globals import runtime, ui_operations
 from read_book.iframe import main as iframe_main
 from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
-from session import session_defaults
+from session import session_defaults, local_storage
 from utils import encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
 
@@ -183,20 +183,43 @@ class SessionData:
         to_python.set_session_data('*', None)
 
 
-def create_session_data(prefs):
+class LocalStorage:
+
+    def __init__(self, data):
+        self.data = data
+
+    def get(self, key, defval):
+        ans = self.data[key]
+        if ans is undefined or ans is None:
+            if defval is undefined:
+                defval = None
+            return defval
+        return ans
+
+    def set(self, key, val):
+        self.data[key] = val
+        to_python.set_local_storage(key, val)
+
+    def clear(self):
+        self.data = {}
+        to_python.set_local_storage('*', None)
+
+
+def create_session_data(prefs, local_storage_data):
     sd = SessionData(prefs)
     set_session_data(sd)
+    local_storage.storage = LocalStorage(local_storage_data)
 
 
 @from_python
-def create_view(prefs, all_font_families, field_metadata, ui_font_family, ui_font_sz, show_home_page_on_ready):
+def create_view(prefs, local_storage, all_font_families, field_metadata, ui_font_family, ui_font_sz, show_home_page_on_ready):
     nonlocal view
     runtime.all_font_families = all_font_families
     library_data.field_metadata = field_metadata
     document.documentElement.style.fontFamily = f'"{ui_font_family}", sans-serif'
     document.documentElement.style.fontSize = ui_font_sz
     if view is None:
-        create_session_data(prefs)
+        create_session_data(prefs, local_storage)
         view = View(document.getElementById('view'))
         if show_home_page_on_ready:
             view.overlay.open_book(False)

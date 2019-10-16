@@ -43,6 +43,7 @@ except ImportError:
 vprefs = JSONConfig('viewer-webengine')
 viewer_config_dir = os.path.join(config_dir, 'viewer')
 vprefs.defaults['session_data'] = {}
+vprefs.defaults['local_storage'] = {}
 vprefs.defaults['main_window_state'] = None
 vprefs.defaults['main_window_geometry'] = None
 vprefs.defaults['old_prefs_migrated'] = False
@@ -223,6 +224,7 @@ def create_profile():
 class ViewerBridge(Bridge):
 
     set_session_data = from_js(object, object)
+    set_local_storage = from_js(object, object)
     reload_book = from_js()
     toggle_toc = from_js()
     toggle_bookmarks = from_js()
@@ -399,6 +401,7 @@ class WebView(RestartingWebEngineView):
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.set_session_data.connect(self.set_session_data)
+        self.bridge.set_local_storage.connect(self.set_local_storage)
         self.bridge.reload_book.connect(self.reload_book)
         self.bridge.toggle_toc.connect(self.toggle_toc)
         self.bridge.toggle_bookmarks.connect(self.toggle_bookmarks)
@@ -482,7 +485,7 @@ class WebView(RestartingWebEngineView):
         f = QApplication.instance().font()
         fi = QFontInfo(f)
         self.bridge.create_view(
-            vprefs['session_data'], QFontDatabase().families(), field_metadata.all_metadata(),
+            vprefs['session_data'], vprefs['local_storage'], QFontDatabase().families(), field_metadata.all_metadata(),
             f.family(), '{}px'.format(fi.pixelSize()), self.show_home_page_on_ready)
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
@@ -516,6 +519,14 @@ class WebView(RestartingWebEngineView):
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
                 apply_font_settings(self._page)
+
+    def set_local_storage(self, key, val):
+        if key == '*' and val is None:
+            vprefs['local_storage'] = {}
+        elif key != '*':
+            sd = vprefs['local_storage']
+            sd[key] = val
+            vprefs['local_storage'] = sd
 
     def do_callback(self, func_name, callback):
         cid = next(self.callback_id_counter)
