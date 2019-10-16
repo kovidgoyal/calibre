@@ -580,6 +580,7 @@ def map_epub_type(epub_type, attribs, elem):
 
 
 known_tags = ('img', 'script', 'link', 'image', 'style')
+discarded_tags = ('meta', 'base')
 
 
 def serialize_elem(elem, nsmap):
@@ -587,7 +588,7 @@ def serialize_elem(elem, nsmap):
     nl = name.lower()
     if ns == EPUB_NS:
         ns, name = None, 'epub-' + name
-    if nl in ('meta', 'base'):
+    if nl in discarded_tags:
         # Filter out <meta> tags as they have unknown side-effects
         # Filter out <base> tags as the viewer uses <base> for URL resolution
         return
