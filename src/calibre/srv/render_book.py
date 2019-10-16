@@ -587,8 +587,10 @@ def serialize_elem(elem, nsmap):
     nl = name.lower()
     if ns == EPUB_NS:
         ns, name = None, 'epub-' + name
-    if nl == 'meta':
-        return  # Filter out <meta> tags as they have unknown side-effects
+    if nl in ('meta', 'base'):
+        # Filter out <meta> tags as they have unknown side-effects
+        # Filter out <base> tags as the viewer uses <base> for URL resolution
+        return
     if nl in known_tags:
         name = nl
     ans = {'n':name}
