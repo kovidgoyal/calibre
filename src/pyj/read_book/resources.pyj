@@ -225,7 +225,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
         for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
             stack.push(v'[node[i], elem]')
 
-def unserialize_html(serialized_data, proceed, postprocess_dom):
+def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     nonlocal hide_tooltips
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
@@ -241,6 +241,13 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     document.head.appendChild(
         E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
     )
+    if runtime.is_standalone_viewer and root_name:
+        if root_name.indexOf('/') > -1:
+            base = window.location.pathname.rpartition('/')[0]
+            base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
+            document.head.appendChild(E.base(href=base))
+
+
     # Default stylesheet
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
