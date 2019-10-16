@@ -121,17 +121,14 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
-            rq.fail(rq.RequestDenied)
-            return
+            return self.fail_request(rq, rq.RequestDenied)
         url = rq.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            rq.fail(rq.UrlNotFound)
-            return
+            return self.fail_request(rq)
         name = url.path()[1:]
         if host == SANDBOX_HOST and not name.startswith('book/'):
-            rq.fail(rq.UrlNotFound)
-            return
+            return self.fail_request(rq)
         if name.startswith('book/'):
             name = name.partition('/')[2]
             if name == '__index__':
@@ -156,7 +153,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             except Exception:
                 import traceback
                 traceback.print_exc()
-                rq.fail(rq.RequestFailed)
+                return self.fail_request(rq, rq.RequestFailed)
         elif name == 'manifest':
             data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
             send_reply(rq, set_book_path.manifest_mime, data)
@@ -183,8 +180,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         raw = f.read()
                 except EnvironmentError as err:
                     prints("Failed to get mathjax file: {} with error: {}".format(name, err))
-                    rq.fail(rq.RequestFailed)
-                    return
+                    return self.fail_request(rq, rq.RequestFailed)
                 if 'MathJax.js' in name:
                     # raw = open(os.path.expanduser('~/work/mathjax/unpacked/MathJax.js')).read()
                     raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
@@ -192,6 +188,14 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 send_reply(rq, mt, raw)
         elif not name:
             send_reply(rq, 'text/html', viewer_html())
+        else:
+            return self.fail_request(rq)
+
+    def fail_request(self, rq, fail_code=None):
+        if fail_code is None:
+            fail_code = rq.UrlNotFound
+        rq.fail(fail_code)
+        prints("Blocking FAKE_PROTOCOL request: {}".format(rq.requestUrl().toString()))
 
 # }}}
 
