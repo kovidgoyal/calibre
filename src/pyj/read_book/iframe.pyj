@@ -80,7 +80,6 @@ class IframeBoss:
         self.last_cfi = None
         self.replace_history_on_next_cfi_update = True
         self.blob_url_map = {}
-        self.resource_urls = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
         self.forward_keypresses = False
@@ -108,7 +107,7 @@ class IframeBoss:
 
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
-        window.onerror = self.onerror
+        window.addEventListener('error', self.onerror)
         window.addEventListener('scroll', debounce(self.onscroll, 1000))
         window.addEventListener('scroll', self.no_latency_onscroll)
         window.addEventListener('resize', debounce(self.onresize, 500))
@@ -119,7 +118,13 @@ class IframeBoss:
         self.color_scheme = data.color_scheme
         create_touch_handlers()
 
-    def onerror(self, msg, script_url, line_number, column_number, error_object):
+    def onerror(self, evt):
+        msg = evt.message
+        script_url = evt.filename
+        line_number = evt.lineno
+        column_number = evt.colno
+        error_object = evt.error
+        evt.stopPropagation(), evt.preventDefault()
         if error_object is None:
             # This happens for cross-domain errors (probably javascript injected
             # into the browser via extensions/ userscripts and the like). It also
@@ -127,15 +132,16 @@ class IframeBoss:
             # type of error
             console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
             return
-        is_internal_error = not self.resource_urls[script_url]
+        is_internal_error = script_url in ('about:srcdoc', 'userscript:viewer.js')
         if is_internal_error:  # dont report errors from scripts in the book itself
-            console.log(error_object)
+            console.log(f'{script_url}: {error_object}')
             try:
                 fname = script_url.rpartition('/')[-1] or script_url
                 msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
                 details = traceback.format_exception(error_object).join('') if error_object else ''
+                if details:
+                    console.log(details)
                 self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
-                return True
             except:
                 console.log('There was an error in the iframe unhandled exception handler')
         else:
@@ -175,7 +181,7 @@ class IframeBoss:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
-        self.resource_urls = unserialize_html(root_data, self.content_loaded, None, data.name)
+        unserialize_html(root_data, self.content_loaded, None, data.name)
 
     def on_scroll_to_frac(self, data):
         self.to_scroll_fraction(data.frac)

@@ -189,7 +189,7 @@ def apply_attributes(src, elem, ns_map):
                 continue
             elem.setAttribute(a[0], a[1])
 
-def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
+def process_stack(stack, tag_map, ns_map, load_required, onload):
     while stack.length:
         node, parent = stack.pop()
         src = tag_map[node[0]]
@@ -206,7 +206,6 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
                 for a in src.a:
                     if a[0] is attr:
                         loadable = True
-                        resource_urls[a[1]] = True
                         break
         if loadable:
             load_required.add(node[0])
@@ -253,7 +252,6 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
         # for the standalone viewer the default font family is set
         # in the viewer settings
         document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
-    resource_urls = {}
     load_required = set()
     proceeded = False
     hang_timeout = 5
@@ -276,14 +274,14 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     stack = v'[]'
     for v'var i = head.length - 1; i >= 1; i--':
         stack.push(v'[head[i], document.head]')
-    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
+    process_stack(stack, tag_map, ns_map, load_required, onload)
     bnode = tag_map[body[0]]
     apply_attributes(bnode, document.body, ns_map)
     if bnode.x:
         document.body.appendChild(document.createTextNode(bnode.x))
     for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
         stack.push(v'[body[i], document.body]')
-    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
+    process_stack(stack, tag_map, ns_map, load_required, onload)
     if postprocess_dom:
         postprocess_dom()
     ev = document.createEvent('Event')
@@ -294,7 +292,6 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     else:
         proceeded = True
         proceed()
-    return resource_urls
 
 def text_from_serialized_html(data):
     serialized_data = JSON.parse(data)
