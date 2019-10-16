@@ -205,7 +205,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
             if src.a:
                 for a in src.a:
                     if a[0] is attr:
-                        loadable = a[1].startswith('blob:')
+                        loadable = True
                         resource_urls[a[1]] = True
                         break
         if loadable:
