@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import prints
+from calibre.constants import DEBUG
 from calibre.customize.ui import available_input_formats
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
@@ -37,6 +38,7 @@ from calibre.gui2.viewer.web_view import (
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
+from calibre.utils.monotonic import monotonic
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import as_bytes, itervalues
 
@@ -309,6 +311,8 @@ class EbookViewer(MainWindow):
             self.load_ebook(self.current_book_data['pathtoebook'], reload_book=True)
 
     def _load_ebook_worker(self, pathtoebook, open_at, reload_book):
+        if DEBUG:
+            start_time = monotonic()
         try:
             ans = prepare_book(pathtoebook, force=reload_book, prepare_notify=self.prepare_notify)
         except WorkerError as e:
@@ -317,6 +321,8 @@ class EbookViewer(MainWindow):
             import traceback
             self.book_prepared.emit(False, {'exception': e, 'tb': traceback.format_exc(), 'pathtoebook': pathtoebook})
         else:
+            if DEBUG:
+                print('Book prepared in {:.2f} seconds'.format(monotonic() - start_time))
             self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at})
 
     def prepare_notify(self):
