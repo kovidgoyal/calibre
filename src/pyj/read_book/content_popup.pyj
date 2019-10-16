@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
 from iframe_comm import IframeWrapper
-from read_book.globals import runtime
+from read_book.globals import runtime, ui_operations
 from read_book.resources import load_resources
 
 CLASS_NAME = 'book-content-popup-container'
@@ -80,6 +80,7 @@ class ContentPopupOverlay:
 
     def hide(self):
         self.container.style.display = 'none'
+        ui_operations.focus_iframe()
 
     def show(self):
         c = self.container
