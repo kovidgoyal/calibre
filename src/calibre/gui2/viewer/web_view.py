@@ -40,6 +40,7 @@ try:
 except ImportError:
     import sip
 
+SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 vprefs = JSONConfig('viewer-webengine')
 viewer_config_dir = os.path.join(config_dir, 'viewer')
 vprefs.defaults['session_data'] = {}
@@ -116,17 +117,21 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.mathjax_dir = P('mathjax', allow_user_override=False)
         self.mathjax_manifest = None
-        self.allowed_hosts = (FAKE_HOST, FAKE_HOST.rpartition('.')[0] + '.sandbox')
+        self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
             rq.fail(rq.RequestDenied)
             return
         url = rq.requestUrl()
-        if url.host() not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
+        host = url.host()
+        if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
             rq.fail(rq.UrlNotFound)
             return
         name = url.path()[1:]
+        if host == SANDBOX_HOST and not name.startswith('book/'):
+            rq.fail(rq.UrlNotFound)
+            return
         if name.startswith('book/'):
             name = name.partition('/')[2]
             if name == '__index__':
