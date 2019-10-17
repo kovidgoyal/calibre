@@ -222,10 +222,12 @@ def make(filename, outfile):
 
     # Compute output
     output = generate()
-
     try:
-        with open(outfile,"wb") as f:
-            f.write(output)
+        if hasattr(outfile, 'write'):
+            outfile.write(output)
+        else:
+            with open(outfile, "wb") as f:
+                f.write(output)
     except IOError as msg:
         print(msg, file=sys.stderr)
 
