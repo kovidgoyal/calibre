@@ -164,7 +164,7 @@ def finalize_resources(book, root_name, resource_data):
 
 js_types = {k: True for k in 'text/javascript text/ecmascript application/javascript application/ecmascript'.split(' ')}
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
-ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml'}
+ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml', 'http://www.idpf.org/2007/ops': 'epub'}
 ns_count = 0
 hide_tooltips = False
 
