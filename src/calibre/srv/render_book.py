@@ -232,6 +232,8 @@ class Container(ContainerBase):
         self.allow_no_cover = allow_no_cover
         ContainerBase.__init__(self, tdir, opfpath, log)
         self.book_metadata = book_metadata
+        input_plugin = plugin_for_input_format(input_fmt)
+        self.is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
         if save_bookmark_data:
             bm_file = 'META-INF/calibre_bookmarks.txt'
             self.bookmark_data = None
@@ -261,7 +263,7 @@ class Container(ContainerBase):
             'spine':spine,
             'link_uid': uuid4(),
             'book_hash': book_hash,
-            'is_comic': input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'},
+            'is_comic': self.is_comic,
             'raster_cover_name': raster_cover_name,
             'title_page_name': titlepage_name,
             'has_maths': False,
@@ -357,8 +359,7 @@ class Container(ContainerBase):
                 raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
                 with self.open(raster_cover_name, 'wb') as dest:
                     dest.write(generic_cover())
-            input_plugin = plugin_for_input_format(input_fmt)
-            if getattr(input_plugin, 'is_image_collection', False):
+            if self.is_comic:
                 return raster_cover_name, None
             item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
             titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
