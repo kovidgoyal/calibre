@@ -224,6 +224,7 @@ class PopupIframeBoss:
         show_footnote(self.frag, known_anchors)
 
     def content_loaded(self):
+        document.body.classList.add('calibre-footnote-container')
         if not self.comm.encrypted_communications:
             window.setTimeout(self.content_loaded, 2)
             return
