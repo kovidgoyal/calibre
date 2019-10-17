@@ -377,9 +377,9 @@ class Container(ContainerBase):
         link_xpath = XPath('//h:a[@href]')
         img_xpath = XPath('//h:img[@src]')
         res_link_xpath = XPath('//h:link[@href]')
-        head = ensure_head(self.parsed(name))
-        changed = False
         root = self.parsed(name)
+        head = ensure_head(root)
+        changed = False
         for style in style_xpath(root):
             # Firefox flakes out sometimes when dynamically creating <style> tags,
             # so convert them to external stylesheets to ensure they never fail
