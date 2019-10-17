@@ -1,0 +1,33 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+def fix_fullscreen_svg_images():
+    # Full screen images using SVG no longer render correctly
+    # webengine. This is because it sets the width to the
+    # viewport width and simply adjusts the height accordingly
+    # So we replace 100% with 100vw and 100vh to get the desired
+    # rendering
+    child_names = v'[]'
+    for node in document.body.childNodes:
+        if node.tagName:
+            name = node.tagName.toLowerCase()
+            if name is not 'style' and name is not 'script':
+                child_names.push(name)
+            if child_names.length > 1:
+                break
+    if child_names.length is 1 and child_names[0] is 'div':
+        names = []
+        svg = None
+        for node in document.body.querySelectorAll('*'):
+            if node.tagName:
+                name = node.tagName.toLowerCase()
+                if name is not 'style' and name is not 'script':
+                    names.push(name)
+                    if name is 'svg':
+                        svg = node
+        if names == ['div', 'svg', 'image'] or names == ['svg', 'image']:
+            if svg.getAttribute('width') is '100%' and svg.getAttribute('height') is '100%':
+                svg.setAttribute('width', '100vw')
+                svg.setAttribute('height', '100vh')

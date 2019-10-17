@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
+from fs_images import fix_fullscreen_svg_images
 from live_css import get_matched_css, get_sourceline_address
 from qt import from_python, to_python
 
@@ -172,3 +173,5 @@ document.documentElement.appendChild(E.style(
     type='text/css',
     '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
 ))
+
+fix_fullscreen_svg_images()
