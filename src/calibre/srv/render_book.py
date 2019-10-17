@@ -225,12 +225,11 @@ class Container(ContainerBase):
     tweak_mode = True
 
     def __init__(
-        self, path_to_ebook, tdir, log=None, book_hash=None, save_bookmark_data=False,
+        self, book_fmt, opfpath, input_fmt, tdir, log=None, book_hash=None, save_bookmark_data=False,
         book_metadata=None, allow_no_cover=True, virtualize_resources=True
     ):
         log = log or default_log
         self.allow_no_cover = allow_no_cover
-        book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
         self.book_metadata = book_metadata
         if save_bookmark_data:
@@ -686,8 +685,10 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
         from calibre.customize.ui import quick_metadata
         with lopen(pathtoebook, 'rb') as f, quick_metadata:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
+    book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
     container = Container(
-        pathtoebook, output_dir, book_hash=book_hash, save_bookmark_data=extract_annotations,
+        book_fmt, opfpath, input_fmt, output_dir, book_hash=book_hash,
+        save_bookmark_data=extract_annotations,
         book_metadata=mi, virtualize_resources=virtualize_resources
     )
     if serialize_metadata:
