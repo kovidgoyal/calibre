@@ -20,6 +20,106 @@
 #   new recipes:
 #     - title:
 
+- version: 4.2.0
+  date: 2019-10-18
+
+  new features:
+    - title: "macOS: Various improvements to dark mode support"
+
+    - title: "Viewer: Dont generate covers for books that dont have a cover. Note that because of this all previously opened books will again be prepared for first time reading."
+
+    - title: "Viewer: Restore print to PDF functionality"
+
+    - title: "Viewer: Allow also jumping to book positions in Goto->Location"
+
+    - title: "Content server: When adding books and a duplicate is suspected provide more information about what books match the duplicate"
+
+    - title: "FB2 Output: Speed up conversion of images and handle external links"
+
+    - title: "Viewer: If the book has no ToC try to generate one from headings, if any."
+      tickets: [1847277]
+
+    - title: "Viewer: Improve rendering of comics. No blank pages after large images or after every image in multi-page mode."
+
+    - title: "Viewer: Make it easier to use the bookmarks panel with only keyboard."
+      tickets: [1847423]
+
+    - title: "Viewer: Set the classes calibre-viewer-paginated and calibre-viewer-scrolling on the <body> tag in Paged and Flow modes. This allows the User styles to target these modes, if needed."
+      tickets: [1847427]
+
+    - title: "Viewer: Use the same loading spinner as is used by the rest of calibre"
+
+  bug fixes:
+    - title: "Edit book: Fix a crash when editing CSS files caused by a behavior change in Qt 5.13."
+      tickets: [1846760]
+
+    - title: "Fix a regression in 4.0 that broke rendering of PDF covers for PDF files that used JPEG2000 compression."
+      tickets: [1847567]
+
+    - title: "Viewer: Fix a regression in 4.1 that broke creating new color schemes"
+      tickets: [1847407]
+
+    - title: "Viewer: Fix error while viewing books with a comment after a <meta> tag."
+      tickets: [1847977]
+
+    - title: "Viewer: Fix an error when processing a CFI with an invalid text offset."
+      tickets: [1848320]
+
+    - title: "Viewer: Fix scrolling backwards to previous chapter not always scrolling to the end of the chapter, if the chapter loads external resources."
+      tickets: [1847818]
+
+    - title: "Viewer: Fix hang on books with namespaced attributes on <html> that do not belong to a known ebook namespace."
+      tickets: [1846886]
+
+    - title: "Viewer: Fix search history not persisting between viewer restarts."
+      tickets: [1847976]
+
+    - title: "Viewer: Fix scrollbar showing up on initial book open even if disabled in preferences."
+      tickets: [1847323]
+
+    - title: "Viewer: Fix rendering of books with mathematics failing"
+
+    - title: "Viewer: When changing between individual sections/chapters in the book, only render the new chapter after loading is complete"
+
+    - title: "Viewer: Fix scrolling by screenfuls not working correctly in flow mode"
+
+    - title: "EPUB 2 metadata: Fix obfuscated fonts being broken when updating metadata if the file uses Adobe font obfuscation and the identifier with the key has an uppercase UUID scheme name."
+      tickets: [1847890]
+
+    - title: "Viewer: Fix right clicking on margins not showing controls"
+
+    - title: "Viewer: Preselect text in search box when showing it."
+      tickets: [1847677]
+
+    - title: "Viewer: Fix SVG images that use xlink:href to refer to paths not being displayed."
+      tickets: [1847181]
+
+    - title: "Content server: Fix detection of iOS on iPAD with iOS 13 which defaults to desktop mode"
+
+    - title: "Metadata jacket: Fix <br> tags in the comments not being rendered correctly when inserting the comments into the jacket page."
+      tickets: [1848327]
+
+    - title: "Viewer: Show nicer error message for DRMed books"
+      tickets: [1847468]
+
+    - title: "Viewer: Fix preferences under Scrolling behavior not being saved correctly"
+
+    - title: "Viewer: Fix remembered position sometimes off by one page in paged mode."
+      tickets: [1847322]
+
+    - title: "Viewer: restrict max size of margin page turn indicators to 25px rather than 75px"
+
+    - title: "Viewer: Dont flash the home page before loading a book if a book has been specified"
+
+    - title: "Viewer: Fix ctrl+m shortcut not working on windows"
+
+    - title: "Content server: Fix regression that caused series name in book details view not not be blue to indicate it is clickable"
+
+  improved recipes:
+    - Various Polish news sources
+    - Il Sole 24 Ore
+
+
 - version: 4.1.0
   date: 2019-10-07
 
