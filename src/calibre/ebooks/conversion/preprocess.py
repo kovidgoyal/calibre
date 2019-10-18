@@ -347,19 +347,19 @@ class CSSPreProcessor(object):
 class HTMLPreProcessor(object):
 
     PREPROCESS = [
-                  # Remove huge block of contiguous spaces as they slow down
-                  # the following regexes pretty badly
-                  (re.compile(r'\s{10000,}'), lambda m: ''),
-                  # Some idiotic HTML generators (Frontpage I'm looking at you)
-                  # Put all sorts of crap into <head>. This messes up lxml
-                  (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
-                   sanitize_head),
-                  # Convert all entities, since lxml doesn't handle them well
-                  (re.compile(r'&(\S+?);'), convert_entities),
-                  # Remove the <![if/endif tags inserted by everybody's darling, MS Word
-                  (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE),
-                   lambda match: ''),
-                  ]
+        # Remove huge block of contiguous spaces as they slow down
+        # the following regexes pretty badly
+        (re.compile(r'\s{10000,}'), lambda m: ''),
+        # Some idiotic HTML generators (Frontpage I'm looking at you)
+        # Put all sorts of crap into <head>. This messes up lxml
+        (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
+        sanitize_head),
+        # Convert all entities, since lxml doesn't handle them well
+        (re.compile(r'&(\S+?);'), convert_entities),
+        # Remove the <![if/endif tags inserted by everybody's darling, MS Word
+        (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE),
+        lambda match: ''),
+    ]
 
     # Fix pdftohtml markup
     PDFTOHTML  = [
@@ -636,7 +636,9 @@ class HTMLPreProcessor(object):
 
         for rule in rules + end_rules:
             try:
+                print(rule[0].pattern)
                 html = rule[0].sub(rule[1], html)
+                print(222222222222)
             except Exception as e:
                 if rule in user_sr_rules:
                     self.log.error(
