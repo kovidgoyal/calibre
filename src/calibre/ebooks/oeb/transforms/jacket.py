@@ -10,8 +10,6 @@ import sys, os, re
 from xml.sax.saxutils import escape
 from string import Formatter
 
-from lxml import etree
-
 from calibre import guess_type, strftime
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
@@ -269,7 +267,6 @@ def render_jacket(mi, output_profile,
 
     comments = mi.comments if mi.comments else alt_comments
     comments = comments.strip()
-    orig_comments = comments
     if comments:
         comments = comments_to_html(comments)
 
@@ -349,17 +346,10 @@ def render_jacket(mi, output_profile,
 
         return strip_encoding_declarations(generated_html)
 
-    from calibre.ebooks.oeb.base import RECOVER_PARSER
+    from calibre.ebooks.oeb.polish.parsing import parse
+    raw = generate_html(comments)
+    root = parse(raw, line_numbers=False, force_html5_parse=True)
 
-    try:
-        root = etree.fromstring(generate_html(comments), parser=RECOVER_PARSER)
-    except:
-        try:
-            root = etree.fromstring(generate_html(escape(orig_comments)),
-                parser=RECOVER_PARSER)
-        except:
-            root = etree.fromstring(generate_html(''),
-                parser=RECOVER_PARSER)
     if rescale_fonts:
         # We ensure that the conversion pipeline will set the font sizes for
         # text in the jacket to the same size as the font sizes for the rest of
