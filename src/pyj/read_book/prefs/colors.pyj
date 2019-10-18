@@ -10,6 +10,7 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
 from read_book.globals import default_color_schemes, ui_operations
 from read_book.prefs.utils import create_button_box
+from session import defaults
 from widgets import create_button
 
 CONTAINER = unique_id('reader-color-scheme')
@@ -37,7 +38,7 @@ def get_container():
 
 def resolve_color_scheme(current_color_scheme):
     sd = get_session_data()
-    cs = current_color_scheme or sd.get('current_color_scheme') or 'white'
+    cs = current_color_scheme or sd.get('current_color_scheme') or defaults.current_color_scheme
     ucs = sd.get('user_color_schemes')
     if default_color_schemes[cs]:
         ans = default_color_schemes[cs]
@@ -95,7 +96,11 @@ def remove_color_scheme(ev):
 
 
 def current_color_scheme():
-    return get_container().querySelector('li.current-color').getAttribute('data-name')
+    try:
+        return get_container().querySelector('li.current-color').getAttribute('data-name')
+    except Exception:
+        return defaults.current_color_scheme
+
 
 def set_current_color_scheme(value):
     ul = document.getElementById(COLOR_LIST)
@@ -155,10 +160,13 @@ def create_color_buttons():
     clear(ul)
     all_schemes = all_color_schemes()
     ccs = sd.get('current_color_scheme')
+    if not all_schemes[ccs]:
+        ccs = defaults.current_color_scheme
     for name in sorted(all_schemes, key=def(k):return all_schemes[k].name.toLowerCase();):
         scheme = all_schemes[name]
+        is_current = name is ccs
         item = set_css(E.li(svgicon('check'), '\xa0' + scheme.name, data_name=name, onclick=change_current_color,
-                            class_='current-color' if name is ccs else ''),
+                            class_='current-color' if is_current else ''),
                        color=scheme.foreground, background_color=scheme.background)
         ul.appendChild(item)
 
@@ -180,6 +188,7 @@ def create_colors_panel(container, apply_func, cancel_func):
     cs = resolve_color_scheme()
     container.dataset.bg = cs.background
     container.dataset.fg = cs.foreground
+    container.dataset.link = cs.link or ''
     container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
     ul = E.ul(id=COLOR_LIST)
     container.appendChild(ul)
@@ -219,8 +228,8 @@ def commit_colors(onchange):
     ccs = current_color_scheme()
     rcs = resolve_color_scheme(ccs)
     c = get_container()
-    if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg:
-        sd = get_session_data()
-        sd.set('current_color_scheme', ccs)
+    sd = get_session_data()
+    sd.set('current_color_scheme', ccs)
+    if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg or c.dataset.link is not rcs.link:
         ui_operations.update_color_scheme()
         onchange()
