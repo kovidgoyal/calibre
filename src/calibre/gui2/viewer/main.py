@@ -206,7 +206,7 @@ def main(args=sys.argv):
     main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading)
     main.set_exception_handler()
     if len(args) > 1:
-        acc.events.append(args[-1])
+        acc.events.append(os.path.abspath(args[-1]))
     acc.got_file.connect(main.handle_commandline_arg)
     main.show()
     main.msg_from_anotherinstance.connect(main.another_instance_wants_to_talk, type=Qt.QueuedConnection)
