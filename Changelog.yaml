@@ -25,6 +25,7 @@
 
   new features:
     - title: "macOS: Various improvements to dark mode support"
+      tickets: [1847571]
 
     - title: "Viewer: Dont generate covers for books that dont have a cover. Note that because of this all previously opened books will again be prepared for first time reading."
 
