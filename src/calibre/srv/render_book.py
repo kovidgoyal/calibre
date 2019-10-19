@@ -709,5 +709,12 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
                 f.write(annotations)
 
 
+def render_for_viewer(path, out_dir, book_hash):
+    return render(
+        path, out_dir, book_hash=book_hash, serialize_metadata=True,
+        extract_annotations=True, virtualize_resources=False
+    )
+
+
 if __name__ == '__main__':
     render(sys.argv[-2], sys.argv[-1], serialize_metadata=True)
