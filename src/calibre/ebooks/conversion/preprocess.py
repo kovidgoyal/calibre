@@ -372,12 +372,13 @@ def accent_regex(accent_maps, letter_before=False):
     return pat, sub
 
 
-class HTMLPreProcessor(object):
-
-    PREPROCESS = [
+def html_preprocess_rules():
+    ans = getattr(html_preprocess_rules, 'ans', None)
+    if ans is None:
+        ans = html_preprocess_rules.ans = [
         # Remove huge block of contiguous spaces as they slow down
         # the following regexes pretty badly
-        (re.compile(r'\s{10000,}'), lambda m: ''),
+        (re.compile(r'\s{10000,}'), ''),
         # Some idiotic HTML generators (Frontpage I'm looking at you)
         # Put all sorts of crap into <head>. This messes up lxml
         (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
@@ -385,12 +386,15 @@ class HTMLPreProcessor(object):
         # Convert all entities, since lxml doesn't handle them well
         (re.compile(r'&(\S+?);'), convert_entities),
         # Remove the <![if/endif tags inserted by everybody's darling, MS Word
-        (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE),
-        lambda match: ''),
+        (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE), ''),
     ]
+    return ans
 
-    # Fix pdftohtml markup
-    PDFTOHTML  = [
+
+def pdftohtml_rules():
+    ans = getattr(pdftohtml_rules, 'ans', None)
+    if ans is None:
+        ans = pdftohtml_rules.ans = [
         accent_regex({
             '¨': 'aAeEiIoOuU:äÄëËïÏöÖüÜ',
             '`': 'aAeEiIoOuU:àÀèÈìÌòÒùÙ',
@@ -428,9 +432,13 @@ class HTMLPreProcessor(object):
         (re.compile(r'(?<!“)<i>'), ' <i>'),
         (re.compile(r'</i>(?=\w)'), '</i> '),
     ]
+    return ans
 
-    # Fix Book Designer markup
-    BOOK_DESIGNER = [
+
+def book_designer_rules():
+    ans = getattr(book_designer_rules, 'ans', None)
+    if ans is None:
+        ans = book_designer_rules.ans = [
         # HR
         (re.compile('<hr>', re.IGNORECASE),
         lambda match : '<span style="page-break-after:always"> </span>'),
@@ -444,6 +452,10 @@ class HTMLPreProcessor(object):
         (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
     ]
+    return None
+
+
+class HTMLPreProcessor(object):
 
     def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log
@@ -470,9 +482,9 @@ class HTMLPreProcessor(object):
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
-            rules = self.BOOK_DESIGNER
+            rules = book_designer_rules()
         elif is_pdftohtml:
-            rules = self.PDFTOHTML
+            rules = pdftohtml_rules()
         else:
             rules = []
 
@@ -538,7 +550,7 @@ class HTMLPreProcessor(object):
                         r'\s*[\w\d$(])') % length, re.UNICODE), wrap_lines),
                 )
 
-        for rule in self.PREPROCESS + start_rules:
+        for rule in html_preprocess_rules() + start_rules:
             html = rule[0].sub(rule[1], html)
 
         if self.regex_wizard_callback is not None:
