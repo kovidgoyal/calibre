@@ -105,7 +105,7 @@ def fix_fullscreen_images(container):
             child_tags.append(tag)
             if len(child_tags) > 1:
                 break
-        if len(child_tags) == 1 and child_tags[0] == 'div':
+        if len(child_tags) == 1 and child_tags[0] in ('div', 'svg'):
             names = []
             svg = None
             for elem in body.iterdescendants('*'):

@@ -27,8 +27,8 @@ def fix_fullscreen_svg_images():
                 child_names.push(name)
             if child_names.length > 1:
                 break
-    if child_names.length is 1 and child_names[0] is 'div':
-        names = []
+    if child_names.length is 1 and (child_names[0] is 'div' or child_names[0] is 'svg'):
+        names = v'[]'
         svg = None
         for node in document.body.querySelectorAll('*'):
             if node.tagName:
