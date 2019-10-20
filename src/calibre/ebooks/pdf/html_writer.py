@@ -363,13 +363,14 @@ def create_margin_files(container):
 # Link handling  {{{
 def add_anchors_markup(root, uuid, anchors):
     body = last_tag(root)
-    div = body.makeelement(XHTML('div'), id=uuid, style='page-break-before: always')
+    div = body.makeelement(XHTML('div'), id=uuid, style='display:block; page-break-before: always; break-before: always')
     body.append(div)
 
     def a(anchor):
-        div.append(div.makeelement(XHTML('a'), href='#' + anchor))
-        div[-1].text = '\xa0'
-        div[-1].tail = ' '
+        a = div.makeelement(
+            XHTML('a'), href='#' + anchor, style='white-space: pre; min-width: 10px; min-height: 10px; border: solid 1px')
+        a.text = a.tail = ' '
+        div.append(a)
     tuple(map(a, anchors))
     a(uuid)
 
