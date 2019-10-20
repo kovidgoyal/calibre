@@ -502,6 +502,11 @@ class Container(ContainerBase):
 
     def serialize_item(self, name):
         mt = (self.mime_map[name] or '').lower()
+        if mt in OEB_STYLES:
+            ans = ContainerBase.serialize_item(self, name).lstrip()
+            if not ans.startswith(b'@charset'):
+                ans = b'@charset "UTF-8";\n' + ans
+            return ans
         if mt not in OEB_DOCS:
             return ContainerBase.serialize_item(self, name)
         root = self.parsed(name)
