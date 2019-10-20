@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, time, importlib
+import os, time, traceback, importlib
 from multiprocessing.connection import Client
 from threading import Thread
 from contextlib import closing
@@ -15,6 +15,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.serialize import msgpack_loads, msgpack_dumps
+from calibre.utils.monotonic import monotonic
 from polyglot.builtins import unicode_type, string_or_bytes, environ_item
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
@@ -94,12 +95,12 @@ def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
         abort=None):
     cw = ConnectedWorker(listener, args)
     cw.start()
-    st = time.time()
+    st = monotonic()
     check_heartbeat = callable(heartbeat)
 
     while worker.is_alive and cw.is_alive():
         cw.join(0.01)
-        delta = time.time() - st
+        delta = monotonic() - st
         if not cw.accepted and delta > min(10, timeout):
             break
         hung = not heartbeat() if check_heartbeat else delta > timeout
