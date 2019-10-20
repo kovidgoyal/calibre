@@ -432,7 +432,7 @@ def add_all_links(container, margin_files):
     return uuid
 
 
-def make_anchors_unique(container):
+def make_anchors_unique(container, log):
     mapping = {}
     count = 0
     base = None
@@ -461,6 +461,10 @@ def make_anchors_unique(container):
         key = name, frag
         new_frag = mapping.get(key)
         if new_frag is None:
+            if name in spine_names:
+                log.warn('Link anchor: {}#{} not found, linking to top of file instead'.format(name, frag))
+                replacer.replaced = True
+                return 'https://calibre-pdf-anchor.n#' + name
             return url.rstrip('#')
         replacer.replaced = True
         return 'https://calibre-pdf-anchor.a#' + new_frag
@@ -1120,7 +1124,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     has_maths = add_maths_script(container)
     fix_fullscreen_images(container)
 
-    name_anchor_map = make_anchors_unique(container)
+    name_anchor_map = make_anchors_unique(container, log)
     margin_files = tuple(create_margin_files(container))
     toc = get_toc(container, verify_destinations=False)
     has_toc = toc and len(toc)
