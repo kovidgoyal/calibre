@@ -75,6 +75,49 @@ def create_skeleton(container):
     container.replace(name, root)
     return name
 
+
+def local_name(x):
+    return x.split('}', 1)[-1].lower()
+
+
+def fix_fullscreen_images(container):
+
+    def is_svg_fs_markup(names, svg):
+        if svg is not None:
+            if len(names) == 2 or len(names) == 3:
+                if names[-1] == 'image' and names[-2] == 'svg':
+                    if len(names) == 2 or names[0] == 'div':
+                        if svg.get('width') == '100%' and svg.get('height') == '100%':
+                            return True
+        return False
+
+    for file_name, is_linear in container.spine_names:
+        root = container.parsed(file_name)
+        root_kids = tuple(root.iterchildren('*'))
+        if not root_kids:
+            continue
+        body = root_kids[-1]
+        child_tags = []
+        for child in body.iterchildren('*'):
+            tag = local_name(child.tag)
+            if tag in ('script', 'style'):
+                continue
+            child_tags.append(tag)
+            if len(child_tags) > 1:
+                break
+        if len(child_tags) == 1 and child_tags[0] == 'div':
+            names = []
+            svg = None
+            for elem in body.iterdescendants('*'):
+                name = local_name(elem.tag)
+                if name != 'style' and name != 'script':
+                    names.append(name)
+                    if name == 'svg':
+                        svg = elem
+            if is_svg_fs_markup(names, svg):
+                svg.set('width', '100vw')
+                svg.set('height', '100vh')
+                container.dirty(file_name)
 # }}}
 
 
@@ -1075,6 +1118,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
     has_maths = add_maths_script(container)
+    fix_fullscreen_images(container)
 
     name_anchor_map = make_anchors_unique(container)
     margin_files = tuple(create_margin_files(container))
