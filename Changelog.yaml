@@ -1427,7 +1427,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
   new features:
     - title: "Content server: Allow editing the metadata of books from the book details page"
       type: major
-      description: "On the book details page, you can now edit any metadata and change covers by clicking the edit metadata icon in the right area of the top bar. Note that only users that have write permissions for the library can edit metadata."
+      description: "On the book details page, you can now edit any metadata and change covers by clicking the Edit metadata icon in the right area of the top bar. Note that only users that have write permissions for the library can edit metadata."
 
     - title: "Kobo driver: Recognize Kobo Aura 2 with new firmware (4.6.10188)"
 
