@@ -251,8 +251,9 @@ class ChooseLibrary(Dialog):  # {{{
 
     def current_changed(self):
         i = self.items.currentItem() or self.items.item(0)
-        loc = i.data(Qt.UserRole)
-        self.le.setText(loc)
+        if i is not None:
+            loc = i.data(Qt.UserRole)
+            self.le.setText(loc)
 
     def browse(self):
         d = choose_dir(self, 'choose_library_for_copy',
