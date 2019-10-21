@@ -475,8 +475,10 @@ def get_cover(metadata):
     etag = etag.decode('utf-8')
     cached, etag = download_cover(metadata['cover-url'], etag, cached)
     if cached:
-        with open(cover_file, 'wb') as f:
+        aname = cover_file + '.atomic'
+        with open(aname, 'wb') as f:
             f.write(cached)
+        atomic_rename(aname, cover_file)
     if etag:
         with open(etag_file, 'wb') as f:
             f.write(as_bytes(etag))
