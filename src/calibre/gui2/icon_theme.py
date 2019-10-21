@@ -483,9 +483,13 @@ def get_cover(metadata):
     return cached or b''
 
 
-def get_covers(themes, callback, num_of_workers=8):
+def get_covers(themes, dialog, num_of_workers=8):
     items = Queue()
     tuple(map(items.put, themes))
+
+    def callback(metadata, x):
+        if not sip.isdeleted(dialog) and not dialog.dialog_closed:
+            dialog.cover_downloaded.emit(metadata, x)
 
     def run():
         while True:
@@ -579,11 +583,16 @@ class ChooseTheme(Dialog):
         except Exception:
             self.current_theme = None
         Dialog.__init__(self, _('Choose an icon theme'), 'choose-icon-theme-dialog', parent)
+        self.finished.connect(self.on_finish)
+        self.dialog_closed = False
         self.themes_downloaded.connect(self.show_themes, type=Qt.QueuedConnection)
         self.cover_downloaded.connect(self.set_cover, type=Qt.QueuedConnection)
         self.keep_downloading = True
         self.commit_changes = None
         self.new_theme_title = None
+
+    def on_finish(self):
+        self.dialog_closed = True
 
     def sizeHint(self):
         desktop  = QApplication.instance().desktop()
@@ -707,7 +716,7 @@ class ChooseTheme(Dialog):
         for theme in self.themes:
             theme['usage'] = self.usage.get(theme['name'], 0)
         self.re_sort()
-        get_covers(self.themes, self.cover_downloaded.emit)
+        get_covers(self.themes, self)
 
     def __iter__(self):
         for i in range(self.theme_list.count()):
