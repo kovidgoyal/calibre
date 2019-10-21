@@ -7,22 +7,26 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import re
+import shutil
 import sys
+import time
 from collections import defaultdict
 from datetime import datetime
 from functools import partial
 from itertools import count
+from math import ceil
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
 
-from calibre import force_unicode, prepare_string_for_xml
+from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
+from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
-    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath, rewrite_links,
-    urlunquote
+    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath,
+    rewrite_links, urlunquote
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
@@ -31,9 +35,12 @@ from calibre.ebooks.oeb.polish.cover import (
 )
 from calibre.ebooks.oeb.polish.css import transform_inline_styles
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
-from calibre.ebooks.oeb.polish.utils import extract, guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.srv.metadata import encode_datetime
+from calibre.srv.opts import grouper
 from calibre.utils.date import EPOCH
+from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.logging import default_log
 from calibre.utils.serialize import json_loads
@@ -42,7 +49,9 @@ from polyglot.binary import (
     as_base64_unicode as encode_component, from_base64_bytes,
     from_base64_unicode as decode_component
 )
-from polyglot.builtins import is_py3, iteritems, map, unicode_type
+from polyglot.builtins import (
+    as_bytes, is_py3, iteritems, itervalues, map, unicode_type
+)
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -220,297 +229,429 @@ def toc_anchor_map(toc):
     return dict(ans)
 
 
-class Container(ContainerBase):
+def serialize_parsed_html(root):
+    return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
+
+
+class SimpleContainer(ContainerBase):
 
     tweak_mode = True
 
-    def __init__(
-        self, book_fmt, opfpath, input_fmt, tdir, log=None, book_hash=None, save_bookmark_data=False,
-        book_metadata=None, allow_no_cover=True, virtualize_resources=True
-    ):
-        log = log or default_log
-        self.allow_no_cover = allow_no_cover
-        ContainerBase.__init__(self, tdir, opfpath, log)
-        self.book_metadata = book_metadata
-        input_plugin = plugin_for_input_format(input_fmt)
-        self.is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
-        if save_bookmark_data:
-            bm_file = 'META-INF/calibre_bookmarks.txt'
-            self.bookmark_data = None
-            if self.exists(bm_file):
-                with self.open(bm_file, 'rb') as f:
-                    self.bookmark_data = f.read()
-        # We do not add zero byte sized files as the IndexedDB API in the
-        # browser has no good way to distinguish between zero byte files and
-        # load failures.
-        excluded_names = {
-            name for name, mt in iteritems(self.mime_map) if
-            name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
-            name == 'mimetype' or not self.has_name_and_is_not_empty(name)}
-        raster_cover_name, titlepage_name = self.create_cover_page(input_fmt.lower())
 
-        toc = get_toc(self).to_dict(count())
-        if not toc or not toc.get('children'):
-            toc = from_xpaths(self, ['//h:h1', '//h:h2', '//h:h3']).to_dict(count())
-        spine = [name for name, is_linear in self.spine_names]
-        spineq = frozenset(spine)
-        landmarks = [l for l in get_landmarks(self) if l['dest'] in spineq]
+def create_cover_page(container, input_fmt, allow_no_cover, book_metadata=None):
+    templ = '''
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head><style>
+    html, body, img { height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }
+    img {
+        width: 100%%; height: 100%%;
+        object-fit: contain;
+        margin-left: auto; margin-right: auto;
+        max-width: 100vw; max-height: 100vh;
+        top: 50vh; transform: translateY(-50%%);
+        position: relative;
+    }
+    body.cover-fill img { object-fit: fill; }
+    </style></head><body><img src="%s"/></body></html>
+    '''
 
-        self.book_render_data = data = {
-            'version': RENDER_VERSION,
-            'toc':toc,
-            'book_format': book_fmt,
-            'spine':spine,
-            'link_uid': uuid4(),
-            'book_hash': book_hash,
-            'is_comic': self.is_comic,
-            'raster_cover_name': raster_cover_name,
-            'title_page_name': titlepage_name,
-            'has_maths': False,
-            'total_length': 0,
-            'spine_length': 0,
-            'toc_anchor_map': toc_anchor_map(toc),
-            'landmarks': landmarks,
-            'link_to_map': {},
-        }
-        # Mark the spine as dirty since we have to ensure it is normalized
-        for name in data['spine']:
-            self.parsed(name), self.dirty(name)
-        self.virtualized_names = set()
-        self.transform_all(virtualize_resources)
+    def generic_cover():
+        if book_metadata is not None:
+            from calibre.ebooks.covers import create_cover
+            mi = book_metadata
+            return create_cover(mi.title, mi.authors, mi.series, mi.series_index)
+        return BLANK_JPEG
 
-        def manifest_data(name):
-            mt = (self.mime_map.get(name) or 'application/octet-stream').lower()
-            ans = {
-                'size':os.path.getsize(self.name_path_map[name]),
-                'is_virtualized': name in self.virtualized_names,
-                'mimetype':mt,
-                'is_html': mt in OEB_DOCS,
-            }
-            if ans['is_html']:
-                root = self.parsed(name)
-                ans['length'] = l = get_length(root)
-                self.book_render_data['total_length'] += l
-                if name in data['spine']:
-                    self.book_render_data['spine_length'] += l
-                ans['has_maths'] = hm = check_for_maths(root)
-                if hm:
-                    self.book_render_data['has_maths'] = True
-                ans['anchor_map'] = anchor_map(root)
-            return ans
-        data['files'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names}
-        self.commit()
-        for name in excluded_names:
-            os.remove(self.name_path_map[name])
-        data = json.dumps(self.book_render_data, ensure_ascii=False)
-        if not isinstance(data, bytes):
-            data = data.encode('utf-8')
-        with lopen(os.path.join(self.root, 'calibre-book-manifest.json'), 'wb') as f:
-            f.write(data)
+    if input_fmt == 'epub':
 
-    def create_cover_page(self, input_fmt):
-        templ = '''
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-        <head><style>
-        html, body, img { height: 100vh; display: block; margin: 0; padding: 0; border-width: 0; }
-        img {
-            width: 100%%; height: 100%%;
-            object-fit: contain;
-            margin-left: auto; margin-right: auto;
-            max-width: 100vw; max-height: 100vh;
-            top: 50vh; transform: translateY(-50%%);
-            position: relative;
-        }
-        body.cover-fill img { object-fit: fill; }
-        </style></head><body><img src="%s"/></body></html>
-        '''
+        def image_callback(cover_image, wrapped_image):
+            if cover_image:
+                image_callback.cover_data = container.raw_data(cover_image, decode=False)
+            if wrapped_image and not getattr(image_callback, 'cover_data', None):
+                image_callback.cover_data = container.raw_data(wrapped_image, decode=False)
 
-        def generic_cover():
-            if self.book_metadata is not None:
-                from calibre.ebooks.covers import create_cover
-                mi = self.book_metadata
-                return create_cover(mi.title, mi.authors, mi.series, mi.series_index)
-            return BLANK_JPEG
+        def cover_path(action, data):
+            if action == 'write_image':
+                cdata = getattr(image_callback, 'cover_data', None) or generic_cover()
+                data.write(cdata)
 
-        if input_fmt == 'epub':
-
-            def image_callback(cover_image, wrapped_image):
-                if cover_image:
-                    image_callback.cover_data = self.raw_data(cover_image, decode=False)
-                if wrapped_image and not getattr(image_callback, 'cover_data', None):
-                    image_callback.cover_data = self.raw_data(wrapped_image, decode=False)
-
-            def cover_path(action, data):
-                if action == 'write_image':
-                    cdata = getattr(image_callback, 'cover_data', None) or generic_cover()
-                    data.write(cdata)
-
-            if self.allow_no_cover and not has_epub_cover(self):
+        if allow_no_cover and not has_epub_cover(container):
+            return None, None
+        raster_cover_name, titlepage_name = set_epub_cover(
+                container, cover_path, (lambda *a: None), options={'template':templ},
+                image_callback=image_callback)
+    else:
+        raster_cover_name = find_cover_image(container, strict=True)
+        if raster_cover_name is None:
+            if allow_no_cover:
                 return None, None
-            raster_cover_name, titlepage_name = set_epub_cover(
-                    self, cover_path, (lambda *a: None), options={'template':templ},
-                    image_callback=image_callback)
-        else:
-            raster_cover_name = find_cover_image(self, strict=True)
-            if raster_cover_name is None:
-                if self.allow_no_cover:
-                    return None, None
-                item = self.generate_item(name='cover.jpeg', id_prefix='cover')
-                raster_cover_name = self.href_to_name(item.get('href'), self.opf_name)
-                with self.open(raster_cover_name, 'wb') as dest:
-                    dest.write(generic_cover())
-            if self.is_comic:
-                return raster_cover_name, None
-            item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
-            titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
-            raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)
-            with self.open(titlepage_name, 'wb') as f:
-                f.write(raw.encode('utf-8'))
-            spine = self.opf_xpath('//opf:spine')[0]
-            ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
-            self.insert_into_xml(spine, ref, index=0)
-            self.dirty(self.opf_name)
-        return raster_cover_name, titlepage_name
+            item = container.generate_item(name='cover.jpeg', id_prefix='cover')
+            raster_cover_name = container.href_to_name(item.get('href'), container.opf_name)
+            with container.open(raster_cover_name, 'wb') as dest:
+                dest.write(generic_cover())
+        if container.is_comic:
+            return raster_cover_name, None
+        item = container.generate_item(name='titlepage.html', id_prefix='titlepage')
+        titlepage_name = container.href_to_name(item.get('href'), container.opf_name)
+        raw = templ % prepare_string_for_xml(container.name_to_href(raster_cover_name, titlepage_name), True)
+        with container.open(titlepage_name, 'wb') as f:
+            f.write(raw.encode('utf-8'))
+        spine = container.opf_xpath('//opf:spine')[0]
+        ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
+        container.insert_into_xml(spine, ref, index=0)
+        container.dirty(container.opf_name)
+    return raster_cover_name, titlepage_name
 
-    def transform_html(self, name, virtualize_resources):
-        style_xpath = XPath('//h:style')
-        link_xpath = XPath('//h:a[@href]')
-        img_xpath = XPath('//h:img[@src]')
-        res_link_xpath = XPath('//h:link[@href]')
-        root = self.parsed(name)
-        head = ensure_head(root)
-        changed = False
-        for style in style_xpath(root):
-            # Firefox flakes out sometimes when dynamically creating <style> tags,
-            # so convert them to external stylesheets to ensure they never fail
-            if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
-                in_head = has_ancestor(style, head)
-                if not in_head:
-                    extract(style)
-                    head.append(style)
-                css = style.text
-                style.clear()
-                style.tag = XHTML('link')
-                style.set('type', 'text/css')
-                style.set('rel', 'stylesheet')
-                sname = self.add_file(name + '.css', css.encode('utf-8'), modify_name_if_needed=True)
-                style.set('href', self.name_to_href(sname, name))
-                changed = True
 
-        # Used for viewing images
-        for img in img_xpath(root):
-            img_name = self.href_to_name(img.get('src'), name)
-            if img_name:
-                img.set('data-calibre-src', img_name)
-                changed = True
-
-        # Disable non stylsheet link tags. This link will not be loaded by the
-        # browser anyway and will causes the resource load check to hang
-        for link in res_link_xpath(root):
-            ltype = (link.get('type') or 'text/css').lower()
-            rel = (link.get('rel') or 'stylesheet').lower()
-            if ltype != 'text/css' or rel != 'stylesheet':
-                link.attrib.clear()
-                changed = True
-
-        # Transform <style> and style=""
-        if transform_inline_styles(self, name, transform_sheet=transform_sheet, transform_style=transform_declaration):
+def transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names):
+    changed = False
+    sheet = container.parsed(name)
+    if virtualize_resources:
+        changed_names = set()
+        link_replacer = create_link_replacer(container, link_uid, changed_names)
+        replaceUrls(sheet, partial(link_replacer, name))
+        if name in changed_names:
             changed = True
+            virtualized_names.add(name)
+    if transform_sheet(sheet):
+        changed = True
+    if changed:
+        raw = container.serialize_item(name)
+    else:
+        raw = container.raw_data(name, decode=False)
+    raw = raw.lstrip()
+    if not raw.startswith(b'@charset'):
+        raw = b'@charset "UTF-8";\n' + raw
+        changed = True
+    if changed:
+        with container.open(name, 'wb') as f:
+            f.write(raw)
 
-        if not virtualize_resources:
-            link_uid = self.book_render_data['link_uid']
-            link_replacer = create_link_replacer(self, link_uid, set())
-            ltm = self.book_render_data['link_to_map']
-            for a in link_xpath(root):
-                href = link_replacer(name, a.get('href'))
-                if href and href.startswith(link_uid):
-                    a.set('href', 'javascript:void(0)')
-                    parts = decode_url(href.split('|')[1])
-                    lname, lfrag = parts[0], parts[1]
-                    ltm.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                    a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
-                    changed = True
 
-        if changed:
-            self.dirty(name)
+def transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names):
+    if not virtualize_resources:
+        return
+    link_replacer = create_link_replacer(container, link_uid, set())
+    xlink = XLINK('href')
+    altered = False
+    xlink_xpath = XPath('//*[@xl:href]')
+    for elem in xlink_xpath(container.parsed(name)):
+        href = elem.get(xlink)
+        if not href.startswith('#'):
+            elem.set(xlink, link_replacer(name, href))
+            altered = True
+    if altered:
+        virtualized_names.add(name)
+        container.dirty(name)
+        container.commit_item(name)
 
-    def transform_css(self, name):
-        sheet = self.parsed(name)
-        if transform_sheet(sheet):
-            self.dirty(name)
 
-    def transform_all(self, virtualize_resources):
-        for name, mt in tuple(iteritems(self.mime_map)):
-            mt = mt.lower()
-            if mt in OEB_DOCS:
-                self.transform_html(name, virtualize_resources)
-        for name, mt in tuple(iteritems(self.mime_map)):
-            mt = mt.lower()
-            if mt in OEB_STYLES:
-                self.transform_css(name)
+def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names):
+    link_xpath = XPath('//h:a[@href]')
+    img_xpath = XPath('//h:img[@src]')
+    res_link_xpath = XPath('//h:link[@href]')
+    root = container.parsed(name)
+    changed_names = set()
+    link_replacer = create_link_replacer(container, link_uid, changed_names)
+
+    # Used for viewing images
+    for img in img_xpath(root):
+        img_name = container.href_to_name(img.get('src'), name)
+        if img_name:
+            img.set('data-calibre-src', img_name)
+
+    # Disable non-stylesheet link tags. This link will not be loaded by the
+    # browser anyway and will causes the resource load check to hang
+    for link in res_link_xpath(root):
+        ltype = (link.get('type') or 'text/css').lower()
+        rel = (link.get('rel') or 'stylesheet').lower()
+        if ltype != 'text/css' or rel != 'stylesheet':
+            link.attrib.clear()
+
+    def transform_and_virtualize_sheet(sheet):
+        changed = transform_sheet(sheet)
         if virtualize_resources:
-            self.virtualize_resources()
+            replaceUrls(sheet, partial(link_replacer, name))
+            if name in changed_names:
+                virtualized_names.add(name)
+                changed = True
+        return changed
 
-        ltm = self.book_render_data['link_to_map']
-        for name, amap in iteritems(ltm):
-            for k, v in tuple(iteritems(amap)):
-                amap[k] = tuple(v)  # needed for JSON serialization
+    # Transform <style> and style=""
+    transform_inline_styles(container, name, transform_sheet=transform_and_virtualize_sheet, transform_style=transform_declaration)
 
-    def virtualize_resources(self):
+    if virtualize_resources:
+        virtualize_html(container, name, link_uid, link_to_map, virtualized_names)
+    else:
+        for a in link_xpath(root):
+            href = link_replacer(name, a.get('href'))
+            if href and href.startswith(link_uid):
+                a.set('href', 'javascript:void(0)')
+                parts = decode_url(href.split('|')[1])
+                lname, lfrag = parts[0], parts[1]
+                link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+                a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
 
-        changed = set()
-        link_uid = self.book_render_data['link_uid']
-        xlink_xpath = XPath('//*[@xl:href]')
-        link_xpath = XPath('//h:a[@href]')
-        link_replacer = create_link_replacer(self, link_uid, changed)
+    shtml = serialize_parsed_html(root)
+    with container.open(name, 'wb') as f:
+        f.write(shtml)
 
-        ltm = self.book_render_data['link_to_map']
 
-        for name, mt in iteritems(self.mime_map):
-            mt = mt.lower()
-            if mt in OEB_STYLES:
-                replaceUrls(self.parsed(name), partial(link_replacer, name))
-                self.virtualized_names.add(name)
-            elif mt in OEB_DOCS:
-                self.virtualized_names.add(name)
-                root = self.parsed(name)
-                rewrite_links(root, partial(link_replacer, name))
-                for a in link_xpath(root):
-                    href = a.get('href')
-                    if href.startswith(link_uid):
-                        a.set('href', 'javascript:void(0)')
-                        parts = decode_url(href.split('|')[1])
-                        lname, lfrag = parts[0], parts[1]
-                        ltm.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                        a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
-                    else:
-                        a.set('target', '_blank')
-                        a.set('rel', 'noopener noreferrer')
-            elif mt == 'image/svg+xml':
-                self.virtualized_names.add(name)
-                xlink = XLINK('href')
-                altered = False
-                for elem in xlink_xpath(self.parsed(name)):
-                    href = elem.get(xlink)
-                    if not href.startswith('#'):
-                        elem.set(xlink, link_replacer(name, href))
-                        altered = True
-                if altered:
-                    changed.add(name)
+class RenderManager(object):
 
-        tuple(map(self.dirty, changed))
+    def launch_worker(self):
+        with lopen(os.path.join(self.tdir, '{}.json'.format(len(self.workers))), 'wb') as output:
+            error = lopen(os.path.join(self.tdir, '{}.error'.format(len(self.workers))), 'wb')
+            p = start_pipe_worker('from calibre.srv.render_book import worker_main; worker_main()', stdout=error, stderr=error)
+            p.output_path = output.name
+            p.error_path = error.name
+        self.workers.append(p)
 
-    def serialize_item(self, name):
-        mt = (self.mime_map[name] or '').lower()
-        if mt in OEB_STYLES:
-            ans = ContainerBase.serialize_item(self, name).lstrip()
-            if not ans.startswith(b'@charset'):
-                ans = b'@charset "UTF-8";\n' + ans
-            return ans
-        if mt not in OEB_DOCS:
-            return ContainerBase.serialize_item(self, name)
-        root = self.parsed(name)
-        return json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+    def __enter__(self):
+        self.workers = []
+        self.tdir = PersistentTemporaryDirectory()
+        self.launch_worker(), self.launch_worker()
+        return self
+
+    def __exit__(self, *a):
+        while self.workers:
+            p = self.workers.pop()
+            if p.returncode is None:
+                p.terminate()
+            if not iswindows and p.poll() is None:
+                time.sleep(0.02)
+                if p.poll() is None:
+                    p.kill()
+        del self.workers
+        try:
+            shutil.rmtree(self.tdir)
+        except EnvironmentError:
+            time.sleep(0.1)
+            try:
+                shutil.rmtree(self.tdir)
+            except EnvironmentError:
+                pass
+        del self.tdir
+
+    def __call__(self, names, args, in_process_container):
+        num_workers = min(detect_ncpus(), len(names))
+        if num_workers > 1:
+            total_sz = sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names)
+            if total_sz < 128 * 1024:
+                num_workers = 1
+        if num_workers == 1:
+            return [process_book_files(names, *args, container=in_process_container)]
+        while len(self.workers) < num_workers:
+            self.launch_worker()
+
+        group_sz = int(ceil(len(names) / num_workers))
+        for group, worker in zip(grouper(group_sz, names), self.workers):
+            worker.stdin.write(as_bytes(json.dumps((worker.output_path, group,) + args)))
+            worker.stdin.flush(), worker.stdin.close()
+            worker.job_sent = True
+
+        for worker in self.workers:
+            if not hasattr(worker, 'job_sent'):
+                worker.stdin.write(b'_'), worker.stdin.flush(), worker.stdin.close()
+
+        error = None
+        results = []
+        for worker in self.workers:
+            if not hasattr(worker, 'job_sent'):
+                worker.wait()
+                continue
+            if worker.wait() != 0:
+                with lopen(worker.error_path, 'rb') as f:
+                    error = f.read().decode('utf-8', 'replace')
+            else:
+                with lopen(worker.output_path, 'rb') as f:
+                    results.append(json.loads(f.read()))
+        if error is not None:
+            raise Exception('Render worker failed with error:\n' + error)
+        return results
+
+
+def worker_main():
+    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    raw = stdin.read()
+    if raw == b'_':
+        return
+    args = json.loads(raw)
+    result = process_book_files(*args[1:])
+    with open(args[0], 'wb') as f:
+        f.write(as_bytes(json.dumps(result)))
+
+
+def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
+
+    changed = set()
+    link_xpath = XPath('//h:a[@href]')
+    link_replacer = create_link_replacer(container, link_uid, changed)
+
+    virtualized_names.add(name)
+    root = container.parsed(name)
+    rewrite_links(root, partial(link_replacer, name))
+    for a in link_xpath(root):
+        href = a.get('href')
+        if href.startswith(link_uid):
+            a.set('href', 'javascript:void(0)')
+            parts = decode_url(href.split('|')[1])
+            lname, lfrag = parts[0], parts[1]
+            link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+            a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+        else:
+            a.set('target', '_blank')
+            a.set('rel', 'noopener noreferrer')
+
+    return name in changed
+
+
+def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, container=None):
+    container = container or SimpleContainer(container_dir, opfpath, default_log)
+    link_to_map = {}
+    html_data = {}
+    virtualized_names = set()
+    for name in names:
+        if name is None:
+            continue
+        mt = container.mime_map[name].lower()
+        if mt in OEB_DOCS:
+            root = container.parsed(name)
+            html_data[name] = {
+                'length': get_length(root),
+                'has_maths': check_for_maths(root),
+                'anchor_map': anchor_map(root)
+            }
+            transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names)
+        elif mt in OEB_STYLES:
+            transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names)
+        elif mt == 'image/svg+xml':
+            transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names)
+    for v in itervalues(link_to_map):
+        for k in v:
+            v[k] = tuple(v[k])
+    return link_to_map, html_data, tuple(virtualized_names)
+
+
+def process_exploded_book(
+    book_fmt, opfpath, input_fmt, tdir, render_manager, log=None, book_hash=None, save_bookmark_data=False,
+    book_metadata=None, allow_no_cover=True, virtualize_resources=True
+):
+    log = log or default_log
+    container = SimpleContainer(tdir, opfpath, log)
+    input_plugin = plugin_for_input_format(input_fmt)
+    is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
+    bookmark_data = None
+    if save_bookmark_data:
+        bm_file = 'META-INF/calibre_bookmarks.txt'
+        if container.exists(bm_file):
+            with container.open(bm_file, 'rb') as f:
+                bookmark_data = f.read()
+
+    # We do not add zero byte sized files as the IndexedDB API in the
+    # browser has no good way to distinguish between zero byte files and
+    # load failures.
+    excluded_names = {
+        name for name, mt in iteritems(container.mime_map) if
+        name == container.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
+        name == 'mimetype' or not container.has_name_and_is_not_empty(name)}
+    raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), allow_no_cover, book_metadata)
+
+    toc = get_toc(container, verify_destinations=False).to_dict(count())
+    if not toc or not toc.get('children'):
+        toc = from_xpaths(container, ['//h:h1', '//h:h2', '//h:h3']).to_dict(count())
+    spine = [name for name, is_linear in container.spine_names]
+    spineq = frozenset(spine)
+    landmarks = [l for l in get_landmarks(container) if l['dest'] in spineq]
+
+    book_render_data = {
+        'version': RENDER_VERSION,
+        'toc':toc,
+        'book_format': book_fmt,
+        'spine':spine,
+        'link_uid': uuid4(),
+        'book_hash': book_hash,
+        'is_comic': is_comic,
+        'raster_cover_name': raster_cover_name,
+        'title_page_name': titlepage_name,
+        'has_maths': False,
+        'total_length': 0,
+        'spine_length': 0,
+        'toc_anchor_map': toc_anchor_map(toc),
+        'landmarks': landmarks,
+        'link_to_map': {},
+    }
+
+    def work_priority(name):
+        # ensure workers with large files or stylesheets
+        # have the less names
+        size = os.path.getsize(container.name_path_map[name]),
+        is_html = container.mime_map.get(name) in OEB_DOCS
+        return (0 if is_html else 1), size
+
+    names = sorted(
+        (n for n, mt in iteritems(container.mime_map) if mt in OEB_STYLES or mt in OEB_DOCS or mt == 'image/svg+xml'),
+        key=work_priority)
+
+    results = render_manager(names, (tdir, opfpath, virtualize_resources, book_render_data['link_uid']), container)
+    ltm = book_render_data['link_to_map']
+    html_data = {}
+    virtualized_names = set()
+
+    def merge_ltm(dest, src):
+        for k, v in iteritems(src):
+            if k in dest:
+                dest[k] |= v
+            else:
+                dest[k] = v
+
+    for link_to_map, hdata, vnames in results:
+        html_data.update(hdata)
+        virtualized_names |= set(vnames)
+        for k, v in iteritems(link_to_map):
+            for x in v:
+                v[x] = set(v[x])
+            if k in ltm:
+                merge_ltm(ltm[k], v)
+            else:
+                ltm[k] = v
+
+    def manifest_data(name):
+        mt = (container.mime_map.get(name) or 'application/octet-stream').lower()
+        ans = {
+            'size':os.path.getsize(container.name_path_map[name]),
+            'is_virtualized': name in virtualized_names,
+            'mimetype':mt,
+            'is_html': mt in OEB_DOCS,
+        }
+        if ans['is_html']:
+            data = html_data[name]
+            ans['length'] = l = data['length']
+            book_render_data['total_length'] += l
+            if name in book_render_data['spine']:
+                book_render_data['spine_length'] += l
+            ans['has_maths'] = hm = data['has_maths']
+            if hm:
+                book_render_data['has_maths'] = True
+            ans['anchor_map'] = data['anchor_map']
+        return ans
+
+    book_render_data['files'] = {name:manifest_data(name) for name in set(container.name_path_map) - excluded_names}
+    container.commit()
+
+    for name in excluded_names:
+        os.remove(container.name_path_map[name])
+
+    ltm = book_render_data['link_to_map']
+    for name, amap in iteritems(ltm):
+        for k, v in tuple(iteritems(amap)):
+            amap[k] = tuple(v)  # needed for JSON serialization
+
+    data = as_bytes(json.dumps(book_render_data, ensure_ascii=False))
+    with lopen(os.path.join(container.root, 'calibre-book-manifest.json'), 'wb') as f:
+        f.write(data)
+
+    return container, bookmark_data
 
 
 def split_name(name):
@@ -564,22 +705,6 @@ def serialize_elem(elem, nsmap):
     if attribs:
         ans['a'] = attribs
     return ans
-
-
-def ensure_head(root):
-    # Make sure we have only a single <head>
-    heads = list(root.iterchildren(XHTML('head')))
-    if len(heads) != 1:
-        if not heads:
-            root.insert(0, root.makeelement(XHTML('head')))
-            return root[0]
-        head = heads[0]
-        for eh in heads[1:]:
-            for child in eh.iterchildren('*'):
-                head.append(child)
-            extract(eh)
-        return head
-    return heads[0]
 
 
 def ensure_body(root):
@@ -685,33 +810,34 @@ def get_stored_annotations(container):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True):
-    mi = None
-    if serialize_metadata:
-        from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.customize.ui import quick_metadata
-        with lopen(pathtoebook, 'rb') as f, quick_metadata:
-            mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
-    book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
-    container = Container(
-        book_fmt, opfpath, input_fmt, output_dir, book_hash=book_hash,
-        save_bookmark_data=extract_annotations,
-        book_metadata=mi, virtualize_resources=virtualize_resources
-    )
-    if serialize_metadata:
-        from calibre.utils.serialize import json_dumps
-        from calibre.ebooks.metadata.book.serialize import metadata_as_dict
-        d = metadata_as_dict(mi)
-        d.pop('cover_data', None)
-        serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
-        with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
-            f.write(json_dumps(d))
-    if extract_annotations:
-        annotations = None
-        if container.bookmark_data:
-            annotations = json_dumps(tuple(get_stored_annotations(container)))
-        if annotations:
-            with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
-                f.write(annotations)
+    with RenderManager() as render_manager:
+        mi = None
+        if serialize_metadata:
+            from calibre.ebooks.metadata.meta import get_metadata
+            from calibre.customize.ui import quick_metadata
+            with lopen(pathtoebook, 'rb') as f, quick_metadata:
+                mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
+        book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
+        container, bookmark_data = process_exploded_book(
+            book_fmt, opfpath, input_fmt, output_dir, render_manager,
+            book_hash=book_hash, save_bookmark_data=extract_annotations,
+            book_metadata=mi, virtualize_resources=virtualize_resources
+        )
+        if serialize_metadata:
+            from calibre.utils.serialize import json_dumps
+            from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+            d = metadata_as_dict(mi)
+            d.pop('cover_data', None)
+            serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
+            with lopen(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
+                f.write(json_dumps(d))
+        if extract_annotations:
+            annotations = None
+            if bookmark_data:
+                annotations = json_dumps(tuple(get_stored_annotations(container)))
+            if annotations:
+                with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
+                    f.write(annotations)
 
 
 def render_for_viewer(path, out_dir, book_hash):
