@@ -741,7 +741,7 @@ class ChooseTheme(Dialog):
         Dialog.accept(self)
 
     def accept(self):
-        if self.theme_list.currentIndex() < 0:
+        if self.theme_list.currentRow() < 0:
             return error_dialog(self, _('No theme selected'), _(
                 'You must first select an icon theme'), show=True)
         theme = self.theme_list.currentItem().data(Qt.UserRole)
