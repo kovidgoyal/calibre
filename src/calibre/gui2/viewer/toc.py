@@ -46,28 +46,32 @@ class TOCView(QTreeView):
         self.setMinimumWidth(80)
         self.header().close()
         self.setMouseTracking(True)
-        self.setStyleSheet('''
-                QTreeView {
-                    background-color: palette(window);
-                    color: palette(window-text);
-                    border: none;
-                }
-
-                QTreeView::item {
-                    border: 1px solid transparent;
-                    padding-top:0.5ex;
-                    padding-bottom:0.5ex;
-                }
-
-                QTreeView::item:hover {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                    color: black;
-                    border: 1px solid #bfcde4;
-                    border-radius: 6px;
-                }
-        ''')
+        self.set_style_sheet()
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
+        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
+
+    def set_style_sheet(self):
+        self.setStyleSheet('''
+            QTreeView {
+                background-color: palette(window);
+                color: palette(window-text);
+                border: none;
+            }
+
+            QTreeView::item {
+                border: 1px solid transparent;
+                padding-top:0.5ex;
+                padding-bottom:0.5ex;
+            }
+
+            QTreeView::item:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+                color: black;
+                border: 1px solid #bfcde4;
+                border-radius: 6px;
+            }
+        ''')
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():
