@@ -209,10 +209,11 @@ Follow these steps to find the problem:
       no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
-    * Make sure you are running the latest version of calibre. The latest version
-      can always be downloaded from `the calibre website <https://calibre-ebook.com/download>`_.
-      You can tell what version of calibre you are currently running by looking
-      at the bottom line of the main calibre window.
+    * Make sure you are running the latest version of calibre (currently
+      |version|). The latest version can always be downloaded from `the calibre
+      website <https://calibre-ebook.com/download>`_.  You can tell what
+      version of calibre you are currently running by looking at the bottom
+      line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
       should show up in Windows Explorer (in Windows) or Finder (in macOS).
     * In calibre, go to :guilabel:`Preferences->Ignored Devices` and check that your device
