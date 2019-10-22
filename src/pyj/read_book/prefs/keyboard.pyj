@@ -9,7 +9,8 @@ from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from dom import clear, svgicon, unique_id
 from read_book.shortcuts import (
-    GROUP_DESC, SHORTCUTS, key_as_text, keyevent_as_shortcut, shortcut_differs
+    key_as_text, keyevent_as_shortcut, shortcut_differs, shortcuts_definition,
+    shortcuts_group_desc
 )
 from widgets import create_button
 
@@ -22,7 +23,7 @@ def restore_defaults(close_func):
     get_container().dataset.changed = 'true'
     for item in get_container().querySelectorAll('[data-user-data]'):
         q = JSON.parse(item.dataset.userData)
-        q.shortcuts = SHORTCUTS[q.name].shortcuts
+        q.shortcuts = shortcuts_definition()[q.name].shortcuts
         item.dataset.userData = JSON.stringify(q)
     close_func()
 
@@ -127,7 +128,7 @@ def customize_shortcut(sc_name):
     container = container.lastChild
     clear(container)
     container.dataset.scName = sc_name
-    sc = SHORTCUTS[sc_name]
+    sc = shortcuts_definition()[sc_name]
     container.appendChild(E.h4(sc.short))
     if sc.long:
         container.appendChild(E.div(sc.long, style='font-style: italic; font-size: smaller; margin-top: 1ex'))
@@ -155,9 +156,9 @@ def create_keyboard_panel(container, close_func, onchange):
     container = container.firstChild
     sd = get_session_data()
     custom_shortcuts = sd.get('keyboard_shortcuts')
-    groups = as_groups(SHORTCUTS)
+    groups = as_groups(shortcuts_definition())
     for group_name in Object.keys(groups):
-        container.appendChild(E.h3(style='margin-top: 1ex', GROUP_DESC[group_name]))
+        container.appendChild(E.h3(style='margin-top: 1ex', shortcuts_group_desc()[group_name]))
         group = groups[group_name]
         items = []
         for sc_name in sorted(Object.keys(group), key=sort_group_key.bind(None, group)):
@@ -188,7 +189,7 @@ def commit_keyboard(onchange):
     vals = {}
     for item in get_container().querySelectorAll('[data-user-data]'):
         q = JSON.parse(item.dataset.userData)
-        if shortcuts_differ(q.shortcuts, SHORTCUTS[q.name].shortcuts):
+        if shortcuts_differ(q.shortcuts, shortcuts_definition()[q.name].shortcuts):
             vals[q.name] = q.shortcuts
     sd.set('keyboard_shortcuts', vals)
     create_keyboard_panel.onchange = None

@@ -86,13 +86,10 @@ def key_as_text(evt):
     return mods + key
 
 
-GROUP_DESC = {
-    'scroll': _('Navigation'),
-    'ui': _('Interface'),
-}
-
-
-SHORTCUTS = {
+def shortcuts_definition():
+    ans = shortcuts_definition.ans
+    if not ans:
+        ans = shortcuts_definition.ans = {
     'start_of_file': desc(
         v"['Ctrl+ArrowUp', 'Ctrl+ArrowLeft', 'Home']",
         'scroll',
@@ -248,31 +245,44 @@ SHORTCUTS = {
         'ui',
         _('Show the viewer controls'),
     ),
-}
+    }
+    return ans
+
+
+def shortcuts_group_desc():
+    ans = shortcuts_group_desc.ans
+    if not ans:
+        ans = shortcuts_group_desc.ans = {
+            'scroll': _('Navigation'),
+            'ui': _('Interface'),
+        }
+    return ans
+
 
 
 def add_standalone_viewer_shortcuts():
     ismacos = 'macos' in window.navigator.userAgent
-    SHORTCUTS['toggle_bookmarks'] = desc(
+    sc = shortcuts_definition()
+    sc['toggle_bookmarks'] = desc(
         v"['Ctrl+b']",
         'ui',
         _('Show/hide bookmarks'),
     )
 
-    SHORTCUTS['toggle_inspector'] = desc(
+    sc['toggle_inspector'] = desc(
         v"['Ctrl+i']",
         'ui',
         _('Show/hide Inspector'),
     )
 
-    SHORTCUTS['toggle_lookup'] = desc(
+    sc['toggle_lookup'] = desc(
         v"['Ctrl+l']",
         'ui',
         _('Show/hide the word lookup panel'),
     )
 
     quit_shortcut = 'Meta+q' if ismacos else 'Ctrl+q'
-    SHORTCUTS['quit'] = desc(
+    sc['quit'] = desc(
         quit_shortcut,
         'ui',
         _('Quit the viewer'),
@@ -280,8 +290,9 @@ def add_standalone_viewer_shortcuts():
 
 def create_shortcut_map(custom_shortcuts):
     ans = {}
-    for sc_name in Object.keys(SHORTCUTS):
-        entry = SHORTCUTS[sc_name]
+    scd = shortcuts_definition()
+    for sc_name in Object.keys(scd):
+        entry = scd[sc_name]
         shortcuts = entry.shortcuts
         if custom_shortcuts and custom_shortcuts[sc_name]:
             shortcuts = custom_shortcuts[sc_name]
