@@ -31,7 +31,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import (
-    find_cover_image, has_epub_cover, set_epub_cover
+    find_cover_image, find_cover_image_in_page, find_cover_page
 )
 from calibre.ebooks.oeb.polish.css import transform_inline_styles
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
@@ -238,7 +238,35 @@ class SimpleContainer(ContainerBase):
     tweak_mode = True
 
 
-def create_cover_page(container, input_fmt, allow_no_cover, book_metadata=None):
+def find_epub_cover(container):
+    cover_image = find_cover_image(container)
+    marked_title_page = find_cover_page(container)
+    cover_image_in_first_page = None
+    first_page_name = next(container.spine_names)[0]
+    if not marked_title_page:
+        cover_image_in_first_page = find_cover_image_in_page(container, first_page_name)
+
+    has_epub_cover = cover_image or marked_title_page or cover_image_in_first_page
+    if not has_epub_cover:
+        return None, None
+    if marked_title_page and cover_image:
+        return marked_title_page, cover_image
+
+    if marked_title_page:
+        if cover_image:
+            return marked_title_page, cover_image
+        cover_image = find_cover_image_in_page(container, marked_title_page)
+        if cover_image:
+            return marked_title_page, cover_image
+        return None, None
+
+    if cover_image_in_first_page:
+        return first_page_name, cover_image_in_first_page
+
+    return None, None
+
+
+def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
     templ = '''
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head><style>
@@ -263,33 +291,16 @@ def create_cover_page(container, input_fmt, allow_no_cover, book_metadata=None):
         return BLANK_JPEG
 
     if input_fmt == 'epub':
-
-        def image_callback(cover_image, wrapped_image):
-            if cover_image:
-                image_callback.cover_data = container.raw_data(cover_image, decode=False)
-            if wrapped_image and not getattr(image_callback, 'cover_data', None):
-                image_callback.cover_data = container.raw_data(wrapped_image, decode=False)
-
-        def cover_path(action, data):
-            if action == 'write_image':
-                cdata = getattr(image_callback, 'cover_data', None) or generic_cover()
-                data.write(cdata)
-
-        if allow_no_cover and not has_epub_cover(container):
-            return None, None
-        raster_cover_name, titlepage_name = set_epub_cover(
-                container, cover_path, (lambda *a: None), options={'template':templ},
-                image_callback=image_callback)
+        raster_cover_name, titlepage_name = find_epub_cover(container)
+        if raster_cover_name and titlepage_name:
+            raw = templ % prepare_string_for_xml(container.name_to_href(raster_cover_name, titlepage_name), True)
+            with container.open(titlepage_name, 'wb') as f:
+                f.write(raw.encode('utf-8'))
     else:
         raster_cover_name = find_cover_image(container, strict=True)
         if raster_cover_name is None:
-            if allow_no_cover:
-                return None, None
-            item = container.generate_item(name='cover.jpeg', id_prefix='cover')
-            raster_cover_name = container.href_to_name(item.get('href'), container.opf_name)
-            with container.open(raster_cover_name, 'wb') as dest:
-                dest.write(generic_cover())
-        if container.is_comic:
+            return None, None
+        if is_comic:
             return raster_cover_name, None
         item = container.generate_item(name='titlepage.html', id_prefix='titlepage')
         titlepage_name = container.href_to_name(item.get('href'), container.opf_name)
@@ -535,7 +546,7 @@ def process_book_files(names, container_dir, opfpath, virtualize_resources, link
 
 def process_exploded_book(
     book_fmt, opfpath, input_fmt, tdir, render_manager, log=None, book_hash=None, save_bookmark_data=False,
-    book_metadata=None, allow_no_cover=True, virtualize_resources=True
+    book_metadata=None, virtualize_resources=True
 ):
     log = log or default_log
     container = SimpleContainer(tdir, opfpath, log)
@@ -555,7 +566,7 @@ def process_exploded_book(
         name for name, mt in iteritems(container.mime_map) if
         name == container.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
         name == 'mimetype' or not container.has_name_and_is_not_empty(name)}
-    raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), allow_no_cover, book_metadata)
+    raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, book_metadata)
 
     toc = get_toc(container, verify_destinations=False).to_dict(count())
     if not toc or not toc.get('children'):
