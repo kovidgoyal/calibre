@@ -254,6 +254,10 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Uitgever:") or \
                     starts-with(text(), "出版社:")]
             '''
+        self.pubdate_xpath = '''
+            descendant::*[starts-with(text(), "Publication Date:") or \
+                    starts-with(text(), "Audible.com Release Date:")]
+        '''
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag',
                                 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
 
@@ -839,13 +843,24 @@ class Worker(Thread):  # Get details {{{
                 return ans.partition('(')[0].strip()
 
     def parse_pubdate(self, pd):
+        from calibre.utils.date import parse_only_date
+        for x in reversed(pd.xpath(self.pubdate_xpath)):
+            if x.tail:
+                date = x.tail.strip()
+                date = self.delocalize_datestr(date)
+                try:
+                    return parse_only_date(date, assume_utc=True)
+                except Exception:
+                    pass
         for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
-                from calibre.utils.date import parse_only_date
                 ans = x.tail
                 date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)
-                return parse_only_date(date, assume_utc=True)
+                try:
+                    return parse_only_date(date, assume_utc=True)
+                except Exception:
+                    pass
 
     def parse_language(self, pd):
         for x in reversed(pd.xpath(self.language_xpath)):
@@ -863,7 +878,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 10)
+    version = (1, 2, 11)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
