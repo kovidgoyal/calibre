@@ -361,7 +361,7 @@ class Comments(HTMLDisplay):  # {{{
             <head>
             <style type="text/css">
                 body, td {background-color: transparent; color: %s }
-                a { text-decoration: none; color: blue }
+                a { text-decoration: none; }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
             </style>

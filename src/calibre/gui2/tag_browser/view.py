@@ -58,6 +58,17 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
 
+    def paint_text(self, painter, rect, flags, text, hover):
+        set_color = hover and QApplication.instance().is_dark_theme
+        if set_color:
+            painter.save()
+            pen = painter.pen()
+            pen.setColor(QColor(Qt.black))
+            painter.setPen(pen)
+        painter.drawText(rect, flags, text)
+        if set_color:
+            painter.restore()
+
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.DisplayRole)
@@ -67,7 +78,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
             r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-            painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
+            self.paint_text(painter, r, Qt.AlignCenter | Qt.TextSingleLine, count, hover)
             tr.setRight(r.left() - 1)
         else:
             tr.setRight(tr.right() - 1)
@@ -88,7 +99,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             pen = QPen()
             pen.setBrush(QBrush(g))
             painter.setPen(pen)
-        painter.drawText(tr, flags, text)
+        self.paint_text(painter, tr, flags, text, hover)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -186,7 +197,6 @@ class TagsView(QTreeView):  # {{{
 
                 QTreeView::item:hover {
                     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                    color: black;
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }

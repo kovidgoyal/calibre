@@ -14,10 +14,10 @@ from lxml import html
 from PyQt5.Qt import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
     QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPlainTextEdit,
-    QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat,
-    QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat, QToolBar, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,
+    QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget,
+    QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat,
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 )
 
 from calibre import xml_replace_entities
@@ -591,7 +591,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     fmt = QTextCharFormat()
                     fmt.setAnchor(True)
                     fmt.setAnchorHref(url)
-                    fmt.setForeground(QBrush(QColor('blue')))
+                    fmt.setForeground(QBrush(self.palette().color(QPalette.Link)))
                     if name or not c.hasSelection():
                         c.mergeCharFormat(fmt)
                         c.insertText(name or url)
