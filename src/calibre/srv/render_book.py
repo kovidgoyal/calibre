@@ -310,7 +310,6 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
         spine = container.opf_xpath('//opf:spine')[0]
         ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
         container.insert_into_xml(spine, ref, index=0)
-        container.dirty(container.opf_name)
     return raster_cover_name, titlepage_name
 
 
@@ -410,6 +409,9 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
 
 class RenderManager(object):
 
+    def __init__(self, prelaunch_workers=True):
+        self.prelaunch_workers = prelaunch_workers
+
     def launch_worker(self):
         with lopen(os.path.join(self.tdir, '{}.json'.format(len(self.workers))), 'wb') as output:
             error = lopen(os.path.join(self.tdir, '{}.error'.format(len(self.workers))), 'wb')
@@ -421,7 +423,8 @@ class RenderManager(object):
     def __enter__(self):
         self.workers = []
         self.tdir = PersistentTemporaryDirectory()
-        self.launch_worker(), self.launch_worker()
+        if self.prelaunch_workers:
+            self.launch_worker(), self.launch_worker()
         return self
 
     def __exit__(self, *a):
@@ -821,7 +824,7 @@ def get_stored_annotations(container):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True):
-    with RenderManager() as render_manager:
+    with RenderManager(prelaunch_workers=pathtoebook.rpartition('.')[-1].lower() in ('epub', 'azw3')) as render_manager:
         mi = None
         if serialize_metadata:
             from calibre.ebooks.metadata.meta import get_metadata
