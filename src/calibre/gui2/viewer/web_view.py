@@ -318,7 +318,10 @@ class WebPage(QWebEnginePage):
         prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
                 level, 'ERROR')
         prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
-        sys.stderr.flush()
+        try:
+            sys.stderr.flush()
+        except EnvironmentError:
+            pass
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):
         if req_type == self.NavigationTypeReload:
