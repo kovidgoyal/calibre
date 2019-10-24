@@ -48,6 +48,7 @@ def show_custom_size(ev):
     for child in c.childNodes:
         child.style.display = 'none'
     c.lastChild.style.display = 'block'
+    c.lastChild.querySelector('input').focus()
 
 def create_font_size_panel(container, close):
     container.appendChild(E.div(id=CONTAINER,
@@ -70,7 +71,14 @@ def create_font_size_panel(container, close):
     ))
 
     container.appendChild(E.div(style='display:none',
-        E.div(E.label(_('Font size (pixels):'), '\xa0', E.input(type='number', min=8, max=60, step=1, value=str(sd.get('base_font_size'))))),
+        E.div(E.label(_('Font size (pixels):'), '\xa0', E.input(
+            type='number', min=8, max=60, step=1,
+            value=sd.get('base_font_size') + '',
+            onkeydown=def(evt):
+                if evt.key is 'Enter':
+                    evt.preventDefault()
+                    set_custom_size(), close()
+        ))),
     E.div(style='text-align:right; margin-top:1ex; display:flex; justify-content: flex-end',
             create_button(_('OK'), 'check', def(): set_custom_size(), close();), E.span('\xa0'),
             create_button(_('Cancel'), action=close)
