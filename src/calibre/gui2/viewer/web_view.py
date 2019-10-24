@@ -215,7 +215,7 @@ def create_profile():
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer
-            print('Compiling viewer code...')
+            prints('Compiling viewer code...')
             compile_viewer()
         js = P('viewer.js', data=True, allow_user_override=False)
         translations_json = get_translations_data() or b'null'
