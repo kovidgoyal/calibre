@@ -540,12 +540,22 @@ def scroll_to(cfi, callback, doc):  # {{{
             p.normalize()
 
             # Reset the range to what it was before the span was added
-            r.setStart(sc, so)
-            try:
-                r.setEnd(ec, eo)
-            except:
-                # this happens for some japanese books
-                r.setEnd(ec, eo-1)
+            offset = so
+            while offset > -1:
+                try:
+                    r.setStart(sc, offset)
+                    break
+                except:
+                    offset -= 1
+
+            offset = eo
+            while offset > -1:
+                try:
+                    r.setEnd(ec, offset)
+                    break
+                except:
+                    offset -= 1
+
             rects = r.getClientRects()
             if rects.length > 0:
                 rect = rects[0]
