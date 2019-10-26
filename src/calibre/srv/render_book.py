@@ -409,6 +409,9 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
 
 class RenderManager(object):
 
+    def __init__(self, max_workers):
+        self.max_workers = max_workers
+
     def launch_worker(self):
         with lopen(os.path.join(self.tdir, '{}.json'.format(len(self.workers))), 'wb') as output:
             error = lopen(os.path.join(self.tdir, '{}.error'.format(len(self.workers))), 'wb')
@@ -445,6 +448,8 @@ class RenderManager(object):
 
     def launch_workers(self, names, in_process_container):
         num_workers = min(detect_ncpus(), len(names))
+        if self.max_workers:
+            num_workers = min(num_workers, self.max_workers)
         if num_workers > 1:
             if len(names) < 3 or sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names) < 128 * 1024:
                 num_workers = 1
@@ -832,8 +837,8 @@ def get_stored_annotations(container, bookmark_data):
                 yield {'type': 'last-read', 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
 
 
-def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True):
-    with RenderManager() as render_manager:
+def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True, max_workers=1):
+    with RenderManager(max_workers) as render_manager:
         mi = None
         if serialize_metadata:
             from calibre.ebooks.metadata.meta import get_metadata
@@ -865,7 +870,7 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
 def render_for_viewer(path, out_dir, book_hash):
     return render(
         path, out_dir, book_hash=book_hash, serialize_metadata=True,
-        extract_annotations=True, virtualize_resources=False
+        extract_annotations=True, virtualize_resources=False, max_workers=0
     )
 
 
