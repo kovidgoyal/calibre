@@ -530,6 +530,7 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
 def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, data_for_clone, container=None):
     if container is None:
         container = SimpleContainer(container_dir, opfpath, default_log, clone_data=data_for_clone)
+        container.cloned = False
     link_to_map = {}
     html_data = {}
     virtualized_names = set()
