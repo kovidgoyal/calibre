@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 import os
+import re
 import sys
 from collections import defaultdict, namedtuple
 from hashlib import sha256
@@ -333,14 +334,15 @@ class EbookViewer(MainWindow):
         open_at, self.pending_open_at = self.pending_open_at, None
         if not ok:
             self.setWindowTitle(self.base_window_title)
-            tb = data['tb']
+            tb = data['tb'].strip()
+            tb = re.split(r'^calibre\.gui2\.viewer\.convert_book\.ConversionFailure:\s*', tb, maxsplit=1, flags=re.M)[-1]
             last_line = tuple(tb.strip().splitlines())[-1]
             if last_line.startswith('calibre.ebooks.DRMError'):
                 DRMErrorMessage(self).exec_()
             else:
                 error_dialog(self, _('Loading book failed'), _(
                     'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
-                    det_msg=data['tb'], show=True)
+                    det_msg=tb, show=True)
             self.loading_overlay.hide()
             self.web_view.show_home_page()
             return
