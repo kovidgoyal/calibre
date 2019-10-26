@@ -862,4 +862,4 @@ def render_for_viewer(path, out_dir, book_hash):
 
 
 if __name__ == '__main__':
-    render(sys.argv[-2], sys.argv[-1], serialize_metadata=True)
+    render_for_viewer(sys.argv[-2], sys.argv[-1], None)
