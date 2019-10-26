@@ -98,7 +98,7 @@ class Completer(QListView):  # {{{
         self.setAlternatingRowColors(True)
         self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
         self.setMouseTracking(True)
-        self.entered.connect(self.item_entered)
+        self.entered.connect(self.item_entered, type=Qt.QueuedConnection)
         self.activated.connect(self.item_chosen)
         self.pressed.connect(self.item_chosen)
         self.installEventFilter(self)
@@ -132,7 +132,7 @@ class Completer(QListView):  # {{{
             try:
                 self.setCurrentIndex(idx)
             finally:
-                self.entered.connect(self.item_entered)
+                self.entered.connect(self.item_entered, type=Qt.QueuedConnection)
 
     def next_match(self, previous=False):
         c = self.currentIndex()
@@ -525,12 +525,13 @@ class EditWithComplete(EnComboBox):
 
 if __name__ == '__main__':
     from PyQt5.Qt import QDialog, QVBoxLayout
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
     le = EditWithComplete(d)
     d.layout().addWidget(le)
-    items = ['one', 'otwo', 'othree', 'ooone', 'ootwo',
+    items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
         'oothree', 'a1', 'a2',u'Edgas', u'Èdgar', u'Édgaq', u'Edgar', u'Édgar']
     le.update_items_cache(items)
     le.show_initial_value('')
