@@ -450,16 +450,17 @@ class RenderManager(object):
     def __call__(self, names, args, in_process_container):
         num_workers = min(detect_ncpus(), len(names))
         if num_workers > 1:
-            total_sz = sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names)
-            if total_sz < 128 * 1024:
+            if len(names) < 3 or sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names) < 128 * 1024:
                 num_workers = 1
         if num_workers == 1:
             return [process_book_files(names, *args, container=in_process_container)]
-        while len(self.workers) < num_workers:
+        num_other_workers = num_workers - 1
+        while len(self.workers) < num_other_workers:
             self.launch_worker()
 
         group_sz = int(ceil(len(names) / num_workers))
-        for group, worker in zip(grouper(group_sz, names), self.workers):
+        groups = tuple(grouper(group_sz, names))
+        for group, worker in zip(groups[:-1], self.workers):
             worker.stdin.write(as_bytes(msgpack_dumps((worker.output_path, group,) + args)))
             worker.stdin.flush(), worker.stdin.close()
             worker.job_sent = True
@@ -469,7 +470,7 @@ class RenderManager(object):
                 worker.stdin.write(b'_'), worker.stdin.flush(), worker.stdin.close()
 
         error = None
-        results = []
+        results = [process_book_files(groups[-1], *args, container=in_process_container)]
         for worker in self.workers:
             if not hasattr(worker, 'job_sent'):
                 worker.wait()
