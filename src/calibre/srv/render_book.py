@@ -802,8 +802,8 @@ def parse_annotations(raw):
         yield parse_annotation(annot)
 
 
-def get_stored_annotations(container):
-    raw = container.bookmark_data or b''
+def get_stored_annotations(container, bookmark_data):
+    raw = bookmark_data or b''
     if not raw:
         return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
@@ -848,7 +848,7 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
         if extract_annotations:
             annotations = None
             if bookmark_data:
-                annotations = json_dumps(tuple(get_stored_annotations(container)))
+                annotations = json_dumps(tuple(get_stored_annotations(container, bookmark_data)))
             if annotations:
                 with lopen(os.path.join(output_dir, 'calibre-book-annotations.json'), 'wb') as f:
                     f.write(annotations)
