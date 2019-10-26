@@ -409,9 +409,6 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
 
 class RenderManager(object):
 
-    def __init__(self, prelaunch_workers=True):
-        self.prelaunch_workers = prelaunch_workers
-
     def launch_worker(self):
         with lopen(os.path.join(self.tdir, '{}.json'.format(len(self.workers))), 'wb') as output:
             error = lopen(os.path.join(self.tdir, '{}.error'.format(len(self.workers))), 'wb')
@@ -423,15 +420,14 @@ class RenderManager(object):
     def __enter__(self):
         self.workers = []
         self.tdir = PersistentTemporaryDirectory()
-        if self.prelaunch_workers:
-            self.launch_worker(), self.launch_worker()
         return self
 
     def __exit__(self, *a):
         while self.workers:
             p = self.workers.pop()
-            if p.returncode is None:
-                p.terminate()
+            if p.poll() is not None:
+                continue
+            p.terminate()
             if not iswindows and p.poll() is None:
                 time.sleep(0.02)
                 if p.poll() is None:
@@ -447,16 +443,21 @@ class RenderManager(object):
                 pass
         del self.tdir
 
-    def __call__(self, names, args, in_process_container):
+    def launch_workers(self, names, in_process_container):
         num_workers = min(detect_ncpus(), len(names))
         if num_workers > 1:
             if len(names) < 3 or sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names) < 128 * 1024:
                 num_workers = 1
+        if num_workers > 1:
+            num_other_workers = num_workers - 1
+            while len(self.workers) < num_other_workers:
+                self.launch_worker()
+        return num_workers
+
+    def __call__(self, names, args, in_process_container):
+        num_workers = len(self.workers) + 1
         if num_workers == 1:
             return [process_book_files(names, *args, container=in_process_container)]
-        num_other_workers = num_workers - 1
-        while len(self.workers) < num_other_workers:
-            self.launch_worker()
 
         group_sz = int(ceil(len(names) / num_workers))
         groups = tuple(grouper(group_sz, names))
@@ -554,6 +555,20 @@ def process_exploded_book(
     container = SimpleContainer(tdir, opfpath, log)
     input_plugin = plugin_for_input_format(input_fmt)
     is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
+
+    def needs_work(mt):
+        return mt in OEB_STYLES or mt in OEB_DOCS or mt == 'image/svg+xml'
+
+    def work_priority(name):
+        # ensure workers with large files or stylesheets
+        # have the less names
+        size = os.path.getsize(container.name_path_map[name]),
+        is_html = container.mime_map.get(name) in OEB_DOCS
+        return (0 if is_html else 1), size
+
+    if not is_comic:
+        render_manager.launch_workers(tuple(n for n, mt in iteritems(container.mime_map) if needs_work(mt)), container)
+
     bookmark_data = None
     if save_bookmark_data:
         bm_file = 'META-INF/calibre_bookmarks.txt'
@@ -595,15 +610,8 @@ def process_exploded_book(
         'link_to_map': {},
     }
 
-    def work_priority(name):
-        # ensure workers with large files or stylesheets
-        # have the less names
-        size = os.path.getsize(container.name_path_map[name]),
-        is_html = container.mime_map.get(name) in OEB_DOCS
-        return (0 if is_html else 1), size
-
     names = sorted(
-        (n for n, mt in iteritems(container.mime_map) if mt in OEB_STYLES or mt in OEB_DOCS or mt == 'image/svg+xml'),
+        (n for n, mt in iteritems(container.mime_map) if needs_work(mt)),
         key=work_priority)
 
     results = render_manager(
@@ -825,7 +833,7 @@ def get_stored_annotations(container, bookmark_data):
 
 
 def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True):
-    with RenderManager(prelaunch_workers=pathtoebook.rpartition('.')[-1].lower() in ('epub', 'azw3')) as render_manager:
+    with RenderManager() as render_manager:
         mi = None
         if serialize_metadata:
             from calibre.ebooks.metadata.meta import get_metadata
