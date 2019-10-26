@@ -861,5 +861,11 @@ def render_for_viewer(path, out_dir, book_hash):
     )
 
 
+def viewer_main():
+    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    args = msgpack_loads(stdin.read())
+    render_for_viewer(*args)
+
+
 if __name__ == '__main__':
     render_for_viewer(sys.argv[-2], sys.argv[-1], None)
