@@ -291,7 +291,7 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
         return BLANK_JPEG
 
     if input_fmt == 'epub':
-        raster_cover_name, titlepage_name = find_epub_cover(container)
+        titlepage_name, raster_cover_name = find_epub_cover(container)
         if raster_cover_name and titlepage_name:
             raw = templ % prepare_string_for_xml(container.name_to_href(raster_cover_name, titlepage_name), True)
             with container.open(titlepage_name, 'wb') as f:
