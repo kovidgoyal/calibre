@@ -159,6 +159,8 @@ View an e-book.
     a('--full-screen', '--fullscreen', '-f', default=False, action='store_true',
         help=_('If specified, viewer window will try to open '
                'full screen when started.'))
+    a('--force-reload', default=False, action='store_true',
+        help=_('Force reload of all opened books'))
     a('--open-at', default=None, help=_(
         'The position at which to open the specified book. The position is '
         'a location you can get by using the Goto action in the viewer controls. '
@@ -203,7 +205,7 @@ def main(args=sys.argv):
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
     migrate_previous_viewer_prefs()
-    main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading)
+    main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload)
     main.set_exception_handler()
     if len(args) > 1:
         acc.events.append(os.path.abspath(args[-1]))

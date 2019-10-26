@@ -77,8 +77,9 @@ class EbookViewer(MainWindow):
     book_prepared = pyqtSignal(object, object)
     MAIN_WINDOW_STATE_VERSION = 1
 
-    def __init__(self, open_at=None, continue_reading=None):
+    def __init__(self, open_at=None, continue_reading=None, force_reload=False):
         MainWindow.__init__(self, None)
+        self.force_reload = force_reload
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
         self.maximized_at_last_fullscreen = False
@@ -302,7 +303,7 @@ class EbookViewer(MainWindow):
         self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
         self.current_book_data = {}
-        t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book))
+        t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book or self.force_reload))
         t.daemon = True
         t.start()
 
