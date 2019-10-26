@@ -298,10 +298,8 @@ class Container(ContainerBase):  # {{{
                 # some epubs include the opf in the manifest with an incorrect mime type
                 self.mime_map[name] = item.get('media-type')
 
-    def clone_data(self, dest_dir):
-        Container.commit(self, keep_parsed=True)
-        self.cloned = True
-        clone_dir(self.root, dest_dir)
+    def data_for_clone(self, dest_dir=None):
+        dest_dir = dest_dir or self.root
         return {
             'root': dest_dir,
             'opf_name': self.opf_name,
@@ -313,6 +311,12 @@ class Container(ContainerBase):  # {{{
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
                 for name, path in iteritems(self.name_path_map)}
         }
+
+    def clone_data(self, dest_dir):
+        Container.commit(self, keep_parsed=True)
+        self.cloned = True
+        clone_dir(self.root, dest_dir)
+        return self.data_for_clone()
 
     def add_name_to_manifest(self, name, process_manifest_item=None):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '

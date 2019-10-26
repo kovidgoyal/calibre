@@ -43,15 +43,15 @@ from calibre.utils.date import EPOCH
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.logging import default_log
-from calibre.utils.serialize import json_loads
+from calibre.utils.serialize import (
+    json_dumps, json_loads, msgpack_dumps, msgpack_loads
+)
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import (
     as_base64_unicode as encode_component, from_base64_bytes,
     from_base64_unicode as decode_component
 )
-from polyglot.builtins import (
-    as_bytes, is_py3, iteritems, itervalues, map, unicode_type
-)
+from polyglot.builtins import as_bytes, is_py3, iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1
@@ -460,7 +460,7 @@ class RenderManager(object):
 
         group_sz = int(ceil(len(names) / num_workers))
         for group, worker in zip(grouper(group_sz, names), self.workers):
-            worker.stdin.write(as_bytes(json.dumps((worker.output_path, group,) + args)))
+            worker.stdin.write(as_bytes(msgpack_dumps((worker.output_path, group,) + args)))
             worker.stdin.flush(), worker.stdin.close()
             worker.job_sent = True
 
@@ -479,7 +479,7 @@ class RenderManager(object):
                     error = f.read().decode('utf-8', 'replace')
             else:
                 with lopen(worker.output_path, 'rb') as f:
-                    results.append(json.loads(f.read()))
+                    results.append(msgpack_loads(f.read()))
         if error is not None:
             raise Exception('Render worker failed with error:\n' + error)
         return results
@@ -490,10 +490,10 @@ def worker_main():
     raw = stdin.read()
     if raw == b'_':
         return
-    args = json.loads(raw)
+    args = msgpack_loads(raw)
     result = process_book_files(*args[1:])
     with open(args[0], 'wb') as f:
-        f.write(as_bytes(json.dumps(result)))
+        f.write(as_bytes(msgpack_dumps(result)))
 
 
 def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
@@ -520,8 +520,9 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
     return name in changed
 
 
-def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, container=None):
-    container = container or SimpleContainer(container_dir, opfpath, default_log)
+def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, data_for_clone, container=None):
+    if container is None:
+        container = SimpleContainer(container_dir, opfpath, default_log, clone_data=data_for_clone)
     link_to_map = {}
     html_data = {}
     virtualized_names = set()
@@ -541,10 +542,7 @@ def process_book_files(names, container_dir, opfpath, virtualize_resources, link
             transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names)
         elif mt == 'image/svg+xml':
             transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names)
-    for v in itervalues(link_to_map):
-        for k in v:
-            v[k] = tuple(v[k])
-    return link_to_map, html_data, tuple(virtualized_names)
+    return link_to_map, html_data, virtualized_names
 
 
 def process_exploded_book(
@@ -607,7 +605,11 @@ def process_exploded_book(
         (n for n, mt in iteritems(container.mime_map) if mt in OEB_STYLES or mt in OEB_DOCS or mt == 'image/svg+xml'),
         key=work_priority)
 
-    results = render_manager(names, (tdir, opfpath, virtualize_resources, book_render_data['link_uid']), container)
+    results = render_manager(
+        names, (
+            tdir, opfpath, virtualize_resources, book_render_data['link_uid'], container.data_for_clone()
+        ), container
+    )
     ltm = book_render_data['link_to_map']
     html_data = {}
     virtualized_names = set()
@@ -621,10 +623,8 @@ def process_exploded_book(
 
     for link_to_map, hdata, vnames in results:
         html_data.update(hdata)
-        virtualized_names |= set(vnames)
+        virtualized_names |= vnames
         for k, v in iteritems(link_to_map):
-            for x in v:
-                v[x] = set(v[x])
             if k in ltm:
                 merge_ltm(ltm[k], v)
             else:
@@ -838,7 +838,6 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
             book_metadata=mi, virtualize_resources=virtualize_resources
         )
         if serialize_metadata:
-            from calibre.utils.serialize import json_dumps
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
             d = metadata_as_dict(mi)
             d.pop('cover_data', None)
