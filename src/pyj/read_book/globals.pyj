@@ -78,7 +78,7 @@ ui_operations = {
     'forward_gesture': None,
     'update_color_scheme': None,
     'update_font_size': None,
-    'goto_bookpos': None,
+    'goto_cfi': None,
     'delete_book': None,
     'focus_iframe': None,
     'toggle_toc': None,

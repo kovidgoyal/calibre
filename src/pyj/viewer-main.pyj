@@ -129,7 +129,7 @@ def on_pop_state():
     if view and view.currently_showing:
         data = parse_url_params()
         if data.bookpos and data.bookpos.startswith('epubcfi(/'):
-            view.goto_bookpos(data.bookpos)
+            view.goto_cfi(data.bookpos)
 
 
 def show_error(title, msg, details):
@@ -243,7 +243,7 @@ def goto_toc_node(node_id):
 
 @from_python
 def goto_cfi(cfi):
-    view.goto_bookpos(cfi)
+    view.goto_cfi(cfi)
 
 
 @from_python
@@ -304,8 +304,8 @@ if window is window.top:
         view.update_font_size()
     ui_operations.focus_iframe = def():
         view.focus_iframe()
-    ui_operations.goto_bookpos = def(cfi):
-        return view.goto_bookpos(cfi)
+    ui_operations.goto_cfi = def(cfi):
+        return view.goto_cfi(cfi)
     ui_operations.goto_frac = def(frac):
         return view.goto_frac(frac)
     ui_operations.toggle_toc = def():

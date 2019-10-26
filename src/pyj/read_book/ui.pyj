@@ -65,7 +65,7 @@ class ReadUI:
         ui_operations.forward_gesture = self.forward_gesture.bind(self)
         ui_operations.update_color_scheme = self.update_color_scheme.bind(self)
         ui_operations.update_font_size = self.update_font_size.bind(self)
-        ui_operations.goto_bookpos = self.goto_bookpos.bind(self)
+        ui_operations.goto_cfi = self.goto_cfi.bind(self)
         ui_operations.goto_frac = self.goto_frac.bind(self)
         ui_operations.delete_book = self.delete_book.bind(self)
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
@@ -160,8 +160,8 @@ class ReadUI:
     def update_font_size(self):
         self.view.update_font_size()
 
-    def goto_bookpos(self, bookpos):
-        return self.view.goto_bookpos(bookpos)
+    def goto_cfi(self, bookpos):
+        return self.view.goto_cfi(bookpos)
 
     def goto_frac(self, frac):
         return self.view.goto_frac(frac)
@@ -494,7 +494,7 @@ class ReadUI:
         window.scrollTo(0, 0)  # Ensure we are at the top of the window
         if same:
             if current_state.bookpos is not current_query.bookpos and current_query.bookpos:
-                self.view.goto_bookpos(current_query.bookpos)
+                self.view.goto_cfi(current_query.bookpos)
         else:
             self.load_book(current_query.library_id, int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
 

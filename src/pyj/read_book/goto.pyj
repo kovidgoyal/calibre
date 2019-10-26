@@ -87,7 +87,7 @@ def create_location_overlay(current_position_data, overlay, container):
     def goto_loc():
         src = document.querySelector(f'#{container_id} [name=newloc]')
         if src.value:
-            if ui_operations.goto_bookpos(src.value):
+            if ui_operations.goto_cfi(src.value):
                 overlay.hide()
             else:
                 error_dialog(_('No such location'), _(

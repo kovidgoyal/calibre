@@ -697,11 +697,11 @@ class View:
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
-    def goto_bookpos(self, bookpos):
+    def goto_cfi(self, bookpos):
         cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
         if cfiname and internal_cfi:
             # replace_history has to be true here otherwise forward does not
-            # work after back, as back uses goto_bookpos
+            # work after back, as back uses goto_cfi
             pos = {'replace_history': True}
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi

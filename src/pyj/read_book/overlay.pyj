@@ -167,7 +167,7 @@ class SyncBook:  # {{{
         if ans is not None:
             cfi = ans.cfi
             if cfi:
-                self.overlay.view.goto_bookpos(cfi)
+                self.overlay.view.goto_cfi(cfi)
 
 
 # }}}
