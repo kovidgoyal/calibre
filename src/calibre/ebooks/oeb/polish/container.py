@@ -316,7 +316,7 @@ class Container(ContainerBase):  # {{{
         Container.commit(self, keep_parsed=True)
         self.cloned = True
         clone_dir(self.root, dest_dir)
-        return self.data_for_clone()
+        return self.data_for_clone(dest_dir)
 
     def add_name_to_manifest(self, name, process_manifest_item=None):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
