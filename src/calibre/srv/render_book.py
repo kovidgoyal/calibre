@@ -880,5 +880,36 @@ def viewer_main():
     render_for_viewer(*args)
 
 
+class Profiler(object):
+
+    def __init__(self):
+        try:
+            import cProfile as profile
+        except ImportError:
+            import profile
+        self.profile = profile.Profile()
+
+    def __enter__(self):
+        self.profile.enable()
+
+    def __exit__(self, *a):
+        self.profile.disable()
+        self.profile.create_stats()
+        import pstats
+        stats = pstats.Stats(self.profile)
+        stats.sort_stats('cumulative')
+        stats.print_stats(.05)
+
+
+def profile():
+    from calibre.ptempfile import TemporaryDirectory
+    path = sys.argv[-1]
+    with TemporaryDirectory() as tdir, Profiler():
+        return render(
+            path, tdir, serialize_metadata=True,
+            extract_annotations=True, virtualize_resources=False, max_workers=1
+        )
+
+
 if __name__ == '__main__':
-    render_for_viewer(sys.argv[-2], sys.argv[-1], None)
+    profile()

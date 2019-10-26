@@ -60,6 +60,7 @@ exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
 OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf', 'application/font-sfnt'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
+null = object()
 
 
 class CSSPreProcessor(cssp):
@@ -261,6 +262,7 @@ class Container(ContainerBase):  # {{{
         self.pretty_print = set()
         self.cloned = False
         self.cache_names = ('parsed_cache', 'mime_map', 'name_path_map', 'encoding_map', 'dirtied', 'pretty_print')
+        self.href_to_name_cache = {}
 
         if clone_data is not None:
             self.cloned = True
@@ -524,7 +526,11 @@ class Container(ContainerBase):  # {{{
         Convert an href (relative to base) to a name. base must be a name or
         None, in which case self.root is used.
         '''
-        return href_to_name(href, self.root, base=base)
+        key = href, base
+        ans = self.href_to_name_cache.get(key, null)
+        if ans is null:
+            ans = self.href_to_name_cache[key] = href_to_name(href, self.root, base=base)
+        return ans
 
     def name_to_href(self, name, base=None):
         '''Convert a name to a href relative to base, which must be a name or
