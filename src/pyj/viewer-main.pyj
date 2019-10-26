@@ -136,7 +136,7 @@ def show_error(title, msg, details):
     to_python.show_error(title, msg, details)
 
 
-def manifest_received(key, initial_cfi, initial_toc_node, pathtoebook, end_type, xhr, ev):
+def manifest_received(key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook, end_type, xhr, ev):
     nonlocal book
     if end_type is 'load':
         book = new_book(key, {})
@@ -148,7 +148,7 @@ def manifest_received(key, initial_cfi, initial_toc_node, pathtoebook, end_type,
         book.is_complete = True
         v'delete book.manifest["metadata"]'
         v'delete book.manifest["last_read_positions"]'
-        view.display_book(book, initial_cfi, initial_toc_node)
+        view.display_book(book, initial_cfi, initial_toc_node, initial_bookpos)
     else:
         show_error(_('Could not open book'), _(
             'Failed to load book manifest, click "Show details" for more info'),
@@ -230,8 +230,8 @@ def show_home_page():
 
 
 @from_python
-def start_book_load(key, initial_cfi, initial_toc_node, pathtoebook):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, initial_toc_node, pathtoebook), ok_code=0)
+def start_book_load(key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 
@@ -308,6 +308,8 @@ if window is window.top:
         return view.goto_cfi(cfi)
     ui_operations.goto_frac = def(frac):
         return view.goto_frac(frac)
+    ui_operations.goto_book_position = def(bpos):
+        return view.goto_book_position(bpos)
     ui_operations.toggle_toc = def():
         to_python.toggle_toc()
     ui_operations.toggle_bookmarks = def():

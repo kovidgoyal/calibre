@@ -118,8 +118,7 @@ def create_location_overlay(current_position_data, overlay, container):
 
     def goto_pos():
         src = document.querySelector(f'#{container_id} [name=newpos]')
-        val = max(0, min(1000 * float(src.value) / current_position_data.book_length, 1))
-        ui_operations.goto_frac(val)
+        ui_operations.goto_book_position(float(src.value))
         overlay.hide()
 
     container.lastChild.appendChild(E.div(

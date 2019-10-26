@@ -14,7 +14,7 @@ from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 from calibre import as_unicode, prints
 from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
-from calibre.gui2.viewer.ui import EbookViewer
+from calibre.gui2.viewer.ui import EbookViewer, is_float
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import RC, viewer_socket_address
@@ -163,7 +163,7 @@ View an e-book.
         help=_('Force reload of all opened books'))
     a('--open-at', default=None, help=_(
         'The position at which to open the specified book. The position is '
-        'a location you can get by using the Goto action in the viewer controls. '
+        'a location or position you can get by using the Go to->Location action in the viewer controls. '
         'Alternately, you can use the form toc:something and it will open '
         'at the location of the first Table of Contents entry that contains '
         'the string "something".'))
@@ -188,7 +188,7 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
 
-    if opts.open_at and not (opts.open_at.startswith('toc:') or opts.open_at.startswith('epubcfi(/')):
+    if opts.open_at and not (opts.open_at.startswith('toc:') or opts.open_at.startswith('epubcfi(/') or is_float(opts.open_at)):
         raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
     listener = None

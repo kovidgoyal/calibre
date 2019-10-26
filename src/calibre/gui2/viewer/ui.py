@@ -46,6 +46,15 @@ from polyglot.builtins import as_bytes, itervalues
 annotations_dir = os.path.join(viewer_config_dir, 'annots')
 
 
+def is_float(x):
+    try:
+        float(x)
+        return True
+    except Exception:
+        pass
+    return False
+
+
 def dock_defs():
     Dock = namedtuple('Dock', 'name title initial_area allowed_areas')
     ans = {}
@@ -353,13 +362,15 @@ class EbookViewer(MainWindow):
         self.load_book_data()
         self.update_window_title()
         initial_cfi = self.initial_cfi_for_current_book()
-        initial_toc_node = None
+        initial_toc_node = initial_bookpos = None
         if open_at:
             if open_at.startswith('toc:'):
                 initial_toc_node = self.toc_model.node_id_for_text(open_at[len('toc:'):])
             elif open_at.startswith('epubcfi(/'):
                 initial_cfi = open_at
-        self.web_view.start_book_load(initial_cfi=initial_cfi, initial_toc_node=initial_toc_node)
+            elif is_float(open_at):
+                initial_bookpos = float(open_at)
+        self.web_view.start_book_load(initial_cfi=initial_cfi, initial_toc_node=initial_toc_node, initial_bookpos=initial_bookpos)
 
     def load_book_data(self):
         self.load_book_annotations()
