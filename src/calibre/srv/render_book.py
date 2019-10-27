@@ -20,7 +20,7 @@ from css_parser import replaceUrls
 from css_parser.css import CSSRule
 
 from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
-from calibre.constants import iswindows
+from calibre.constants import iswindows, plugins
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
@@ -57,6 +57,7 @@ from polyglot.urllib import quote, urlparse
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
+speedup = plugins['speedup'][0]
 
 
 def XPath(expr):
@@ -192,22 +193,29 @@ def anchor_map(root):
 
 
 def get_length(root):
-    strip_space = re.compile(r'\s+')
     ans = 0
-    ignore_tags = frozenset('script style title noscript'.split())
 
-    def count(elem):
-        num = 0
-        tname = elem.tag.rpartition('}')[-1].lower()
-        if elem.text and tname not in ignore_tags:
-            num += len(strip_space.sub('', elem.text))
-        if elem.tail:
-            num += len(strip_space.sub('', elem.tail))
-        if tname in 'img svg':
-            num += 1000
-        return num
+    fast = getattr(speedup, 'get_element_char_length', None)
+    if fast is None:
+        ignore_tags = frozenset('script style title noscript'.split())
+        img_tags = ('img', 'svg')
+        strip_space = re.compile(r'\s+')
 
-    for body in root.iterdescendants(XHTML('body')):
+        def count(elem):
+            num = 0
+            tname = elem.tag.rpartition('}')[-1].lower()
+            if elem.text and tname not in ignore_tags:
+                num += len(strip_space.sub('', elem.text))
+            if elem.tail:
+                num += len(strip_space.sub('', elem.tail))
+            if tname in img_tags:
+                num += 1000
+            return num
+    else:
+        def count(elem):
+            return fast(elem.tag, elem.text, elem.tail)
+
+    for body in root.iterchildren(XHTML('body')):
         ans += count(body)
         for elem in body.iterdescendants('*'):
             ans += count(elem)

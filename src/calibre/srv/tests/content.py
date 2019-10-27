@@ -225,3 +225,13 @@ class ContentTest(LibraryBaseTest):
             self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
 
     # }}}
+
+    def test_char_count(self):  # {{{
+        from calibre.srv.render_book import get_length
+        from calibre.ebooks.oeb.parse_utils import html5_parse
+
+        root = html5_parse('<p>a b\nc\td\re')
+        self.ae(get_length(root), 5)
+        root = html5_parse('<script>xyz</script>a<iMg>b')
+        self.ae(get_length(root), 1002)
+    # }}}
