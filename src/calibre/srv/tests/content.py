@@ -234,4 +234,6 @@ class ContentTest(LibraryBaseTest):
         self.ae(get_length(root), 5)
         root = html5_parse('<script>xyz</script>a<iMg>b')
         self.ae(get_length(root), 1002)
+        root = html5_parse('<p><!-- abc -->m')
+        self.ae(get_length(root), 1)
     # }}}

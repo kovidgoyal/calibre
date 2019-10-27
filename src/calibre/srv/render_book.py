@@ -202,8 +202,11 @@ def get_length(root):
         strip_space = re.compile(r'\s+')
 
         def count(elem):
+            tag = getattr(elem, 'tag', count)
+            if callable(tag):
+                return len(strip_space.sub('', getattr(elem, 'tail', None) or ''))
             num = 0
-            tname = elem.tag.rpartition('}')[-1].lower()
+            tname = tag.rpartition('}')[-1].lower()
             if elem.text and tname not in ignore_tags:
                 num += len(strip_space.sub('', elem.text))
             if elem.tail:
@@ -213,11 +216,14 @@ def get_length(root):
             return num
     else:
         def count(elem):
-            return fast(elem.tag, elem.text, elem.tail)
+            tag = getattr(elem, 'tag', count)
+            if callable(tag):
+                return fast('', None, getattr(elem, 'tail', None))
+            return fast(tag, elem.text, elem.tail)
 
     for body in root.iterchildren(XHTML('body')):
         ans += count(body)
-        for elem in body.iterdescendants('*'):
+        for elem in body.iterdescendants():
             ans += count(elem)
     return ans
 
