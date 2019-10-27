@@ -25,7 +25,7 @@ from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
-    EPUB_NS, OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath,
+    OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath,
     rewrite_links, urlunquote
 )
 from calibre.ebooks.oeb.iterator.book import extract_book
@@ -704,9 +704,6 @@ def split_name(name):
     return None, l
 
 
-boolean_attributes = frozenset('allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,default,defaultchecked,defaultmuted,defaultselected,defer,disabled,enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,required,reversed,scoped,seamless,selected,sortable,truespeed,typemustmatch,visible'.split(','))  # noqa
-
-
 known_tags = ('img', 'script', 'link', 'image', 'style')
 discarded_tags = ('meta', 'base')
 
@@ -714,8 +711,6 @@ discarded_tags = ('meta', 'base')
 def serialize_elem(elem, nsmap):
     ns, name = split_name(elem.tag)
     nl = name.lower()
-    if ns == EPUB_NS:
-        ns, name = None, 'epub-' + name
     if nl in discarded_tags:
         # Filter out <meta> tags as they have unknown side-effects
         # Filter out <base> tags as the viewer uses <base> for URL resolution
@@ -734,16 +729,11 @@ def serialize_elem(elem, nsmap):
     attribs = []
     for attr, val in elem.items():
         attr_ns, aname = split_name(attr)
-        al = aname.lower()
-        if not attr_ns and al in boolean_attributes:
-            if val and val.lower() in (al, ''):
-                attribs.append([al, al])
-            continue
-        attrib = [aname, val]
+        attrib = aname, val
         if attr_ns:
             attr_ns = nsmap[attr_ns]
             if attr_ns:
-                attrib.append(attr_ns)
+                attrib = aname, val, attr_ns
         attribs.append(attrib)
     if attribs:
         ans['a'] = attribs
