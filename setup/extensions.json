@@ -126,6 +126,11 @@
 		"needs_c++11": true
     },
     {
+        "name": "html_as_json",
+        "sources": "calibre/srv/html_as_json.cpp",
+		"needs_c++11": true
+    },
+    {
         "name": "pictureflow",
         "sources": "calibre/gui2/pictureflow/pictureflow.cpp",
         "headers": "calibre/gui2/pictureflow/pictureflow.h",

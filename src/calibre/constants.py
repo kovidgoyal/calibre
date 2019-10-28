@@ -172,6 +172,7 @@ class Plugins(collections.Mapping):
                 'chmlib',
                 'icu',
                 'speedup',
+                'html_as_json',
                 'unicode_names',
                 'html',
                 'freetype',

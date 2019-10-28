@@ -237,3 +237,14 @@ class ContentTest(LibraryBaseTest):
         root = html5_parse('<p><!-- abc -->m')
         self.ae(get_length(root), 1)
     # }}}
+
+    def test_html_as_json(self):  # {{{
+        from calibre.constants import plugins
+        Serializer = plugins['html_as_json'][0].Serializer
+        s = Serializer()
+        d = 'a' * (127 * 1024)
+        s.write(d)
+        d = d.encode('ascii')
+        s.write(d)
+        self.ae(s.done(), (d + d))
+    # }}}
