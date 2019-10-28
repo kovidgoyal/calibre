@@ -199,8 +199,13 @@ def parse_metadata(raw, namelist, zf):
     top_level_imports = filter(lambda x:x.__class__.__name__ == 'ImportFrom', ast.iter_child_nodes(module))
     top_level_classes = tuple(filter(lambda x:x.__class__.__name__ == 'ClassDef', ast.iter_child_nodes(module)))
     top_level_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(module))
-    defaults = {'name':'', 'description':'', 'supported_platforms':['windows', 'osx', 'linux'],
-                'version':(1, 0, 0), 'author':'Unknown', 'minimum_calibre_version':(0, 9, 42)}
+    defaults = {
+        'name':'', 'description':'',
+        'supported_platforms':['windows', 'osx', 'linux'],
+        'version':(1, 0, 0),
+        'author':'Unknown',
+        'minimum_calibre_version':(0, 9, 42)
+    }
     field_names = set(defaults)
     imported_names = {}
 
