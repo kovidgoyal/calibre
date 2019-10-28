@@ -45,15 +45,20 @@ def sort_formats_key(fmt):
         ans = FORMAT_PRIORITIES.length
     return ans
 
-def get_preferred_format(metadata, output_format, input_formats):
+def get_preferred_format(metadata, output_format, input_formats, for_download):
     formats = (metadata and metadata.formats) or v'[]'
     formats = [f.toUpperCase() for f in formats]
     fmt = 'EPUB' if output_format is 'PDF' else output_format
     if formats.length and formats.indexOf(fmt) is -1:
-        for q in sorted(formats, key=sort_formats_key):
+        found = False
+        formats = sorted(formats, key=sort_formats_key)
+        for q in formats:
             if input_formats[q]:
                 fmt = q
+                found = True
                 break
+        if for_download and not found and formats.length:
+            fmt = formats[0]
     return fmt.toUpperCase()
 
 IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path'}
@@ -409,9 +414,9 @@ def on_img_err(err):
     if img.parentNode:
         img.parentNode.style.display = 'none'
 
-def preferred_format(book_id):
+def preferred_format(book_id, for_download):
     interface_data = get_interface_data()
-    return get_preferred_format(book_metadata(book_id), interface_data.output_format, interface_data.input_formats)
+    return get_preferred_format(book_metadata(book_id), interface_data.output_format, interface_data.input_formats, for_download)
 
 
 def read_format(book_id, fmt):
@@ -428,7 +433,7 @@ def download_format(book_id, fmt):
 
 
 def download_book(book_id):
-    fmt = preferred_format(book_id)
+    fmt = preferred_format(book_id, True)
     download_format(book_id, fmt)
 
 
@@ -485,7 +490,7 @@ def render_book(container_id, book_id):
     ))
     container = c.lastChild.firstChild
     read_button = create_button(_('Read'), 'book', read_book.bind(None, book_id), _('Read this book'))
-    fmt = preferred_format(book_id)
+    fmt = preferred_format(book_id, True)
     download_button = create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
         _('Download this book in the {0} format ({1})').format(fmt, human_readable(metadata.format_sizes[fmt] or 0)),
         download_filename=f'{metadata.title}.{fmt.toLowerCase()}')
