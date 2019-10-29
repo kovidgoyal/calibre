@@ -755,11 +755,14 @@ def ensure_body(root):
 
 
 def html_as_json(root):
+    ns, name = split_name(root.tag)
+    if ns not in (None, XHTML_NS):
+        raise ValueError('HTML tag must be in empty or XHTML namespace')
+    ensure_body(root)
     try:
         serialize = plugins['html_as_json'][0].serialize
     except KeyError:
         return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
-    ensure_body(root)
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
@@ -768,7 +771,6 @@ def html_as_json(root):
 
 
 def html_as_dict(root):
-    ensure_body(root)
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
