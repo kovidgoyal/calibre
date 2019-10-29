@@ -10,65 +10,20 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <stack>
 #include <string>
+#include <memory>
 
-typedef struct {
-    PyObject_HEAD
-    /* Type-specific fields go here. */
-	PyObject *buf;
-	size_t used;
-	std::vector<std::string> *nsmap;
-} Serializer;
-
-
-static void
-dealloc(Serializer* self)
-{
-	Py_CLEAR(self->buf);
-	if (self->nsmap) delete self->nsmap;
-    Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
-static PyObject *
-alloc(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    Serializer *self;
-
-    self = (Serializer *)type->tp_alloc(type, 0);
-	if (self != NULL) {
-		self->used = 0;
-		self->buf = NULL;
-		self->nsmap = new (std::nothrow) std::vector<std::string>();
-		if (!self->nsmap) { PyErr_NoMemory(); dealloc(self); self = NULL; }
-	}
-    return (PyObject *)self;
-}
+struct PyObjectDeleter {
+    void operator()(PyObject *obj) {
+        Py_XDECREF(obj);
+    }
+};
+// unique_ptr that uses Py_XDECREF as the destructor function.
+typedef std::unique_ptr<PyObject, PyObjectDeleter> pyunique_ptr;
 
 
-static inline bool
-ensure_space(Serializer *self, size_t amt) {
-	size_t required = amt + self->used;
-	if (!self->buf) {
-		self->buf = PyBytes_FromStringAndSize(NULL, std::max(required, static_cast<size_t>(128u * 1024u)));
-		if (!self->buf) return false;
-		return true;
-	}
-
-	if (required > static_cast<size_t>(PyBytes_GET_SIZE(self->buf))) {
-		if (_PyBytes_Resize(&(self->buf), std::max(required, static_cast<size_t>(2 * PyBytes_GET_SIZE(self->buf)))) != 0) return false;
-	}
-	return true;
-}
-
-static bool
-write_data(Serializer *self, const char *data, size_t sz) {
-	if (!ensure_space(self, sz)) return false;
-	memcpy(PyBytes_AS_STRING(self->buf) + self->used, data, sz);
-	self->used += sz;
-	return true;
-}
-
-#define write_str_literal(self, x) write_data(self, x, sizeof(x)-1)
+#define write_str_literal(x) this->write_data(x, sizeof(x)-1)
 
 #define UTF8_ACCEPT 0
 #define UTF8_REJECT 1
@@ -137,123 +92,6 @@ write_hex16(char *out, uint16_t val) {
 }
 
 
-static bool
-write_string_as_json(Serializer *self, const char *str)
-{
-	const char *s = str;
-	if (!ensure_space(self, 32)) return false;
-	char *b = PyBytes_AS_STRING(self->buf) + self->used;
-
-	*b++ = '"';
-	while (*s != 0) {
-		unsigned char c = *s++;
-
-		/* Encode the next character, and write it to b. */
-		switch (c) {
-			case '"':
-				*b++ = '\\';
-				*b++ = '"';
-				break;
-			case '\\':
-				*b++ = '\\';
-				*b++ = '\\';
-				break;
-			case '\b':
-				*b++ = '\\';
-				*b++ = 'b';
-				break;
-			case '\f':
-				*b++ = '\\';
-				*b++ = 'f';
-				break;
-			case '\n':
-				*b++ = '\\';
-				*b++ = 'n';
-				break;
-			case '\r':
-				*b++ = '\\';
-				*b++ = 'r';
-				break;
-			case '\t':
-				*b++ = '\\';
-				*b++ = 't';
-				break;
-			default: {
-				s--;
-				uint32_t unicode;
-				unsigned len = utf8_read_char(s, &unicode);
-				if (len == 0) s++;
-				else if (c < 0x1F) {
-					/* Encode using \u.... */
-					s += len;
-					if (unicode <= 0xFFFF) {
-						*b++ = '\\';
-						*b++ = 'u';
-						b += write_hex16(b, unicode);
-					} else {
-						/* Produce a surrogate pair. */
-						uint16_t uc, lc;
-						to_surrogate_pair(unicode, &uc, &lc);
-						*b++ = '\\';
-						*b++ = 'u';
-						b += write_hex16(b, uc);
-						*b++ = '\\';
-						*b++ = 'u';
-						b += write_hex16(b, lc);
-					}
-				} else {
-					/* Write the character directly. */
-					while (len-- > 0) *b++ = *s++;
-				}
-
-				break;
-			}
-		}
-
-		/*
-		 * Update self to know about the new bytes,
-		 * and set up b to write another encoded character.
-		 */
-		self->used = b - PyBytes_AS_STRING(self->buf);
-		if (!ensure_space(self, 32)) return false;
-		b = PyBytes_AS_STRING(self->buf) + self->used;
-	}
-	*b++ = '"';
-	self->used = b - PyBytes_AS_STRING(self->buf);
-	return true;
-}
-
-
-static PyObject*
-pywrite(Serializer *self, PyObject *arg) {
-	const char *data;
-	size_t sz;
-	PyObject *temp = NULL;
-	if (PyBytes_Check(arg)) {
-		data = PyBytes_AS_STRING(arg);
-		sz = PyBytes_GET_SIZE(arg);
-	} else if (PyUnicode_Check(arg)) {
-#if PY_MAJOR_VERSION > 2
-		Py_ssize_t ssz;
-		data = PyUnicode_AsUTF8AndSize(arg, &ssz);
-		sz = ssz;
-		if (data == NULL) return NULL;
-#else
-		temp = PyUnicode_AsUTF8String(arg);
-		if (temp == NULL) return NULL;
-		data = PyBytes_AS_STRING(temp);
-		sz = PyBytes_GET_SIZE(temp);
-#endif
-	} else {
-		PyErr_SetString(PyExc_TypeError, "A unicode or bytes object expected");
-		return NULL;
-	}
-	bool ok = write_data(self, data, sz);
-	Py_CLEAR(temp);
-	if (!ok) return NULL;
-	Py_RETURN_NONE;
-}
-
 static inline bool
 namespaces_are_equal(const char *a, const char *b, size_t len) {
 	for (size_t i = 0; i < len; i++) {
@@ -263,211 +101,344 @@ namespaces_are_equal(const char *a, const char *b, size_t len) {
 	return true;
 }
 
-static inline int
-namespace_index(Serializer *self, const char *ns, size_t nslen) {
-	for (size_t i = 0; i < self->nsmap->size(); i++) {
-		if (namespaces_are_equal((*self->nsmap)[i].c_str(), ns, nslen)) return i;
-	}
-	self->nsmap->push_back(std::string(ns, nslen));
-	return self->nsmap->size() - 1;
-}
-
-static bool
-write_attr(Serializer *self, PyObject *args) {
-	const char *attr, *val;
+class StringOrNone {
+	PyObject *temp, *orig;
+	const char *data;
+public:
+	StringOrNone(PyObject *x) : temp(0), orig(x), data(0) {
+		if (x && x != Py_None) {
+			if (PyUnicode_Check(x)) {
 #if PY_MAJOR_VERSION > 2
-	if (!PyArg_ParseTuple(args, "ss", &attr, &val)) return false;
+				this->data = PyUnicode_AsUTF8(x);
 #else
-	if (!PyArg_ParseTuple(args, "eses", "UTF-8", &attr, "UTF-8", &val)) return false;
+				this->temp = PyUnicode_AsUTF8String(x);
+				if (this->temp) this->data = PyBytes_AS_STRING(this->temp);
 #endif
-	const char *b = strrchr(attr, '}');
-	const char *attr_name = attr;
-	int nsindex = -1;
-	if (b) {
-		nsindex = namespace_index(self, attr + 1, b - attr - 1);
-		attr_name = b + 1;
-	}
-	if (!write_str_literal(self, "[")) goto end;
-	if (!write_string_as_json(self, attr_name)) goto end;
-	if (!write_str_literal(self, ",")) goto end;
-	if (!write_string_as_json(self, val)) goto end;
-	if (nsindex > -1) {
-		char buf[32];
-		write_data(self, buf, snprintf(buf, sizeof(buf), ",%d", nsindex));
-	}
-	if (!write_str_literal(self, "]")) goto end;
-
-end:
-#if PY_MAJOR_VERSION < 3
-	PyMem_Free(attr); PyMem_Free(val);
-#endif
-	return PyErr_Occurred() ? false : true;
-}
-
-static PyObject*
-start_tag(Serializer *self, PyObject *args) {
-	const char *tag, *text, *tail;
-	PyObject *items;
-#if PY_MAJOR_VERSION > 2
-	if (!PyArg_ParseTuple(args, "zzzO!", &tag, &text, &tail, &PyList_Type, &items)) return NULL;
-#else
-	if (!PyArg_ParseTuple(args, "etetetO!", "UTF-8", &tag, "UTF-8", &text, "UTF-8", &tail, &PyList_Type, &items)) return NULL;
-#endif
-	Py_ssize_t num_attrs = PyList_Size(items);
-	const char *b = strrchr(tag, '}');
-	const char *tag_name = tag;
-	int nsindex = -1;
-	if (b) {
-		nsindex = namespace_index(self, tag + 1, b - tag - 1);
-		tag_name = b + 1;
-	}
-	if (!write_str_literal(self, "{\"n\":")) goto end;
-	if (!write_string_as_json(self, tag_name)) goto end;
-	if (nsindex > -1) {
-		char buf[32];
-		write_data(self, buf, snprintf(buf, sizeof(buf), ",\"s\":%d", nsindex));
-	}
-	if (text) {
-		if (!write_str_literal(self, ",\"x\":")) goto end;
-		if (!write_string_as_json(self, text)) goto end;
-	}
-	if (tail) {
-		if (!write_str_literal(self, ",\"l\":")) goto end;
-		if (!write_string_as_json(self, tail)) goto end;
-	}
-	if (num_attrs > 0) {
-		if (!write_str_literal(self, ",\"a\":[")) goto end;
-		for (Py_ssize_t i = 0; i < num_attrs; i++) {
-			if (i) { if (!write_str_literal(self, ",")) goto end; }
-			if (!write_attr(self, PyList_GET_ITEM(items, i))) goto end;
+			} else if (PyBytes_Check(x)) { this->data = PyBytes_AS_STRING(x); }
 		}
-		if (!write_str_literal(self, "]")) goto end;
+	}
+	~StringOrNone() {
+		Py_CLEAR(this->temp);
+		Py_CLEAR(this->orig);
+	}
+	PyObject* get() { return this->orig; }
+	const char *c_str() { return this->data; }
+	explicit operator bool() { return this->orig ? true : false; }
+};
+
+class Serializer {
+	PyObject *buf = NULL;
+	size_t used = 0;
+	std::vector<std::string> nsmap;
+
+	bool
+	ensure_space(size_t amt) {
+		size_t required = amt + this->used;
+		if (!this->buf) {
+			this->buf = PyBytes_FromStringAndSize(NULL, std::max(required, static_cast<size_t>(128u * 1024u)));
+			if (!this->buf) return false;
+			return true;
+		}
+
+		if (required > static_cast<size_t>(PyBytes_GET_SIZE(this->buf))) {
+			if (_PyBytes_Resize(&(this->buf), std::max(
+					required, static_cast<size_t>(2 * PyBytes_GET_SIZE(this->buf)))) != 0) return false;
+		}
+		return true;
 	}
 
-end:
-#if PY_MAJOR_VERSION < 3
-	PyMem_Free(tag); PyMem_Free(text); PyMem_Free(tail);
-#endif
-	if (PyErr_Occurred()) return NULL;
-	Py_RETURN_NONE;
-}
+	bool
+	write_data(const char *data, size_t sz) {
+		if (!this->ensure_space(sz)) return false;
+		memcpy(PyBytes_AS_STRING(this->buf) + this->used, data, sz);
+		this->used += sz;
+		return true;
+	}
 
-static PyObject*
-add_comment(Serializer *self, PyObject *args) {
-	const char *text, *tail, *type;
+	bool
+	write_string_as_json(const char *str) {
+		const char *s = str;
+		if (!this->ensure_space(32)) return false;
+		char *b = PyBytes_AS_STRING(this->buf) + this->used;
+
+		*b++ = '"';
+		while (*s != 0) {
+			unsigned char c = *s++;
+
+			/* Encode the next character, and write it to b. */
+			switch (c) {
+				case '"':
+					*b++ = '\\';
+					*b++ = '"';
+					break;
+				case '\\':
+					*b++ = '\\';
+					*b++ = '\\';
+					break;
+				case '\b':
+					*b++ = '\\';
+					*b++ = 'b';
+					break;
+				case '\f':
+					*b++ = '\\';
+					*b++ = 'f';
+					break;
+				case '\n':
+					*b++ = '\\';
+					*b++ = 'n';
+					break;
+				case '\r':
+					*b++ = '\\';
+					*b++ = 'r';
+					break;
+				case '\t':
+					*b++ = '\\';
+					*b++ = 't';
+					break;
+				default: {
+					s--;
+					uint32_t unicode;
+					unsigned len = utf8_read_char(s, &unicode);
+					if (len == 0) s++;
+					else if (c < 0x1F) {
+						/* Encode using \u.... */
+						s += len;
+						if (unicode <= 0xFFFF) {
+							*b++ = '\\';
+							*b++ = 'u';
+							b += write_hex16(b, unicode);
+						} else {
+							/* Produce a surrogate pair. */
+							uint16_t uc, lc;
+							to_surrogate_pair(unicode, &uc, &lc);
+							*b++ = '\\';
+							*b++ = 'u';
+							b += write_hex16(b, uc);
+							*b++ = '\\';
+							*b++ = 'u';
+							b += write_hex16(b, lc);
+						}
+					} else {
+						/* Write the character directly. */
+						while (len-- > 0) *b++ = *s++;
+					}
+
+					break;
+				}
+			}
+
+			/*
+			* Update self to know about the new bytes,
+			* and set up b to write another encoded character.
+			*/
+			this->used = b - PyBytes_AS_STRING(this->buf);
+			if (!this->ensure_space(32)) return false;
+			b = PyBytes_AS_STRING(this->buf) + this->used;
+		}
+		*b++ = '"';
+		this->used = b - PyBytes_AS_STRING(this->buf);
+		return true;
+	}
+
+	inline int
+	namespace_index(const char *ns, size_t nslen) {
+		for (size_t i = 0; i < this->nsmap.size(); i++) {
+			if (namespaces_are_equal(this->nsmap[i].c_str(), ns, nslen)) return i;
+		}
+		this->nsmap.push_back(std::string(ns, nslen));
+		return this->nsmap.size() - 1;
+	}
+
+	bool
+	add_comment(const char *text, const char *tail, const char *type) {
+		if (!write_str_literal("{\"s\":")) return false;
+		if (!this->write_string_as_json(type)) return false;
+		if (text) {
+			if (!write_str_literal(",\"x\":")) return false;
+			if (!this->write_string_as_json(text)) return false;
+		}
+		if (tail) {
+			if (!write_str_literal(",\"l\":")) return false;
+			if (!this->write_string_as_json(tail)) return false;
+		}
+		if (!write_str_literal("}")) return false;
+		return true;
+	}
+
+	bool
+	write_attr(PyObject *args) {
+		const char *attr, *val;
 #if PY_MAJOR_VERSION > 2
-	if (!PyArg_ParseTuple(args, "zzs", &text, &tail, &type)) return NULL;
+		if (!PyArg_ParseTuple(args, "ss", &attr, &val)) return false;
 #else
-	if (!PyArg_ParseTuple(args, "etets", "UTF-8", &text, "UTF-8", &tail, &type)) return NULL;
+		if (!PyArg_ParseTuple(args, "eses", "UTF-8", &attr, "UTF-8", &val)) return false;
 #endif
-	if (!write_str_literal(self, "{\"s\":")) goto end;
-	if (!write_string_as_json(self, type)) goto end;
-	if (text) {
-		if (!write_str_literal(self, ",\"x\":")) goto end;
-		if (!write_string_as_json(self, text)) goto end;
-	}
-	if (tail) {
-		if (!write_str_literal(self, ",\"l\":")) goto end;
-		if (!write_string_as_json(self, tail)) goto end;
-	}
-	if (!write_str_literal(self, "}")) goto end;
-end:
+		const char *b = strrchr(attr, '}');
+		const char *attr_name = attr;
+		int nsindex = -1;
+		if (b) {
+			nsindex = this->namespace_index(attr + 1, b - attr - 1);
+			attr_name = b + 1;
+		}
+		if (!write_str_literal("[")) goto end;
+		if (!this->write_string_as_json(attr_name)) goto end;
+		if (!write_str_literal(",")) goto end;
+		if (!this->write_string_as_json(val)) goto end;
+		if (nsindex > -1) {
+			char buf[32];
+			this->write_data(buf, snprintf(buf, sizeof(buf), ",%d", nsindex));
+		}
+		if (!write_str_literal("]")) goto end;
+
+	end:
 #if PY_MAJOR_VERSION < 3
-	PyMem_Free(text); PyMem_Free(tail);
+		PyMem_Free(attr); PyMem_Free(val);
 #endif
-	if (PyErr_Occurred()) return NULL;
-	Py_RETURN_NONE;
-}
-
-static PyObject*
-add_nsmap(Serializer *self, PyObject *args) {
-	(void)args;
-	if (!write_str_literal(self, "[")) return NULL;
-	bool is_first = true;
-	for (auto x : *self->nsmap) {
-		if (is_first) is_first = false;
-		else if (!write_str_literal(self, ",")) return NULL;
-		if (!write_string_as_json(self, x.c_str())) return NULL;
+		return PyErr_Occurred() ? false : true;
 	}
-	if (!write_str_literal(self, "]")) return NULL;
-	Py_RETURN_NONE;
-}
+
+
+	bool
+	start_tag(const char *tag, const char *text, const char *tail, PyObject *items) {
+		if (!PyList_Check(items)) { PyErr_SetString(PyExc_TypeError, "attrs of a tag must be a list"); return false; }
+		Py_ssize_t num_attrs = PyList_Size(items);
+		const char *b = strrchr(tag, '}');
+		const char *tag_name = tag;
+		int nsindex = -1;
+		if (b) {
+			nsindex = this->namespace_index(tag + 1, b - tag - 1);
+			tag_name = b + 1;
+		}
+		if (!write_str_literal("{\"n\":")) return false;
+		if (!this->write_string_as_json(tag_name)) return false;
+		if (nsindex > -1) {
+			char buf[32];
+			this->write_data(buf, snprintf(buf, sizeof(buf), ",\"s\":%d", nsindex));
+		}
+		if (text) {
+			if (!write_str_literal(",\"x\":")) return false;
+			if (!this->write_string_as_json(text)) return false;
+		}
+		if (tail) {
+			if (!write_str_literal(",\"l\":")) return false;
+			if (!this->write_string_as_json(tail)) return false;
+		}
+		if (num_attrs > 0) {
+			if (!write_str_literal(",\"a\":[")) return false;
+			for (Py_ssize_t i = 0; i < num_attrs; i++) {
+				if (i) { if (!write_str_literal(",")) return false; }
+				if (!this->write_attr(PyList_GET_ITEM(items, i))) return false;
+			}
+			if (!write_str_literal("]")) return false;
+		}
+
+		return true;
+	}
+
+	bool
+	add_nsmap() {
+		if (!write_str_literal("[")) return false;
+		bool is_first = true;
+		for (auto x : this->nsmap) {
+			if (is_first) is_first = false;
+			else if (!write_str_literal(",")) return false;
+			if (!this->write_string_as_json(x.c_str())) return false;
+		}
+		if (!write_str_literal("]")) return false;
+		return true;
+	}
+
+public:
+	Serializer() = default;
+	~Serializer() {
+		Py_CLEAR(this->buf);
+	}
+
+	PyObject*
+	serialize(PyObject *args) {
+		PyObject *root, *Comment;
+		if (!PyArg_ParseTuple(args, "OO", &root, &Comment)) return NULL;
+		std::stack<pyunique_ptr> stack;
+		std::vector<pyunique_ptr> children;
+		Py_INCREF(root);
+		stack.push(pyunique_ptr(root));
+		write_str_literal("{\"version\":1,\"tree\":");
+
+		while(!stack.empty()) {
+			pyunique_ptr e(std::move(stack.top()));
+			stack.pop();
+			PyObject *elem = e.get();
+			if (PyBytes_CheckExact(elem)) {
+				if (!this->write_data(PyBytes_AS_STRING(elem), PyBytes_GET_SIZE(elem))) return NULL;
+				continue;
+			}
+			StringOrNone tag(PyObject_GetAttrString(elem, "tag"));
+			StringOrNone text(PyObject_GetAttrString(elem, "text")), tail(PyObject_GetAttrString(elem, "tail"));
+			if (!tag || PyCallable_Check(tag.get())) {
+				const char *type = (tag && tag.get() == Comment) ? "c" : "o";
+				if (!this->add_comment(text.c_str(), tail.c_str(), type)) return NULL;
+			} else {
+				pyunique_ptr attrs(PyObject_CallMethod(elem, "items", NULL));
+				if (!attrs) return NULL;
+				if (!this->start_tag(tag.c_str(), text.c_str(), tail.c_str(), attrs.get())) return NULL;
+				pyunique_ptr iterator(PyObject_GetIter(elem));
+				if (!iterator) return NULL;
+				children.clear();
+				while(true) {
+					PyObject *child = PyIter_Next(iterator.get());
+					if (!child) { if (PyErr_Occurred()) return NULL; break; }
+					children.push_back(pyunique_ptr(child));
+				}
+				if (children.size() > 0) {
+#define push_literal(x) { \
+	PyObject *lt = PyBytes_FromStringAndSize(x, sizeof(x) - 1); \
+	if (!lt) return NULL; \
+	stack.push(pyunique_ptr(lt));}
+					if (!write_str_literal(",\"c\":[")) return NULL;
+					push_literal("]}");
+					for (size_t i = children.size(); i-- > 0;) {
+						stack.push(std::move(children[i]));
+						if (i != 0) push_literal(",");
+					}
+#undef push_literal
+				} else if (!write_str_literal("}")) return NULL;
+			}
+		}
+		if (!write_str_literal(",\"nsmap\":")) return NULL;
+		if (!this->add_nsmap()) return NULL;
+		if (!write_str_literal("}")) return NULL;
+
+		if (_PyBytes_Resize(&this->buf, this->used) != 0) return NULL;
+		PyObject *ans = this->buf;
+		this->buf = NULL;
+		this->used = 0;
+		this->nsmap.clear();
+		return ans;
+	}
+};
+
 
 static PyObject*
-done(Serializer *self, PyObject *arg) {
-	(void)arg;
-	if (!self->buf) return PyBytes_FromString("");
-	if (_PyBytes_Resize(&self->buf, self->used) != 0) return NULL;
-	PyObject *ans = self->buf;
-	self->buf = NULL;
-	self->used = 0;
-	self->nsmap->clear();
-	return ans;
+serialize(PyObject *self, PyObject *args) {
+	(void)self;
+	try {
+		Serializer s;
+		return s.serialize(args);
+    } catch(const std::exception & err) {
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to serialize to JSON: %s", err.what());
+        return NULL;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to serialize to JSON");
+        return NULL;
+    }
 }
 
 // Boilerplate {{{
-static PyMethodDef Serializer_methods[] = {
-    {"start_tag", (PyCFunction)start_tag, METH_VARARGS,
-     "Start serializing a tag"
-    },
-    {"add_comment", (PyCFunction)add_comment, METH_VARARGS,
-     "Add a comment"
-    },
-    {"write", (PyCFunction)pywrite, METH_O,
-     "Write the specified unicode or bytes object"
-    },
-    {"add_nsmap", (PyCFunction)add_nsmap, METH_NOARGS,
-     "Add the namespace map"
-    },
-    {"done", (PyCFunction)done, METH_NOARGS,
-     "Get the serialized output"
-    },
-    {NULL}  /* Sentinel */
-};
-
-PyTypeObject SerializerType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    /* tp_name           */ "html_as_json.Serializer",
-    /* tp_basicsize      */ sizeof(Serializer),
-    /* tp_itemsize       */ 0,
-    /* tp_dealloc        */ (destructor)dealloc,
-    /* tp_print          */ 0,
-    /* tp_getattr        */ 0,
-    /* tp_setattr        */ 0,
-    /* tp_compare        */ 0,
-    /* tp_repr           */ 0,
-    /* tp_as_number      */ 0,
-    /* tp_as_sequence    */ 0,
-    /* tp_as_mapping     */ 0,
-    /* tp_hash           */ 0,
-    /* tp_call           */ 0,
-    /* tp_str            */ 0,
-    /* tp_getattro       */ 0,
-    /* tp_setattro       */ 0,
-    /* tp_as_buffer      */ 0,
-    /* tp_flags          */ Py_TPFLAGS_DEFAULT,
-    /* tp_doc            */ "Serializer",
-    /* tp_traverse       */ 0,
-    /* tp_clear          */ 0,
-    /* tp_richcompare    */ 0,
-    /* tp_weaklistoffset */ 0,
-    /* tp_iter           */ 0,
-    /* tp_iternext       */ 0,
-    /* tp_methods        */ Serializer_methods,
-    /* tp_members        */ 0,
-    /* tp_getset         */ 0,
-    /* tp_base           */ 0,
-    /* tp_dict           */ 0,
-    /* tp_descr_get      */ 0,
-    /* tp_descr_set      */ 0,
-    /* tp_dictoffset     */ 0,
-    /* tp_init           */ 0,
-    /* tp_alloc          */ 0,
-    /* tp_new            */ alloc,
-};
-
 static char doc[] = "Serialize HTML as JSON efficiently";
 static PyMethodDef methods[] = {
+    {"serialize", (PyCFunction)serialize, METH_VARARGS,
+     "Serialize the provided lxml tree to JSON"
+    },
     {NULL}  /* Sentinel */
 };
 
@@ -494,18 +465,10 @@ CALIBRE_MODINIT_FUNC inithtml_as_json(void) {
 
     PyObject* m;
 
-    if (PyType_Ready(&SerializerType) < 0) {
-        INITERROR;
-    }
-
-
     m = INITMODULE;
     if (m == NULL) {
         INITERROR;
     }
-
-    PyModule_AddObject(m, "Serializer", (PyObject *)&SerializerType);
-
 
 #if PY_MAJOR_VERSION >= 3
     return m;

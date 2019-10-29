@@ -239,16 +239,8 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_html_as_json(self):  # {{{
-        from calibre.constants import plugins
         from calibre.srv.render_book import html_as_json
         from calibre.ebooks.oeb.parse_utils import html5_parse
-        Serializer = plugins['html_as_json'][0].Serializer
-        s = Serializer()
-        d = 'a' * (127 * 1024)
-        s.write(d)
-        d = d.encode('ascii')
-        s.write(d)
-        self.ae(s.done(), (d + d))
 
         def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
             root = html5_parse(html)
@@ -268,4 +260,6 @@ class ContentTest(LibraryBaseTest):
         )
         text = '🐈\n\t\\mūs"'
         t("<p id='{}'>Peña".format(text), [{"n":"p","s":0,"x":"Peña","a":[['id',text]]}])
+        text = 'a' * (127 * 1024)
+        t('<p>{0}<p>{0}'.format(text), [{"n":"p","s":0,"x":text}, {'n':'p','s':0,'x':text}])
     # }}}

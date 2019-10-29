@@ -756,43 +756,15 @@ def ensure_body(root):
 
 def html_as_json(root):
     try:
-        Serializer = plugins['html_as_json'][0].Serializer
+        serialize = plugins['html_as_json'][0].serialize
     except KeyError:
         return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
-    s = Serializer()
-    s.write(b'{"version":1,"tree":')
-    stack = [root]
-
-    while stack:
-        elem = stack.pop()
-        if isinstance(elem, bytes):
-            s.write(elem)
-            continue
-        tag = getattr(elem, 'tag', html_as_json)
-        if callable(tag):
-            if tag is Comment:
-                s.add_comment(elem.text, elem.tail, 'c')
-            else:
-                tail = getattr(elem, 'tail', None)
-                if tail:
-                    s.add_comment(None, tail, 'o')
-            continue
-        s.start_tag(elem.tag, elem.text, elem.tail, elem.items())
-        children = tuple(elem.iterchildren())
-        if children:
-            s.write(b',"c":[')
-            stack.append(b']}')
-            first_child = children[0]
-            for c in reversed(children):
-                stack.append(c)
-                if c is not first_child:
-                    stack.append(b',')
-        else:
-            s.write(b'}')
-    s.write(b',"nsmap":')
-    s.add_nsmap()
-    s.write(b'}')
-    return s.done()
+    ensure_body(root)
+    for child in tuple(root.iterchildren('*')):
+        if child.tag.partition('}')[-1] not in ('head', 'body'):
+            root.remove(child)
+    root.text = root.tail = None
+    return serialize(root, Comment)
 
 
 def html_as_dict(root):
