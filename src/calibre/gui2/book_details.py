@@ -835,7 +835,7 @@ class BookDetails(QWidget):  # {{{
         typ, val = link.partition(':')[::2]
 
         def search_term(field, val):
-            self.search_requested.emit('{}:="{}"'.format(field, val.replace('"', '\\"')))
+            self.search_requested.emit('{}:"={}"'.format(field, val.replace('"', '\\"')))
 
         def browse(url):
             try:
