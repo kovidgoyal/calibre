@@ -311,7 +311,7 @@ class Serializer {
 		}
 		if (!write_str_literal("{\"n\":")) return false;
 		if (!this->write_string_as_json(tag_name)) return false;
-		if (nsindex > -1) {
+		if (nsindex > 0) {
 			char buf[32];
 			this->write_data(buf, snprintf(buf, sizeof(buf), ",\"s\":%d", nsindex));
 		}
