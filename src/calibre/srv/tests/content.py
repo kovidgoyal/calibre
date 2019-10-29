@@ -240,6 +240,8 @@ class ContentTest(LibraryBaseTest):
 
     def test_html_as_json(self):  # {{{
         from calibre.constants import plugins
+        from calibre.srv.render_book import html_as_json
+        from calibre.ebooks.oeb.parse_utils import html5_parse
         Serializer = plugins['html_as_json'][0].Serializer
         s = Serializer()
         d = 'a' * (127 * 1024)
@@ -247,4 +249,23 @@ class ContentTest(LibraryBaseTest):
         d = d.encode('ascii')
         s.write(d)
         self.ae(s.done(), (d + d))
+
+        def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
+            root = html5_parse(html)
+            raw = html_as_json(root)
+            # print(raw.decode('utf-8'))
+            data = json.loads(raw)
+            self.ae(data['version'], 1)
+            self.ae(tuple(data['nsmap']), nsmap)
+            bc = data['tree']['c'][1]['c']
+            self.ae(bc, body_children)
+
+        t('<p>a<!--c-->t</p>l', [{"n":"p","s":0,"x":"a","l":"l","c":[{"s":"c","x":"c","l":"t"}]}])
+        t('<p class="foo" id="bar">a', [{"n":"p","s":0,"x":"a","a":[['class','foo'],['id','bar']]}])
+        t(
+            '<svg xlink:href="h"></svg>', [{'n': 'svg', 's': 1, 'a': [['href', 'h', 2]]}],
+            ('http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink')
+        )
+        text = '🐈\n\t\\mūs"'
+        t("<p id='{}'>Peña".format(text), [{"n":"p","s":0,"x":"Peña","a":[['id',text]]}])
     # }}}

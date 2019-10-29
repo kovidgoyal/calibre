@@ -15,6 +15,7 @@ from datetime import datetime
 from functools import partial
 from itertools import count
 from math import ceil
+from lxml.etree import Comment
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
@@ -243,10 +244,6 @@ def toc_anchor_map(toc):
     return dict(ans)
 
 
-def serialize_parsed_html(root):
-    return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
-
-
 class SimpleContainer(ContainerBase):
 
     tweak_mode = True
@@ -416,7 +413,7 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
                 link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
                 a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
 
-    shtml = serialize_parsed_html(root)
+    shtml = html_as_json(root)
     with container.open(name, 'wb') as f:
         f.write(shtml)
 
@@ -755,6 +752,47 @@ def ensure_body(root):
             for child in b:
                 div.append(child)
             body.append(div)
+
+
+def html_as_json(root):
+    try:
+        Serializer = plugins['html_as_json'][0].Serializer
+    except KeyError:
+        return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
+    s = Serializer()
+    s.write(b'{"version":1,"tree":')
+    stack = [root]
+
+    while stack:
+        elem = stack.pop()
+        if isinstance(elem, bytes):
+            s.write(elem)
+            continue
+        tag = getattr(elem, 'tag', html_as_json)
+        if callable(tag):
+            if tag is Comment:
+                s.add_comment(elem.text, elem.tail, 'c')
+            else:
+                tail = getattr(elem, 'tail', None)
+                if tail:
+                    s.add_comment(None, tail, 'o')
+            continue
+        s.start_tag(elem.tag, elem.text, elem.tail, elem.items())
+        children = tuple(elem.iterchildren())
+        if children:
+            s.write(b',"c":[')
+            stack.append(b']}')
+            first_child = children[0]
+            for c in reversed(children):
+                stack.append(c)
+                if c is not first_child:
+                    stack.append(b',')
+        else:
+            s.write(b'}')
+    s.write(b',"nsmap":')
+    s.add_nsmap()
+    s.write(b'}')
+    return s.done()
 
 
 def html_as_dict(root):
