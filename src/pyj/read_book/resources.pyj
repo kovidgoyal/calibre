@@ -200,7 +200,12 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
             src = node
             tag_id = v'process_stack.tag_id++'
         if src.s:
-            elem = document.createElementNS(ns_map[src.s], src.n)
+            if src.n:
+                elem = document.createElementNS(ns_map[src.s], src.n)
+            else:
+                if src.l:
+                    parent.appendChild(document.createTextNode(src.l))
+                continue
         else:
             elem = document.createElement(src.n)
         loadable = False
