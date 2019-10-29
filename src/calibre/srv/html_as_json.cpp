@@ -404,7 +404,7 @@ public:
 				} else if (!write_str_literal("}")) return NULL;
 			}
 		}
-		if (!write_str_literal(",\"nsmap\":")) return NULL;
+		if (!write_str_literal(",\"ns_map\":")) return NULL;
 		if (!this->add_nsmap()) return NULL;
 		if (!write_str_literal("}")) return NULL;
 

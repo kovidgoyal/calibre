@@ -248,7 +248,7 @@ class ContentTest(LibraryBaseTest):
             # print(raw.decode('utf-8'))
             data = json.loads(raw)
             self.ae(data['version'], 1)
-            self.ae(tuple(data['nsmap']), nsmap)
+            self.ae(tuple(data['ns_map']), nsmap)
             bc = data['tree']['c'][1]['c']
             self.ae(bc, body_children)
 
