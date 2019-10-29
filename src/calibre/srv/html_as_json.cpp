@@ -121,6 +121,7 @@ public:
 		Py_CLEAR(this->temp);
 		Py_CLEAR(this->orig);
 	}
+	void incref() { Py_XINCREF(this->orig); }
 	PyObject* get() { return this->orig; }
 	const char *c_str() { return this->data; }
 	explicit operator bool() { return this->orig ? true : false; }
@@ -267,12 +268,10 @@ class Serializer {
 
 	bool
 	write_attr(PyObject *args) {
-		const char *attr, *val;
-#if PY_MAJOR_VERSION > 2
-		if (!PyArg_ParseTuple(args, "ss", &attr, &val)) return false;
-#else
-		if (!PyArg_ParseTuple(args, "eses", "UTF-8", &attr, "UTF-8", &val)) return false;
-#endif
+		StringOrNone a(PyTuple_GET_ITEM(args, 0)), v(PyTuple_GET_ITEM(args, 1));
+		a.incref(); v.incref();
+		if (!a || !v) return false;
+		const char *attr = a.c_str(), *val = v.c_str();
 		const char *b = strrchr(attr, '}');
 		const char *attr_name = attr;
 		int nsindex = -1;
@@ -280,21 +279,17 @@ class Serializer {
 			nsindex = this->namespace_index(attr + 1, b - attr - 1);
 			attr_name = b + 1;
 		}
-		if (!write_str_literal("[")) goto end;
-		if (!this->write_string_as_json(attr_name)) goto end;
-		if (!write_str_literal(",")) goto end;
-		if (!this->write_string_as_json(val)) goto end;
+		if (!write_str_literal("[")) return false;
+		if (!this->write_string_as_json(attr_name)) return false;
+		if (!write_str_literal(",")) return false;
+		if (!this->write_string_as_json(val)) return false;
 		if (nsindex > -1) {
 			char buf[32];
 			this->write_data(buf, snprintf(buf, sizeof(buf), ",%d", nsindex));
 		}
-		if (!write_str_literal("]")) goto end;
+		if (!write_str_literal("]")) return false;
 
-	end:
-#if PY_MAJOR_VERSION < 3
-		PyMem_Free(attr); PyMem_Free(val);
-#endif
-		return PyErr_Occurred() ? false : true;
+		return true;
 	}
 
 
@@ -378,7 +373,7 @@ public:
 				const char *type = (tag && tag.get() == Comment) ? "c" : "o";
 				if (!this->add_comment(text.c_str(), tail.c_str(), type)) return NULL;
 			} else {
-				pyunique_ptr attrs(PyObject_CallMethod(elem, "items", NULL));
+				pyunique_ptr attrs(PyObject_CallMethod(elem, (char*)"items", NULL));
 				if (!attrs) return NULL;
 				if (!this->start_tag(tag.c_str(), text.c_str(), tail.c_str(), attrs.get())) return NULL;
 				pyunique_ptr iterator(PyObject_GetIter(elem));
