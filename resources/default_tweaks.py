@@ -566,3 +566,14 @@ exclude_fields_on_paste = []
 # Useful if for some reason your operating systems network checking
 # facilities are not reliable (for example NetworkManager on Linux).
 skip_network_check = False
+
+#: Render Page Settings
+# Default page size and margins to use when rendering an HTML page.
+# Affects size of cover rendered from ebook file.
+# Examples:
+#   render_page_size = 'A4'
+#   render_page_size = 'A6'
+#   render_page_size = 'Letter'
+#   render_page_margins = (left, top, right, bottom)
+render_page_size = 'A4'
+render_page_margins = (0, 0, 0, 0)

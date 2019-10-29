@@ -17,6 +17,7 @@ from calibre.gui2 import must_use_qt
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.monotonic import monotonic
 from calibre.utils.filenames import atomic_rename
+from calibre.utils.config import tweaks
 
 LOAD_TIMEOUT = 20
 PRINT_TIMEOUT = 10
@@ -57,8 +58,16 @@ class Render(QWebEnginePage):
                 QApplication.instance().exit(3)
 
     def start_print(self):
-        margins = QMarginsF(0, 0, 0, 0)
-        page_layout = QPageLayout(QPageSize(QPageSize.A4), QPageLayout.Portrait, margins)
+        try:
+            mgs = tweaks.get('render_page_margins', (0, 0, 0, 0))
+            margins = QMarginsF(*mgs)
+        except:
+            margins = QMarginsF(0, 0, 0, 0)
+        try:
+            render_page_size = getattr(QPageSize, tweaks.get('render_page_size', 'A4').capitalize())
+        except:
+            render_page_size='A4'
+        page_layout = QPageLayout(QPageSize(render_page_size), QPageLayout.Portrait, margins)
         self.printToPdf('rendered.pdf', page_layout)
         self.printing_started = True
         self.start_time = monotonic()
