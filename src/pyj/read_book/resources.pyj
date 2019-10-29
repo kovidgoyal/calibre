@@ -193,7 +193,12 @@ def apply_attributes(src, elem, ns_map):
 def process_stack(stack, tag_map, ns_map, load_required, onload):
     while stack.length:
         node, parent = stack.pop()
-        src = tag_map[node[0]]
+        if tag_map:
+            tag_id = node[0]
+            src = tag_map[tag_id]
+        else:
+            src = node
+            tag_id = v'process_stack.tag_id++'
         if src.s:
             elem = document.createElementNS(ns_map[src.s], src.n)
         else:
@@ -209,9 +214,9 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
                         loadable = True
                         break
         if loadable:
-            load_required.add(node[0])
-            elem.addEventListener('load', onload.bind(node[0]))
-            elem.addEventListener('error', onload.bind(node[0]))
+            load_required.add(tag_id)
+            elem.addEventListener('load', onload.bind(tag_id))
+            elem.addEventListener('error', onload.bind(tag_id))
 
         apply_attributes(src, elem, ns_map)
         parent.appendChild(elem)
@@ -222,11 +227,98 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
                 elem.appendChild(document.createTextNode(src.x))
         if src.l:
             parent.appendChild(document.createTextNode(src.l))
-        for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
-            stack.push(v'[node[i], elem]')
+        if tag_map:
+            for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
+                stack.push(v'[node[i], elem]')
+        elif node.c:
+            for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
+                stack.push(v'[node.c[i], elem]')
+
 
 def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     nonlocal hide_tooltips
+    hide_tooltips = opts.hide_tooltips
+    if serialized_data.tag_map:
+        return unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name)
+    html = serialized_data.tree
+    ns_map = serialized_data.ns_map
+    remove_all_attributes(document.documentElement, document.head, document.body)
+    clear(document.head, document.body)
+    apply_attributes(html, document.documentElement, ns_map)
+    # hide browser scrollbars while loading since they will anyway be hidden
+    # after loading and this prevents extra layouts
+    document.head.appendChild(
+        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
+    )
+    if runtime.is_standalone_viewer and root_name:
+        if root_name.indexOf('/') > -1:
+            base = window.location.pathname.rpartition('/')[0]
+            base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
+            document.head.appendChild(E.base(href=base))
+
+
+    # Default stylesheet
+    if not runtime.is_standalone_viewer:
+        # for the standalone viewer the default font family is set
+        # in the viewer settings
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+
+    load_required = set()
+    proceeded = False
+    hang_timeout = 5
+
+    def hangcheck():
+        nonlocal proceeded
+        if not proceeded:
+            proceeded = True
+            print('WARNING: All resources did not load in {} seconds, proceeding anyway ({} resources left)'.format(hang_timeout, load_required.length))
+            proceed()
+
+    def onload():
+        nonlocal proceeded
+        load_required.discard(this)
+        if not load_required.length:
+            proceeded = True
+            proceed()
+
+
+    body_done = False
+    process_stack.tag_id = 1
+    for child in html.c:
+        if child.n is 'head':
+            if child.c:
+                stack = v'[]'
+                for v'var i = child.c.length; i-- > 0;':
+                    if child.c[i].n is not 'meta' and child.c[i].n is not 'base':
+                        stack.push(v'[child.c[i], document.head]')
+                process_stack(stack, None, ns_map, load_required, onload)
+        elif child.n is 'body':
+            if not body_done:
+                body_done = True
+                apply_attributes(child, document.body, ns_map)
+            if child.x:
+                document.body.appendChild(document.createTextNode(child.x))
+            if child.c:
+                stack = v'[]'
+                for v'var i = child.c.length; i-- > 0;':
+                    if child.c[i].n is not 'meta' and child.c[i].n is not 'base':
+                        stack.push(v'[child.c[i], document.body]')
+                process_stack(stack, None, ns_map, load_required, onload)
+
+    if postprocess_dom:
+        postprocess_dom()
+    ev = document.createEvent('Event')
+    ev.initEvent('DOMContentLoaded', True, True)
+    document.dispatchEvent(ev)
+    if load_required.length:
+        setTimeout(hangcheck, hang_timeout * 1000)
+    else:
+        proceeded = True
+        proceed()
+
+
+
+def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name):
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
     ns_map = serialized_data.ns_map
@@ -256,7 +348,6 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     load_required = set()
     proceeded = False
     hang_timeout = 5
-    hide_tooltips = opts.hide_tooltips
 
     def hangcheck():
         nonlocal proceeded
