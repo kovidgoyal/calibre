@@ -10,13 +10,13 @@ import sys
 from PyQt5.Qt import (
     QApplication, QMarginsF, QPageLayout, QPageSize, Qt, QTimer, QUrl
 )
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
 
 from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import must_use_qt
 from calibre.gui2.webengine import secure_webengine
-from calibre.utils.monotonic import monotonic
 from calibre.utils.filenames import atomic_rename
+from calibre.utils.monotonic import monotonic
 
 LOAD_TIMEOUT = 20
 PRINT_TIMEOUT = 10
@@ -36,10 +36,23 @@ class Render(QWebEnginePage):
 
     def load_finished(self, ok):
         if ok:
-            self.start_print()
+            self.runJavaScript('''
+            var ans = {};
+            var meta = document.querySelector('meta[name=calibre-html-render-data]');
+            if (meta) {
+                try {
+                    ans = JSON.parse(meta.content);
+                    console.log(ans);
+                } catch {}
+            }
+            ans;
+            ''', QWebEngineScript.ApplicationWorld, self.start_print)
         else:
             self.hang_timer.stop()
             QApplication.instance().exit(1)
+
+    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+        pass
 
     def start_load(self, path_to_html):
         self.load(QUrl.fromLocalFile(path_to_html))
@@ -56,9 +69,25 @@ class Render(QWebEnginePage):
                 self.hang_timer.stop()
                 QApplication.instance().exit(3)
 
-    def start_print(self):
+    def start_print(self, data):
         margins = QMarginsF(0, 0, 0, 0)
-        page_layout = QPageLayout(QPageSize(QPageSize.A4), QPageLayout.Portrait, margins)
+        page_size = QPageSize(QPageSize.A4)
+        if isinstance(data, dict):
+            try:
+                if 'margins' in data:
+                    margins = QMarginsF(*data[margins])
+                if 'size' in data:
+                    sz = data['size']
+                    if type(getattr(QPageSize, sz, None)) is type(QPageSize.A4):  # noqa
+                        page_size = QPageSize(getattr(QPageSize, sz))
+                    else:
+                        from calibre.ebooks.pdf.image_writer import parse_pdf_page_size
+                        ps = parse_pdf_page_size(sz, data.get('unit', 'inch'))
+                        if ps is not None:
+                            page_size = ps
+            except Exception:
+                pass
+        page_layout = QPageLayout(page_size, QPageLayout.Portrait, margins)
         self.printToPdf('rendered.pdf', page_layout)
         self.printing_started = True
         self.start_time = monotonic()
