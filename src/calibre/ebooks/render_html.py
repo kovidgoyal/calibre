@@ -75,7 +75,7 @@ class Render(QWebEnginePage):
         if isinstance(data, dict):
             try:
                 if 'margins' in data:
-                    margins = QMarginsF(*data[margins])
+                    margins = QMarginsF(*data['margins'])
                 if 'size' in data:
                     sz = data['size']
                     if type(getattr(QPageSize, sz, None)) is type(QPageSize.A4):  # noqa
