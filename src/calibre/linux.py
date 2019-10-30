@@ -866,16 +866,16 @@ class PostInstall:
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
                 with open('calibre-lrfviewer.desktop', 'wb') as f:
-                    f.write(VIEWER)
+                    f.write(VIEWER.encode('utf-8'))
                 with open('calibre-ebook-viewer.desktop', 'wb') as f:
-                    f.write(EVIEWER)
+                    f.write(EVIEWER.encode('utf-8'))
                     write_mimetypes(f)
                 with open('calibre-ebook-edit.desktop', 'wb') as f:
-                    f.write(ETWEAK)
+                    f.write(ETWEAK.encode('utf-8'))
                     mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
                     f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
                 with open('calibre-gui.desktop', 'wb') as f:
-                    f.write(GUI)
+                    f.write(GUI.encode('utf-8'))
                     write_mimetypes(f)
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
@@ -1029,7 +1029,7 @@ complete -o filenames -F _'''%dict(pics=spics,
     opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-VIEWER = b'''\
+VIEWER = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1043,7 +1043,7 @@ MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
 '''
 
-EVIEWER = b'''\
+EVIEWER = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1056,7 +1056,7 @@ Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
 
-ETWEAK = b'''\
+ETWEAK = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1069,7 +1069,7 @@ Icon=calibre-ebook-edit
 Categories=Office;
 '''
 
-GUI = b'''\
+GUI = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
