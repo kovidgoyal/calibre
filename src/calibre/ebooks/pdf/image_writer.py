@@ -40,6 +40,26 @@ class PDFMetadata(object):  # {{{
 # Page layout {{{
 
 
+def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
+    width, sep, height = spec.lower().partition('x')
+    if height:
+        try:
+            width = float(width.replace(',', '.'))
+            height = float(height.replace(',', '.'))
+        except Exception:
+            pass
+        else:
+            if unit == 'devicepixel':
+                factor = 72.0 / dpi
+            else:
+                factor = {
+                    'point':1.0, 'inch':inch, 'cicero':cicero,
+                    'didot':didot, 'pica':pica, 'millimeter':mm,
+                    'centimeter':cm
+                }.get(unit, 1.0)
+            return QPageSize(QSize(factor*width, factor*height), matchPolicy=QPageSize.ExactMatch)
+
+
 def get_page_size(opts, for_comic=False):
     use_profile = opts.use_profile_size and opts.output_profile.short_name != 'default' and opts.output_profile.width <= 9999
     if use_profile:
@@ -53,23 +73,7 @@ def get_page_size(opts, for_comic=False):
     else:
         page_size = None
         if opts.custom_size is not None:
-            width, sep, height = opts.custom_size.partition('x')
-            if height:
-                try:
-                    width = float(width.replace(',', '.'))
-                    height = float(height.replace(',', '.'))
-                except:
-                    pass
-                else:
-                    if opts.unit == 'devicepixel':
-                        factor = 72.0 / opts.output_profile.dpi
-                    else:
-                        factor = {
-                            'point':1.0, 'inch':inch, 'cicero':cicero,
-                            'didot':didot, 'pica':pica, 'millimeter':mm,
-                            'centimeter':cm
-                        }[opts.unit]
-                    page_size = QPageSize(QSize(factor*width, factor*height), matchPolicy=QPageSize.ExactMatch)
+            page_size = parse_pdf_page_size(opts.custom_size, opts.unit, opts.output_profile.dpi)
         if page_size is None:
             page_size = QPageSize(getattr(QPageSize, opts.paper_size.capitalize()))
     return page_size
