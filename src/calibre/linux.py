@@ -516,13 +516,13 @@ def get_bash_completion_path(root, share, info):
             info('Failed to find directory to install bash completions, using default.')
             path = '/usr/share/bash-completion/completions'
         if path and os.path.exists(path) and os.path.isdir(path):
-            return os.path.join(path, 'calibre')
+            return path
     else:
         # Use the default bash-completion dir under staging_share
-        return os.path.join(share, 'bash-completion', 'completions', 'calibre')
+        return os.path.join(share, 'bash-completion', 'completions')
 
 
-def write_completion(bash_comp_dest, zsh):
+def write_completion(self, bash_comp_dest, zsh):
     from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
     from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
     from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
@@ -540,48 +540,51 @@ def write_completion(bash_comp_dest, zsh):
     input_formats = sorted(all_input_formats())
     tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
 
-    if bash_comp_dest and not os.path.exists(os.path.dirname(bash_comp_dest)):
-        os.makedirs(os.path.dirname(bash_comp_dest))
+    if bash_comp_dest and not os.path.exists(bash_comp_dest):
+        os.makedirs(bash_comp_dest)
 
     complete = 'calibre-complete'
     if getattr(sys, 'frozen_path', None):
         complete = os.path.join(getattr(sys, 'frozen_path'), complete)
 
-    with open(bash_comp_dest or os.devnull, 'wb') as f:
-        w = polyglot_write(f)
+    def o_and_e(name, *args, **kwargs):
+        bash_compfile = os.path.join(bash_comp_dest, name)
+        with open(bash_compfile, 'wb') as f:
+            f.write(opts_and_exts(name, *args, **kwargs))
+        self.manifest.append(bash_compfile)
+        zsh.opts_and_exts(name, *args, **kwargs)
 
-        def o_and_e(*args, **kwargs):
-            w(opts_and_exts(*args, **kwargs))
-            zsh.opts_and_exts(*args, **kwargs)
+    def o_and_w(name, *args, **kwargs):
+        bash_compfile = os.path.join(bash_comp_dest, name)
+        with open(bash_compfile, 'wb') as f:
+            f.write(opts_and_words(name, *args, **kwargs))
+        self.manifest.append(bash_compfile)
+        zsh.opts_and_words(name, *args, **kwargs)
 
-        def o_and_w(*args, **kwargs):
-            w(opts_and_words(*args, **kwargs))
-            zsh.opts_and_words(*args, **kwargs)
-
-        w('# calibre Bash Shell Completion\n')
-        o_and_e('calibre', guiop, BOOK_EXTENSIONS)
-        o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
-        o_and_e('ebook-meta', metaop,
-                list(meta_filetypes()), cover_opts=['--cover', '-c'],
-                opf_opts=['--to-opf', '--from-opf'])
-        o_and_e('ebook-polish', polish_op,
-                [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
-                opf_opts=['--opf', '-o'])
-        o_and_e('lrfviewer', lrfviewerop, ['lrf'])
-        o_and_e('ebook-viewer', viewer_op, input_formats)
-        o_and_e('ebook-edit', tweak_op, tweak_formats)
-        o_and_w('fetch-ebook-metadata', fem_op, [])
-        o_and_w('calibre-smtp', smtp_op, [])
-        o_and_w('calibre-server', serv_op, [])
-        o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'mobi', 'azw', 'azw3', 'docx'], file_map={
-            '--tweak-book':['epub', 'azw3', 'mobi'],
-            '--subset-font':['ttf', 'otf'],
-            '--exec-file':['py', 'recipe'],
-            '--add-simple-plugin':['py'],
-            '--inspect-mobi':['mobi', 'azw', 'azw3'],
-            '--viewer':sorted(available_input_formats()),
-        })
-        w(textwrap.dedent('''
+    o_and_e('calibre', guiop, BOOK_EXTENSIONS)
+    o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
+    o_and_e('ebook-meta', metaop,
+            list(meta_filetypes()), cover_opts=['--cover', '-c'],
+            opf_opts=['--to-opf', '--from-opf'])
+    o_and_e('ebook-polish', polish_op,
+            [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
+            opf_opts=['--opf', '-o'])
+    o_and_e('lrfviewer', lrfviewerop, ['lrf'])
+    o_and_e('ebook-viewer', viewer_op, input_formats)
+    o_and_e('ebook-edit', tweak_op, tweak_formats)
+    o_and_w('fetch-ebook-metadata', fem_op, [])
+    o_and_w('calibre-smtp', smtp_op, [])
+    o_and_w('calibre-server', serv_op, [])
+    o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'epub', 'mobi', 'azw', 'azw3', 'docx'], file_map={
+        '--tweak-book':['epub', 'azw3', 'mobi'],
+        '--subset-font':['ttf', 'otf'],
+        '--exec-file':['py', 'recipe'],
+        '--add-simple-plugin':['py'],
+        '--inspect-mobi':['mobi', 'azw', 'azw3'],
+        '--viewer':sorted(available_input_formats()),
+    })
+    with open(os.path.join(bash_comp_dest, 'ebook-device'), 'wb') as f:
+        f.write(textwrap.dedent('''\
         _ebook_device_ls()
         {
         local pattern search listing prefix
@@ -651,10 +654,11 @@ def write_completion(bash_comp_dest, zsh):
             ;;
         esac
         }
-        complete -o nospace  -F _ebook_device ebook-device
-
-        complete -o nospace -C %s ebook-convert
-        ''')%complete)
+        complete -o nospace  -F _ebook_device ebook-device''').encode('utf-8'))
+    self.manifest.append(os.path.join(bash_comp_dest, 'ebook-device'))
+    with open(os.path.join(bash_comp_dest, 'ebook-convert'), 'wb') as f:
+        f.write(('complete -o nospace -C %s ebook-convert'%complete).encode('utf-8'))
+    self.manifest.append(os.path.join(bash_comp_dest, 'ebook-convert'))
     zsh.write()
 # }}}
 
@@ -760,7 +764,7 @@ class PostInstall:
             appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
             with open(dest, 'wb') as f:
-                polyglot_write(f)(raw)
+                f.write(raw.encode('utf-8'))
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:
                 os.chown(dest, 0, 0)
@@ -778,9 +782,8 @@ class PostInstall:
                 self.manifest.append(zsh.dest)
             bash_comp_dest = get_bash_completion_path(self.opts.staging_root, os.path.dirname(self.opts.staging_sharedir), self.info)
             if bash_comp_dest is not None:
-                self.info('Installing bash completion to:', bash_comp_dest)
-                self.manifest.append(bash_comp_dest)
-            write_completion(bash_comp_dest, zsh)
+                self.info('Installing bash completion to:', bash_comp_dest+os.sep)
+            write_completion(self, bash_comp_dest, zsh)
         except TypeError as err:
             if 'resolve_entities' in unicode_type(err):
                 print('You need python-lxml >= 2.0.5 for calibre')
@@ -858,21 +861,21 @@ class PostInstall:
                 mimetypes.discard('application/octet-stream')
 
                 def write_mimetypes(f):
-                    polyglot_write(f)('MimeType=%s;\n'%';'.join(mimetypes))
+                    f.write(('MimeType=%s;\n'%';'.join(mimetypes)).encode('utf-8'))
 
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
                 with open('calibre-lrfviewer.desktop', 'wb') as f:
-                    polyglot_write(f)(VIEWER)
+                    f.write(VIEWER.encode('utf-8'))
                 with open('calibre-ebook-viewer.desktop', 'wb') as f:
-                    polyglot_write(f)(EVIEWER)
+                    f.write(EVIEWER.encode('utf-8'))
                     write_mimetypes(f)
                 with open('calibre-ebook-edit.desktop', 'wb') as f:
-                    polyglot_write(f)(ETWEAK)
+                    f.write(ETWEAK.encode('utf-8'))
                     mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
-                    polyglot_write(f)('MimeType=%s;\n'%';'.join(mt))
+                    f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
                 with open('calibre-gui.desktop', 'wb') as f:
-                    polyglot_write(f)(GUI)
+                    f.write(GUI.encode('utf-8'))
                     write_mimetypes(f)
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
@@ -968,7 +971,7 @@ def opts_and_words(name, op, words, takes_files=False):
     esac
 
 }
-complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n")
+complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
 pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
@@ -995,7 +998,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
 
-    return '_'+fname+'()'+\
+    return ('_'+fname+'()'+\
 '''
 {
     local cur prev opts
@@ -1023,7 +1026,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
 VIEWER = '''\
