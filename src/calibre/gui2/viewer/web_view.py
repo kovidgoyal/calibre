@@ -504,6 +504,7 @@ class WebView(RestartingWebEngineView):
 
     def start_book_load(self, initial_cfi=None, initial_toc_node=None, initial_bookpos=None):
         key = (set_book_path.path,)
+        self.clear_history()
         self.execute_when_ready('start_book_load', key, initial_cfi, initial_toc_node, initial_bookpos, set_book_path.pathtoebook)
 
     def execute_when_ready(self, action, *args):
@@ -568,3 +569,6 @@ class WebView(RestartingWebEngineView):
 
     def goto_frac(self, frac):
         self.execute_when_ready('goto_frac', frac)
+
+    def clear_history(self):
+        self._page.history().clear()
