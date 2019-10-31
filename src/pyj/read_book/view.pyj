@@ -365,6 +365,8 @@ class View:
             self.on_next_section({'forward': True})
         elif data.name is 'previous_section':
             self.on_next_section({'forward': False})
+        elif data.name is 'open_book':
+            self.overlay.open_book()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
@@ -571,6 +573,7 @@ class View:
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
+        self.book_load_started = True
         if not is_current_book:
             self.iframe_wrapper.reset()
             self.content_popup_overlay.iframe_wrapper.reset()
@@ -912,6 +915,10 @@ class View:
         self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
+        if self.book_load_started:
+            self.book_load_started = False
+            if ui_operations.clear_history:
+                ui_operations.clear_history()
 
     def set_progress_frac(self, progress_frac, file_progress_frac):
         self.current_progress_frac = progress_frac or 0

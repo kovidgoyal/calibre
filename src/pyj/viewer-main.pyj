@@ -346,6 +346,8 @@ if window is window.top:
         to_python.export_shortcut_map(smap)
     ui_operations.print_book = def():
         to_python.print_book()
+    ui_operations.clear_history = def():
+        to_python.clear_history()
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

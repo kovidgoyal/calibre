@@ -254,6 +254,7 @@ class ViewerBridge(Bridge):
     show_error = from_js(object, object, object)
     export_shortcut_map = from_js(object)
     print_book = from_js()
+    clear_history = from_js()
 
     create_view = to_js()
     start_book_load = to_js()
@@ -430,6 +431,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.show_loading_message.connect(self.show_loading_message)
         self.bridge.show_error.connect(self.show_error)
         self.bridge.print_book.connect(self.print_book)
+        self.bridge.clear_history.connect(self.clear_history)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -504,7 +506,6 @@ class WebView(RestartingWebEngineView):
 
     def start_book_load(self, initial_cfi=None, initial_toc_node=None, initial_bookpos=None):
         key = (set_book_path.path,)
-        self.clear_history()
         self.execute_when_ready('start_book_load', key, initial_cfi, initial_toc_node, initial_bookpos, set_book_path.pathtoebook)
 
     def execute_when_ready(self, action, *args):
