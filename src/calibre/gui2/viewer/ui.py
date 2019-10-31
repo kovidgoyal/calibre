@@ -32,6 +32,7 @@ from calibre.gui2.viewer.convert_book import prepare_book, update_book
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
+from calibre.gui2.viewer.toolbars import VerticalToolBar
 from calibre.gui2.viewer.web_view import (
     WebView, get_path_for_name, get_session_pref, set_book_path, viewer_config_dir,
     vprefs
@@ -98,6 +99,10 @@ class EbookViewer(MainWindow):
         self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
         self.image_popup = ImagePopup(self)
+        self.vertical_toolbar = vt = VerticalToolBar(self)
+        vt.open_book_at_path.connect(self.ask_for_open)
+        self.addToolBar(Qt.LeftToolBarArea, vt)
+        # vt.setVisible(False)
         try:
             os.makedirs(annotations_dir)
         except EnvironmentError:
@@ -156,6 +161,7 @@ class EbookViewer(MainWindow):
         self.web_view.show_loading_message.connect(self.show_loading_message)
         self.web_view.show_error.connect(self.show_error)
         self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
+        self.vertical_toolbar.initialize(self.web_view)
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()

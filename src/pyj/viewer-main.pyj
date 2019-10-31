@@ -269,6 +269,12 @@ def background_image_changed(img_id):
         img.src = READER_BACKGROUND_URL + '?' + Date().getTime()
 
 
+@from_python
+def trigger_shortcut(which):
+    if view:
+        view.on_handle_shortcut({'name': which})
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error

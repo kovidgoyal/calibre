@@ -339,6 +339,8 @@ class View:
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
             ui_operations.toggle_lookup()
+        elif data.name is 'toggle_full_screen':
+            ui_operations.toggle_full_screen()
         elif data.name is 'toggle_paged_mode':
             self.toggle_paged_mode()
         elif data.name is 'quit':
@@ -367,6 +369,19 @@ class View:
             self.on_next_section({'forward': False})
         elif data.name is 'open_book':
             self.overlay.open_book()
+        elif data.name is 'next':
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=False, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+        elif data.name is 'previous':
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=True, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+        elif data.name is 'print':
+            ui_operations.print_book()
+        elif data.name is 'preferences':
+            self.overlay.show_prefs()
+        elif data.name is 'metadata':
+            self.overlay.show_metadata()
+
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

@@ -15,6 +15,15 @@ def get_main_window_for(widget):
         p = p.parent()
 
 
+def index_to_key_sequence(idx):
+    mods = []
+    for i, x in enumerate(('ALT', 'CTRL', 'META', 'SHIFT')):
+        if idx[i] == 'y':
+            mods.append(x.capitalize())
+    mods.append(idx[4:])
+    return QKeySequence('+'.join(mods))
+
+
 def key_to_text(key):
     return QKeySequence(key).toString(QKeySequence.PortableText).lower()
 

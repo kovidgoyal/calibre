@@ -265,6 +265,7 @@ class ViewerBridge(Bridge):
     show_home_page = to_js()
     background_image_changed = to_js()
     goto_frac = to_js()
+    trigger_shortcut = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -399,6 +400,8 @@ class WebView(RestartingWebEngineView):
     show_loading_message = pyqtSignal(object)
     show_error = pyqtSignal(object, object, object)
     print_book = pyqtSignal()
+    shortcuts_changed = pyqtSignal(object)
+    paged_mode_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -447,6 +450,7 @@ class WebView(RestartingWebEngineView):
 
     def set_shortcut_map(self, smap):
         self.shortcut_map = smap
+        self.shortcuts_changed.emit(smap)
 
     def url_changed(self, url):
         if url.hasFragment():
@@ -527,12 +531,15 @@ class WebView(RestartingWebEngineView):
         if key == '*' and val is None:
             vprefs['session_data'] = {}
             apply_font_settings(self._page)
+            self.paged_mode_changed.emit()
         elif key != '*':
             sd = vprefs['session_data']
             sd[key] = val
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
                 apply_font_settings(self._page)
+            elif key == 'read_mode':
+                self.paged_mode_changed.emit()
 
     def set_local_storage(self, key, val):
         if key == '*' and val is None:
@@ -573,3 +580,6 @@ class WebView(RestartingWebEngineView):
 
     def clear_history(self):
         self._page.history().clear()
+
+    def trigger_shortcut(self, which):
+        self.execute_when_ready('trigger_shortcut', which)

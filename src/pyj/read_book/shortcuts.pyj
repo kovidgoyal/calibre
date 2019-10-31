@@ -245,6 +245,7 @@ def shortcuts_definition():
         'ui',
         _('Show the viewer controls'),
     ),
+
     }
     return ans
 
@@ -287,6 +288,13 @@ def add_standalone_viewer_shortcuts():
         'ui',
         _('Quit the viewer'),
     )
+
+    sc['print'] = desc(
+        "Ctrl+P",
+        'ui',
+        _('Print book to PDF'),
+    )
+
 
 def create_shortcut_map(custom_shortcuts):
     ans = {}
