@@ -27,7 +27,9 @@ def create_open_book(container, book):
         for entry in rl:
             if book and book.manifest.pathtoebook is entry.pathtoebook:
                 continue
-            fname = str.replace(entry.pathtoebook, '\\', '/')
+            if jstype(entry.pathtoebook) is not 'string':
+                continue
+            fname = entry.pathtoebook.replace(/\\/g, '/')
             if '/' in fname:
                 fname = fname.rpartition('/')[-1]
             items.push(create_item(entry.title, ui_operations.ask_for_open.bind(None, entry.pathtoebook), fname))
