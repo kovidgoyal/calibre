@@ -761,7 +761,7 @@ def html_as_json(root):
     ensure_body(root)
     try:
         serialize = plugins['html_as_json'][0].serialize
-    except KeyError:
+    except (KeyError, AttributeError):
         return as_bytes(json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')))
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
