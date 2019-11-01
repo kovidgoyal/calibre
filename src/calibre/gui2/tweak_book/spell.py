@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -37,7 +36,7 @@ from calibre.spell.import_from import import_from_oxt
 from calibre.spell.break_iterator import split_into_words
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, filter
 
 LANG = 0
 COUNTRY = 1
@@ -68,7 +67,7 @@ class AddDictionary(QDialog):  # {{{
             download more dictionaries from <a href="{1}">the LibreOffice extensions repository</a>.
             The dictionary will download as an .oxt file. Simply specify the path to the
             downloaded .oxt file here to add the dictionary to {0}.''').format(
-                __appname__, 'http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings')+'<p>')  # noqa
+                __appname__, 'https://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings')+'<p>')  # noqa
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         la.setMinimumWidth(450)
@@ -448,7 +447,7 @@ class ManageDictionaries(Dialog):  # {{{
         b = self.bb.addButton(_('Manage &user dictionaries'), self.bb.ActionRole)
         b.setIcon(QIcon(I('user_profile.png')))
         b.setToolTip(_(
-            'Mange the list of user dictionaries (dictionaries to which you can add words)'))
+            'Manage the list of user dictionaries (dictionaries to which you can add words)'))
         b.clicked.connect(self.manage_user_dictionaries)
         b = self.bb.addButton(_('&Add dictionary'), self.bb.ActionRole)
         b.setToolTip(_(
@@ -720,7 +719,7 @@ class WordsModel(QAbstractTableModel):
         return True
 
     def do_filter(self):
-        self.items = filter(self.filter_item, self.words)
+        self.items = list(filter(self.filter_item, self.words))
 
     def toggle_ignored(self, row):
         w = self.word_for_row(row)
@@ -1056,7 +1055,7 @@ class SpellCheck(Dialog):
         if self.words_model.sort_on[0] == 0:
             with self:
                 hh = self.words_view.horizontalHeader()
-                self.words_view.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
+                self.words_view.model().sort(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
 
     def search_type_changed(self):
         tprefs['spell_check_case_sensitive_search'] = bool(self.case_sensitive_search.isChecked())

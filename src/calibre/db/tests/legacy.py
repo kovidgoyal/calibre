@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,7 +12,7 @@ from operator import itemgetter
 
 from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems, range, unicode_type, zip
 from polyglot import reprlib
 
 # Utils {{{
@@ -37,12 +36,18 @@ class ET(object):
         return newres
 
 
+def get_defaults(spec):
+    num = len(spec.defaults or ())
+    if not num:
+        return {}
+    return dict(zip(spec.args[-num:], spec.defaults))
+
+
 def compare_argspecs(old, new, attr):
     # We dont compare the names of the non-keyword arguments as they are often
     # different and they dont affect the usage of the API.
-    num = len(old.defaults or ())
 
-    ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
+    ok = len(old.args) == len(new.args) and get_defaults(old) == get_defaults(new)
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
 
@@ -111,7 +116,7 @@ class LegacyTest(BaseTest):
             for label, loc in iteritems(db.FIELD_MAP):
                 if isinstance(label, numbers.Integral):
                     label = '#'+db.custom_column_num_map[label]['label']
-                label = type('')(label)
+                label = unicode_type(label)
                 ans[label] = tuple(db.get_property(i, index_is_id=True, loc=loc)
                                    for i in db.all_ids())
                 if label in ('id', 'title', '#tags'):
@@ -124,18 +129,18 @@ class LegacyTest(BaseTest):
                     ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
                 if label == 'series_sort':
                     # The old db code did not take book language into account
-                    # when generating series_sort values (the first book has
-                    # lang=deu)
-                    ans[label] = ans[label][1:]
+                    # when generating series_sort values
+                    ans[label] = None
             return ans
+
+        db = self.init_legacy()
+        new_vals = get_values(db)
+        db.close()
 
         old = self.init_old()
         old_vals = get_values(old)
         old.close()
         old = None
-        db = self.init_legacy()
-        new_vals = get_values(db)
-        db.close()
         self.assertEqual(old_vals, new_vals)
 
     # }}}
@@ -277,7 +282,7 @@ class LegacyTest(BaseTest):
         old = db.get_data_as_dict(prefix='test-prefix')
         new = ndb.get_data_as_dict(prefix='test-prefix')
         for o, n in zip(old, new):
-            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
+            o = {unicode_type(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
             n = {k:set(v) if isinstance(v, list) else v for k, v in iteritems(n)}
             self.assertEqual(o, n)
 
@@ -292,9 +297,15 @@ class LegacyTest(BaseTest):
     def test_legacy_conversion_options(self):  # {{{
         'Test conversion options API'
         ndb = self.init_legacy()
-        db = self.init_old()
+        db  = self.init_old()
         all_ids = ndb.new_api.all_book_ids()
-        op1 = {'xx':'yy'}
+        op1 = {'xx': 'yy'}
+
+        def decode(x):
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            return x
+
         for x in (
             ('has_conversion_options', all_ids),
             ('conversion_options', 1, 'PIPE'),
@@ -305,8 +316,10 @@ class LegacyTest(BaseTest):
             ('has_conversion_options', all_ids),
         ):
             meth, args = x[0], x[1:]
-            self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
-                                 'The method: %s() returned different results for argument %s' % (meth, args))
+            self.assertEqual(
+                decode(getattr(db, meth)(*args)), decode(getattr(ndb, meth)(*args)),
+                'The method: %s() returned different results for argument %s' % (meth, args)
+            )
         db.close()
     # }}}
 
@@ -459,7 +472,7 @@ class LegacyTest(BaseTest):
                     try:
                         argspec = inspect.getargspec(obj)
                         nargspec = inspect.getargspec(nobj)
-                    except TypeError:
+                    except (TypeError, ValueError):
                         pass
                     else:
                         compare_argspecs(argspec, nargspec, attr)
@@ -778,20 +791,6 @@ class LegacyTest(BaseTest):
         ndb.set_custom(1, 'TS [9]', label='series')
         self.assertEqual(ndb.new_api.field_for('#series', 1), 'TS')
         self.assertEqual(ndb.new_api.field_for('#series_index', 1), 9)
-    # }}}
-
-    def test_legacy_original_fmt(self):  # {{{
-        db, ndb = self.init_old(), self.init_legacy()
-        run_funcs(self, db, ndb, (
-            ('original_fmt', 1, 'FMT1'),
-            ('save_original_format', 1, 'FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('restore_original_format', 1, 'ORIGINAL_FMT1'),
-            ('original_fmt', 1, 'FMT1'),
-            ('%formats', 1, True),
-        ))
-        db.close()
-
     # }}}
 
     def test_legacy_saved_search(self):  # {{{

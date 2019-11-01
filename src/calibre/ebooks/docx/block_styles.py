@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,8 +10,29 @@ from collections import OrderedDict
 from polyglot.builtins import iteritems
 
 
-class Inherit:
-    pass
+class Inherit(object):
+
+    def __eq__(self, other):
+        return other is self
+
+    def __hash__(self):
+        return id(self)
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return other is not self
+
+    def __ge__(self, other):
+        if self is other:
+            return True
+        return True
+
+    def __le__(self, other):
+        if self is other:
+            return True
+        return False
 
 
 inherit = Inherit()

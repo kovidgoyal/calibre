@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from collections import namedtuple
 from polyglot.builtins import map
 
@@ -14,6 +13,7 @@ from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.spell import parse_lang_code
 from calibre.utils.localization import lang_as_iso639_1
+from polyglot.builtins import filter
 
 PARSER = etree.XMLParser(recover=True, no_network=True)
 

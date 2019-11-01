@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
@@ -21,22 +22,21 @@ def ascii_text(orig):
     udc = get_udc()
     try:
         ascii = udc.decode(orig)
-    except:
+    except Exception:
         if isinstance(orig, unicode_type):
             orig = orig.encode('ascii', 'replace')
-        ascii = orig.decode(preferred_encoding,
-                'replace').encode('ascii', 'replace')
+        ascii = orig.decode(preferred_encoding, 'replace')
+    if isinstance(ascii, bytes):
+        ascii = ascii.decode('ascii', 'replace')
     return ascii
 
 
 def ascii_filename(orig, substitute='_'):
-    ans = []
+    if isinstance(substitute, bytes):
+        substitute = substitute.decode(filesystem_encoding)
     orig = ascii_text(orig).replace('?', '_')
-    for x in orig:
-        if ord(x) < 32:
-            x = substitute
-        ans.append(x)
-    return sanitize_file_name(''.join(ans), substitute=substitute)
+    ans = ''.join(x if ord(x) >= 32 else substitute for x in orig)
+    return sanitize_file_name(ans, substitute=substitute)
 
 
 def shorten_component(s, by_what):
@@ -297,7 +297,7 @@ def windows_hardlink(src, dest):
     try:
         win32file.CreateHardLink(dest, src)
     except pywintypes.error as e:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % e)
     src_size = os.path.getsize(src)
     # We open and close dest, to ensure its directory entry is updated
@@ -314,7 +314,7 @@ def windows_hardlink(src, dest):
 
     sz = windows_get_size(dest)
     if sz != src_size:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size' % sz))
 
 
@@ -323,11 +323,11 @@ def windows_fast_hardlink(src, dest):
     try:
         win32file.CreateHardLink(dest, src)
     except pywintypes.error as e:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % e)
     ssz, dsz = windows_get_size(src), windows_get_size(dest)
     if ssz != dsz:
-        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        msg = 'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size: %s' % (dsz, ssz)))
 
 
@@ -425,10 +425,10 @@ class WindowsAtomicFolderMove(object):
                 break
         if handle is None:
             if os.path.exists(path):
-                raise ValueError(u'The file %r did not exist when this move'
+                raise ValueError('The file %r did not exist when this move'
                         ' operation was started'%path)
             else:
-                raise ValueError(u'The file %r does not exist'%path)
+                raise ValueError('The file %r does not exist'%path)
         try:
             windows_hardlink(path, dest)
             return
@@ -440,7 +440,7 @@ class WindowsAtomicFolderMove(object):
             while True:
                 hr, raw = win32file.ReadFile(handle, 1024*1024)
                 if hr != 0:
-                    raise IOError(hr, u'Error while reading from %r'%path)
+                    raise IOError(hr, 'Error while reading from %r'%path)
                 if not raw:
                     break
                 f.write(raw)
@@ -545,21 +545,7 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
         raise
 
 
-if iswindows:
-    # Python's expanduser is broken for non-ASCII usernames
-    def expanduser(path):
-        if isinstance(path, bytes):
-            path = path.decode(filesystem_encoding)
-        if path[:1] != u'~':
-            return path
-        i, n = 1, len(path)
-        while i < n and path[i] not in u'/\\':
-            i += 1
-        from win32com.shell import shell, shellcon
-        userhome = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
-        return userhome + path[i:]
-else:
-    expanduser = os.path.expanduser
+expanduser = os.path.expanduser
 
 
 def format_permissions(st_mode):
@@ -591,7 +577,8 @@ def copyfile(src, dest):
 def get_hardlink_function(src, dest):
     if iswindows:
         import win32file, win32api
-        root = dest[0] + b':'
+        colon = b':' if isinstance(dest, bytes) else ':'
+        root = dest[0] + colon
         try:
             is_suitable = win32file.GetDriveType(root) not in (win32file.DRIVE_REMOTE, win32file.DRIVE_CDROM)
             # See https://msdn.microsoft.com/en-us/library/windows/desktop/aa364993(v=vs.85).aspx

@@ -14,6 +14,7 @@
 # General Public License for more details.
 
 # $Id: chm.py,v 1.12 2006/08/07 12:31:51 rubensr Exp $
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
    chm - A high-level front end for the chmlib python module.
@@ -30,7 +31,7 @@ import codecs
 import struct
 import sys
 
-from calibre.constants import plugins
+from calibre.constants import plugins, filesystem_encoding
 from polyglot.builtins import long_type
 
 chmlib, chmlib_err = plugins['chmlib']
@@ -206,8 +207,8 @@ class CHMFile:
     "A class to manage access to CHM files."
     filename = ""
     file = None
-    title = ""
-    home = "/"
+    title = b""
+    home = b"/"
     index = None
     topics = None
     encoding = None
@@ -226,7 +227,10 @@ class CHMFile:
         if self.filename is not None:
             self.CloseCHM()
 
-        self.file = chmlib.chm_open(archiveName)
+        path = archiveName
+        if not isinstance(path, bytes):
+            path = path.encode(filesystem_encoding)
+        self.file = chmlib.chm_open(path)
         if self.file is None:
             return 0
 
@@ -244,8 +248,8 @@ class CHMFile:
             chmlib.chm_close(self.file)
             self.file = None
             self.filename = ''
-            self.title = ""
-            self.home = "/"
+            self.title = b""
+            self.home = b"/"
             self.index = None
             self.topics = None
             self.encoding = None
@@ -382,11 +386,8 @@ class CHMFile:
         The UnitInfo is used to retrieve the document contents
         '''
         if self.file:
-            # path = os.path.abspath(document)
-            path = document
-            return chmlib.chm_resolve_object(self.file, path)
-        else:
-            return (1, None)
+            return chmlib.chm_resolve_object(self.file, document)
+        return 1, None
 
     def RetrieveObject(self, ui, start=-1, length=-1):
         '''Retrieves the contents of a document.
@@ -405,7 +406,7 @@ class CHMFile:
                 st = long_type(start)
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
         else:
-            return (0, '')
+            return 0, b''
 
     def IsSearchable(self):
         '''Indicates if the full-text search is available for this
@@ -442,7 +443,7 @@ class CHMFile:
         if ans:
             try:
                 codecs.lookup(ans)
-            except:
+            except Exception:
                 ans = None
         return ans
 
@@ -506,7 +507,7 @@ class CHMFile:
         if not self.topics:
             self.topics = self.GetString(text, toc_index)
             if not self.topics.startswith(b"/"):
-                self.topics = "b/" + self.topics
+                self.topics = b"/" + self.topics
 
         if not self.index:
             self.index = self.GetString(text, idx_index)

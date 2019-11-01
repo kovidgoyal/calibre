@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -26,7 +27,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.library.comments import merge_comments
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 
 class EditMetadataAction(InterfaceAction):
@@ -51,7 +52,7 @@ class EditMetadataAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -614,7 +615,7 @@ class EditMetadataAction(InterfaceAction):
 
     def formats_for_books(self, rows):
         m = self.gui.library_view.model()
-        return self.formats_for_ids(map(m.id, rows))
+        return self.formats_for_ids(list(map(m.id, rows)))
 
     def books_to_merge(self, rows):
         src_ids = []
@@ -648,7 +649,7 @@ class EditMetadataAction(InterfaceAction):
                 if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
                 else:
-                    dest_mi.comments = unicode_type(dest_mi.comments) + u'\n\n' + unicode_type(src_mi.comments)
+                    dest_mi.comments = unicode_type(dest_mi.comments) + '\n\n' + unicode_type(src_mi.comments)
             if src_mi.title and (not dest_mi.title or dest_mi.title == _('Unknown')):
                 dest_mi.title = src_mi.title
             if (src_mi.authors and src_mi.authors[0] != _('Unknown')) and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
@@ -701,7 +702,7 @@ class EditMetadataAction(InterfaceAction):
                     if not dest_value:
                         db.set_custom(dest_id, src_value, num=colnum)
                     else:
-                        dest_value = unicode_type(dest_value) + u'\n\n' + unicode_type(src_value)
+                        dest_value = unicode_type(dest_value) + '\n\n' + unicode_type(src_value)
                         db.set_custom(dest_id, dest_value, num=colnum)
                 if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
                     db.set_custom(dest_id, src_value, num=colnum)
@@ -937,7 +938,8 @@ class EditMetadataAction(InterfaceAction):
                 if old != prefs['read_file_metadata']:
                     prefs['read_file_metadata'] = old
             if mi.cover and os.access(mi.cover, os.R_OK):
-                cdata = open(mi.cover).read()
+                with open(mi.cover, 'rb') as f:
+                    cdata = f.read()
             elif mi.cover_data[1] is not None:
                 cdata = mi.cover_data[1]
             if cdata is None:

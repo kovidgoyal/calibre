@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,6 +15,7 @@ from calibre.srv.loop import Connection, READ, WRITE
 from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
 from polyglot import http_client, reprlib
 from polyglot.urllib import unquote
+from polyglot.builtins import error_message, filter
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
@@ -66,7 +66,7 @@ def parse_request_uri(uri):
         return None, uri, None
 
 
-def parse_uri(uri, parse_query=True):
+def parse_uri(uri, parse_query=True, unquote_func=unquote):
     scheme, authority, path = parse_request_uri(uri)
     if path is None:
         raise HTTPSimpleResponse(http_client.BAD_REQUEST, "No path component")
@@ -89,7 +89,7 @@ def parse_uri(uri, parse_query=True):
         query = None
 
     try:
-        path = '%2F'.join(unquote(x).decode('utf-8') for x in quoted_slash.split(path))
+        path = '%2F'.join(unquote_func(x).decode('utf-8') for x in quoted_slash.split(path))
     except ValueError as e:
         raise HTTPSimpleResponse(http_client.BAD_REQUEST, as_unicode(e))
     path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
@@ -212,6 +212,7 @@ class HTTPRequest(Connection):
         self.max_header_line_size = int(1024 * self.opts.max_header_line_size)
         self.max_request_body_size = int(1024 * 1024 * self.opts.max_request_body_size)
         self.forwarded_for = None
+        self.request_original_uri = None
 
     def read(self, buf, endpos):
         size = endpos - buf.tell()
@@ -265,6 +266,7 @@ class HTTPRequest(Connection):
 
         try:
             method, uri, req_protocol = line.strip().split(b' ', 2)
+            req_protocol = req_protocol.decode('ascii')
             rp = int(req_protocol[5]), int(req_protocol[7])
             self.method = method.decode('ascii').upper()
         except Exception:
@@ -278,10 +280,11 @@ class HTTPRequest(Connection):
         except KeyError:
             return self.simple_response(http_client.HTTP_VERSION_NOT_SUPPORTED)
         self.response_protocol = protocol_map[min((1, 1), rp)]
+        self.request_original_uri = uri
         try:
             self.scheme, self.path, self.query = parse_uri(uri)
         except HTTPSimpleResponse as e:
-            return self.simple_response(e.http_code, e.message, close_after_response=False)
+            return self.simple_response(e.http_code, error_message(e), close_after_response=False)
         self.header_line_too_long_error_code = http_client.REQUEST_ENTITY_TOO_LARGE
         self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), Accumulator())
     # }}}

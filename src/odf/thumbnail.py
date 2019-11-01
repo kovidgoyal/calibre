@@ -4,9 +4,10 @@
 # Taken from http://www.zwahlendesign.ch/en/node/20
 # openoffice_icons/openoffice_icons_linux/openoffice11.png
 # License: Freeware
+from __future__ import print_function, unicode_literals, absolute_import, division
 import base64
 
-iconstr = """\
+iconstr = b"""\
 iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAAG0OVFdAAAABGdBTUEAANbY1E9YMgAAABl0RVh0
 U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAFoHSURBVHjaYvz//z8DJQAggFhu3LiBU1JI
 SOiPmJgYM7IYUD0jMh8ggFhAhKamJuOHDx/+8fPz4zQsMTGRYf78+RjiAAHEBCJOnTr1HZvmN2/e
@@ -416,12 +417,14 @@ CGeAjdwhVVv/GQb3GhacACCAWIbY1bGwCKEL0NTU/A+1jxGaABiRIvs/NEcP6du0AAIMANtMxR3x
 N38FAAAAAElFTkSuQmCC\
 """
 
+
 def thumbnail():
     icon = base64.decodestring(iconstr)
     return icon
 
+
 if __name__ == "__main__":
     icon = thumbnail()
-    f = file("thumbnail.png","wb")
+    f = open("thumbnail.png","wb")
     f.write(icon)
     f.close()

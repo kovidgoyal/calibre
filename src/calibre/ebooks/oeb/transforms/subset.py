@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import defaultdict
 
-from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.oeb.base import urlnormalize, css_text
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
 from tinycss.fonts3 import parse_font_family
@@ -30,7 +29,7 @@ def get_font_properties(rule, default=None):
             val = s.getProperty(q).propertyValue[0]
             val = getattr(val, g)
             if q == 'font-family':
-                val = parse_font_family(s.getProperty(q).propertyValue.cssText)
+                val = parse_font_family(css_text(s.getProperty(q).propertyValue))
                 if val and val[0] == 'inherit':
                     val = None
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):

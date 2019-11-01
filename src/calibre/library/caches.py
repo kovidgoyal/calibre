@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,7 +21,7 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints, force_unicode
 from polyglot.builtins import (iteritems, itervalues, map,
-        unicode_type, string_or_bytes, zip)
+        unicode_type, string_or_bytes, zip, cmp)
 
 
 class MetadataBackup(Thread):  # {{{
@@ -158,9 +158,14 @@ def force_to_bool(val):
 
 class CacheRow(list):  # {{{
 
-    def __init__(self, db, composites, val, series_col, series_sort_col):
+    def __init__(self, db, composites, datetimes, val, series_col, series_sort_col):
+        from calibre.db.tables import c_parse
         self.db = db
         self._composites = composites
+        for num in datetimes:
+            val[num] = c_parse(val[num])
+            if val[num] is UNDEFINED_DATE:
+                val[num] = None
         list.__init__(self, val)
         self._must_do = len(composites) > 0
         self._series_col = series_col
@@ -216,10 +221,14 @@ class ResultCache(SearchQueryParser):  # {{{
         self.FIELD_MAP = FIELD_MAP
         self.db_prefs = db_prefs
         self.composites = {}
+        self.datetimes = set()
         self.udc = get_udc()
         for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'composite':
+            dt = field_metadata[key]['datatype']
+            if dt == 'composite':
                 self.composites[field_metadata[key]['rec_index']] = key
+            elif dt == 'datetime':
+                self.datetimes.add(field_metadata[key]['rec_index'])
         self.series_col = field_metadata['series']['rec_index']
         self.series_sort_col = field_metadata['series_sort']['rec_index']
         self._data = []
@@ -337,7 +346,7 @@ class ResultCache(SearchQueryParser):  # {{{
     untrans_daysago_len = len('_daysago')
 
     def get_dates_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if len(query) < 2:
             return matches
 
@@ -386,7 +395,7 @@ class ResultCache(SearchQueryParser):  # {{{
             qd = now()
             field_count = 2
         elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
-            num = query[0:-(self.local_daysago_len if query.endswith(self.local_daysago) else self.untrans_daysago_len)]
+            num = query[0:-(self.untrans_daysago_len if query.endswith(self.untrans_daysago) else self.local_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))
             except:
@@ -423,7 +432,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     }
 
     def get_numeric_matches(self, location, query, candidates, val_func=None):
-        matches = set([])
+        matches = set()
         if len(query) == 0:
             return matches
 
@@ -457,7 +466,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 cast = lambda x: int(x)
             elif dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x/2
+                adjust = lambda x: x//2
             elif dt in ('float', 'composite'):
                 cast = lambda x : float(x)
             else:  # count operation
@@ -490,7 +499,7 @@ class ResultCache(SearchQueryParser):  # {{{
         return matches
 
     def get_user_category_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if self.db_prefs is None or len(query) < 2:
             return matches
         user_cats = self.db_prefs.get('user_categories', [])
@@ -513,7 +522,7 @@ class ResultCache(SearchQueryParser):  # {{{
         return matches
 
     def get_keypair_matches(self, location, query, candidates):
-        matches = set([])
+        matches = set()
         if query.find(':') >= 0:
             q = [q.strip() for q in query.split(':')]
             if len(q) != 2:
@@ -631,7 +640,7 @@ class ResultCache(SearchQueryParser):  # {{{
             allow_recursion=True):
         # If candidates is not None, it must not be modified. Changing its
         # value will break query optimization in the search parser
-        matches = set([])
+        matches = set()
         if candidates is None:
             candidates = self.universal_set()
         if len(candidates) == 0:
@@ -672,7 +681,7 @@ class ResultCache(SearchQueryParser):  # {{{
             # apply the limit if appropriate
             if location == 'all' and prefs['limit_search_columns'] and \
                             prefs['limit_search_columns_to']:
-                terms = set([])
+                terms = set()
                 for l in prefs['limit_search_columns_to']:
                     l = icu_lower(l.strip())
                     if l and l != 'all' and l in self.all_search_locations:
@@ -842,7 +851,7 @@ class ResultCache(SearchQueryParser):  # {{{
     def _build_restriction_string(self, restriction):
         if self.base_restriction:
             if restriction:
-                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+                return '(%s) and (%s)' % (self.base_restriction, restriction)
             else:
                 return self.base_restriction
         else:
@@ -858,7 +867,7 @@ class ResultCache(SearchQueryParser):  # {{{
         else:
             q = query
             if search_restriction:
-                q = u'(%s) and (%s)' % (search_restriction, query)
+                q = '(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
@@ -915,7 +924,7 @@ class ResultCache(SearchQueryParser):  # {{{
         '''
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
+            self.marked_ids_dict = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
             self.marked_ids_dict = dict(zip(iter(id_dict), map(unicode_type,
@@ -991,7 +1000,7 @@ class ResultCache(SearchQueryParser):  # {{{
         '''
         for id in ids:
             try:
-                self._data[id] = CacheRow(db, self.composites,
+                self._data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
                 self._data[id].append(db.book_on_device_string(id))
@@ -1011,7 +1020,7 @@ class ResultCache(SearchQueryParser):  # {{{
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = CacheRow(db, self.composites,
+            self._data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
             self._data[id].append(db.book_on_device_string(id))
@@ -1042,7 +1051,7 @@ class ResultCache(SearchQueryParser):  # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = CacheRow(db, self.composites, r,
+            self._data[r[0]] = CacheRow(db, self.composites, self.datetimes, r,
                                         self.series_col, self.series_sort_col)
             self._uuid_map[self._data[r[0]][self._uuid_column_index]] = r[0]
 
@@ -1113,12 +1122,30 @@ class SortKey(object):
     def __init__(self, orders, values):
         self.orders, self.values = orders, values
 
-    def __cmp__(self, other):
+    def compare_to_other(self, other):
         for i, ascending in enumerate(self.orders):
             ans = cmp(self.values[i], other.values[i])
             if ans != 0:
                 return ans * ascending
         return 0
+
+    def __eq__(self, other):
+        return self.compare_to_other(other) == 0
+
+    def __ne__(self, other):
+        return self.compare_to_other(other) != 0
+
+    def __lt__(self, other):
+        return self.compare_to_other(other) < 0
+
+    def __le__(self, other):
+        return self.compare_to_other(other) <= 0
+
+    def __gt__(self, other):
+        return self.compare_to_other(other) > 0
+
+    def __ge__(self, other):
+        return self.compare_to_other(other) >= 0
 
 
 class SortKeyGenerator(object):
@@ -1187,7 +1214,7 @@ class SortKeyGenerator(object):
                 else:
                     if self.library_order:
                         try:
-                            lang = record[self.lang_idx].partition(u',')[0]
+                            lang = record[self.lang_idx].partition(',')[0]
                         except (AttributeError, ValueError, KeyError,
                                 IndexError, TypeError):
                             lang = None

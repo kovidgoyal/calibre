@@ -128,14 +128,15 @@ class CompletionPopup:
         if c:
             c.classList.remove(self.CURRENT_ITEM_CLASS)
 
-    def handle_keydown(self, key):
-        if key is 'escape':
+    def handle_keydown(self, event):
+        key = event.key
+        if key is 'Escape' or key is 'Esc':
             self.hide()
             return True
-        if key is 'up':
+        if key is 'ArrowUp':
             self.move_highlight(True)
             return True
-        if key is 'down':
+        if key is 'ArrowDown':
             self.move_highlight(False)
             return True
         return False

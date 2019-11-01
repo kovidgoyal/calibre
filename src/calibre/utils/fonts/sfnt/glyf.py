@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -71,8 +70,10 @@ class CompositeGlyph(SimpleGlyph):
 
 class GlyfTable(UnknownTable):
 
-    def glyph_data(self, offset, length):
+    def glyph_data(self, offset, length, as_raw=False):
         raw = self.raw[offset:offset+length]
+        if as_raw:
+            return raw
         num_of_countours = unpack_from(b'>h', raw)[0] if raw else 0
         if num_of_countours >= 0:
             return SimpleGlyph(num_of_countours, raw)
@@ -84,7 +85,10 @@ class GlyfTable(UnknownTable):
         block = []
         for glyph_id, glyph in iteritems(sorted_glyph_map):
             raw = glyph()
-            ans[glyph_id] = (offset, len(raw))
+            pad = 4 - (len(raw) % 4)
+            if pad < 4:
+                raw += b'\0' * pad
+            ans[glyph_id] = offset, len(raw)
             offset += len(raw)
             block.append(raw)
         self.raw = b''.join(block)

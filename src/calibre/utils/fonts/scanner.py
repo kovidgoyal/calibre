@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,7 +15,7 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
-from polyglot.builtins import itervalues, unicode_type
+from polyglot.builtins import itervalues, unicode_type, filter
 
 
 class NoFonts(ValueError):
@@ -281,7 +280,7 @@ class FontScanner(Thread):
             return False
 
         for family in self.find_font_families():
-            faces = filter(filter_faces, self.fonts_for_family(family))
+            faces = list(filter(filter_faces, self.fonts_for_family(family)))
             if not faces:
                 continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])

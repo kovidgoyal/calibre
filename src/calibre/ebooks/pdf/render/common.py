@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,11 +9,11 @@ __docformat__ = 'restructuredtext en'
 import codecs, zlib, numbers
 from io import BytesIO
 from datetime import datetime
-from binascii import hexlify
 
 from calibre.constants import plugins, ispy3
 from calibre.utils.logging import default_log
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr
+from polyglot.binary import as_hex_bytes
 
 pdf_float = plugins['speedup'][0].pdf_float
 
@@ -70,7 +69,7 @@ def serialize(o, stream):
         # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, numbers.Integral):
-        stream.write_raw(str(o).encode('ascii') if ispy3 else bytes(o))
+        stream.write_raw(unicode_type(o).encode('ascii') if ispy3 else bytes(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:
@@ -90,8 +89,11 @@ class Name(unicode_type):
         raw = self.encode('ascii')
         if len(raw) > 126:
             raise ValueError('Name too long: %r'%self)
-        buf = [x if 33 < ord(x) < 126 and x != b'#' else b'#'+hex(ord(x)) for x
-               in raw]
+        raw = bytearray(raw)
+        sharp = ord(b'#')
+        buf = (
+            codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
+            '#{:x}'.format(x).encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
 
@@ -137,7 +139,7 @@ class UTF16String(unicode_type):
         if False:
             # Disabled as the parentheses based strings give easier to debug
             # PDF files
-            stream.write(b'<' + hexlify(raw) + b'>')
+            stream.write(b'<' + as_hex_bytes(raw) + b'>')
         else:
             stream.write(b'('+escape_pdf_string(raw)+b')')
 

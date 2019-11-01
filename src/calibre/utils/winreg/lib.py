@@ -1,13 +1,20 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, _winreg as winreg, struct, datetime, numbers
+import ctypes, ctypes.wintypes as types, struct, datetime, numbers
 import winerror, win32con
+
+from polyglot.builtins import unicode_type
+
+try:
+    import winreg
+except ImportError:
+    import _winreg as winreg
+
 
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32
@@ -106,17 +113,17 @@ def expand_environment_strings(src):
 def convert_to_registry_data(value, has_expansions=False):
     if value is None:
         return None, winreg.REG_NONE, 0
-    if isinstance(value, (type(''), bytes)):
+    if isinstance(value, (unicode_type, bytes)):
         buf = ctypes.create_unicode_buffer(value)
         return buf, (winreg.REG_EXPAND_SZ if has_expansions else winreg.REG_SZ), len(buf) * 2
     if isinstance(value, (list, tuple)):
-        buf = ctypes.create_unicode_buffer('\0'.join(map(type(''), value)) + '\0\0')
+        buf = ctypes.create_unicode_buffer('\0'.join(map(unicode_type, value)) + '\0\0')
         return buf, winreg.REG_MULTI_SZ, len(buf) * 2
     if isinstance(value, numbers.Integral):
         try:
-            raw, dtype = struct.pack(str('L'), value), winreg.REG_DWORD
+            raw, dtype = struct.pack('L', value), winreg.REG_DWORD
         except struct.error:
-            raw = struct.pack(str('Q'), value), win32con.REG_QWORD
+            raw = struct.pack('Q', value), win32con.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
     if isinstance(value, bytes):

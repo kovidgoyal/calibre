@@ -53,6 +53,8 @@ class Extension(object):
 
             if not self.needs_cxx and kwargs.get('needs_c99'):
                 self.cflags.insert(0, '-std=c99')
+            if self.needs_cxx and kwargs.get('needs_c++11'):
+                self.cflags.insert(0, '-std=c++11')
 
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
@@ -88,7 +90,7 @@ def expand_file_list(items, is_paths=True):
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:
             if '*' in item:
-                ans.extend(expand_file_list(glob.glob(os.path.join(SRC, item)), is_paths=is_paths))
+                ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths))
             else:
                 item = [item]
                 if is_paths:
@@ -206,7 +208,8 @@ def init_env():
         for p in win_inc:
             cflags.append('-I'+p)
         for p in win_lib:
-            ldflags.append('/LIBPATH:'+p)
+            if p:
+                ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
         linker = msvc.linker
@@ -217,8 +220,12 @@ def init_env():
 class Build(Command):
 
     short_description = 'Build calibre C/C++ extension modules'
-    DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
-    DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
+    if ispy3:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins', '3'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build', '3'))
+    else:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
@@ -293,7 +300,7 @@ class Build(Command):
 
     def lib_dirs_to_ldflags(self, dirs):
         pref = '/LIBPATH:' if iswindows else '-L'
-        return [pref+x for x in dirs]
+        return [pref+x for x in dirs if x]
 
     def libraries_to_ldflags(self, dirs):
         pref = '' if iswindows else '-l'
@@ -334,7 +341,11 @@ class Build(Command):
             self.info('Linking', ext.name)
             cmd = [linker]
             if iswindows:
-                cmd += self.env.ldflags + ext.ldflags + elib + xlib + \
+                pre_ld_flags = []
+                if ext.name in ('icu', 'matcher'):
+                    # windows has its own ICU libs that dont work
+                    pre_ld_flags = elib
+                cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
                     ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
@@ -445,7 +456,8 @@ class Build(Command):
             self.info(' '.join(cmd))
             self.check_call(cmd)
             self.info('')
-        raw = open(sbf, 'rb').read().decode('utf-8')
+        with open(sbf, 'rb') as f:
+            raw = f.read().decode('utf-8')
 
         def read(x):
             ans = re.search(r'^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
@@ -498,7 +510,7 @@ class Build(Command):
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]

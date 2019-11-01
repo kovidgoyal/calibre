@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -370,7 +369,7 @@ def check_opf(container):
                 errors.append(IncorrectCover(container.opf_name, cover.sourceline, cover.get('content', '')))
             raw = etree.tostring(cover)
             try:
-                n, c = raw.index('name="'), raw.index('content="')
+                n, c = raw.index(b'name="'), raw.index(b'content="')
             except ValueError:
                 n = c = -1
             if n > -1 and c > -1 and n > c:

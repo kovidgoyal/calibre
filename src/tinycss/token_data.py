@@ -214,7 +214,7 @@ FIND_NEWLINES = lambda x : list(re.compile(COMPILED_MACROS['nl']).finditer(x))
 
 
 class Token(object):
-    """A single atomic token.
+    r"""A single atomic token.
 
     .. attribute:: is_container
 

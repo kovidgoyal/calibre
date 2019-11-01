@@ -88,6 +88,7 @@ def main(args=sys.argv):
         'Usage: python setup.py {} [options]\n\n'.format(args[1]) + command.description)
 
     opts, args = parser.parse_args(args)
+    opts.cli_args = args[2:]
 
     if opts.clean_backups:
         clean_backups()

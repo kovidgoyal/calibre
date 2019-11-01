@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,7 @@ from calibre.utils.run_tests import find_tests_in_dir, run_tests
 def find_tests():
     base = os.path.dirname(os.path.abspath(__file__))
     return find_tests_in_dir(base)
+
 
 if __name__ == '__main__':
     try:

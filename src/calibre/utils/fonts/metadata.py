@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +11,7 @@ from struct import calcsize, unpack, unpack_from
 from collections import namedtuple
 
 from calibre.utils.fonts.utils import get_font_names2, get_font_characteristics
-from polyglot.builtins import range
+from polyglot.builtins import range, unicode_type
 
 
 class UnsupportedFont(ValueError):
@@ -49,7 +48,7 @@ class FontMetadata(object):
         elif wt == 700:
             wt = 'bold'
         else:
-            wt = type(u'')(wt)
+            wt = unicode_type(wt)
         self.font_weight = wt
 
         self.font_stretch = ('ultra-condensed', 'extra-condensed',

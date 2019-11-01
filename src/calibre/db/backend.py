@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,11 +12,11 @@ from functools import partial
 
 import apsw
 from polyglot.builtins import (iteritems, itervalues,
-        unicode_type, reraise, string_or_bytes)
+        unicode_type, reraise, string_or_bytes, cmp, native_string_type)
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
-        preferred_encoding)
+        preferred_encoding, ispy3)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
@@ -62,7 +61,7 @@ class DynamicFilter(object):  # {{{
 
     def __init__(self, name):
         self.name = name
-        self.ids = frozenset([])
+        self.ids = frozenset()
 
     def __call__(self, id_):
         return int(id_ in self.ids)
@@ -152,8 +151,11 @@ class DBPrefs(dict):  # {{{
     def write_serialized(self, library_path):
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
+            data = json.dumps(self, indent=2, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with open(to_filename, "wb") as f:
-                f.write(json.dumps(self, indent=2, default=to_json))
+                f.write(data)
         except:
             import traceback
             traceback.print_exc()
@@ -206,9 +208,14 @@ def Concatenate(sep=','):
             ctxt.append(value)
 
     def finalize(ctxt):
-        if not ctxt:
-            return None
-        return sep.join(ctxt)
+        try:
+            if not ctxt:
+                return None
+            return sep.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
 
@@ -221,9 +228,14 @@ def SortedConcatenate(sep=','):
             ctxt[ndx] = value
 
     def finalize(ctxt):
-        if len(ctxt) == 0:
-            return None
-        return sep.join(map(ctxt.get, sorted(ctxt)))
+        try:
+            if len(ctxt) == 0:
+                return None
+            return sep.join(map(ctxt.get, sorted(ctxt)))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
 
@@ -235,7 +247,12 @@ def IdentifiersConcat():
         ctxt.append(u'%s:%s'%(key, val))
 
     def finalize(ctxt):
-        return ','.join(ctxt)
+        try:
+            return ','.join(ctxt)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ([], step, finalize)
 
@@ -248,13 +265,18 @@ def AumSortedConcatenate():
             ctxt[ndx] = ':::'.join((author, sort, link))
 
     def finalize(ctxt):
-        keys = list(ctxt)
-        l = len(keys)
-        if l == 0:
-            return None
-        if l == 1:
-            return ctxt[keys[0]]
-        return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        try:
+            keys = list(ctxt)
+            l = len(keys)
+            if l == 0:
+                return None
+            if l == 1:
+                return ctxt[keys[0]]
+            return ':#:'.join([ctxt[v] for v in sorted(keys)])
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
     return ({}, step, finalize)
 
@@ -279,7 +301,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: unicode_type(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -494,11 +516,11 @@ class DB(object):
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
             for i in range(1, 6):
-                col = self.prefs.get('column_color_name_'+str(i), None)
-                templ = self.prefs.get('column_color_template_'+str(i), None)
+                col = self.prefs.get('column_color_name_%d' % i, None)
+                templ = self.prefs.get('column_color_template_%d' % i, None)
                 if col and templ:
                     try:
-                        del self.prefs['column_color_name_'+str(i)]
+                        del self.prefs['column_color_name_%d' % i]
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
@@ -804,7 +826,7 @@ class DB(object):
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
+                self.FIELD_MAP[unicode_type(data['num'])+'_index'] = base = base+1
                 self.field_metadata.set_field_record_index(label_+'_index', base,
                             prefer_custom=True)
 
@@ -1122,17 +1144,14 @@ class DB(object):
     def vacuum(self):
         self.execute('VACUUM')
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
+        '''The user version of this database'''
+        return self.conn.get('pragma user_version;', all=False)
 
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
-
-        def fset(self, val):
-            self.execute('pragma user_version=%d'%int(val))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @user_version.setter
+    def user_version(self, val):
+        self.execute('pragma user_version=%d'%int(val))
 
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
@@ -1176,8 +1195,8 @@ class DB(object):
         '''
         book_id = ' (%d)' % book_id
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
-        author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        author = ascii_filename(author)[:l]
+        title  = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
         try:
@@ -1186,8 +1205,7 @@ class DB(object):
         except IndexError:
             author = ''
         if not author:
-            author = ascii_filename(_('Unknown')).decode(
-                    'ascii', 'replace')
+            author = ascii_filename(_('Unknown'))
         if author.upper() in WINDOWS_RESERVED_NAMES:
             author += 'w'
         return '%s/%s%s' % (author, title, book_id)
@@ -1204,15 +1222,15 @@ class DB(object):
         l = (self.PATH_LIMIT - (extlen // 2) - 2) if iswindows else ((self.PATH_LIMIT - extlen - 2) // 2)
         if l < 5:
             raise ValueError('Extension length too long: %d' % extlen)
-        author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        author = ascii_filename(author)[:l]
+        title  = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
         if not name:
-            name = ascii_filename(_('Unknown')).decode('ascii', 'replace')
+            name = ascii_filename(_('Unknown'))
         return name
 
     # Database layer API {{{
@@ -1230,29 +1248,26 @@ class DB(object):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    @dynamic_property
+    @property
     def library_id(self):
-        doc = ('The UUID for this library. As long as the user only operates'
-                ' on libraries with calibre, it will be unique')
+        '''The UUID for this library. As long as the user only operates  on libraries with calibre, it will be unique'''
 
-        def fget(self):
-            if getattr(self, '_library_id_', None) is None:
-                ans = self.conn.get('SELECT uuid FROM library_id', all=False)
-                if ans is None:
-                    ans = str(uuid.uuid4())
-                    self.library_id = ans
-                else:
-                    self._library_id_ = ans
-            return self._library_id_
+        if getattr(self, '_library_id_', None) is None:
+            ans = self.conn.get('SELECT uuid FROM library_id', all=False)
+            if ans is None:
+                ans = unicode_type(uuid.uuid4())
+                self.library_id = ans
+            else:
+                self._library_id_ = ans
+        return self._library_id_
 
-        def fset(self, val):
-            self._library_id_ = unicode_type(val)
-            self.execute('''
-                    DELETE FROM library_id;
-                    INSERT INTO library_id (uuid) VALUES (?);
-                    ''', (self._library_id_,))
-
-        return property(doc=doc, fget=fget, fset=fset)
+    @library_id.setter
+    def library_id(self, val):
+        self._library_id_ = unicode_type(val)
+        self.execute('''
+                DELETE FROM library_id;
+                INSERT INTO library_id (uuid) VALUES (?);
+                ''', (self._library_id_,))
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object '''
@@ -1325,6 +1340,16 @@ class DB(object):
 
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
+
+    def is_format_accessible(self, book_id, fmt, fname, path):
+        fpath = self.format_abspath(book_id, fmt, fname, path)
+        return fpath and os.access(fpath, os.R_OK | os.W_OK)
+
+    def rename_format_file(self, book_id, src_fname, src_fmt, dest_fname, dest_fmt, path):
+        src_path = self.format_abspath(book_id, src_fmt, src_fname, path)
+        dest_path = self.format_abspath(book_id, dest_fmt, dest_fname, path)
+        atomic_rename(src_path, dest_path)
+        return os.path.getsize(dest_path)
 
     def remove_formats(self, remove_map):
         paths = []
@@ -1722,8 +1747,15 @@ class DB(object):
             [(book_id, fmt.upper()) for book_id in book_ids])
 
     def set_conversion_options(self, options, fmt):
-        options = [(book_id, fmt.upper(), buffer(pickle_binary_string(data.encode('utf-8') if isinstance(data, unicode_type) else data)))
-                for book_id, data in iteritems(options)]
+        def map_data(x):
+            if not isinstance(x, string_or_bytes):
+                x = native_string_type(x)
+            x = x.encode('utf-8') if isinstance(x, unicode_type) else x
+            x = pickle_binary_string(x)
+            if not ispy3:
+                x = buffer(x)  # noqa
+            return x
+        options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
     def get_top_level_move_items(self, all_paths):

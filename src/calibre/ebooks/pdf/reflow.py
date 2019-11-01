@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +11,7 @@ from itertools import count
 
 from lxml import etree
 
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import range, map
 
 
 class Font(object):
@@ -76,10 +76,10 @@ class Text(Element):
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
-                encoding=unicode_type)
+                encoding='unicode')
         self.raw = text.text if text.text else u''
         for x in text.iterchildren():
-            self.raw += etree.tostring(x, method='xml', encoding=unicode_type)
+            self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.average_character_width = self.width/len(self.text_as_string)
 
     def coalesce(self, other, page_number):
@@ -491,7 +491,7 @@ class Page(object):
         for i, x in enumerate(self.elements):
             x.idx = i
         current_region = Region(self.opts, self.log)
-        processed = set([])
+        processed = set()
         for x in self.elements:
             if x in processed:
                 continue
@@ -526,8 +526,8 @@ class Page(object):
         # closer to the avg number of cols in the set, if equal use larger
         # region)
         found = True
-        absorbed = set([])
-        processed = set([])
+        absorbed = set()
+        processed = set()
         while found:
             found = False
             for i, region in enumerate(self.regions):

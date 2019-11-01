@@ -230,19 +230,6 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
-static PyObject *
-winutil_getenv(PyObject *self, PyObject *args) {
-    const Py_UNICODE *q;
-    if (!PyArg_ParseTuple(args, "u", &q)) return NULL;
-    wchar_t *buf = NULL;
-    size_t sz = 0;
-    PyObject *ans = NULL;
-    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL || sz == 0) { ans = Py_None; Py_INCREF(ans); }
-    else ans = PyUnicode_FromWideChar(buf, sz - 1);
-    if (buf) free(buf);
-    return ans;
-}
-
 static PyObject*
 winutil_move_file(PyObject *self, PyObject *args) {
     Py_UNICODE *a, *b;
@@ -388,6 +375,12 @@ winutil_strftime(PyObject *self, PyObject *args)
 }
 
 static char winutil_doc[] = "Defines utility methods to interface with windows.";
+extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
+extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
+extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
+extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
+extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
+extern PyObject *winutil_manage_shortcut(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -435,10 +428,6 @@ be a unicode string. Returns unicode strings."
         "setmaxstdio(num)\n\nSet the maximum number of open file handles."
     },
 
-    {"getenv", (PyCFunction)winutil_getenv, METH_VARARGS,
-        "getenv(name)\n\nGet the value of the specified env var as a unicode string."
-    },
-
     {"username", (PyCFunction)winutil_username, METH_NOARGS,
         "username()\n\nGet the current username as a unicode string."
     },
@@ -457,6 +446,30 @@ be a unicode string. Returns unicode strings."
 
     {"move_file", (PyCFunction)winutil_move_file, METH_VARARGS,
         "move_file()\n\nRename the specified file."
+    },
+
+    {"add_to_recent_docs", (PyCFunction)winutil_add_to_recent_docs, METH_VARARGS,
+        "add_to_recent_docs()\n\nAdd a path to the recent documents list"
+    },
+
+    {"file_association", (PyCFunction)winutil_file_association, METH_VARARGS,
+        "file_association()\n\nGet the executable associated with the given file extension"
+    },
+
+    {"friendly_name", (PyCFunction)winutil_friendly_name, METH_VARARGS,
+        "friendly_name()\n\nGet the friendly name for the specified prog_id/exe"
+    },
+
+    {"notify_associations_changed", (PyCFunction)winutil_notify_associations_changed, METH_VARARGS,
+        "notify_associations_changed()\n\nNotify the OS that file associations have changed"
+    },
+
+    {"move_to_trash", (PyCFunction)winutil_move_to_trash, METH_VARARGS,
+        "move_to_trash()\n\nMove the specified path to trash"
+    },
+
+    {"manage_shortcut", (PyCFunction)winutil_manage_shortcut, METH_VARARGS,
+        "manage_shortcut()\n\nManage a shortcut"
     },
 
     {NULL, NULL, 0, NULL}

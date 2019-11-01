@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
 import textwrap
@@ -20,7 +19,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, filter
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -47,6 +46,7 @@ class RuleEdit(QWidget):
                 ('replace', _('Replace')),
                 ('keep', _('Keep')),
                 ('capitalize', _('Capitalize')),
+                ('titlecase', _('Title-case')),
                 ('lower', _('Lower-case')),
                 ('upper', _('Upper-case')),
                 ('split', _('Split')),
@@ -154,7 +154,7 @@ class RuleEdit(QWidget):
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
-        d = TagEditor(self, get_gui().current_db, current_tags=filter(None, [x.strip() for x in self.query.text().split(',')]))
+        d = TagEditor(self, get_gui().current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
         if d.exec_() == d.Accepted:
             self.query.setText(', '.join(d.tags))
 

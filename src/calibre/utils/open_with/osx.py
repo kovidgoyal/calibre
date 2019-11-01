@@ -1,17 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, plistlib, re, mimetypes, subprocess
+import os, re, mimetypes, subprocess
 from collections import defaultdict
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.plistlib import loads
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
@@ -30,8 +30,8 @@ def generate_public_uti_map():
     for table in tables:
         for tr in table.xpath('descendant::tr')[1:]:
             td = tr.xpath('descendant::td')
-            identifier = etree.tostring(td[0], method='text', encoding=unicode_type).strip()
-            tags = etree.tostring(td[2], method='text', encoding=unicode_type).strip()
+            identifier = etree.tostring(td[0], method='text', encoding='unicode').strip()
+            tags = etree.tostring(td[2], method='text', encoding='unicode').strip()
             identifier = identifier.split()[0].replace('\u200b', '')
             exts = [x.strip()[1:].lower() for x in tags.split(',') if x.strip().startswith('.')]
             for ext in exts:
@@ -266,7 +266,8 @@ def get_bundle_data(path):
         'path': path,
     }
     try:
-        plist = plistlib.readPlist(info)
+        with open(info, 'rb') as f:
+            plist = loads(f.read())
     except Exception:
         return None
     ans['name'] = plist.get('CFBundleDisplayName') or plist.get('CFBundleName') or ans['name']

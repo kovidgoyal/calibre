@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from polyglot.builtins import iteritems, map, range
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -22,20 +20,22 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QWebView)
+    QFontDatabase, QComboBox, QUrl)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_web_page
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
+from calibre.gui2.webengine import secure_webengine, RestartingWebEngineView
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.icu import primary_contains, numeric_sort_key
 from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+from polyglot.builtins import filter, iteritems, map, range, unicode_type
 
 # Utils {{{
 
@@ -166,7 +166,7 @@ class FilesView(QTableView):
 
     @property
     def selected_locations(self):
-        return filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes()))
+        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes())))
 
     @property
     def current_location(self):
@@ -266,7 +266,7 @@ class FilesModel(FileCollection):
                 return entry.basename
             if col == 2:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
 
@@ -448,9 +448,9 @@ class ImagesModel(FileCollection):
                 return entry.basename
             if col == 1:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
             if col == 3:
                 return '%d x %d' % (entry.width, entry.height)
         elif role == Qt.UserRole:
@@ -577,7 +577,7 @@ class LinksModel(FileCollection):
                 pass
 
 
-class WebView(QWebView):
+class WebView(RestartingWebEngineView):
 
     def sizeHint(self):
         return QSize(600, 200)
@@ -603,11 +603,8 @@ class LinksWidget(QWidget):
         e.textChanged.connect(f.proxy.filter_text)
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
-        self.view = WebView(self)
-        secure_web_page(self.view.page())
+        self.view = None
         self.setContextMenuPolicy(Qt.NoContextMenu)
-        self.view.setContextMenuPolicy(Qt.NoContextMenu)
-        s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
         f.current_changed.connect(self.current_changed)
@@ -615,10 +612,16 @@ class LinksWidget(QWidget):
             s.restoreState(read_state('links-view-splitter'))
         except TypeError:
             pass
-        s.setCollapsible(0, False), s.setCollapsible(1, True)
+        s.setCollapsible(0, False)
         s.setStretchFactor(0, 10)
 
     def __call__(self, data):
+        if self.view is None:
+            self.view = WebView(self)
+            secure_webengine(self.view)
+            self.view.setContextMenuPolicy(Qt.NoContextMenu)
+            self.splitter.addWidget(self.view)
+            self.splitter.setCollapsible(1, True)
         self.ignore_current_change = True
         self.model(data)
         self.filter_edit.clear()
@@ -643,11 +646,13 @@ class LinksWidget(QWidget):
                 if link.anchor.id:
                     url.setFragment(link.anchor.id)
         if url is None:
-            self.view.setHtml('<p>' + _('No destination found for this link'))
+            if self.view:
+                self.view.setHtml('<p>' + _('No destination found for this link'))
             self.current_url = url
         elif url != self.current_url:
             self.current_url = url
-            self.view.setUrl(url)
+            if self.view:
+                self.view.setUrl(url)
 
     def double_clicked(self, index):
         link = index.data(Qt.UserRole)
@@ -714,7 +719,7 @@ class WordsModel(FileCollection):
                     ans += ' (%s)' % entry.locale.countrycode
                 return ans
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -803,7 +808,7 @@ class CharsModel(FileCollection):
             if col == 2:
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
-                return type('')(entry.count)
+                return unicode_type(entry.count)
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -981,7 +986,7 @@ class CSSRulesModel(QAbstractItemModel):
         self.rules = data['css']
         self.num_unused = sum(1 for r in self.rules if r.count == 0)
         try:
-            self.num_size = len(str(max(r.count for r in self.rules)))
+            self.num_size = len(unicode_type(max(r.count for r in self.rules)))
         except ValueError:
             self.num_size = 1
         self.build_maps()
@@ -1061,14 +1066,13 @@ class CSSWidget(QWidget):
         self.summary = la = QLabel('\xa0')
         h.addWidget(la)
 
-    @dynamic_property
+    @property
     def sort_order(self):
-        def fget(self):
-            return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+        return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
 
-        def fset(self, val):
-            self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
-        return property(fget=fget, fset=fset)
+    @sort_order.setter
+    def sort_order(self, val):
+        self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
 
     def update_summary(self):
         self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
@@ -1206,7 +1210,7 @@ class ClassesModel(CSSRulesModel):
         self.rules = self.classes = tuple(data['classes'])
         self.num_unused = sum(1 for ce in self.classes if ce.num_of_matches == 0)
         try:
-            self.num_size = len(str(max(r.num_of_matches for r in self.classes)))
+            self.num_size = len(unicode_type(max(r.num_of_matches for r in self.classes)))
         except ValueError:
             self.num_size = 1
         self.build_maps()

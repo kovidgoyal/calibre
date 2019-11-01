@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -9,7 +11,7 @@ from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize)
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
@@ -20,7 +22,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import native_string_type, unicode_type
 
 
 class ParenPosition:
@@ -220,7 +222,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         cols = []
         if fm is not None:
             for key in sorted(displayable_columns(fm),
-                              key=lambda k: sort_key(fm[k]['name']) if k != color_row_key else 0):
+                              key=lambda k: sort_key(fm[k]['name'] if k != color_row_key else 0)):
                 if key == color_row_key and not self.coloring:
                     continue
                 from calibre.gui2.preferences.coloring import all_columns_string
@@ -330,7 +332,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.addItem('')
         self.function.addItems(func_names)
         self.function.setCurrentIndex(0)
-        self.function.currentIndexChanged[str].connect(self.function_changed)
+        self.function.currentIndexChanged[native_string_type].connect(self.function_changed)
         self.textbox_changed()
         self.rule = (None, '')
 
@@ -359,7 +361,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     all_files=False, select_only_single_file=True)
             if path:
                 icon_path = path[0]
-                icon_name = sanitize_file_name_unicode(
+                icon_name = sanitize_file_name(
                              os.path.splitext(
                                    os.path.basename(icon_path))[0]+'.png')
                 if icon_name not in self.icon_file_names:

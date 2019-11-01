@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,7 +10,7 @@ import pdb, socket, inspect, sys, select, os, atexit, time
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 from calibre.constants import cache_dir
-from polyglot.builtins import range, raw_input
+from polyglot.builtins import range, raw_input as rinput
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -141,7 +140,7 @@ def cli(port=4444):
                 stdout.write(recvd)
                 raw = b''
                 try:
-                    raw = raw_input(PROMPT.decode('utf-8'))
+                    raw = rinput(PROMPT.decode('utf-8'))
                 except (EOFError, KeyboardInterrupt):
                     pass
                 else:

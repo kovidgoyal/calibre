@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement, print_function
+from __future__ import with_statement, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -42,7 +42,7 @@ def serialize_recipe(urn, recipe_class):
 
     def attr(n, d):
         ans = getattr(recipe_class, n, d)
-        if isinstance(ans, str):
+        if isinstance(ans, bytes):
             ans = ans.decode('utf-8', 'replace')
         return ans
 
@@ -53,7 +53,7 @@ def serialize_recipe(urn, recipe_class):
     if ns is True:
         ns = 'yes'
     return E.recipe({
-        'id'                 : str(urn),
+        'id'                 : unicode_type(urn),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
         'language'           : attr('language', 'und'),
@@ -66,7 +66,7 @@ def serialize_collection(mapping_of_recipe_classes):
     collection = E.recipe_collection()
     '''for u, x in mapping_of_recipe_classes.items():
         print 11111, u, repr(x.title)
-        if isinstance(x.title, str):
+        if isinstance(x.title, bytes):
             x.title.decode('ascii')
     '''
     for urn in sorted(mapping_of_recipe_classes.keys(),
@@ -80,7 +80,7 @@ def serialize_collection(mapping_of_recipe_classes):
             traceback.print_exc()
             continue
         collection.append(recipe)
-    collection.set('count', str(len(collection)))
+    collection.set('count', unicode_type(len(collection)))
     return etree.tostring(collection, encoding='utf-8', xml_declaration=True,
             pretty_print=True)
 
@@ -114,7 +114,8 @@ def get_custom_recipe_collection(*args):
         title, fname = x
         recipe = os.path.join(bdir, fname)
         try:
-            recipe = open(recipe, 'rb').read().decode('utf-8')
+            with open(recipe, 'rb') as f:
+                recipe = f.read().decode('utf-8')
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class
@@ -137,7 +138,7 @@ def update_custom_recipes(script_ids):
     bdir = os.path.dirname(custom_recipes.file_path)
     for id_, title, script in script_ids:
 
-        id_ = str(int(id_))
+        id_ = unicode_type(int(id_))
         existing = custom_recipes.get(id_, None)
 
         if existing is None:
@@ -170,7 +171,7 @@ def add_custom_recipes(script_map):
     bdir = os.path.dirname(custom_recipes.file_path)
     with custom_recipes:
         for title, script in iteritems(script_map):
-            fid = str(id_)
+            fid = unicode_type(id_)
 
             fname = custom_recipe_filename(fid, title)
             if isinstance(script, unicode_type):
@@ -188,7 +189,7 @@ def add_custom_recipes(script_map):
 
 def remove_custom_recipe(id_):
     from calibre.web.feeds.recipes import custom_recipes
-    id_ = str(int(id_))
+    id_ = unicode_type(int(id_))
     existing = custom_recipes.get(id_, None)
     if existing is not None:
         bdir = os.path.dirname(custom_recipes.file_path)
@@ -202,7 +203,7 @@ def remove_custom_recipe(id_):
 
 def get_custom_recipe(id_):
     from calibre.web.feeds.recipes import custom_recipes
-    id_ = str(int(id_))
+    id_ = unicode_type(int(id_))
     existing = custom_recipes.get(id_, None)
     if existing is not None:
         bdir = os.path.dirname(custom_recipes.file_path)
@@ -221,6 +222,7 @@ def download_builtin_recipe(urn):
     import bz2
     recipe_source = bz2.decompress(get_https_resource_securely(
         'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
+    recipe_source = recipe_source.decode('utf-8')
     from calibre.web.feeds.recipes import compile_recipe
     recipe = compile_recipe(recipe_source)  # ensure the downloaded recipe is at least compile-able
     if recipe is None:
@@ -232,7 +234,7 @@ def download_builtin_recipe(urn):
 
 def get_builtin_recipe(urn):
     with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:
-        return zf.read(urn+'.recipe')
+        return zf.read(urn+'.recipe').decode('utf-8')
 
 
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
@@ -400,7 +402,7 @@ class SchedulerConfig(object):
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
-            dw = ','.join(map(str, map(int, schedule[0])))
+            dw = ','.join(map(unicode_type, map(int, schedule[0])))
             text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
         else:
             raise ValueError('Unknown schedule type: %r'%typ)

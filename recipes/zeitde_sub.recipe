@@ -17,7 +17,10 @@ import io
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import walk
-from urlparse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 from contextlib import closing
 from calibre.utils.magick.draw import save_cover_data_to
 

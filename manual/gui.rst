@@ -49,7 +49,7 @@ Add books
 
     2. **Add books from directories, including sub-directories (One book per directory, assumes every e-book file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any e-books found are added to the library. calibre assumes that each directory contains a single book. All e-book files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
-    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every e-book file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any e-books found are added to the library. calibre assumes that each directory contains many books. All e-book files with the same name in a directory are assumed to be the same book in different formats. E-books with different names are added as different books. 
+    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every e-book file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any e-books found are added to the library. calibre assumes that each directory contains many books. All e-book files with the same name in a directory are assumed to be the same book in different formats. E-books with different names are added as different books.
 
     4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple e-books that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
@@ -65,9 +65,9 @@ See the :ref:`config_filename_metadata` section, to learn how to configure this.
 To add an additional format for an existing book you can do any of three things:
 
     1. Drag and drop the file onto the Book details panel on the right side of the main window
-           
+
     2. Right click the :guilabel:`Add books` button and choose :guilabel:`Add files to selected books`.
-           
+
     3. Click the :guilabel:`Add books` button in the top right area of the :guilabel:`Edit Metadata` dialog, accessed by the :ref:`edit_meta_information` action.
 
 .. _edit_meta_information:
@@ -179,7 +179,7 @@ Library
     1. **Switch/create library...**: Allows you to; a) connect to a pre-existing calibre library at another location, b) create an empty library at a new location or, c) move the current library to a newly specified location.
     2. **Quick switch**: Allows you to switch between libraries that have been registered or created within calibre.
     3. **Rename library**: Allows you to rename a Library.
-    4. **Delete library**: Allows you to unregister a library from calibre.
+    4. **Remove library**: Allows you to unregister a library from calibre.
     5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
     6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
@@ -374,7 +374,7 @@ For example::
 
     date:>10daysago
     date:<=45daysago
-	
+
 To avoid potential problems with translated strings when using a non-English version of calibre, the strings ``_today``, ``_yesterday``, ``_thismonth``, and ``_daysago`` are always available. They are not translated.
 
 You can search for books that have a format of a certain size like this::
@@ -401,7 +401,7 @@ search. More about saving searches below.
 The special field ``vl`` is used to search for books in a virtual library. For
 example, ``vl:Read`` will find all the books in the *Read* virtual library. The search
 ``vl:Read and vl:"Science Fiction"`` will find all the books that are in both the *Read* and
-*Science Fiction* virtual libraries. The value following ``vl:`` must be the name of a 
+*Science Fiction* virtual libraries. The value following ``vl:`` must be the name of a
 virtual library. If the virtual library name contains spaces then surround it with quotes.
 
 You can search for the absence or presence of a field using the special "true" and "false" values. For example::
@@ -522,7 +522,7 @@ Finally, you can customize exactly what information is displayed in the Book
 details panel via :guilabel:`Preferences->Interface->Look & feel->Book details`.
 
 .. raw:: html epub
-    
+
     <div style="clear:both"></div>
 
 .. _tag_browser:
@@ -557,7 +557,7 @@ You can easily find any item in the Tag browser by clicking the search button at
 You can control how items are sorted in the Tag browser via the :guilabel:`Configure` button at the lower-left of the Tag browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
 .. raw:: html epub
-    
+
     <div style="clear:both"></div>
 
 Cover grid
@@ -590,7 +590,7 @@ browser` you can change the number of covers displayed, and even have the
 Quickview
 ----------
 
-Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc.) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens either a second window or a panel in the book list showing the list of books matching the value of interest. For example, assume you want to see a list of all the books with the one or more of the authors of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key or click the Quickview icon in the Layout section of the calibre window. A window or panel will open with all the authors for that book on the left, and all the books by the selected author on the right. 
+Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc.) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens either a second window or a panel in the book list showing the list of books matching the value of interest. For example, assume you want to see a list of all the books with the one or more of the authors of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key or click the Quickview icon in the Layout section of the calibre window. A window or panel will open with all the authors for that book on the left, and all the books by the selected author on the right.
 
 Some example Quickview usages: quickly seeing what other books:
 	- have some tag(s) applied to the currently selected book,
@@ -601,12 +601,12 @@ Some example Quickview usages: quickly seeing what other books:
 
 There are two choices for where the Quickview information appears:
 
-	1. It can open "undocked": on top of the calibre window and will stay open until you explicitly close it. 
+	1. It can open "undocked": on top of the calibre window and will stay open until you explicitly close it.
 	2. It can open "docked": as a panel in the book list section of the calibre main window.
-	
+
 You can move the window from docked to undocked as desired using the "Dock/Undock" button.
 
-The Quickview panel can be left open permanently, in which case it follows movements on the book list. For example, if you click in the calibre library view on a category column (tags, series, publisher, authors, etc.) for a book, the Quickview window contents will change to show you in the left-hand side panel the values in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side panel all the books in your library that use that value. Click on an different value in the left-hand panel to see the books with that different value. 
+The Quickview panel can be left open permanently, in which case it follows movements on the book list. For example, if you click in the calibre library view on a category column (tags, series, publisher, authors, etc.) for a book, the Quickview window contents will change to show you in the left-hand side panel the values in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side panel all the books in your library that use that value. Click on an different value in the left-hand panel to see the books with that different value.
 
 Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window (the left-hand panel) to show the items in the newly-selected book.
 
@@ -616,14 +616,14 @@ You can see if a column can be Quickview'ed by hovering your mouse over the colu
 
 Options (in :guilabel:`Preferences->Look & feel->Quickview`):
 
-	* Respect (or not) the current virtual library. If checked then Quickview shows only books in the current virtual library. Default: respect virtual libraries 
-	* Change the Quickview window contents when the column is changed on the book list using the cursor keys. Default: don't follow changes made with cursor keys 
-	* Change the column being "quickview'ed" when a cell in the Quickview window is double-clicked. Otherwise the book is changed but the column being examined is not. Default: change the column 
-	* Change the column being "quickview'ed" to the current column when the return key is pressed in the Quickview panel. Otherwise the book is changed but the column being examined is not. Default: change the column 
+	* Respect (or not) the current virtual library. If checked then Quickview shows only books in the current virtual library. Default: respect virtual libraries
+	* Change the Quickview window contents when the column is changed on the book list using the cursor keys. Default: don't follow changes made with cursor keys
+	* Change the column being "quickview'ed" when a cell in the Quickview window is double-clicked. Otherwise the book is changed but the column being examined is not. Default: change the column
+	* Change the column being "quickview'ed" to the current column when the return key is pressed in the Quickview panel. Otherwise the book is changed but the column being examined is not. Default: change the column
 	* Choose which columns are shown in the Quickview window/panel.
 
 .. raw:: html epub
-    
+
     <div style="clear:both"></div>
 
 .. _jobs:
@@ -636,7 +636,7 @@ Jobs
 The Jobs panel shows the number of currently running jobs. Jobs are tasks that run in a separate process. They include converting e-books and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed you can see a detailed log from that job by double-clicking it in the list. This is useful to debug jobs that may not have completed successfully.
 
 .. raw:: html epub
-    
+
     <div style="clear:both"></div>
 
 Keyboard shortcuts

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,7 +15,7 @@ from calibre.ebooks.oeb.polish.replace import rename_files, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 def get_container(*args, **kwargs):
@@ -99,7 +98,7 @@ class ContainerTests(BaseTest):
 
         def new_container():
             count[0] += 1
-            tdir = os.mkdir(os.path.join(self.tdir, str(count[0])))
+            tdir = os.mkdir(os.path.join(self.tdir, unicode_type(count[0])))
             return get_container(book, tdir=tdir)
 
         # Test simple opf rename

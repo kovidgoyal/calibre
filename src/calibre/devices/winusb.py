@@ -2,10 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os, string, _winreg as winreg, re, sys
+import os, string, re, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (
@@ -15,11 +14,17 @@ from ctypes import (
 )
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
-from polyglot.builtins import iteritems, itervalues, map
+from polyglot.builtins import iteritems, itervalues, map, filter
 
 from calibre import prints, as_unicode
 
 is64bit = sys.maxsize > (1 << 32)
+
+try:
+    import winreg
+except ImportError:
+    import _winreg as winreg
+
 
 # Data and function type definitions {{{
 
@@ -677,7 +682,7 @@ def get_volume_pathnames(volume_id, buf=None):
                 continue
             raise
     ans = wstring_at(buf, bufsize.value)
-    return buf, filter(None, ans.split('\0'))
+    return buf, list(filter(None, ans.split('\0')))
 
 # }}}
 
@@ -773,7 +778,7 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
             if debug:
                 try:
                     devid = get_device_id(devinfo.DevInst)[0]
-                except Exception as err:
+                except Exception:
                     devid = 'Unknown'
             try:
                 storage_number = get_storage_number(devpath)
@@ -979,7 +984,7 @@ def get_device_languages(hub_handle, device_port, buf=None):
     if dtype != 0x03:
         raise WindowsError('Invalid datatype for string descriptor: 0x%x' % dtype)
     data = cast(data.String, POINTER(USHORT*(sz//2)))
-    return buf, filter(None, data.contents)
+    return buf, list(filter(None, data.contents))
 
 # }}}
 

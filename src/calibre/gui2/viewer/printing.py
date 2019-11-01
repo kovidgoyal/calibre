@@ -1,28 +1,34 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import os, subprocess, sys
+import os
+import subprocess
+import sys
 from threading import Thread
 
 from PyQt5.Qt import (
-    QFormLayout, QLineEdit, QToolButton, QHBoxLayout, QLabel, QIcon, QPrinter,
-    QPageSize, QComboBox, QDoubleSpinBox, QCheckBox, QProgressDialog, QTimer)
+    QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QPageSize, QPrinter, QProgressDialog, QTimer, QToolButton
+)
 
-from calibre import sanitize_file_name2
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre import sanitize_file_name
 from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
-from calibre.gui2 import elided_text, error_dialog, choose_save_file, Application, open_local_file, dynamic
+from calibre.gui2 import (
+    Application, choose_save_file, dynamic, elided_text, error_dialog,
+    open_local_file
+)
 from calibre.gui2.widgets2 import Dialog
-from calibre.gui2.viewer.main import vprefs
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import JSONConfig
+from calibre.utils.filenames import expanduser
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
-from calibre.utils.filenames import expanduser
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+
+vprefs = JSONConfig('viewer')
 
 
 class PrintDialog(Dialog):
@@ -31,7 +37,7 @@ class PrintDialog(Dialog):
 
     def __init__(self, book_title, parent=None, prefs=vprefs):
         self.book_title = book_title
-        self.default_file_name = sanitize_file_name2(book_title[:75] + '.pdf')
+        self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
         self.paper_size_map = {a:getattr(QPageSize, a.capitalize()) for a in PAPER_SIZES}
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
@@ -91,7 +97,7 @@ class PrintDialog(Dialog):
     def data(self):
         fpath = self.file_name.text().strip()
         head, tail = os.path.split(fpath)
-        tail = sanitize_file_name2(tail)
+        tail = sanitize_file_name(tail)
         fpath = tail
         if head:
             fpath = os.path.join(head, tail)
@@ -164,6 +170,8 @@ def do_print():
     data = msgpack_loads(stdin.read())
     ext = data['input'].lower().rpartition('.')[-1]
     input_plugin = plugin_for_input_format(ext)
+    if input_plugin is None:
+        raise ValueError('Not a supported file type: {}'.format(ext.upper()))
     args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',
             '--disable-remove-fake-margins', '--chapter-mark', 'none', '-vv']
     if input_plugin.is_image_collection:

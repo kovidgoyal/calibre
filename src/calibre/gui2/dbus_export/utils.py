@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -129,7 +128,7 @@ def icon_to_dbus_menu_icon(icon, size=32):
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     icon.pixmap(32).save(buf, 'PNG')
-    return dbus.ByteArray(bytes((ba.data())))
+    return dbus.ByteArray(ba)
 
 
 def setup_for_cli_run():

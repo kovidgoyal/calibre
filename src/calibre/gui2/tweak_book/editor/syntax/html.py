@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -607,7 +606,8 @@ def profile():
     from calibre.gui2.tweak_book.editor.themes import get_theme
     app = Application([])
     set_book_locale('en')
-    raw = open(sys.argv[-2], 'rb').read().decode('utf-8')
+    with open(sys.argv[-2], 'rb') as f:
+        raw = f.read().decode('utf-8')
     doc = QTextDocument()
     doc.setPlainText(raw)
     h = Highlighter()

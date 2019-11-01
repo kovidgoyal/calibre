@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -113,7 +112,7 @@ def create_anchor_map(root):
 def complete_anchor(name, data_conn):
     if name not in file_cache:
         data = raw = get_data(data_conn, 'file_data', name)
-        if isinstance(raw, type('')):
+        if isinstance(raw, unicode_type):
             try:
                 root = parse(raw, decoder=lambda x:x.decode('utf-8'))
             except Exception:

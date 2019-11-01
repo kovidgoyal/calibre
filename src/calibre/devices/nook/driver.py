@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
@@ -47,11 +48,7 @@ class NOOK(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata, filepath):
-        try:
-            from PIL import Image, ImageDraw
-            Image, ImageDraw
-        except ImportError:
-            import Image, ImageDraw
+        from PIL import Image, ImageDraw
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
@@ -91,6 +88,7 @@ class NOOK_COLOR(NOOK):
         0x005,  # Nook HD+
         0x007,  # Glowlight from 2013
         0xb,    # Glowlight from 2017
+        0xc,    # Glowlight from 2019
     ]
     BCD         = [0x216, 0x9999]
 
@@ -107,7 +105,7 @@ class NOOK_COLOR(NOOK):
         product_id = self.device_being_opened[1]
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
-        if product_id == 0xb:
+        if product_id in (0xb, 0xc):
             if DEBUG:
                 prints('Setting Nook upload directory to NOOK/My Files')
             self.EBOOK_DIR_MAIN = 'NOOK/My Files'

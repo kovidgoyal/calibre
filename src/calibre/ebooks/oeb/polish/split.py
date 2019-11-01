@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,7 +12,7 @@ from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DO
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import urlparse
 
 
@@ -185,7 +184,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     '''
 
     root = container.parsed(name)
-    if isinstance(loc_or_xpath, type('')):
+    if isinstance(loc_or_xpath, unicode_type):
         split_point = root.xpath(loc_or_xpath)[0]
     else:
         try:
@@ -283,7 +282,7 @@ def multisplit(container, name, xpath, before=True):
             raise AbortError('Cannot split on the <body> tag')
 
     for i, tag in enumerate(nodes):
-        tag.set('calibre-split-point', str(i))
+        tag.set('calibre-split-point', unicode_type(i))
 
     current = name
     all_names = [name]
@@ -358,7 +357,7 @@ def remove_name_attributes(root):
         elem.set('id', elem.attrib.pop('name'))
 
 
-def merge_html(container, names, master):
+def merge_html(container, names, master, insert_page_breaks=False):
     p = container.parsed
     root = p(master)
 
@@ -373,6 +372,7 @@ def merge_html(container, names, master):
     master_body = p(master).findall('h:body', namespaces=XPNSMAP)[-1]
     master_base = os.path.dirname(master)
     anchor_map = {n:{} for n in names if n != master}
+    first_anchor_map = {}
 
     for name in names:
         if name == master:
@@ -420,6 +420,10 @@ def merge_html(container, names, master):
         if 'id' not in first_child.attrib:
             first_child.set('id', unique_anchor(seen_anchors, 'top'))
             seen_anchors.add(first_child.get('id'))
+        first_anchor_map[name] = first_child.get('id')
+
+        if insert_page_breaks:
+            first_child.set('style', first_child.get('style', '') + '; page-break-before: always')
 
         amap[''] = first_child.get('id')
 
@@ -441,6 +445,8 @@ def merge_html(container, names, master):
     for fname, media_type in iteritems(container.mime_map):
         repl = MergeLinkReplacer(fname, anchor_map, master, container)
         container.replace_links(fname, repl)
+
+    return first_anchor_map
 
 
 def merge_css(container, names, master):

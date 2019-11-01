@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -27,7 +26,7 @@ def get_cover(docx):
         if rid in rid_map:
             try:
                 raw = docx.read(rid_map[rid])
-                fmt, width, height = identify(bytes(raw))
+                fmt, width, height = identify(raw)
             except Exception:
                 continue
             if width < 0 or height < 0:
@@ -77,7 +76,8 @@ def set_metadata(stream, mi):
     stream.seek(0)
     safe_replace(stream, dp_name, BytesIO(xml2str(cp)), extra_replacements=replacements)
 
+
 if __name__ == '__main__':
     import sys
     with open(sys.argv[-1], 'rb') as stream:
-        print (get_metadata(stream))
+        print(get_metadata(stream))

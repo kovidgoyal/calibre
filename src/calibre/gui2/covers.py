@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -43,14 +42,13 @@ class ColorButton(QToolButton):
         self.setIcon(QIcon(self.pix))
         self.clicked.connect(self.choose_color)
 
-    @dynamic_property
+    @property
     def color(self):
-        def fget(self):
-            return self._color.name(QColor.HexRgb)[1:]
+        return self._color.name(QColor.HexRgb)[1:]
 
-        def fset(self, val):
-            self._color = QColor('#' + val)
-        return property(fget=fget, fset=fset)
+    @color.setter
+    def color(self, val):
+        self._color = QColor('#' + val)
 
     def update_display(self):
         self.pix.fill(self._color)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -129,9 +128,11 @@ class ThreadedJob(BaseJob):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
         fd, path = tempfile.mkstemp(suffix='.json', prefix='log-', dir=log_dir)
+        data = json.dumps(logs, ensure_ascii=False, indent=2)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with os.fdopen(fd, 'wb') as f:
-            f.write(json.dumps(logs, ensure_ascii=False,
-                indent=2).encode('utf-8'))
+            f.write(data)
         self.consolidated_log = path
         self.log = None
 

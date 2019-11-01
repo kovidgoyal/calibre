@@ -14,7 +14,7 @@
    <string>WizardPage</string>
   </property>
   <property name="title">
-   <string>Welcome &amp;to calibre</string>
+   <string>Welcome to calibre</string>
   </property>
   <property name="subTitle">
    <string>The one stop solution to all your e-book needs.</string>

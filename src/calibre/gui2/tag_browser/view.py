@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,7 +15,7 @@ from PyQt5.Qt import (
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
 )
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
@@ -59,6 +58,17 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
 
+    def paint_text(self, painter, rect, flags, text, hover):
+        set_color = hover and QApplication.instance().is_dark_theme
+        if set_color:
+            painter.save()
+            pen = painter.pen()
+            pen.setColor(QColor(Qt.black))
+            painter.setPen(pen)
+        painter.drawText(rect, flags, text)
+        if set_color:
+            painter.restore()
+
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.DisplayRole)
@@ -68,7 +78,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
             r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-            painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
+            self.paint_text(painter, r, Qt.AlignCenter | Qt.TextSingleLine, count, hover)
             tr.setRight(r.left() - 1)
         else:
             tr.setRight(tr.right() - 1)
@@ -89,7 +99,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             pen = QPen()
             pen.setBrush(QBrush(g))
             painter.setPen(pen)
-        painter.drawText(tr, flags, text)
+        self.paint_text(painter, tr, flags, text, hover)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -168,8 +178,9 @@ class TagsView(QTreeView):  # {{{
         # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
         # anyway since the enter/spacebar keys do nothing
         self.setFocusPolicy(Qt.NoFocus)
+        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
-    def set_look_and_feel(self):
+    def set_style_sheet(self):
         stylish_tb = '''
                 QTreeView {
                     background-color: palette(window);
@@ -189,8 +200,11 @@ class TagsView(QTreeView):  # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-        '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
+        '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb))
+
+    def set_look_and_feel(self):
+        self.set_style_sheet()
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
         self.itemDelegate().old_look = gprefs['tag_browser_old_look']
 
@@ -375,7 +389,7 @@ class TagsView(QTreeView):  # {{{
                         d = os.path.join(config_dir, 'tb_icons')
                         if not os.path.exists(d):
                             os.makedirs(d)
-                        with open(os.path.join(d, 'icon_' + sanitize_file_name_unicode(key)+'.png'), 'wb') as f:
+                        with open(os.path.join(d, 'icon_' + sanitize_file_name(key)+'.png'), 'wb') as f:
                             f.write(pixmap_to_data(p, format='PNG'))
                             path = os.path.basename(f.name)
                         self._model.set_custom_category_icon(key, unicode_type(path))

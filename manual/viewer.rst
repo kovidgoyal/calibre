@@ -3,8 +3,8 @@
 The E-book viewer
 =============================
 
-calibre includes a built-in E-book viewer that can view all the major e-book formats. 
-The E-book viewer is highly customizable and has many advanced features. 
+calibre includes a built-in E-book viewer that can view all the major e-book formats.
+The E-book viewer is highly customizable and has many advanced features.
 
 .. contents::
     :depth: 1
@@ -13,97 +13,111 @@ The E-book viewer is highly customizable and has many advanced features.
 Starting the E-book viewer
 -----------------------------
 
-You can view any of the books in your calibre library by selecting the book and pressing the :guilabel:`View` button. This
-will open up the book in the E-book viewer. You can also launch the E-book viewer by itself from the Start menu in Windows
-or using the command :command:`ebook-viewer` in Linux and macOS (you have to install the command line tools on macOS
-first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
+You can view any of the books in your calibre library by selecting the book and
+pressing the :guilabel:`View` button. This will open up the book in the E-book
+viewer. You can also launch the E-book viewer by itself from the Start menu in
+Windows.  On macOS, you can pin it to the dock and launch it from there. On
+Linux you can use its launcher in the desktop menus or run the command
+:command:`ebook-viewer`.
+
 
 Navigating around an e-book
 -----------------------------
 
-.. |prev| image:: images/previous.png
+You can "turn pages" in a book by either:
 
-.. |next| image:: images/next.png
-
-.. |scroll| image:: images/scroll.png
-
-.. |bookmi| image:: images/bookmark.png
-
-.. |toci| image:: images/toc.png
-
-.. |navposi| image:: images/nav_pos.png
-
-.. |refmi| image:: images/ref_mode_button.png
+  - Clicking in the left or right margin or the page with the mouse
+  - Pressing the :kbd:`spacebar`, :kbd:`page up`, :kbd:`page down` or arrow keys
+  - On a touchscreen tapping on the text or swiping left and right
 
 
-You can "turn pages" in a book by using the :guilabel:`Page previous` |prev| and :guilabel:`Page next` |next| buttons, or by pressing
-the :guilabel:`Page down`/:guilabel:`Page up` keys. Unlike most e-book viewers, calibre does not force you to view books in paged mode.
-You can switch to flow mode by clicking on the scroll mode button |scroll| at the top right. You can then scroll by amounts less than a page
-by using the scroll bar or various customizable keyboard shortcuts. 
+You can access the viewer controls by either:
+
+  - Right clicking on the text
+  - Pressing the :kbd:`Esc` or :kbd:`Menu` keys
+  - On a touchscreen by tapping the top 1/3rd or the screen
+
+
+The viewer has two modes, "paged" and "flow". In paged mode the book content
+is presented as pages, similar to a paper book. In flow mode the text is
+presented continuously, like in a web browser. You can switch between them
+using the viewer Preferences under :guilabel:`Page layout` or by pressing the
+:kbd:`ctrl+m` key.
+
 
 Bookmarks
 ^^^^^^^^^^^^
 
-When you are in the middle of a book and close the viewer, it will remember where you stopped reading and return there
-the next time you open the book. You can also set bookmarks in the book by using the :guilabel:`Bookmark` button |bookmi|. When viewing EPUB format
-books, these bookmarks are actually saved in the EPUB file itself. You can add bookmarks, then send the file to a friend.
-When they open the file, they will be able to see your bookmarks.
+When you are in the middle of a book and close the viewer, it will remember
+where you stopped reading and return there the next time you open the book. You
+can also set bookmarks in the book by using the :guilabel:`Bookmarks` button in
+the viewer controls or pressing :kbd:`ctrl+b`.  When viewing EPUB format books,
+these bookmarks are actually saved in the EPUB file itself. You can add
+bookmarks, then send the file to a friend.  When they open the file, they will
+be able to see your bookmarks. You can turn off this behavior in the
+:guilabel:`Miscellaneous` section of the viewer preferences.
+
 
 Table of Contents
 ^^^^^^^^^^^^^^^^^^^^
 
-If the book you are reading defines a Table of Contents, you can access it by pressing the :guilabel:`Table of Contents` button |toci|.
-This will bring up a list of sections in the book. You can click on any of them to jump to that portion of the book.
+If the book you are reading defines a Table of Contents, you can access it by
+pressing the :guilabel:`Table of Contents` button.  This will bring up a list
+of sections in the book. You can click on any of them to jump to that portion
+of the book.
 
 Navigating by location
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-E-books, unlike paper books, have no concept of pages. Instead,
-as you read through the book, you will notice that your position in the book is displayed in the upper left corner in a box
-like this |navposi|. This is both your current position and the total length of the book. These numbers are independent of the screen size and font
-size you are viewing the book at, and they play a similar role to page numbers in paper books.
-You can enter any number you like to go to the corresponding location in the book. 
+E-books, unlike paper books, have no concept of pages. You can refer to precise
+locations in e-books using the :guilabel:`Go to->Location` functionality in the
+viewer controls.
 
-calibre also has a very handy
-reference mode. You can turn it on by clicking the :guilabel:`Reference mode` button |refmi|. Once you do this, every time you move your
-mouse over a paragraph, calibre will display a unique number made up of the section and paragraph numbers. 
+You can use this location information to unambiguously refer to parts of the
+books when discussing it with friends or referring to it in other works. You
+can enter these locations under :guilabel:`Go to->Location` in the viewer
+controls.
 
-.. image:: images/ref_mode.png
-    :align: center
-
-You can use this number to unambiguously refer to parts of the books when discussing it with friends or referring to it
-in other works. You can enter these numbers in the box marked Go to at the top of the window to go to a particular
-reference location. 
-
-If you click on links inside the e-book to take you to different parts of the book, such as an endnote, you can use the :guilabel:`Back` and :guilabel:`Forward` buttons 
-in the top left corner to return to where you were. These buttons behave just like those in a web browser. 
+If you click on links inside the e-book to take you to different parts of the
+book, such as an endnote, you can use the :guilabel:`Back` and
+:guilabel:`Forward` buttons in the top left corner of the viewer controls.
+These buttons behave just like those in a web browser.
 
 Customizing the look and feel of your reading experience
 ------------------------------------------------------------
 
-.. |fontsizei| image:: images/font_size.png
+You can change font sizes on the fly by using :guilabel:`Font size` in the viewer controls or
+:kbd:`Ctrl++` or :kbd:`Ctrl+-` or holding the :kbd:`Ctrl` key and using the
+mouse wheel.
 
-.. |fsi| image:: images/full_screen.png
+Colors can be changed in the :guilabel:`Colors` section of the viewer
+preferences.
 
-.. |prefbi| image:: images/pref_button.png
+You can change the number of pages displayed on the screen as well as page
+margins in :guilabel:`Page layout` in the viewer preferences.
 
-You can change font sizes on the fly by using the font size buttons |fontsizei|. You can also make the viewer full screen
-by pressing the Full Screen button |fsi|. By clicking the Preferences button |prefbi|, you can change the default fonts used 
-by the viewer to ones you like as well as the default font size when the viewer starts up. 
+You can display custom headers and footers such as time left to read, current
+chapter title, book position, etc. via the :guilabel:`Headers and footers`
+section of the viewer preferences.
 
-More advanced customization can be achieved by the :guilabel:`User stylesheet` setting. This is a stylesheet you can set that will be applied
-to every book. Using it you can do things like have white text on a black background, change paragraph styles, text justification, etc.
-For examples of custom stylesheets used by calibre's users, see `the forums <https://www.mobileread.com/forums/showthread.php?t=51500>`_.
+More advanced customization can be achieved by the :guilabel:`Styles` settings.
+Here you can specify a background image to display under the text and also a
+stylesheet you can set that will be applied to every book. Using it you can do
+things like change paragraph styles, text justification, etc.  For examples of
+custom stylesheets used by calibre's users, see `the forums
+<https://www.mobileread.com/forums/showthread.php?t=51500>`_.
 
 Dictionary lookup
 -------------------
 
-You can look up the meaning of words in the current book by right clicking on a word. calibre uses the publicly available dictionary
-server at ``dict.org`` to look up words. The definition is displayed in a small box at the bottom of the screen. 
+You can look up the meaning of words in the current book by opening the
+:guilabel:`Lookup/search panel` via the viewer controls. Then simply double
+click on any word and its definition will be displayed in the lookup panel.
+
 
 Copying text and images
 -------------------------
 
-You can select text and images by dragging the content with your mouse and then right clicking to copy to the clipboard.
-The copied material can be pasted into another application as plain text and images.
-
+You can select text and images by dragging the content with your mouse and then
+right clicking and selecting "Copy" to copy to the clipboard.  The copied
+material can be pasted into another application as plain text and images.

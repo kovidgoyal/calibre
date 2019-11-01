@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
@@ -20,7 +21,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from polyglot.builtins import itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes, zip
 
 BASE_TIME = None
 
@@ -128,13 +129,19 @@ class USBMS(CLI, Device):
                     driveinfo = None
                 driveinfo = self._update_driveinfo_record(driveinfo, prefix,
                                                           location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         else:
             driveinfo = self._update_driveinfo_record({}, prefix, location_code, name)
+            data = json.dumps(driveinfo, default=to_json)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
-                f.write(json.dumps(driveinfo, default=to_json))
+                f.write(data)
                 fsync(f)
         return driveinfo
 
@@ -281,7 +288,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True):
+        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: -1 if x is None else x):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -329,7 +336,7 @@ class USBMS(CLI, Device):
 
         self.report_progress(1.0, _('Transferring books to device...'))
         debug_print('USBMS: finished uploading %d books'%(len(files)))
-        return zip(paths, cycle([on_card]))
+        return list(zip(paths, cycle([on_card])))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
@@ -348,6 +355,7 @@ class USBMS(CLI, Device):
         debug_print('USBMS: adding metadata for %d books'%(len(metadata)))
 
         metadata = iter(metadata)
+        locations = tuple(locations)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             info = next(metadata)

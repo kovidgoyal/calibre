@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 Created on 29 Nov 2013
@@ -75,7 +74,8 @@ def test():
     set_socket_inherit(s, orig ^ True)
     if orig == get_socket_inherit(s):
         raise RuntimeError('Failed to change socket inheritance status')
-    print ('OK!')
+    print('OK!')
+
 
 if __name__ == '__main__':
     test()

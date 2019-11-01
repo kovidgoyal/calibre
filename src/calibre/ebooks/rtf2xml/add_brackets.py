@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -16,6 +17,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
 from polyglot.builtins import iteritems
+from . import open_for_read, open_for_write
 
 
 class AddBrackets:
@@ -202,8 +204,8 @@ class AddBrackets:
         """
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':

@@ -9,18 +9,21 @@
 #include <QStyleOptionToolButton>
 #include <QFormLayout>
 #include <QDialogButtonBox>
+#include <algorithm>
 
-QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
+QProgressIndicator::QProgressIndicator(QWidget* parent, int size, int interval)
         : QWidget(parent),
         m_angle(0),
         m_timerId(-1),
-        m_delay(80),
-        m_displaySize(size),
-        m_displayedWhenStopped(true),
-        m_color(Qt::black)
+        m_delay(interval),
+        m_displaySize(size, size),
+        m_dark(Qt::black),
+        m_light(Qt::white)
 {
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setFocusPolicy(Qt::NoFocus);
+	m_dark = this->palette().color(QPalette::WindowText);
+	m_light = this->palette().color(QPalette::Window);
 }
 
 bool QProgressIndicator::isAnimated () const
@@ -28,24 +31,22 @@ bool QProgressIndicator::isAnimated () const
     return (m_timerId != -1);
 }
 
-void QProgressIndicator::setDisplayedWhenStopped(bool state)
+void QProgressIndicator::setDisplaySize(QSize size)
 {
-    m_displayedWhenStopped = state;
-
-    update();
+	setSizeHint(size);
 }
-
-void QProgressIndicator::setDisplaySize(int size)
+void QProgressIndicator::setSizeHint(int size)
+{
+	setSizeHint(QSize(size, size));
+}
+void QProgressIndicator::setSizeHint(QSize size)
 {
     m_displaySize = size;
     update();
 }
 
 
-bool QProgressIndicator::isDisplayedWhenStopped() const
-{
-    return m_displayedWhenStopped;
-}
+
 
 void QProgressIndicator::startAnimation()
 {
@@ -54,6 +55,7 @@ void QProgressIndicator::startAnimation()
     if (m_timerId == -1)
         m_timerId = startTimer(m_delay);
 }
+void QProgressIndicator::start() { startAnimation(); }
 
 void QProgressIndicator::stopAnimation()
 {
@@ -64,6 +66,7 @@ void QProgressIndicator::stopAnimation()
 
     update();
 }
+void QProgressIndicator::stop() { stopAnimation(); }
 
 void QProgressIndicator::setAnimationDelay(int delay)
 {
@@ -76,16 +79,16 @@ void QProgressIndicator::setAnimationDelay(int delay)
         m_timerId = startTimer(m_delay);
 }
 
-void QProgressIndicator::setColor(const QColor & color)
+void QProgressIndicator::set_colors(const QColor & dark, const QColor & light)
 {
-    m_color = color;
+    m_dark = dark; m_light = light;
 
     update();
 }
 
 QSize QProgressIndicator::sizeHint() const
 {
-    return QSize(m_displaySize, m_displaySize);
+    return m_displaySize;
 }
 
 int QProgressIndicator::heightForWidth(int w) const
@@ -95,40 +98,15 @@ int QProgressIndicator::heightForWidth(int w) const
 
 void QProgressIndicator::timerEvent(QTimerEvent * /*event*/)
 {
-    m_angle = (m_angle+30)%360;
+    m_angle = (m_angle-2)%360;
 
     update();
 }
 
 void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
 {
-    if (!m_displayedWhenStopped && !isAnimated())
-        return;
-
-    int width = qMin(this->width(), this->height());
-
-    QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    int outerRadius = (width-1)*0.5;
-    int innerRadius = (width-1)*0.5*0.38;
-
-    int capsuleHeight = outerRadius - innerRadius;
-    int capsuleWidth  = (width > 32 ) ? capsuleHeight *.23 : capsuleHeight *.35;
-    int capsuleRadius = capsuleWidth/2;
-
-    for (int i=0; i<12; i++)
-    {
-        QColor color = m_color;
-        color.setAlphaF(1.0f - (i/12.0f));
-        p.setPen(Qt::NoPen);
-        p.setBrush(color);
-        p.save();
-        p.translate(rect().center());
-        p.rotate(m_angle - i*30.0f);
-        p.drawRoundedRect(-capsuleWidth*0.5, -(innerRadius+capsuleHeight), capsuleWidth, capsuleHeight, capsuleRadius, capsuleRadius);
-        p.restore();
-    }
+	QPainter painter(this);
+	draw_snake_spinner(painter, this->rect(), m_angle, m_light, m_dark);
 }
 
 static inline QByteArray detectDesktopEnvironment()
@@ -281,4 +259,28 @@ class TouchMenuStyle: public QProxyStyle {
 
 void set_touch_menu_style(QWidget *widget, int margin) {
     widget->setStyle(new TouchMenuStyle(margin));
+}
+
+void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) {
+	painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
+    if (rect.width() > rect.height()) {
+        int delta = (rect.width() - rect.height()) / 2;
+        rect = rect.adjusted(delta, 0, -delta, 0);
+	} else if (rect.height() > rect.width()) {
+        int delta = (rect.height() - rect.width()) / 2;
+        rect = rect.adjusted(0, delta, 0, -delta);
+	}
+    int disc_width = std::max(3, std::min(rect.width() / 10, 8));
+    QRect drawing_rect(rect.x() + disc_width, rect.y() + disc_width, rect.width() - 2 * disc_width, rect.height() - 2 *disc_width);
+    int gap = 60;  // degrees
+    QConicalGradient gradient(drawing_rect.center(), angle - gap / 2);
+    gradient.setColorAt((360 - gap/2)/360.0, light);
+    gradient.setColorAt(0, dark);
+
+    QPen pen(QBrush(gradient), disc_width);
+    pen.setCapStyle(Qt::RoundCap);
+    painter.setPen(pen);
+    painter.drawArc(drawing_rect, angle * 16, (360 - gap) * 16);
+	painter.restore();
 }

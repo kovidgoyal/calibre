@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,7 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, range
 
 
 class OutputFormatSetting(Setting):
@@ -45,7 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('upload_news_to_device', config)
         r('delete_news_from_library_on_upload', config)
 
-        output_formats = list(sorted(available_output_formats()))
+        output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
@@ -108,7 +109,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             fmts = config['internally_viewed_formats']
         viewer = self.opt_internally_viewed_formats
         viewer.blockSignals(True)
-        exts = set([])
+        exts = set()
         for ext in BOOK_EXTENSIONS:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
@@ -27,13 +28,13 @@ class Unihandecoder(object):
     def __init__(self, lang="zh", encoding='utf-8'):
         self.preferred_encoding = encoding
         lang = lang.lower()
-        if lang[:2] == u'ja':
+        if lang[:2] == 'ja':
             from calibre.ebooks.unihandecode.jadecoder import Jadecoder
             self.decoder = Jadecoder()
-        elif lang[:2] == u'kr' or lang == u'korean':
+        elif lang[:2] == 'kr' or lang == 'korean':
             from calibre.ebooks.unihandecode.krdecoder import Krdecoder
             self.decoder = Krdecoder()
-        elif lang[:2] == u'vn' or lang == u'vietnum':
+        elif lang[:2] == 'vn' or lang == 'vietnum':
             from calibre.ebooks.unihandecode.vndecoder import Vndecoder
             self.decoder = Vndecoder()
         else:  # zh and others

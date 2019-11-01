@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -13,7 +13,7 @@ from PyQt5.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
         QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
 
-from calibre import isbytestring, sanitize_file_name_unicode
+from calibre import isbytestring, sanitize_file_name
 from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable)
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
@@ -206,7 +206,7 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
     restore_view_state = pyqtSignal(object)
@@ -252,7 +252,7 @@ class ChooseLibraryAction(InterfaceAction):
         for i in range(5):
             ac = self.create_action(spec=('', None, None, None),
                     attr='switch_action%d'%i)
-            ac.setObjectName(str(i))
+            ac.setObjectName(unicode_type(i))
             self.switch_actions.append(ac)
             ac.setVisible(False)
             connect_lambda(ac.triggered, self, lambda self:
@@ -329,7 +329,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.prev_lname = self.last_lname
             self.last_lname = lname
         if len(lname) > 16:
-            lname = lname[:16] + u'…'
+            lname = lname[:16] + '…'
         a = self.qaction
         a.setText(lname.replace('&', '&&&'))  # I have no idea why this requires a triple ampersand
         self.update_tooltip(db.count())
@@ -418,7 +418,7 @@ class ChooseLibraryAction(InterfaceAction):
                     'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
                     'Note that the actual library folder will be renamed.'),
                 text=old_name)
-        newname = sanitize_file_name_unicode(unicode_type(newname))
+        newname = sanitize_file_name(unicode_type(newname))
         if not ok or not newname or newname == old_name:
             return
         newloc = os.path.join(base, newname)

@@ -1,27 +1,26 @@
-'''
-Retrieve and modify in-place Mobipocket book metadata.
-'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import with_statement
-from __future__ import print_function
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
-    'Marshall T. Vandegrift <llasram@gmail.com>'
-__docformat__ = 'restructuredtext en'
-
-import os, numbers
+import io
+import numbers
+import os
 from struct import pack, unpack
-from cStringIO import StringIO
 
 from calibre.ebooks import normalize
-from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN
-from calibre.ebooks.mobi.utils import rescale_image
+from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MobiError
 from calibre.ebooks.mobi.langcodes import iana2mobi
+from calibre.ebooks.mobi.utils import rescale_image
 from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import codepoint_to_chr, range, unicode_type
+
+
+'''
+Retrieve and modify in-place Mobipocket book metadata.
+'''
 
 
 def is_image(ss):
@@ -144,7 +143,7 @@ class MetadataUpdater(object):
         ''' Fetch the DRM keys '''
         drm_offset = int(unpack('>I', self.record0[0xa8:0xac])[0])
         self.drm_key_count = int(unpack('>I', self.record0[0xac:0xb0])[0])
-        drm_keys = ''
+        drm_keys = b''
         for x in range(self.drm_key_count):
             base_addr = drm_offset + (x * self.DRM_KEY_SIZE)
             drm_keys += self.record0[base_addr:base_addr + self.DRM_KEY_SIZE]
@@ -236,7 +235,7 @@ class MetadataUpdater(object):
         mobi_header_length, = unpack('>L', self.record0[0x14:0x18])
         if mobi_header_length == 0xe4:
             # Patch mobi_header_length to 0xE8
-            self.record0[0x17] = "\xe8"
+            self.record0[0x17] = b"\xe8"
             self.record0[0xf4:0xf8] = pack('>L', 0xFFFFFFFF)
             mobi_header_length = 0xe8
 
@@ -261,7 +260,7 @@ class MetadataUpdater(object):
             self.record0[0x58:0x5c] = pack('>L', len(new_title))
 
         # Create an updated Record0
-        new_record0 = StringIO()
+        new_record0 = io.BytesIO()
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
         if self.encryption_type != 0:
@@ -282,7 +281,7 @@ class MetadataUpdater(object):
 
     def hexdump(self, src, length=16):
         # Diagnostic
-        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+        FILTER=''.join([(len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x) or '.' for x in range(256)])
         N=0
         result=''
         while src:
@@ -399,11 +398,11 @@ class MetadataUpdater(object):
                 self.original_exth_records.get(501, None) == 'EBOK' and
                 not added_501 and not share_not_sync):
             from uuid import uuid4
-            update_exth_record((113, str(uuid4())))
+            update_exth_record((113, unicode_type(uuid4()).encode(self.codec)))
         # Add a 112 record with actual UUID
         if getattr(mi, 'uuid', None):
             update_exth_record((112,
-                    (u"calibre:%s" % mi.uuid).encode(self.codec, 'replace')))
+                    ("calibre:%s" % mi.uuid).encode(self.codec, 'replace')))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
@@ -423,7 +422,7 @@ class MetadataUpdater(object):
             recs.append((id, self.original_exth_records[id]))
         recs = sorted(recs, key=lambda x:(x[0],x[0]))
 
-        exth = StringIO()
+        exth = io.BytesIO()
         for code, data in recs:
             exth.write(pack('>II', code, len(data) + 8))
             exth.write(data)
@@ -445,7 +444,10 @@ class MetadataUpdater(object):
 
         if mi.cover_data[1] or mi.cover:
             try:
-                data =  mi.cover_data[1] if mi.cover_data[1] else open(mi.cover, 'rb').read()
+                data =  mi.cover_data[1]
+                if not data:
+                    with open(mi.cover, 'rb') as f:
+                        data = f.read()
             except:
                 pass
             else:

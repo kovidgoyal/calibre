@@ -77,13 +77,15 @@ class ArsTechnica(BasicNewsRecipe):
                 texttag = soup2.find(attrs={'class': 'article-guts'})
                 if texttag is not None:
                     newpos = len(texttag.contents)
-                    self.append_page(soup2, texttag, newpos)
+                    soup = self.append_page(soup2, texttag, newpos)
                     texttag.extract()
                     pager.extract()
                     appendtag.insert(position, texttag)
+                    soup = BeautifulSoup(soup.renderContents().decode('utf-8'))
+        return soup
 
     def preprocess_html(self, soup):
-        self.append_page(soup, soup.body, 3)
+        soup = self.append_page(soup, soup.body, 3)
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
@@ -92,7 +94,7 @@ class ArsTechnica(BasicNewsRecipe):
             else:
                 if limg:
                     item.name = 'div'
-                    item.attrs = []
+                    item.attrs.clear()
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)

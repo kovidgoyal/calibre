@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -17,7 +18,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type, range, native_string_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -41,7 +42,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         self.cancelled = False
         self.button_box.accepted.connect(self.accept)
-        self.regex.textChanged[str].connect(self.regex_valid)
+        self.regex.textChanged[native_string_type].connect(self.regex_valid)
         for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
             'goto')):
             getattr(self, src).clicked.connect(getattr(self, '%s_%s'%(slot,
@@ -66,7 +67,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
                 return True
             except:
-                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(255,0,0,20%); }')
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
             self.preview.setExtraSelections([])
@@ -101,7 +102,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.match_locs:
             self.next.setEnabled(True)
             self.previous.setEnabled(True)
-        self.occurrences.setText(str(len(self.match_locs)))
+        self.occurrences.setText(unicode_type(len(self.match_locs)))
 
     def goto_previous(self):
         pos = self.preview.textCursor().position()

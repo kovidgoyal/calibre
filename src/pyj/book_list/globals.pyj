@@ -33,9 +33,3 @@ def get_translations(val):
     if val:
         get_translations.ans = val
     return get_translations.ans
-
-
-def get_read_ui(val):
-    if val:
-        get_read_ui.ans = val
-    return get_read_ui.ans

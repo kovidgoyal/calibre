@@ -1,5 +1,8 @@
-import urllib
 import re
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -37,7 +40,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
         ans = None
         try:
             s = article.summary
-            ans = urllib.unquote(
+            ans = unquote(
                 re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
         except:
             pass

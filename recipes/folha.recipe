@@ -5,8 +5,11 @@ __copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.folha.uol.com.br
 '''
-import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 
 class Folha_de_s_paulo(BasicNewsRecipe):
@@ -69,7 +72,7 @@ class Folha_de_s_paulo(BasicNewsRecipe):
         return curl
 
     def print_version(self, url):
-        return 'http://tools.folha.com.br/print?site=emcimadahora&url=' + urllib.quote_plus(url)
+        return 'http://tools.folha.com.br/print?site=emcimadahora&url=' + quote_plus(url)
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.folha.uol.com.br/')

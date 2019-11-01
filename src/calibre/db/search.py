@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -203,7 +202,7 @@ class DateSearch(object):  # {{{
                     field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
-            if isinstance(v, (str, unicode_type)):
+            if isinstance(v, string_or_bytes):
                 v = parse_date(v)
             if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
@@ -632,7 +631,7 @@ class Parser(SearchQueryParser):  # {{{
         text_fields = set()
         field_metadata = {}
 
-        for x, fm in iteritems(self.field_metadata):
+        for x, fm in self.field_metadata.iter_items():
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x not in {'series_sort', 'id'}:

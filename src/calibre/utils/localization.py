@@ -1,12 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, io
+import os, locale, re, io, sys
 from gettext import GNUTranslations, NullTranslations
 
 from polyglot.builtins import is_py3, iteritems, unicode_type
@@ -20,7 +20,8 @@ def available_translations():
         stats = P('localization/stats.calibre_msgpack', allow_user_override=False)
         if os.path.exists(stats):
             from calibre.utils.serialize import msgpack_loads
-            stats = msgpack_loads(open(stats, 'rb').read())
+            with open(stats, 'rb') as f:
+                stats = msgpack_loads(f.read())
         else:
             stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
@@ -136,8 +137,18 @@ def get_all_translators():
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
-        buf = io.BytesIO(zf.read(mpath + '/%s.mo' % which))
-        return GNUTranslations(buf)
+        path = '{}/{}.mo'.format(mpath, which)
+        data = zf.read(path)
+        buf = io.BytesIO(data)
+        try:
+            return GNUTranslations(buf)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            import hashlib
+            sig = hashlib.sha1(data).hexdigest()
+            raise ValueError('Failed to load translations for: {} (size: {} and signature: {}) with error: {}'.format(
+                path, len(data), sig, e))
 
 
 def get_iso639_translator(lang):
@@ -155,6 +166,8 @@ def get_translator(bcp_47_code):
     lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(lang, lang)
     available = available_translations()
     found = True
+    if lang == 'en' or lang.startswith('en_'):
+        return found, lang, NullTranslations()
     if lang not in available:
         lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
         if lang not in available:
@@ -163,23 +176,23 @@ def get_translator(bcp_47_code):
                 lang = 'en'
             found = False
     if lang == 'en':
-        return found, lang, NullTranslations()
+        return True, lang, NullTranslations()
     return found, lang, get_single_translator(lang)
 
 
 lcdata = {
-    u'abday': (u'Sun', u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat'),
-    u'abmon': (u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec'),
-    u'd_fmt': u'%m/%d/%Y',
-    u'd_t_fmt': u'%a %d %b %Y %r %Z',
-    u'day': (u'Sunday', u'Monday', u'Tuesday', u'Wednesday', u'Thursday', u'Friday', u'Saturday'),
-    u'mon': (u'January', u'February', u'March', u'April', u'May', u'June', u'July', u'August', u'September', u'October', u'November', u'December'),
-    u'noexpr': u'^[nN].*',
-    u'radixchar': u'.',
-    u't_fmt': u'%r',
-    u't_fmt_ampm': u'%I:%M:%S %p',
-    u'thousep': u',',
-    u'yesexpr': u'^[yY].*'
+    'abday': ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'),
+    'abmon': ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'),
+    'd_fmt': '%m/%d/%Y',
+    'd_t_fmt': '%a %d %b %Y %r %Z',
+    'day': ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+    'mon': ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
+    'noexpr': '^[nN].*',
+    'radixchar': '.',
+    't_fmt': '%r',
+    't_fmt_ampm': '%I:%M:%S %p',
+    'thousep': ',',
+    'yesexpr': '^[yY].*'
 }
 
 
@@ -380,7 +393,8 @@ def get_language(lang):
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
         return translate(_extra_lang_codes[lang])
-    return get_iso_language(getattr(_lang_trans, 'ugettext', translate), lang)
+    attr = 'gettext' if sys.version_info.major > 2 else 'ugettext'
+    return get_iso_language(getattr(_lang_trans, attr, translate), lang)
 
 
 def calibre_langcode_to_name(lc, localize=True):

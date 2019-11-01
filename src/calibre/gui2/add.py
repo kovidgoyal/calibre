@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -89,6 +88,7 @@ class Adder(QObject):
         self.report = []
         self.items = []
         self.added_book_ids = set()
+        self.merged_formats_added_to = set()
         self.merged_books = set()
         self.added_duplicate_info = set()
         self.pd.show()
@@ -143,7 +143,7 @@ class Adder(QObject):
                         self.file_groups[len(self.file_groups)] = files
         else:
             def find_files(root):
-                if isinstance(root, type(u'')):
+                if isinstance(root, unicode_type):
                     root = root.encode(filesystem_encoding)
                 for dirpath, dirnames, filenames in os.walk(root):
                     try:
@@ -383,6 +383,7 @@ class Adder(QObject):
             ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
             self.add_formats(identical_book_id, paths, mi, replace=replace)
+            self.merged_formats_added_to.add(identical_book_id)
         if gprefs['automerge'] == 'new record':
             incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
             if incoming_fmts.intersection(seen_fmts):
@@ -488,9 +489,9 @@ class Adder(QObject):
                 'Failed to add any books, click "Show details" for more information')
             d(self.pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
 
-        if gprefs['manual_add_auto_convert'] and self.added_book_ids and self.parent() is not None:
-            self.parent().iactions['Convert Books'].auto_convert_auto_add(
-                self.added_book_ids)
+        potentially_convertible = self.added_book_ids | self.merged_formats_added_to
+        if gprefs['manual_add_auto_convert'] and potentially_convertible and self.parent() is not None:
+            self.parent().iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
 
         try:
             if callable(self.callback):

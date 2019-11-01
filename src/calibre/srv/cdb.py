@@ -5,11 +5,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from base64 import standard_b64decode
 from functools import partial
 from io import BytesIO
 
-from calibre import as_unicode, sanitize_file_name_unicode
+from calibre import as_unicode, sanitize_file_name
 from calibre.db.cli import module_for_cmd
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.changes import books_added, books_deleted, metadata
@@ -19,6 +18,8 @@ from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
+from calibre.utils.speedups import ReadOnlyFileBuffer
+from polyglot.binary import from_base64_bytes
 from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
@@ -68,16 +69,19 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     Add a file as a new book. The file contents must be in the body of the request.
 
     The response will also have the title/authors/languages read from the
-    metadata of the file/filename. It will contain a `book_id` field specifying the id of the newly added book,
-    or if add_duplicates is not specified and a duplicate was found, no book_id will be present. It will also
-    return the value of `job_id` as the `id` field and `filename` as the `filename` field.
+    metadata of the file/filename. It will contain a `book_id` field specifying
+    the id of the newly added book, or if add_duplicates is not specified and a
+    duplicate was found, no book_id will be present, instead there will be a
+    `duplicates` field specifying the title and authors for all duplicate
+    matches. It will also return the value of `job_id` as the `id` field and
+    `filename` as the `filename` field.
     '''
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the add book interface with a user who has per library restrictions')
     if not filename:
         raise HTTPBadRequest('An empty filename is not allowed')
-    sfilename = sanitize_file_name_unicode(filename)
+    sfilename = sanitize_file_name(filename)
     fmt = os.path.splitext(sfilename)[1]
     fmt = fmt[1:] if fmt else None
     if not fmt:
@@ -95,6 +99,8 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     if ids:
         ans['book_id'] = ids[0]
         ctx.notify_changes(db.backend.library_path, books_added(ids))
+    else:
+        ans['duplicates'] = [{'title': m.title, 'authors': m.authors} for m, _ in duplicates]
     return ans
 
 
@@ -160,7 +166,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     if cdata is not False:
         if cdata is not None:
             try:
-                cdata = standard_b64decode(cdata.split(',', 1)[-1].encode('ascii'))
+                cdata = from_base64_bytes(cdata.split(',', 1)[-1])
             except Exception:
                 raise HTTPBadRequest('Cover data is not valid base64 encoded data')
             try:
@@ -170,6 +176,25 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             if fmt not in ('jpeg', 'png'):
                 raise HTTPBadRequest('Cover data must be either JPEG or PNG')
         dirtied |= db.set_cover({book_id: cdata})
+
+    added_formats = changes.pop('added_formats', False)
+    if added_formats:
+        for data in added_formats:
+            try:
+                fmt = data['ext'].upper()
+            except Exception:
+                raise HTTPBadRequest('Format has no extension')
+            if fmt:
+                try:
+                    fmt_data = from_base64_bytes(data['data_url'].split(',', 1)[-1])
+                except Exception:
+                    raise HTTPBadRequest('Format data is not valid base64 encoded data')
+                if db.add_format(book_id, fmt, ReadOnlyFileBuffer(fmt_data)):
+                    dirtied.add(book_id)
+    removed_formats = changes.pop('removed_formats', False)
+    if removed_formats:
+        db.remove_formats({book_id: list(removed_formats)})
+        dirtied.add(book_id)
 
     for field, value in iteritems(changes):
         dirtied |= db.set_field(field, {book_id: value})

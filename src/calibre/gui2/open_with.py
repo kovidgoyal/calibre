@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,7 +21,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
-from polyglot.builtins import iteritems, string_or_bytes, range
+from polyglot.builtins import iteritems, string_or_bytes, range, unicode_type
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -325,7 +324,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
-        entry['uuid'] = type('')(uuid.uuid4())
+        entry['uuid'] = unicode_type(uuid.uuid4())
         entries = oprefs['entries']
         if oft not in entries:
             entries[oft] = []

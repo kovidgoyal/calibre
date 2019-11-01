@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -20,7 +21,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.ebooks.conversion.config import sort_formats_by_preference, get_output_formats
 from calibre.utils.config import prefs
 from calibre.utils.logging import Log
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, native_string_type
 
 
 class BulkConfig(Config):
@@ -28,7 +29,7 @@ class BulkConfig(Config):
     def __init__(self, parent, db, preferred_output_format=None,
             has_saved_settings=True):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi()
 
         self.setup_output_formats(db, preferred_output_format)
         self.db = db
@@ -44,7 +45,7 @@ class BulkConfig(Config):
             'values saved in a previous conversion (if they exist) instead '
             'of using the defaults specified in the Preferences'))
 
-        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.groups.setSpacing(5)
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
@@ -125,8 +126,7 @@ class BulkConfig(Config):
             preferred_output_format and preferred_output_format \
             in output_formats else sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.output_formats.addItems(list(map(unicode_type, [x.upper() for x in
-            output_formats])))
+        self.output_formats.addItems((unicode_type(x.upper()) for x in output_formats))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
     def accept(self):

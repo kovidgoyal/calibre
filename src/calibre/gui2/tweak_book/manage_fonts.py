@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -67,11 +66,11 @@ class EmbeddingData(Dialog):
             text.append('<li style="margin-bottom:2em">' + '<b>' + face['path'] + '</b>')
             name = face.get('full_name') or face.get('family_name') or face.get('subfamily_name')
             if name:
-                text.append('<br>' + _('Name:') + '\xa0<b>' + type('')(name) + '</b>')
+                text.append('<br>' + _('Name:') + '\xa0<b>' + unicode_type(name) + '</b>')
             if 'font-weight' in face:
-                text.append('<br>' + 'font-weight:\xa0' + type('')(face['font-weight']))
+                text.append('<br>' + 'font-weight:\xa0' + unicode_type(face['font-weight']))
             if 'font-style' in face:
-                text.append('<br>' + 'font-style:\xa0' + type('')(face['font-style']))
+                text.append('<br>' + 'font-style:\xa0' + unicode_type(face['font-style']))
         self.text.setHtml('\n'.join(text))
 
 

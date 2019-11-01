@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -15,7 +15,7 @@ from functools import partial
 from threading import Lock
 
 from calibre import isbytestring, force_unicode, as_unicode, prints
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 
 class Stream(object):
@@ -23,7 +23,7 @@ class Stream(object):
     def __init__(self, stream=None):
         if stream is None:
             stream = io.BytesIO()
-        self.stream = stream
+        self.stream = getattr(stream, 'buffer', stream)
         self._prints = partial(prints, safe_encode=True, file=stream)
 
     def flush(self):
@@ -38,11 +38,11 @@ class ANSIStream(Stream):
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
         self.color = {
-                      DEBUG: u'green',
-                      INFO: None,
-                      WARN: u'yellow',
-                      ERROR: u'red',
-                      }
+            DEBUG: u'green',
+            INFO: None,
+            WARN: u'yellow',
+            ERROR: u'red',
+        }
 
     def prints(self, level, *args, **kwargs):
         from calibre.utils.terminal import ColoredStream
@@ -65,12 +65,12 @@ class FileStream(Stream):
 class HTMLStream(Stream):
 
     color = {
-            DEBUG: '<span style="color:green">',
-            INFO:'<span>',
-            WARN: '<span style="color:blue">',
-            ERROR: '<span style="color:red">'
-            }
-    normal = '</span>'
+        DEBUG: b'<span style="color:green">',
+        INFO: b'<span>',
+        WARN: b'<span style="color:blue">',
+        ERROR: b'<span style="color:red">'
+    }
+    normal = b'</span>'
 
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
@@ -86,6 +86,9 @@ class HTMLStream(Stream):
 
 
 class UnicodeHTMLStream(HTMLStream):
+
+    color = {k: v.decode('ascii') for k, v in iteritems(HTMLStream.color)}
+    normal = HTMLStream.normal.decode('ascii')
 
     def __init__(self):
         self.clear()
@@ -149,10 +152,10 @@ class Log(object):
         default_output = ANSIStream()
         self.outputs = [default_output]
 
-        self.debug = partial(self.prints, DEBUG)
-        self.info  = partial(self.prints, INFO)
-        self.warn  = self.warning = partial(self.prints, WARN)
-        self.error = partial(self.prints, ERROR)
+        self.debug = partial(self.print_with_flush, DEBUG)
+        self.info  = partial(self.print_with_flush, INFO)
+        self.warn  = self.warning = partial(self.print_with_flush, WARN)
+        self.error = partial(self.print_with_flush, ERROR)
 
     def prints(self, level, *args, **kwargs):
         if level < self.filter_level:
@@ -160,13 +163,20 @@ class Log(object):
         for output in self.outputs:
             output.prints(level, *args, **kwargs)
 
+    def print_with_flush(self, level, *args, **kwargs):
+        if level < self.filter_level:
+            return
+        for output in self.outputs:
+            output.prints(level, *args, **kwargs)
+        self.flush()
+
     def exception(self, *args, **kwargs):
         limit = kwargs.pop('limit', None)
-        self.prints(ERROR, *args, **kwargs)
-        self.prints(DEBUG, traceback.format_exc(limit))
+        self.print_with_flush(ERROR, *args, **kwargs)
+        self.print_with_flush(DEBUG, traceback.format_exc(limit))
 
     def __call__(self, *args, **kwargs):
-        self.prints(INFO, *args, **kwargs)
+        self.info(*args, **kwargs)
 
     def __enter__(self):
         self.orig_filter_level = self.filter_level
@@ -204,11 +214,15 @@ class ThreadSafeLog(Log):
         with self._lock:
             Log.prints(self, *args, **kwargs)
 
+    def print_with_flush(self, *args, **kwargs):
+        with self._lock:
+            Log.print_with_flush(self, *args, **kwargs)
+
     def exception(self, *args, **kwargs):
         limit = kwargs.pop('limit', None)
         with self._lock:
-            Log.prints(self, ERROR, *args, **kwargs)
-            Log.prints(self, self.exception_traceback_level, traceback.format_exc(limit))
+            Log.print_with_flush(self, ERROR, *args, **kwargs)
+            Log.print_with_flush(self, self.exception_traceback_level, traceback.format_exc(limit))
 
 
 class ThreadSafeWrapper(Log):
@@ -221,6 +235,10 @@ class ThreadSafeWrapper(Log):
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
+    def print_with_flush(self, *args, **kwargs):
+        with self._lock:
+            Log.print_with_flush(self, *args, **kwargs)
 
 
 class GUILog(ThreadSafeLog):

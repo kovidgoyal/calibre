@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,7 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type
 
 
 def get_cache():
@@ -25,7 +24,7 @@ def get_cache():
 
 
 def needs_recompile(obj, srcs):
-    if isinstance(srcs, type('')):
+    if isinstance(srcs, unicode_type):
         srcs = [srcs]
     try:
         obj_mtime = os.stat(obj).st_mtime

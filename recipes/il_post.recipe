@@ -17,7 +17,7 @@ from calibre.utils.magick import Image
 # Comment (add # in front) to disable the sections you are not interested in
 # Commenta (aggiungi # davanti alla riga) per disabilitare le sezioni che non vuoi scaricare
 sections = [
-    ("Prima Pagina", "https://www.ilpost.it/"),
+    ("Prima Pagina", "https://www.ilpost.it/prime-pagine"),
     ("Mondo", "https://www.ilpost.it/mondo/"),
     ("Politica", "https://www.ilpost.it/politica/"),
     ("Tecnologia", "https://www.ilpost.it/tecnologia/"),

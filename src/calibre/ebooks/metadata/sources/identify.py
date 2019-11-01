@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,12 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from datetime import datetime
-from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
-from urlparse import urlparse
-from urllib import quote
+from polyglot.urllib import urlparse, quote
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata import check_issn, authors_to_sort_string
@@ -28,6 +25,7 @@ from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter
 from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.queue import Queue, Empty
 
 # Download worker {{{
 
@@ -555,7 +553,7 @@ def urls_from_identifiers(identifiers):  # {{{
         formatter = EvalFormatter()
         for k, val in iteritems(identifiers):
             val = val.replace('|', ',')
-            vals = {'id':quote(val if isinstance(val, bytes) else val.encode('utf-8')).decode('ascii')}
+            vals = {'id':unicode_type(quote(val if isinstance(val, bytes) else val.encode('utf-8')))}
             items = rules.get(k) or ()
             for name, template in items:
                 try:

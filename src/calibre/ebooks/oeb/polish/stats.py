@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,12 +12,11 @@ from functools import partial
 from lxml.etree import tostring
 import regex
 
-from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML, css_text
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdeclaration
 from calibre.utils.icu import ord_string, safe_chr
-from polyglot.builtins import unicode_type
+from polyglot.builtins import iteritems, itervalues, range, unicode_type
 from tinycss.fonts3 import parse_font_family
-from polyglot.builtins import iteritems, itervalues, range
 
 
 def normalize_font_properties(font):
@@ -121,7 +119,7 @@ def get_element_text(elem, resolve_property, resolve_pseudo_property, capitalize
     if before:
         ans.append(before)
     if for_pseudo is not None:
-        ans.append(tostring(elem, method='text', encoding=unicode_type, with_tail=False))
+        ans.append(tostring(elem, method='text', encoding='unicode', with_tail=False))
     else:
         if elem.text:
             ans.append(elem.text)
@@ -163,7 +161,7 @@ def get_font_dict(elem, resolve_property, pseudo=None):
     for p in 'weight', 'style', 'stretch':
         p = 'font-' + p
         rp = resolve_property(elem, p) if pseudo is None else resolve_property(elem, pseudo, p)
-        ans[p] = type('')(rp[0].value)
+        ans[p] = unicode_type(rp[0].value)
     normalize_font_properties(ans)
     return ans
 
@@ -204,7 +202,7 @@ class StatsCollector(object):
                 cssdict = {}
                 for prop in iterdeclaration(rule.style):
                     if prop.name == 'font-family':
-                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(prop.propertyValue.cssText)]
+                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(css_text(prop.propertyValue))]
                     elif prop.name.startswith('font-'):
                         cssdict[prop.name] = prop.propertyValue[0].value
                     elif prop.name == 'src':
@@ -215,7 +213,7 @@ class StatsCollector(object):
                                 cssdict['src'] = fname
                                 break
                         else:
-                            container.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % prop.propertyValue.cssText)
+                            container.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % css_text(prop.propertyValue))
                 if 'src' not in cssdict:
                     continue
                 ff = cssdict.get('font-family')

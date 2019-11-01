@@ -1,9 +1,12 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 '''
 Backend that implements storage of ebooks in an sqlite database.
 '''
+
 import sqlite3 as sqlite
 import datetime, re, sre_constants
 from zlib import compress, decompress
@@ -12,7 +15,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, filter, map
 
 
 class Concatenate(object):
@@ -27,11 +30,16 @@ class Concatenate(object):
             self.ans += value + self.sep
 
     def finalize(self):
-        if not self.ans:
-            return None
-        if self.sep:
-            return self.ans[:-len(self.sep)]
-        return self.ans
+        try:
+            if not self.ans:
+                return None
+            if self.sep:
+                return self.ans[:-len(self.sep)]
+            return self.ans
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
 
 
 class Connection(sqlite.Connection):
@@ -52,7 +60,7 @@ def _connect(path):
     conn =  sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
-    title_pat = re.compile('^(A|The|An)\\s+', re.IGNORECASE)
+    title_pat = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
 
     def title_sort(title):
         match = title_pat.search(title)
@@ -822,13 +830,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         #        _lock_file = None
         self.conn.close()
 
-    @dynamic_property
+    @property
     def user_version(self):
-        doc = 'The user version of this database'
-
-        def fget(self):
-            return self.conn.get('pragma user_version;', all=False)
-        return property(doc=doc, fget=fget)
+        'The user version of this database'
+        return self.conn.get('pragma user_version;', all=False)
 
     def is_empty(self):
         return not self.conn.get('SELECT id FROM books LIMIT 1', all=False)
@@ -866,7 +871,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def refresh_ids(self, ids):
-        indices = map(self.index, ids)
+        indices = list(map(self.index, ids))
         for id, idx in zip(ids, indices):
             row = self.conn.get('SELECT * from meta WHERE id=?', (id,), all=False)
             self.data[idx] = row
@@ -1070,8 +1075,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.get('SELECT id, name FROM authors')]
 
     def all_author_names(self):
-        return filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
-            'SELECT name FROM authors')])
+        return list(filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
+            'SELECT name FROM authors')]))
 
     def all_publishers(self):
         return [(i[0], i[1]) for i in

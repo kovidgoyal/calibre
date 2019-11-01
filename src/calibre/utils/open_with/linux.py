@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,7 +13,7 @@ from calibre.constants import filesystem_encoding, cache_dir
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
 
 
 def parse_localized_key(key):
@@ -67,7 +66,7 @@ def parse_desktop_file(path):
                     name, lang = parse_localized_key(k)
                     if name not in ans:
                         ans[name] = {}
-                    if isinstance(ans[name], type('')):
+                    if isinstance(ans[name], unicode_type):
                         ans[name] = {None:ans[name]}
                     ans[name][lang] = v
                 else:
@@ -117,7 +116,7 @@ def find_icons():
         with open(cache_file, 'rb') as f:
             cache = f.read()
         cache = msgpack_loads(cache)
-        mtimes, cache = cache['mtimes'], cache['data']
+        mtimes, cache = defaultdict(int, cache['mtimes']), defaultdict(dict, cache['data'])
     except Exception:
         mtimes, cache = defaultdict(int), defaultdict(dict)
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, math, errno, uuid
+import sys, os, re, math, errno, uuid, numbers
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -29,7 +28,7 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, filter, getcwd, map, unicode_type
 
 
 NBSP = '\xa0'
@@ -70,7 +69,7 @@ class Convert(object):
         self.notes_text = notes_text or _('Notes')
         self.notes_nopb = notes_nopb
         self.nosupsub = nosupsub
-        self.dest_dir = dest_dir or os.getcwdu()
+        self.dest_dir = dest_dir or getcwd()
         self.mi = self.docx.metadata
         self.body = BODY()
         self.theme = Theme(self.namespace)
@@ -183,7 +182,7 @@ class Convert(object):
                         indent = float(style.text_indent[:-2]) + indent
                     style.text_indent = '%.3gpt' % indent
                     parent.text = tabs[-1].tail or ''
-                    map(parent.remove, tabs)
+                    list(map(parent.remove, tabs))
 
         self.images.rid_map = orig_rid_map
 
@@ -481,7 +480,7 @@ class Convert(object):
                 current_hyperlink = x
             elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
                 old_anchor = current_anchor
-                anchor = str(uuid.uuid4())
+                anchor = unicode_type(uuid.uuid4())
                 self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(itervalues(self.anchor_map)))
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
@@ -498,6 +497,7 @@ class Convert(object):
         if m is not None:
             n = min(6, max(1, int(m.group(1))))
             dest.tag = 'h%d' % n
+            dest.set('data-heading-level', unicode_type(n))
 
         if style.bidi is True:
             dest.set('dir', 'rtl')
@@ -694,9 +694,9 @@ class Convert(object):
                 ans.append(text.elem)
                 ans[-1].set('class', 'tab')
             elif self.namespace.is_tag(child, 'w:noBreakHyphen'):
-                text.buf.append(u'\u2011')
+                text.buf.append('\u2011')
             elif self.namespace.is_tag(child, 'w:softHyphen'):
-                text.buf.append(u'\u00ad')
+                text.buf.append('\u00ad')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 
@@ -788,7 +788,10 @@ class Convert(object):
                 style = self.styles.resolve_paragraph(p)
                 if has_visible_border is None:
                     has_visible_border = style.has_visible_border()
-                max_left, max_right = max(style.margin_left, max_left), max(style.margin_right, max_right)
+                if isinstance(style.margin_left, numbers.Number):
+                    max_left = max(style.margin_left, max_left)
+                if isinstance(style.margin_right, numbers.Number):
+                    max_right = max(style.margin_right, max_right)
                 if has_visible_border:
                     style.margin_left = style.margin_right = inherit
                 if p is not run[0]:
@@ -828,7 +831,7 @@ if __name__ == '__main__':
     import shutil
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
-    dest_dir = os.path.join(os.getcwdu(), 'docx_input')
+    dest_dir = os.path.join(getcwd(), 'docx_input')
     if os.path.exists(dest_dir):
         shutil.rmtree(dest_dir)
     os.mkdir(dest_dir)

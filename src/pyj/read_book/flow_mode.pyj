@@ -5,10 +5,9 @@ from __python__ import bound_methods, hash_literals
 from select import word_at_point
 
 from dom import set_css
-from keycodes import get_key
 from read_book.globals import get_boss
 from read_book.viewport import scroll_viewport
-from utils import document_height, document_width, viewport_to_document
+from utils import document_height, viewport_to_document
 
 
 def flow_to_scroll_fraction(frac):
@@ -58,7 +57,7 @@ def _check_for_scroll_end(func, obj, args, report):
     before = window.pageYOffset
     func.apply(obj, args)
     if window.pageYOffset is before:
-        get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
+        get_boss().send_message('next_spine_item', previous=args[0] < 0)
         return False
     if report:
         report_human_scroll(window.pageYOffset - before)
@@ -82,17 +81,18 @@ def scroll_by(y):
 
 def flow_onwheel(evt):
     dx = dy = 0
+    WheelEvent = window.WheelEvent
     if evt.deltaY:
-        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dy = evt.deltaY
-        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+        elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
             dy = 15 * evt.deltaY
-        if evt.deltaMode is evt.DOM_DELTA_PAGE:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
             dy = (scroll_viewport.height() - 30) * evt.deltaY
     if evt.deltaX:
-        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dx = evt.deltaX
-        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+        elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
             dx = 15 * evt.deltaX
         else:
             dx = (scroll_viewport.width() - 30) * evt.deltaX
@@ -122,42 +122,43 @@ def goto_boundary(y):
 
 
 @check_for_scroll_end_and_report
-def scroll_by_page(backward):
+def scroll_by_page(direction):
     h = scroll_viewport.height() - 10
-    window.scrollBy(0, -h if backward else h)
+    window.scrollBy(0, h * direction)
 
 
-def flow_onkeydown(evt):
-    handled = False
-    key = get_key(evt)
-    if key is 'up' or key is 'down':
-        handled = True
-        if evt.ctrlKey:
-            goto_boundary(-1 if key is 'up' else 1)
-        else:
-            smooth_y_scroll(key is 'up')
-    elif (key is 'left' or key is 'right') and not evt.altKey:
-        handled = True
-        if evt.ctrlKey:
-            scroll_viewport.scroll_to(0 if key is 'left' else document_width(), window.pageYOffset)
-        else:
-            window.scrollBy(-15 if key is 'left' else 15, 0)
-    elif key is 'home' or key is 'end':
-        handled = True
-        get_boss().report_human_scroll()
-        clear_small_scrolls()
-        if evt.ctrlKey:
-            get_boss().send_message('goto_doc_boundary', start=key is 'home')
-        else:
-            if key is 'home':
-                scroll_viewport.scroll_to(window.pageXOffset, 0)
-            else:
-                scroll_viewport.scroll_to(window.pageXOffset, document_height())
-    elif key is 'pageup' or key is 'pagedown' or key is 'space':
-        handled = True
-        scroll_by_page(key is 'pageup')
-    if handled:
-        evt.preventDefault()
+def handle_shortcut(sc_name, evt):
+    if sc_name is 'down':
+        smooth_y_scroll(False)
+        return True
+    if sc_name is 'up':
+        smooth_y_scroll(True)
+        return True
+    if sc_name is 'start_of_file':
+        goto_boundary(-1)
+        return True
+    if sc_name is 'end_of_file':
+        goto_boundary(1)
+        return True
+    if sc_name is 'left':
+        window.scrollBy(-15, 0)
+        return True
+    if sc_name is 'right':
+        window.scrollBy(15, 0)
+        return True
+    if sc_name is 'start_of_book':
+        get_boss().send_message('goto_doc_boundary', start=True)
+        return True
+    if sc_name is 'end_of_book':
+        get_boss().send_message('goto_doc_boundary', start=False)
+        return True
+    if sc_name is 'pageup':
+        scroll_by_page(-1)
+        return True
+    if sc_name is 'pagedown':
+        scroll_by_page(1)
+        return True
+    return False
 
 
 def layout(is_single_page):
@@ -224,9 +225,9 @@ def handle_gesture(gesture):
         if not gesture.active and not gesture.is_held:
             flick_animator.start(gesture)
     elif gesture.type is 'prev-page':
-        scroll_by_page(True)
+        scroll_by_page(-1)
     elif gesture.type is 'next-page':
-        scroll_by_page(False)
+        scroll_by_page(1)
     elif gesture.type is 'long-tap':
         r = word_at_point(gesture.viewport_x, gesture.viewport_y)
         if r:

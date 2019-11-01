@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,7 +16,7 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues
+from polyglot.builtins import itervalues, error_message, native_string_type
 from polyglot.queue import Queue, Empty
 
 MAX_RETRIES = 10
@@ -300,7 +299,7 @@ class Worker(object):
                 time.sleep(0.01)
             compile_srv()
         except CompileFailure as e:
-            self.log.error(e.message)
+            self.log.error(error_message(e))
             time.sleep(0.1 * self.retry_count)
             if self.retry_count < MAX_RETRIES and self.wakeup is not None:
                 self.wakeup()  # Force a restart
@@ -384,7 +383,7 @@ class ReloadServer(Thread):
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
         self.address = self.loop.bound_address[:2]
-        os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
+        os.environ['CALIBRE_AUTORELOAD_PORT'] = native_string_type(self.address[1])
         return self
 
     def __exit__(self, *args):
@@ -402,6 +401,8 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_o
     if cmd is None:
         cmd = list(sys.argv)
         cmd.remove('--auto-reload')
+    if os.path.basename(cmd[0]) == 'run-local':
+        cmd.insert(1, 'calibre-server')
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))

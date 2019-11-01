@@ -7,7 +7,6 @@ import os
 import posixpath
 import sys
 import textwrap
-from binascii import hexlify
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 
@@ -19,7 +18,7 @@ from PyQt5.Qt import (
     QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre import human_readable, plugins, sanitize_file_name_unicode
+from calibre import human_readable, plugins, sanitize_file_name
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
@@ -38,8 +37,10 @@ from calibre.gui2.tweak_book import (
 )
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
+from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.binary import as_hex_unicode
+from polyglot.builtins import filter, iteritems, itervalues, map, range, unicode_type
 
 try:
     from PyQt5 import sip
@@ -73,7 +74,7 @@ def name_is_ok(name, show_error):
     norm = name.replace('\\', '/')
     parts = name.split('/')
     for x in parts:
-        if sanitize_file_name_unicode(x) != x:
+        if sanitize_file_name(x) != x:
             return show_error(_('The file name contains invalid characters')) and False
     if current_container().has_name(norm):
         return show_error(_('This file name already exists in the book')) and False
@@ -81,7 +82,7 @@ def name_is_ok(name, show_error):
     return True
 
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode,
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name,
         leading_zeros=True, prefix=None, category='text', allow_spine_order=False):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))
@@ -118,7 +119,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         fmt = '%d'
         if leading_zeros:
             largest = num + number - 1
-            fmt = '%0{0}d'.format(len(str(largest)))
+            fmt = '%0{0}d'.format(len(unicode_type(largest)))
         ans['prefix'] = prefix + fmt
         ans['start'] = num
         if allow_spine_order:
@@ -233,6 +234,7 @@ class FileList(QTreeWidget):
         self.root = self.invisibleRootItem()
         self.emblem_cache = {}
         self.rendered_emblem_cache = {}
+        self.font_name_cache = {}
         self.top_level_pixmap_cache = {
             name : QIcon(I(icon)).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in iteritems({
@@ -392,7 +394,7 @@ class FileList(QTreeWidget):
 
             seen[text] = item
             item.setText(0, text)
-            item.setText(1, hexlify(numeric_sort_key(text)))
+            item.setText(1, as_hex_unicode(numeric_sort_key(text)))
 
         def render_emblems(item, emblems):
             emblems = tuple(emblems)
@@ -467,6 +469,13 @@ class FileList(QTreeWidget):
                 # Duplicate entry in spine
                 emblems.append('dialog_error.png')
                 tooltips.append(_('This file occurs more than once in the spine'))
+            if category == 'fonts' and name.rpartition('.')[-1].lower() in ('ttf', 'otf'):
+                fname = self.get_font_family_name(name)
+                if fname:
+                    tooltips.append(fname)
+                else:
+                    emblems.append('dialog_error.png')
+                    tooltips.append(_('Not a valid font'))
 
             render_emblems(item, emblems)
             if tooltips:
@@ -494,9 +503,26 @@ class FileList(QTreeWidget):
             if item is not None:
                 self.mark_item_as_current(item)
 
+    def get_font_family_name(self, name):
+        try:
+            with current_container().open(name) as f:
+                f.seek(0, os.SEEK_END)
+                sz = f.tell()
+        except Exception:
+            sz = 0
+        key = name, sz
+        if key not in self.font_name_cache:
+            raw = current_container().raw_data(name, decode=False)
+            try:
+                ans = get_font_names(raw)[-1]
+            except Exception:
+                ans = None
+            self.font_name_cache[key] = ans
+        return self.font_name_cache[key]
+
     def show_context_menu(self, point):
         item = self.itemAt(point)
-        if item is None or item in set(itervalues(self.categories)):
+        if item is None or item in tuple(itervalues(self.categories)):
             return
         m = QMenu(self)
         sel = self.selectedItems()
@@ -990,7 +1016,7 @@ class MergeDialog(QDialog):  # {{{
 
         buttons = self.buttons = [QRadioButton(n) for n in names]
         buttons[0].setChecked(True)
-        map(w.l.addWidget, buttons)
+        tuple(map(w.l.addWidget, buttons))
         sa.setWidget(w)
 
         self.resize(self.sizeHint() + QSize(150, 20))
@@ -1030,6 +1056,6 @@ class FileListWidget(QWidget):
         return self.file_list.current_name
 
     def __getattr__(self, name):
-        if name in self.forwarded_signals:
+        if name in object.__getattribute__(self, 'forwarded_signals'):
             return getattr(self.file_list, name)
         return QWidget.__getattr__(self, name)

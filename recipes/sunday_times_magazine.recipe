@@ -1,9 +1,12 @@
 __license__ = 'GPL v3'
-__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2019'
 '''
 www.thetimes.co.uk/magazine/the-sunday-times-magazine/
 '''
-import urllib
+
+from mechanize import Request
+
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -28,8 +31,9 @@ class TimesOnline(BasicNewsRecipe):
     delay = 1
     needs_subscription = True
     publication_type = 'newspaper'
-    INDEX = 'http://www.thetimes.co.uk/'
-    PREFIX = u'http://www.thetimes.co.uk/'
+    INDEX = 'https://www.thetimes.co.uk'
+    LOGIN = 'https://login.thetimes.co.uk/'
+    PREFIX = u'https://www.thetimes.co.uk'
     extra_css = """
         .author-name,.authorName{font-style: italic}
         .published-date,.multi-position-photo-text{
@@ -45,16 +49,30 @@ class TimesOnline(BasicNewsRecipe):
         'publisher': publisher,
         'language': language}
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.open('http://www.thetimes.co.uk/')
-        if self.username is not None and self.password is not None:
-            data = urllib.urlencode({
-                'gotoUrl': self.INDEX,
-                'username': self.username,
-                'password': self.password})
-            br.open('https://login.thetimes.co.uk/', data)
+    def get_browser(self, *a, **kw):
+        start_url = self.INDEX
+        kw['user_agent'] = random_user_agent(allow_ie=False)
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        self.log('Starting login process...')
+        res = br.open(start_url)
+        sso_url = res.geturl()
+        self.log(sso_url)
+        request_query = {
+            'username': self.username,
+            'password': self.password,
+            's': 1,
+            'gotoUrl': self.INDEX,
+        }
+        rq = Request(self.LOGIN, headers={
+            'Accept': 'text/html',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'X-HTTP-Method-Override': 'POST',
+            'X-Requested-With': 'XMLHttpRequest',
+        }, data=request_query)
+        self.log('Sending login request...')
+        res = br.open(rq)
         return br
+    # }}}
 
     def get_cover_url(self):
         from datetime import date

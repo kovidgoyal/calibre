@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+
 def _optimize(tagList, tagName, conversion):
     # copy the tag of interest plus any text
     newTagList = []
@@ -39,5 +42,3 @@ def tagListOptimizer(tagList):
     _optimize(tagList, "fontsize", int)
     _optimize(tagList, "fontweight", int)
     return oldSize - len(tagList)
-
-

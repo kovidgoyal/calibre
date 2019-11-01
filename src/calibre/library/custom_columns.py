@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,7 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class CustomColumns(object):
@@ -71,11 +71,11 @@ class CustomColumns(object):
                     'label':record[0],
                     'name':record[1],
                     'datatype':record[2],
-                    'editable':record[3],
+                    'editable':bool(record[3]),
                     'display':json.loads(record[4]),
-                    'normalized':record[5],
+                    'normalized':bool(record[5]),
                     'num':record[6],
-                    'is_multiple':record[7],
+                    'is_multiple':bool(record[7]),
                     }
             if data['display'] is None:
                 data['display'] = {}
@@ -136,7 +136,7 @@ class CustomColumns(object):
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
                     unicode_type) else y for y in x]
-                return [u' '.join(y.split()) for y in x]
+                return [' '.join(y.split()) for y in x]
             else:
                 return x if x is None or isinstance(x, unicode_type) else \
                         x.decode(preferred_encoding, 'replace')
@@ -217,6 +217,11 @@ class CustomColumns(object):
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x:x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -244,6 +249,11 @@ class CustomColumns(object):
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x: x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         if data['datatype'] != 'series':
             return (ans, None)
         ign,lt = self.custom_table_names(data['num'])
@@ -526,7 +536,7 @@ class CustomColumns(object):
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] == 'composite':
-            return set([])
+            return set()
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -539,7 +549,7 @@ class CustomColumns(object):
             if extra is None:
                 extra = 1.0
 
-        books_to_refresh = set([])
+        books_to_refresh = set()
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
@@ -553,7 +563,7 @@ class CustomColumns(object):
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
             if not existing:
-                existing = set([])
+                existing = set()
             else:
                 existing = set(existing)
             # preserve the order in set_val

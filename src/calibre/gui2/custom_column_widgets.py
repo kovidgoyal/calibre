@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -41,6 +42,20 @@ class Base(object):
         self.initial_val = self.widgets = None
         self.signals_to_disconnect = []
         self.setup_ui(parent)
+        key = db.field_metadata.label_to_key(self.col_metadata['label'],
+                                                       prefer_custom=True)
+        description = self.col_metadata.get('display', {}).get('description', '')
+        if description:
+            description = key + ': ' + description
+        else:
+            description = key
+        try:
+            self.widgets[1].setToolTip(description)
+        except:
+            try:
+                self.widgets[0].setToolTip(description)
+            except:
+                pass
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
@@ -89,7 +104,7 @@ class SimpleText(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), QLineEdit(parent)]
 
     def setter(self, val):
-        self.widgets[1].setText(type(u'')(val or ''))
+        self.widgets[1].setText(unicode_type(val or ''))
 
     def getter(self):
         return self.widgets[1].text().strip()
@@ -112,7 +127,7 @@ class LongText(Base):
         self.widgets = [self._box]
 
     def setter(self, val):
-        self._tb.setPlainText(type(u'')(val or ''))
+        self._tb.setPlainText(unicode_type(val or ''))
 
     def getter(self):
         return self._tb.toPlainText()
@@ -350,7 +365,7 @@ class Comments(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
-        self._tb = CommentsEditor(self._box, toolbar_prefs_name=u'metadata-comments-editor-widget-hidden-toolbars')
+        self._tb = CommentsEditor(self._box, toolbar_prefs_name='metadata-comments-editor-widget-hidden-toolbars')
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         # self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
@@ -377,14 +392,13 @@ class Comments(Base):
             val = None
         return val
 
-    @dynamic_property
+    @property
     def tab(self):
-        def fget(self):
-            return self._tb.tab
+        return self._tb.tab
 
-        def fset(self, val):
-            self._tb.tab = val
-        return property(fget=fget, fset=fset)
+    @tab.setter
+    def tab(self, val):
+        self._tb.tab = val
 
     def connect_data_changed(self, slot):
         self._tb.data_changed.connect(slot)
@@ -731,7 +745,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     count = len(cols)
     layout_rows_for_comments = 9
     if two_column:
-        turnover_point = ((count-comments_not_in_tweak+1) + comments_in_tweak*(layout_rows_for_comments-1))/2
+        turnover_point = int(((count - comments_not_in_tweak + 1) +
+                                int(comments_in_tweak*(layout_rows_for_comments-1)))/2)
     else:
         # Avoid problems with multi-line widgets
         turnover_point = count + 1000
@@ -758,7 +773,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 column = 0
                 row = max_row
                 base_row = row
-                turnover_point = row + (comments_not_in_tweak * layout_rows_for_comments)/2
+                turnover_point = row + int((comments_not_in_tweak * layout_rows_for_comments)/2)
                 comments_not_in_tweak = 0
 
         l = QGridLayout()
@@ -827,7 +842,7 @@ class BulkBase(Base):
         return self._cached_gui_val_
 
     def get_initial_value(self, book_ids):
-        values = set([])
+        values = set()
         for book_id in book_ids:
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
             if isinstance(val, list):

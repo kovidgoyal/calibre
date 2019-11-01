@@ -43,7 +43,7 @@ typedef struct {
 #define CHAR(x) (( (x) > 127 ) ? (x)-256 : (x))
 
 #if PY_MAJOR_VERSION >= 3
-    #define BUFFER_FMT "y*"
+    #define BUFFER_FMT "y#"
     #define BYTES_FMT "y#"
 #else
     #define BUFFER_FMT "t#"

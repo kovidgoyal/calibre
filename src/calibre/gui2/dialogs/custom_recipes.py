@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -21,7 +20,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, as_unicode
 
 
 def is_basic_recipe(src):
@@ -378,32 +377,31 @@ class BasicRecipe(QWidget):  # {{{
             return False
         return True
 
-    @dynamic_property
+    @property
     def recipe_source(self):
 
-        def fget(self):
-            title = self.title.text().strip()
-            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in range(self.feeds.count())]
-            return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
+        title = self.title.text().strip()
+        feeds = [self.feeds.item(i).data(Qt.UserRole) for i in range(self.feeds.count())]
+        return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
-        def fset(self, src):
-            self.feeds.clear()
-            self.feed_title.clear()
-            self.feed_url.clear()
-            if src is None:
-                self.title.setText(_('My news source'))
-                self.oldest_article.setValue(7)
-                self.max_articles.setValue(100)
-            else:
-                recipe = compile_recipe(src)
-                self.title.setText(recipe.title)
-                self.oldest_article.setValue(recipe.oldest_article)
-                self.max_articles.setValue(recipe.max_articles_per_feed)
-                for x in (recipe.feeds or ()):
-                    title, url = ('', x) if len(x) == 1 else x
-                    QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.UserRole, (title, url))
+    @recipe_source.setter
+    def recipe_source(self, src):
+        self.feeds.clear()
+        self.feed_title.clear()
+        self.feed_url.clear()
+        if src is None:
+            self.title.setText(_('My news source'))
+            self.oldest_article.setValue(7)
+            self.max_articles.setValue(100)
+        else:
+            recipe = compile_recipe(src)
+            self.title.setText(recipe.title)
+            self.oldest_article.setValue(recipe.oldest_article)
+            self.max_articles.setValue(recipe.max_articles_per_feed)
+            for x in (recipe.feeds or ()):
+                title, url = ('', x) if len(x) == 1 else x
+                QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.UserRole, (title, url))
 
-        return property(fget=fget, fset=fset)
 # }}}
 
 
@@ -431,16 +429,13 @@ class AdvancedRecipe(QWidget):  # {{{
             return False
         return True
 
-    @dynamic_property
+    @property
     def recipe_source(self):
+        return self.editor.toPlainText()
 
-        def fget(self):
-            return self.editor.toPlainText()
-
-        def fset(self, src):
-            self.editor.load_text(src, syntax='python', doc_name='<recipe>')
-
-        return property(fget=fget, fset=fset)
+    @recipe_source.setter
+    def recipe_source(self, src):
+        self.editor.load_text(src, syntax='python', doc_name='<recipe>')
 
     def sizeHint(self):
         return QSize(800, 500)
@@ -599,6 +594,7 @@ class CustomRecipes(Dialog):
         src = get_builtin_recipe_by_id(id_, download_recipe=True)
         if src is None:
             raise Exception('Something weird happened')
+        src = as_unicode(src)
 
         self.edit_recipe(None, src)
 
@@ -610,7 +606,8 @@ class CustomRecipes(Dialog):
         if files:
             path = files[0]
             try:
-                src = open(path, 'rb').read().decode('utf-8')
+                with open(path, 'rb') as f:
+                    src = f.read().decode('utf-8')
             except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%err, show=True)

@@ -2,7 +2,12 @@
 #include "headless_integration.h"
 #include "headless_backingstore.h"
 #ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
+class QCoreTextFontEngine;
+#else
 #include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
+#endif
 #include <qpa/qplatformservices.h>
 #include <QtCore/private/qeventdispatcher_unix_p.h>
 #else
@@ -33,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 
+
 #ifndef __APPLE__
 class GenericUnixServices : public QGenericUnixServices {
     /* We must return desktop environment as UNKNOWN otherwise other parts of
@@ -58,9 +64,18 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     mPrimaryScreen->mDepth = 32;
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    QWindowSystemInterface::handleScreenAdded(mPrimaryScreen);
+#else
     screenAdded(mPrimaryScreen);
+#endif
+
 #ifdef __APPLE__
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    m_fontDatabase.reset(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>());
+#else
     m_fontDatabase.reset(new QCoreTextFontDatabase());
+#endif
 #else
     m_fontDatabase.reset(new QFontconfigDatabase());
 #endif

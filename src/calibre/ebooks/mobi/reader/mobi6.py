@@ -1,19 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (absolute_import, print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, re, struct, textwrap, cStringIO
+import shutil, os, re, struct, textwrap, io
 
 from lxml import html, etree
 
 from calibre import (xml_entity_to_unicode, entity_to_unicode)
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.ebooks import DRMError, unit_convert
-from calibre.ebooks.chardet import ENCODING_PATS
+from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 
 class TopazError(ValueError):
@@ -79,17 +79,17 @@ class MobiReader(object):
             stream = open(filename_or_stream, 'rb')
 
         raw = stream.read()
-        if raw.startswith('TPZ'):
+        if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):
             raise KFXError()
 
         self.header   = raw[0:72]
-        self.name     = self.header[:32].replace('\x00', '')
+        self.name     = self.header[:32].replace(b'\x00', b'')
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
-        if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
+        if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
@@ -169,14 +169,13 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
                 self.processed_html)
-        self.processed_html = self.processed_html.replace(u'\ufeff', '')
+        self.processed_html = self.processed_html.replace('\ufeff', '')
         # Remove tags of the form <xyz: ...> as they can cause issues further
         # along the pipeline
         self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
                 self.processed_html)
 
-        for pat in ENCODING_PATS:
-            self.processed_html = pat.sub('', self.processed_html)
+        self.processed_html = strip_encoding_declarations(self.processed_html)
         self.processed_html = re.sub(r'&(\S+?);', xml_entity_to_unicode,
             self.processed_html)
         self.extract_images(processed_records, output_dir)
@@ -196,9 +195,12 @@ class MobiReader(object):
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from html5_parser import parse
-            from calibre.ebooks.chardet import strip_encoding_declarations
             self.log.warning('Malformed markup, parsing using html5-parser')
             self.processed_html = strip_encoding_declarations(self.processed_html)
+            # These trip up the html5 parser causing all content to be placed
+            # under the <guide> tag
+            self.processed_html = re.sub(r'<metadata>.+?</metadata>', '', self.processed_html, flags=re.I)
+            self.processed_html = re.sub(r'<guide>.+?</guide>', '', self.processed_html, flags=re.I)
             try:
                 root = parse(self.processed_html, maybe_xhtml=False, keep_doctype=False, sanitize_names=True)
             except Exception:
@@ -294,7 +296,7 @@ class MobiReader(object):
 
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
-        ncx = cStringIO.StringIO()
+        ncx = io.BytesIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
         opf.render(lopen(self.created_opf_path, 'wb'), ncx,
@@ -311,7 +313,7 @@ class MobiReader(object):
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
-            ncx = cStringIO.StringIO()
+            ncx = io.BytesIO()
             opf, ncx_manifest_entry  = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx,
                 ncx_manifest_entry)
@@ -320,9 +322,9 @@ class MobiReader(object):
                 write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)
 
     def read_embedded_metadata(self, root, elem, guide):
-        raw = '<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
-                html.tostring(elem, encoding='utf-8') + '</package>'
-        stream = cStringIO.StringIO(raw)
+        raw = b'<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
+                html.tostring(elem, encoding='utf-8') + b'</package>'
+        stream = io.BytesIO(raw)
         opf = OPF(stream)
         self.embedded_mi = opf.to_book_metadata()
         if guide is not None:
@@ -348,7 +350,7 @@ class MobiReader(object):
     def cleanup_html(self):
         self.log.debug('Cleaning up HTML...')
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
-        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
+        if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
@@ -358,15 +360,15 @@ class MobiReader(object):
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(
-            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\\g<para>'+'\\g<styletags>', self.processed_html)
+            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', r'\g<para>'+r'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\\g<styletags>'+'\\g<para>', self.processed_html)
+            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', r'\g<styletags>'+r'\g<para>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\\g<para>'+'\\g<blockquote>', self.processed_html)
+            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', r'\g<para>'+r'\g<blockquote>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\\g<blockquote>'+'\\g<para>', self.processed_html)
+            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', r'\g<blockquote>'+r'\g<para>', self.processed_html)
         bods = htmls = 0
-        for x in re.finditer(u'</body>|</html>', self.processed_html):
+        for x in re.finditer('</body>|</html>', self.processed_html):
             if x == '</body>':
                 bods +=1
             else:
@@ -444,7 +446,7 @@ class MobiReader(object):
                             # Paragraph spacer
                             # Insert nbsp so that the element is never
                             # discarded by a renderer
-                            tag.text = u'\u00a0'  # nbsp
+                            tag.text = '\u00a0'  # nbsp
                             styles.append('height: %s' %
                                     self.ensure_unit(height))
                         else:
@@ -644,11 +646,11 @@ class MobiReader(object):
             mi = MetaInformation(self.book_header.title, [_('Unknown')])
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
-            opf.cover = u'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
+            opf.cover = 'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
         elif mi.cover is not None:
             opf.cover = mi.cover
         else:
-            opf.cover = u'images/%05d.jpg' % 1
+            opf.cover = 'images/%05d.jpg' % 1
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
                 opf.cover = None
@@ -658,7 +660,7 @@ class MobiReader(object):
         if cover is not None:
             cover = cover.replace('/', os.sep)
             if os.path.exists(cover):
-                ncover = u'images'+os.sep+u'calibre_cover.jpg'
+                ncover = 'images'+os.sep+'calibre_cover.jpg'
                 if os.path.exists(ncover):
                     os.remove(ncover)
                 shutil.copyfile(cover, ncover)
@@ -666,9 +668,9 @@ class MobiReader(object):
                 opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
-            (os.path.abspath(u'styles.css'), 'text/css')]
+            (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
-        added = set([])
+        added = set()
         for i in getattr(self, 'image_names', []):
             path = os.path.join(bp, 'images', i)
             added.add(path)
@@ -701,9 +703,9 @@ class MobiReader(object):
                         continue
                     if reached and x.tag == 'a':
                         href = x.get('href', '')
-                        if href and re.match('\\w+://', href) is None:
+                        if href and re.match(r'\w+://', href) is None:
                             try:
-                                text = u' '.join([t.strip() for t in
+                                text = ' '.join([t.strip() for t in
                                     x.xpath('descendant::text()')])
                             except:
                                 text = ''
@@ -752,7 +754,7 @@ class MobiReader(object):
         def sizeof_trailing_entry(ptr, psize):
             bitpos, result = 0, 0
             while True:
-                v = ord(ptr[psize-1])
+                v = ord(ptr[psize-1:psize])
                 result |= (v & 0x7F) << bitpos
                 bitpos += 7
                 psize -= 1
@@ -771,7 +773,8 @@ class MobiReader(object):
                     return 0
             flags >>= 1
         if self.book_header.extra_flags & 1:
-            num += (ord(data[size - num - 1]) & 0x3) + 1
+            off = size - num - 1
+            num += (ord(data[off:off+1]) & 0x3) + 1
         return num
 
     def warn_about_trailing_entry_corruption(self):
@@ -793,7 +796,7 @@ class MobiReader(object):
 
         self.mobi_html = b''
 
-        if self.book_header.compression_type == 'DH':
+        if self.book_header.compression_type == b'DH':
             huffs = [self.sections[i][0] for i in
                 range(self.book_header.huff_offset,
                     self.book_header.huff_offset + self.book_header.huff_number)]
@@ -802,23 +805,23 @@ class MobiReader(object):
             huff = HuffReader(huffs)
             unpack = huff.unpack
 
-        elif self.book_header.compression_type == '\x00\x02':
+        elif self.book_header.compression_type == b'\x00\x02':
             unpack = decompress_doc
 
-        elif self.book_header.compression_type == '\x00\x01':
+        elif self.book_header.compression_type == b'\x00\x01':
             unpack = lambda x: x
         else:
-            raise MobiError('Unknown compression algorithm: %s' % repr(self.book_header.compression_type))
+            raise MobiError('Unknown compression algorithm: %r' % self.book_header.compression_type)
         self.mobi_html = b''.join(map(unpack, text_sections))
         if self.mobi_html.endswith(b'#'):
             self.mobi_html = self.mobi_html[:-1]
 
-        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
-            self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
-        self.mobi_html = self.mobi_html.replace('\0', '')
+        if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
+            self.mobi_html = self.mobi_html.replace(b'\r ', b'\n\n ')
+        self.mobi_html = self.mobi_html.replace(b'\0', b'')
         if self.book_header.codec == 'cp1252':
-            self.mobi_html = self.mobi_html.replace('\x1e', '')  # record separator
-            self.mobi_html = self.mobi_html.replace('\x02', '')  # start of text
+            self.mobi_html = self.mobi_html.replace(b'\x1e', b'')  # record separator
+            self.mobi_html = self.mobi_html.replace(b'\x02', b'')  # start of text
         return processed_records
 
     def replace_page_breaks(self):
@@ -828,37 +831,37 @@ class MobiReader(object):
 
     def add_anchors(self):
         self.log.debug('Adding anchors...')
-        positions = set([])
-        link_pattern = re.compile(r'''<[^<>]+filepos=['"]{0,1}(\d+)[^<>]*>''',
+        positions = set()
+        link_pattern = re.compile(br'''<[^<>]+filepos=['"]{0,1}(\d+)[^<>]*>''',
             re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        processed_html = cStringIO.StringIO()
-        end_tag_re = re.compile(r'<\s*/')
+        processed_html = []
+        end_tag_re = re.compile(br'<\s*/')
         for end in sorted(positions):
             if end == 0:
                 continue
             oend = end
-            l = self.mobi_html.find('<', end)
-            r = self.mobi_html.find('>', end)
-            anchor = '<a id="filepos%d"></a>'
+            l = self.mobi_html.find(b'<', end)
+            r = self.mobi_html.find(b'>', end)
+            anchor = b'<a id="filepos%d"></a>'
             if r > -1 and (r < l or l == end or l == -1):
-                p = self.mobi_html.rfind('<', 0, end + 1)
+                p = self.mobi_html.rfind(b'<', 0, end + 1)
                 if (pos < end and p > -1 and not end_tag_re.match(self.mobi_html[p:r]) and
-                        not self.mobi_html[p:r + 1].endswith('/>')):
-                    anchor = ' filepos-id="filepos%d"'
+                        not self.mobi_html[p:r + 1].endswith(b'/>')):
+                    anchor = b' filepos-id="filepos%d"'
                     end = r
                 else:
                     end = r + 1
-            processed_html.write(self.mobi_html[pos:end] + (anchor % oend))
+            processed_html.append(self.mobi_html[pos:end] + (anchor % oend))
             pos = end
-        processed_html.write(self.mobi_html[pos:])
-        processed_html = processed_html.getvalue()
+        processed_html.append(self.mobi_html[pos:])
+        processed_html = b''.join(processed_html)
 
         # Remove anchors placed inside entities
-        self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
-                r'&\1\3;\2', processed_html)
+        self.processed_html = re.sub(br'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
+                br'&\1\3;\2', processed_html)
 
     def extract_images(self, processed_records, output_dir):
         self.log.debug('Extracting images...')

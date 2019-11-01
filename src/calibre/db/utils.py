@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, string_or_bytes, filter
 from threading import Lock
 
 from calibre import as_unicode, prints
@@ -164,7 +163,7 @@ class ThumbnailCache(object):
         invalidate = set()
         try:
             with open(os.path.join(self.location, 'invalidate'), 'rb') as f:
-                raw = f.read()
+                raw = f.read().decode('utf-8')
         except EnvironmentError as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
                 self.log('Failed to read thumbnail invalidate data:', as_unicode(err))
@@ -208,7 +207,7 @@ class ThumbnailCache(object):
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
+            remove = tuple(key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
@@ -256,9 +255,13 @@ class ThumbnailCache(object):
             self.group_id = group_id
 
     def set_thumbnail_size(self, width, height):
+        new_size = (width, height)
         with self.lock:
-            self.thumbnail_size = (width, height)
-            self.size_changed = True
+            if new_size != self.thumbnail_size:
+                self.thumbnail_size = new_size
+                self.size_changed = True
+                return True
+        return False
 
     def insert(self, book_id, timestamp, data):
         if self.max_size < len(data):

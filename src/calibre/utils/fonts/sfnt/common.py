@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -80,10 +79,10 @@ class ListTable(OrderedDict):
         pass
 
     def dump(self, prefix=''):
-        print (prefix, self.__class__.__name__, sep='')
+        print(prefix, self.__class__.__name__, sep='')
         prefix += '  '
         for tag, child in iteritems(self):
-            print (prefix, tag, sep='')
+            print(prefix, tag, sep='')
             child.dump(prefix=prefix+'  ')
 
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,12 +12,12 @@ from css_parser.css import CSSRule, CSSStyleDeclaration
 from css_selectors import parse, SelectorSyntaxError
 
 from calibre import force_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XHTML
+from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type, filter
 
 
 def filter_used_rules(rules, log, select):
@@ -222,6 +221,29 @@ def filter_sheet(sheet, properties=()):
     return changed
 
 
+def transform_inline_styles(container, name, transform_sheet, transform_style):
+    root = container.parsed(name)
+    changed = False
+    for style in root.xpath('//*[local-name()="style"]'):
+        if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+            sheet = container.parse_css(style.text)
+            if transform_sheet(sheet):
+                changed = True
+                style.text = force_unicode(sheet.cssText, 'utf-8')
+                pretty_script_or_style(container, style)
+    for elem in root.xpath('//*[@style]'):
+        text = elem.get('style', None)
+        if text:
+            style = container.parse_css(text, is_declaration=True)
+            if transform_style(style):
+                changed = True
+                if style.length == 0:
+                    del elem.attrib['style']
+                else:
+                    elem.set('style', force_unicode(style.getCssText(separator=' '), 'utf-8'))
+    return changed
+
+
 def transform_css(container, transform_sheet=None, transform_style=None, names=()):
     if not names:
         types = OEB_STYLES | OEB_DOCS
@@ -236,31 +258,11 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
         mt = container.mime_map[name]
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
-            filtered = transform_sheet(sheet)
-            if filtered:
+            if transform_sheet(sheet):
                 container.dirty(name)
                 doc_changed = True
         elif mt in OEB_DOCS:
-            root = container.parsed(name)
-            changed = False
-            for style in root.xpath('//*[local-name()="style"]'):
-                if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
-                    sheet = container.parse_css(style.text)
-                    if transform_sheet(sheet):
-                        changed = True
-                        style.text = force_unicode(sheet.cssText, 'utf-8')
-                        pretty_script_or_style(container, style)
-            for elem in root.xpath('//*[@style]'):
-                text = elem.get('style', None)
-                if text:
-                    style = container.parse_css(text, is_declaration=True)
-                    if transform_style(style):
-                        changed = True
-                        if style.length == 0:
-                            del elem.attrib['style']
-                        else:
-                            elem.set('style', force_unicode(style.getCssText(separator=' '), 'utf-8'))
-            if changed:
+            if transform_inline_styles(container, name, transform_sheet, transform_style):
                 container.dirty(name)
                 doc_changed = True
 
@@ -325,14 +327,13 @@ def remove_property_value(prop, predicate):
     values of the property would be removed, the property is removed from its
     parent instead. Note that this means the property must have a parent (a
     CSSStyleDeclaration). '''
-    removed_vals = []
-    removed_vals = filter(predicate, prop.propertyValue)
+    removed_vals = list(filter(predicate, prop.propertyValue))
     if len(removed_vals) == len(prop.propertyValue):
         prop.parent.removeProperty(prop.name)
     else:
-        x = prop.propertyValue.cssText
+        x = css_text(prop.propertyValue)
         for v in removed_vals:
-            x = x.replace(v.cssText, '').strip()
+            x = x.replace(css_text(v), '').strip()
         prop.propertyValue.cssText = x
     return bool(removed_vals)
 

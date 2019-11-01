@@ -31,8 +31,8 @@ class RevistaMuyInteresante(BasicNewsRecipe):
 
         for img_tag in soup.findAll('img'):
             imagen = img_tag
-            new_tag = new_tag(soup, 'p')
-            img_tag.replaceWith(new_tag)
+            nt = new_tag(soup, 'p')
+            img_tag.replaceWith(nt)
             div = soup.find(attrs={'class': 'article_category'})
             div.insert(0, imagen)
             break

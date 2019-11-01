@@ -1,11 +1,12 @@
 [
     {
         "name": "hunspell",
-        "sources": "hunspell/affentry.cxx hunspell/affixmgr.cxx hunspell/csutil.cxx hunspell/dictmgr.cxx hunspell/filemgr.cxx hunspell/hashmgr.cxx hunspell/hunspell.cxx hunspell/phonet.cxx hunspell/replist.cxx hunspell/suggestmgr.cxx calibre/utils/spell/hunspell_wrapper.cpp",
-        "inc_dirs": "hunspell",
-        "defines": "HUNSPELL_STATIC",
-        "windows_defines": "HUNSPELL_STATIC _CRT_SECURE_NO_WARNINGS UNICODE _UNICODE",
-        "optimize_level": 2
+        "sources": "calibre/utils/spell/hunspell_wrapper.cpp",
+        "inc_dirs": "!hunspell_inc_dirs",
+        "lib_dirs": "!hunspell_lib_dirs",
+        "libraries": "hunspell-1.7",
+        "windows_libraries": "libhunspell",
+		"needs_c++11": true
     },
     {
         "name": "monotonic",
@@ -84,7 +85,7 @@
         "windows_libraries": "ChmLib",
         "inc_dirs": "!chmlib_inc_dirs",
         "lib_dirs": "!chmlib_lib_dirs",
-        "defines": "SWIG_COBJECT_TYPES"
+        "defines": "SWIG_COBJECT_TYPES SWIG_PYTHON_STRICT_BYTE_CHAR"
     },
     {
         "name": "lzx",
@@ -116,12 +117,18 @@
     },
     {
         "name": "podofo",
-        "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/podofo.cpp",
+        "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/fonts.cpp calibre/utils/podofo/impose.cpp calibre/utils/podofo/images.cpp calibre/utils/podofo/outlines.cpp calibre/utils/podofo/podofo.cpp",
         "headers": "calibre/utils/podofo/global.h",
         "libraries": "podofo",
         "lib_dirs": "!podofo_lib",
         "inc_dirs": "!podofo_inc",
-        "error": "!podofo_error"
+        "error": "!podofo_error",
+		"needs_c++11": true
+    },
+    {
+        "name": "html_as_json",
+        "sources": "calibre/srv/html_as_json.cpp",
+		"needs_c++11": true
     },
     {
         "name": "pictureflow",
@@ -139,18 +146,10 @@
     },
     {
         "name": "imageops",
-        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp",
+        "sources": "calibre/utils/imageops/imageops.cpp calibre/utils/imageops/quantize.cpp calibre/utils/imageops/ordered_dither.cpp",
         "headers": "calibre/utils/imageops/imageops.h",
         "sip_files": "calibre/utils/imageops/imageops.sip",
         "inc_dirs": "calibre/utils/imageops"
-    },
-    {
-        "name": "qt_hack",
-        "sources": "calibre/ebooks/pdf/render/qt_hack.cpp",
-        "headers": "calibre/ebooks/pdf/render/qt_hack.h",
-        "sip_files": "calibre/ebooks/pdf/render/qt_hack.sip",
-        "inc_dirs": "calibre/ebooks/pdf/render",
-        "qt_private": "core gui"
     },
     {
         "name": "lzma_binding",
@@ -161,7 +160,7 @@
     {
         "name": "winutil",
         "only": "windows",
-        "sources": "calibre/utils/windows/winutil.c",
+        "sources": "calibre/utils/windows/winutil.c calibre/utils/windows/winutilpp.cpp",
         "libraries": "shell32 wininet advapi32",
         "cflags": "/X"
     },

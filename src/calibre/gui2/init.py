@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -314,7 +315,7 @@ class StatusBar(QStatusBar):  # {{{
         if self.library_total != self.total:
             base = _('{0}, {1} total').format(base, self.library_total)
 
-        self.defmsg.setText(u'\xa0%s\xa0\xa0\xa0\xa0[%s]' % (msg, base))
+        self.defmsg.setText('\xa0%s\xa0\xa0\xa0\xa0[%s]' % (msg, base))
         self.clearMessage()
 
     def device_disconnected(self):
@@ -622,7 +623,7 @@ class LayoutMixin(object):  # {{{
                     button = self.search_bar_button
             self.layout_buttons.append(button)
             button.setVisible(False)
-            if isosx and stylename != u'Calibre':
+            if isosx and stylename != 'Calibre':
                 button.setStyleSheet('''
                         QToolButton { background: none; border:none; padding: 0px; }
                         QToolButton:checked { background: rgba(0, 0, 0, 25%); }

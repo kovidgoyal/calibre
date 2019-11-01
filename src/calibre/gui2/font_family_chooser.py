@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -287,7 +286,7 @@ class FontFamilyDialog(QDialog):
             self.families = list(self.font_scanner.find_font_families())
         except:
             self.families = []
-            print ('WARNING: Could not load fonts')
+            print('WARNING: Could not load fonts')
             import traceback
             traceback.print_exc()
         self.families.insert(0, _('None'))
@@ -353,18 +352,17 @@ class FontFamilyChooser(QWidget):
     def clear_family(self):
         self.font_family = None
 
-    @dynamic_property
+    @property
     def font_family(self):
-        def fget(self):
-            return self._current_family
+        return self._current_family
 
-        def fset(self, val):
-            if not val:
-                val = None
-            self._current_family = val
-            self.button.setText(val or self.default_text)
-            self.family_changed.emit(val)
-        return property(fget=fget, fset=fset)
+    @font_family.setter
+    def font_family(self, val):
+        if not val:
+            val = None
+        self._current_family = val
+        self.button.setText(val or self.default_text)
+        self.family_changed.emit(val)
 
     def show_chooser(self):
         d = FontFamilyDialog(self.font_family, self)

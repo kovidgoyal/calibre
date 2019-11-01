@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,7 +11,7 @@ from PyQt5.Qt import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map
 
 
 class WizardWidget(QWidget, Ui_Form):

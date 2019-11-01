@@ -8,8 +8,8 @@ import sys
 from functools import partial
 
 from calibre import prints
-from calibre.constants import preferred_encoding
-from polyglot.builtins import iteritems, raw_input
+from calibre.constants import preferred_encoding, iswindows
+from polyglot.builtins import iteritems, raw_input, filter, unicode_type
 
 # Manage users CLI {{{
 
@@ -24,6 +24,9 @@ def manage_users_cli(path=None):
         ans = raw_input()
         if isinstance(ans, bytes):
             ans = ans.decode(enc)
+        if iswindows:
+            # https://bugs.python.org/issue11272
+            ans = ans.rstrip('\r')
         return ans
 
     def choice(
@@ -39,7 +42,7 @@ def manage_users_cli(path=None):
                     len(choices), _('default'), default + 1)
             reply = get_input(prompt)
             if not reply and default is not None:
-                reply = str(default + 1)
+                reply = unicode_type(default + 1)
             if not reply:
                 prints(_('No choice selected, exiting...'))
                 raise SystemExit(0)
@@ -175,7 +178,7 @@ def manage_users_cli(path=None):
             pass
         else:
             names = get_input(_('Enter a comma separated list of library names:'))
-            names = filter(None, [x.strip() for x in names.split(',')])
+            names = list(filter(None, [x.strip() for x in names.split(',')]))
             w = 'allowed_library_names' if c == 1 else 'blocked_library_names'
             t = _('Allowing access only to libraries: {}') if c == 1 else _(
                 'Allowing access to all libraries, except: {}')
@@ -191,7 +194,7 @@ def manage_users_cli(path=None):
                 _('Change read/write permission for {}').format(username),
                 _('Change the libraries {} is allowed to access').format(username),
                 _('Cancel'), ],
-            banner='\n' + _('{} has {} access').format(
+            banner='\n' + _('{0} has {1} access').format(
                 username,
                 _('readonly') if m.is_readonly(username) else _('read-write')))
         print()

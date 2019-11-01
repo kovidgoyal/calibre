@@ -109,6 +109,6 @@ def report_a_load_failure(container, msg, error_html):
         err,
         E.div(
             style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-            E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+            E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', class_='blue-link', _('Go back to the home page')))
         ),
     )

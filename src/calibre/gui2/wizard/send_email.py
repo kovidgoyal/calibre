@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cStringIO, sys
-from binascii import hexlify, unhexlify
+import sys
 from functools import partial
 from threading import Thread
 
@@ -21,6 +20,8 @@ from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
 from polyglot.builtins import unicode_type
+from polyglot.binary import as_hex_unicode, from_hex_unicode
+from polyglot.io import PolyglotBytesIO
 
 
 class TestEmail(QDialog):
@@ -47,7 +48,7 @@ class TestEmail(QDialog):
         l.addLayout(h)
         if opts.relay_host:
             self.la = la = QLabel(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
-                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password).decode('utf-8'),
+                    dict(un=opts.relay_username, pw=from_hex_unicode(opts.relay_password),
                         host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
             l.addWidget(la)
         self.log = QPlainTextEdit(self)
@@ -163,7 +164,7 @@ class SendEmail(QWidget, Ui_Form):
             self.relay_username.setText(opts.relay_username)
         self.relay_username.textChanged.connect(self.changed)
         if opts.relay_password:
-            self.relay_password.setText(unhexlify(opts.relay_password).decode('utf-8'))
+            self.relay_password.setText(from_hex_unicode(opts.relay_password))
         self.relay_password.textChanged.connect(self.changed)
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
@@ -193,7 +194,7 @@ class SendEmail(QWidget, Ui_Form):
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
         from calibre.utils.smtp import sendmail, create_mail
-        buf = cStringIO.StringIO()
+        buf = PolyglotBytesIO()
         debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf
@@ -204,12 +205,12 @@ class SendEmail(QWidget, Ui_Form):
             sendmail(msg, from_=opts.from_, to=[to],
                 verbose=3, timeout=30, relay=opts.relay_host,
                 username=opts.relay_username, debug_output=debug_out,
-                password=unhexlify(opts.relay_password).decode('utf-8'),
+                password=from_hex_unicode(opts.relay_password),
                 encryption=opts.encryption, port=opts.relay_port)
         except:
             import traceback
             tb = traceback.format_exc()
-            tb += '\n\nLog:\n' + buf.getvalue()
+            tb += '\n\nLog:\n' + buf.getvalue().decode('utf-8', 'replace')
         finally:
             sys.stdout, sys.stderr = oout, oerr
         return tb
@@ -222,7 +223,9 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmx.com',
                     'url': 'www.gmx.com',
-                    'extra': '',
+                    'extra': _('Before using this account to send mail, you must enable the'
+                        ' "Enable access to this account via POP3 and IMAP" option in GMX'
+                        ' under More > E-mail Settings > POP3 & IMAP.'),
                     'at_in_username': True,
                 },
                 'gmail': {
@@ -291,6 +294,6 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_host', host if host else None)
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
-        conf.set('relay_password', hexlify(password.encode('utf-8')))
+        conf.set('relay_password', as_hex_unicode(password))
         conf.set('encryption', enc_method)
         return True

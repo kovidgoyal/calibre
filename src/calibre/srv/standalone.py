@@ -24,6 +24,7 @@ from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
+from polyglot.builtins import error_message, unicode_type
 
 
 def daemonize():  # {{{
@@ -74,7 +75,7 @@ class Server(object):
                 self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
-            plugins.append(BonJour())
+            plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
         self.loop = ServerLoop(
             create_http_handler(self.handler.dispatch),
             opts=opts,
@@ -171,7 +172,7 @@ option_parser = create_option_parser
 
 
 def ensure_single_instance():
-    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
+    if 'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
         raise SystemExit(
             _(
@@ -183,6 +184,17 @@ def ensure_single_instance():
 
 def main(args=sys.argv):
     opts, args = create_option_parser().parse_args(args)
+    if opts.auto_reload and not opts.manage_users:
+        if getattr(opts, 'daemonize', False):
+            raise SystemExit(
+                'Cannot specify --auto-reload and --daemonize at the same time')
+        from calibre.srv.auto_reload import auto_reload, NoAutoReload
+        try:
+            from calibre.utils.logging import default_log
+            return auto_reload(default_log, listen_on=opts.listen_on)
+        except NoAutoReload as e:
+            raise SystemExit(error_message(e))
+
     ensure_single_instance()
     if opts.userdb:
         opts.userdb = os.path.abspath(os.path.expandvars(os.path.expanduser(opts.userdb)))
@@ -204,16 +216,6 @@ def main(args=sys.argv):
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries = [prefs['library_path']]
 
-    if opts.auto_reload:
-        if getattr(opts, 'daemonize', False):
-            raise SystemExit(
-                'Cannot specify --auto-reload and --daemonize at the same time')
-        from calibre.srv.auto_reload import auto_reload, NoAutoReload
-        try:
-            from calibre.utils.logging import default_log
-            return auto_reload(default_log, listen_on=opts.listen_on)
-        except NoAutoReload as e:
-            raise SystemExit(e.message)
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     if opts.log and os.path.isdir(opts.log):
@@ -229,7 +231,7 @@ def main(args=sys.argv):
         daemonize()
     if opts.pidfile:
         with lopen(opts.pidfile, 'wb') as f:
-            f.write(str(os.getpid()))
+            f.write(unicode_type(os.getpid()).encode('ascii'))
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:
         signal.signal(signal.SIGHUP, lambda s, f: server.stop())

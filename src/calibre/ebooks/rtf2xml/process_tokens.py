@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,9 @@ import os, re
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
 
 
 class ProcessTokens:
@@ -691,7 +695,7 @@ class ProcessTokens:
         if num[-1] == ';':
             num = num[:-1]
             third_field = 'en'
-        num = str('%X' % int(num))
+        num = unicode_type('%X' % int(num))
         if len(num) != 2:
             num = "0" + num
         return 'cw<%s<%s<%s<%s\n' % (pre, token, third_field, num)
@@ -728,7 +732,7 @@ class ProcessTokens:
             return 0
         num = '%0.2f' % round(numerator/denominator, 2)
         return num
-        string_num = str(num)
+        string_num = unicode_type(num)
         if string_num[-2:] == ".0":
             string_num = string_num[:-2]
         return string_num
@@ -784,10 +788,10 @@ class ProcessTokens:
     def process_tokens(self):
         """Main method for handling other methods. """
         line_count = 0
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'wb') as write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:
-                    token = line.replace("\n","")
+                    token = line.replace("\n", "")
                     line_count += 1
                     if line_count == 1 and token != '\\{':
                         msg = '\nInvalid RTF: document doesn\'t start with {\n'
@@ -802,12 +806,6 @@ class ProcessTokens:
                             % line_count
                         raise self.__exception_handler(msg)
                     elif token[:1] == "\\":
-                        try:
-                            token.decode('us-ascii')
-                        except UnicodeError as msg:
-                            msg = '\nInvalid RTF: Tokens not ascii encoded.\n%s\nError at line %d'\
-                                % (str(msg), line_count)
-                            raise self.__exception_handler(msg)
                         line = self.process_cw(token)
                         if line is not None:
                             write_obj.write(line)

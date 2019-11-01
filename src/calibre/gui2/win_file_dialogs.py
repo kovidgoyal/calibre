@@ -1,15 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import sys, subprocess, struct, os
+import os
+import struct
+import subprocess
+import sys
 from threading import Thread
 from uuid import uuid4
 
-from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
-from polyglot.builtins import string_or_bytes
+from PyQt5.Qt import QEventLoop, Qt, pyqtSignal
+
+from polyglot.builtins import filter, string_or_bytes, unicode_type
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -28,11 +31,9 @@ def is_ok():
 
 try:
     from calibre.constants import filesystem_encoding
-    from calibre.utils.filenames import expanduser
     from calibre.utils.config import dynamic
 except ImportError:
-    filesystem_encoding = 'utf-8'
-    expanduser = os.path.expanduser
+    filesystem_encoding = 'mbcs'
     dynamic = {}
 
 
@@ -62,7 +63,7 @@ def serialize_binary(key, val):
 
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
-    val = type('')(val).encode('utf-8')
+    val = unicode_type(val).encode('utf-8')
     if len(val) > 2**16 - 1:
         raise ValueError('%s is too long' % key)
     return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
@@ -112,7 +113,7 @@ class Loop(QEventLoop):
 def process_path(x):
     if isinstance(x, bytes):
         x = x.decode(filesystem_encoding)
-    return os.path.abspath(expanduser(x))
+    return os.path.abspath(os.path.expanduser(x))
 
 
 def select_initial_dir(q):
@@ -123,7 +124,7 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return expanduser('~')
+    return os.path.expanduser('~')
 
 
 def run_file_dialog(
@@ -201,7 +202,7 @@ def run_file_dialog(
     from calibre import prints
     from calibre.constants import DEBUG
     if DEBUG:
-        prints('stdout+stderr from file dialog helper:', type('')([h.stdoutdata, h.stderrdata]))
+        prints('stdout+stderr from file dialog helper:', unicode_type([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
         raise Exception('File dialog failed (return code %s): %s' % (h.rc, get_errors()))
@@ -214,7 +215,7 @@ def run_file_dialog(
         return ()
     parts = list(filter(None, server.data.split(b'\0')))
     if DEBUG:
-        prints('piped data from file dialog helper:', type('')(parts))
+        prints('piped data from file dialog helper:', unicode_type(parts))
     if len(parts) < 2:
         return ()
     if parts[0] != secret:
@@ -226,9 +227,9 @@ def run_file_dialog(
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
     name = name or 'dialog_' + title
     if no_save_dir:
-        initial_folder = expanduser(default_dir)
+        initial_folder = os.path.expanduser(default_dir)
     else:
-        initial_folder = dynamic.get(name, expanduser(default_dir))
+        initial_folder = dynamic.get(name, os.path.expanduser(default_dir))
     if not initial_folder or not os.path.isdir(initial_folder):
         initial_folder = select_initial_dir(initial_folder)
     return name, initial_folder
@@ -313,7 +314,7 @@ class PipeServer(Thread):
 
         def as_unicode(err):
             try:
-                self.err_msg = type('')(err)
+                self.err_msg = unicode_type(err)
             except Exception:
                 self.err_msg = repr(err)
         try:
@@ -359,7 +360,7 @@ def test(helper=HELPER):
     if server.err_msg is not None:
         raise RuntimeError(server.err_msg)
     server.join(2)
-    parts = filter(None, server.data.split(b'\0'))
+    parts = list(filter(None, server.data.split(b'\0')))
     if parts[0] != secret:
         raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
     q = parts[1].decode('utf-8')

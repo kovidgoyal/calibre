@@ -48,7 +48,7 @@ class TheSouthernStar(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        seen_titles = set([])
+        seen_titles = set()
 
         articles = self.fetch_ss_articles(self.NEWS_INDEX, seen_titles)
         if articles:

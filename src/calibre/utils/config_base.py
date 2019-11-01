@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -12,18 +13,38 @@ from collections import defaultdict
 from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
-from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3, preferred_encoding
+from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3, preferred_encoding, filesystem_encoding, iswindows
 from polyglot.builtins import unicode_type, iteritems, map
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
 
+def parse_old_style(src):
+    if ispy3:
+        import pickle as cPickle
+    else:
+        import cPickle
+    options = {'cPickle':cPickle}
+    try:
+        if not isinstance(src, unicode_type):
+            src = src.decode('utf-8')
+        src = src.replace('PyQt%d.QtCore' % 4, 'PyQt5.QtCore')
+        src = re.sub(r'cPickle\.loads\(([\'"])', r'cPickle.loads(b\1', src)
+        exec(src, options)
+    except Exception as err:
+        try:
+            print('Failed to parse old style options string with error: {}'.format(err))
+        except Exception:
+            pass
+    return options
+
+
 def to_json(obj):
     import datetime
     if isinstance(obj, bytearray):
-        import base64
+        from base64 import standard_b64encode
         return {'__class__': 'bytearray',
-                '__value__': base64.standard_b64encode(bytes(obj)).decode('ascii')}
+                '__value__': standard_b64encode(bytes(obj)).decode('ascii')}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
         return {'__class__': 'datetime.datetime',
@@ -38,12 +59,19 @@ def to_json(obj):
     raise TypeError(repr(obj) + ' is not JSON serializable')
 
 
+def safe_to_json(obj):
+    try:
+        return to_json(obj)
+    except Exception:
+        pass
+
+
 def from_json(obj):
     custom = obj.get('__class__')
     if custom is not None:
         if custom == 'bytearray':
-            import base64
-            return bytearray(base64.standard_b64decode(obj['__value__']))
+            from base64 import standard_b64decode
+            return bytearray(standard_b64decode(obj['__value__'].encode('ascii')))
         if custom == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
             return parse_iso8601(obj['__value__'], assume_utc=True)
@@ -52,9 +80,33 @@ def from_json(obj):
     return obj
 
 
-def json_dumps(obj):
+def force_unicode(x):
+    try:
+        return x.decode('mbcs' if iswindows else preferred_encoding)
+    except UnicodeDecodeError:
+        try:
+            return x.decode(filesystem_encoding)
+        except UnicodeDecodeError:
+            return x.decode('utf-8', 'replace')
+
+
+def force_unicode_recursive(obj):
+    if isinstance(obj, bytes):
+        return force_unicode(obj)
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(map(force_unicode_recursive, obj))
+    if isinstance(obj, dict):
+        return {force_unicode_recursive(k): force_unicode_recursive(v) for k, v in iteritems(obj)}
+    return obj
+
+
+def json_dumps(obj, ignore_unserializable=False):
     import json
-    ans = json.dumps(obj, indent=2, default=to_json, sort_keys=True, ensure_ascii=False)
+    try:
+        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
+    except UnicodeDecodeError:
+        obj = force_unicode_recursive(obj)
+        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
     if not isinstance(ans, bytes):
         ans = ans.encode('utf-8')
     return ans
@@ -124,6 +176,7 @@ class OptionSet(object):
         self.group_list  = []
         self.groups      = {}
         self.set_buffer  = {}
+        self.loads_pat = None
 
     def has_option(self, name_or_option_object):
         if name_or_option_object in self.preferences:
@@ -244,30 +297,12 @@ class OptionSet(object):
             return match.group()
         return ''
 
-    def parse_old_style(self, src):
-        if ispy3:
-            import pickle as cPickle
-        else:
-            import cPickle
-        options = {'cPickle':cPickle}
-        try:
-            if not isinstance(src, unicode_type):
-                src = src.decode('utf-8')
-            src = src.replace(u'PyQt%d.QtCore' % 4, u'PyQt5.QtCore')
-            exec(src, options)
-        except Exception as err:
-            try:
-                print('Failed to parse old style options string with error: {}'.format(err))
-            except Exception:
-                pass
-        return options
-
     def parse_string(self, src):
         options = {}
         if src:
             is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, unicode_type) and src.startswith(u'#'))
             if is_old_style:
-                options = self.parse_old_style(src)
+                options = parse_old_style(src)
             else:
                 try:
                     options = json_loads(src)
@@ -288,9 +323,9 @@ class OptionSet(object):
 
         return opts
 
-    def serialize(self, opts):
+    def serialize(self, opts, ignore_unserializable=False):
         data = {pref.name: getattr(opts, pref.name, pref.default) for pref in self.preferences}
-        return json_dumps(data)
+        return json_dumps(data, ignore_unserializable=ignore_unserializable)
 
 
 class ConfigInterface(object):
@@ -329,7 +364,7 @@ class Config(ConfigInterface):
         return os.path.join(config_dir, self.filename_base + '.py.json')
 
     def parse(self):
-        src = u''
+        src = ''
         migrate = False
         path = self.config_file_path
         if os.path.exists(path):
@@ -351,7 +386,7 @@ class Config(ConfigInterface):
                 migrate = bool(src)
         ans = self.option_set.parse_string(src)
         if migrate:
-            new_src = self.option_set.serialize(ans)
+            new_src = self.option_set.serialize(ans, ignore_unserializable=True)
             with ExclusiveFile(self.config_file_path) as f:
                 f.seek(0), f.truncate()
                 f.write(new_src)
@@ -523,7 +558,7 @@ if prefs['installation_uuid'] is None:
 
 
 def tweaks_file():
-    return os.path.join(config_dir, u'tweaks.json')
+    return os.path.join(config_dir, 'tweaks.json')
 
 
 def make_unicode(obj):
@@ -579,12 +614,20 @@ def exec_tweaks(path):
 def read_custom_tweaks():
     make_config_dir()
     tf = tweaks_file()
+    ans = {}
     if os.path.exists(tf):
         with open(tf, 'rb') as f:
             raw = f.read()
-        return json_loads(raw)
-    old_tweaks_file = tf.rpartition(u'.')[0] + u'.py'
-    ans = {}
+        raw = raw.strip()
+        if not raw:
+            return ans
+        try:
+            return json_loads(raw)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            return ans
+    old_tweaks_file = tf.rpartition('.')[0] + '.py'
     if os.path.exists(old_tweaks_file):
         ans = exec_tweaks(old_tweaks_file)
         ans = make_unicode(ans)
@@ -598,7 +641,11 @@ def default_tweaks_raw():
 
 def read_tweaks():
     default_tweaks = exec_tweaks(default_tweaks_raw())
-    default_tweaks.update(read_custom_tweaks())
+    try:
+        custom_tweaks = read_custom_tweaks()
+    except Exception:
+        custom_tweaks = {}
+    default_tweaks.update(custom_tweaks)
     return default_tweaks
 
 

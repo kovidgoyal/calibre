@@ -7,16 +7,26 @@ import re
 import socket
 import time
 from functools import partial
-from Queue import Empty, Queue
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 from threading import Thread
-from urlparse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
-from calibre import as_unicode, browser, random_user_agent
+from calibre import as_unicode, browser, random_user_agent, xml_replace_entities
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.random_ua import accept_header_for_ua, all_user_agents
+from calibre.utils.random_ua import accept_header_for_ua
+
+
+def user_agent_is_ok(ua):
+    return 'Mobile/' not in ua and 'Mobile ' not in ua
 
 
 class CaptchaError(Exception):
@@ -25,9 +35,6 @@ class CaptchaError(Exception):
 
 class SearchFailed(ValueError):
     pass
-
-
-ua_index = -1
 
 
 def parse_html(raw):
@@ -201,18 +208,18 @@ class Worker(Thread):  # Get details {{{
                 12: ['diciembre'],
             },
             'jp': {
-                1: [u'1月'],
-                2: [u'2月'],
-                3: [u'3月'],
-                4: [u'4月'],
-                5: [u'5月'],
-                6: [u'6月'],
-                7: [u'7月'],
-                8: [u'8月'],
-                9: [u'9月'],
-                10: [u'10月'],
-                11: [u'11月'],
-                12: [u'12月'],
+                1: ['1月'],
+                2: ['2月'],
+                3: ['3月'],
+                4: ['4月'],
+                5: ['5月'],
+                6: ['6月'],
+                7: ['7月'],
+                8: ['8月'],
+                9: ['9月'],
+                10: ['10月'],
+                11: ['11月'],
+                12: ['12月'],
             },
             'nl': {
                 1: ['januari'], 2: ['februari'], 3: ['maart'], 5: ['mei'], 6: ['juni'], 7: ['juli'], 8: ['augustus'], 10: ['oktober'],
@@ -247,6 +254,10 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Uitgever:") or \
                     starts-with(text(), "出版社:")]
             '''
+        self.pubdate_xpath = '''
+            descendant::*[starts-with(text(), "Publication Date:") or \
+                    starts-with(text(), "Audible.com Release Date:")]
+        '''
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag',
                                 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
 
@@ -287,10 +298,10 @@ class Worker(Thread):  # Get details {{{
             'ita': ('Italian', 'Italiano'),
             'deu': ('German', 'Deutsch'),
             'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
-            'jpn': ('Japanese', u'日本語'),
+            'jpn': ('Japanese', '日本語'),
             'por': ('Portuguese', 'Português'),
             'nld': ('Dutch', 'Nederlands',),
-            'chs': ('Chinese', u'中文', u'简体中文'),
+            'chs': ('Chinese', '中文', '简体中文'),
         }
         self.lang_map = {}
         for code, names in lm.items():
@@ -344,10 +355,10 @@ class Worker(Thread):  # Get details {{{
         if self.testing:
             import tempfile
             import uuid
-            with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4())) + '_',
+            with tempfile.NamedTemporaryFile(prefix=(asin or type('')(uuid.uuid4())) + '_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw)
-            print ('Downloaded html for', asin, 'saved in', f.name)
+            print('Downloaded html for', asin, 'saved in', f.name)
 
         try:
             title = self.parse_title(root)
@@ -469,13 +480,26 @@ class Worker(Thread):  # Get details {{{
         return self.tostring(elem, encoding='unicode', method='text').strip()
 
     def parse_title(self, root):
+
+        def sanitize_title(title):
+            ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
+            if not ans:
+                ans = title.rpartition('[')[0].strip()
+            return ans
+
         h1 = root.xpath('//h1[@id="title"]')
         if h1:
             h1 = h1[0]
             for child in h1.xpath('./*[contains(@class, "a-color-secondary")]'):
                 h1.remove(child)
-            return self.totext(h1)
-        tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
+            return sanitize_title(self.totext(h1))
+        tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')
+        if not tdiv:
+            span = root.xpath('//*[@id="ebooksTitle"]')
+            if span:
+                return sanitize_title(self.totext(span[0]))
+            raise ValueError('No title block found')
+        tdiv = tdiv[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
             title = self.tostring(actual_title[0], encoding='unicode',
@@ -483,17 +507,14 @@ class Worker(Thread):  # Get details {{{
         else:
             title = self.tostring(tdiv, encoding='unicode',
                                   method='text').strip()
-        ans = re.sub(r'[(\[].*[)\]]', '', title).strip()
-        if not ans:
-            ans = title.rpartition('[')[0].strip()
-        return ans
+        return sanitize_title(title)
 
     def parse_authors(self, root):
         for sel in (
                 '#byline .author .contributorNameID',
                 '#byline .author a.a-link-normal',
                 '#bylineInfo .author .contributorNameID',
-                '#bylineInfo .author a.a-link-normal'
+                '#bylineInfo .author a.a-link-normal',
         ):
             matches = tuple(self.selector(sel))
             if matches:
@@ -560,6 +581,7 @@ class Worker(Thread):  # Get details {{{
             del a.attrib['href']
             a.tag = 'span'
         desc = self.tostring(desc, method='html', encoding='unicode').strip()
+        desc = xml_replace_entities(desc, 'utf-8')
 
         # Encoding bug in Amazon data U+fffd (replacement char)
         # in some examples it is present in place of '
@@ -576,7 +598,10 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root, raw):
-        from urllib import unquote
+        try:
+            from urllib.parse import unquote
+        except ImportError:
+            from urllib import unquote
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
@@ -818,13 +843,24 @@ class Worker(Thread):  # Get details {{{
                 return ans.partition('(')[0].strip()
 
     def parse_pubdate(self, pd):
+        from calibre.utils.date import parse_only_date
+        for x in reversed(pd.xpath(self.pubdate_xpath)):
+            if x.tail:
+                date = x.tail.strip()
+                date = self.delocalize_datestr(date)
+                try:
+                    return parse_only_date(date, assume_utc=True)
+                except Exception:
+                    pass
         for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
-                from calibre.utils.date import parse_only_date
                 ans = x.tail
                 date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)
-                return parse_only_date(date, assume_utc=True)
+                try:
+                    return parse_only_date(date, assume_utc=True)
+                except Exception:
+                    pass
 
     def parse_language(self, pd):
         for x in reversed(pd.xpath(self.language_xpath)):
@@ -842,14 +878,14 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 6)
+    version = (1, 2, 11)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
-    capabilities = frozenset(['identify', 'cover'])
-    touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
-                                'rating', 'comments', 'publisher', 'pubdate',
-                                'languages', 'series', 'tags'])
+    capabilities = frozenset(('identify', 'cover'))
+    touched_fields = frozenset(('title', 'authors', 'identifier:amazon',
+        'rating', 'comments', 'publisher', 'pubdate',
+        'languages', 'series', 'tags'))
     has_html_comments = True
     supports_gzip_transfer_encoding = True
     prefer_results_with_isbn = False
@@ -888,6 +924,14 @@ class Amazon(Source):
                    ' calibre can fetch the Amazon data from many different'
                    ' places where it is cached. Choose the source you prefer.'
                ), choices=SERVERS),
+        Option('use_mobi_asin', 'bool', False, _('Use the MOBI-ASIN for metadata search'),
+               _(
+                   'Enable this option to search for metadata with an'
+                   ' ASIN identifier from the MOBI file at the current country website,'
+                   ' unless any other amazon id is available. Note that if the'
+                   ' MOBI file came from a different Amazon country store, you could get'
+                   ' incorrect results.'
+               )),
     )
 
     def __init__(self, *args, **kwargs):
@@ -912,28 +956,25 @@ class Amazon(Source):
 
     @property
     def browser(self):
-        global ua_index
-        if self.use_search_engine:
-            if self._browser is None:
+        br = self._browser
+        if br is None:
+            ua = 'Mobile '
+            while not user_agent_is_ok(ua):
                 ua = random_user_agent(allow_ie=False)
-                self._browser = br = browser(user_agent=ua)
-                br.set_handle_gzip(True)
+            # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
+            self._browser = br = browser(user_agent=ua)
+            br.set_handle_gzip(True)
+            if self.use_search_engine:
                 br.addheaders += [
                     ('Accept', accept_header_for_ua(ua)),
                     ('Upgrade-insecure-requests', '1'),
                 ]
-            br = self._browser
-        else:
-            all_uas = all_user_agents()
-            ua_index = (ua_index + 1) % len(all_uas)
-            ua = all_uas[ua_index]
-            self._browser = br = browser(user_agent=ua)
-            br.set_handle_gzip(True)
-            br.addheaders += [
-                ('Accept', accept_header_for_ua(ua)),
-                ('Upgrade-insecure-requests', '1'),
-                ('Referer', self.referrer_for_domain()),
-            ]
+            else:
+                br.addheaders += [
+                    ('Accept', accept_header_for_ua(ua)),
+                    ('Upgrade-insecure-requests', '1'),
+                    ('Referer', self.referrer_for_domain()),
+                ]
         return br
 
     def save_settings(self, *args, **kwargs):
@@ -949,14 +990,18 @@ class Amazon(Source):
         self.touched_fields = frozenset(tf)
 
     def get_domain_and_asin(self, identifiers, extra_domains=()):
+        identifiers = {k.lower(): v for k, v in identifiers.items()}
         for key, val in identifiers.items():
-            key = key.lower()
             if key in ('amazon', 'asin'):
                 return 'com', val
             if key.startswith('amazon_'):
                 domain = key.partition('_')[-1]
                 if domain and (domain in self.AMAZON_DOMAINS or domain in extra_domains):
                     return domain, val
+        if self.prefs['use_mobi_asin']:
+            val = identifiers.get('mobi-asin')
+            if val is not None:
+                return self.domain, val
         return None, None
 
     def referrer_for_domain(self, domain=None):
@@ -1045,7 +1090,10 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         if domain is None:
             domain = self.domain
 
@@ -1101,9 +1149,9 @@ class Amazon(Source):
 
         # magic parameter to enable Japanese Shift_JIS encoding.
         if domain == 'jp':
-            q['__mk_ja_JP'] = u'カタカナ'
+            q['__mk_ja_JP'] = 'カタカナ'
         if domain == 'nl':
-            q['__mk_nl_NL'] = u'ÅMÅŽÕÑ'
+            q['__mk_nl_NL'] = 'ÅMÅŽÕÑ'
             if 'field-keywords' not in q:
                 q['field-keywords'] = ''
             for f in 'field-isbn field-title field-author'.split():
@@ -1157,9 +1205,14 @@ class Amazon(Source):
                 return False
             return True
 
-        result_links = root.xpath('//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]')
-        if not result_links:
-            result_links = root.xpath(r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]')
+        for query in (
+                '//div[contains(@class, "s-result-list")]//h2/a[@href]',
+                '//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]',
+                r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]',
+        ):
+            result_links = root.xpath(query)
+            if result_links:
+                break
         for a in result_links:
             title = tostring(a, method='text', encoding='unicode')
             if title_ok(title):
@@ -1244,7 +1297,7 @@ class Amazon(Source):
             with tempfile.NamedTemporaryFile(prefix='amazon_results_',
                                              suffix='.html', delete=False) as f:
                 f.write(raw.encode('utf-8'))
-            print ('Downloaded html for results page saved in', f.name)
+            print('Downloaded html for results page saved in', f.name)
 
         matches = []
         found = '<title>404 - ' not in raw
@@ -1456,13 +1509,13 @@ class Amazon(Source):
     # }}}
 
 
-if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug
-    # src/calibre/ebooks/metadata/sources/amazon.py
+def manual_tests(domain, **kw):  # {{{
+    # To run these test use:
+    # calibre-debug -c "from calibre.ebooks.metadata.sources.amazon import *; manual_tests('com')"
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
                                                       isbn_test, title_test, authors_test, comments_test, series_test)
-    com_tests = [  # {{{
-
+    all_tests = {}
+    all_tests['com'] = [  # {{{
         (   # Paperback with series
             {'identifiers': {'amazon': '1423146786'}},
             [title_test('The Heroes of Olympus, Book Five The Blood of Olympus',
@@ -1509,7 +1562,7 @@ if __name__ == '__main__':  # tests {{{
 
     # }}}
 
-    de_tests = [  # {{{
+    all_tests['de'] = [  # {{{
         (
             {'identifiers': {'isbn': '9783453314979'}},
             [title_test('Die letzten Wächter: Roman',
@@ -1527,7 +1580,7 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    it_tests = [  # {{{
+    all_tests['it'] = [  # {{{
         (
             {'identifiers': {'isbn': '8838922195'}},
             [title_test('La briscola in cinque',
@@ -1537,7 +1590,13 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    fr_tests = [  # {{{
+    all_tests['fr'] = [  # {{{
+        (
+            {'identifiers': {'amazon_fr': 'B07L7ST4RS'}},
+            [title_test('Le secret de Lola', exact=True),
+                authors_test(['Amélie BRIZIO'])
+            ]
+        ),
         (
             {'identifiers': {'isbn': '2221116798'}},
             [title_test('L\'étrange voyage de Monsieur Daldry',
@@ -1547,7 +1606,7 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    es_tests = [  # {{{
+    all_tests['es'] = [  # {{{
         (
             {'identifiers': {'isbn': '8483460831'}},
             [title_test('Tiempos Interesantes',
@@ -1557,26 +1616,26 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    jp_tests = [  # {{{
+    all_tests['jp'] = [  # {{{
         (  # Adult filtering test
             {'identifiers': {'isbn': '4799500066'}},
-            [title_test(u'Ｂｉｔｃｈ Ｔｒａｐ'), ]
+            [title_test('Ｂｉｔｃｈ Ｔｒａｐ'), ]
         ),
 
         (  # isbn -> title, authors
             {'identifiers': {'isbn': '9784101302720'}},
-            [title_test(u'精霊の守り人',
-                        exact=True), authors_test([u'上橋 菜穂子'])
+            [title_test('精霊の守り人',
+                        exact=True), authors_test(['上橋 菜穂子'])
              ]
         ),
         (  # title, authors -> isbn (will use Shift_JIS encoding in query.)
-            {'title': u'考えない練習',
-             'authors': [u'小池 龍之介']},
+            {'title': '考えない練習',
+             'authors': ['小池 龍之介']},
             [isbn_test('9784093881067'), ]
         ),
     ]  # }}}
 
-    br_tests = [  # {{{
+    all_tests['br'] = [  # {{{
         (
             {'title': 'Guerra dos Tronos'},
             [title_test('A Guerra dos Tronos - As Crônicas de Gelo e Fogo',
@@ -1586,7 +1645,7 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    nl_tests = [  # {{{
+    all_tests['nl'] = [  # {{{
         (
             {'title': 'Freakonomics'},
             [title_test('Freakonomics',
@@ -1596,7 +1655,7 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    cn_tests = [  # {{{
+    all_tests['cn'] = [  # {{{
         (
             {'identifiers': {'isbn': '9787115369512'}},
             [title_test('若为自由故 自由软件之父理查德斯托曼传', exact=True),
@@ -1611,7 +1670,7 @@ if __name__ == '__main__':  # tests {{{
         ),
     ]  # }}}
 
-    ca_tests = [  # {{{
+    all_tests['ca'] = [  # {{{
         (   # Paperback with series
             {'identifiers': {'isbn': '9781623808747'}},
             [title_test('Parting Shot', exact=True),
@@ -1631,7 +1690,7 @@ if __name__ == '__main__':  # tests {{{
     ]  # }}}
 
     def do_test(domain, start=0, stop=None, server='auto'):
-        tests = globals().get(domain + '_tests')
+        tests = all_tests[domain]
         if stop is None:
             stop = len(tests)
         tests = tests[start:stop]
@@ -1641,6 +1700,5 @@ if __name__ == '__main__':  # tests {{{
             setattr(p, 'testing_server', server),
         ))
 
-    do_test('com')
-    # do_test('de')
+    do_test(domain, **kw)
 # }}}

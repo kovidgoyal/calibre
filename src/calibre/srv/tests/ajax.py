@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, base64, os
+import zlib, json, os
 from io import BytesIO
 from functools import partial
 
@@ -14,11 +13,12 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from polyglot.http_client import OK, NOT_FOUND, FORBIDDEN
 from polyglot.urllib import urlencode, quote
+from polyglot.binary import as_base64_bytes
 
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):
     if username and password:
-        headers[b'Authorization'] = b'Basic ' + base64.standard_b64encode((username + ':' + password).encode('utf-8'))
+        headers[b'Authorization'] = b'Basic ' + as_base64_bytes((username + ':' + password))
     conn.request(method, prefix + url, headers=headers, body=data)
     r = conn.getresponse()
     data = r.read()
@@ -68,9 +68,9 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, OK)
             self.ae(data, xdata)
             names = {x['name']:x['url'] for x in data}
-            for q in ('Newest', 'All books', 'Tags', 'Series', 'Authors', 'Enum', 'Composite Tags'):
+            for q in (_('Newest'), _('All books'), _('Tags'), _('Authors'), _('Enum'), _('Composite Tags')):
                 self.assertIn(q, names)
-            r, data = request(names['Tags'], prefix='')
+            r, data = request(names[_('Tags')], prefix='')
             self.ae(r.status, OK)
             names = {x['name']:x['url'] for x in data['items']}
             self.ae(set(names), set('Tag One,Tag Two,News'.split(',')))
@@ -110,8 +110,8 @@ class ContentTest(LibraryBaseTest):
                 r, data = make_request(conn, path, username='12', password='test', prefix='', method=method)
                 ae(status, r.status)
                 if status == NOT_FOUND:
-                    p = data.partition(':')[0]
-                    ae(p, 'No book with id')
+                    p = data.partition(b':')[0]
+                    ae(p, b'No book with id')
                 return data
             ok = r
             nf = partial(r, status=NOT_FOUND)
@@ -127,7 +127,7 @@ class ContentTest(LibraryBaseTest):
             ae(set(r(url_for('/ajax/search?query=id:2'))['book_ids']), {2})
             ae(set(r(url_for('/ajax/search?vl=1'))['book_ids']), {1})
             data = make_request(conn, '/ajax/search', username='inv', password='test', prefix='', method='GET')[1]
-            ae(data['bad_restriction'], 'Invalid syntax. Expected a lookup name or a word')
+            ae(data['bad_restriction'], _('Invalid syntax. Expected a lookup name or a word'))
 
             # books.py
             nf(url_for('/book-manifest', book_id=3, fmt='TXT'))
@@ -167,7 +167,7 @@ class ContentTest(LibraryBaseTest):
             ae = self.assertEqual
 
             def a(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
-                r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8')).decode('ascii')),
+                r, data = make_request(conn, '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8'))),
                                        username=username, password='test', prefix='', method=method, data=data)
                 ae(status, r.status)
                 return data

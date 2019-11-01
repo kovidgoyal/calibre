@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
 
@@ -95,6 +95,7 @@ def comments_to_html(comments):
     open_pTag = False
 
     all_tokens = list(soup.contents)
+    inline_tags = ('br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a', 'hr')
     for token in all_tokens:
         if isinstance(token,  (CData, Comment, Declaration, ProcessingInstruction)):
             continue
@@ -105,8 +106,7 @@ def comments_to_html(comments):
                 ptc = 0
             pTag.insert(ptc, token)
             ptc += 1
-        elif token.name in ['br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a',
-                'hr']:
+        elif token.name in inline_tags:
             if not open_pTag:
                 pTag = result.new_tag('p')
                 open_pTag = True
@@ -163,7 +163,7 @@ def find_tests():
                         '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
 
                     ('a <b>b&c</b>\nf',
-                        '<p class="description">a <b>b&amp;c</b><br></br>f</p>'),
+                        '<p class="description">a <b>b&amp;c</b><br/>f</p>'),
 
                     ('a <?xml asd> b\n\ncd',
                         '<p class="description">a  b</p><p class="description">cd</p>'),

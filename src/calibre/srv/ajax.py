@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, map
 from itertools import cycle
 
 from calibre import force_unicode
@@ -135,7 +134,7 @@ def book_to_json(ctx, rd, db, book_id,
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:
                     template = device_class.save_template()
-                    data['_filename_'] = create_upload_path(mi, book_id,
+                    data['_filename_'] = create_upload_path(mi, unicode_type(book_id),
                             template, sanitize, path_type=posixpath)
                     break
 

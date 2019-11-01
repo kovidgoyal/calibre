@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +10,7 @@ import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
-from calibre.gui2 import (config, open_local_file, gprefs)
+from calibre.gui2 import config, open_local_file, gprefs
 from calibre import get_proxies
 from polyglot.builtins import iteritems
 

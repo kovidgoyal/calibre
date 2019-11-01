@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,9 +8,12 @@ __copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from base64 import b64encode
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -24,6 +27,15 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
+def as_base64(data):
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
+    ans = b64encode(data)
+    if isinstance(ans, bytes):
+        ans = ans.decode('ascii')
+    return ans
+
+
 class EmpikStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -31,11 +43,11 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
 
         url = 'http://www.empik.com/ebooki'
 
-        aff_url = aff_root + str(b64encode(url))
+        aff_url = aff_root + as_base64(url)
 
         detail_url = None
         if detail_item:
-            detail_url = aff_root + str(b64encode(detail_item))
+            detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
@@ -46,7 +58,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP=' + str(max_results) + '&q=' + urllib.quote(query)
+        url = 'http://www.empik.com/ebooki/ebooki,3501,s?resultsPP={}&q={}'.format(max_results, quote(query))
 
         br = browser()
 
@@ -82,4 +94,3 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 s.formats = formats.upper().strip()
 
                 yield s
-

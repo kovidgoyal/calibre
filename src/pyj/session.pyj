@@ -29,10 +29,14 @@ defaults = {
     'margin_top': 20,
     'margin_bottom': 20,
     'read_mode': 'paged',
+    'cover_preserve_aspect_ratio': True,
     'max_text_height': 0,
     'max_text_width': 0,
     'columns_per_screen': {'portrait':0, 'landscape':0},
     'user_stylesheet': '',
+    'background_image': None,
+    'background_image_style': 'scaled',
+    'background_image_fade': 0,
     'current_color_scheme': 'white',
     'user_color_schemes': {},
     'base_font_size': 16,
@@ -40,6 +44,14 @@ defaults = {
     'header': {},
     'footer': {'right': 'progress'},
     'word_actions': v'[]',
+    'hide_tooltips': False,
+    'keyboard_shortcuts': {},
+    'book_scrollbar': False,
+    'standalone_font_settings': {},
+    'standalone_misc_settings': {},
+    'standalone_recently_opened': v'[]',
+    'paged_wheel_scrolls_by_screen': False,
+    'paged_margin_clicks_scroll_by_screen': True,
 }
 
 is_local_setting = {
@@ -52,10 +64,20 @@ is_local_setting = {
     'max_text_width': True,
     'columns_per_screen': True,
     'user_stylesheet': True,
+    'background_image': True,
+    'background_image_style': True,
+    'background_image_fade': True,
     'current_color_scheme': True,
     'base_font_size': True,
     'controls_help_shown_count': True,
+    'standalone_font_settings': True,
+    'standalone_misc_settings': True,
+    'standalone_recently_opened': True,
 }
+
+
+def session_defaults():
+    return defaults
 
 
 def storage_available(which):
@@ -168,6 +190,7 @@ default_interface_data = {
     'gui_last_modified_display_format': 'dd MMM yyyy',
     'use_roman_numerals_for_series_number': True,
     'default_library_id': None,
+    'default_book_list_mode': defaults.view_mode,
     'library_map': None,
     'search_the_net_urls': [],
     'donate_link': 'https://calibre-ebook.com/donate',

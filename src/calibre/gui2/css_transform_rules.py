@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit,
@@ -233,7 +232,10 @@ class Tester(Dialog):  # {{{
     def do_test(self):
         decl = safe_parser().parseString(self.value)
         transform_sheet(self.rules, decl)
-        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), decl.cssText), 'css')
+        css = decl.cssText
+        if isinstance(css, bytes):
+            css = css.decode('utf-8')
+        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), css), 'css')
 
     def sizeHint(self):
         return QSize(800, 600)

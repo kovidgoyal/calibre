@@ -14,7 +14,6 @@ import time
 import unicodedata
 import uuid
 from collections import defaultdict
-from polyglot.builtins import iteritems, unicode_type, zip
 from io import BytesIO
 from itertools import count
 
@@ -54,12 +53,14 @@ from calibre.utils.filenames import hardlink_file, nlinks_file
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
+from polyglot.builtins import iteritems, map, unicode_type, zip
 from polyglot.urllib import urlparse
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
 OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf', 'application/font-sfnt'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
+null = object()
 
 
 class CSSPreProcessor(cssp):
@@ -261,6 +262,7 @@ class Container(ContainerBase):  # {{{
         self.pretty_print = set()
         self.cloned = False
         self.cache_names = ('parsed_cache', 'mime_map', 'name_path_map', 'encoding_map', 'dirtied', 'pretty_print')
+        self.href_to_name_cache = {}
 
         if clone_data is not None:
             self.cloned = True
@@ -298,10 +300,8 @@ class Container(ContainerBase):  # {{{
                 # some epubs include the opf in the manifest with an incorrect mime type
                 self.mime_map[name] = item.get('media-type')
 
-    def clone_data(self, dest_dir):
-        Container.commit(self, keep_parsed=True)
-        self.cloned = True
-        clone_dir(self.root, dest_dir)
+    def data_for_clone(self, dest_dir=None):
+        dest_dir = dest_dir or self.root
         return {
             'root': dest_dir,
             'opf_name': self.opf_name,
@@ -313,6 +313,12 @@ class Container(ContainerBase):  # {{{
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
                 for name, path in iteritems(self.name_path_map)}
         }
+
+    def clone_data(self, dest_dir):
+        Container.commit(self, keep_parsed=True)
+        self.cloned = True
+        clone_dir(self.root, dest_dir)
+        return self.data_for_clone(dest_dir)
 
     def add_name_to_manifest(self, name, process_manifest_item=None):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
@@ -439,13 +445,17 @@ class Container(ContainerBase):  # {{{
         using the :class:`LinkReplacer` and :class:`LinkRebaser` classes. '''
         media_type = self.mime_map.get(name, guess_type(name))
         if name == self.opf_name:
+            replace_func.file_type = 'opf'
             for elem in self.opf_xpath('//*[@href]'):
                 elem.set('href', replace_func(elem.get('href')))
         elif media_type.lower() in OEB_DOCS:
+            replace_func.file_type = 'text'
             rewrite_links(self.parsed(name), replace_func)
         elif media_type.lower() in OEB_STYLES:
+            replace_func.file_type = 'style'
             replaceUrls(self.parsed(name), replace_func)
         elif media_type.lower() == guess_type('toc.ncx'):
+            replace_func.file_type = 'ncx'
             for elem in self.parsed(name).xpath('//*[@src]'):
                 elem.set('src', replace_func(elem.get('src')))
 
@@ -516,7 +526,11 @@ class Container(ContainerBase):  # {{{
         Convert an href (relative to base) to a name. base must be a name or
         None, in which case self.root is used.
         '''
-        return href_to_name(href, self.root, base=base)
+        key = href, base
+        ans = self.href_to_name_cache.get(key, null)
+        if ans is null:
+            ans = self.href_to_name_cache[key] = href_to_name(href, self.root, base=base)
+        return ans
 
     def name_to_href(self, name, base=None):
         '''Convert a name to a href relative to base, which must be a name or
@@ -672,7 +686,7 @@ class Container(ContainerBase):  # {{{
         ''' The names of all manifest items whose media-type matches predicate.
         `predicate` can be a set, a list, a string or a function taking a single
         argument, which will be called with the media-type. '''
-        if isinstance(predicate, type('')):
+        if isinstance(predicate, unicode_type):
             predicate = predicate.__eq__
         elif hasattr(predicate, '__contains__'):
             predicate = predicate.__contains__
@@ -801,7 +815,7 @@ class Container(ContainerBase):  # {{{
         imap = {name:item_id for item_id, name in iteritems(imap)}
         items = [item for item, name, linear in self.spine_iter]
         tail, last_tail = (items[0].tail, items[-1].tail) if items else ('\n    ', '\n  ')
-        map(self.remove_from_xml, items)
+        tuple(map(self.remove_from_xml, items))
         spine = self.opf_xpath('//opf:spine')[0]
         spine.text = tail
         for name, linear in spine_items:
@@ -1277,7 +1291,7 @@ class EpubContainer(Container):
                     break
         if raw_unique_identifier is not None:
             idpf_key = raw_unique_identifier
-            idpf_key = re.sub(u'[\u0020\u0009\u000d\u000a]', u'', idpf_key)
+            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in self.opf_xpath('//*[local-name()="metadata"]/*'
@@ -1289,9 +1303,9 @@ class EpubContainer(Container):
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = bytes(item.text).rpartition(':')[-1]
+                    key = item.text.rpartition(':')[-1]
                     key = uuid.UUID(key).bytes
-                except:
+                except Exception:
                     self.log.exception('Failed to parse obfuscation key')
                     key = None
 
@@ -1360,20 +1374,22 @@ class EpubContainer(Container):
         else:
             from calibre.ebooks.tweak import zip_rebuilder
             with lopen(join(self.root, 'mimetype'), 'wb') as f:
-                f.write(guess_type('a.epub'))
+                et = guess_type('a.epub')
+                if not isinstance(et, bytes):
+                    et = et.encode('ascii')
+                f.write(et)
             zip_rebuilder(self.root, outpath)
             for name, data in iteritems(restore_fonts):
                 with self.open(name, 'wb') as f:
                     f.write(data)
 
-    @dynamic_property
+    @property
     def path_to_ebook(self):
-        def fget(self):
-            return self.pathtoepub
+        return self.pathtoepub
 
-        def fset(self, val):
-            self.pathtoepub = val
-        return property(fget=fget, fset=fset)
+    @path_to_ebook.setter
+    def path_to_ebook(self, val):
+        self.pathtoepub = val
 
 # }}}
 
@@ -1493,14 +1509,13 @@ class AZW3Container(Container):
             outpath = self.pathtoazw3
         opf_to_azw3(self.name_path_map[self.opf_name], outpath, self)
 
-    @dynamic_property
+    @property
     def path_to_ebook(self):
-        def fget(self):
-            return self.pathtoazw3
+        return self.pathtoazw3
 
-        def fset(self, val):
-            self.pathtoazw3 = val
-        return property(fget=fget, fset=fset)
+    @path_to_ebook.setter
+    def path_to_ebook(self, val):
+        self.pathtoazw3 = val
 
     @property
     def names_that_must_not_be_changed(self):

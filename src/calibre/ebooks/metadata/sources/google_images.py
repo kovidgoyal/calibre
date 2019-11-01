@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -27,7 +26,7 @@ def parse_html(raw):
 class GoogleImages(Source):
 
     name = 'Google Images'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
@@ -65,12 +64,17 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         import json
         from collections import OrderedDict
         ans = OrderedDict()
         br = self.browser
-        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')}).decode('utf-8')
+        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')})
+        if isinstance(q, bytes):
+            q = q.decode('utf-8')
         sz = self.prefs['size']
         if sz == 'any':
             sz = ''
@@ -95,7 +99,10 @@ class GoogleImages(Source):
 
 
 def test():
-    from Queue import Queue
+    try:
+        from queue import Queue
+    except ImportError:
+        from Queue import Queue
     from threading import Event
     from calibre.utils.logging import default_log
     p = GoogleImages(None)

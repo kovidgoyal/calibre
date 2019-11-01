@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -858,7 +857,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                                    fm['datatype'] == 'composite' and
                                                    fm['display'].get('make_category', False)))):
                     mime = 'application/calibre+from_library'
-                    ids = list(map(int, str(md.data(mime)).split()))
+                    ids = list(map(int, md.data(mime).data().split()))
                     self.handle_drop(node, ids)
                     return True
             elif node.type == TagTreeItem.CATEGORY:
@@ -872,7 +871,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                              (fm_src['datatype'] == 'composite' and
                               fm_src['display'].get('make_category', False))):
                         mime = 'application/calibre+from_library'
-                        ids = list(map(int, str(md.data(mime)).split()))
+                        ids = list(map(int, md.data(mime).data().split()))
                         self.handle_user_category_drop(node, ids, md.column_name)
                         return True
         return False

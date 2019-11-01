@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-# from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '20011, John Schember <john@nachtimwald.com>'
@@ -496,11 +496,11 @@ class Reader(FormatReader):
                     html += u'<p>'
                 paragraph_open = True
 
-            c = ord(d[offset])
+            c = ord(d[offset:offset+1])
             # PHTML "functions"
             if c == 0x0:
                 offset += 1
-                c = ord(d[offset])
+                c = ord(d[offset:offset+1])
                 # Page link begins
                 # 2 Bytes
                 # record ID

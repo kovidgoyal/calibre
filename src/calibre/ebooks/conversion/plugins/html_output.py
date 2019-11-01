@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
@@ -79,7 +80,7 @@ class HTMLOutput(OutputFormatPlugin):
         from lxml import etree
 
         root = self.generate_toc(oeb_book, ref_url, output_dir)
-        return etree.tostring(root, pretty_print=True, encoding='utf-8',
+        return etree.tostring(root, pretty_print=True, encoding='unicode',
                 xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -91,17 +92,20 @@ class HTMLOutput(OutputFormatPlugin):
 
         # read template files
         if opts.template_html_index is not None:
-            template_html_index_data = open(opts.template_html_index, 'rb').read()
+            with open(opts.template_html_index, 'rb') as f:
+                template_html_index_data = f.read()
         else:
             template_html_index_data = P('templates/html_export_default_index.tmpl', data=True)
 
         if opts.template_html is not None:
-            template_html_data = open(opts.template_html, 'rb').read()
+            with open(opts.template_html, 'rb') as f:
+                template_html_data = f.read()
         else:
             template_html_data = P('templates/html_export_default.tmpl', data=True)
 
         if opts.template_css is not None:
-            template_css_data = open(opts.template_css, 'rb').read()
+            with open(opts.template_css, 'rb') as f:
+                template_css_data = f.read()
         else:
             template_css_data = P('templates/html_export_default.css', data=True)
 
@@ -151,7 +155,7 @@ class HTMLOutput(OutputFormatPlugin):
                         pass
                 else:
                     with open(path, 'wb') as f:
-                        f.write(str(item))
+                        f.write(item.bytes_representation)
                     item.unload_data_from_memory(memory=path)
 
             for item in oeb_book.spine:
@@ -161,14 +165,14 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # get & clean HTML <HEAD>-data
                 head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
+                head_content = etree.tostring(head, pretty_print=True, encoding='unicode')
                 head_content = re.sub(r'\<\/?head.*\>', '', head_content)
                 head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
                 head_content = re.sub(r'<(title)([^>]*)/>', r'<\1\2></\1>', head_content)
 
                 # get & clean HTML <BODY>-data
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
+                ebook_content = etree.tostring(body, pretty_print=True, encoding='unicode')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
                 ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
@@ -202,7 +206,7 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # write html to file
                 with open(path, 'wb') as f:
-                    f.write(t)
+                    f.write(t.encode('utf-8'))
                 item.unload_data_from_memory(memory=path)
 
         zfile = zipfile.ZipFile(output_path, "w")

@@ -1243,7 +1243,7 @@ CALIBRE_MODINIT_FUNC initicu(void) {
 
     u_init(&status);
     if (U_FAILURE(status)) {
-        PyErr_SetString(PyExc_RuntimeError, u_errorName(status));
+        PyErr_Format(PyExc_RuntimeError, "u_init() failed with error: %s", u_errorName(status));
         INITERROR;
     }
     u_getVersion(ver);

@@ -1,4 +1,6 @@
 #!/usr/bin/env  python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -22,7 +24,7 @@ from calibre.ebooks.conversion.config import (
         GuiRecommendations, load_defaults, load_specifics, save_specifics,
         get_input_format_for_book, NoSupportedInputFormats)
 from calibre.gui2.convert import bulk_defaults_for_input_format
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
@@ -60,7 +62,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                             index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
-                out_file.write(d.output_format)
+                out_file.write(as_bytes(d.output_format))
                 out_file.close()
                 temp_files = [in_file]
 
@@ -122,7 +124,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                 (
                     _('Could not convert the book because no supported source format was found')
                     if len(res) == 1 else
-                    _('Could not convert {num} of {tot} books, because no supported source formats were found.'),
+                    _('Could not convert {num} of {tot} books, because no supported source formats were found.')
                 ).format(num=len(res), tot=total),
                 msg).exec_()
 
@@ -187,7 +189,7 @@ class QueueBulk(QProgressDialog):
                         index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
-            out_file.write(self.output_format)
+            out_file.write(as_bytes(self.output_format))
             out_file.close()
             temp_files = [in_file]
 

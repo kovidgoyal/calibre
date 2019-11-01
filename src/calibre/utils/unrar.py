@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import, print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -90,10 +90,10 @@ def extract_member(
 
 def extract_first_alphabetically(stream):
     from calibre.libunzip import sort_key
-    names_ = sorted([
+    names_ = sorted((
         x for x in names(stream)
         if os.path.splitext(x)[1][1:].lower() in {
-            'png', 'jpg', 'jpeg', 'gif', 'webp'}],
+            'png', 'jpg', 'jpeg', 'gif', 'webp'}),
                     key=sort_key)
     return extract_member(stream, name=names_[0], match=None)
 

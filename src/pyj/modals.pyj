@@ -41,12 +41,13 @@ class Modal:
 class ModalContainer:
 
     def __init__(self):
-        div = E.div(id='modal-container',
+        div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
                 E.div(),  # content area
                 E.a(svgicon('close'), title=_('Close'))
             )
         )
+        div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
         document.body.appendChild(div)
 
         # Container style
@@ -89,6 +90,7 @@ class ModalContainer:
         self.modals.push(Modal(create_func, on_close, show_close))
         modal_id = self.modals[-1].id
         self.update()
+        self.modal_container.focus()
         return modal_id
 
     def hide_modal(self, modal_id):
@@ -135,6 +137,11 @@ class ModalContainer:
         while self.current_modal is not None:
             self.close_current_modal()
 
+    def onkeydown(self, event):
+        if (event.key is 'Escape' or event.key is 'Esc') and not event.altKey and not event.ctrlKey and not event.metaKey and not event.shiftKey:
+            event.preventDefault(), event.stopPropagation()
+            self.close_current_modal(event)
+
 
 def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     details = details or ''
@@ -174,8 +181,8 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     )
 
 
-def create_simple_dialog(title, msg, details, icon, prefix):
-    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
+def create_simple_dialog(title, msg, details, icon, prefix, on_close=None):
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix), on_close=on_close)
 
 
 def create_custom_dialog(title, content_generator_func):
@@ -245,11 +252,11 @@ def close_all_modals():
     return modal_container.close_all_modals()
 
 
-def error_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+def error_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'bug', _('Error:'), on_close)
 
-def warning_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
+def warning_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'warning', _('Warning:'), on_close)
 
 def progress_dialog(msg, on_close=None):
     # Show a modal dialog with a progress bar and an optional close button.

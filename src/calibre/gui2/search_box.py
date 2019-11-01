@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import native_string_type, unicode_type, string_or_bytes, map, range
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
@@ -108,7 +108,6 @@ class SearchBox2(QComboBox):  # {{{
 
     def __init__(self, parent=None, add_clear_action=True):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
@@ -119,11 +118,11 @@ class SearchBox2(QComboBox):  # {{{
 
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
-        c.highlighted[str].connect(self.completer_used)
+        c.highlighted[native_string_type].connect(self.completer_used)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-        self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
+        self.activated[native_string_type].connect(self.history_selected, type=Qt.QueuedConnection)
         self.setEditable(True)
         self.as_you_type = True
         self.timer = QTimer()
@@ -161,8 +160,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
-        self.line_edit.setStyleSheet(
-            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
+        self.line_edit.setStyleSheet('')
 
     def text(self):
         return self.currentText()
@@ -190,10 +188,10 @@ class SearchBox2(QComboBox):  # {{{
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
-        if not self.colorize:
-            col = self.normal_background
-        self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
+        if self.colorize:
+            self.line_edit.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not ok))
+        else:
+            self.line_edit.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
@@ -272,7 +270,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         if not store_in_history:
-            self.activated[str].disconnect()
+            self.activated[native_string_type].disconnect()
         try:
             self.setFocus(Qt.OtherFocusReason)
             if not txt:
@@ -292,7 +290,7 @@ class SearchBox2(QComboBox):  # {{{
         finally:
             if not store_in_history:
                 # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-                self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
+                self.activated[native_string_type].connect(self.history_selected, type=Qt.QueuedConnection)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -320,12 +318,11 @@ class SavedSearchBox(QComboBox):  # {{{
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
 
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
-        self.activated[str].connect(self.saved_search_selected)
+        self.activated[native_string_type].connect(self.saved_search_selected)
 
         # Turn off auto-completion so that it doesn't interfere with typing
         # names of new searches.

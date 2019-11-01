@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -31,7 +30,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
 from calibre.library.comments import merge_comments as merge_two_comments
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, unicode_type, filter
 
 BASE_TITLE = _('Edit Metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
@@ -124,6 +123,7 @@ class MetadataSingleDialogBase(QDialog):
             self.restoreGeometry(bytes(geom))
         else:
             self.resize(self.sizeHint())
+        self.restore_widget_settings()
     # }}}
 
     def sizeHint(self):
@@ -312,7 +312,7 @@ class MetadataSingleDialogBase(QDialog):
     def edit_prefix_list(self):
         prefixes, ok = QInputDialog.getMultiLineText(
             self, _('Edit prefixes'), _('Enter prefixes, one on a line. The first prefix becomes the default.'),
-            '\n'.join(list(map(type(u''), gprefs['paste_isbn_prefixes']))))
+            '\n'.join(list(map(unicode_type, gprefs['paste_isbn_prefixes']))))
         if ok:
             gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
             self.update_paste_identifiers_menu()
@@ -377,12 +377,18 @@ class MetadataSingleDialogBase(QDialog):
     def do_layout(self):
         raise NotImplementedError()
 
+    def save_widget_settings(self):
+        pass
+
+    def restore_widget_settings(self):
+        pass
+
     def data_changed(self):
         self.was_data_edited = True
 
     def __call__(self, id_):
         self.book_id = id_
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         self.metadata_before_fetch = None
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
@@ -455,7 +461,8 @@ class MetadataSingleDialogBase(QDialog):
             return
         cdata = None
         if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover).read()
+            with open(mi.cover, 'rb') as f:
+                cdata = f.read()
         elif mi.cover_data[1] is not None:
             cdata = mi.cover_data[1]
         if cdata is None:
@@ -657,6 +664,7 @@ class MetadataSingleDialogBase(QDialog):
     def save_state(self):
         try:
             gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
+            self.save_widget_settings()
         except:
             # Weird failure, see https://bugs.launchpad.net/bugs/995271
             import traceback
@@ -872,11 +880,20 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
         self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
         gb.setLayout(l)
         l.addWidget(self.comments)
         self.splitter.addWidget(gb)
 
         self.set_custom_metadata_tab_order()
+
+    def save_widget_settings(self):
+        gprefs['basic_metadata_widget_splitter_state'] = bytearray(self.splitter.saveState())
+
+    def restore_widget_settings(self):
+        s = gprefs.get('basic_metadata_widget_splitter_state')
+        if s is not None:
+            self.splitter.restoreState(s)
 
 # }}}
 

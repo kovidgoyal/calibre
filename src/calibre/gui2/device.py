@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -24,7 +25,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
         warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
         show_restart_warning, gprefs, question_dialog)
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name2
+from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
         BlacklistedDevice)
@@ -34,7 +35,7 @@ from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_unicode
 from polyglot import queue
 # }}}
 
@@ -158,12 +159,12 @@ class DeviceManager(Thread):  # {{{
         self.job_steps      = queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
-        self.reported_errors = set([])
+        self.reported_errors = set()
         self.current_job    = None
         self.scanner        = DeviceScanner()
         self.connected_device = None
         self.connected_device_kind = None
-        self.ejected_devices  = set([])
+        self.ejected_devices  = set()
         self.mount_connection_requests = queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_only_once_seen = set()
@@ -209,7 +210,7 @@ class DeviceManager(Thread):  # {{{
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
                     self.reported_errors.add(tb)
-                    prints('Unable to open device', str(dev))
+                    prints('Unable to open device', unicode_type(dev))
                     prints(tb)
                 continue
             self.after_device_connect(dev, device_kind)
@@ -472,7 +473,7 @@ class DeviceManager(Thread):  # {{{
         info = self.device.get_device_information(end_session=False)
         if len(info) < 5:
             info = tuple(list(info) + [{}])
-        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, string_or_bytes) else i
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, string_or_unicode) else i
                  for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()
@@ -604,7 +605,7 @@ class DeviceManager(Thread):  # {{{
                      metadata=None, plugboards=None, add_as_step_to_job=None):
         desc = ngettext('Upload one book to the device', 'Upload {} books to the device', len(names)).format(len(names))
         if titles:
-            desc += u': ' + u', '.join(titles)
+            desc += ': ' + ', '.join(titles)
         return self.create_job_step(self._upload_books, done, to_job=add_as_step_to_job,
                                args=[files, names],
                 kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)
@@ -627,7 +628,7 @@ class DeviceManager(Thread):  # {{{
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = sanitize_file_name2(os.path.basename(path))
+            name = sanitize_file_name(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 with lopen(dest, 'wb') as f:
@@ -930,7 +931,7 @@ class DeviceMixin(object):  # {{{
         d.show()
 
     def auto_convert_question(self, msg, autos):
-        autos = u'\n'.join(map(unicode_type, map(force_unicode, autos)))
+        autos = '\n'.join(map(unicode_type, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
@@ -1314,7 +1315,7 @@ class DeviceMixin(object):  # {{{
     def sync_catalogs(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             settings = self.device_manager.device.settings()
-            ids = list(dynamic.get('catalogs_to_be_synced', set([]))) if send_ids is None else send_ids
+            ids = list(dynamic.get('catalogs_to_be_synced', set())) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             with BusyCursor():
                 files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
@@ -1343,7 +1344,7 @@ class DeviceMixin(object):  # {{{
                         self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
-                dynamic.set('catalogs_to_be_synced', set([]))
+                dynamic.set('catalogs_to_be_synced', set())
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
@@ -1353,9 +1354,9 @@ class DeviceMixin(object):  # {{{
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f)[1]))
+                    os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
-            dynamic.set('catalogs_to_be_synced', set([]))
+            dynamic.set('catalogs_to_be_synced', set())
             if files:
                 remove = []
                 space = {self.location_manager.free[0] : None,
@@ -1367,49 +1368,46 @@ class DeviceMixin(object):  # {{{
                         memory=[files, remove])
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
-    @dynamic_property
+    @property
     def news_to_be_synced(self):
-        doc = 'Set of ids to be sent to device'
+        'Set of ids to be sent to device'
+        ans = []
+        try:
+            ans = self.library_view.model().db.prefs.get('news_to_be_synced',
+                    [])
+        except:
+            import traceback
+            traceback.print_exc()
+        return set(ans)
 
-        def fget(self):
-            ans = []
-            try:
-                ans = self.library_view.model().db.prefs.get('news_to_be_synced',
-                        [])
-            except:
-                import traceback
-                traceback.print_exc()
-            return set(ans)
-
-        def fset(self, ids):
-            try:
-                self.library_view.model().db.new_api.set_pref('news_to_be_synced',
-                        list(ids))
-            except:
-                import traceback
-                traceback.print_exc()
-
-        return property(fget=fget, fset=fset, doc=doc)
+    @news_to_be_synced.setter
+    def news_to_be_synced(self, ids):
+        try:
+            self.library_view.model().db.new_api.set_pref('news_to_be_synced',
+                    list(ids))
+        except:
+            import traceback
+            traceback.print_exc()
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
             ids = list(self.news_to_be_synced) if send_ids is None else send_ids
-            ids = [id for id in ids if self.library_view.model().db.has_id(id)]
+            ids = [book_id for book_id in ids if self.library_view.model().db.has_id(book_id)]
             with BusyCursor():
                 files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
                                 exclude_auto=do_auto_convert)
             auto = []
             if do_auto_convert and _auto_ids:
-                for id in _auto_ids:
-                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                for book_id in _auto_ids:
+                    dbfmts = self.library_view.model().db.formats(book_id, index_is_id=True)
                     formats = [] if dbfmts is None else \
                         [f.lower() for f in dbfmts.split(',')]
                     if set(formats).intersection(available_input_formats()) \
                             and set(settings.format_map).intersection(available_output_formats()):
-                        auto.append(id)
+                        auto.append(book_id)
             if auto:
                 format = None
                 for fmt in settings.format_map:
@@ -1417,26 +1415,26 @@ class DeviceMixin(object):  # {{{
                         format = fmt
                         break
                 if format is not None:
-                    autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                    autos = [self.library_view.model().db.title(book_id, index_is_id=True) for book_id in auto]
                     if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
                             'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             if not files:
-                self.news_to_be_synced = set([])
+                self.news_to_be_synced = set()
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
-            for mi in metadata:
+            for book_id, mi in zip(ids, metadata):
                 prefix = ascii_filename(mi.title)
                 if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, id,
-                    os.path.splitext(f)[1]))
+                names.append('%s_%d%s'%(prefix, book_id,
+                    os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
-            self.news_to_be_synced = set([])
+            self.news_to_be_synced = set()
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
                 space = {self.location_manager.free[0] : None,
@@ -1630,7 +1628,7 @@ class DeviceMixin(object):  # {{{
 
         if job.exception is not None:
             if isinstance(job.exception, FreeSpaceError):
-                where = 'in main memory.' if 'memory' in str(job.exception) \
+                where = 'in main memory.' if 'memory' in unicode_type(job.exception) \
                         else 'on the storage card.'
                 titles = '\n'.join(['<li>'+mi.title+'</li>'
                                     for mi in metadata])
@@ -1705,7 +1703,7 @@ class DeviceMixin(object):  # {{{
         the memory locations. The fifth is a set of paths to the
         matching books on the device.
         '''
-        loc = [None, None, None, 0, set([])]
+        loc = [None, None, None, 0, set()]
 
         if reset:
             self.book_db_id_cache = None

@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.
@@ -9,8 +11,8 @@ import io
 import codecs
 import os
 
-from pylrfopt import tagListOptimizer
-from polyglot.builtins import iteritems
+from .pylrfopt import tagListOptimizer
+from polyglot.builtins import iteritems, string_or_bytes, unicode_type
 
 PYLRF_VERSION = "1.0"
 
@@ -83,7 +85,7 @@ def writeWord(f, word):
     if int(word) > 65535:
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
     if int(word) < 0:
-        raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
+        raise LrfError('Cannot encode a number < 0 in a word: '+unicode_type(word))
     f.write(struct.pack("<H", int(word)))
 
 
@@ -108,11 +110,11 @@ def writeQWord(f, qword):
 
 
 def writeZeros(f, nZeros):
-    f.write("\x00" * nZeros)
+    f.write(b"\0" * nZeros)
 
 
-def writeString(f, str):
-    f.write(str)
+def writeString(f, s):
+    f.write(s)
 
 
 def writeIdList(f, idList):
@@ -130,7 +132,7 @@ def writeLineWidth(f, width):
 
 
 def writeUnicode(f, string, encoding):
-    if isinstance(string, str):
+    if isinstance(string, bytes):
         string = string.decode(encoding)
     string = string.encode("utf-16-le")
     length = len(string)
@@ -141,7 +143,7 @@ def writeUnicode(f, string, encoding):
 
 
 def writeRaw(f, string, encoding):
-    if isinstance(string, str):
+    if isinstance(string, bytes):
         string = string.decode(encoding)
 
     string = string.encode("utf-16-le")
@@ -177,7 +179,7 @@ def writeRuledLine(f, lineInfo):
     writeColor(f, lineColor)
 
 
-LRF_SIGNATURE = "L\x00R\x00F\x00\x00\x00"
+LRF_SIGNATURE = b"L\x00R\x00F\x00\x00\x00"
 
 # XOR_KEY = 48
 XOR_KEY = 65024  # that's what lrf2lrs says -- not used, anyway...
@@ -398,7 +400,7 @@ class LrfTag(object):
         for f in self.format:
             if isinstance(f, dict):
                 p = f[p]
-            elif isinstance(f, str):
+            elif isinstance(f, string_or_bytes):
                 if isinstance(p, tuple):
                     writeString(lrf, struct.pack(f, *p))
                 else:
@@ -490,9 +492,8 @@ class LrfFileStream(LrfStreamBase):
 
     def __init__(self, streamFlags, filename):
         LrfStreamBase.__init__(self, streamFlags)
-        f = file(filename, "rb")
-        self.streamData = f.read()
-        f.close()
+        with open(filename, "rb") as f:
+            self.streamData = f.read()
 
 
 class LrfObject(object):
@@ -510,7 +511,7 @@ class LrfObject(object):
             raise LrfError("object name %s not recognized" % name)
 
     def __str__(self):
-        return 'LRFObject: ' + self.name + ", " + str(self.objId)
+        return 'LRFObject: ' + self.name + ", " + unicode_type(self.objId)
 
     def appendLrfTag(self, tag):
         self.tags.append(tag)
@@ -644,7 +645,7 @@ class LrfWriter(object):
         self.tocObjId = 0
         self.docInfoXml = ""
         self.thumbnailEncoding = "JPEG"
-        self.thumbnailData = ""
+        self.thumbnailData = b""
         self.objects = []
         self.objectTable = []
 
@@ -686,9 +687,8 @@ class LrfWriter(object):
         self.tocObjId = obj.objId
 
     def setThumbnailFile(self, filename, encoding=None):
-        f = file(filename, "rb")
-        self.thumbnailData = f.read()
-        f.close()
+        with open(filename, "rb") as f:
+            self.thumbnailData = f.read()
 
         if encoding is None:
             encoding = os.path.splitext(filename)[1][1:]
@@ -729,7 +729,7 @@ class LrfWriter(object):
         writeZeros(lrf, 20)  # 0x30 unknown
         writeDWord(lrf, self.tocObjId)
         writeDWord(lrf, 0)  # 0x48 tocObjectOffset -- will be updated
-        docInfoXml = codecs.BOM_LE + self.docInfoXml.encode("utf-16-le")
+        docInfoXml = codecs.BOM_UTF8 + self.docInfoXml.encode("utf-8")
         compDocInfo = zlib.compress(docInfoXml)
         writeWord(lrf, len(compDocInfo) + 4)
         writeWord(lrf, IMAGE_TYPE_ENCODING[self.thumbnailEncoding])

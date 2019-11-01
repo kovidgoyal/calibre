@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,7 +17,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, range, map
 
 
 class CreateCustomColumn(QDialog):
@@ -558,8 +559,8 @@ class CreateCustomColumn(QDialog):
             else:
                 display_dict = {'number_format': None}
         elif col_type == 'comments':
-            display_dict['heading_position'] = type(u'')(self.comments_heading_position.currentData())
-            display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
+            display_dict['heading_position'] = unicode_type(self.comments_heading_position.currentData())
+            display_dict['interpret_as'] = unicode_type(self.comments_type.currentData())
         elif col_type == 'rating':
             display_dict['allow_half_stars'] = bool(self.allow_half_stars.isChecked())
 

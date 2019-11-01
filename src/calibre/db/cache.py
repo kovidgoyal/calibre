@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +10,7 @@ import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, cmp
 from time import time
 
 from calibre import isbytestring, as_unicode
@@ -186,7 +185,7 @@ class Cache(object):
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
                 try:
-                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                    self.field_metadata.add_user_category(label='@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
         self._ensure_has_search_category()
@@ -796,18 +795,24 @@ class Cache(object):
             nfmt = 'ORIGINAL_'+fmt
             return self.add_format(book_id, nfmt, fmtfile, run_hooks=False)
 
-    @api
+    @write_api
     def restore_original_format(self, book_id, original_fmt):
         ''' Restore the specified format from the previously saved
         ORIGINAL_FORMAT, if any. Return True on success. The ORIGINAL_FORMAT is
         deleted after a successful restore. '''
         original_fmt = original_fmt.upper()
-        fmtfile = self.format(book_id, original_fmt, as_file=True)
-        if fmtfile is not None:
-            fmt = original_fmt.partition('_')[2]
-            with fmtfile:
-                self.add_format(book_id, fmt, fmtfile, run_hooks=False)
-            self.remove_formats({book_id:(original_fmt,)})
+        fmt = original_fmt.partition('_')[2]
+        try:
+            ofmt_name = self.fields['formats'].format_fname(book_id, original_fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except Exception:
+            return False
+        if self.backend.is_format_accessible(book_id, original_fmt, ofmt_name, path):
+            self.add_format(book_id, fmt, BytesIO(), run_hooks=False)
+            fmt_name = self.fields['formats'].format_fname(book_id, fmt)
+            file_size = self.backend.rename_format_file(book_id, ofmt_name, original_fmt, fmt_name, fmt, path)
+            self.fields['formats'].table.update_fmt(book_id, fmt, fmt_name, file_size, self.backend)
+            self._remove_formats({book_id:(original_fmt,)})
             return True
         return False
 
@@ -956,14 +961,14 @@ class Cache(object):
 
         class SortKey(object):
 
-            __slots__ = ('book_id', 'sort_key')
+            __slots__ = 'book_id', 'sort_key'
 
             def __init__(self, book_id):
                 self.book_id = book_id
                 # Calculate only the first sub-sort key since that will always be used
                 self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
 
-            def __cmp__(self, other):
+            def compare_to_other(self, other):
                 for i, (order, self_key, other_key) in enumerate(zip(orders, self.sort_key, other.sort_key)):
                     if self_key is Lazy:
                         self_key = self.sort_key[i] = sort_key_funcs[i](self.book_id)
@@ -973,6 +978,24 @@ class Cache(object):
                     if ans != 0:
                         return ans * order
                 return 0
+
+            def __eq__(self, other):
+                return self.compare_to_other(other) == 0
+
+            def __ne__(self, other):
+                return self.compare_to_other(other) != 0
+
+            def __lt__(self, other):
+                return self.compare_to_other(other) < 0
+
+            def __le__(self, other):
+                return self.compare_to_other(other) <= 0
+
+            def __gt__(self, other):
+                return self.compare_to_other(other) > 0
+
+            def __ge__(self, other):
+                return self.compare_to_other(other) >= 0
 
         return sorted(ids_to_sort, key=SortKey)
 
@@ -1495,7 +1518,7 @@ class Cache(object):
         for aut in authors:
             aid = rmap.get(key_func(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
-        return ' & '.join(filter(None, result))
+        return ' & '.join(_f for _f in result if _f)
 
     @read_api
     def data_for_has_book(self):
@@ -1957,7 +1980,7 @@ class Cache(object):
         title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
         from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
-        langq = tuple(filter(lambda x: x and x != 'und', map(canonicalize_lang, mi.languages or ())))
+        langq = tuple(x for x in map(canonicalize_lang, mi.languages or ()) if x and x != 'und')
         if mi.authors:
             try:
                 quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail
@@ -2188,8 +2211,8 @@ class Cache(object):
 
     @read_api
     def export_library(self, library_key, exporter, progress=None, abort=None):
-        from binascii import hexlify
-        key_prefix = hexlify(library_key)
+        from polyglot.binary import as_hex_unicode
+        key_prefix = as_hex_unicode(library_key)
         book_ids = self._all_book_ids()
         total = len(book_ids) + 1
         format_metadata = {}

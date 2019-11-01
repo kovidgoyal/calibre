@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -17,7 +17,7 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import as_local_time
-from calibre import strftime, prints, sanitize_file_name_unicode
+from calibre import strftime, prints, sanitize_file_name
 from calibre.db.lazy import FormatsList
 from polyglot.builtins import unicode_type
 
@@ -217,7 +217,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
-    format_args['id'] = str(id)
+    format_args['id'] = unicode_type(id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
@@ -247,7 +247,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
-        components = [str(id)]
+        components = [unicode_type(id)]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
@@ -279,7 +279,7 @@ def save_book_to_disk(book_id, db, root, opts, length):
 def get_path_components(opts, mi, book_id, path_length):
     try:
         components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
-            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
+            ascii_filename if opts.asciiize else sanitize_file_name,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace, safe_format=False,
             last_has_extension=False, single_dir=opts.single_dir)
@@ -360,7 +360,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         return not formats_written, book_id, mi.title
 
     for fmt in formats:
-        fmt_path = base_path+'.'+str(fmt)
+        fmt_path = base_path+'.'+unicode_type(fmt)
         try:
             db.copy_format_to(book_id, fmt, fmt_path)
             formats_written = True

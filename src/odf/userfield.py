@@ -21,6 +21,7 @@
 
 """Class to show and manipulate user fields in odf documents."""
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
 import zipfile
 
@@ -158,7 +159,7 @@ class UserFields(object):
         all_fields = self.document.getElementsByType(UserFieldDecl)
         for f in all_fields:
             field_name = f.getAttribute('name')
-            if data.has_key(field_name):
+            if field_name in data:
                 value_type = f.getAttribute('valuetype')
                 value = data.get(field_name)
                 if value_type == 'string':

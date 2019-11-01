@@ -188,7 +188,7 @@ class OReillyPremium(BasicNewsRecipe):
         #    feeds = self.parse_feeds()
         # Now add regular feeds.
         feedsRSS = self.parse_feeds()
-        print ("feedsRSS is type " + feedsRSS.__class__.__name__)
+        print("feedsRSS is type " + feedsRSS.__class__.__name__)
 
         for articles in feedsRSS:
             print("articles is type " + articles.__class__.__name__)

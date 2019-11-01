@@ -1,7 +1,6 @@
 #!/usr/bin/env  python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
@@ -59,8 +58,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         try:
             self.books_table_column_widths = \
                         gprefs.get('match_books_dialog_books_table_widths', None)
-            geom = gprefs.get('match_books_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
+            geom = gprefs.get('match_books_dialog_geometry', None)
+            if geom:
+                self.restoreGeometry(QByteArray(geom))
         except:
             pass
 

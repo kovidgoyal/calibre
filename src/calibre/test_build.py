@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,8 +12,8 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest, time
 
-from calibre.constants import plugins, iswindows, islinux, isosx
-from polyglot.builtins import iteritems, map, unicode_type
+from calibre.constants import plugins, iswindows, islinux, isosx, ispy3, plugins_loc
+from polyglot.builtins import iteritems, map, unicode_type, getenv, native_string_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -28,7 +27,7 @@ class BuildTest(unittest.TestCase):
         for x in os.listdir(base):
             if x.lower().endswith('.dll'):
                 try:
-                    ctypes.WinDLL(str(os.path.join(base, x)))
+                    ctypes.WinDLL(native_string_type(os.path.join(base, x)))
                 except Exception as err:
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
 
@@ -46,6 +45,10 @@ class BuildTest(unittest.TestCase):
         import regex
         self.assertEqual(regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b'), [('a', 'b'), ('A', 'B')])
         self.assertEqual(regex.escape('a b', literal_spaces=True), 'a b')
+
+    def test_hunspell(self):
+        from calibre.spell.dictionary import build_test
+        build_test()
 
     def test_chardet(self):
         from chardet import detect
@@ -73,54 +76,21 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
-    def test_import_of_all_python_modules(self):
-        import importlib
-        exclude_modules = {'calibre.gui2.dbus_export.demo', 'calibre.gui2.dbus_export.gtk'}
-        exclude_packages = {'calibre.devices.mtp.unix.upstream'}
-        if not iswindows:
-            exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
-            exclude_packages |= {'calibre.utils.winreg'}
-        if not isosx:
-            exclude_modules.add('calibre.utils.open_with.osx')
-        if not islinux:
-            exclude_modules |= {
-                    'calibre.utils.dbus_service', 'calibre.linux',
-                    'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
-                    'calibre.gui2.linux_file_dialogs'
-            }
-            exclude_packages.add('calibre.gui2.dbus_export')
-        base = os.path.dirname(__file__)
-        import_base = os.path.dirname(base)
-        count = 0
-        for root, dirs, files in os.walk(base):
-            for d in dirs:
-                if not os.path.isfile(os.path.join(root, d, '__init__.py')):
-                    dirs.remove(d)
-            for fname in files:
-                module_name, ext = os.path.splitext(fname)
-                if ext != '.py':
-                    continue
-                path = os.path.join(root, module_name)
-                relpath = os.path.relpath(path, import_base).replace(os.sep, '/')
-                full_module_name = '.'.join(relpath.split('/'))
-                if full_module_name.endswith('.__init__'):
-                    full_module_name = full_module_name.rpartition('.')[0]
-                if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
-                    continue
-                importlib.import_module(full_module_name)
-                count += 1
-        self.assertGreater(count, 1000)
+    def test_bs4(self):
+        import soupsieve, bs4
+        del soupsieve, bs4
+
+    def test_zeroconf(self):
+        if ispy3:
+            import zeroconf as z, ifaddr
+        else:
+            import calibre.utils.Zeroconf as z
+            ifaddr = None
+        del z
+        del ifaddr
 
     def test_plugins(self):
         exclusions = set()
-        if is_ci:
-            if isosx:
-                # The compiler version on OS X is different between the
-                # machine on which the dependencies are built and the
-                # machine on which the calibre modules are built, which causes
-                # C++ name mangling incompatibilities preventing some modules
-                # from loading
-                exclusions.update(set('podofo'.split()))
         if islinux and (not os.path.exists('/dev/bus/usb') and not os.path.exists('/proc/bus/usb')):
             # libusb fails to initialize in containers without USB subsystems
             exclusions.update(set('libusb libmtp'.split()))
@@ -128,7 +98,7 @@ class BuildTest(unittest.TestCase):
             if name in exclusions:
                 if name in ('libusb', 'libmtp'):
                     # Just check that the DLL can be loaded
-                    ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
+                    ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
@@ -152,7 +122,7 @@ class BuildTest(unittest.TestCase):
             s = msgpack_dumps(obj)
             self.assertEqual(obj, msgpack_loads(s))
         self.assertEqual(type(msgpack_loads(msgpack_dumps(b'b'))), bytes)
-        self.assertEqual(type(msgpack_loads(msgpack_dumps(u'b'))), type(u''))
+        self.assertEqual(type(msgpack_loads(msgpack_dumps('b'))), unicode_type)
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 
@@ -168,7 +138,9 @@ class BuildTest(unittest.TestCase):
         winutil = plugins['winutil'][0]
 
         def au(x, name):
-            self.assertTrue(isinstance(x, unicode_type), name + '() did not return a unicode string')
+            self.assertTrue(
+                isinstance(x, unicode_type),
+                '%s() did not return a unicode string, instead returning: %r' % (name, x))
         for x in winutil.argv():
             au(x, 'argv')
         for x in 'username temp_path locale_name'.split():
@@ -178,14 +150,16 @@ class BuildTest(unittest.TestCase):
         au(d['decimal_point'], 'localeconv')
         for k, v in iteritems(d):
             au(v, k)
-        for k in os.environ.keys():
-            au(winutil.getenv(unicode_type(k)), 'getenv-' + k)
         os.environ['XXXTEST'] = 'YYY'
-        self.assertEqual(winutil.getenv(u'XXXTEST'), u'YYY')
+        self.assertEqual(getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
-        self.assertIsNone(winutil.getenv(u'XXXTEST'))
+        self.assertIsNone(getenv('XXXTEST'))
+        for k in os.environ:
+            v = getenv(k)
+            if v is not None:
+                au(v, 'getenv-' + k)
         t = time.localtime()
-        fmt = u'%Y%a%b%e%H%M'
+        fmt = '%Y%a%b%e%H%M'
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
@@ -204,16 +178,20 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
-        from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
+        from PyQt5.QtCore import QTimer
+        from PyQt5.QtWidgets import QApplication
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage
+        from PyQt5.QtGui import QImageReader, QFontDatabase
+        from PyQt5.QtNetwork import QNetworkAccessManager
         from calibre.utils.img import image_from_data, image_to_data, test
         # Ensure that images can be read before QApplication is constructed.
         # Note that this requires QCoreApplication.libraryPaths() to return the
         # path to the Qt plugins which it always does in the frozen build,
-        # because the QT_PLUGIN_PATH env var is set. On non-frozen builds,
-        # it should just work because the hard-coded paths of the Qt
-        # installation should work. If they do not, then it is a distro
-        # problem.
-        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))
+        # because Qt is patched to know the layout of the calibre application
+        # package. On non-frozen builds, it should just work because the
+        # hard-coded paths of the Qt installation should work. If they do not,
+        # then it is a distro problem.
+        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))  # no2to3
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = P('images/blank.png', allow_user_override=False, data=True)
@@ -225,24 +203,45 @@ class BuildTest(unittest.TestCase):
         # Run the imaging tests
         test()
 
-        from calibre.gui2 import Application
-        os.environ.pop('DISPLAY', None)
-        has_headless = isosx or islinux
-        app = Application([], headless=has_headless)
-        self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-        if has_headless:
+        from calibre.gui2 import ensure_app, destroy_app
+        display_env_var = os.environ.pop('DISPLAY', None)
+        try:
+            ensure_app()
+            self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
             from calibre.ebooks.covers import create_cover
             create_cover('xxx', ['yyy'])
-        na = QNetworkAccessManager()
-        self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
-        from PyQt5.QtWebKitWidgets import QWebView
-        if iswindows:
-            from PyQt5.Qt import QtWin
-            QtWin
-        QWebView()
-        del QWebView
-        del na
-        del app
+            na = QNetworkAccessManager()
+            self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+            if iswindows:
+                from PyQt5.Qt import QtWin
+                QtWin
+            p = QWebEnginePage()
+
+            def callback(result):
+                callback.result = result
+                if hasattr(print_callback, 'result'):
+                    QApplication.instance().quit()
+
+            def print_callback(result):
+                print_callback.result = result
+                if hasattr(callback, 'result'):
+                    QApplication.instance().quit()
+
+            p.runJavaScript('1 + 1', callback)
+            p.printToPdf(print_callback)
+            QTimer.singleShot(5000, lambda: QApplication.instance().quit())
+            QApplication.instance().exec_()
+            test_flaky = isosx and not is_ci
+            if not test_flaky:
+                self.assertEqual(callback.result, 2, 'Simple JS computation failed')
+                self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
+            del p
+            del na
+            destroy_app()
+            del QWebEnginePage
+        finally:
+            if display_env_var is not None:
+                os.environ['DISPLAY'] = display_env_var
 
     def test_imaging(self):
         from PIL import Image
@@ -253,6 +252,8 @@ class BuildTest(unittest.TestCase):
             from PIL import _imaging, _imagingmath, _imagingft
         _imaging, _imagingmath, _imagingft
         i = Image.open(I('lt.png', allow_user_override=False))
+        self.assertGreaterEqual(i.size, (20, 20))
+        i = Image.open(P('catalog/DefaultCover.jpg', allow_user_override=False))
         self.assertGreaterEqual(i.size, (20, 20))
 
     @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-itegration)')
@@ -298,7 +299,6 @@ class BuildTest(unittest.TestCase):
         import psutil
         psutil.Process(os.getpid())
 
-    @unittest.skipIf(is_ci and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
     def test_podofo(self):
         from calibre.utils.podofo import test_podofo as dotest
         dotest()
@@ -333,15 +333,13 @@ class BuildTest(unittest.TestCase):
         if isosx:
             cafile = ssl.get_default_verify_paths().cafile
             if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
-                self.assert_('Mozilla CA certs not loaded')
+                raise AssertionError('Mozilla CA certs not loaded')
 
 
 def find_tests():
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
     from calibre.utils.icu_test import find_tests
-    import duktape.tests as dtests
     ans.addTests(find_tests())
-    ans.addTests(unittest.defaultTestLoader.loadTestsFromModule(dtests))
     from tinycss.tests.main import find_tests
     ans.addTests(find_tests())
     from calibre.spell.dictionary import find_tests

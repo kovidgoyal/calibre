@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -107,7 +107,7 @@ class LinuxScanner(object):
         self.ok = os.path.exists(self.base)
 
     def __call__(self):
-        ans = set([])
+        ans = set()
         if not self.ok:
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
@@ -128,41 +128,41 @@ class LinuxScanner(object):
                 # Ignore USB HUBs
                 if read(os.path.join(base, 'bDeviceClass')) == b'09':
                     continue
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(ven), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(prod), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(bcd), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(read(man).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(prod_string).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(serial).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
 
             dev = USBDevice(*dev)
             try:
                 dev.busnum = int(read(os.path.join(base, 'busnum')))
-            except:
+            except Exception:
                 pass
             try:
                 dev.devnum = int(read(os.path.join(base, 'devnum')))
-            except:
+            except Exception:
                 pass
             ans.add(dev)
         return ans

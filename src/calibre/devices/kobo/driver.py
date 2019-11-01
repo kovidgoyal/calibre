@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
+__copyright__ = '2010-2019, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Driver for Kobo ereaders. Supports all e-ink devices.
+Driver for Kobo eReaders. Supports all e-ink devices.
 
 Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
@@ -24,12 +24,13 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.kobo.books import KTCollectionsBookList
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints, fsync
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
@@ -82,7 +83,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 149
+    supported_dbversion = 156
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -108,7 +109,7 @@ class KOBO(USBMS):
     SUPPORTS_ANNOTATIONS = True
 
     # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work.
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo', ''])
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(('kobo', ''))
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('The Kobo supports several collections including ')+ 'Read, Closed, Im_Reading. ' + _(
@@ -196,9 +197,9 @@ class KOBO(USBMS):
         # Determine the firmware version
         try:
             with lopen(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
-                fwversion = f.readline().split(',')[2]
-                fwversion = tuple((int(x) for x in fwversion.split('.')))
-        except:
+                fwversion = f.readline().split(b',')[2]
+                fwversion = tuple((int(x) for x in fwversion.split(b'.')))
+        except Exception:
             debug_print("Kobo::get_firmware_version - didn't get firmware version from file'")
             fwversion = (0,0,0)
 
@@ -371,7 +372,7 @@ class KOBO(USBMS):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = str(e)
+                err = unicode_type(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded')):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -407,7 +408,7 @@ class KOBO(USBMS):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True):
+        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: x or -1):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -477,13 +478,13 @@ class KOBO(USBMS):
                     cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 '
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
-                    if 'no such column' not in str(e):
+                    if 'no such column' not in unicode_type(e):
                         raise
                     try:
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 '
                             'where BookID is Null and ContentID =?',t)
                     except Exception as e:
-                        if 'no such column' not in str(e):
+                        if 'no such column' not in unicode_type(e):
                             raise
                         cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' '
                             'where BookID is Null and ContentID =?',t)
@@ -523,7 +524,7 @@ class KOBO(USBMS):
             path = self.normalize_path(path)
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
-            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path)
+            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path)
 
             ContentID = self.contentid_from_path(path, ContentType)
 
@@ -549,7 +550,7 @@ class KOBO(USBMS):
                     try:
                         # print "removed"
                         os.removedirs(os.path.dirname(path))
-                    except:
+                    except Exception:
                         pass
         self.report_progress(1.0, _('Removing books from device...'))
 
@@ -637,6 +638,7 @@ class KOBO(USBMS):
     def get_content_type_from_path(self, path):
         # Strictly speaking the ContentType could be 6 or 10
         # however newspapers have the same storage format
+        ContentType = 901
         if path.find('kepub') >= 0:
             ContentType = 6
         return ContentType
@@ -826,7 +828,7 @@ class KOBO(USBMS):
             cursor.execute(query)
         except Exception as e:
             debug_print('    Database Exception:  Unable to reset Shortlist list')
-            if 'no such column' not in str(e):
+            if 'no such column' not in unicode_type(e):
                 raise
         finally:
             cursor.close()
@@ -840,7 +842,7 @@ class KOBO(USBMS):
             cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
         except Exception as e:
             debug_print('    Database Exception:  Unable set book as Shortlist')
-            if 'no such column' not in str(e):
+            if 'no such column' not in unicode_type(e):
                 raise
         finally:
             cursor.close()
@@ -904,17 +906,17 @@ class KOBO(USBMS):
                                 book.device_collections.append(category)
 
                             extension =  os.path.splitext(book.path)[1]
-                            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
 
                             ContentID = self.contentid_from_path(book.path, ContentType)
 
-                            if category in list(readstatuslist.keys()):
+                            if category in tuple(readstatuslist):
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, ContentID, readstatuslist.get(category))
                             elif category == 'Shortlist' and self.dbversion >= 14:
                                 # Manage FavouritesIndex/Shortlist
                                 self.set_favouritesindex(connection, ContentID)
-                            elif category in list(accessibilitylist.keys()):
+                            elif category in tuple(accessibilitylist):
                                 # Do not manage the Accessibility List
                                 pass
             else:  # No collections
@@ -1050,9 +1052,9 @@ class KOBO(USBMS):
                             with lopen(cover, 'rb') as f:
                                 data = f.read()
 
-                            # Return the data resized and in Grayscale if
+                            # Return the data resized and grayscaled if
                             # required
-                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize)
+                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize, minify_to=resize)
 
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
@@ -1146,9 +1148,9 @@ class KOBO(USBMS):
         def resolve_bookmark_paths(storage, path_map):
             pop_list = []
             book_ext = {}
-            for id in path_map:
+            for book_id in path_map:
                 file_fmts = set()
-                for fmt in path_map[id]['fmts']:
+                for fmt in path_map[book_id]['fmts']:
                     file_fmts.add(fmt)
                 bookmark_extension = None
                 if file_fmts.intersection(epub_formats):
@@ -1157,37 +1159,37 @@ class KOBO(USBMS):
 
                 if bookmark_extension:
                     for vol in storage:
-                        bkmk_path = path_map[id]['path']
+                        bkmk_path = path_map[book_id]['path']
                         bkmk_path = bkmk_path
                         if os.path.exists(bkmk_path):
-                            path_map[id] = bkmk_path
-                            book_ext[id] = book_extension
+                            path_map[book_id] = bkmk_path
+                            book_ext[book_id] = book_extension
                             break
                     else:
-                        pop_list.append(id)
+                        pop_list.append(book_id)
                 else:
-                    pop_list.append(id)
+                    pop_list.append(book_id)
 
             # Remove non-existent bookmark templates
-            for id in pop_list:
-                path_map.pop(id)
+            for book_id in pop_list:
+                path_map.pop(book_id)
             return path_map, book_ext
 
         storage = get_storage()
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
-        with closing(self.device_database_connection()) as connection:
-            for id in path_map:
-                extension =  os.path.splitext(path_map[id])[1]
-                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
-                ContentID = self.contentid_from_path(path_map[id], ContentType)
+        with closing(self.device_database_connection(use_row_factory=True)) as connection:
+            for book_id in path_map:
+                extension =  os.path.splitext(path_map[book_id])[1]
+                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[book_id])
+                ContentID = self.contentid_from_path(path_map[book_id], ContentType)
                 debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
                 bookmark_ext = extension
 
-                myBookmark = Bookmark(connection, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
-                bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
+                myBookmark = Bookmark(connection, ContentID, path_map[book_id], book_id, book_ext[book_id], bookmark_ext)
+                bookmarked_books[book_id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -1291,7 +1293,7 @@ class KOBO(USBMS):
                               annotation=user_notes[location]['annotation']))
 
             for annotation in annotations:
-                annot = BeautifulSoup('<span>' + annotations + '</span>').find('span')
+                annot = BeautifulSoup('<span>' + annotation + '</span>').find('span')
                 divTag.insert(dtc, annot)
                 dtc += 1
 
@@ -1338,16 +1340,16 @@ class KOBO(USBMS):
 
 class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
-    gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
+    gui_name    = 'Kobo eReader'
     author      = 'David Forrester'
     description = _(
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
-        ' Aura H2O Edition 2, Clara HD and Forma ereaders.'
+        ' Aura H2O Edition 2, Clara HD and Forma eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 149
+    supported_dbversion             = 157
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1359,7 +1361,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 12, 12111)
+    max_supported_fwversion         = (4, 18, 13737)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1372,6 +1374,9 @@ class KOBOTOUCH(KOBO):
     min_fwversion_overdrive         = (4,  0,  7523)
     min_clarahd_fwversion           = (4,  8, 11090)
     min_forma_fwversion             = (4, 11, 11879)
+    min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
+    min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
+    min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
 
     has_kepubs = True
 
@@ -1400,6 +1405,7 @@ class KOBOTOUCH(KOBO):
     FORMA_PRODUCT_ID    = [0x4229]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
+    LIBRA_H2O_PRODUCT_ID = [0x4232]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
@@ -1407,78 +1413,81 @@ class KOBOTOUCH(KOBO):
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
-    COVER_FILE_ENDINGS = {
-                          # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen
+    # NOTE: Values pulled from Nickel by @geek1011,
+    #       c.f., this handy recap: https://github.com/shermp/Kobo-UNCaGED/issues/16#issuecomment-494229994
+    #       Only the N3_FULL values differ, as they should match the screen's effective resolution.
+    #       Note that all Kobo devices share a common AR at roughly 0.75,
+    #       so results should be similar, no matter the exact device.
+    # Common to all Kobo models
+    COMMON_COVER_FILE_ENDINGS = {
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':              [(355,530),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':              [(149,223),0, 200,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
+                          ' - N3_LIBRARY_LIST.parsed':              [(60,90),0, 53,False,],
                           # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed': [(355,530), 82, 100,False,],
                           }
-    # Glo and Aura share resolution, so the image sizes should be the same.
+    # Legacy 6" devices
+    LEGACY_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(600,800),0, 200,True,],
+                          }
+    # Glo
     GLO_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],
+                          ' - N3_FULL.parsed':        [(758,1024),0, 200,True,],
+                          }
+    # Aura
+    AURA_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          # NOTE: The Aura's bezel covers 10 pixels at the bottom.
+                          #       Kobo officially advertised the screen resolution with those chopped off.
+                          ' - N3_FULL.parsed':        [(758,1014),0, 200,True,],
                           }
     # Glo HD and Clara HD share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  479), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  201), 0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],
-                          # Used for Details screen from FW2.8.1
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          }
+    AURA_H2O_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          # NOTE: The H2O's bezel covers 11 pixels at the top.
+                          #       Unlike on the Aura, Nickel fails to account for this when generating covers.
+                          #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
+                          ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
                           }
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
                           }
     FORMA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
+                          # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
+                          #       choosing instead to follow the Aura One codepath.
                           ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
-                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
-                          # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
+                          }
+    LIBRA_H2O_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 # ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
 # ' - N3_LIBRARY_FULL.parsed':[(600,800),0, 99,],
-# ' - N3_LIBRARY_GRID.parsed':[(149,233),0, 99,],   # Used for library lists
+# ' - N3_LIBRARY_GRID.parsed':[(149,223),0, 99,],   # Used for library lists
 #                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
 # ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
@@ -1505,7 +1514,7 @@ class KOBOTOUCH(KOBO):
         # Just dump some info to the logs.
         super(KOBOTOUCH, self).open_osx()
 
-        # Wrap some debugging output in a try/except so that it unlikely to break things completely.
+        # Wrap some debugging output in a try/except so that it is unlikely to break things completely.
         try:
             if DEBUG:
                 from calibre.constants import plugins
@@ -1768,7 +1777,7 @@ class KOBOTOUCH(KOBO):
                                 debug_print('KoboTouch:update_booklist - book file does not exist. ContentID="%s"'%ContentID)
 
                     except Exception as e:
-                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%str(e))
+                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%unicode_type(e))
                         debug_print("        prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors,
                                     "MimeType: ", MimeType, "DateCreated: ", DateCreated, "ContentType: ", ContentType, "ImageID: ", ImageID)
                         raise
@@ -1837,15 +1846,15 @@ class KOBOTOUCH(KOBO):
             self.bookshelvelist = self.get_bookshelflist(connection)
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
-            columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageId, ReadStatus, Description, Publisher, Language '
+            columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageId, ReadStatus, Description, Publisher '
             if self.dbversion >= 16:
                 columns += ', ___ExpirationStatus, FavouritesIndex, Accessibility'
             else:
                 columns += ', -1 as ___ExpirationStatus, -1 as FavouritesIndex, -1 as Accessibility'
             if self.dbversion >= 33:
-                columns += ', IsDownloaded, ISBN'
+                columns += ', Language, IsDownloaded, ISBN'
             else:
-                columns += ', "1" as IsDownloaded, null AS ISBN'
+                columns += ', NULL AS Language, "1" AS IsDownloaded, NULL AS ISBN'
             if self.supports_series():
                 columns += ", Series, SeriesNumber, ___UserID, ExternalId, Subtitle"
             else:
@@ -1908,12 +1917,12 @@ class KOBOTOUCH(KOBO):
             try:
                 cursor.execute(query)
             except Exception as e:
-                err = str(e)
+                err = unicode_type(e)
                 if not (any_in(err, '___ExpirationStatus', 'FavouritesIndex', 'Accessibility', 'IsDownloaded', 'Series', 'ExternalId')):
                     raise
                 query= ('SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                         'ImageId, ReadStatus, -1 AS ___ExpirationStatus, "-1" AS FavouritesIndex, '
-                        'null AS ISBN, Language '
+                        'null AS ISBN, NULL AS Language '
                         '-1 AS Accessibility, 1 AS IsDownloaded, NULL AS Series, NULL AS SeriesNumber, null as Subtitle '
                         'FROM content '
                         'WHERE BookID IS NULL'
@@ -1962,7 +1971,7 @@ class KOBOTOUCH(KOBO):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True):
+        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: x or -1):
             if idx is not None:
                 if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))) or not bl[idx].contentID:
                     need_sync = True
@@ -2021,7 +2030,7 @@ class KOBOTOUCH(KOBO):
         if len(ImageID) > 0:
             path = self.images_path(prefix, ImageID)
 
-            for ending in self.cover_file_endings().keys():
+            for ending in self.cover_file_endings():
                 fpath = path + ending
                 if os.path.exists(fpath):
                     if show_debug:
@@ -2117,7 +2126,7 @@ class KOBOTOUCH(KOBO):
 
                     cursor.close()
             except Exception as e:
-                debug_print('KoboTouch:upload_books - Exception:  %s'%str(e))
+                debug_print('KoboTouch:upload_books - Exception:  %s'%unicode_type(e))
 
         return result
 
@@ -2216,7 +2225,7 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:commit_container: removing container temp files.")
         try:
             shutil.rmtree(container.root)
-        except:
+        except Exception:
             pass
 
     def delete_via_sql(self, ContentID, ContentType):
@@ -2261,7 +2270,7 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:delete_via_sql: finished SQL')
                 debug_print('KoboTouch:delete_via_sql: After SQL, no exception')
             except Exception as e:
-                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%str(e))
+                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%unicode_type(e))
 
         debug_print('KoboTouch:delete_via_sql: imageId="%s"'%imageId)
         if imageId is None:
@@ -2286,7 +2295,7 @@ class KOBOTOUCH(KOBO):
 
             try:
                 os.removedirs(os.path.dirname(path))
-            except:
+            except Exception:
                 pass
 
     def contentid_from_path(self, path, ContentType):
@@ -2300,7 +2309,7 @@ class KOBOTOUCH(KOBO):
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
-            elif extension == '':
+            elif not extension:
                 ContentID = path
                 ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
             else:
@@ -2323,17 +2332,18 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:contentid_from_path - end - ContentID='%s'"%ContentID)
         return ContentID
 
+    def get_content_type_from_path(self, path):
+        ContentType = 6
+        if self.fwversion < (1, 9, 17):
+            ContentType = super(KOBOTOUCH, self).get_content_type_from_path(path)
+        return ContentType
+
     def get_content_type_from_extension(self, extension):
         debug_print("KoboTouch:get_content_type_from_extension - start")
         # With new firmware, ContentType appears to be 6 for all types of sideloaded books.
-        if self.fwversion >= (1,9,17) or extension == '.kobo' or extension == '.mobi':
-            debug_print("KoboTouch:get_content_type_from_extension - V2 firmware")
-            ContentType = 6
-        # For older firmware, it depends on the type of file.
-        elif extension == '.kobo' or extension == '.mobi':
-            ContentType = 6
-        else:
-            ContentType = 901
+        ContentType = 6
+        if self.fwversion < (1,9,17):
+            ContentType = super(KOBOTOUCH, self).get_content_type_from_extension(extension)
         return ContentType
 
     def set_plugboards(self, plugboards, pb_func):
@@ -2429,9 +2439,9 @@ class KOBOTOUCH(KOBO):
                             category_added = False
 
                             if book.contentID is None:
-                                debug_print('    Do not know ContentID - Title="%s, Authors=%s"'%(book.title, book.author))
+                                debug_print('    Do not know ContentID - Title="%s", Authors="%s", path="%s"'%(book.title, book.author, book.path))
                                 extension =  os.path.splitext(book.path)[1]
-                                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                                ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
 
                             if category in self.ignore_collections_names:
@@ -2445,7 +2455,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('        Setting bookshelf on device')
                                     self.set_bookshelf(connection, book, category)
                                     category_added = True
-                            elif category in list(readstatuslist.keys()):
+                            elif category in readstatuslist:
                                 debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
@@ -2460,7 +2470,7 @@ class KOBOTOUCH(KOBO):
                                         debug_print('            and about to set it - %s'%book.title)
                                     self.set_favouritesindex(connection, book.contentID)
                                     category_added = True
-                            elif category in list(accessibilitylist.keys()):
+                            elif category in accessibilitylist:
                                 # Do not manage the Accessibility List
                                 pass
 
@@ -2557,9 +2567,12 @@ class KOBOTOUCH(KOBO):
 
 #        debug_print('KoboTouch: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, self.upload_grayscale, self.keep_cover_aspect)
+            self._upload_cover(
+                path, filename, metadata, filepath,
+                self.upload_grayscale, self.dithered_covers,
+                self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers)
         except Exception as e:
-            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
+            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, unicode_type(e)))
 
     def imageid_from_contentid(self, ContentID):
         ImageID = ContentID.replace('/', '_')
@@ -2586,17 +2599,36 @@ class KOBOTOUCH(KOBO):
             path = os.path.join(path, imageId)
         return path
 
-    def _calculate_kobo_cover_size(self, library_size, kobo_size, keep_cover_aspect, is_full_size):
-        if keep_cover_aspect:
-            library_aspect = library_size[0] / library_size[1]
-            kobo_aspect = kobo_size[0] / kobo_size[1]
-            if library_aspect > kobo_aspect:
-                kobo_size = (kobo_size[0], int(kobo_size[0] / library_aspect))
-            else:
-                kobo_size = (int(library_aspect * kobo_size[1]), kobo_size[1])
-        return kobo_size
+    def _calculate_kobo_cover_size(self, library_size, kobo_size, expand, keep_cover_aspect, letterbox):
+        # Remember the canvas size
+        canvas_size = kobo_size
 
-    def _create_cover_data(self, cover_data, resize_to, kobo_size, upload_grayscale=False, keep_cover_aspect=False, is_full_size=False):
+        # NOTE: Loosely based on Qt's QSize::scaled implementation
+        if keep_cover_aspect:
+            # NOTE: Unlike Qt, we round to avoid accumulating errors,
+            #       as ImageOps will then floor via fit_image
+            aspect_ratio = library_size[0] / library_size[1]
+            rescaled_width = int(round(kobo_size[1] * aspect_ratio))
+
+            if expand:
+                use_height = (rescaled_width >= kobo_size[0])
+            else:
+                use_height = (rescaled_width <= kobo_size[0])
+
+            if use_height:
+                kobo_size = (rescaled_width, kobo_size[1])
+            else:
+                kobo_size = (kobo_size[0], int(round(kobo_size[0] / aspect_ratio)))
+
+            # Did we actually want to letterbox?
+            if not letterbox:
+                canvas_size = kobo_size
+        return (kobo_size, canvas_size)
+
+    def _create_cover_data(
+        self, cover_data, resize_to, minify_to, kobo_size,
+        upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90
+):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
         for save_cover_data_to to allow it to be overriden in a subclass. For this reason,
@@ -2604,23 +2636,32 @@ class KOBOTOUCH(KOBO):
 
         :param cover_data:    original cover data
         :param resize_to:     Size to resize the cover to (width, height). None means do not resize.
+        :param minify_to:     Maximum canvas size for the resized cover (width, height).
         :param kobo_size:     Size of the cover image on the device.
         :param upload_grayscale: boolean True if driver configured to send grayscale thumbnails
-                        Passed to allow ability to decide to quantize to 16-col grayscale
-                        at calibre end
-        :param keep_cover_aspect: bookean - True if the aspect ratio of the cover in the library is to be kept.
+        :param dithered_covers: boolean True if driver configured to quantize to 16-col grayscale
+        :param keep_cover_aspect: boolean - True if the aspect ratio of the cover in the library is to be kept.
         :param is_full_size:  True if this is the kobo_size is for the full size cover image
                         Passed to allow ability to process screensaver differently
                         to smaller thumbnails
+        :param letterbox:     True if we were asked to handle the letterboxing
+        :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
+        :param quality:       0-100 Output encoding quality (or compression level for PNG, àla IM)
         '''
 
         from calibre.utils.img import save_cover_data_to
-        data = save_cover_data_to(cover_data, grayscale=upload_grayscale, resize_to=resize_to)
+        data = save_cover_data_to(
+            cover_data, resize_to=resize_to, compression_quality=quality, minify_to=minify_to, grayscale=upload_grayscale, eink=dithered_covers,
+            letterbox=letterbox, data_fmt="png" if png_covers else "jpeg")
         return data
 
-    def _upload_cover(self, path, filename, metadata, filepath, upload_grayscale, keep_cover_aspect=False):
+    def _upload_cover(
+        self, path, filename, metadata, filepath, upload_grayscale,
+        dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False
+):
         from calibre.utils.imghdr import identify
-        debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' "%(filename, upload_grayscale))
+        from calibre.utils.img import optimize_png
+        debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
 
         if not metadata.cover:
             return
@@ -2637,7 +2678,7 @@ class KOBOTOUCH(KOBO):
 
         # Get ContentID for Selected Book
         extension =  os.path.splitext(filepath)[1]
-        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
+        ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(filepath)
         ContentID = self.contentid_from_path(filepath, ContentType)
 
         try:
@@ -2663,7 +2704,7 @@ class KOBOTOUCH(KOBO):
 
                 image_dir = os.path.dirname(os.path.abspath(path))
                 if not os.path.exists(image_dir):
-                    debug_print("KoboTouch:_upload_cover - Image directory does not exust. Creating path='%s'" % (image_dir))
+                    debug_print("KoboTouch:_upload_cover - Image directory does not exist. Creating path='%s'" % (image_dir))
                     os.makedirs(image_dir)
 
                 with lopen(cover, 'rb') as f:
@@ -2675,8 +2716,8 @@ class KOBOTOUCH(KOBO):
                 for ending, cover_options in self.cover_file_endings().items():
                     kobo_size, min_dbversion, max_dbversion, is_full_size = cover_options
                     if show_debug:
-                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s min_dbversion=%d max_dbversion=%d, is_full_size=%s" % (
-                            library_cover_size, min_dbversion, max_dbversion, is_full_size))
+                        debug_print("KoboTouch:_upload_cover - library_cover_size=%s -> kobo_size=%s, min_dbversion=%d max_dbversion=%d, is_full_size=%s" % (
+                            library_cover_size, kobo_size, min_dbversion, max_dbversion, is_full_size))
 
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:
@@ -2684,16 +2725,60 @@ class KOBOTOUCH(KOBO):
                         fpath = path + ending
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
-                        resize_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, keep_cover_aspect, is_full_size)
+                        # Never letterbox thumbnails, that's ugly. But for fullscreen covers, honor the setting.
+                        letterbox = letterbox_fs_covers and is_full_size
 
-                        # Return the data resized and in Grayscale if required
-                        data = self._create_cover_data(cover_data, resize_to, kobo_size, upload_grayscale, keep_cover_aspect, is_full_size)
+                        # NOTE: Full size means we have to fit *inside* the
+                        # given boundaries. Thumbnails, on the other hand, are
+                        # *expanded* around those boundaries.
+                        #       In Qt, it'd mean full-screen covers are resized
+                        #       using Qt::KeepAspectRatio, while thumbnails are
+                        #       resized using Qt::KeepAspectRatioByExpanding
+                        #       (i.e., QSize's boundedTo() vs. expandedTo(). See also IM's '^' geometry token, for the same "expand" behavior.)
+                        #       Note that Nickel itself will generate bounded thumbnails, while it will download expanded thumbnails for store-bought KePubs...
+                        #       We chose to emulate the KePub behavior.
+                        resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, not is_full_size, keep_cover_aspect, letterbox)
+                        if show_debug:
+                            debug_print(
+                                "KoboTouch:_calculate_kobo_cover_size - expand_to=%s"
+                                " (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s" % (
+                                 expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
 
-                        with lopen(fpath, 'wb') as f:
-                            f.write(data)
-                            fsync(f)
+                        # NOTE: To speed things up, we enforce a lower
+                        # compression level for png_covers, as the final
+                        # optipng pass will then select a higher compression
+                        # level anyway,
+                        #       so the compression level from that first pass
+                        #       is irrelevant, and only takes up precious time
+                        #       ;).
+                        quality = 10 if png_covers else 90
+
+                        # Return the data resized and properly grayscaled/dithered/letterboxed if requested
+                        data = self._create_cover_data(
+                            cover_data, resize_to, expand_to, kobo_size, upload_grayscale,
+                            dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality)
+
+                        # NOTE: If we're writing a PNG file, go through a quick
+                        # optipng pass to make sure it's encoded properly, as
+                        # Qt doesn't afford us enough control to do it right...
+                        #       Unfortunately, optipng doesn't support reading
+                        #       pipes, so this gets a bit clunky as we have go
+                        #       through a temporary file...
+                        if png_covers:
+                            tmp_cover = better_mktemp()
+                            with lopen(tmp_cover, 'wb') as f:
+                                f.write(data)
+
+                            optimize_png(tmp_cover, level=1)
+                            # Crossing FS boundaries, can't rename, have to copy + delete :/
+                            shutil.copy2(tmp_cover, fpath)
+                            os.remove(tmp_cover)
+                        else:
+                            with lopen(fpath, 'wb') as f:
+                                f.write(data)
+                                fsync(f)
         except Exception as e:
-            err = str(e)
+            err = unicode_type(e)
             debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
             raise
 
@@ -3007,7 +3092,7 @@ class KOBOTOUCH(KOBO):
 
         plugboard = None
         if self.plugboard_func and not series_only:
-            if book.contentID.endswith('.kepub.epub') or os.path.splitext(book.contentID)[1] == "":
+            if book.contentID.endswith('.kepub.epub') or not os.path.splitext(book.contentID)[1]:
                 extension = 'kepub'
             else:
                 extension = os.path.splitext(book.contentID)[1][1:]
@@ -3080,8 +3165,10 @@ class KOBOTOUCH(KOBO):
                 update_values.append(newmi.isbn)
                 set_clause += ', ISBN = ? '
 
-            if not (newmi.language == kobo_metadata.language):
-                update_values.append(newmi.language)
+            library_language = normalize_languages(kobo_metadata.languages, newmi.languages)
+            library_language = library_language[0] if library_language is not None and len(library_language) > 0 else None
+            if not (library_language == kobo_metadata.language):
+                update_values.append(library_language)
                 set_clause += ', Language = ? '
 
             if self.update_subtitle:
@@ -3167,8 +3254,11 @@ class KOBOTOUCH(KOBO):
         c.add_opt('ignore_collections_names', default='')
 
         c.add_opt('upload_covers', default=False)
+        c.add_opt('dithered_covers', default=False)
         c.add_opt('keep_cover_aspect', default=False)
         c.add_opt('upload_grayscale', default=False)
+        c.add_opt('letterbox_fs_covers', default=False)
+        c.add_opt('png_covers', default=False)
 
         c.add_opt('show_archived_books', default=False)
         c.add_opt('show_previews', default=False)
@@ -3229,6 +3319,9 @@ class KOBOTOUCH(KOBO):
     def isGloHD(self):
         return self.detected_device.idProduct in self.GLO_HD_PRODUCT_ID
 
+    def isLibraH2O(self):
+        return self.detected_device.idProduct in self.LIBRA_H2O_PRODUCT_ID
+
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
 
@@ -3240,13 +3333,13 @@ class KOBOTOUCH(KOBO):
 
     def cover_file_endings(self):
         if self.isAura():
-            _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.AURA_COVER_FILE_ENDINGS
         elif self.isAuraEdition2():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isAuraHD():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraH2O():
-            _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
+            _cover_file_endings = self.AURA_H2O_COVER_FILE_ENDINGS
         elif self.isAuraH2OEdition2():
             _cover_file_endings = self.AURA_HD_COVER_FILE_ENDINGS
         elif self.isAuraOne():
@@ -3259,16 +3352,21 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isGloHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isLibraH2O():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         else:
-            _cover_file_endings = self.COVER_FILE_ENDINGS
+            _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
-        return _cover_file_endings
+        # Don't forget to merge that on top of the common dictionary (c.f., https://stackoverflow.com/q/38987)
+        _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
+        _all_cover_file_endings.update(_cover_file_endings)
+        return _all_cover_file_endings
 
     def set_device_name(self):
         device_name = self.gui_name
@@ -3292,6 +3390,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Glo'
         elif self.isGloHD():
             device_name = 'Kobo Glo HD'
+        elif self.isLibraH2O():
+            device_name = 'Kobo Libra H2O'
         elif self.isMini():
             device_name = 'Kobo Mini'
         elif self.isTouch():
@@ -3351,6 +3451,18 @@ class KOBOTOUCH(KOBO):
     @property
     def upload_grayscale(self):
         return self.upload_covers and self.get_pref('upload_grayscale')
+
+    @property
+    def dithered_covers(self):
+        return self.upload_grayscale and self.get_pref('dithered_covers')
+
+    @property
+    def letterbox_fs_covers(self):
+        return self.keep_cover_aspect and self.get_pref('letterbox_fs_covers')
+
+    @property
+    def png_covers(self):
+        return self.upload_grayscale and self.get_pref('png_covers')
 
     def modifying_epub(self):
         return self.modifying_css()

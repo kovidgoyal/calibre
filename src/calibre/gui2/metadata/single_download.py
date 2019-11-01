@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,11 +17,10 @@ from io import BytesIO
 from PyQt5.Qt import (
     QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
-    QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
+    QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
     QCursor, QHBoxLayout, QPushButton, QSizePolicy)
-from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
@@ -32,14 +30,14 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, rating_font, gprefs
 from calibre.gui2.progress_indicator import draw_snake_spinner
+from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
-from calibre.utils.config import tweaks
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, getcwd
 from polyglot.queue import Queue, Empty
 # }}}
 
@@ -314,31 +312,40 @@ class ResultsView(QTableView):  # {{{
 # }}}
 
 
-class Comments(QWebView):  # {{{
+class Comments(HTMLDisplay):  # {{{
 
     def __init__(self, parent=None):
-        QWebView.__init__(self, parent)
+        HTMLDisplay.__init__(self, parent)
         self.setAcceptDrops(False)
         self.setMaximumWidth(300)
         self.setMinimumWidth(300)
+        self.wait_timer = QTimer(self)
+        self.wait_timer.timeout.connect(self.update_wait)
+        self.wait_timer.setInterval(800)
+        self.dots_count = 0
+        self.anchor_clicked.connect(self.link_activated)
 
-        palette = self.palette()
-        palette.setBrush(QPalette.Base, Qt.transparent)
-        self.page().setPalette(palette)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
-
-        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
-        self.linkClicked.connect(self.link_clicked)
-
-    def link_clicked(self, url):
+    def link_activated(self, url):
         from calibre.gui2 import open_url
         if url.scheme() in {'http', 'https'}:
             open_url(url)
 
-    def turnoff_scrollbar(self, *args):
-        self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+    def show_wait(self):
+        self.dots_count = 0
+        self.wait_timer.start()
+        self.update_wait()
+
+    def update_wait(self):
+        self.dots_count += 1
+        self.dots_count %= 10
+        self.dots_count = self.dots_count or 1
+        self.setHtml(
+            '<h2>'+_('Please wait')+
+            '<br><span id="dots">{}</span></h2>'.format('.' * self.dots_count))
 
     def show_data(self, html):
+        self.wait_timer.stop()
+
         def color_to_string(col):
             ans = '#000000'
             if col.isValid():
@@ -347,20 +354,14 @@ class Comments(QWebView):  # {{{
                     ans = unicode_type(col.name())
             return ans
 
-        fi = QFontInfo(QApplication.font(self.parent()))
-        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
-        fam = unicode_type(fi.family()).strip().replace('"', '')
-        if not fam:
-            fam = 'sans-serif'
-
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-family: "%s"; font-size: %dpx; color: %s }
-                a { text-decoration: none; color: blue }
+                body, td {background-color: transparent; color: %s }
+                a { text-decoration: none; }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
             </style>
@@ -371,7 +372,7 @@ class Comments(QWebView):  # {{{
             </div>
             </body>
         <html>
-        '''%(fam, f, c)
+        '''%(c,)
         self.setHtml(templ%html)
 
     def sizeHint(self):
@@ -424,7 +425,7 @@ class IdentifyWorker(Thread):  # {{{
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
                 self.results, covers, caches, log_dump = res['result']
-                self.results = [OPF(BytesIO(r), basedir=os.getcwdu(),
+                self.results = [OPF(BytesIO(r), basedir=getcwd(),
                     populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
                     r.has_cached_cover_url = cov
@@ -477,23 +478,7 @@ class IdentifyWidget(QWidget):  # {{{
         self.query.setWordWrap(True)
         l.addWidget(self.query, 2, 0, 1, 2)
 
-        self.comments_view.show_data('<h2>'+_('Please wait')+
-                '<br><span id="dots">.</span></h2>'+
-                '''
-                <script type="text/javascript">
-                window.onload=function(){
-                    var dotspan = document.getElementById('dots');
-                    window.setInterval(function(){
-                        if(dotspan.textContent == '............'){
-                        dotspan.textContent = '.';
-                        }
-                        else{
-                        dotspan.textContent += '.';
-                        }
-                    }, 400);
-                }
-                </script>
-                ''')
+        self.comments_view.show_wait()
 
     def emit_book_selected(self, book):
         self.book_selected.emit(book, self.caches)
@@ -561,7 +546,7 @@ class IdentifyWidget(QWidget):  # {{{
 class CoverWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
-        Thread.__init__(self)
+        Thread.__init__(self, name='CoverWorker')
         self.daemon = True
 
         self.log, self.abort = log, abort
@@ -801,12 +786,19 @@ class CoversView(QListView):  # {{{
 
         self.delegate = CoverDelegate(self)
         self.setItemDelegate(self.delegate)
-        self.delegate.needs_redraw.connect(self.viewport().update,
+        self.delegate.needs_redraw.connect(self.redraw_spinners,
                 type=Qt.QueuedConnection)
 
         self.doubleClicked.connect(self.chosen, type=Qt.QueuedConnection)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def redraw_spinners(self):
+        m = self.model()
+        for r in range(m.rowCount()):
+            idx = m.index(r)
+            if bool(m.data(idx, Qt.UserRole)):
+                m.dataChanged.emit(idx, idx)
 
     def select(self, num):
         current = self.model().index(num)
@@ -816,6 +808,9 @@ class CoversView(QListView):  # {{{
     def start(self):
         self.select(0)
         self.delegate.start_animation()
+
+    def stop(self):
+        self.delegate.stop_animation()
 
     def reset_covers(self):
         self.m.reset_covers()
@@ -842,7 +837,7 @@ class CoversView(QListView):  # {{{
         if pmap is None and idx.row() == 0:
             pmap = self.model().cc
         if pmap is not None:
-            from calibre.gui2.viewer.image_popup import ImageView
+            from calibre.gui2.image_popup import ImageView
             d = ImageView(self, pmap, unicode_type(idx.data(Qt.DisplayRole) or ''), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
 
@@ -941,6 +936,7 @@ class CoversWidget(QWidget):  # {{{
                             title=self.title)
         self.msg.setText(txt)
         self.msg.setWordWrap(True)
+        self.covers_view.stop()
 
         self.finished.emit()
 
@@ -1197,7 +1193,8 @@ class CoverFetch(QDialog):  # {{{
 
 
 if __name__ == '__main__':
+    from calibre.gui2 import Application
     DEBUG_DIALOG = True
-    app = QApplication([])
+    app = Application([])
     d = FullFetch()
-    d.start(title='great gatsby', authors=['fitzgerald'])
+    d.start(title='great gatsby', authors=['fitzgerald'], identifiers={})

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -401,6 +402,7 @@ class POCKETBOOK701(USBMS):
 class POCKETBOOK740(USBMS):
 
     name = 'PocketBook 701 Device Interface'
+    gui_name = 'PocketBook'
     description = _('Communicate with the PocketBook 740')
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',

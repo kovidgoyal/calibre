@@ -16,7 +16,7 @@ from book_list.constants import book_list_container_id, read_book_container_id, 
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color, get_font_family
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
-from book_list.globals import get_db, set_session_data, get_read_ui
+from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler
 from read_book.ui import ReadUI
 
@@ -76,7 +76,6 @@ def init_ui():
     read_ui = ReadUI()
     get_db(read_ui.db)
     set_mode_handler('read_book', read_ui.apply_url_state.bind(read_ui))
-    get_read_ui(read_ui)
     apply_url()
 
 

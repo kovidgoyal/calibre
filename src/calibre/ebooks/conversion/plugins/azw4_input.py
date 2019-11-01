@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
-
 from calibre.customize.conversion import InputFormatPlugin
+from polyglot.builtins import getcwd
 
 
 class AZW4Input(InputFormatPlugin):
@@ -24,6 +24,6 @@ class AZW4Input(InputFormatPlugin):
 
         header = PdbHeaderReader(stream)
         reader = Reader(header, stream, log, options)
-        opf = reader.extract_content(os.getcwdu())
+        opf = reader.extract_content(getcwd())
 
         return opf

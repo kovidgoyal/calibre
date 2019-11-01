@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
 PyTextile
@@ -64,6 +65,7 @@ import re
 import uuid
 
 from calibre.utils.smartypants import smartyPants
+from polyglot.builtins import unicode_type
 from polyglot.urllib import urlopen, urlparse
 
 
@@ -87,13 +89,7 @@ def getimagesize(url):
 
     """
 
-    try:
-        from PIL import ImageFile
-    except ImportError:
-        try:
-            import ImageFile
-        except ImportError:
-            return None
+    from PIL import ImageFile
 
     try:
         p = ImageFile.Parser()
@@ -694,7 +690,7 @@ class Textile(object):
     def footnoteID(self, match):
         id, t = match.groups()
         if id not in self.fn:
-            self.fn[id] = str(uuid.uuid4())
+            self.fn[id] = unicode_type(uuid.uuid4())
         fnid = self.fn[id]
         if not t:
             t = ''
@@ -799,7 +795,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4()) + 'c'
+        id = unicode_type(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 

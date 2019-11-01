@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +11,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import iteritems, unicode_type, zip, range
+from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
 
 import regex
 from PyQt5.Qt import (
@@ -66,7 +65,7 @@ def beautify_text(raw, syntax):
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
-    return etree.tostring(root, encoding=unicode_type)
+    return etree.tostring(root, encoding='unicode')
 
 
 class LineNumberMap(dict):  # {{{
@@ -160,7 +159,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), range(10)))
+        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
@@ -529,7 +528,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False):
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
-        is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
+        is_text = isinstance(left_text, unicode_type) and isinstance(right_text, unicode_type)
         left_name = left_name or '[%s]'%_('This file was added')
         right_name = right_name or '[%s]'%_('This file was removed')
         self.left.headers.append((self.left.blockCount() - 1, left_name))
@@ -589,7 +588,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_image_diff(self, left_data, right_data):
         def load(data):
             p = QPixmap()
-            p.loadFromData(bytes(data))
+            p.loadFromData(as_bytes(data))
             try:
                 dpr = self.devicePixelRatioF()
             except AttributeError:

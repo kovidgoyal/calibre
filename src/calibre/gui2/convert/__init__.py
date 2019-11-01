@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -271,7 +271,7 @@ class Widget(QWidget):
 
     def setup_widget_help(self, g):
         w = textwrap.TextWrapper(80)
-        htext = u'<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
+        htext = '<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
         g.setToolTip(htext)
         g.setWhatsThis(htext)
         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -108,7 +107,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             break
     if uuid is None:
         from uuid import uuid4
-        uuid = str(uuid4())
+        uuid = unicode_type(uuid4())
 
     if isinstance(uuid, unicode_type):
         uuid = uuid.encode('utf-8')
@@ -138,14 +137,14 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
 
     # Add a publication date entry
     if metadata['date']:
-        datestr = str(metadata['date'][0])
+        datestr = unicode_type(metadata['date'][0])
     elif metadata['timestamp']:
-        datestr = str(metadata['timestamp'][0])
+        datestr = unicode_type(metadata['timestamp'][0])
 
     if datestr is None:
         raise ValueError("missing date or timestamp")
 
-    datestr = bytes(datestr)
+    datestr = datestr.encode('utf-8')
     exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
     exth.write(datestr)
     nrecs += 1
@@ -179,7 +178,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if thumbnail_offset is not None:
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
-        thumbnail_uri_str = bytes('kindle:embed:%s' %(to_base(thumbnail_offset, base=32, min_num_digits=4)))
+        thumbnail_uri_str = ('kindle:embed:%s' %(to_base(thumbnail_offset, base=32, min_num_digits=4))).encode('utf-8')
         exth.write(pack(b'>II', EXTH_CODES['kf8_thumbnail_uri'], len(thumbnail_uri_str) + 8))
         exth.write(thumbnail_uri_str)
         nrecs += 2
@@ -217,7 +216,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if page_progression_direction in {'rtl', 'ltr', 'default'}:
-        ppd = bytes(page_progression_direction)
+        ppd = page_progression_direction.encode('ascii')
         exth.write(pack(b'>II', EXTH_CODES['page_progression_direction'], len(ppd) + 8))
         exth.write(ppd)
         nrecs += 1

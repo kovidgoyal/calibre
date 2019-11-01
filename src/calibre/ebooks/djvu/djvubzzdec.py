@@ -1,7 +1,6 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 # coding: utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from polyglot.builtins import range
 
@@ -735,9 +734,10 @@ class BZZDecoder():
 def main():
     import sys
     from calibre.constants import plugins
-    raw = file(sys.argv[1], "rb").read()
+    with open(sys.argv[1], "rb") as f:
+        raw = f.read()
     d = plugins['bzzdec'][0]
-    print (d.decompress(raw))
+    print(d.decompress(raw))
 
 
 if __name__ == "__main__":

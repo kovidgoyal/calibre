@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -169,24 +168,23 @@ class Block(object):
     def height(self):
         return int(ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts)))
 
-    @dynamic_property
+    @property
     def position(self):
-        def fget(self):
-            return self._position
+        return self._position
 
-        def fset(self, new_pos):
-            (x, y) = new_pos
-            self._position = Point(x, y)
-            if self.layouts:
-                self.layouts[0].setPosition(QPointF(x, y))
-                y += self.layouts[0].boundingRect().height()
-                for l in self.layouts[1:]:
-                    if isinstance(l, numbers.Number):
-                        y += l
-                    else:
-                        l.setPosition(QPointF(x, y))
-                        y += l.boundingRect().height()
-        return property(fget=fget, fset=fset)
+    @position.setter
+    def position(self, new_pos):
+        (x, y) = new_pos
+        self._position = Point(x, y)
+        if self.layouts:
+            self.layouts[0].setPosition(QPointF(x, y))
+            y += self.layouts[0].boundingRect().height()
+            for l in self.layouts[1:]:
+                if isinstance(l, numbers.Number):
+                    y += l
+                else:
+                    l.setPosition(QPointF(x, y))
+                    y += l.boundingRect().height()
 
     def draw(self, painter):
         for l in self.layouts:
@@ -495,7 +493,11 @@ class Ornamental(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         if not self.PATH_CACHE:
             from calibre.utils.speedups import svg_path_to_painter_path
-            self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            try:
+                self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         p = painter
         painter.setRenderHint(QPainter.Antialiasing)
         g = QRadialGradient(QPointF(rect.center()), rect.width())
@@ -503,7 +505,10 @@ class Ornamental(Style):
         painter.fillRect(rect, QBrush(g))
         painter.save()
         painter.setWindow(0, 0, *self.VIEWPORT)
-        path = self.PATH_CACHE['corner']
+        try:
+            path = self.PATH_CACHE['corner']
+        except KeyError:
+            path = QPainterPath()
         pen = p.pen()
         pen.setColor(self.ccolor1)
         p.setPen(pen)

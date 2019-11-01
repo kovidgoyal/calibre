@@ -32,8 +32,7 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
     safe_set_inner_html(c.firstChild, msg)
     a = c.getElementsByTagName('a')[0]
     a.setAttribute('href', 'javascript: void(0)')
-    a.classList.add('simple-link')
-    a.style.color = 'blue'
+    a.classList.add('blue-link')
     a.addEventListener('click', def():
         document.getElementById(container_id).querySelector('input[type=file]').click()
     , False)

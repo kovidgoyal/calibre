@@ -215,23 +215,19 @@ save_template_title_series_sorting = 'library_order'
 per_language_title_sort_articles = {
         # English
         'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
-
         # Esperanto
         'epo': (r'La\s+', r"L'", 'L´'),
-
         # Spanish
         'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra'  : (r'Le\s+', r'La\s+', r"L'", u'L´', u'L’', r'Les\s+', r'Un\s+', r'Une\s+',
                   r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", u'D´', u'L’'),
-
         # Italian
         'ita': ('Lo\\s+', 'Il\\s+', "L'", 'L´', 'La\\s+', 'Gli\\s+',
                 'I\\s+', 'Le\\s+', 'Uno\\s+', 'Un\\s+', 'Una\\s+', "Un'",
                 'Un´', 'Dei\\s+', 'Degli\\s+', 'Delle\\s+', 'Del\\s+',
                 'Della\\s+', 'Dello\\s+', "Dell'", 'Dell´'),
-
         # Portuguese
         'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
                   r'Uma\s+', r'Umas\s+', ),
@@ -263,10 +259,10 @@ title_sort_articles=r'^(A|The|An)\s+'
 #: Specify a folder calibre should connect to at startup
 # Specify a folder that calibre should connect to at startup using
 # connect_to_folder. This must be a full path to the folder. If the folder does
-# not exist when calibre starts, it is ignored. If there are '\' characters in
-# the path (such as in Windows paths), you must double them.
-# Examples:
-#     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
+# not exist when calibre starts, it is ignored.
+# Example for Windows:
+#     auto_connect_to_folder = 'C:/Users/someone/Desktop/testlib'
+# Example for other operating systems:
 #     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
 auto_connect_to_folder = ''
 

@@ -1,11 +1,11 @@
-from __future__ import with_statement
+from __future__ import with_statement, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, filter, getcwd, as_bytes
 
 border_style_map = {
         'single' : 'solid',
@@ -118,20 +118,21 @@ class RTFInput(InputFormatPlugin):
 
     def extract_images(self, picts):
         from calibre.utils.imghdr import what
+        from binascii import unhexlify
         self.log('Extracting images...')
 
         with open(picts, 'rb') as f:
             raw = f.read()
-        picts = filter(len, re.findall(r'\{\\pict([^}]+)\}', raw))
-        hex = re.compile(r'[^a-fA-F0-9]')
-        encs = [hex.sub('', pict) for pict in picts]
+        picts = filter(len, re.findall(br'\{\\pict([^}]+)\}', raw))
+        hex_pat = re.compile(br'[^a-fA-F0-9]')
+        encs = [hex_pat.sub(b'', pict) for pict in picts]
 
         count = 0
         imap = {}
         for enc in encs:
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
-            data = enc.decode('hex')
+            data = unhexlify(enc)
             fmt = what(None, data)
             if fmt is None:
                 fmt = 'wmf'
@@ -158,7 +159,7 @@ class RTFInput(InputFormatPlugin):
             return name
         try:
             return self.rasterize_wmf(name)
-        except:
+        except Exception:
             self.log.exception('Failed to convert WMF image %r'%name)
         return self.replace_wmf(name)
 
@@ -168,7 +169,7 @@ class RTFInput(InputFormatPlugin):
             return '__REMOVE_ME__'
         from calibre.ebooks.covers import message_image
         if self.default_img is None:
-            self.default_img = message_image('Conversion of WMF images is not supported.',
+            self.default_img = message_image('Conversion of WMF images is not supported.'
             ' Use Microsoft Word or OpenOffice to save this RTF file'
             ' as HTML and convert that in calibre.')
         name = name.replace('.wmf', '.jpg')
@@ -215,7 +216,7 @@ class RTFInput(InputFormatPlugin):
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
         with open(u'styles.css', 'ab') as f:
-            f.write(css)
+            f.write(css.encode('utf-8'))
 
     def convert_borders(self, doc):
         border_styles = []
@@ -256,6 +257,7 @@ class RTFInput(InputFormatPlugin):
         try:
             xml = self.generate_xml(stream.name)
         except RtfInvalidCodeException as e:
+            self.log.exception('Unable to parse RTF')
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 
@@ -286,10 +288,10 @@ class RTFInput(InputFormatPlugin):
         result = transform(doc)
         html = u'index.xhtml'
         with open(html, 'wb') as f:
-            res = transform.tostring(result)
+            res = as_bytes(transform.tostring(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # clean multiple \n
-            res = re.sub('\n+', '\n', res)
+            res = re.sub(b'\n+', b'\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
             # res = re.sub('\s*<body>', '<body>', res)
             # res = re.sub('(?<=\n)\n{2}',
@@ -302,7 +304,7 @@ class RTFInput(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         opf.create_manifest([(u'index.xhtml', None)])
         opf.create_spine([u'index.xhtml'])
         opf.render(open(u'metadata.opf', 'wb'))

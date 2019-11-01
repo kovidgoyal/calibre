@@ -139,7 +139,7 @@ speedup_fdopen(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
 #if PY_MAJOR_VERSION >= 3
-    ans = PyFile_FromFd(fd, name, mode, bufsize, NULL, NULL, NULL, 1);
+    ans = PyFile_FromFd(fd, NULL, mode, bufsize, NULL, NULL, NULL, 1);
 #else
     fp = fdopen(fd, mode);
     if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);
@@ -504,6 +504,8 @@ extern int pthread_setname_np(const char *name);
 void pthread_set_name_np(pthread_t tid, const char *name);
 #elif defined(__NetBSD__)
 // pthread.h provides the symbol
+#elif defined(__HAIKU__)
+// Haiku doesn't support pthread_set_name_np yet
 #else
 // Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
 extern int pthread_setname_np(pthread_t, const char *name);
@@ -514,8 +516,8 @@ extern int pthread_setname_np(pthread_t, const char *name);
 static PyObject*
 set_thread_name(PyObject *self, PyObject *args) {
 	(void)(self); (void)(args);
-#if defined(_MSC_VER)
-	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on Windows");
+#if defined(_MSC_VER) || defined(__HAIKU__)
+	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on on this platform");
 	return NULL;
 #else
 	char *name;
@@ -540,6 +542,66 @@ set_thread_name(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 #endif
 }
+
+#define char_is_ignored(ch) (ch <= 32)
+
+#if PY_MAJOR_VERSION > 2
+static size_t
+count_chars_in(PyObject *text) {
+	size_t ans = 0;
+	if (PyUnicode_READY(text) != 0) return 0;
+	int kind = PyUnicode_KIND(text);
+	void *data = PyUnicode_DATA(text);
+	Py_ssize_t len = PyUnicode_GET_LENGTH(text);
+	ans = len;
+	for (Py_ssize_t i = 0; i < len; i++) {
+		if (char_is_ignored(PyUnicode_READ(kind, data, i))) ans--;
+	}
+	return ans;
+}
+#else
+static size_t
+count_chars_in(PyObject *text) {
+	size_t ans = 0;
+#define L(data, sz) { \
+	ans = sz; \
+	for (Py_ssize_t i = 0; i < sz; i++) { if (char_is_ignored((data)[i])) ans--; } \
+}
+	if (PyUnicode_Check(text)) {
+		L(PyUnicode_AS_UNICODE(text), PyUnicode_GET_SIZE(text));
+	} else {
+		L(PyBytes_AS_STRING(text), PyBytes_GET_SIZE(text));
+	}
+	return ans;
+#undef L
+}
+#endif
+
+static PyObject*
+get_element_char_length(PyObject *self, PyObject *args) {
+	(void)(self);
+	const char *tag_name;
+	PyObject *text, *tail;
+	if (!PyArg_ParseTuple(args, "sOO", &tag_name, &text, &tail)) return NULL;
+	const char *b = strrchr(tag_name, '}');
+	if (b) tag_name = b + 1;
+	char ltagname[16];
+	const size_t tag_name_len = strnlen(tag_name, sizeof(ltagname)-1);
+	for (size_t i = 0; i < tag_name_len; i++) {
+		if ('A' <= tag_name[i] && tag_name[i] <= 'Z') ltagname[i] = 32 + tag_name[i];
+		else ltagname[i] = tag_name[i];
+	}
+	int is_ignored_tag = 0;
+	size_t ans = 0;
+#define EQ(x) memcmp(ltagname, #x, sizeof(#x) - 1) == 0
+	if (EQ(script) || EQ(noscript) || EQ(style) || EQ(title)) is_ignored_tag = 1;
+	if (EQ(img) || EQ(svg)) ans += 1000;
+#undef EQ
+	if (tail != Py_None) ans += count_chars_in(tail);
+	if (text != Py_None && !is_ignored_tag) ans += count_chars_in(text);
+	return PyLong_FromSize_t(ans);
+}
+
 
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
@@ -586,6 +648,10 @@ static PyMethodDef speedup_methods[] = {
 
 	{"set_thread_name", set_thread_name, METH_VARARGS,
 		"set_thread_name(name)\n\nWrapper for pthread_setname_np"
+	},
+
+	{"get_element_char_length", get_element_char_length, METH_VARARGS,
+		"get_element_char_length(tag_name, text, tail)\n\nGet the number of chars in specified tag"
 	},
 
     {NULL, NULL, 0, NULL}

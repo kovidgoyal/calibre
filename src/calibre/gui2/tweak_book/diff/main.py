@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,7 +23,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 
 
 class BusyWidget(QWidget):  # {{{
@@ -140,7 +139,8 @@ def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='lef
 def file_diff(left, right):
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
     if type(raw1) is not type(raw2):
-        raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
+        with open(left, 'rb') as f1, open(right, 'rb') as f2:
+            raw1, raw2 = f1.read(), f2.read()
     cache = Cache()
     cache.set_left(left, raw1), cache.set_right(right, raw2)
     changed_names = {} if raw1 == raw2 else {left:right}

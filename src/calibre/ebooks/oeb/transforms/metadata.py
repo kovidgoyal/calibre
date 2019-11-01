@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems
 
 
 def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
@@ -124,9 +124,10 @@ class MergeMetadata(object):
             self.oeb.metadata.add('identifier', mi.application_id, scheme='calibre')
 
     def set_cover(self, mi, prefer_metadata_cover):
-        cdata, ext = '', 'jpg'
+        cdata, ext = b'', 'jpg'
         if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                cdata = f.read()
             ext = mi.cover.rpartition('.')[-1].lower().strip()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
@@ -137,7 +138,7 @@ class MergeMetadata(object):
         if 'cover' in self.oeb.guide:
             old_cover = self.oeb.guide['cover']
         if prefer_metadata_cover and old_cover is not None:
-            cdata = ''
+            cdata = b''
         if cdata:
             self.oeb.guide.remove('cover')
             self.oeb.guide.remove('titlepage')
@@ -205,7 +206,7 @@ class MergeMetadata(object):
         for item in affected_items:
             body = XPath('//h:body')(item.data)
             if body:
-                text = etree.tostring(body[0], method='text', encoding=unicode_type)
+                text = etree.tostring(body[0], method='text', encoding='unicode')
             else:
                 text = ''
             text = re.sub(r'\s+', '', text)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,7 +17,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, filter
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -174,7 +175,7 @@ class Restore(Thread):
 
     def process_dir(self, dirpath, filenames, book_id):
         book_id = int(book_id)
-        formats = filter(self.is_ebook_file, filenames)
+        formats = list(filter(self.is_ebook_file, filenames))
         fmts    = [os.path.splitext(x)[1][1:].upper() for x in formats]
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]

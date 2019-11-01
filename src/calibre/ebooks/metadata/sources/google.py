@@ -6,7 +6,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import re
 import time
-from Queue import Empty, Queue
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode
 from calibre.ebooks.chardet import xml_to_unicode
@@ -118,7 +121,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     # ISBN
     isbns = []
     for x in identifier(extra):
-        t = str(x.text).strip()
+        t = type('')(x.text).strip()
         if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
             if t[:5].upper() == 'ISBN:':
                 t = check_isbn(t[5:])
@@ -196,7 +199,10 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
@@ -214,10 +220,10 @@ class GoogleBooks(Source):
             if author_tokens:
                 q += ('+' if q else '') + build_term('author', author_tokens)
 
-        if isinstance(q, type(u'')):
-            q = q.encode('utf-8')
         if not q:
             return None
+        if not isinstance(q, bytes):
+            q = q.encode('utf-8')
         return BASE_URL + urlencode({
             'q': q,
             'max-results': 20,

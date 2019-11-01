@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -74,6 +76,7 @@ class PlainTextDialog(Dialog):
 
     def sizeHint(self):
         return QSize(600, 400)
+
 
 if __name__ == '__main__':
     app = Application([])

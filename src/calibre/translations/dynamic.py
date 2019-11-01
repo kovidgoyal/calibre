@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Dynamic language lookup of translations for user-visible strings.
 '''
@@ -26,7 +27,7 @@ def translate(lang, text):
                 allow_user_override=False), 'r') as zf:
                 try:
                     buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
-                except:
+                except Exception:
                     pass
                 else:
                     trans = GNUTranslations(buf)

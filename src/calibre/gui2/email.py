@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, socket, time, textwrap
-from binascii import unhexlify
 from functools import partial
 from threading import Thread
 from itertools import repeat
@@ -29,6 +28,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.icu import primary_sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
 from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.binary import from_hex_unicode
 
 
 class Worker(Thread):
@@ -130,7 +130,7 @@ class Sendmail(object):
                         verbose=1,
                         relay=opts.relay_host,
                         username=opts.relay_username,
-                        password=unhexlify(opts.relay_password).decode('utf-8'), port=opts.relay_port,
+                        password=from_hex_unicode(opts.relay_password), port=opts.relay_port,
                         encryption=opts.encryption,
                         debug_output=safe_debug)
         finally:
@@ -429,7 +429,7 @@ class EmailMixin(object):  # {{{
                     dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
                     formats = [f.lower() for f in (dbfmts.split(',') if dbfmts else
                         [])]
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
+                    if set(formats).intersection(available_input_formats()) and set(fmts).intersection(available_output_formats()):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))

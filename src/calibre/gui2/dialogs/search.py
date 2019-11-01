@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -6,7 +7,7 @@ import re, copy
 from datetime import date
 
 from PyQt5.Qt import (
-    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout,
+    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
     QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
     QSpinBox, QRadioButton
 )
@@ -19,7 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import unicode_type, range, map
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
@@ -115,11 +116,13 @@ def create_simple_tab(self, db):
     l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
+    le.setObjectName('title_box')
     le.setPlaceholderText(_('The title to search for'))
     l.addRow(_('&Title:'), le)
 
     self.authors_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The author to search for'))
+    le.setObjectName('authors_box')
     le.setEditText('')
     le.set_separator('&')
     le.set_space_before_sep(True)
@@ -129,6 +132,7 @@ def create_simple_tab(self, db):
 
     self.series_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The series to search for'))
+    le.setObjectName('series_box')
     all_series = sorted((x[1] for x in db.all_series()), key=sort_key)
     le.set_separator(None)
     le.update_items_cache(all_series)
@@ -136,6 +140,7 @@ def create_simple_tab(self, db):
     l.addRow(_('&Series:'), le)
 
     self.tags_box = le = EditWithComplete(self)
+    le.setObjectName('tags_box')
     le.lineEdit().setPlaceholderText(_('The tags to search for'))
     self.tags_box.update_items_cache(db.all_tags())
     l.addRow(_('Ta&gs:'), le)
@@ -146,6 +151,7 @@ def create_simple_tab(self, db):
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
     self.general_box = le = QLineEdit(self)
+    le.setObjectName('general_box')
     l.addRow(self.general_combo, le)
     if self.box_last_values:
         for k,v in self.box_last_values.items():
@@ -174,7 +180,7 @@ def create_date_tab(self, db):
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in iteritems(db.field_metadata) if v.get('datatype', None) == 'datetime']
+    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iter_items() if v.get('datatype', None) == 'datetime']
     for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
@@ -195,7 +201,7 @@ def create_date_tab(self, db):
         dm.addItem(text, val)
     self.date_day = dd = add(_('&day'), QSpinBox(w))
     dd.setRange(0, 31)
-    dd.setSpecialValueText(u' \xa0')
+    dd.setSpecialValueText(' \xa0')
     h.addStretch(10)
 
     w.h3 = h = QHBoxLayout()
@@ -256,11 +262,19 @@ class SearchDialog(QDialog):
         self.tab_widget.setCurrentIndex(current_tab)
         if current_tab == 1:
             self.matchkind.setCurrentIndex(last_matchkind)
+            focused_field = gprefs.get('advanced_search_simple_tab_focused_field', 'title_box')
+            w = getattr(self, focused_field, None)
+            if w is not None:
+                w.setFocus(Qt.OtherFocusReason)
         self.resize(self.sizeHint())
 
     def save_state(self):
         gprefs['advanced search dialog current tab'] = \
             self.tab_widget.currentIndex()
+        if self.tab_widget.currentIndex() == 1:
+            fw = self.tab_widget.focusWidget().objectName()
+            if fw:
+                gprefs.set('advanced_search_simple_tab_focused_field', fw)
 
     def accept(self):
         self.save_state()

@@ -1,0 +1,65 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.prefs.utils import create_button_box
+from session import defaults
+
+CONTAINER = unique_id('standalone-scrolling-settings')
+
+
+def restore_defaults():
+    container = get_container()
+    for control in container.querySelectorAll('input[name]'):
+        control.checked = defaults[control.getAttribute('name')]
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def create_scrolling_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+
+    def cb(name, text):
+        ans = E.input(type='checkbox', name=name)
+        if sd.get(name):
+            ans.checked = True
+        return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
+
+    container.appendChild(E.div(style='margin-top:1ex', _(
+        'Control how mouse based scrolling works in paged mode')))
+    container.appendChild(cb(
+        'paged_wheel_scrolls_by_screen', _('Mouse wheel scrolls by screen fulls instead of pages')))
+    container.appendChild(cb(
+        'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
+
+    container.appendChild(E.div(style='margin-top:1ex; border-top: solid 1px', '\xa0'))
+    container.appendChild(cb(
+        'book_scrollbar', _('Show a scrollbar')))
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_scrolling_panel
+
+
+def commit_scrolling(onchange):
+    sd = get_session_data()
+    container = get_container()
+    changed = False
+    for control in container.querySelectorAll('input[name]'):
+        name = control.getAttribute('name')
+        val = control.checked
+        if val is not sd.get(name):
+            sd.set(name, val)
+            changed = True
+    if changed:
+        onchange()

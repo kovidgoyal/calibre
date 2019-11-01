@@ -18,7 +18,7 @@ def classes(classes):
 
 
 class GlobeMail(BasicNewsRecipe):
-    title = u'Globe & Mail'
+    title = u'The Globe and Mail'
     __author__ = 'Kovid Goyal'
     encoding = 'utf-8'
     publisher = 'Globe & Mail'
@@ -32,12 +32,12 @@ class GlobeMail(BasicNewsRecipe):
             dict(name='main', attrs={'class': lambda x: x and 'article-primary-content-chain' in x.split()}),
     ]
     remove_tags = [
-            classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions'),
+            classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions pb-f-article-meta'),
     ]
 
     def parse_index(self):
         ans = []
-        for section in 'canada opinion politics sports life arts world'.split():
+        for section in 'canada opinion politics sports life arts world real-estate'.split():
             if self.test and len(ans) >= self.test[0]:
                 break
             soup = self.index_to_soup('https://www.theglobeandmail.com/{}/'.format(section))
@@ -49,7 +49,8 @@ class GlobeMail(BasicNewsRecipe):
 
     def parse_gm_section(self, soup):
         for a in soup.findAll('a', href=True, attrs={'data-lt-lid': lambda x: x and x.startswith('Headline.')}):
-            title = self.tag_to_string(a)
+            headline = a.find('div', 'c-card__hed-text')
+            title = self.tag_to_string(headline)
             url = absolutize(a['href'])
             self.log('  ', title, 'at', url)
             yield {'title': title, 'url': url}

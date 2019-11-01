@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 import time, re
 from threading import Thread
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
@@ -137,7 +139,7 @@ def get_basic_data(browser, log, *skus):
             'orderID': '0',
             'mailingID': '',
             'tContentWidth': '926',
-            'originalOrder': ','.join(str(i) for i in range(len(skus))),
+            'originalOrder': ','.join(type('')(i) for i in range(len(skus))),
             'selectedOrderID': '0',
             'selectedSortColumn': '0',
             'listType': '1',
@@ -231,7 +233,10 @@ class Edelweiss(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         import time
         BASE_URL = ('https://www.edelweiss.plus/GetTreelineControl.aspx?'
         'controlName=/uc/listviews/controls/ListView_data.ascx&itemID=0&resultType=32&dashboardType=8&itemType=1&dataType=products&keywordSearch&')
@@ -250,7 +255,7 @@ class Edelweiss(Source):
             return None
         params = {
             'q': (' '.join(keywords)).encode('utf-8'),
-            '_': str(int(time.time()))
+            '_': type('')(int(time.time()))
         }
         return BASE_URL+urlencode(params)
 

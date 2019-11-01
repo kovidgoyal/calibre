@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -124,9 +125,9 @@ def recipe_test(option, opt_str, value, parser):
     assert value is None
     value = []
 
-    def floatable(str):
+    def floatable(s):
         try:
-            float(str)
+            float(s)
             return True
         except ValueError:
             return False
@@ -308,7 +309,10 @@ def create_option_parser(args, log):
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
-        raise SystemExit(1)
+        if any(x in args for x in ('-h', '--help')):
+            raise SystemExit(0)
+        else:
+            raise SystemExit(1)
 
     input, output = check_command_line_options(parser, args, log)
 
@@ -331,6 +335,10 @@ def abspath(x):
     return os.path.abspath(os.path.expanduser(x))
 
 
+def escape_sr_pattern(exp):
+    return exp.replace('\n', '\ue123')
+
+
 def read_sr_patterns(path, log=None):
     import json, re
     pats = []
@@ -341,10 +349,11 @@ def read_sr_patterns(path, log=None):
         if pat is None:
             if not line.strip():
                 continue
+            line = line.replace('\ue123', '\n')
             try:
                 re.compile(line)
             except:
-                msg = u'Invalid regular expression: %r from file: %r'%(
+                msg = 'Invalid regular expression: %r from file: %r'%(
                         line, path)
                 if log is not None:
                     log.error(msg)

@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, binascii, time, os
+import zlib, json, time, os
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
@@ -15,6 +14,7 @@ from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
 from calibre.utils.shared_file import share_open
 from polyglot import http_client
+from polyglot.binary import from_hex_unicode
 
 
 def setUpModule():
@@ -42,8 +42,8 @@ class ContentTest(LibraryBaseTest):
                 missing('/%s/C:/out.html' % prefix, b'Naughty, naughty!')
 
             def test_response(r):
-                self.assertIn(b'max-age=', r.getheader('Cache-Control'))
-                self.assertIn(b'public', r.getheader('Cache-Control'))
+                self.assertIn('max-age=', r.getheader('Cache-Control'))
+                self.assertIn('public', r.getheader('Cache-Control'))
                 self.assertIsNotNone(r.getheader('Expires'))
                 self.assertIsNotNone(r.getheader('ETag'))
                 self.assertIsNotNone(r.getheader('Content-Type'))
@@ -181,7 +181,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(2))
             self.ae(r.getheader('Used-Cache'), 'no')
-            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            path = from_hex_unicode(r.getheader('Tempfile'))
             f, fdata = share_open(path, 'rb'), data
             # Now force an update
             change_cover(1)
@@ -189,7 +189,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, http_client.OK)
             self.ae(data, db.cover(2))
             self.ae(r.getheader('Used-Cache'), 'no')
-            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            path = from_hex_unicode(r.getheader('Tempfile'))
             f2, f2data = share_open(path, 'rb'), data
             # Do it again
             change_cover(2)
@@ -224,4 +224,42 @@ class ContentTest(LibraryBaseTest):
             raw = r.read()
             self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
 
+    # }}}
+
+    def test_char_count(self):  # {{{
+        from calibre.srv.render_book import get_length
+        from calibre.ebooks.oeb.parse_utils import html5_parse
+
+        root = html5_parse('<p>a b\nc\td\re')
+        self.ae(get_length(root), 5)
+        root = html5_parse('<script>xyz</script>a<iMg>b')
+        self.ae(get_length(root), 1002)
+        root = html5_parse('<p><!-- abc -->m')
+        self.ae(get_length(root), 1)
+    # }}}
+
+    def test_html_as_json(self):  # {{{
+        from calibre.srv.render_book import html_as_json
+        from calibre.ebooks.oeb.parse_utils import html5_parse
+
+        def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
+            root = html5_parse(html)
+            raw = html_as_json(root)
+            # print(raw.decode('utf-8'))
+            data = json.loads(raw)
+            self.ae(data['version'], 1)
+            self.ae(tuple(data['ns_map']), nsmap)
+            bc = data['tree']['c'][1]['c']
+            self.ae(bc, body_children)
+
+        t('<p>a<!--c-->t</p>l', [{"n":"p","x":"a","l":"l","c":[{"s":"c","x":"c","l":"t"}]}])
+        t('<p class="foo" id="bar">a', [{"n":"p","x":"a","a":[['class','foo'],['id','bar']]}])
+        t(
+            '<svg xlink:href="h"></svg>', [{'n': 'svg', 's': 1, 'a': [['href', 'h', 2]]}],
+            ('http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink')
+        )
+        text = '🐈\n\t\\mūs"'
+        t("<p id='{}'>Peña".format(text), [{"n":"p","x":"Peña","a":[['id',text]]}])
+        text = 'a' * (127 * 1024)
+        t('<p>{0}<p>{0}'.format(text), [{"n":"p","x":text}, {'n':'p','x':text}])
     # }}}

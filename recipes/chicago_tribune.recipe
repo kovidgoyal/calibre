@@ -12,6 +12,13 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def absolutize(x):
+    x = x.lstrip('/')
+    if not x.startswith('https:'):
+        x = 'https://www.chicagotribune.com/' + x
+    return x
+
+
 class ChicagoTribune(BasicNewsRecipe):
 
     title = 'Chicago Tribune'
@@ -26,25 +33,45 @@ class ChicagoTribune(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'data-content-size': 'leadart'}),
-        dict(itemprop='articleBody'),
+        classes('byline-container pb-f-utilities-lead-art pb-f-article-gallery'),
+        dict(attrs={'data-type': 'text'}),
     ]
 
     remove_tags = [
         classes('trb_ar_cont trb_ar_main_ad trb_em_r_cc'),
     ]
 
-    feeds = [
-        ('Breaking news', 'https://www.chicagotribune.com/news/local/breaking/rss2.0.xml'),
-        ('Trending news', 'https://www.chicagotribune.com/news/trending/rss2.0.xml'),
-        ('Opinion', 'https://www.chicagotribune.com/news/opinion/rss2.0.xml'),
-        ('Business news', 'https://www.chicagotribune.com/business/rss2.0.xml'),
-        ('Sports', 'https://www.chicagotribune.com/sports/rss2.0.xml'),
-        ('Arts and Entertainment',
-        'https://www.chicagotribune.com/entertainment/rss2.0.xml'),
-        ('Life & Style',
-        'https://www.chicagotribune.com/lifestyles/rss2.0.xml'),
-    ]
+    def ct_articles(self, slug):
+        url = absolutize(slug)
+        soup = self.index_to_soup(url)
+        for div in soup.findAll(**classes('pb-f-homepage-story pb-f-homepage-story-feed')):
+            h = div.find(('h1', 'h2', 'h3', 'h4', 'h5', 'h6'))
+            a = h.find('a', href=True)
+            title = self.tag_to_string(a)
+            url = absolutize(a['href'])
+            self.log('\t', title, url)
+            desc = ''
+            p = div.find(**classes('preview-text'))
+            if p:
+                desc = self.tag_to_string(p)
+            self.log('\t\t', desc)
+            yield {'title': title, 'description': desc, 'url': url}
+
+    def parse_index(self):
+        feed = []
+        for slug, title in (
+                ('news/breaking', 'Breaking News'),
+                ('sports', 'Sports'),
+                ('business', 'Business'),
+                ('entertainment', 'Entertainment'),
+                ('dining', 'Chicago Dining'),
+                ('columns', 'Tribune Voices'),
+        ):
+            self.log('Found section:', title)
+            articles = list(self.ct_articles(slug))
+            if articles:
+                feed.append((title, articles))
+        return feed
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-baseurl': True}):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from calibre import prints
-from calibre.constants import islinux, isosx, get_osx_version, DEBUG, ispy3
+from calibre.constants import islinux, isosx, get_osx_version, DEBUG, plugins
 from polyglot.builtins import unicode_type
 
 
@@ -44,7 +44,7 @@ class DBUSNotifier(Notifier):
             self._notify = dbus.Interface(session_bus.get_object(server, path), interface)
         except Exception as err:
             self.ok = False
-            self.err = str(err)
+            self.err = unicode_type(err)
         if DEBUG:
             prints(server, 'found' if self.ok else 'not found', 'in', '%.1f' % (time.time() - start), 'seconds')
 
@@ -132,32 +132,15 @@ class DummyNotifier(Notifier):
 class AppleNotifier(Notifier):
 
     def __init__(self):
-        self.ok = False
-        import os, sys
-        try:
-            self.exe = os.path.join(sys.console_binaries_path.replace(
-                'console.app', 'calibre-notifier.app'), 'Calibre')
-            self.ok = os.access(self.exe, os.X_OK)
-            import subprocess
-            self.call = subprocess.Popen
-        except:
-            pass
+        self.cocoa, err = plugins['cocoa']
+        self.ok = not err
 
     def notify(self, body, summary):
-        def encode(x):
-            if ispy3:
-                if isinstance(x, bytes):
-                    x = x.decode('utf-8')
-            else:
-                if isinstance(x, unicode_type):
-                    x = x.encode('utf-8')
-            return x
-
-        cmd = [self.exe, '-activate',
-               'net.kovidgoyal.calibre', '-message', encode(body)]
         if summary:
-            cmd += ['-title', encode(summary)]
-        self.call(cmd)
+            title, informative_text = summary, body
+        else:
+            title, informative_text = body, None
+        self.cocoa.send_notification(None, title, informative_text)
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)

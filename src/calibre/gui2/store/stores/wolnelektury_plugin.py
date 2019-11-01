@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -26,7 +29,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
 
-        url = 'http://wolnelektury.pl'
+        url = 'https://wolnelektury.pl'
         detail_url = None
 
         if detail_item:
@@ -41,7 +44,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://wolnelektury.pl/szukaj?q=' + urllib.quote_plus(query.encode('utf-8'))
+        url = 'https://wolnelektury.pl/szukaj?q=' + quote_plus(query)
 
         br = browser()
 
@@ -66,13 +69,13 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 s = SearchResult()
                 for link in data.xpath('.//div[@class="book-box-formats"]/span/a'):
                     ext = ''.join(link.xpath('./text()'))
-                    href = 'http://wolnelektury.pl' + link.get('href')
+                    href = 'https://wolnelektury.pl' + link.get('href')
                     s.downloads[ext] = href
-                s.cover_url = 'http://wolnelektury.pl' + cover_url.strip()
+                s.cover_url = 'https://wolnelektury.pl' + cover_url.strip()
                 s.title = title.strip()
                 s.author = author
                 s.price = price
-                s.detail_item = 'http://wolnelektury.pl' + id
+                s.detail_item = 'https://wolnelektury.pl' + id
                 s.formats = ', '.join(s.downloads.keys())
                 s.drm = SearchResult.DRM_UNLOCKED
 

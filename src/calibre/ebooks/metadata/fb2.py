@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
@@ -8,7 +10,6 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
 import os, random
 from functools import partial
 from string import ascii_letters, digits
-from base64 import b64encode
 
 from lxml import etree
 
@@ -19,6 +20,7 @@ from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
 from polyglot.builtins import unicode_type
+from polyglot.binary import as_base64_unicode
 
 
 NAMESPACES = {
@@ -27,7 +29,7 @@ NAMESPACES = {
     'xlink' :   'http://www.w3.org/1999/xlink'
 }
 
-tostring = partial(etree.tostring, method='text', encoding=unicode_type)
+tostring = partial(etree.tostring, method='text', encoding='unicode')
 
 
 def XLINK(tag):
@@ -237,7 +239,7 @@ def _parse_cover_data(root, imgid, mi, ctx):
             pic_data = elm_binary[0].text
             if pic_data:
                 cdata = base64_decode(pic_data.strip())
-                fmt = identify(bytes(cdata))[0]
+                fmt = identify(cdata)[0]
                 mi.cover_data = (fmt, cdata)
         else:
             prints("WARNING: Unsupported coverpage mime-type '%s' (id=#%s)" % (mimetype, imgid))
@@ -255,8 +257,8 @@ def _parse_tags(root, mi, ctx):
 
 
 def _parse_series(root, mi, ctx):
-    # calibri supports only 1 series: use the 1-st one
-    # pick up sequence but only from 1 secrion in preferred order
+    # calibre supports only 1 series: use the 1-st one
+    # pick up sequence but only from 1 section in preferred order
     # except <src-title-info>
     xp_ti = '//fb:title-info/fb:sequence[1]'
     xp_pi = '//fb:publish-info/fb:sequence[1]'
@@ -283,7 +285,7 @@ def _parse_isbn(root, mi, ctx):
 
 
 def _parse_comments(root, mi, ctx):
-    # pick up annotation but only from 1 secrion <title-info>;  fallback: <src-title-info>
+    # pick up annotation but only from 1 section <title-info>;  fallback: <src-title-info>
     for annotation_sec in ['title-info', 'src-title-info']:
         elms_annotation = ctx.XPath('//fb:%s/fb:annotation' % annotation_sec)(root)
         if elms_annotation:
@@ -302,7 +304,7 @@ def _parse_pubdate(root, mi, ctx):
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
-        mi.pubdate = parse_only_date(type(u'')(int(year)))
+        mi.pubdate = parse_only_date(unicode_type(int(year)))
 
 
 def _parse_language(root, mi, ctx):
@@ -383,7 +385,7 @@ def _rnd_pic_file_name(prefix='calibre_cover_', size=32, ext='jpg'):
 
 def _encode_into_jpeg(data):
     data = save_cover_data_to(data)
-    return b64encode(data)
+    return as_base64_unicode(data)
 
 
 def _set_cover(title_info, mi, ctx):
@@ -448,7 +450,7 @@ def ensure_namespace(doc):
                 break
     if bare_tags:
         import re
-        raw = etree.tostring(doc, encoding=unicode_type)
+        raw = etree.tostring(doc, encoding='unicode')
         raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
         doc = etree.fromstring(raw)
     return doc

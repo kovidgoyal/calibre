@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -24,7 +24,7 @@ from calibre.library.save_to_disk import plugboard_any_format_value, \
 from calibre.srv.content import plugboard_content_server_value, plugboard_content_server_formats
 from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
-from polyglot.builtins import unicode_type
+from polyglot.builtins import native_string_type, unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -99,10 +99,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.dest_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
 
-        self.edit_device.currentIndexChanged[str].connect(self.edit_device_changed)
-        self.edit_format.currentIndexChanged[str].connect(self.edit_format_changed)
-        self.new_device.currentIndexChanged[str].connect(self.new_device_changed)
-        self.new_format.currentIndexChanged[str].connect(self.new_format_changed)
+        self.edit_device.currentIndexChanged[native_string_type].connect(self.edit_device_changed)
+        self.edit_format.currentIndexChanged[native_string_type].connect(self.edit_format_changed)
+        self.new_device.currentIndexChanged[native_string_type].connect(self.new_device_changed)
+        self.new_format.currentIndexChanged[native_string_type].connect(self.new_format_changed)
         self.existing_plugboards.itemClicked.connect(self.existing_pb_clicked)
         self.ok_button.clicked.connect(self.ok_clicked)
         self.del_button.clicked.connect(self.del_clicked)
@@ -300,7 +300,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     except Exception as err:
                         error_dialog(self, _('Invalid template'),
                                 '<p>'+_('The template %s is invalid:')%s +
-                                '<br>'+str(err), show=True)
+                                '<br>'+unicode_type(err), show=True)
                         return
                     pb.append((s, self.dest_fields[d]))
                     comments_in_dests = comments_in_dests or self.dest_fields[d] == 'comments'

@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -21,7 +22,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextStyle
 )
 from calibre.utils.config import OptionParser
-from polyglot.builtins import string_or_bytes
+from polyglot.builtins import string_or_bytes, unicode_type
 
 
 class LrsParser(object):
@@ -54,7 +55,7 @@ class LrsParser(object):
         for key, val in tag.attrs:
             if key in exclude:
                 continue
-            result[str(key)] = val
+            result[unicode_type(key)] = val
         return result
 
     def text_tag_to_element(self, tag):
@@ -166,16 +167,16 @@ class LrsParser(object):
                     if label and \
                         (label in self._style_labels or label in self.parsed_objects):
                         _obj = (self.parsed_objects[label] if
-                            self.parsed_objects.has_key(label) else  # noqa
+                            label in self.parsed_objects else
                             self._style_labels[label])
                         settings[attrmap[a]] = _obj
                 for a in ('evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid'):
-                    if tag.has_key(a):  # noqa
+                    if a in tag:
                         settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 args = []
-                if tag.has_key('refstream'):  # noqa
+                if 'refstream' in tag:
                     args.append(self.parsed_objects[tag.get('refstream')])
-                if tag.has_key('canvaswidth'):  # noqa
+                if 'canvaswidth' in tag:
                     args += [tag.get('canvaswidth'), tag.get('canvasheight')]
                 self.parsed_objects[id] = map[tag.name][0](*args, **settings)
 
@@ -193,7 +194,7 @@ class LrsParser(object):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
-                        if tag.has_key(a):  # noqa
+                        if a in tag:
                             settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 settings.pop('autoindex', '')
                 self.parsed_objects[id] = map[tag.name][0](**settings)
@@ -220,7 +221,7 @@ class LrsParser(object):
                 res = cls.tag_to_string(item)
                 if res:
                     strings.append(res)
-        return u''.join(strings)
+        return ''.join(strings)
 
     def first_pass(self):
         info = self.soup.find('bbebxylog').find('bookinformation').find('info')
@@ -231,7 +232,7 @@ class LrsParser(object):
             tag = base.find(tagname.lower())
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_key('reading') else '')  # noqa
+            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')  # noqa
             return tag
 
         title          = me(bookinfo, 'Title')

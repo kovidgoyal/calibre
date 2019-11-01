@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,6 +12,7 @@ from functools import partial
 from threading import Thread
 
 from calibre.srv.utils import ServerLog
+from calibre.constants import ispy3
 from polyglot import http_client
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
@@ -121,7 +121,10 @@ class TestServer(Thread):
             timeout = self.loop.opts.timeout
         if interface is None:
             interface = self.address[0]
-        return http_client.HTTPConnection(interface, self.address[1], strict=True, timeout=timeout)
+        if ispy3:
+            return http_client.HTTPConnection(interface, self.address[1], timeout=timeout)
+        else:
+            return http_client.HTTPConnection(interface, self.address[1], strict=True, timeout=timeout)
 
     def change_handler(self, handler):
         from calibre.srv.http_response import create_http_handler

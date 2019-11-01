@@ -53,27 +53,6 @@
 
 #define NUKE(x) Py_XDECREF(x); x = NULL;
 
-/* This function only works on 10.5 and later. Pass in a unicode object as path */
-static PyObject* usbobserver_send2trash(PyObject *self, PyObject *args)
-{
-    UInt8 *utf8_chars;
-    FSRef fp;
-    OSStatus op_result;
-
-    if (!PyArg_ParseTuple(args, "es", "utf-8", &utf8_chars)) {
-        return NULL;
-    }
-
-    FSPathMakeRefWithOptions(utf8_chars, kFSPathMakeRefDoNotFollowLeafSymlink, &fp, NULL);
-    op_result = FSMoveObjectToTrashSync(&fp, NULL, kFSFileOperationDefaultOptions);
-    PyMem_Free(utf8_chars);
-    if (op_result != noErr) {
-        PyErr_SetString(PyExc_OSError, GetMacOSStatusCommentString(op_result));
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
 
 static PyObject*
 usbobserver_get_iokit_string_property(io_service_t dev, CFStringRef prop) {
@@ -468,9 +447,6 @@ static PyMethodDef usbobserver_methods[] = {
     },
     {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS,
      "Get mapping of mounted filesystems. Mapping is from BSD name to mount point."
-    },
-    {"send2trash", usbobserver_send2trash, METH_VARARGS,
-     "send2trash(unicode object) -> Send specified file/dir to trash"
     },
     {"user_locale", usbobserver_user_locale, METH_VARARGS,
      "user_locale() -> The name of the current user's locale or None if an error occurred"

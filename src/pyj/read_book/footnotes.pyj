@@ -181,14 +181,20 @@ class PopupIframeBoss:
         self.frag = None
 
     def initialize(self, data):
-        window.onerror = self.onerror
+        window.addEventListener('error', self.onerror)
 
-    def onerror(self, msg, script_url, line_number, column_number, error_object):
+    def onerror(self, evt):
+        msg = evt.message
+        script_url = evt.filename
+        line_number = evt.lineno
+        column_number = evt.colno
+        error_object = evt.error
+        evt.stopPropagation(), evt.preventDefault()
         if error_object is None:
             # This happens for cross-domain errors (probably javascript injected
             # into the browser via extensions/ userscripts and the like). It also
             # happens all the time when using Chrome on Safari
-            console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
+            console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}:{column_number}')
         else:
             console.log(error_object)
 
@@ -196,12 +202,12 @@ class PopupIframeBoss:
         self.book = data.book
         self.name = data.name
         self.frag = data.frag
+        update_settings(data.settings)
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
-        self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote)
-        update_settings(data.settings)
+        self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote, data.name)
 
     def on_clear(self, data):
         clear(document.head)
@@ -218,6 +224,10 @@ class PopupIframeBoss:
         show_footnote(self.frag, known_anchors)
 
     def content_loaded(self):
+        if not self.comm.encrypted_communications:
+            window.setTimeout(self.content_loaded, 2)
+            return
+        document.body.classList.add('calibre-footnote-container')
         apply_settings()
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
 

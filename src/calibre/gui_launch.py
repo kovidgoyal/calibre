@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -80,6 +79,30 @@ def ebook_viewer(args=sys.argv):
     with register_with_default_programs():
         from calibre.gui2.viewer.main import main
         main(args)
+
+
+def store_dialog(args=sys.argv):
+    detach_gui()
+    init_dbus()
+    from calibre.gui2.store.web_store import main
+    main(args)
+
+
+def webengine_dialog(**kw):
+    detach_gui()
+    init_dbus()
+    from calibre.debug import load_user_plugins
+    load_user_plugins()
+    import importlib
+    m = importlib.import_module(kw.pop('module'))
+    getattr(m, kw.pop('entry_func', 'main'))(**kw)
+
+
+def toc_dialog(**kw):
+    detach_gui()
+    init_dbus()
+    from calibre.gui2.toc.main import main
+    main(**kw)
 
 
 def gui_ebook_edit(path=None, notify=None):

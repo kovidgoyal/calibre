@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
+from polyglot.builtins import filter
 
 is_narrow_build = sys.maxunicode < 0x10ffff
 
@@ -16,9 +16,10 @@ import codecs
 
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, cmp
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+cmp
 
 _none = u''
 _none2 = b''
@@ -69,7 +70,7 @@ def collator():
         try:
             _collator = _icu.Collator(_locale)
         except Exception as e:
-            print ('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            print('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
             _collator = _icu.Collator('en')
     return _collator
 
@@ -129,7 +130,8 @@ def {name}(obj):
         try:
             return {collator}.{func}(obj)
         except AttributeError:
-            return {collator_func}().{func}(obj)
+            pass
+        return {collator_func}().{func}(obj)
     except TypeError:
         if isinstance(obj, bytes):
             try:
@@ -146,7 +148,8 @@ def {name}(a, b):
         try:
             return {collator}.{func}(a, b)
         except AttributeError:
-            return {collator_func}().{func}(a, b)
+            pass
+        return {collator_func}().{func}(a, b)
     except TypeError:
         if isinstance(a, bytes):
             try:
@@ -171,8 +174,9 @@ def {name}(x):
         try:
             return _icu.change_case(x, _icu.{which}, _locale)
         except NotImplementedError:
-            collator()  # sets _locale
-            return _icu.change_case(x, _icu.{which}, _locale)
+            pass
+        collator()  # sets _locale
+        return _icu.change_case(x, _icu.{which}, _locale)
     except TypeError:
         if isinstance(x, bytes):
             try:

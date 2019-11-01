@@ -9,7 +9,7 @@ import random
 import shutil
 import sys
 import zipfile
-from json import load as load_json_file
+from json import load as load_json_file, loads as json_loads
 from threading import Lock
 
 from calibre import as_unicode
@@ -68,7 +68,9 @@ def console_print(ctx, rd):
         raise HTTPForbidden('console printing is not allowed')
     with print_lock:
         print(rd.remote_addr, end=' ')
-        shutil.copyfileobj(rd.request_body_file, sys.stdout)
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        shutil.copyfileobj(rd.request_body_file, stdout)
+        stdout.flush()
     return ''
 
 
@@ -93,25 +95,27 @@ def get_basic_query_data(ctx, rd):
     return library_id, db, sorts, orders, rd.query.get('vl') or ''
 
 
-_cached_translations = None
+def get_translations_data():
+    with zipfile.ZipFile(
+        P('content-server/locales.zip', allow_user_override=False), 'r'
+    ) as zf:
+        names = set(zf.namelist())
+        lang = get_lang()
+        if lang not in names:
+            xlang = lang.split('_')[0].lower()
+            if xlang in names:
+                lang = xlang
+        if lang in names:
+            return zf.open(lang, 'r').read()
 
 
 def get_translations():
-    global _cached_translations
-    if _cached_translations is None:
-        _cached_translations = False
-        with zipfile.ZipFile(
-            P('content-server/locales.zip', allow_user_override=False), 'r'
-        ) as zf:
-            names = set(zf.namelist())
-            lang = get_lang()
-            if lang not in names:
-                xlang = lang.split('_')[0].lower()
-                if xlang in names:
-                    lang = xlang
-            if lang in names:
-                _cached_translations = load_json_file(zf.open(lang, 'r'))
-    return _cached_translations
+    if not hasattr(get_translations, 'cached'):
+        get_translations.cached = False
+        data = get_translations_data()
+        if data:
+            get_translations.cached = json_loads(data)
+    return get_translations.cached
 
 
 def custom_list_template():
@@ -151,6 +155,7 @@ def basic_interface_data(ctx, rd):
         'custom_list_template': getattr(ctx, 'custom_list_template', None) or custom_list_template(),
         'search_the_net_urls': getattr(ctx, 'search_the_net_urls', None) or [],
         'num_per_page': rd.opts.num_per_page,
+        'default_book_list_mode': rd.opts.book_list_mode,
         'donate_link': localize_website_link('https://calibre-ebook.com/donate')
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)

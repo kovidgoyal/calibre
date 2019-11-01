@@ -1,9 +1,8 @@
 from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime, timedelta
-from calibre.ebooks.BeautifulSoup import Tag, BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.magick import Image, PixelWand
-from urllib2 import Request, urlopen, URLError
 
 
 def new_tag(soup, name, attrs=()):
@@ -113,20 +112,14 @@ class Estadao(BasicNewsRecipe):
     def get_cover_url(self):
         if self.THUMBALIZR_API:
             cover_url = self.CAPA
-            pedido = Request(self.CAPA)
-            pedido.add_header('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ' +
-                              self.LANGHTM + '; userid=' + self.THUMBALIZR_API + ') Calibre/0.8.47 (like Gecko)')
-            pedido.add_header('Accept-Charset', self.ENCHTM)
-            pedido.add_header('Referer', self.SCREENSHOT)
             try:
-                resposta = urlopen(pedido)
-                soup = BeautifulSoup(resposta)
+                soup = self.index_to_soup(cover_url)
                 cover_item = soup.find('body')
                 if cover_item:
                     cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
                         '&url=' + self.SCREENSHOT + '&width=600&quality=90'
                 return cover_url
-            except URLError:
+            except Exception:
                 cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
                     '&url=' + self.SCREENSHOT + '&width=600&quality=90'
                 return cover_url

@@ -311,7 +311,7 @@ If you're satisfied with your recipe, and you feel there is enough demand to jus
 .. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
+    are in :file:`/Applications/calibre.app/Contents/MacOS/`.
 
 .. seealso::
 

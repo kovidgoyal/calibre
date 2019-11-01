@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -18,10 +18,10 @@ from lxml import html
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import (
-    XHTML, XHTML_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
+    XHTML, XHTML_NS, SVG_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, as_bytes
 from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
@@ -135,7 +135,7 @@ class OEB2HTML(object):
         css = b''
         for item in oeb_book.manifest:
             if item.media_type == 'text/css':
-                css += item.data.cssText + b'\n\n'
+                css += as_bytes(item.data.cssText) + b'\n\n'
         return css
 
     def prepare_string_for_html(self, raw):
@@ -160,9 +160,9 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, string_or_bytes) \
-           or namespace(elem.tag) != XHTML_NS:
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -249,9 +249,9 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, string_or_bytes) \
-           or namespace(elem.tag) != XHTML_NS:
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -352,9 +352,9 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, string_or_bytes) \
-           or namespace(elem.tag) != XHTML_NS:
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']

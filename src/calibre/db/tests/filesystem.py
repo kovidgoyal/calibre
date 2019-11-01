@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -75,12 +74,11 @@ class FilesystemTest(BaseTest):
         cl = self.cloned_library
         cache = self.init_cache(cl)
         fpath = cache.format_abspath(1, 'FMT1')
-        f = open(fpath, 'rb')
-        with self.assertRaises(IOError):
-            cache.set_field('title', {1:'Moved'})
-        with self.assertRaises(IOError):
-            cache.remove_books({1})
-        f.close()
+        with open(fpath, 'rb') as f:
+            with self.assertRaises(IOError):
+                cache.set_field('title', {1:'Moved'})
+            with self.assertRaises(IOError):
+                cache.remove_books({1})
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
         # Test on folder with hardlinks

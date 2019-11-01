@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -15,7 +17,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import string_or_bytes, iteritems, itervalues
+from polyglot.builtins import string_or_bytes, iteritems, itervalues, cmp
 
 
 class Book(Metadata):
@@ -46,26 +48,21 @@ class Book(Metadata):
         # use lpath because the prefix can change, changing path
         return self.lpath == getattr(other, 'lpath', None)
 
-    @dynamic_property
+    @property
     def db_id(self):
-        doc = '''The database id in the application database that this file corresponds to'''
+        '''The database id in the application database that this file corresponds to'''
 
-        def fget(self):
-            match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
-            if match:
-                return int(match.group(1))
-            return None
-        return property(fget=fget, doc=doc)
+        match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
+        if match:
+            return int(match.group(1))
+        return None
 
-    @dynamic_property
+    @property
     def title_sorter(self):
-        doc = '''String to sort the title. If absent, title is returned'''
+        '''String to sort the title. If absent, title is returned'''
+        return title_sort(self.title)
 
-        def fget(self):
-            return title_sort(self.title)
-        return property(doc=doc, fget=fget)
-
-    @dynamic_property
+    @property
     def thumbnail(self):
         return None
 

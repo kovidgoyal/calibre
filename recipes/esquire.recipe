@@ -9,6 +9,18 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
 
+def absolutize(url):
+    if url.startswith('/'):
+        url = 'https://www.esquire.com' + url
+    return url
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Esquire(BasicNewsRecipe):
     title = 'Esquire'
     __author__ = 'Kovid Goyal'
@@ -19,18 +31,11 @@ class Esquire(BasicNewsRecipe):
     language = 'en'
 
     keep_only_tags = [
-        dict(name='header', attrs={
-             'class': ['gallery-header', 'article-header']}),
-        dict(attrs={'class': ['gallery-main-view', 'article-body--content']}),
+        classes('article-header gallery-header listicle-header listicle-body standard-header standard-body article-body gallery-main-view')
     ]
 
     remove_tags = [
-        dict(attrs={'class': 'article-body--share-container'}),
-        dict(attrs={'class': lambda x: x and 'tags--top' in x}),
-        dict(attrs={'class': lambda x: x and 'image-share' in x}),
-        dict(attrs={'class': lambda x: x and 'share-gallery' in x}),
-        dict(attrs={'class': lambda x: x and 'embedded-image--expand' in x}),
-        dict(attrs={'class': lambda x: x and 'embedded-image--close' in x}),
+        classes('article-body--share-container tags--top image-share share-gallery embedded-image--expand embedded-image--close')
     ]
 
     def preprocess_html(self, soup):
@@ -39,40 +44,26 @@ class Esquire(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        url = 'http://www.esquire.com'
+        url = 'https://www.esquire.com'
         root = self.index_to_soup(url, as_tree=True)
         select = Select(root)
         feeds = defaultdict(list)
 
-        for a in select('.custom-promo--title a[href]'):
-            title = self.tag_to_string(a).strip()
-            url = a.get('href')
-            if url.startswith('/'):
-                url = 'http://www.esquire.com' + url
+        for a in select('.cover-story-marquee a[href]'):
+            title = self.tag_to_string(a).strip() or 'Cover Story'
+            url = absolutize(a.get('href'))
+            self.log('Cover story:', title, url)
             feeds['Cover Story'] = [{'title': title, 'url': url}]
             break
 
-        for story in select('.landing-feed--story-container'):
-            for sec in select('.landing-feed--story-section-name', story):
-                section = self.tag_to_string(sec).strip()
-                break
-            else:
+        for a in select('a[data-vars-cta]'):
+            title = self.tag_to_string(a).strip()
+            if not title:
                 continue
-            articles = feeds[section]
-            for a in select('a.landing-feed--story-title[href]', story):
-                title = self.tag_to_string(a).strip()
-                url = a.get('href')
-                if url.startswith('/'):
-                    url = 'http://www.esquire.com' + url
-                break
-            else:
-                continue
-            for div in select('.landing-feed--story-abstract', story):
-                desc = self.tag_to_string(div).strip()
-                break
-            else:
-                desc = ''
-            articles.append({'title': title, 'url': url, 'description': desc})
+            url = absolutize(a.get('href'))
+            section = a.get('data-vars-cta')
+            feeds[section].append({'title': title, 'url': url})
+            self.log(title, url)
 
         ans = []
         for sec in sorted(feeds, key=lambda x: (x != 'Cover Story', x)):

@@ -199,8 +199,13 @@ def parse_metadata(raw, namelist, zf):
     top_level_imports = filter(lambda x:x.__class__.__name__ == 'ImportFrom', ast.iter_child_nodes(module))
     top_level_classes = tuple(filter(lambda x:x.__class__.__name__ == 'ClassDef', ast.iter_child_nodes(module)))
     top_level_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(module))
-    defaults = {'name':'', 'description':'', 'supported_platforms':['windows', 'osx', 'linux'],
-                'version':(1, 0, 0), 'author':'Unknown', 'minimum_calibre_version':(0, 9, 42)}
+    defaults = {
+        'name':'', 'description':'',
+        'supported_platforms':['windows', 'osx', 'linux'],
+        'version':(1, 0, 0),
+        'author':'Unknown',
+        'minimum_calibre_version':(0, 9, 42)
+    }
     field_names = set(defaults)
     imported_names = {}
 
@@ -380,7 +385,7 @@ def log(*args, **kwargs):
 
 
 def atomic_write(raw, name):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    with tempfile.NamedTemporaryFile(dir=os.getcwd(), delete=False) as f:
         f.write(raw)
         os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)
@@ -568,8 +573,11 @@ def update_stats():
         if m is not None:
             plugin = m.group(1).decode('utf-8')
             stats[plugin] = stats.get(plugin, 0) + 1
+    data = json.dumps(stats, indent=2)
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
     with open('stats.json', 'wb') as f:
-        json.dump(stats, f, indent=2)
+        f.write(data)
     return stats
 
 

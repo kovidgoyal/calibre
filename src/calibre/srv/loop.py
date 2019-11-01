@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,11 +23,11 @@ from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
-WAKEUP, JOB_DONE = bytes(bytearray(range(2)))
+WAKEUP, JOB_DONE = b'\0', b'\x01'
 IPPROTO_IPV6 = getattr(socket, "IPPROTO_IPV6", 41)
 
 
@@ -452,7 +451,7 @@ class ServerLoop(object):
         self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            ba = ':'.join(map(type(''), ba))
+            ba = ':'.join(map(unicode_type, ba))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir

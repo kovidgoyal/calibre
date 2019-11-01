@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, time, re
 from collections import defaultdict
-from polyglot.builtins import itervalues, map, unicode_type
+from polyglot.builtins import itervalues, map as it_map, unicode_type
 from contextlib import contextmanager
 from functools import partial
 
@@ -69,7 +68,7 @@ def metadata_extensions():
     # but not actually added)
     global _metadata_extensions
     if _metadata_extensions is None:
-        _metadata_extensions =  frozenset(map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
+        _metadata_extensions =  frozenset(it_map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
     return _metadata_extensions
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -32,12 +33,14 @@ class HeuristicProcessor(object):
         self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
         self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
-        self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"  # noqa
+        self.line_open = (
+            r"<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*"
+            r"(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*")
         self.line_close = "(</(?P=inner3)>)?\\s*(</(?P=inner2)>)?\\s*(</(?P=inner1)>)?\\s*</(?P=outer)>"
         self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
-        self.common_in_text_endings = u'[\"\'—’”,\\.!\\?\\…\\)„\\w]'
-        self.common_in_text_beginnings = u'[\\w\'\"“‘‛]'
+        self.common_in_text_endings = '[\"\'—’”,\\.!\\?\\…\\)„\\w]'
+        self.common_in_text_beginnings = '[\\w\'\"“‘‛]'
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -214,7 +217,8 @@ class HeuristicProcessor(object):
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
         chapter_line_open = self.line_open
-        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"  # noqa
+        title_line_open = (r"<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?"
+        r"\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*")
         chapter_header_open = r"(?P<chap>"
         title_header_open = r"(?P<title>"
         chapter_header_close = ")\\s*"
@@ -242,7 +246,9 @@ class HeuristicProcessor(object):
         analysis_result = []
 
         chapter_types = [
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\b|Prologue|Book\b|Part\b|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, True, True, False, "Searching for common section headings", 'common'],  # noqa
+            [(
+                r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\b|Prologue|Book\b|Part\b|Dedication|Preface)"
+                r"\s*([\d\w-]+\:?\'?\s*){0,5}"), True, True, True, False, "Searching for common section headings", 'common'],
             # Highest frequency headings which include titles
             [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for most common chapter headings", 'chapter'],
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>",
@@ -329,7 +335,7 @@ class HeuristicProcessor(object):
 
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
-            words_per_chptr = wordcount / self.html_preprocess_sections
+            words_per_chptr = wordcount // self.html_preprocess_sections
         self.log.debug("Total wordcount is: "+ unicode_type(wordcount)+", Average words per section is: "+
                        unicode_type(words_per_chptr)+", Marked up "+unicode_type(self.html_preprocess_sections)+" chapters")
         return html
@@ -361,13 +367,13 @@ class HeuristicProcessor(object):
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
-        lookahead = "(?<=.{"+unicode_type(length)+u"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IA\u00DF]|(?<!\\&\\w{4});))"
-        em_en_lookahead = "(?<=.{"+unicode_type(length)+u"}[\u2013\u2014])"
-        soft_hyphen = u"\xad"
+        lookahead = "(?<=.{"+unicode_type(length)+r"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]|(?<!\&\w{4});))"
+        em_en_lookahead = "(?<=.{"+unicode_type(length)+"}[\u2013\u2014])"
+        soft_hyphen = "\xad"
         line_ending = "\\s*(?P<style_close></(span|[iub])>)?\\s*(</(p|div)>)?"
         blanklines = "\\s*(?P<up2threeblanks><(p|span|div)[^>]*>\\s*(<(p|span|div)[^>]*>\\s*</(span|p|div)>\\s*)</(span|p|div)>\\s*){0,3}\\s*"
         line_opening = "<(p|div)[^>]*>\\s*(?P<style_open><(span|[iub])[^>]*>)?\\s*"
-        txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
+        txt_line_wrap = "((\u0020|\u0009)*\n){1,4}"
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
@@ -378,9 +384,9 @@ class HeuristicProcessor(object):
             em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
             shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
-        unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
-        em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
-        shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
+        unwrap = re.compile("%s" % unwrap_regex, re.UNICODE)
+        em_en_unwrap = re.compile("%s" % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile("%s" % shy_unwrap_regex, re.UNICODE)
 
         if format == 'txt':
             content = unwrap.sub(' ', content)
@@ -508,11 +514,14 @@ class HeuristicProcessor(object):
 
     def detect_whitespace(self, html):
         blanks_around_headings = re.compile(
-            r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<content><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)  # noqa
+            r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?'
+            r'(?P<content><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
         blanks_around_scene_breaks = re.compile(
-            r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<content><p class="scenebreak"[^>]*>.*?</p>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)  # noqa
+            r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?'
+            r'(?P<content><p class="scenebreak"[^>]*>.*?</p>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
         blanks_n_nopunct = re.compile(
-            r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE|re.DOTALL)  # noqa
+            r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*'
+            r'.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE|re.DOTALL)
 
         def merge_header_whitespace(match):
             initblanks = match.group('initparas')
@@ -599,7 +608,7 @@ class HeuristicProcessor(object):
                                 ' expression, using default')
                     else:
                         replacement_break = re.sub('(?i)(width=\\d+\\%?|width:\\s*\\d+(\\%|px|pt|em)?;?)', '', replacement_break)
-                        divpercent = (100 - width) / 2
+                        divpercent = (100 - width) // 2
                         hr_open = re.sub('45', unicode_type(divpercent), hr_open)
                         scene_break = hr_open+replacement_break+'</div>'
                 else:
@@ -825,7 +834,10 @@ class HeuristicProcessor(object):
             self.log.debug("Looking for more split points based on punctuation,"
                     " currently have " + unicode_type(self.html_preprocess_sections))
             chapdetect3 = re.compile(
-                r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([\W]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)  # noqa
+                r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([\W]+\s*)+)'
+                r'(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*'
+                r'.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*'
+                r'(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
 
         if getattr(self.extra_opts, 'renumber_headings', False):
@@ -865,5 +877,5 @@ class HeuristicProcessor(object):
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly
-            html = self.anyblank.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+            html = self.anyblank.sub('\n'+r'\g<openline>'+'\u00a0'+r'\g<closeline>', html)
         return html

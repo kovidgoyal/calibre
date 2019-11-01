@@ -2,7 +2,7 @@
 Add page mapping information to an EPUB book.
 '''
 
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -13,6 +13,7 @@ from itertools import count
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ebooks.oeb.base import OEBBook
 from lxml.etree import XPath
+from polyglot.builtins import unicode_type
 
 NSMAP = {'h': XHTML_NS, 'html': XHTML_NS, 'xhtml': XHTML_NS}
 PAGE_RE = re.compile(r'page', re.IGNORECASE)
@@ -32,7 +33,7 @@ def filter_name(name):
 def build_name_for(expr):
     if not expr:
         counter = count(1)
-        return lambda elem: str(next(counter))
+        return lambda elem: unicode_type(next(counter))
     selector = XPath(expr, namespaces=NSMAP)
 
     def name_for(elem):

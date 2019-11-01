@@ -1,8 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 '''
-from __future__ import with_statement
-from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
@@ -54,7 +54,7 @@ def asfloat(value):
 def isspace(text):
     if not text:
         return True
-    if u'\xa0' in text:
+    if '\xa0' in text:
         return False
     return text.isspace()
 
@@ -139,7 +139,7 @@ class MobiMLizer(object):
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
             item.data = nroot
-            # print etree.tostring(nroot)
+            # print(etree.tostring(nroot))
 
     def mobimlize_font(self, ptsize):
         return self.fnums[self.fmap[ptsize]]
@@ -156,9 +156,9 @@ class MobiMLizer(object):
         text = unicode_type(text)
         if pre_wrap:
             # Replace n consecutive spaces with n-1 NBSP + space
-            text = re.sub(r' {2,}', lambda m:(u'\xa0'*(len(m.group())-1) + u' '), text)
+            text = re.sub(r' {2,}', lambda m:('\xa0'*(len(m.group())-1) + ' '), text)
         else:
-            text = text.replace(u' ', u'\xa0')
+            text = text.replace(' ', '\xa0')
 
         text = text.replace('\r\n', '\n')
         text = text.replace('\r', '\n')
@@ -201,7 +201,7 @@ class MobiMLizer(object):
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
-                    para.attrib['value'] = str(istates[-2].list_num)
+                    para.attrib['value'] = unicode_type(istates[-2].list_num)
             elif tag in NESTABLE_TAGS and istate.rendered:
                 para = wrapper = bstate.nested[-1]
             elif not self.opts.mobi_ignore_margins and left > 0 and indent >= 0:
@@ -210,7 +210,7 @@ class MobiMLizer(object):
                 para = wrapper
                 emleft = int(round(left / self.profile.fbase)) - ems
                 emleft = min((emleft, 10))
-                while emleft > ems/2.0:
+                while emleft > ems / 2:
                     para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= ems
             else:
@@ -287,7 +287,7 @@ class MobiMLizer(object):
 
             if fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
-                                          size=str(fsize))
+                                          size=unicode_type(fsize))
             if istate.family == 'monospace':
                 inline = etree.SubElement(inline, XHTML('tt'))
             if istate.italic:
@@ -390,17 +390,17 @@ class MobiMLizer(object):
             lspace = margin + padding
             if lspace > 0:
                 spaces = int(round((lspace * 3) / style['font-size']))
-                elem.text = (u'\xa0' * spaces) + (elem.text or '')
+                elem.text = ('\xa0' * spaces) + (elem.text or '')
             margin = asfloat(style['margin-right'])
             padding = asfloat(style['padding-right'])
             rspace = margin + padding
             if rspace > 0:
                 spaces = int(round((rspace * 3) / style['font-size']))
                 if len(elem) == 0:
-                    elem.text = (elem.text or '') + (u'\xa0' * spaces)
+                    elem.text = (elem.text or '') + ('\xa0' * spaces)
                 else:
                     last = elem[-1]
-                    last.text = (last.text or '') + (u'\xa0' * spaces)
+                    last.text = (last.text or '') + ('\xa0' * spaces)
         if bstate.content and style['page-break-before'] in PAGE_BREAKS:
             bstate.pbreak = True
         istate.fsize = self.mobimlize_font(style['font-size'])
@@ -446,10 +446,10 @@ class MobiMLizer(object):
                         # See #7520 for test case
                         try:
                             pixs = int(round(float(value) /
-                                (72./self.profile.dpi)))
+                                (72/self.profile.dpi)))
                         except:
                             continue
-                        result = str(pixs)
+                        result = unicode_type(pixs)
                     istate.attrib[prop] = result
             if 'width' not in istate.attrib or 'height' not in istate.attrib:
                 href = self.current_spine_item.abshref(elem.attrib['src'])
@@ -466,22 +466,22 @@ class MobiMLizer(object):
                     else:
                         if 'width' not in istate.attrib and 'height' not in \
                                     istate.attrib:
-                            istate.attrib['width'] = str(width)
-                            istate.attrib['height'] = str(height)
+                            istate.attrib['width'] = unicode_type(width)
+                            istate.attrib['height'] = unicode_type(height)
                         else:
-                            ar = float(width)/float(height)
+                            ar = width / height
                             if 'width' not in istate.attrib:
                                 try:
                                     width = int(istate.attrib['height'])*ar
                                 except:
                                     pass
-                                istate.attrib['width'] = str(int(width))
+                                istate.attrib['width'] = unicode_type(int(width))
                             else:
                                 try:
                                     height = int(istate.attrib['width'])/ar
                                 except:
                                     pass
-                                istate.attrib['height'] = str(int(height))
+                                istate.attrib['height'] = unicode_type(int(height))
                         item.unload_data_from_memory()
         elif tag == 'hr' and asfloat(style['width']) > 0 and style._get('width') not in {'100%', 'auto'}:
             raww = style._get('width')
@@ -515,11 +515,11 @@ class MobiMLizer(object):
             t = elem.text
             if not t:
                 t = ''
-            elem.text = u'\u201c' + t
+            elem.text = '\u201c' + t
             t = elem.tail
             if not t:
                 t = ''
-            elem.tail = u'\u201d' + t
+            elem.tail = '\u201d' + t
         text = None
         if elem.text:
             if istate.preserve or istate.pre_wrap:
@@ -602,7 +602,7 @@ class MobiMLizer(object):
             bstate.pbreak = True
         if isblock:
             para = bstate.para
-            if para is not None and para.text == u'\xa0' and len(para) < 1:
+            if para is not None and para.text == '\xa0' and len(para) < 1:
                 if style.height > 2:
                     para.getparent().replace(para, etree.Element(XHTML('br')))
                 else:

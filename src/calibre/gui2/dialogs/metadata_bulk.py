@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re, numbers
 from collections import defaultdict, namedtuple
@@ -32,7 +32,9 @@ from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
-from polyglot.builtins import iteritems, itervalues, unicode_type
+from polyglot.builtins import (
+    error_message, filter, iteritems, itervalues, native_string_type, unicode_type
+)
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -186,7 +188,7 @@ class MyBlockingBusy(QDialog):  # {{{
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
-                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                paths = list(filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts]))
                 if paths:
                     ret = worker(
                         'calibre.ebooks.metadata.worker', 'read_metadata_bulk',
@@ -715,10 +717,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
-        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_func.currentIndexChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
@@ -743,9 +745,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.queries = JSONConfig("search_replace_queries")
         self.saved_search_name = ''
         self.query_field.addItem("")
-        self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+        self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
-        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
+        self.query_field.currentIndexChanged[native_string_type].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
         self.s_r_search_field_changed(0)
@@ -774,14 +776,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             else:
                 val = mi.get(field, None)
             if isinstance(val, (numbers.Number, bool)):
-                val = str(val)
+                val = unicode_type(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list
                 id_type = unicode_type(self.s_r_src_ident.currentText())
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(val)]
+                    val = ['%s:%s'%(t[0], t[1]) for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -884,10 +886,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
-            col = 'rgb(255, 0, 0, 20%)'
-            self.test_result.setText(self.s_r_error.message)
+            col = 'rgba(255, 0, 0, 20%)'
+            self.test_result.setText(error_message(self.s_r_error))
         else:
-            col = 'rgb(0, 255, 0, 20%)'
+            col = 'rgba(0, 255, 0, 20%)'
         self.test_result.setStyleSheet('QLineEdit { color: black; '
                                        'background-color: %s; }'%col)
         for i in range(0,self.s_r_number_of_books):
@@ -959,7 +961,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
+                    dest_val = ['%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -1155,7 +1157,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
-                    _('Search/replace is invalid: %s')%self.s_r_error.message,
+                    _('Search/replace is invalid: %s')%error_message(self.s_r_error),
                     show=True)
             return False
         self.changed = bool(self.ids)
@@ -1323,7 +1325,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(True)
             self.query_field.clear()
             self.query_field.addItem('')
-            self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+            self.query_field_values = sorted(self.queries, key=sort_key)
             self.query_field.addItems(self.query_field_values)
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))

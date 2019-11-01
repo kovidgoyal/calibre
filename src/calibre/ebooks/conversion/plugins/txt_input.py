@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -9,6 +9,7 @@ import os
 
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import getcwd
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
@@ -137,10 +138,10 @@ class TXTInput(InputFormatPlugin):
                 block_to_single_line, separate_hard_scene_breaks)
 
         self.log = log
-        txt = ''
+        txt = b''
         log.debug('Reading text from file...')
         length = 0
-        base_dir = os.getcwdu()
+        base_dir = getcwd()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -150,7 +151,7 @@ class TXTInput(InputFormatPlugin):
             for x in walk('.'):
                 if os.path.splitext(x)[1].lower() in ('.txt', '.text'):
                     with open(x, 'rb') as tf:
-                        txt += tf.read() + '\n\n'
+                        txt += tf.read() + b'\n\n'
         else:
             if getattr(stream, 'name', None):
                 base_dir = os.path.dirname(stream.name)

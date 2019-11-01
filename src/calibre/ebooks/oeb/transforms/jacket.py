@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,8 +10,6 @@ import sys, os, re
 from xml.sax.saxutils import escape
 from string import Formatter
 
-from lxml import etree
-
 from calibre import guess_type, strftime
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag, urlnormalize
@@ -21,7 +18,7 @@ from calibre.utils.date import is_date_undefined, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, map
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -104,8 +101,8 @@ class Jacket(Base):
         self.log('Inserting metadata into book...')
 
         try:
-            tags = map(unicode_type, self.oeb.metadata.subject)
-        except:
+            tags = list(map(unicode_type, self.oeb.metadata.subject))
+        except Exception:
             tags = []
 
         try:
@@ -188,7 +185,7 @@ class Series(unicode_type):
             combined = roman = escape(series or u'')
         s = unicode_type.__new__(self, combined)
         s.roman = roman
-        s.name = escape(series or u'')
+        s.name = escape(series or '')
         s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
         s.roman_number = escape(fmt_sidx(series_index or 1.0, use_roman=True))
         return s
@@ -260,7 +257,7 @@ def render_jacket(mi, output_profile,
             pubdate = ''
         else:
             dt = as_local_time(mi.pubdate)
-            pubdate = strftime(u'%Y', dt.timetuple())
+            pubdate = strftime('%Y', dt.timetuple())
     except:
         pubdate = ''
 
@@ -270,7 +267,6 @@ def render_jacket(mi, output_profile,
 
     comments = mi.comments if mi.comments else alt_comments
     comments = comments.strip()
-    orig_comments = comments
     if comments:
         comments = comments_to_html(comments)
 
@@ -350,17 +346,10 @@ def render_jacket(mi, output_profile,
 
         return strip_encoding_declarations(generated_html)
 
-    from calibre.ebooks.oeb.base import RECOVER_PARSER
+    from calibre.ebooks.oeb.polish.parsing import parse
+    raw = generate_html(comments)
+    root = parse(raw, line_numbers=False, force_html5_parse=True)
 
-    try:
-        root = etree.fromstring(generate_html(comments), parser=RECOVER_PARSER)
-    except:
-        try:
-            root = etree.fromstring(generate_html(escape(orig_comments)),
-                parser=RECOVER_PARSER)
-        except:
-            root = etree.fromstring(generate_html(''),
-                parser=RECOVER_PARSER)
     if rescale_fonts:
         # We ensure that the conversion pipeline will set the font sizes for
         # text in the jacket to the same size as the font sizes for the rest of
@@ -369,11 +358,11 @@ def render_jacket(mi, output_profile,
         # the same as for text in the main book. So text with size x em will
         # be rescaled to the same value in both the jacket and the main content.
         #
-        # We cannot use calibre_rescale_100 on the body tag as that will just
+        # We cannot use data-calibre-rescale 100 on the body tag as that will just
         # give the body tag a font size of 1em, which is useless.
         for body in root.xpath('//*[local-name()="body"]'):
             fw = body.makeelement(XHTML('div'))
-            fw.set('class', 'calibre_rescale_100')
+            fw.set('data-calibre-rescale', '100')
             for child in body:
                 fw.append(child)
             body.append(fw)

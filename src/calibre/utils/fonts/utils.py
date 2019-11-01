@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,7 +10,7 @@ import struct
 from io import BytesIO
 from collections import defaultdict
 
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type, range, as_bytes
 
 
 class UnsupportedFont(ValueError):
@@ -42,7 +41,7 @@ def get_tables(raw):
 
 def get_table(raw, name):
     ''' Get the raw table bytes for the specified table in the font '''
-    name = bytes(name.lower())
+    name = as_bytes(name.lower())
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
         if table_tag.lower() == name:
             return table, table_index, table_offset, table_checksum
@@ -488,9 +487,10 @@ def test():
 
 def main():
     import sys, os
-    for f in sys.argv[1:]:
-        print(os.path.basename(f))
-        raw = open(f, 'rb').read()
+    for arg in sys.argv[1:]:
+        print(os.path.basename(arg))
+        with open(arg, 'rb') as f:
+            raw = f.read()
         print(get_font_names(raw))
         characs = get_font_characteristics(raw)
         print(characs)

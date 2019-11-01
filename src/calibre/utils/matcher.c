@@ -164,7 +164,7 @@ static void convert_positions(int32_t *positions, int32_t *final_positions, UCha
     for (i = 0; i < byte_len && final_positions < end; i++) {
         if (positions[i] == -1) continue;
 #if PY_VERSION_HEX >= 0x03030000
-        *final_positions = positions[i];
+        *final_positions = u_countChar32(string, positions[i]);
 #else
 #ifdef Py_UNICODE_WIDE
         *final_positions = u_countChar32(string, positions[i]);

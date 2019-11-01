@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,7 +24,7 @@ class ShareConnMenu(QMenu):  # {{{
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     server_state_changed_signal = pyqtSignal(object, object)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
 
     DEVICE_MSGS = [_('Start wireless device connection'),
             _('Stop wireless device connection')]
@@ -111,7 +112,8 @@ class ShareConnMenu(QMenu):  # {{{
                         (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
-                map(self.memory.append, (action1, action2))
+                self.memory.append(action1)
+                self.memory.append(action2)
                 if default:
                     ac = DeviceAction(dest, False, False,
                             I('mail.png'), _('Email to') + ' ' +(alias or
@@ -127,12 +129,14 @@ class ShareConnMenu(QMenu):  # {{{
                     _('Select recipients') + ' ' + _('(delete from library)'))
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
-            map(self.memory.append, (action1, action2))
+            self.memory.append(action1)
+            self.memory.append(action2)
             tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
                     _('Email to selected recipients...'))
             self.addAction(tac1)
             tac1.a_s.connect(sync_menu.action_triggered)
-            self.memory.append(tac1), self.email_actions.append(tac1)
+            self.memory.append(tac1)
+            self.email_actions.append(tac1)
             ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
             action1.a_s.connect(sync_menu.action_triggered)
@@ -155,7 +159,7 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)

@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -37,9 +39,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         try:
             self.table_column_widths = \
                         gprefs.get('manage_authors_table_widths', None)
-            geom = gprefs.get('manage_authors_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
-        except:
+            geom = gprefs.get('manage_authors_dialog_geometry', None)
+            if geom:
+                self.restoreGeometry(QByteArray(geom))
+        except Exception:
             pass
 
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
@@ -97,7 +100,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.sort_by_author.clicked.connect(self.do_sort_by_author)
         self.author_order = 1
 
-        self.table.sortByColumn(1, Qt.AscendingOrder)
         self.sort_by_author_sort.clicked.connect(self.do_sort_by_author_sort)
         self.sort_by_author_sort.setCheckable(True)
         self.sort_by_author_sort.setChecked(True)
@@ -138,7 +140,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.not_found_label_timer_event, type=Qt.QueuedConnection)
 
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.table.customContextMenuRequested .connect(self.show_context_menu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
+        self.do_sort_by_author_sort()
 
     def save_state(self):
         self.table_column_widths = []
@@ -157,7 +160,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
         self.save_state()
@@ -187,12 +190,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
+            m.addSeparator()
+            ca = m.addAction(_("Show books by author in book list"))
+            ca.triggered.connect(self.search)
         else:
             ca = m.addAction(_('Copy to author'))
             ca.triggered.connect(self.copy_aus_to_au)
         m.addSeparator()
         m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
+
+    def search(self):
+        from calibre.gui2.ui import get_gui
+        row = self.context_item.row()
+        get_gui().search.set_search_string(self.table.item(row, 0).text())
 
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
@@ -247,7 +258,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         for i in range(0, self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
-            r = (self.start_find_pos/2)%self.table.rowCount()
+            r = (self.start_find_pos//2)%self.table.rowCount()
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
             text = icu_lower(unicode_type(item.text()))

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,9 +15,9 @@ from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import unicode_type
+from polyglot.builtins import native_string_type, unicode_type, zip, range
 
-from catalog_epub_mobi_ui import Ui_Form
+from .catalog_epub_mobi_ui import Ui_Form
 from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
@@ -34,6 +33,7 @@ class PluginWidget(QWidget,Ui_Form):
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
     DEBUG = False
+    handles_scrolling = True
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -74,36 +74,36 @@ class PluginWidget(QWidget,Ui_Form):
             elif type(self.__dict__[item]) is QTextEdit:
                 TextEditControls.append(self.__dict__[item].objectName())
 
-        option_fields = zip(CheckBoxControls,
+        option_fields = list(zip(CheckBoxControls,
                             [True for i in CheckBoxControls],
-                            ['check_box' for i in CheckBoxControls])
-        option_fields += zip(ComboBoxControls,
+                            ['check_box' for i in CheckBoxControls]))
+        option_fields += list(zip(ComboBoxControls,
                             [None for i in ComboBoxControls],
-                            ['combo_box' for i in ComboBoxControls])
-        option_fields += zip(RadioButtonControls,
+                            ['combo_box' for i in ComboBoxControls]))
+        option_fields += list(zip(RadioButtonControls,
                             [None for i in RadioButtonControls],
-                            ['radio_button' for i in RadioButtonControls])
+                            ['radio_button' for i in RadioButtonControls]))
 
         # LineEditControls
-        option_fields += zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit'])
+        option_fields += list(zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit']))
 
         # TextEditControls
-        # option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
+        # option_fields += list(zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit']))
 
         # SpinBoxControls
-        option_fields += zip(['thumb_width'],[1.00],['spin_box'])
+        option_fields += list(zip(['thumb_width'],[1.00],['spin_box']))
 
         # Exclusion rules
-        option_fields += zip(['exclusion_rules_tw'],
+        option_fields += list(zip(['exclusion_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Catalogs'),
                                'field':_('Tags'),
                                'pattern':'Catalog'},],
-                             ['table_widget'])
+                             ['table_widget']))
 
         # Prefix rules
-        option_fields += zip(['prefix_rules_tw','prefix_rules_tw'],
+        option_fields += list(zip(['prefix_rules_tw','prefix_rules_tw'],
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Read book'),
@@ -115,8 +115,8 @@ class PluginWidget(QWidget,Ui_Form):
                                'name':_('Wishlist item'),
                                'field':_('Tags'),
                                'pattern':'Wishlist',
-                               'prefix':u'\u00d7'},],
-                             ['table_widget','table_widget'])
+                               'prefix':'\u00d7'},],
+                             ['table_widget','table_widget']))
 
         self.OPTION_FIELDS = option_fields
 
@@ -297,7 +297,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         new_source = self.header_note_source_field.currentText()
         self.header_note_source_field_name = new_source
-        if new_source > '':
+        if new_source:
             header_note_source_spec = self.header_note_source_fields[unicode_type(new_source)]
             self.header_note_source_field_name = header_note_source_spec['field']
 
@@ -387,14 +387,14 @@ class PluginWidget(QWidget,Ui_Form):
         # Init self.merge_source_field_name
         self.merge_source_field_name = ''
         cs = unicode_type(self.merge_source_field.currentText())
-        if cs > '':
+        if cs:
             merge_source_spec = self.merge_source_fields[cs]
             self.merge_source_field_name = merge_source_spec['field']
 
         # Init self.header_note_source_field_name
         self.header_note_source_field_name = ''
         cs = unicode_type(self.header_note_source_field.currentText())
-        if cs > '':
+        if cs:
             header_note_source_spec = self.header_note_source_fields[cs]
             self.header_note_source_field_name = header_note_source_spec['field']
 
@@ -423,7 +423,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Hook Preset signals
         self.preset_delete_pb.clicked.connect(self.preset_remove)
         self.preset_save_pb.clicked.connect(self.preset_save)
-        self.preset_field.currentIndexChanged[str].connect(self.preset_change)
+        self.preset_field.currentIndexChanged[native_string_type].connect(self.preset_change)
 
         self.blocking_all_signals = False
 
@@ -433,7 +433,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         new_source = self.merge_source_field.currentText()
         self.merge_source_field_name = new_source
-        if new_source > '':
+        if new_source:
             merge_source_spec = self.merge_source_fields[unicode_type(new_source)]
             self.merge_source_field_name = merge_source_spec['field']
             if not self.merge_before.isChecked() and not self.merge_after.isChecked():
@@ -498,6 +498,28 @@ class PluginWidget(QWidget,Ui_Form):
         elif self.merge_after.isChecked():
             checked = 'after'
         include_hr = self.include_hr.isChecked()
+
+        # Init self.merge_source_field_name
+        self.merge_source_field_name = ''
+        cs = unicode_type(self.merge_source_field.currentText())
+        if cs and cs in self.merge_source_fields:
+            merge_source_spec = self.merge_source_fields[cs]
+            self.merge_source_field_name = merge_source_spec['field']
+
+        # Init self.header_note_source_field_name
+        self.header_note_source_field_name = ''
+        cs = unicode_type(self.header_note_source_field.currentText())
+        if cs and cs in self.header_note_source_fields:
+            header_note_source_spec = self.header_note_source_fields[cs]
+            self.header_note_source_field_name = header_note_source_spec['field']
+
+        # Init self.genre_source_field_name
+        self.genre_source_field_name = _('Tags')
+        cs = unicode_type(self.genre_source_field.currentText())
+        if cs != _('Tags') and cs and cs in self.genre_source_fields:
+            genre_source_spec = self.genre_source_fields[cs]
+            self.genre_source_field_name = genre_source_spec['field']
+
         opts_dict['merge_comments_rule'] = "%s:%s:%s" % \
             (self.merge_source_field_name, checked, include_hr)
 
@@ -593,7 +615,7 @@ class PluginWidget(QWidget,Ui_Form):
         # Populate the Presets combo box
         self.presets = JSONConfig("catalog_presets")
         self.preset_field.addItem("")
-        self.preset_field_values = sorted([p for p in self.presets], key=sort_key)
+        self.preset_field_values = sorted(self.presets, key=sort_key)
         self.preset_field.addItems(self.preset_field_values)
 
     def preset_change(self, item_name):
@@ -784,7 +806,7 @@ class PluginWidget(QWidget,Ui_Form):
             self.preset_field.blockSignals(True)
             self.preset_field.clear()
             self.preset_field.addItem('')
-            self.preset_field_values = sorted([q for q in self.presets], key=sort_key)
+            self.preset_field_values = sorted(self.presets, key=sort_key)
             self.preset_field.addItems(self.preset_field_values)
             self.preset_field.blockSignals(False)
         self.preset_field.setCurrentIndex(self.preset_field.findText(name))
@@ -1316,127 +1338,127 @@ class PrefixRules(GenericRulesTable):
 
         # Create a list of prefixes for user selection
         raw_prefix_list = [
-            ('Ampersand',u'&'),
-            ('Angle left double',u'\u00ab'),
-            ('Angle left',u'\u2039'),
-            ('Angle right double',u'\u00bb'),
-            ('Angle right',u'\u203a'),
-            ('Arrow carriage return',u'\u21b5'),
-            ('Arrow double',u'\u2194'),
-            ('Arrow down',u'\u2193'),
-            ('Arrow left',u'\u2190'),
-            ('Arrow right',u'\u2192'),
-            ('Arrow up',u'\u2191'),
-            ('Asterisk',u'*'),
-            ('At sign',u'@'),
-            ('Bullet smallest',u'\u22c5'),
-            ('Bullet small',u'\u00b7'),
-            ('Bullet',u'\u2022'),
-            ('Cards clubs',u'\u2663'),
-            ('Cards diamonds',u'\u2666'),
-            ('Cards hearts',u'\u2665'),
-            ('Cards spades',u'\u2660'),
-            ('Caret',u'^'),
-            ('Checkmark',u'\u2713'),
-            ('Copyright circle c',u'\u00a9'),
-            ('Copyright circle r',u'\u00ae'),
-            ('Copyright trademark',u'\u2122'),
-            ('Currency cent',u'\u00a2'),
-            ('Currency dollar',u'$'),
-            ('Currency euro',u'\u20ac'),
-            ('Currency pound',u'\u00a3'),
-            ('Currency yen',u'\u00a5'),
-            ('Dagger double',u'\u2021'),
-            ('Dagger',u'\u2020'),
-            ('Degree',u'\u00b0'),
-            ('Dots3',u'\u2234'),
-            ('Hash',u'#'),
-            ('Infinity',u'\u221e'),
-            ('Lozenge',u'\u25ca'),
-            ('Math divide',u'\u00f7'),
-            ('Math empty',u'\u2205'),
-            ('Math equals',u'='),
-            ('Math minus',u'\u2212'),
-            ('Math plus circled',u'\u2295'),
-            ('Math times circled',u'\u2297'),
-            ('Math times',u'\u00d7'),
-            ('Paragraph',u'\u00b6'),
-            ('Percent',u'%'),
-            ('Plus-or-minus',u'\u00b1'),
-            ('Plus',u'+'),
-            ('Punctuation colon',u':'),
-            ('Punctuation colon-semi',u';'),
-            ('Punctuation exclamation',u'!'),
-            ('Punctuation question',u'?'),
-            ('Punctuation period',u'.'),
-            ('Punctuation slash back',u'\\'),
-            ('Punctuation slash forward',u'/'),
-            ('Section',u'\u00a7'),
-            ('Tilde',u'~'),
-            ('Vertical bar',u'|'),
-            ('Vertical bar broken',u'\u00a6'),
-            ('_0',u'0'),
-            ('_1',u'1'),
-            ('_2',u'2'),
-            ('_3',u'3'),
-            ('_4',u'4'),
-            ('_5',u'5'),
-            ('_6',u'6'),
-            ('_7',u'7'),
-            ('_8',u'8'),
-            ('_9',u'9'),
-            ('_A',u'A'),
-            ('_B',u'B'),
-            ('_C',u'C'),
-            ('_D',u'D'),
-            ('_E',u'E'),
-            ('_F',u'F'),
-            ('_G',u'G'),
-            ('_H',u'H'),
-            ('_I',u'I'),
-            ('_J',u'J'),
-            ('_K',u'K'),
-            ('_L',u'L'),
-            ('_M',u'M'),
-            ('_N',u'N'),
-            ('_O',u'O'),
-            ('_P',u'P'),
-            ('_Q',u'Q'),
-            ('_R',u'R'),
-            ('_S',u'S'),
-            ('_T',u'T'),
-            ('_U',u'U'),
-            ('_V',u'V'),
-            ('_W',u'W'),
-            ('_X',u'X'),
-            ('_Y',u'Y'),
-            ('_Z',u'Z'),
-            ('_a',u'a'),
-            ('_b',u'b'),
-            ('_c',u'c'),
-            ('_d',u'd'),
-            ('_e',u'e'),
-            ('_f',u'f'),
-            ('_g',u'g'),
-            ('_h',u'h'),
-            ('_i',u'i'),
-            ('_j',u'j'),
-            ('_k',u'k'),
-            ('_l',u'l'),
-            ('_m',u'm'),
-            ('_n',u'n'),
-            ('_o',u'o'),
-            ('_p',u'p'),
-            ('_q',u'q'),
-            ('_r',u'r'),
-            ('_s',u's'),
-            ('_t',u't'),
-            ('_u',u'u'),
-            ('_v',u'v'),
-            ('_w',u'w'),
-            ('_x',u'x'),
-            ('_y',u'y'),
-            ('_z',u'z'),
+            ('Ampersand', '&'),
+            ('Angle left double', '\u00ab'),
+            ('Angle left', '\u2039'),
+            ('Angle right double', '\u00bb'),
+            ('Angle right', '\u203a'),
+            ('Arrow carriage return', '\u21b5'),
+            ('Arrow double', '\u2194'),
+            ('Arrow down', '\u2193'),
+            ('Arrow left', '\u2190'),
+            ('Arrow right', '\u2192'),
+            ('Arrow up', '\u2191'),
+            ('Asterisk', '*'),
+            ('At sign', '@'),
+            ('Bullet smallest', '\u22c5'),
+            ('Bullet small', '\u00b7'),
+            ('Bullet', '\u2022'),
+            ('Cards clubs', '\u2663'),
+            ('Cards diamonds', '\u2666'),
+            ('Cards hearts', '\u2665'),
+            ('Cards spades', '\u2660'),
+            ('Caret', '^'),
+            ('Checkmark', '\u2713'),
+            ('Copyright circle c', '\u00a9'),
+            ('Copyright circle r', '\u00ae'),
+            ('Copyright trademark', '\u2122'),
+            ('Currency cent', '\u00a2'),
+            ('Currency dollar', '$'),
+            ('Currency euro', '\u20ac'),
+            ('Currency pound', '\u00a3'),
+            ('Currency yen', '\u00a5'),
+            ('Dagger double', '\u2021'),
+            ('Dagger', '\u2020'),
+            ('Degree', '\u00b0'),
+            ('Dots3', '\u2234'),
+            ('Hash', '#'),
+            ('Infinity', '\u221e'),
+            ('Lozenge', '\u25ca'),
+            ('Math divide', '\u00f7'),
+            ('Math empty', '\u2205'),
+            ('Math equals', '='),
+            ('Math minus', '\u2212'),
+            ('Math plus circled', '\u2295'),
+            ('Math times circled', '\u2297'),
+            ('Math times', '\u00d7'),
+            ('Paragraph', '\u00b6'),
+            ('Percent', '%'),
+            ('Plus-or-minus', '\u00b1'),
+            ('Plus', '+'),
+            ('Punctuation colon', ':'),
+            ('Punctuation colon-semi', ';'),
+            ('Punctuation exclamation', '!'),
+            ('Punctuation question', '?'),
+            ('Punctuation period', '.'),
+            ('Punctuation slash back', '\\'),
+            ('Punctuation slash forward', '/'),
+            ('Section', '\u00a7'),
+            ('Tilde', '~'),
+            ('Vertical bar', '|'),
+            ('Vertical bar broken', '\u00a6'),
+            ('_0', '0'),
+            ('_1', '1'),
+            ('_2', '2'),
+            ('_3', '3'),
+            ('_4', '4'),
+            ('_5', '5'),
+            ('_6', '6'),
+            ('_7', '7'),
+            ('_8', '8'),
+            ('_9', '9'),
+            ('_A', 'A'),
+            ('_B', 'B'),
+            ('_C', 'C'),
+            ('_D', 'D'),
+            ('_E', 'E'),
+            ('_F', 'F'),
+            ('_G', 'G'),
+            ('_H', 'H'),
+            ('_I', 'I'),
+            ('_J', 'J'),
+            ('_K', 'K'),
+            ('_L', 'L'),
+            ('_M', 'M'),
+            ('_N', 'N'),
+            ('_O', 'O'),
+            ('_P', 'P'),
+            ('_Q', 'Q'),
+            ('_R', 'R'),
+            ('_S', 'S'),
+            ('_T', 'T'),
+            ('_U', 'U'),
+            ('_V', 'V'),
+            ('_W', 'W'),
+            ('_X', 'X'),
+            ('_Y', 'Y'),
+            ('_Z', 'Z'),
+            ('_a', 'a'),
+            ('_b', 'b'),
+            ('_c', 'c'),
+            ('_d', 'd'),
+            ('_e', 'e'),
+            ('_f', 'f'),
+            ('_g', 'g'),
+            ('_h', 'h'),
+            ('_i', 'i'),
+            ('_j', 'j'),
+            ('_k', 'k'),
+            ('_l', 'l'),
+            ('_m', 'm'),
+            ('_n', 'n'),
+            ('_o', 'o'),
+            ('_p', 'p'),
+            ('_q', 'q'),
+            ('_r', 'r'),
+            ('_s', 's'),
+            ('_t', 't'),
+            ('_u', 'u'),
+            ('_v', 'v'),
+            ('_w', 'w'),
+            ('_x', 'x'),
+            ('_y', 'y'),
+            ('_z', 'z'),
             ]
         raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
         self.prefix_list = [x[1] for x in raw_prefix_list]

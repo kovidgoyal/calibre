@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -18,7 +17,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE, XHTML
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, error_message
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -204,7 +203,7 @@ class NonUTF8(BaseError):
 
     def __call__(self, container):
         raw = container.raw_data(self.name)
-        if isinstance(raw, type('')):
+        if isinstance(raw, unicode_type):
             raw, changed = replace_encoding_declarations(raw)
             if changed:
                 container.open(self.name, 'wb').write(raw.encode('utf-8'))
@@ -297,9 +296,9 @@ def check_xml_parsing(name, mt, raw):
             line, col = err.position
         except:
             line = col = None
-        return errors + [errcls(err.message, name, line, col)]
+        return errors + [errcls(error_message(err), name, line, col)]
     except Exception as err:
-        return errors + [errcls(err.message, name)]
+        return errors + [errcls(error_message(err), name)]
 
     if mt in OEB_DOCS:
         if root.nsmap.get(root.prefix, None) != XHTML_NS:

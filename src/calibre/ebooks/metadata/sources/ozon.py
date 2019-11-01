@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013 Roman Mukhin <ramses_ru at hotmail.com>'
@@ -12,7 +11,10 @@ __docformat__ = 'restructuredtext en'
 # bitcoins to 1E6CRSLY1uNstcZjLYZBHRVs1CPKbdi4ep
 
 import re
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode, replace_entities
 from calibre.ebooks.metadata import check_isbn
@@ -54,12 +56,15 @@ class Ozon(Source):
     )
 
     def get_book_url(self, identifiers):  # {{{
-        import urllib2
+        try:
+            from urllib.parse import quote
+        except ImportError:
+            from urllib import quote
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
             # no affiliateId is used in search/detail
-            url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
+            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
 
@@ -201,8 +206,9 @@ class Ozon(Source):
         title = type(u'')(title).upper() if title else ''
         if reRemoveFromTitle:
             title = reRemoveFromTitle.sub('', title)
-        authors = map(_normalizeAuthorNameWithInitials,
-                      map(type(u'').upper, map(type(u''), authors))) if authors else None
+        authors = [
+            _normalizeAuthorNameWithInitials(type(u'')(a).upper()) for a in authors
+        ] if authors else None
 
         ozon_id = identifiers.get('ozon', None)
         # log.debug(u'ozonid: ', ozon_id)
@@ -240,7 +246,7 @@ class Ozon(Source):
                 relevance += 1
 
             if authors:
-                miauthors = map(type(u'').upper, map(type(u''), mi.authors)) if mi.authors else []
+                miauthors = [type(u'')(a).upper() for a in mi.authors or ()]
                 # log.debug('Authors %s vs miauthors %s'%(','.join(authors), ','.join(miauthors)))
 
                 if (in_authors(authors, miauthors)):
@@ -326,7 +332,7 @@ class Ozon(Source):
         author = type(u'')(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
         # log.debug(u'Author: -----> %s' % author)
 
-        norm_authors = map(_normalizeAuthorNameWithInitials, map(type(u'').strip, type(u'')(author).split(u',')))
+        norm_authors = [_normalizeAuthorNameWithInitials(a.strip()) for a in type(u'')(author).split(u',')]
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.get('data-href').split('/')[-2]

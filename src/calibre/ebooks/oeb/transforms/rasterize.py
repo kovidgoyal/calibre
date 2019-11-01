@@ -1,7 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 SVG rasterization transform.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -77,7 +77,7 @@ class SVGRasterizer(object):
                     logger.info('Found SVG image height in %, trying to convert...')
                     try:
                         h = float(image.get('height').replace('%', ''))/100.
-                        image.set('height', str(h*sizes[1]))
+                        image.set('height', unicode_type(h*sizes[1]))
                     except:
                         logger.exception('Failed to convert percentage height:',
                                 image.get('height'))
@@ -101,7 +101,7 @@ class SVGRasterizer(object):
         buffer = QBuffer(array)
         buffer.open(QIODevice.WriteOnly)
         image.save(buffer, format)
-        return str(array)
+        return array.data()
 
     def dataize_manifest(self):
         for item in self.oeb.manifest.values():
@@ -121,7 +121,7 @@ class SVGRasterizer(object):
             if abshref not in hrefs:
                 continue
             linkee = hrefs[abshref]
-            data = str(linkee)
+            data = linkee.bytes_representation
             ext = what(None, data) or 'jpg'
             with PersistentTemporaryFile(suffix='.'+ext) as pt:
                 pt.write(data)
@@ -182,7 +182,7 @@ class SVGRasterizer(object):
         height = style['height']
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
-        data = QByteArray(str(svgitem))
+        data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
         size.scale(width, height, Qt.KeepAspectRatio)
@@ -202,7 +202,7 @@ class SVGRasterizer(object):
             buffer = QBuffer(array)
             buffer.open(QIODevice.WriteOnly)
             image.save(buffer, 'PNG')
-            data = str(array)
+            data = array.data()
             manifest = self.oeb.manifest
             href = os.path.splitext(svgitem.href)[0] + '.png'
             id, href = manifest.generate(svgitem.id, href)

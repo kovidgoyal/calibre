@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
@@ -5,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 import os, time, sys
 from functools import cmp_to_key
 
-from calibre.constants import preferred_encoding, DEBUG
+from calibre.constants import preferred_encoding, DEBUG, ispy3
 from calibre import isbytestring, force_unicode
 from calibre.utils.icu import sort_key
 
@@ -15,7 +16,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import unicode_type, string_or_bytes, iteritems, itervalues
+from polyglot.builtins import unicode_type, string_or_bytes, iteritems, itervalues, cmp
 
 
 class Book(Book_):
@@ -111,6 +112,9 @@ class Book(Book_):
         ans = u'\n'.join(ans) + u"\n" + self.kobo_metadata.__unicode__()
 
         return super(Book,self).__unicode__() + u"\n" + ans
+
+    if ispy3:
+        __str__ = __unicode__
 
 
 class ImageWrapper(object):
@@ -219,7 +223,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 elif fm is not None and fm['datatype'] == 'series':
                     val = [orig_val]
                 elif fm is not None and fm['datatype'] == 'rating':
-                    val = [type(u'')(orig_val / 2.0)]
+                    val = [unicode_type(orig_val / 2.0)]
                 elif fm is not None and fm['datatype'] == 'text' and fm['is_multiple']:
                     if isinstance(orig_val, (list, tuple)):
                         val = orig_val
@@ -264,7 +268,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     if not category:
                         continue
 
-                    cat_name = type(u'')(category).strip(' ,')
+                    cat_name = unicode_type(category).strip(' ,')
 
                     if cat_name not in collections:
                         collections[cat_name] = {}

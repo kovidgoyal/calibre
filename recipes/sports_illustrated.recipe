@@ -32,6 +32,11 @@ class SI(BasicNewsRecipe):
         dict(name='meta'),
     ]
 
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en')]
+        return br
+
     def preprocess_html(self, soup, *a):
         for tag in soup.findAll(attrs={'data-src': True}):
             tag.name = 'img'

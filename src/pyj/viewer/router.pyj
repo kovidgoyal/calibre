@@ -1,0 +1,19 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from modals import close_all_modals
+from utils import parse_url_params
+
+
+def get_current_query(newval):
+    if newval:
+        get_current_query.ans = newval
+    return get_current_query.ans or {}
+
+
+def apply_url():
+    close_all_modals()  # needed to close any error dialogs, etc when clicking back or forward in the browser or using push_state() to go to a new page
+    data = parse_url_params()
+    data.mode = data.mode or 'read_book'
+    get_current_query.ans = data

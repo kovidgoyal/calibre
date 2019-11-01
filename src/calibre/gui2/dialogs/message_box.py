@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -417,7 +417,7 @@ class JobError(QDialog):  # {{{
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         QApplication.clipboard().setText(
-                u'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
+                'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
                 (__version__, sys.platform, isfrozen,
                     unicode_type(self.windowTitle()), unicode_type(d.toPlainText()),
                     unicode_type(self.det_msg.toPlainText())))
@@ -444,7 +444,7 @@ class JobError(QDialog):  # {{{
         self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
         return ret
 
-    def show_error(self, title, msg, det_msg=u'', retry_func=None):
+    def show_error(self, title, msg, det_msg='', retry_func=None):
         self.queue.append((title, msg, det_msg, retry_func))
         self.update_suppress_state()
         self.pop()

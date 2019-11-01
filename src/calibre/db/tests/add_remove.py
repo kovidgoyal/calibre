@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -218,14 +217,14 @@ class AddRemoveTest(BaseTest):
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning
-        self.assertIn(_('Unknown'), set(itervalues(authors.id_map)))
+        self.assertIn('Unknown', set(itervalues(authors.id_map)))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in iteritems(authors.id_map)}[_('Unknown')]
+        item_id = {v:k for k, v in iteritems(authors.id_map)}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(3, c.all_book_ids())
-            self.assertNotIn(_('Unknown'), set(itervalues(table.id_map)))
+            self.assertNotIn('Unknown', set(itervalues(table.id_map)))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.alink_map)
             ae(len(table.id_map), olen-1)

@@ -96,7 +96,7 @@ unless the file is marked as a Personal document, Amazon assumes you bought the
 book from it and tries to download the cover thumbnail for it from its servers. When the
 download fails, it refuses to fallback to the cover defined in the MOBI file.
 This is likely deliberate on Amazon's part to try to force authors to sell only
-through them. In other words, Kindle's only display covers for books marked as
+through them. In other words, the Kindle only displays covers for books marked as
 Personal Documents or books bought directly from Amazon.
 
 If you send a MOBI file to an e-ink Kindle with calibre using a USB connection,
@@ -209,10 +209,11 @@ Follow these steps to find the problem:
       no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
-    * Make sure you are running the latest version of calibre. The latest version
-      can always be downloaded from `the calibre website <https://calibre-ebook.com/download>`_.
-      You can tell what version of calibre you are currently running by looking
-      at the bottom line of the main calibre window.
+    * Make sure you are running the latest version of calibre (currently
+      |version|). The latest version can always be downloaded from `the calibre
+      website <https://calibre-ebook.com/download>`_.  You can tell what
+      version of calibre you are currently running by looking at the bottom
+      line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
       should show up in Windows Explorer (in Windows) or Finder (in macOS).
     * In calibre, go to :guilabel:`Preferences->Ignored Devices` and check that your device
@@ -308,9 +309,8 @@ How do I use calibre with my iPad/iPhone/iPod touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest way to transfer books wirelessly to your Apple device (iPad/iPhone/iPod)
-is to use the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
-iOS app. This app is maintained by a core calibre developer and allows
-calibre to connect to your Apple device wirelessly, just as though you
+is to use the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=IOS>`__ iOS app.
+This app allows calibre to connect to your Apple device wirelessly, just as though you
 plugged in the device with a USB cable. You can browse files on the device
 in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
@@ -331,7 +331,7 @@ over the net. First perform the following steps in calibre
 
 The Content server allows you to read books directly in Safari itself. In
 addition, there are many apps for your iDevice that can connect to the calibre
-Content server. Examples include: Marvin, Mapleread and iBooks itself. 
+Content server. Examples include: Marvin, Mapleread and iBooks itself.
 
 Using the Content server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -386,9 +386,8 @@ Over the air
 ^^^^^^^^^^^^^^
 
 The easiest way to transfer books wirelessly to your Android device is to use
-the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
-Android app. This app is maintained by a core calibre developer and allows
-calibre to connect to your Android device wirelessly, just as though you
+the `Calibre Companion <https://calibrecompanion.co?utm_source=Calibre&utm_medium=Website&utm_campaign=Main&utm_term=FAQ&utm_content=Android>`__ Android app.
+This app allows calibre to connect to your Android device wirelessly, just as though you
 plugged in the device with a USB cable. You can browse files on the device
 in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
@@ -414,11 +413,11 @@ You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
 android device.
 
-Calibre Companion and many reading apps support browsing the calibre library 
-directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, 
-then give the catalog a title such as "calibre" and provide the URL listed 
-above. You can now browse the calibre library and download directly into the 
-reading software. 
+Calibre Companion and many reading apps support browsing the calibre library
+directly. For example, in Aldiko, click My Catalogs, then + to add a catalog,
+then give the catalog a title such as "calibre" and provide the URL listed
+above. You can now browse the calibre library and download directly into the
+reading software.
 
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -691,7 +690,7 @@ then import it on another computer. First let's see how to export the data:
     find out what the library folder is by clicking the calibre icon in the
     toolbar. Choose the :guilabel:`Switch/create calibre library` action and
     you will see the path to the current calibre library.
-    
+
     Now on the new computer, start calibre for the first time. It will run the
     :guilabel:`Welcome wizard` asking you for the location of the calibre library. Point it
     to the previously copied folder. If the computer you are transferring to

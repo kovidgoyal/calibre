@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import Qt, QAction, pyqtSignal
 
-from calibre.constants import isosx, iswindows
+from calibre.constants import isosx, iswindows, plugins
 from calibre.gui2 import (
     error_dialog, Dispatcher, question_dialog, config, open_local_file,
     info_dialog, elided_text)
@@ -18,6 +19,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
 
 
 class HistoryAction(QAction):
@@ -125,11 +127,11 @@ class ViewAction(InterfaceAction):
                         kwargs=dict(args=args))
             else:
                 if iswindows:
-                    from calibre.utils.file_associations import file_assoc_windows
+                    winutil = plugins['winutil'][0]
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
-                            prog = file_assoc_windows(ext)
+                            prog = winutil.file_association(unicode_type('.' + ext))
                         except Exception:
                             prog = None
                         if prog and prog.lower().endswith('calibre.exe'):
@@ -165,7 +167,7 @@ class ViewAction(InterfaceAction):
         rows = [r.row() for r in rows]
         book_ids = [db.id(r) for r in rows]
         formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
-        all_fmts = set([])
+        all_fmts = set()
         for x in formats:
             if x:
                 for f in x:

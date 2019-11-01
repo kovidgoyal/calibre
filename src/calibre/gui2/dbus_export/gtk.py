@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -272,17 +271,17 @@ class MyApplication(Gtk.Application):
         seen = seen or set()
         seen.add(group)
         print = self.print
-        print ('\nMenu description (Group %d)' % group)
+        print('\nMenu description (Group %d)' % group)
         for item in bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Menus', 'Start', 'au', ([group],)):
-            print ('Subscription group:', item[0])
-            print ('Menu number:', item[1])
+            print('Subscription group:', item[0])
+            print('Menu number:', item[1])
             for menu_item in item[2]:
                 menu_item = {unicode_type(k):convert(v) for k, v in iteritems(menu_item)}
                 if ':submenu' in menu_item:
                     groups.add(menu_item[':submenu'][0])
                 if ':section' in menu_item:
                     groups.add(menu_item[':section'][0])
-                print (pformat(menu_item))
+                print(pformat(menu_item))
         for other_group in sorted(groups - seen):
             self.print_menu_start(bus, other_group, seen)
 
@@ -303,8 +302,8 @@ class MyApplication(Gtk.Application):
         for name in sorted(adata):
             data = adata[name]
             d[name] = {'enabled':convert(data[0]), 'param type': convert(data[1]), 'state':convert(data[2])}
-            print ('Name:', name)
-            print (pformat(d[name]))
+            print('Name:', name)
+            print(pformat(d[name]))
 
     def do_startup(self):
         Gtk.Application.do_startup(self)

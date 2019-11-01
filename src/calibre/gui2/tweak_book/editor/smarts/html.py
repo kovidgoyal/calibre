@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,7 @@ from PyQt5.Qt import QTextEdit, Qt, QTextCursor
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
+from calibre.ebooks.oeb.base import css_text
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.gui2.tweak_book import tprefs, current_container
@@ -280,7 +280,7 @@ def set_style_property(tag, property_name, value, editor):
     c = editor.textCursor()
 
     def css(d):
-        return d.cssText.replace('\n', ' ')
+        return css_text(d).replace('\n', ' ')
     if block is None or offset is None:
         d = parseStyle('')
         d.setProperty(property_name, value)
@@ -606,7 +606,10 @@ class Smarts(NullSmarts):
         key = ev.key()
         is_xml = editor.syntax == 'xml'
 
-        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in ev_text):
+        if tprefs['replace_entities_as_typed'] and (
+                ';' in ev_text or
+                (key == Qt.Key_Semicolon and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier))
+        ):
             self.replace_possible_entity(editor)
             return True
 
@@ -689,6 +692,7 @@ class Smarts(NullSmarts):
                     return True
             return False
 
+        editor.highlighter.join()
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
         if check_if_in_tag(block, offset) or check_if_in_tag(block.next()):
@@ -730,12 +734,14 @@ class Smarts(NullSmarts):
 
             return 'complete_names', (names_type, doc_name, c.root), query
 
-    def find_text(self, pat, cursor):
+    def find_text(self, pat, cursor, reverse):
         from calibre.gui2.tweak_book.text_search import find_text_in_chunks
         chunks = []
 
         cstart = min(cursor.position(), cursor.anchor())
         cend = max(cursor.position(), cursor.anchor())
+        if reverse:
+            cend -= 1
         c = QTextCursor(cursor)
         c.setPosition(cstart)
         block = c.block()

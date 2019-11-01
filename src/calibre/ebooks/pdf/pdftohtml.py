@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 
-from calibre import CurrentDir, replace_entities, prints
+from calibre import CurrentDir, xml_replace_entities, prints
 from calibre.constants import (
     filesystem_encoding, isbsd, islinux, isosx, ispy3, iswindows
 )
@@ -34,7 +34,8 @@ def popen(cmd, **kw):
 
 
 if isosx and hasattr(sys, 'frameworks_dir'):
-    PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
+    base = os.path.join(os.path.dirname(sys.frameworks_dir), 'utils.app', 'Contents', 'MacOS')
+    PDFTOHTML = os.path.join(base, PDFTOHTML)
 if iswindows and hasattr(sys, 'frozen'):
     base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
     PDFTOHTML = os.path.join(base, 'pdftohtml.exe')
@@ -95,7 +96,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
         if not as_xml:
             with lopen(index, 'r+b') as i:
-                raw = i.read().decode('utf-8')
+                raw = i.read().decode('utf-8', 'replace')
                 raw = flip_images(raw)
                 raw = raw.replace('<head', '<!-- created by calibre\'s pdftohtml -->\n  <head', 1)
                 i.seek(0)
@@ -106,7 +107,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(r'<a\s+name=(\d+)', r'<a id="\1"', raw, flags=re.I)
                 raw = re.sub(r'<a id="(\d+)"', r'<a id="p\1"', raw, flags=re.I)
                 raw = re.sub(r'<a href="index.html#(\d+)"', r'<a href="#p\1"', raw, flags=re.I)
-                raw = replace_entities(raw)
+                raw = xml_replace_entities(raw)
                 raw = raw.replace('\u00a0', ' ')
 
                 i.write(raw.encode('utf-8'))

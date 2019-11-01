@@ -24,21 +24,23 @@
 # in memory. The user should then be able to make operations and then save
 # the structure again.
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from xml.sax import handler
-from element import Element
-from namespaces import OFFICENS
+from .element import Element
+from .namespaces import OFFICENS
 
 #
 # Parse the XML files
 #
+
+
 class LoadParser(handler.ContentHandler):
     """ Extract headings from content.xml of an ODT file """
     triggers = (
        (OFFICENS, 'automatic-styles'), (OFFICENS, 'body'),
        (OFFICENS, 'font-face-decls'), (OFFICENS, 'master-styles'),
        (OFFICENS, 'meta'), (OFFICENS, 'scripts'),
-       (OFFICENS, 'settings'), (OFFICENS, 'styles') )
+       (OFFICENS, 'settings'), (OFFICENS, 'styles'))
 
     def __init__(self, document):
         self.doc = document
@@ -47,7 +49,7 @@ class LoadParser(handler.ContentHandler):
         self.parse = False
 
     def characters(self, data):
-        if self.parse == False:
+        if self.parse is False:
             return
         self.data.append(data)
 
@@ -56,7 +58,7 @@ class LoadParser(handler.ContentHandler):
             self.parse = True
         if self.doc._parsing != "styles.xml" and tag == (OFFICENS, 'font-face-decls'):
             self.parse = False
-        if self.parse == False:
+        if self.parse is False:
             return
 
         self.level = self.level + 1
@@ -70,7 +72,7 @@ class LoadParser(handler.ContentHandler):
         for (att,value) in attrs.items():
             attrdict[att] = value
         try:
-            e = Element(qname = tag, qattributes=attrdict, check_grammar=False)
+            e = Element(qname=tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
         except AttributeError as v:
             print("Error: %s" % v)
@@ -95,9 +97,8 @@ class LoadParser(handler.ContentHandler):
             self.parent.addElement(e, check_grammar=False)
         self.parent = e
 
-
     def endElementNS(self, tag, qname):
-        if self.parse == False:
+        if self.parse is False:
             return
         self.level = self.level - 1
         # Changed by Kovid to deal with <span> tags with only whitespace

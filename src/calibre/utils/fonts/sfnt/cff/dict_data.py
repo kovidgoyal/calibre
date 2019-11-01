@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from struct import unpack, pack
-from polyglot.builtins import range
+from polyglot.builtins import range, unicode_type
 
 t1_operand_encoding = [None] * 256
 t1_operand_encoding[0:32] = (32) * ["do_operator"]
@@ -37,11 +36,11 @@ class ByteCode(dict):
         return b0 - 139, index
 
     def read_small_int1(self, b0, data, index):
-        b1 = ord(data[index])
+        b1 = ord(data[index:index+1])
         return (b0-247)*256 + b1 + 108, index+1
 
     def read_small_int2(self, b0, data, index):
-        b1 = ord(data[index])
+        b1 = ord(data[index:index+1])
         return -(b0-251)*256 - b1 - 108, index+1
 
     def read_short_int(self, b0, data, index):
@@ -62,7 +61,7 @@ class ByteCode(dict):
     def read_real_number(self, b0, data, index):
         number = ''
         while True:
-            b = ord(data[index])
+            b = ord(data[index:index+1])
             index = index + 1
             nibble0 = (b & 0xf0) >> 4
             nibble1 = b & 0x0f
@@ -75,7 +74,7 @@ class ByteCode(dict):
         return float(number), index
 
     def write_float(self, f, encoding='ignored'):
-        s = type(u'')(f).upper()
+        s = unicode_type(f).upper()
         if s[:2] == "0.":
             s = s[1:]
         elif s[:3] == "-0.":
@@ -145,7 +144,7 @@ class Dict(ByteCode):
         self.stack = []
         index = 0
         while index < len(data):
-            b0 = ord(data[index])
+            b0 = ord(data[index:index+1])
             index += 1
             handler = getattr(self, self.operand_encoding[b0])
             value, index = handler(b0, data, index)
@@ -154,7 +153,7 @@ class Dict(ByteCode):
 
     def do_operator(self, b0, data, index):
         if b0 == 12:
-            op = (b0, ord(data[index]))
+            op = (b0, ord(data[index:index+1]))
             index += 1
         else:
             op = b0

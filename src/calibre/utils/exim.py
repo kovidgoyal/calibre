@@ -1,19 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
-from binascii import hexlify
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows
+from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, raw_input
+from polyglot.builtins import iteritems, raw_input, error_message, unicode_type
+from polyglot.binary import as_hex_unicode
 
 
 # Export {{{
@@ -26,7 +25,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
             break
         m.update(raw)
         to_obj.write(raw)
-    return type('')(m.hexdigest())
+    return unicode_type(m.hexdigest())
 
 
 class FileDest(object):
@@ -56,7 +55,7 @@ class FileDest(object):
     def close(self):
         if not self._discard:
             size = self.exporter.f.tell() - self.start_pos
-            digest = type('')(self.hasher.hexdigest())
+            digest = unicode_type(self.hasher.hexdigest())
             self.exporter.file_metadata[self.key] = (len(self.exporter.parts), self.start_pos, size, digest, self.mtime)
         del self.exporter, self.hasher
 
@@ -133,7 +132,7 @@ class Exporter(object):
         return FileDest(key, self, mtime=mtime)
 
     def export_dir(self, path, dir_key):
-        pkey = hexlify(dir_key)
+        pkey = as_hex_unicode(dir_key)
         self.metadata[dir_key] = files = []
         for dirpath, dirnames, filenames in os.walk(path):
             for fname in filenames:
@@ -307,7 +306,7 @@ class Importer(object):
         except Exception:
             lpath = None
         c = create_global_prefs(StringConfig(raw, 'calibre wide preferences'))
-        c.set('installation_uuid', str(uuid.uuid4()))
+        c.set('installation_uuid', unicode_type(uuid.uuid4()))
         c.set('library_path', lpath)
         raw = c.src
         if not isinstance(raw, bytes):
@@ -327,6 +326,8 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
     for i, (library_key, dest) in enumerate(iteritems(library_path_map)):
         if abort is not None and abort.is_set():
             return
+        if isinstance(dest, bytes):
+            dest = dest.decode(filesystem_encoding)
         if progress1 is not None:
             progress1(dest, i, total)
         try:
@@ -337,7 +338,8 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
         if not os.path.isdir(dest):
             raise ValueError('%s is not a directory' % dest)
         import_library(library_key, importer, dest, progress=progress2, abort=abort).close()
-        library_usage_stats[dest] = importer.metadata['libraries'].get(library_key, 1)
+        stats_key = os.path.abspath(dest).replace(os.sep, '/')
+        library_usage_stats[stats_key] = importer.metadata['libraries'].get(library_key, 1)
     if progress1 is not None:
         progress1(_('Settings and plugins'), total - 1, total)
 
@@ -439,7 +441,7 @@ def run_importer():
     try:
         importer = Importer(export_dir)
     except ValueError as err:
-        raise SystemExit(err.message)
+        raise SystemExit(error_message(err))
 
     import_dir = input_unicode('Enter path to an empty folder (all libraries will be created inside this folder): ').rstrip('\r')
     if not os.path.exists(import_dir):

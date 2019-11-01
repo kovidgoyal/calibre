@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+from __future__ import unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -16,12 +18,12 @@ from calibre.db.cache import Cache
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring, force_unicode
-from polyglot.builtins import iteritems
+from polyglot.builtins import iteritems, filter
 
-NON_EBOOK_EXTENSIONS = frozenset([
-        'jpg', 'jpeg', 'gif', 'png', 'bmp',
-        'opf', 'swp', 'swo'
-        ])
+NON_EBOOK_EXTENSIONS = frozenset((
+    'jpg', 'jpeg', 'gif', 'png', 'bmp',
+    'opf', 'swp', 'swo'
+))
 
 
 class Restorer(Cache):
@@ -124,7 +126,7 @@ class Restore(Thread):
                     self.create_cc_metadata()
                 self.restore_books()
                 if self.successes == 0 and len(self.dirs) > 0:
-                    raise Exception(('Something bad happened'))
+                    raise Exception('Something bad happened')
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
@@ -184,7 +186,7 @@ class Restore(Thread):
 
     def process_dir(self, dirpath, filenames, book_id):
         book_id = int(book_id)
-        formats = filter(self.is_ebook_file, filenames)
+        formats = list(filter(self.is_ebook_file, filenames))
         fmts    = [os.path.splitext(x)[1][1:].upper() for x in formats]
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]

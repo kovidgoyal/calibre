@@ -14,5 +14,7 @@ class AdvancedUserRecipe1335362999(BasicNewsRecipe):
     description = 'An Italian satirical blog'
     language = 'it'
     __author__ = 'faber1971'
+
+
 __version__ = 'v1.0'
 __date__ = '24, April 2012'

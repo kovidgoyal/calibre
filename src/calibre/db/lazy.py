@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,7 +14,7 @@ from copy import deepcopy
 from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, native_string_type
 
 # Lazy format metadata retrieval {{{
 '''
@@ -39,7 +38,7 @@ class MutableBase(object):
 
     @resolved
     def __str__(self):
-        return str(self._values)
+        return native_string_type(self._values)
 
     @resolved
     def __repr__(self):

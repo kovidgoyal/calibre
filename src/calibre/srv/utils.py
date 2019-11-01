@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,7 +9,6 @@ import errno, socket, select, os, time
 from contextlib import closing
 from email.utils import formatdate
 from operator import itemgetter
-from binascii import hexlify, unhexlify
 
 from calibre import prints
 from calibre.constants import iswindows, ispy3
@@ -20,18 +18,21 @@ from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
-from polyglot.builtins import iteritems, map, unicode_type, range
+from polyglot.builtins import iteritems, map, range
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
+from polyglot.builtins import is_py3, unicode_type, as_bytes, as_unicode
 from polyglot.urllib import parse_qs, quote as urlquote
+from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
+encode_name, decode_name
 
 
 def http_date(timeval=None):
-    return type('')(formatdate(timeval=timeval, usegmt=True))
+    return unicode_type(formatdate(timeval=timeval, usegmt=True))
 
 
 class MultiDict(dict):  # {{{
@@ -47,8 +48,10 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
+        if ispy3:
+            qs = as_unicode(qs)
         for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
-            dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
+            dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
     def update_from_listdict(self, ld):
@@ -283,24 +286,13 @@ def get_translator_for_lang(cache, bcp_47_code):
 
 def encode_path(*components):
     'Encode the path specified as a list of path components using URL encoding'
-    return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
-
-
-def encode_name(name):
-    'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
-    if isinstance(name, unicode_type):
-        name = name.encode('utf-8')
-    return hexlify(name)
-
-
-def decode_name(name):
-    return unhexlify(name).decode('utf-8')
+    return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
 
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        if not isinstance(key, bytes):
+        if not ispy3 and not isinstance(key, bytes):
             key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
 
@@ -331,7 +323,14 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
+        if ispy3:
+            if iswindows:
+                self.stream = share_open(self.filename, 'ab')
+            else:
+                # see https://bugs.python.org/issue27805
+                self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
+        else:
+            self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
@@ -346,9 +345,12 @@ class RotatingStream(object):
         kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
-        if iswindows:
+        if iswindows or ispy3:
             # For some reason line buffering does not work on windows
+            # and in python 3 it only works with text mode streams
             end = kwargs.get('end', b'\n')
+            if isinstance(end, unicode_type):
+                end = end.encode('utf-8')
             if b'\n' in end:
                 self.flush()
         self.rollover()
@@ -529,10 +531,10 @@ def get_use_roman():
     return _use_roman
 
 
-if iswindows:
+if iswindows and not is_py3:
     def fast_now_strftime(fmt):
-        fmt = fmt.encode('mbcs')
+        fmt = as_bytes(fmt, encoding='mbcs')
         return time.strftime(fmt).decode('mbcs', 'replace')
 else:
     def fast_now_strftime(fmt):
-        return time.strftime(fmt).decode('utf-8', 'replace')
+        return as_unicode(time.strftime(fmt), errors='replace')

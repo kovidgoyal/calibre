@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from io import BytesIO
 from itertools import count
 from functools import partial
@@ -20,6 +19,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
+from polyglot.builtins import unicode_type
 
 OPF_TEMPLATE = '''
 <package xmlns="http://www.idpf.org/2007/opf" version="{ver}" prefix="calibre: %s" unique-identifier="uid">
@@ -64,7 +64,7 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
 </container>''')
         zf.writestr('content.opf', opf.encode('utf-8'))
         for name, data, properties in manifest:
-            if isinstance(data, type('')):
+            if isinstance(data, unicode_type):
                 data = data.encode('utf-8')
             zf.writestr(name, data)
     buf.seek(0)
@@ -78,7 +78,7 @@ class Structure(BaseTest):
 
     def create_epub(self, *args, **kw):
         n = next(counter)
-        ep = os.path.join(self.tdir, str(n) + 'book.epub')
+        ep = os.path.join(self.tdir, unicode_type(n) + 'book.epub')
         with open(ep, 'wb') as f:
             f.write(create_epub(*args, **kw).getvalue())
         c = get_container(ep, tdir=os.path.join(self.tdir, 'container%d' % n), tweak_mode=True)

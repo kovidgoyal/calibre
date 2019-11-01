@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '''2011, John Schember <john@nachtimwald.com>
@@ -42,7 +43,7 @@ class MarkdownMLizer(OEB2HTML):
         return txt
 
     def mlize_spine(self, oeb_book):
-        output = [u'']
+        output = ['']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to Markdown formatted TXT...' % item.href)
             self.rewrite_ids(item.data, item)
@@ -183,9 +184,9 @@ class MarkdownMLizer(OEB2HTML):
             tags.append('\n')
         elif tag == 'a':
             # Only write links with absolute (external) urls.
-            if self.opts.keep_links and attribs.has_key('href') and '://' in attribs['href']:  # noqa
+            if self.opts.keep_links and 'href' in attribs and '://' in attribs['href']:
                 title = ''
-                if attribs.has_key('title'):  # noqa
+                if 'title' in attribs:
                     title = ' "' + attribs['title'] + '"'
                     remove_space = self.remove_space_after_newline
                     title = self.remove_newlines(title)
@@ -195,7 +196,7 @@ class MarkdownMLizer(OEB2HTML):
         elif tag == 'img':
             if self.opts.keep_image_references:
                 txt = '!'
-                if attribs.has_key('alt'):  # noqa
+                if 'alt' in attribs:
                     remove_space = self.remove_space_after_newline
                     txt += '[' + self.remove_newlines(attribs['alt']) + ']'
                     self.remove_space_after_newline = remove_space

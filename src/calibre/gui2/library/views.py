@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import itertools, operator
 from functools import partial
-from polyglot.builtins import iteritems, map, unicode_type, range
 from collections import OrderedDict
 
 from PyQt5.Qt import (
@@ -31,6 +30,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 from calibre.utils.icu import primary_sort_key
+from polyglot.builtins import iteritems, map, range, unicode_type
 
 
 def restrict_column_width(self, col, old_size, new_size):
@@ -186,18 +186,17 @@ class PreserveViewState(object):  # {{{
                         view.horizontalScrollBar().setValue(self.hscroll)
         self.init_vals()
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            self.__enter__()
-            return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
-                'vscroll', 'hscroll')}
+        self.__enter__()
+        return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
+            'vscroll', 'hscroll')}
 
-        def fset(self, state):
-            for k, v in iteritems(state):
-                setattr(self, k, v)
-            self.__exit__()
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, state):
+        for k, v in iteritems(state):
+            setattr(self, k, v)
+        self.__exit__()
 
 # }}}
 
@@ -512,17 +511,18 @@ class BooksView(QTableView):  # {{{
             ch.blockSignals(False)
 
     def sort_by_column_and_order(self, col, ascending):
+        order = Qt.AscendingOrder if ascending else Qt.DescendingOrder
         self.column_header.blockSignals(True)
-        self.sortByColumn(col, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+        self.column_header.setSortIndicator(col, order)
         self.column_header.blockSignals(False)
+        self.model().sort(col, order)
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
     def user_sort_requested(self, col, order=Qt.AscendingOrder):
-        if col >= len(self.column_map) or col < 0:
-            return QTableView.sortByColumn(self, col)
-        field = self.column_map[col]
-        self.intelligent_sort(field, order == Qt.AscendingOrder)
+        if 0 <= col < len(self.column_map):
+            field = self.column_map[col]
+            self.intelligent_sort(field, order == Qt.AscendingOrder)
 
     def pin_view_user_sort_requested(self, col, order=Qt.AscendingOrder):
         if col < len(self.column_map) and col >= 0:
@@ -971,8 +971,10 @@ class BooksView(QTableView):  # {{{
         rmap = {i:x for i, x in enumerate(self.column_map)}
         return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
-    def refresh_book_details(self):
+    def refresh_book_details(self, force=False):
         idx = self.currentIndex()
+        if not idx.isValid() and force:
+            idx = self.model().index(0, 0)
         if idx.isValid():
             self._model.current_changed(idx, idx)
             return True
@@ -1125,7 +1127,7 @@ class BooksView(QTableView):  # {{{
         rows = {x.row() if hasattr(x, 'row') else x for x in
             identifiers}
         if using_ids:
-            rows = set([])
+            rows = set()
             identifiers = set(identifiers)
             m = self.model()
             for row in range(m.rowCount(QModelIndex())):
@@ -1161,24 +1163,23 @@ class BooksView(QTableView):  # {{{
                 ans.append(i)
         return ans
 
-    @dynamic_property
+    @property
     def current_id(self):
-        def fget(self):
-            try:
-                return self.model().id(self.currentIndex())
-            except:
-                pass
-            return None
+        try:
+            return self.model().id(self.currentIndex())
+        except:
+            pass
+        return None
 
-        def fset(self, val):
-            if val is None:
-                return
-            m = self.model()
-            for row in range(m.rowCount(QModelIndex())):
-                if m.id(row) == val:
-                    self.set_current_row(row, select=False)
-                    break
-        return property(fget=fget, fset=fset)
+    @current_id.setter
+    def current_id(self, val):
+        if val is None:
+            return
+        m = self.model()
+        for row in range(m.rowCount(QModelIndex())):
+            if m.id(row) == val:
+                self.set_current_row(row, select=False)
+                break
 
     @property
     def next_id(self):

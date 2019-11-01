@@ -16,7 +16,7 @@ class AdvancedUserRecipe1361743898(BasicNewsRecipe):
         articles = []
         feeds = []
         soup = self.index_to_soup("http://www.democracyjournal.org")
-        for x in soup.findAll(href=re.compile("http://www\.democracyjournal\.org/\d*/.*php$")):
+        for x in soup.findAll(href=re.compile(r"http://www\.democracyjournal\.org/\d*/.*php$")):
             url = x.get('href')
             title = self.tag_to_string(x)
             articles.append({'title': title, 'url': url,

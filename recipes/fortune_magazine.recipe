@@ -7,6 +7,19 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def prefix_classes(classes):
+    q = classes.split()
+
+    def test(x):
+        if x:
+            for cls in x.split():
+                for c in q:
+                    if cls.startswith(c):
+                        return True
+        return False
+    return dict(attrs={'class': test})
+
+
 class Fortune(BasicNewsRecipe):
 
     title = 'Fortune Magazine'
@@ -17,9 +30,9 @@ class Fortune(BasicNewsRecipe):
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-            dict(name='h1', attrs={'class': lambda x: x and 'headline' in x}),
-            classes('lead-media longform-bylines longform-timestamps author'),
-            dict(id=['article-body', 'longform-body']),
+        prefix_classes('articleHeader__title-- centerAligned__meta-- featuredMedia__imageWrapper-- articleBody__wrapper--'),
+        classes('lead-media longform-bylines longform-timestamps author'),
+        dict(id=['article-body', 'longform-body']),
     ]
 
     no_javascript = True
@@ -48,20 +61,18 @@ class Fortune(BasicNewsRecipe):
         articles = []
 
         # Go to the latestissue
-        soup = self.index_to_soup('http://fortune.com/section/magazine/')
+        soup = self.index_to_soup('https://fortune.com/section/magazine/')
         articles = []
 
-        for i, article in enumerate(soup.findAll('article', attrs={'class': lambda x: x and 'type-article' in x.split()})):
-            div = article.find('div', attrs={'class': lambda x: x and 'article-info' in x.split()})
-            a = div.find('a', href=True)
+        for li in soup.findAll('li', attrs={'class': lambda x: x and 'termArchiveContentList__item--' in x}):
+            a = li.find('a', href=True)
             url = a['href']
-            if url.startswith('/'):
-                url = 'http://fortune.com' + url
-            title = self.tag_to_string(a)
-            ai = div.find('div', attrs={'class': lambda x: x and 'article-info-extended' in x.split()})
+            div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__title--' in x})
+            title = self.tag_to_string(div)
             desc = ''
-            if ai:
-                desc = self.tag_to_string(desc)
-            self.log('Article:', title, 'at', url)
+            div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__excerpt--' in x})
+            if div is not None:
+                desc = self.tag_to_string(div)
+            self.log(title, url)
             articles.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', articles)]

@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Created on 23 Sep 2010
 
@@ -13,7 +14,7 @@ import re, string, traceback, numbers
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, error_message
 
 
 class _Parser(object):
@@ -23,7 +24,7 @@ class _Parser(object):
     LEX_NUM = 4
     LEX_EOF = 5
 
-    LEX_CONSTANTS = frozenset([LEX_STR, LEX_NUM])
+    LEX_CONSTANTS = frozenset((LEX_STR, LEX_NUM))
 
     def __init__(self, val, prog, funcs, parent):
         self.lex_pos = 0
@@ -205,7 +206,7 @@ class TemplateFormatter(string.Formatter):
         elif 'bcdoxXn'.find(typ) >= 0:
             try:
                 val = int(val)
-            except:
+            except Exception:
                 raise ValueError(
                     _('format: type {0} requires an integer value, got {1}').format(typ, val))
         elif 'eEfFgGn%'.find(typ) >= 0:
@@ -379,7 +380,7 @@ class TemplateFormatter(string.Formatter):
                 traceback.print_exc()
                 if column_name:
                     prints('Error evaluating column named:', column_name)
-            ans = error_value + ' ' + e.message
+            ans = error_value + ' ' + error_message(e)
         return ans
 
 

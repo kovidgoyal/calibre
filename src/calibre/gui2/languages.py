@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -60,23 +59,20 @@ class LanguagesEdit(EditWithComplete):
         parts = [x.strip() for x in raw.split(',')]
         return [self.comma_rmap.get(x, x) for x in parts]
 
-    @dynamic_property
+    @property
     def lang_codes(self):
+        vals = self.vals
+        ans = []
+        for name in vals:
+            if name:
+                code = self._rmap.get(lower(name), None)
+                if code is not None:
+                    ans.append(code)
+        return ans
 
-        def fget(self):
-            vals = self.vals
-            ans = []
-            for name in vals:
-                if name:
-                    code = self._rmap.get(lower(name), None)
-                    if code is not None:
-                        ans.append(code)
-            return ans
-
-        def fset(self, lang_codes):
-            self.set_lang_codes(lang_codes, allow_undo=False)
-
-        return property(fget=fget, fset=fset)
+    @lang_codes.setter
+    def lang_codes(self, lang_codes):
+        self.set_lang_codes(lang_codes, allow_undo=False)
 
     def set_lang_codes(self, lang_codes, allow_undo=True):
         ans = []

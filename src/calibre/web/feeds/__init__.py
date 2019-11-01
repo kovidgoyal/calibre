@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -12,7 +12,7 @@ from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
-from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, map
 
 
 class Article(object):
@@ -43,12 +43,12 @@ class Article(object):
         if summary and '<' in summary:
             try:
                 s = html.fragment_fromstring(summary, create_parent=True)
-                summary = html.tostring(s, method='text', encoding=unicode_type)
+                summary = html.tostring(s, method='text', encoding='unicode')
             except:
                 print('Failed to process article summary, deleting:')
                 print(summary.encode('utf-8'))
                 traceback.print_exc()
-                summary = u''
+                summary = ''
         self.text_summary = clean_ascii_chars(summary)
         self.author = author
         self.content = content
@@ -57,36 +57,33 @@ class Article(object):
         self.localtime = self.utctime.astimezone(local_tz)
         self._formatted_date = None
 
-    @dynamic_property
+    @property
     def formatted_date(self):
 
-        def fget(self):
-            if self._formatted_date is None:
-                self._formatted_date = strftime(" [%a, %d %b %H:%M]",
-                        t=self.localtime.timetuple())
-            return self._formatted_date
+        if self._formatted_date is None:
+            self._formatted_date = strftime(" [%a, %d %b %H:%M]",
+                    t=self.localtime.timetuple())
+        return self._formatted_date
 
-        def fset(self, val):
-            if isinstance(val, unicode_type):
-                self._formatted_date = val
+    @formatted_date.setter
+    def formatted_date(self, val):
+        if isinstance(val, unicode_type):
+            self._formatted_date = val
 
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
+    @property
     def title(self):
-        def fget(self):
-            t = self._title
-            if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
-                t = t.decode('utf-8', 'replace')
-            return t
+        t = self._title
+        if not isinstance(t, unicode_type) and hasattr(t, 'decode'):
+            t = t.decode('utf-8', 'replace')
+        return t
 
-        def fset(self, val):
-            self._title = clean_ascii_chars(val)
-        return property(fget=fget, fset=fset)
+    @title.setter
+    def title(self, val):
+        self._title = clean_ascii_chars(val)
 
     def __repr__(self):
         return \
-(u'''\
+('''\
 Title       : %s
 URL         : %s
 Author      : %s
@@ -96,7 +93,7 @@ TOC thumb   : %s
 Has content : %s
 '''%(self.title, self.url, self.author, self.summary[:20]+'...',
      self.localtime.strftime('%a, %d %b, %Y %H:%M'), self.toc_thumbnail,
-     bool(self.content))).encode('utf-8')
+     bool(self.content)))
 
     def __str__(self):
         return repr(self)
@@ -211,7 +208,7 @@ class Feed(object):
         content = [i.value for i in item.get('content', []) if i.value]
         content = [i if isinstance(i, unicode_type) else i.decode('utf-8', 'replace')
                 for i in content]
-        content = u'\n'.join(content)
+        content = '\n'.join(content)
         if not content.strip():
             content = None
         if not link and not content:
@@ -245,12 +242,6 @@ class Feed(object):
 
     def __str__(self):
         return repr(self)
-
-    def __bool__(self):
-        for article in self:
-            if getattr(article, 'downloaded', False):
-                return True
-        return False
 
     def has_embedded_content(self):
         length = 0
@@ -289,8 +280,8 @@ class FeedCollection(list):
 
     def __init__(self, feeds):
         list.__init__(self, [f for f in feeds if len(f.articles) > 0])
-        found_articles = set([])
-        duplicates = set([])
+        found_articles = set()
+        duplicates = set()
 
         def in_set(s, a):
             for x in s:
@@ -299,7 +290,7 @@ class FeedCollection(list):
             return None
 
         print('#feeds', len(self))
-        print(map(len, self))
+        print(list(map(len, self)))
         for f in self:
             dups = []
             for a in f:
@@ -314,7 +305,7 @@ class FeedCollection(list):
 
         self.duplicates = duplicates
         print(len(duplicates))
-        print(map(len, self))
+        print(list(map(len, self)))
         # raise
 
     def find_article(self, article):
@@ -341,7 +332,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
     from calibre.web.feeds.feedparser import parse
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
-    raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)
+    raw_xml = re.sub(br'(&amp;#\d+)([^0-9;])', br'\1;\2', raw_xml)
     feed = parse(raw_xml)
     pfeed = Feed(get_article_url=get_article_url, log=log)
     pfeed.populate_from_feed(feed, title=title,

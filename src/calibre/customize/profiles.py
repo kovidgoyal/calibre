@@ -1,5 +1,5 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -267,8 +267,8 @@ class OutputProfile(Plugin):
     periodical_date_in_title = True
 
     #: Characters used in jackets and catalogs
-    ratings_char = u'*'
-    empty_ratings_char = u' '
+    ratings_char = '*'
+    empty_ratings_char = ' '
 
     #: Unsupported unicode characters to be replaced during preprocessing
     unsupported_unicode_chars = []
@@ -302,12 +302,12 @@ class iPadOutput(OutputProfile):
         }
     ]
 
-    ratings_char = u'\u2605'            # filled star
-    empty_ratings_char = u'\u2606'      # hollow star
+    ratings_char = '\u2605'            # filled star
+    empty_ratings_char = '\u2606'      # hollow star
 
     touchscreen = True
     # touchscreen_news_css {{{
-    touchscreen_news_css = u'''
+    touchscreen_news_css = '''
             /* hr used in articles */
             .article_articles_list {
                 width:18%;
@@ -680,8 +680,8 @@ class KindleOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
 
-    empty_ratings_char = u'\u2606'
-    ratings_char = u'\u2605'
+    empty_ratings_char = '\u2606'
+    ratings_char = '\u2605'
 
     mobi_ems_per_blockquote = 2.0
 
@@ -699,8 +699,8 @@ class KindleDXOutput(OutputProfile):
     # comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
-    empty_ratings_char = u'\u2606'
-    ratings_char = u'\u2605'
+    empty_ratings_char = '\u2606'
+    ratings_char = '\u2605'
     mobi_ems_per_blockquote = 2.0
 
 

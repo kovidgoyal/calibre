@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -174,7 +173,7 @@ def snippets(refresh=False):
     if _snippets is None or refresh:
         _snippets = copy.deepcopy(builtin_snippets)
         for snip in user_snippets.get('snippets', []):
-            if snip['trigger'] and isinstance(snip['trigger'], type('')):
+            if snip['trigger'] and isinstance(snip['trigger'], unicode_type):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
         _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
@@ -221,26 +220,25 @@ class EditorTabStop(object):
                 with m:
                     m.text = text
 
-    @dynamic_property
+    @property
     def text(self):
-        def fget(self):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return ''
-            c = editor.textCursor()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            return editor.selected_text_from_cursor(c)
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return ''
+        c = editor.textCursor()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        return editor.selected_text_from_cursor(c)
 
-        def fset(self, text):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return
-            c = editor.textCursor()
-            c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            c.insertText(text)
-            c.endEditBlock()
-        return property(fget=fget, fset=fset)
+    @text.setter
+    def text(self, text):
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return
+        c = editor.textCursor()
+        c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        c.insertText(text)
+        c.endEditBlock()
 
     def set_editor_cursor(self, editor):
         if not self.is_deleted:
@@ -537,20 +535,18 @@ class EditSnippet(QWidget):
             self.types.item(0).setCheckState(Qt.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
 
-    @dynamic_property
+    @property
     def snip(self):
-        def fset(self, snip):
-            self.apply_snip(snip)
+        ftypes = []
+        for i in range(self.types.count()):
+            i = self.types.item(i)
+            if i.checkState() == Qt.Checked:
+                ftypes.append(i.data(Qt.UserRole))
+        return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
 
-        def fget(self):
-            ftypes = []
-            for i in range(self.types.count()):
-                i = self.types.item(i)
-                if i.checkState() == Qt.Checked:
-                    ftypes.append(i.data(Qt.UserRole))
-            return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
-
-        return property(fget=fget, fset=fset)
+    @snip.setter
+    def snip(self, snip):
+        self.apply_snip(snip)
 
     def validate(self):
         snip = self.snip

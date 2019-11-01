@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,10 +12,10 @@ from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
 
-from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3
+from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3, unicode_type, string_or_bytes
 
 from calibre import guess_type, force_unicode
-from calibre.constants import __version__, plugins
+from calibre.constants import __version__, plugins, ispy3
 from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
@@ -27,6 +26,7 @@ from calibre.srv.utils import (
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client, reprlib
+from polyglot.builtins import error_message
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex
@@ -219,15 +219,18 @@ class RequestData(object):  # {{{
     username = None
 
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, is_local_connection, translator_cache, tdir, forwarded_for):
+                 static_cache, opts, remote_addr, remote_port, is_local_connection, translator_cache,
+                 tdir, forwarded_for, request_original_uri=None):
 
         (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
          self.response_protocol, self.static_cache, self.translator_cache) = (
             method, path, query, inheaders, request_body_file, outheaders,
             response_protocol, static_cache, translator_cache
         )
+
         self.remote_addr, self.remote_port, self.is_local_connection = remote_addr, remote_port, is_local_connection
         self.forwarded_for = forwarded_for
+        self.request_original_uri = request_original_uri
         self.opts = opts
         self.status_code = http_client.OK
         self.outcookie = Cookie()
@@ -246,8 +249,7 @@ class RequestData(object):  # {{{
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):
         etag = hashlib.sha1()
-        string = type('')
-        tuple(map(lambda x:etag.update(string(x)), etag_parts))
+        tuple(map(lambda x:etag.update(unicode_type(x).encode('utf-8')), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
     def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):
@@ -288,8 +290,8 @@ class RequestData(object):  # {{{
         if lang_code != self.lang_code:
             found, lang, t = self.get_translator(lang_code)
             self.lang_code = lang
-            self.gettext_func = t.ugettext
-            self.ngettext_func = t.ungettext
+            self.gettext_func = getattr(t, 'gettext' if ispy3 else 'ugettext')
+            self.ngettext_func = getattr(t, 'ngettext' if ispy3 else 'ungettext')
 # }}}
 
 
@@ -311,7 +313,10 @@ class ReadableOutput(object):
 def filesystem_file_output(output, outheaders, stat_result):
     etag = getattr(output, 'etag', None)
     if etag is None:
-        etag = hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+        oname = output.name or ''
+        if not isinstance(oname, string_or_bytes):
+            oname = unicode_type(oname)
+        etag = hashlib.sha1((unicode_type(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
         output = output.output
     etag = '"%s"' % etag
@@ -355,7 +360,7 @@ class GeneratedOutput(object):
 class StaticOutput(object):
 
     def __init__(self, data):
-        if isinstance(data, type('')):
+        if isinstance(data, unicode_type):
             data = data.encode('utf-8')
         self.data = data
         self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
@@ -442,7 +447,7 @@ class HTTPConnection(HTTPRequest):
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
             self.remote_addr, self.remote_port, self.is_local_connection,
-            self.translator_cache, self.tdir, self.forwarded_for
+            self.translator_cache, self.tdir, self.forwarded_for, self.request_original_uri
         )
         self.queue_job(self.run_request_handler, data)
 
@@ -489,7 +494,7 @@ class HTTPConnection(HTTPRequest):
                     eh['WWW-Authenticate'] = e.authenticate
                 if e.log:
                     self.log.warn(e.log)
-                return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
+                return self.simple_response(e.http_code, msg=error_message(e) or '', close_after_response=e.close_connection, extra_headers=eh)
             reraise(etype, e, tb)
 
         data, output = result
@@ -648,12 +653,17 @@ class HTTPConnection(HTTPRequest):
         if stat_result is not None:
             output = filesystem_file_output(output, outheaders, stat_result)
             if 'Content-Type' not in outheaders:
-                mt = guess_type(output.name)[0]
+                output_name = output.name
+                if not isinstance(output_name, string_or_bytes):
+                    output_name = unicode_type(output_name)
+                mt = guess_type(output_name)[0]
                 if mt:
                     if mt in {'text/plain', 'text/html', 'application/javascript', 'text/css'}:
                         mt += '; charset=UTF-8'
                     outheaders['Content-Type'] = mt
-        elif isinstance(output, (bytes, type(''))):
+                else:
+                    outheaders['Content-Type'] = 'application/octet-stream'
+        elif isinstance(output, string_or_bytes):
             output = dynamic_output(output, outheaders)
         elif hasattr(output, 'read'):
             output = ReadableOutput(output)

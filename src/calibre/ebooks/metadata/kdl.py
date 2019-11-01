@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -14,13 +14,13 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import codepoint_to_chr, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, range
 from polyglot.urllib import parse_qs, quote_plus
 
 URL = \
 "http://ww2.kdl.org/libcat/WhatsNext.asp?AuthorLastName={0}&AuthorFirstName=&SeriesName=&BookTitle={1}&CategoryID=0&cmdSearch=Search&Search=1&grouping="
 
-_ignore_starts = u'\'"'+u''.join(codepoint_to_chr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = '\'"'+''.join(codepoint_to_chr(x) for x in list(range(0x2018, 0x201e))+[0x2032, 0x2033])
 
 
 def get_series(title, authors, timeout=60):
@@ -79,7 +79,7 @@ def get_series(title, authors, timeout=60):
         raw = raw.partition('.')[0].strip()
         try:
             mi.series_index = int(raw)
-        except:
+        except Exception:
             pass
     return mi
 

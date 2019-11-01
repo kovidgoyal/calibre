@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -250,8 +251,9 @@ class ChooseLibrary(Dialog):  # {{{
 
     def current_changed(self):
         i = self.items.currentItem() or self.items.item(0)
-        loc = i.data(Qt.UserRole)
-        self.le.setText(loc)
+        if i is not None:
+            loc = i.data(Qt.UserRole)
+            self.le.setText(loc)
 
     def browse(self):
         d = choose_dir(self, 'choose_library_for_copy',

@@ -1,17 +1,19 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 ''' Code to manage ebook library'''
 
 
+import os
 from polyglot.builtins import range
 
 
 def db(path=None, read_only=False):
     from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
-    from calibre.utils.filenames import expanduser
-    return LibraryDatabase(expanduser(path) if path else prefs['library_path'],
+    return LibraryDatabase(os.path.expanduser(path) if path else prefs['library_path'],
             read_only=read_only)
 
 
@@ -64,7 +66,7 @@ def generate_test_db(library_path,  # {{{
 
     t = time.time() - start
     print('\nGenerated', num_of_records, 'records in:', t, 'seconds')
-    print('Time per record:', t/float(num_of_records))
+    print('Time per record:', t/num_of_records)
 # }}}
 
 

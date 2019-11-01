@@ -10,8 +10,7 @@ reading. It is cross platform, running on Linux, Windows and macOS.
 
 For more information, see the [calibre About page](https://calibre-ebook.com/about)
 
-[![Build Status](https://api.travis-ci.org/kovidgoyal/calibre.svg)](https://travis-ci.org/kovidgoyal/calibre)
-[![Build status](https://ci.appveyor.com/api/projects/status/v3nkfq0t3pse8lep?svg=true&passingText=windows%20OK&failingText=windows%20KO)](https://ci.appveyor.com/project/kovidgoyal/calibre)  
+[![Build Status](https://github.com/kovidgoyal/calibre/workflows/Continuous%20Integration/badge.svg)](https://github.com/kovidgoyal/calibre/actions?workflow=Continuous+Integration)
 
 ## Screenshots  
 
@@ -39,3 +38,7 @@ calibre is a result of the efforts of many volunteers from all over the world.
 If you find it useful, please consider contributing to support its development.
 [Donate to support calibre development](https://calibre-ebook.com/donate).
 
+## Building calibre binaries
+
+See [Build instructions](bypy/README.rst) for instructions on how to build the
+calibre binaries and installers for all the platforms calibre supports.

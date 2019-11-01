@@ -11,7 +11,7 @@ from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file
+from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, ispy3
 from setup.parallel_build import parallel_check_output
 from polyglot.builtins import codepoint_to_chr, iteritems, range
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -288,8 +288,11 @@ class Translations(POT):  # {{{
             cname = self.cache_name(src) + '.stats.json'
             with open(self.j(self.cache_dir, cname), ('rb' if data is None else 'wb')) as f:
                 if data is None:
-                    return json.load(f)
-                json.dump(data, f)
+                    return json.loads(f.read())
+                data = json.dumps(data)
+                if not isinstance(data, bytes):
+                    data = data.encode('utf-8')
+                f.write(data)
 
         for src, dest in files:
             base = os.path.dirname(dest)
@@ -427,6 +430,8 @@ class Translations(POT):  # {{{
         rmap = {}
         msgid = None
         has_errors = False
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8')
         for match in re.finditer(r'^(msgid|msgstr)\s+"(.*?)"', raw, re.M):
             if match.group(1) == 'msgid':
                 msgid = match.group(2)
@@ -503,15 +508,18 @@ class Translations(POT):  # {{{
                 if l == 'en':
                     t = get_language
                 else:
-                    t = get_iso639_translator(l).ugettext
+                    t = getattr(get_iso639_translator(l), 'gettext' if ispy3 else 'ugettext')
                     t = partial(get_iso_language, t)
                 lang_names[l] = {x: t(x) for x in dl}
             zi = ZipInfo('lang-names.json')
             zi.compress_type = ZIP_STORED
             zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
         dest = self.j(self.d(self.stats), 'website-languages.txt')
+        data = ' '.join(sorted(done))
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with open(dest, 'wb') as f:
-            f.write(' '.join(sorted(done)))
+            f.write(data)
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')
@@ -543,14 +551,12 @@ class Translations(POT):  # {{{
 
         self.compile_group(files, handle_stats=handle_stats)
         for locale, stats in iteritems(all_stats):
-            with open(self.j(srcbase, locale, 'stats.json'), 'wb') as f:
-                json.dump(stats, f)
+            dump_json(stats, self.j(srcbase, locale, 'stats.json'))
             total = stats['translated'] + stats['untranslated']
             # Raise the 30% threshold in the future
             if total and (stats['translated'] / float(total)) > 0.3:
                 complete[locale] = stats
-        with open(self.j(destbase, 'completed.json'), 'wb') as f:
-            json.dump(complete, f, indent=True, sort_keys=True)
+        dump_json(complete, self.j(destbase, 'completed.json'))
 
     def clean(self):
         if os.path.exists(self.stats):
@@ -659,7 +665,8 @@ class GetTranslations(Translations):  # {{{
             return errs
 
         def check_for_control_chars(f):
-            raw = open(f, 'rb').read().decode('utf-8')
+            with open(f, 'rb') as f:
+                raw = f.read().decode('utf-8')
             pat = re.compile(type(u'')(r'[\0-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]'))
             errs = []
             for i, line in enumerate(raw.splitlines()):
@@ -740,14 +747,23 @@ class ISO639(Command):  # {{{
         m3bto3t = {}
         nm = {}
         codes2, codes3t, codes3b = set(), set(), set()
+        unicode_type = type(u'')
         for x in root.xpath('//iso_639_3_entry'):
             two = x.get('part1_code', None)
+            if two:
+                two = unicode_type(two)
             threet = x.get('id')
+            if threet:
+                threet = unicode_type(threet)
             threeb = x.get('part2_code', None)
+            if threeb:
+                threeb = unicode_type(threeb)
             if threeb is None:
                 # Only recognize languages in ISO-639-2
                 continue
             name = x.get('name')
+            if name:
+                name = unicode_type(name)
 
             if two is not None:
                 by_2[two] = name
@@ -763,9 +779,9 @@ class ISO639(Command):  # {{{
             base_name = name.lower()
             nm[base_name] = threet
 
-        x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
-                'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
-                '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
+        x = {u'by_2':by_2, u'by_3b':by_3b, u'by_3t':by_3t, u'codes2':codes2,
+                u'codes3b':codes3b, u'codes3t':codes3t, u'2to3':m2to3,
+                u'3to2':m3to2, u'3bto3t':m3bto3t, u'name_map':nm}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))
@@ -800,14 +816,19 @@ class ISO3166(ISO639):  # {{{
         codes = set()
         three_map = {}
         name_map = {}
+        unicode_type = type(u'')
         for x in root.xpath('//iso_3166_entry'):
             two = x.get('alpha_2_code')
-            three = x.get('alpha_3_code')
+            if two:
+                two = unicode_type(two)
             codes.add(two)
             name_map[two] = x.get('name')
+            if name_map[two]:
+                name_map[two] = unicode_type(name_map[two])
+            three = x.get('alpha_3_code')
             if three:
-                three_map[three] = two
-        x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
+                three_map[unicode_type(three)] = two
+        x = {u'names':name_map, u'codes':frozenset(codes), u'three_map':three_map}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))

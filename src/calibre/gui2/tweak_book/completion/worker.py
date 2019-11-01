@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -215,5 +214,5 @@ def test():
     w = CompletionWorker(worker_entry_point='test_main')
     w.wait_for_connection()
     w.send('Hello World!')
-    print (w.recv())
+    print(w.recv())
     w.shutdown(), w.join()

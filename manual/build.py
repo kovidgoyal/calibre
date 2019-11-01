@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -45,7 +44,7 @@ def build_manual(language, base):
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
     latexdir = sb('mylatex', 'latex')
-    pwd = os.getcwdu()
+    pwd = os.getcwd()
     os.chdir(latexdir)
 
     def run_cmd(cmd):
@@ -88,7 +87,7 @@ def build_linkcheck(base):
 
 
 def build_man_pages(language, base):
-    os.environ[b'CALIBRE_BUILD_MAN_PAGES'] = b'1'
+    os.environ['CALIBRE_BUILD_MAN_PAGES'] = '1'
     sphinx_build(language, base, builder='man', bdir=language, very_quiet=True)
 
 

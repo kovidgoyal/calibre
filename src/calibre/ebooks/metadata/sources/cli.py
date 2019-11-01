@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -82,7 +81,7 @@ def main(args=sys.argv):
             allowed_plugins=allowed_plugins or None)
 
     if not results:
-        print (log, file=sys.stderr)
+        print(log, file=sys.stderr)
         prints('No results found', file=sys.stderr)
         raise SystemExit(1)
     result = results[0]
@@ -103,9 +102,9 @@ def main(args=sys.argv):
                     unicode_type(result).encode('utf-8'))
 
     if opts.verbose:
-        print (log, file=sys.stderr)
+        print(log, file=sys.stderr)
 
-    print (result)
+    print(result)
     if not opts.opf and opts.cover:
         prints('Cover               :', cf)
 

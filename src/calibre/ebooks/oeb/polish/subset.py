@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, sys
 
 from calibre import prints, as_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
+from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath, css_text
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.fonts.sfnt.subset import subset
@@ -102,7 +101,7 @@ def subset_all_fonts(container, font_stats, report):
                     if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_css(style.text, name)
                         if remove_font_face_rules(container, sheet, remove, name):
-                            style.text = sheet.cssText
+                            style.text = css_text(sheet)
                             container.dirty(name)
     if total_old > 0:
         report(_('Reduced total font size to %.1f%% of original')%(

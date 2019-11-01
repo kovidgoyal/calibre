@@ -1,19 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import re
-from binascii import unhexlify
 from collections import namedtuple
 from functools import partial
 
 from PyQt5.Qt import (
-    QAction, QApplication, QColor, QEasingCurve, QFontInfo, QIcon, QLayout, QMenu,
-    QMimeData, QPainter, QPalette, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
-    QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
+    QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu, QMimeData,
+    QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl,
+    QWidget, pyqtProperty, pyqtSignal
 )
-from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -25,46 +23,46 @@ from calibre.ebooks.metadata.search_internet import (
 )
 from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    open_url, pixmap_to_data, rating_font
+    pixmap_to_data, rating_font, safe_open_url
 )
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 )
+from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
 from calibre.utils.localization import is_rtl
 from calibre.utils.serialize import json_loads
+from polyglot.binary import from_hex_bytes
 from polyglot.builtins import unicode_type
 
-_css = None
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
 
-def set_html(mi, html, web_view):
+def set_html(mi, html, text_browser):
     from calibre.gui2.ui import get_gui
     gui = get_gui()
     book_id = getattr(mi, 'id', None)
+    search_paths = []
     if gui and book_id is not None:
         path = gui.current_db.abspath(book_id, index_is_id=True)
         if path:
-            web_view.setHtml(html, QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
-            return
-    web_view.setHtml(html)
+            search_paths = [path]
+    text_browser.setSearchPaths(search_paths)
+    text_browser.setHtml(html)
 
 
-def css():
-    global _css
-    if _css is None:
+def css(reset=False):
+    if reset:
+        del css.ans
+    if not hasattr(css, 'ans'):
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        col = QApplication.instance().palette().color(QPalette.Link).name()
-        val = val.replace('LINK_COLOR', col)
-        _css = re.sub(unicode_type(r'/\*.*?\*/'), u'', val, flags=re.DOTALL)
-    return _css
+        css.ans = re.sub(unicode_type(r'/\*.*?\*/'), '', val, flags=re.DOTALL)
+    return css.ans
 
 
-def copy_all(web_view):
-    web_view = getattr(web_view, 'details', web_view)
-    mf = web_view.page().mainFrame()
+def copy_all(text_browser):
+    mf = getattr(text_browser, 'details', text_browser)
     c = QApplication.clipboard()
     md = QMimeData()
     md.setText(mf.toPlainText())
@@ -101,7 +99,7 @@ def init_manage_action(ac, field, value):
     return ac
 
 
-def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
+def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     func = render_data_func or render_data
     try:
         table, comment_fields = func(mi, all_fields=all_fields,
@@ -118,48 +116,24 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
                 ans = unicode_type(col.name())
         return ans
 
-    fi = QFontInfo(QApplication.font(widget))
-    f = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
-    fam = unicode_type(fi.family()).strip().replace('"', '')
-    if not fam:
-        fam = 'sans-serif'
-
-    c = color_to_string(QApplication.palette().color(QPalette.Normal,
-                    QPalette.WindowText))
-    templ = u'''\
+    templ = '''\
     <html>
-        <head>
-        <style type="text/css">
-            body, td {
-                background-color: transparent;
-                font-size: %dpx;
-                font-family: "%s",sans-serif;
-                color: %s
-            }
-        </style>
-        <style type="text/css">
-            %s
-        </style>
-        </head>
-        <body>
+        <head></head>
+        <body class="%s">
         %%s
         </body>
     <html>
-    '''%(f, fam, c, css)
-    comments = u''
+    '''%('vertical' if vertical else 'horizontal')
+    comments = ''
     if comment_fields:
-        comments = '\n'.join(u'<div>%s</div>' % x for x in comment_fields)
-    right_pane = u'<div id="comments" class="comments">%s</div>'%comments
+        comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
+    right_pane = comments
 
     if vertical:
         ans = templ%(table+right_pane)
     else:
-        if gprefs['book_details_narrow_comments_layout'] == 'columns':
-            ans = templ%(u'<table><tr><td valign="top" '
-                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
-                    % (table, right_pane))
-        else:
-            ans = templ%(u'<div style="float: left; margin-right: 1em; margin-bottom: 1em; max-width: 40%">{}</div><div>{}</div>'.format(
+        ans = templ % (
+                '<table><tr><td valign="top" width="40%">{}</td><td valign="top" width="60%">{}</td></tr></table>'.format(
                     table, right_pane))
     return ans
 
@@ -191,119 +165,124 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
 
 # }}}
 
+# Context menu {{{
 
-def details_context_menu_event(view, ev, book_info):  # {{{
-    p = view.page()
-    mf = p.mainFrame()
-    r = mf.hitTestContent(ev.pos())
-    url = unicode_type(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
-    menu = p.createStandardContextMenu()
-    ca = view.pageAction(p.Copy)
-    for action in list(menu.actions()):
-        if action is not ca:
-            menu.removeAction(action)
+
+def add_format_entries(menu, data, book_info):
+    from calibre.ebooks.oeb.polish.main import SUPPORTED
+    from calibre.gui2.ui import get_gui
+    book_id = int(data['book_id'])
+    fmt = data['fmt']
+    db = get_gui().current_db.new_api
+    ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
+    nfmt = ofmt[len('ORIGINAL_'):]
+    fmts = {x.upper() for x in db.formats(book_id)}
+    for a, t in [
+            ('remove', _('Delete the %s format')),
+            ('save', _('Save the %s format to disk')),
+            ('restore', _('Restore the %s format')),
+            ('compare', ''),
+            ('set_cover', _('Set the book cover from the %s file')),
+    ]:
+        if a == 'restore' and not fmt.startswith('ORIGINAL_'):
+            continue
+        if a == 'compare':
+            if ofmt not in fmts or nfmt not in SUPPORTED:
+                continue
+            t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
+        else:
+            t = t % fmt
+        ac = getattr(book_info, '%s_format_action'%a)
+        ac.current_fmt = (book_id, fmt)
+        ac.setText(t)
+        menu.addAction(ac)
+    if not fmt.upper().startswith('ORIGINAL_'):
+        from calibre.gui2.open_with import populate_menu, edit_programs
+        m = QMenu(_('Open %s with...') % fmt.upper())
+
+        def connect_action(ac, entry):
+            connect_lambda(ac.triggered, book_info, lambda book_info: book_info.open_with(book_id, fmt, entry))
+
+        populate_menu(m, connect_action, fmt)
+        if len(m.actions()) == 0:
+            menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+        else:
+            m.addSeparator()
+            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
+            menu.addMenu(m)
+            menu.ow = m
+        if fmt.upper() in SUPPORTED:
+            menu.addSeparator()
+            menu.addAction(_('Edit %s...') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
+    path = data['path']
+    if path:
+        ac = book_info.copy_link_action
+        ac.current_url = path
+        ac.setText(_('&Copy path to file'))
+        menu.addAction(ac)
+
+
+def add_item_specific_entries(menu, data, book_info):
+    search_internet_added = False
+    dt = data['type']
+    if dt == 'format':
+        add_format_entries(menu, data, book_info)
+    elif dt == 'author':
+        author = data['name']
+        menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
+        if hasattr(book_info, 'search_internet'):
+            menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
+            menu.addMenu(sia)
+            search_internet_added = True
+        if hasattr(book_info, 'search_requested'):
+            menu.addAction(_('Search calibre for %s') % author,
+                            lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
+    elif dt in ('path', 'devpath'):
+        from calibre.gui2.ui import get_gui
+        path = data['loc']
+        ac = book_info.copy_link_action
+        if isinstance(path, int):
+            path = get_gui().library_view.model().db.abspath(path, index_is_id=True)
+        ac.current_url = path
+        ac.setText(_('Copy path'))
+        menu.addAction(ac)
+    else:
+        field = data.get('field')
+        if field is not None:
+            book_id = int(data['book_id'])
+            value = data['value']
+            if field == 'identifiers':
+                menu.addAction(book_info.edit_identifiers_action)
+            elif field in ('tags', 'series', 'publisher') or is_category(field):
+                menu.addAction(init_manage_action(book_info.manage_action, field, value))
+            ac = book_info.remove_item_action
+            ac.data = (field, value, book_id)
+            ac.setText(_('Remove %s from this book') % value)
+            menu.addAction(ac)
+    return search_internet_added
+
+
+def details_context_menu_event(view, ev, book_info):
+    url = view.anchorAt(ev.pos())
+    menu = view.createStandardContextMenu()
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, book_info))
     search_internet_added = False
-    if not r.isNull():
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
-        if url.startswith('format:'):
-            parts = url.split(':')
-            try:
-                book_id, fmt = int(parts[1]), parts[2].upper()
-            except:
-                import traceback
-                traceback.print_exc()
-            else:
-                from calibre.gui2.ui import get_gui
-                db = get_gui().current_db.new_api
-                ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
-                nfmt = ofmt[len('ORIGINAL_'):]
-                fmts = {x.upper() for x in db.formats(book_id)}
-                for a, t in [
-                        ('remove', _('Delete the %s format')),
-                        ('save', _('Save the %s format to disk')),
-                        ('restore', _('Restore the %s format')),
-                        ('compare', ''),
-                        ('set_cover', _('Set the book cover from the %s file')),
-                ]:
-                    if a == 'restore' and not fmt.startswith('ORIGINAL_'):
-                        continue
-                    if a == 'compare':
-                        if ofmt not in fmts or nfmt not in SUPPORTED:
-                            continue
-                        t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
-                    else:
-                        t = t % fmt
-                    ac = getattr(book_info, '%s_format_action'%a)
-                    ac.current_fmt = (book_id, fmt)
-                    ac.setText(t)
-                    menu.addAction(ac)
-                if not fmt.upper().startswith('ORIGINAL_'):
-                    from calibre.gui2.open_with import populate_menu, edit_programs
-                    m = QMenu(_('Open %s with...') % fmt.upper())
-
-                    def connect_action(ac, entry):
-                        connect_lambda(ac.triggered, book_info, lambda book_info: book_info.open_with(book_id, fmt, entry))
-
-                    populate_menu(m, connect_action, fmt)
-                    if len(m.actions()) == 0:
-                        menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
-                    else:
-                        m.addSeparator()
-                        m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
-                        m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
-                        menu.addMenu(m)
-                        menu.ow = m
-                    if fmt.upper() in SUPPORTED:
-                        menu.addSeparator()
-                        menu.addAction(_('Edit %s...') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
-                ac = book_info.copy_link_action
-                ac.current_url = r.linkElement().attribute('data-full-path')
-                if ac.current_url:
-                    ac.setText(_('&Copy path to file'))
-                    menu.addAction(ac)
-        else:
-            el = r.linkElement()
-            data = el.attribute('data-item')
-            author = el.toPlainText() if unicode_type(el.attribute('calibre-data')) == u'authors' else None
-            if url and not url.startswith('search:'):
-                for a, t in [('copy', _('&Copy link')),
-                ]:
-                    ac = getattr(book_info, '%s_link_action'%a)
-                    ac.current_url = url
-                    if url.startswith('path:'):
-                        ac.current_url = el.attribute('title')
-                    ac.setText(t)
-                    menu.addAction(ac)
-            if author is not None:
-                menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
-                if hasattr(book_info, 'search_internet'):
-                    menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
-                    menu.addMenu(sia)
-                    search_internet_added = True
-                if hasattr(book_info, 'search_requested'):
-                    menu.addAction(_('Search calibre for %s') % author,
-                                   lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
-            if data:
-                try:
-                    field, value, book_id = json_loads(unhexlify(data))
-                except Exception:
-                    field = value = book_id = None
-                if field:
-                    if author is None:
-                        if field in ('tags', 'series', 'publisher') or is_category(field):
-                            menu.addAction(init_manage_action(book_info.manage_action, field, value))
-                        elif field == 'identifiers':
-                            menu.addAction(book_info.edit_identifiers_action)
-                    ac = book_info.remove_item_action
-                    ac.data = (field, value, book_id)
-                    ac.setText(_('Remove %s from this book') % value)
-                    menu.addAction(ac)
-
+    if url and url.startswith('action:'):
+        data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
+        search_internet_added = add_item_specific_entries(menu, data, book_info)
+    elif url and not url.startswith('#'):
+        ac = book_info.copy_link_action
+        ac.current_url = url
+        ac.setText(_('Copy link location'))
+        menu.addAction(ac)
     if not search_internet_added and hasattr(book_info, 'search_internet'):
         menu.addSeparator()
         menu.si = create_search_internet_menu(book_info.search_internet)
         menu.addMenu(menu.si)
+    for ac in tuple(menu.actions()):
+        if not ac.isEnabled():
+            menu.removeAction(ac)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
@@ -381,12 +360,12 @@ class CoverView(QWidget):  # {{{
         extrax = canvas_size.width() - width
         if extrax < 0:
             extrax = 0
-        x = int(extrax/2.)
+        x = int(extrax//2)
         height = self.current_pixmap_size.height()
         extray = canvas_size.height() - height
         if extray < 0:
             extray = 0
-        y = int(extray/2.)
+        y = int(extray//2)
         target = QRect(x, y, width, height)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
@@ -402,7 +381,7 @@ class CoverView(QWidget):  # {{{
             f = p.font()
             f.setBold(True)
             p.setFont(f)
-            sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
+            sz = '\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
             flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
@@ -537,7 +516,7 @@ class CoverView(QWidget):  # {{{
 # Book Info {{{
 
 
-class BookInfo(QWebView):
+class BookInfo(HTMLDisplay):
 
     link_clicked = pyqtSignal(object)
     remove_format = pyqtSignal(int, object)
@@ -553,18 +532,9 @@ class BookInfo(QWebView):
     edit_identifiers = pyqtSignal()
 
     def __init__(self, vertical, parent=None):
-        QWebView.__init__(self, parent)
-        s = self.settings()
-        s.setAttribute(s.JavascriptEnabled, False)
+        HTMLDisplay.__init__(self, parent)
         self.vertical = vertical
-        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
-        self.linkClicked.connect(self.link_activated)
-        self._link_clicked = False
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        palette = self.palette()
-        self.setAcceptDrops(False)
-        palette.setBrush(QPalette.Base, Qt.transparent)
-        self.page().setPalette(palette)
+        self.anchor_clicked.connect(self.link_activated)
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
@@ -585,6 +555,10 @@ class BookInfo(QWebView):
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
         self.setFocusPolicy(Qt.NoFocus)
+        self.setDefaultStyleSheet(css())
+
+    def refresh_css(self):
+        self.setDefaultStyleSheet(css(True))
 
     def remove_item_triggered(self):
         field, value, book_id = self.remove_item_action.data
@@ -623,28 +597,21 @@ class BookInfo(QWebView):
             self.manage_category.emit(*self.manage_action.current_fmt)
 
     def link_activated(self, link):
-        self._link_clicked = True
         if unicode_type(link.scheme()) in ('http', 'https'):
-            return open_url(link)
+            return safe_open_url(link)
         link = unicode_type(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
-    def turnoff_scrollbar(self, *args):
-        self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-
     def show_data(self, mi):
-        html = render_html(mi, css(), self.vertical, self.parent())
+        html = render_html(mi, self.vertical, self.parent())
         set_html(mi, html, self)
 
     def mouseDoubleClickEvent(self, ev):
-        swidth = self.page().mainFrame().scrollBarGeometry(Qt.Vertical).width()
-        sheight = self.page().mainFrame().scrollBarGeometry(Qt.Horizontal).height()
-        if self.width() - ev.x() < swidth or \
-            self.height() - ev.y() < sheight:
-            # Filter out double clicks on the scroll bar
-            ev.accept()
-        else:
+        v = self.viewport()
+        if v.rect().contains(self.mapFromGlobal(ev.globalPos())):
             ev.ignore()
+        else:
+            return HTMLDisplay.mouseDoubleClickEvent(self, ev)
 
     def contextMenuEvent(self, ev):
         details_context_menu_event(self, ev, self)
@@ -709,7 +676,7 @@ class DetailsLayout(QLayout):  # {{{
     def cover_height(self, r):
         if not self._children[0].widget().isVisible():
             return 0
-        mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
+        mh = min(int(r.height()//2), int(4/3 * r.width())+1)
         try:
             ph = self._children[0].widget().pixmap.height()
         except:
@@ -721,7 +688,7 @@ class DetailsLayout(QLayout):  # {{{
     def cover_width(self, r):
         if not self._children[0].widget().isVisible():
             return 0
-        mw = 1 + int(3/4. * r.height())
+        mw = 1 + int(3/4 * r.height())
         try:
             pw = self._children[0].widget().pixmap.width()
         except:
@@ -862,25 +829,44 @@ class BookDetails(QWidget):  # {{{
                 url = url_for_book_search(data.where, title=self.last_data['title'], author=self.last_data['authors'][0])
             else:
                 url = url_for_author_search(data.where, author=data.author)
-            open_url(url)
+            safe_open_url(url)
 
     def handle_click(self, link):
-        typ, val = link.partition(':')[0::2]
-        if typ == 'path':
-            self.open_containing_folder.emit(int(val))
-        elif typ == 'format':
-            id_, fmt = val.split(':')
-            self.view_specific_format.emit(int(id_), fmt)
-        elif typ == 'devpath':
-            self.view_device_book.emit(val)
-        elif typ == 'search':
-            self.search_requested.emit(unhexlify(val).decode('utf-8'))
-        else:
+        typ, val = link.partition(':')[::2]
+
+        def search_term(field, val):
+            self.search_requested.emit('{}:"={}"'.format(field, val.replace('"', '\\"')))
+
+        def browse(url):
             try:
-                open_url(QUrl(link, QUrl.TolerantMode))
-            except:
+                safe_open_url(QUrl(url, QUrl.TolerantMode))
+            except Exception:
                 import traceback
                 traceback.print_exc()
+
+        if typ == 'action':
+            data = json_loads(from_hex_bytes(val))
+            dt = data['type']
+            if dt == 'search':
+                search_term(data['term'], data['value'])
+            elif dt == 'author':
+                url = data['url']
+                if url == 'calibre':
+                    search_term('authors', data['name'])
+                else:
+                    browse(url)
+            elif dt == 'format':
+                book_id, fmt = data['book_id'], data['fmt']
+                self.view_specific_format.emit(int(book_id), fmt)
+            elif dt == 'identifier':
+                if data['url']:
+                    browse(data['url'])
+            elif dt == 'path':
+                self.open_containing_folder.emit(int(data['loc']))
+            elif dt == 'devpath':
+                self.view_device_book.emit(data['loc'])
+        else:
+            browse(link)
 
     def mouseDoubleClickEvent(self, ev):
         ev.accept()
@@ -893,7 +879,7 @@ class BookDetails(QWidget):  # {{{
             self.last_data = {}
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
-        self.current_path = getattr(data, u'path', u'')
+        self.current_path = getattr(data, 'path', '')
         self.update_layout()
 
     def update_layout(self):

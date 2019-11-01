@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
@@ -10,7 +10,6 @@ Manage application-wide preferences.
 
 import optparse
 import os
-import plistlib
 from copy import deepcopy
 
 from calibre.constants import (
@@ -22,6 +21,7 @@ from calibre.utils.config_base import (
     tweaks, from_json, to_json
 )
 from calibre.utils.lock import ExclusiveFile
+from polyglot.builtins import string_or_bytes, native_string_type
 
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
@@ -166,11 +166,11 @@ class OptionParser(optparse.OptionParser):
 
     def options_iter(self):
         for opt in self.option_list:
-            if str(opt).strip():
+            if native_string_type(opt).strip():
                 yield opt
         for gr in self.option_groups:
             for opt in gr.option_list:
-                if str(opt).strip():
+                if native_string_type(opt).strip():
                     yield opt
 
     def option_by_dest(self, dest):
@@ -193,8 +193,9 @@ class OptionParser(optparse.OptionParser):
                 upper.__dict__[dest] = lower.__dict__[dest]
 
     def add_option_group(self, *args, **kwargs):
-        if isinstance(args[0], type(u'')):
-            args = [optparse.OptionGroup(self, *args, **kwargs)] + list(args[1:])
+        if isinstance(args[0], string_or_bytes):
+            args = list(args)
+            args[0] = native_string_type(args[0])
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 
@@ -202,8 +203,7 @@ class DynamicConfig(dict):
     '''
     A replacement for QSettings that supports dynamic config keys.
     Returns `None` if a config key is not found. Note that the config
-    data is stored in a non human readable pickle file, so only use this
-    class for preferences that you don't intend to have the users edit directly.
+    data is stored in a JSON file.
     '''
 
     def __init__(self, name='dynamic'):
@@ -256,7 +256,7 @@ class DynamicConfig(dict):
             d = self.read_old_serialized_representation()
             migrate = bool(d)
         if migrate and d:
-            raw = json_dumps(d)
+            raw = json_dumps(d, ignore_unserializable=True)
             with ExclusiveFile(self.file_path) as f:
                 f.seek(0), f.truncate()
                 f.write(raw)
@@ -334,10 +334,12 @@ class XMLConfig(dict):
             pass
 
     def raw_to_object(self, raw):
-        return plistlib.readPlistFromString(raw)
+        from polyglot.plistlib import loads
+        return loads(raw)
 
     def to_raw(self):
-        return plistlib.writePlistToString(self)
+        from polyglot.plistlib import dumps
+        return dumps(self)
 
     def decouple(self, prefix):
         self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
@@ -361,26 +363,29 @@ class XMLConfig(dict):
         self.update(d)
 
     def __getitem__(self, key):
+        from polyglot.plistlib import Data
         try:
             ans = dict.__getitem__(self, key)
-            if isinstance(ans, plistlib.Data):
+            if isinstance(ans, Data):
                 ans = ans.data
             return ans
         except KeyError:
             return self.defaults.get(key, None)
 
     def get(self, key, default=None):
+        from polyglot.plistlib import Data
         try:
             ans = dict.__getitem__(self, key)
-            if isinstance(ans, plistlib.Data):
+            if isinstance(ans, Data):
                 ans = ans.data
             return ans
         except KeyError:
             return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
-        if isinstance(val, (bytes, str)):
-            val = plistlib.Data(val)
+        from polyglot.plistlib import Data
+        if isinstance(val, bytes):
+            val = Data(val)
         dict.__setitem__(self, key, val)
         self.commit()
 

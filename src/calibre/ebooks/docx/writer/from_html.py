@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -102,7 +101,7 @@ class TextRun(object):
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
                 bid = links_manager.bookmark_id
-                makeelement(r, 'w:bookmarkStart', w_id=str(bid), w_name=bookmark)
+                makeelement(r, 'w:bookmarkStart', w_id=unicode_type(bid), w_name=bookmark)
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
@@ -113,7 +112,7 @@ class TextRun(object):
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
             if bookmark is not None:
-                makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
+                makeelement(r, 'w:bookmarkEnd', w_id=unicode_type(bid))
 
     def __repr__(self):
         return repr(self.texts)
@@ -129,7 +128,7 @@ class TextRun(object):
     def style_weight(self):
         ans = 0
         for text, preserve_whitespace, bookmark in self.texts:
-            if isinstance(text, type('')):
+            if isinstance(text, unicode_type):
                 ans += len(text)
         return ans
 
@@ -208,7 +207,7 @@ class Block(object):
         p = makeelement(body, 'w:p')
         end_bookmarks = []
         for bmark in self.bookmarks:
-            end_bookmarks.append(str(self.links_manager.bookmark_id))
+            end_bookmarks.append(unicode_type(self.links_manager.bookmark_id))
             makeelement(p, 'w:bookmarkStart', w_id=end_bookmarks[-1], w_name=bmark)
         if self.block_lang:
             rpr = makeelement(p, 'w:rPr')
@@ -221,8 +220,8 @@ class Block(object):
             self.float_spec.serialize(self, ppr)
         if self.numbering_id is not None:
             numpr = makeelement(ppr, 'w:numPr')
-            makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
-            makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
+            makeelement(numpr, 'w:ilvl', w_val=unicode_type(self.numbering_id[1]))
+            makeelement(numpr, 'w:numId', w_val=unicode_type(self.numbering_id[0]))
         if self.linked_style is not None:
             makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
         elif self.style.id:
