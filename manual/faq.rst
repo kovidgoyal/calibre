@@ -988,6 +988,9 @@ I am getting a "Permission Denied" error?
 A permission denied error can occur because of many possible reasons, none of them having anything to do with calibre.
 
   * You can get permission denied errors if you are using an SD card with write protect enabled.
+  * On macOS if you get permission errors when connecting a device to calibre, you can
+    fix that by looking under :guilabel:`System Preferences > Security and
+    Privacy > Privacy > Files and Folders`.
   * If you, or some program you used changed the file permissions of the files in question to read only.
   * If there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery.
   * If the files have their owner set to a user other than you.
