@@ -27,12 +27,15 @@ int calibre_show_python_error(const wchar_t *preamble, int code);
 
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
     static wchar_t buf[4096];
-
-    fwprintf(stderr, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
+	static char utf8_buf[4096] = {0};
+	int n = WideCharToMultiByte(CP_UTF8, 0, preamble, -1, utf8_buf, sizeof(utf8_buf) - 1, NULL, NULL);
+	if (n > 0) fprintf(stderr, "%s\r\n  ", utf8_buf);
+	n = WideCharToMultiByte(CP_UTF8, 0, msg, -1, utf8_buf, sizeof(utf8_buf) - 1, NULL, NULL);
+	if (n > 0) fprintf(stderr, "%s (Error Code: %d)\r\n ", utf8_buf, code);
     fflush(stderr);
 
     if (GUI_APP) {
-        _snwprintf_s(buf, arraysz(buf), _TRUNCATE, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
+        _snwprintf_s(buf, arraysz(buf), _TRUNCATE, L"%ls\r\n  %ls (Error Code: %d)\r\n", preamble, msg, code);
         MessageBeep(MB_ICONERROR);
         MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
     }
@@ -106,18 +109,18 @@ get_app_dirw(void) {
     if (sz >= MAX_PATH-1) ExitProcess(_show_error(L"Installation directory path too long", L"", 1));
     err = _wsplitpath_s(w_program_name, drive, 4, buf, MAX_PATH, NULL, 0, NULL, 0);
     if (err != 0) ExitProcess(show_last_error_crt(L"Failed to find application directory"));
-    _snwprintf_s(w_app_dir, MAX_PATH, _TRUNCATE, L"%s%s", drive, buf);
+    _snwprintf_s(w_app_dir, MAX_PATH, _TRUNCATE, L"%ls%ls", drive, buf);
 }
 
 static void
 get_install_locations(void) {
     get_app_dir();
     get_app_dirw();
-    _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%s\\app", w_app_dir);
+    _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\app", w_app_dir);
     _wputenv_s(L"CALIBRE_QT_PREFIX", qt_prefix_dir);
-    _snwprintf_s(dll_dir, MAX_PATH-1, _TRUNCATE, L"%s\\app\\bin", w_app_dir);
+    _snwprintf_s(dll_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\app\\bin", w_app_dir);
 #if PY_VERSION_MAJOR >= 3
-    _snwprintf_s(python_path, MAX_PATH-1, _TRUNCATE, L"%s\\app\\pylib.zip", w_app_dir);
+    _snwprintf_s(python_path, MAX_PATH-1, _TRUNCATE, L"%ls\\app\\pylib.zip", w_app_dir);
 #else
     _snprintf_s(python_path, MAX_PATH-1, _TRUNCATE, "%s\\app\\pylib.zip", app_dir);
 #endif
@@ -172,7 +175,7 @@ setup_streams() {
 
 UINT
 initialize_interpreter(const char *basename, const char *module, const char *function) {
-    DWORD sz; HMODULE dll;
+    HMODULE dll;
     int *flag, i, argc;
     wchar_t **wargv;
     PyObject *argv, *v;
@@ -253,7 +256,7 @@ pyobject_to_wchar(PyObject *o) {
         if (t == NULL) return NULL;
     }
 
-    s = PyUnicode_AsWideChar(t ? t : o, ans, arraysz(ans)-1);
+    s = PyUnicode_AsWideChar((PyUnicodeObject*)(t ? t : o), ans, arraysz(ans)-1);
     Py_XDECREF(t);
     if (s >= 0) ans[s] = 0;
     else ans[s] = 0;
@@ -344,7 +347,8 @@ null_invalid_parameter_handler(
 }
 __declspec(dllexport) int __cdecl
 simple_print(const wchar_t *msg) {
-    wprintf(L"%s", msg); fflush(stdout);
+    int n = wprintf(L"%ls", msg); fflush(stdout);
+	return n;
 }
 
 __declspec(dllexport) int __cdecl
