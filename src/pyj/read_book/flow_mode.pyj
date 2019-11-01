@@ -81,17 +81,18 @@ def scroll_by(y):
 
 def flow_onwheel(evt):
     dx = dy = 0
+    WheelEvent = window.WheelEvent
     if evt.deltaY:
-        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dy = evt.deltaY
-        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+        elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
             dy = 15 * evt.deltaY
-        if evt.deltaMode is evt.DOM_DELTA_PAGE:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
             dy = (scroll_viewport.height() - 30) * evt.deltaY
     if evt.deltaX:
-        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dx = evt.deltaX
-        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+        elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
             dx = 15 * evt.deltaX
         else:
             dx = (scroll_viewport.width() - 30) * evt.deltaX

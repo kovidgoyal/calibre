@@ -94,6 +94,7 @@ class IframeBoss:
             'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
             'gesture_from_margin': self.gesture_from_margin,
+            'wheel_from_margin': self.wheel_from_margin,
             'find': self.find,
             'window_size': self.received_window_size,
             'get_current_cfi': self.get_current_cfi,
@@ -197,6 +198,9 @@ class IframeBoss:
 
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
+
+    def wheel_from_margin(self, data):
+        self.onwheel(data.evt)
 
     def report_human_scroll(self, scrolled_by_frac):
         self.send_message('human_scroll', scrolled_by_frac=scrolled_by_frac or None)
@@ -374,7 +378,8 @@ class IframeBoss:
 
     def onwheel(self, evt):
         if self.content_ready:
-            evt.preventDefault()
+            if evt.preventDefault:
+                evt.preventDefault()
             if evt.deltaY and evt.ctrlKey and not evt.shiftKey and not evt.altKey and not evt.metaKey:
                 self.send_message('handle_shortcut', name='increase_font_size' if evt.deltaY < 0 else 'decrease_font_size')
             else:
