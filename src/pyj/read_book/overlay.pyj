@@ -313,7 +313,9 @@ class MainOverlay:  # {{{
 
             actions_div.appendChild(E.ul(
                 ac(_('Inspector'), _('Show the content inspector'),
-                   def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug')
+                   def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug'),
+                ac(_('Reset interface'), _('Reset viewer panels, toolbars and scrollbars to defaults'),
+                   def(): self.overlay.hide(), ui_operations.reset_interface();, 'remove'),
             ))
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,

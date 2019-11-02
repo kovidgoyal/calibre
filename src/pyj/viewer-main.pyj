@@ -8,7 +8,7 @@ from gettext import gettext as _, install
 
 import initialize  # noqa: unused-import
 from ajax import ajax
-from book_list.globals import set_session_data
+from book_list.globals import get_session_data, set_session_data
 from book_list.library_data import library_data
 from book_list.theme import get_color
 from dom import get_widget_css, set_css
@@ -20,7 +20,7 @@ from read_book.globals import runtime, ui_operations
 from read_book.iframe import main as iframe_main
 from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
-from session import session_defaults, local_storage
+from session import local_storage, session_defaults
 from utils import encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
 
@@ -322,6 +322,14 @@ if window is window.top:
         to_python.toggle_bookmarks()
     ui_operations.toggle_inspector = def():
         to_python.toggle_inspector()
+    ui_operations.reset_interface = def():
+        sd = get_session_data()
+        m = sd.get('standalone_misc_settings', {})
+        v'delete m.show_actions_toolbar'
+        sd.set('standalone_misc_settings', m)
+        sd.set('book_scrollbar', False)
+        view.book_scrollbar.apply_visibility()
+        to_python.reset_interface()
     ui_operations.toggle_lookup = def():
         to_python.toggle_lookup()
     ui_operations.selection_changed = def(selected_text):

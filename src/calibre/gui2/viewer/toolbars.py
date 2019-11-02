@@ -41,7 +41,6 @@ class ActionsToolBar(ToolBar):
     def __init__(self, parent=None):
         ToolBar.__init__(self, parent)
         self.setObjectName('actions_toolbar')
-        self.update_visibility()
 
     def initialize(self, web_view):
         shortcut_action = self.create_shortcut_action

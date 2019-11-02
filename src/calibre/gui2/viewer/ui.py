@@ -14,7 +14,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QApplication, QDockWidget, QEvent, QMimeData, QModelIndex, QPixmap, QScrollBar,
-    Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prints
@@ -160,11 +160,13 @@ class EbookViewer(MainWindow):
         self.web_view.show_loading_message.connect(self.show_loading_message)
         self.web_view.show_error.connect(self.show_error)
         self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
+        self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
         self.actions_toolbar.initialize(self.web_view)
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()
+        self.actions_toolbar.update_visibility()
         if continue_reading:
             self.continue_reading()
 
@@ -299,6 +301,19 @@ class EbookViewer(MainWindow):
     def print_book(self):
         from .printing import print_book
         print_book(set_book_path.pathtoebook, book_title=self.current_book_data['metadata']['title'], parent=self)
+
+    def reset_interface(self):
+        for dock in self.findChildren(QDockWidget):
+            dock.setFloating(False)
+            area = self.dock_defs[dock.objectName().partition('-')[0]].initial_area
+            self.removeDockWidget(dock)
+            self.addDockWidget(area, dock)
+            dock.setVisible(False)
+
+        for toolbar in self.findChildren(QToolBar):
+            toolbar.setVisible(False)
+            self.removeToolBar(toolbar)
+            self.addToolBar(Qt.LeftToolBarArea, toolbar)
 
     def ask_for_open(self, path=None):
         if path is None:
