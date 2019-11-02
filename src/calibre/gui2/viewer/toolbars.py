@@ -90,10 +90,10 @@ class VerticalToolBar(QToolBar):
         a = self.mode_action
         if mode == 'paged':
             a.setChecked(False)
-            a.setToolTip(_('Switch to flow mode — where the text is not broken into pages'))
+            a.setToolTip(_('Switch to flow mode -- where the text is not broken into pages'))
         else:
             a.setChecked(True)
-            a.setToolTip(_('Switch to paged mode — where the text is broken into pages'))
+            a.setToolTip(_('Switch to paged mode -- where the text is broken into pages'))
 
     def set_tooltips(self, smap):
         rmap = defaultdict(list)
