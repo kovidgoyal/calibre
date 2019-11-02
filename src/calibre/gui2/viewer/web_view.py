@@ -402,6 +402,7 @@ class WebView(RestartingWebEngineView):
     print_book = pyqtSignal()
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
+    standalone_misc_settings_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -532,6 +533,7 @@ class WebView(RestartingWebEngineView):
             vprefs['session_data'] = {}
             apply_font_settings(self._page)
             self.paged_mode_changed.emit()
+            self.standalone_misc_settings_changed.emit()
         elif key != '*':
             sd = vprefs['session_data']
             sd[key] = val
@@ -540,6 +542,8 @@ class WebView(RestartingWebEngineView):
                 apply_font_settings(self._page)
             elif key == 'read_mode':
                 self.paged_mode_changed.emit()
+            elif key == 'standalone_misc_settings':
+                self.standalone_misc_settings_changed.emit(val)
 
     def set_local_storage(self, key, val):
         if key == '*' and val is None:

@@ -102,7 +102,6 @@ class EbookViewer(MainWindow):
         self.actions_toolbar = at = ActionsToolBar(self)
         at.open_book_at_path.connect(self.ask_for_open)
         self.addToolBar(Qt.LeftToolBarArea, at)
-        at.setVisible(False)
         try:
             os.makedirs(annotations_dir)
         except EnvironmentError:

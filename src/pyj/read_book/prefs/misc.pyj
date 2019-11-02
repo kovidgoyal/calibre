@@ -15,6 +15,7 @@ CONTAINER = unique_id('standalone-misc-settings')
 DEFAULTS = {
     'remember_window_geometry': False,
     'remember_last_read': True,
+    'show_actions_toolbar': False,
     'save_annotations_in_ebook': True,
     'singleinstance': False,
 }
@@ -44,6 +45,7 @@ def create_misc_panel(container, apply_func, cancel_func):
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
+    container.append(cb('show_actions_toolbar', _('Show a toolbar with the most useful actions')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))

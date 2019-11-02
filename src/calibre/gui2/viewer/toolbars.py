@@ -22,6 +22,8 @@ class ToolBar(QToolBar):
         QToolBar.__init__(self, parent)
         self.shortcut_actions = {}
         self.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        self.setVisible(False)
+        self.setAllowedAreas(Qt.AllToolBarAreas)
 
     def create_shortcut_action(self, icon, text, sc):
         a = QAction(QIcon(I(icon)), text, self)
@@ -39,13 +41,14 @@ class ActionsToolBar(ToolBar):
     def __init__(self, parent=None):
         ToolBar.__init__(self, parent)
         self.setObjectName('actions_toolbar')
-        self.setAllowedAreas(Qt.AllToolBarAreas)
+        self.update_visibility()
 
     def initialize(self, web_view):
         shortcut_action = self.create_shortcut_action
         self.action_triggered.connect(web_view.trigger_shortcut)
         page = web_view.page()
         web_view.paged_mode_changed.connect(self.update_mode_action)
+        web_view.standalone_misc_settings_changed.connect(self.update_visibility)
 
         self.back_action = page.action(QWebEnginePage.Back)
         self.back_action.setIcon(QIcon(I('back.png')))
@@ -129,3 +132,6 @@ class ActionsToolBar(ToolBar):
                     elided_text(entry['title'], pos='right', width=250),
                     elided_text(os.path.basename(path), width=250))).triggered.connect(partial(
                     self.open_book_at_path.emit, path))
+
+    def update_visibility(self):
+        self.setVisible(bool(get_session_pref('show_actions_toolbar', default=False)))
