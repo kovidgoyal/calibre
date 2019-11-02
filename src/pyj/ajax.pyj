@@ -102,6 +102,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
         is_network_error = ev if end_type is 'error' else False
         if xhr.status is not ok_code and end_type is 'load':
             end_type = 'error'
+        if xhr.status is ok_code and end_type is 'error':
+            # this apparently happens on Qt 5.13.2
+            end_type = 'load'
         if end_type is not 'load':
             set_error(end_type, is_network_error)
         on_complete(end_type, xhr, ev)
