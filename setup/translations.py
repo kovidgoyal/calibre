@@ -326,6 +326,59 @@ class Translations(POT):  # {{{
             if handle_stats is not None:
                 handle_stats(src, nums)
 
+    def auto_fix_iso639_files(self, files):
+
+        class Fix(object):
+
+            def __init__(self):
+                self.seen = set()
+                self.bad = set()
+                self.msgid = None
+
+            def __call__(self, match):
+                if match.group(1) == 'msgid':
+                    self.msgid = match.group(2)
+                    return match.group()
+                msgstr = match.group(2)
+                if msgstr:
+                    if msgstr in self.seen:
+                        if self.msgid == msgstr:
+                            self.bad.add(msgstr)
+                            return match.group()
+                        self.seen.add(self.msgid)
+                        return 'msgstr "{}"'.format(self.msgid)
+                    self.seen.add(msgstr)
+                return match.group()
+
+        class Fix2(object):
+
+            def __init__(self, fix1):
+                self.bad = fix1.bad
+                self.msgid = None
+
+            def __call__(self, match):
+                if match.group(1) == 'msgid':
+                    self.msgid = match.group(2)
+                    return match.group()
+                msgstr = match.group(2)
+                if msgstr:
+                    if msgstr and msgstr in self.bad:
+                        self.bad.discard(msgstr)
+                        return 'msgstr "{}"'.format(self.msgid)
+                return match.group()
+
+        for (po_path, mo_path) in files:
+            with open(po_path, 'r+b') as f:
+                raw = f.read().decode('utf-8')
+                f.seek(0)
+                fx = Fix()
+                nraw, num = re.subn(r'^(msgid|msgstr)\s+"(.*?)"', fx, raw, flags=re.M)
+                nraw, nnum = re.subn(r'^(msgid|msgstr)\s+"(.*?)"', Fix2(fx), nraw, flags=re.M)
+                if num + nnum > 0:
+                    f.truncate()
+                    f.write(nraw.encode('utf-8'))
+        raise SystemExit(1)
+
     def compile_main_translations(self):
         l = {}
         lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
@@ -369,6 +422,7 @@ class Translations(POT):  # {{{
                 files.append((iso639, self.j(self.d(dest), 'iso639.mo')))
             elif locale not in skip_iso:
                 self.warn('No ISO 639 translations for locale:', locale)
+        # self.auto_fix_iso639_files(files)
         self.compile_group(files, file_ok=self.check_iso639)
 
         if self.iso639_errors:
