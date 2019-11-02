@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
 
+from calibre.constants import isosx
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
 from polyglot.builtins import unicode_type, range
@@ -52,7 +53,7 @@ class PluginWidget(QWidget):
         l.addWidget(la)
         self.db_fields.setDragEnabled(True)
         self.db_fields.setDragDropMode(QListWidget.InternalMove)
-        self.db_fields.setDefaultDropAction(Qt.MoveAction)
+        self.db_fields.setDefaultDropAction(Qt.CopyAction if isosx else Qt.MoveAction)
         self.db_fields.setAlternatingRowColors(True)
         self.db_fields.setObjectName("db_fields")
 
