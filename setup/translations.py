@@ -726,7 +726,7 @@ class ISO639(Command):  # {{{
             'iso639.calibre_msgpack')
 
     def run(self, opts):
-        src = self.j(self.d(self.SRC), 'setup', 'iso_639_3.xml')
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639-3.json')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
         dest = self.DEST
@@ -737,29 +737,24 @@ class ISO639(Command):  # {{{
             self.info('Packed code is up to date')
             return
         self.info('Packing ISO-639 codes to', dest)
-        from lxml import etree
-        root = etree.fromstring(open(src, 'rb').read())
+        with open(src, 'rb') as f:
+            root = json.load(f)
+        entries = root['639-3']
         by_2 = {}
-        by_3b = {}
-        by_3t = {}
+        by_3 = {}
         m2to3 = {}
         m3to2 = {}
-        m3bto3t = {}
         nm = {}
-        codes2, codes3t, codes3b = set(), set(), set()
+        codes2, codes3 = set(), set()
         unicode_type = type(u'')
-        for x in root.xpath('//iso_639_3_entry'):
-            two = x.get('part1_code', None)
+        for x in entries:
+            two = x.get('alpha_2')
             if two:
                 two = unicode_type(two)
-            threet = x.get('id')
-            if threet:
-                threet = unicode_type(threet)
-            threeb = x.get('part2_code', None)
+            threeb = x.get('alpha_3')
             if threeb:
                 threeb = unicode_type(threeb)
             if threeb is None:
-                # Only recognize languages in ISO-639-2
                 continue
             name = x.get('name')
             if name:
@@ -768,20 +763,16 @@ class ISO639(Command):  # {{{
             if two is not None:
                 by_2[two] = name
                 codes2.add(two)
-                m2to3[two] = threet
-                m3to2[threeb] = m3to2[threet] = two
-            by_3b[threeb] = name
-            by_3t[threet] = name
-            if threeb != threet:
-                m3bto3t[threeb] = threet
-            codes3b.add(threeb)
-            codes3t.add(threet)
+                m2to3[two] = threeb
+                m3to2[threeb] = two
+            codes3.add(threeb)
+            by_3[threeb] = name
             base_name = name.lower()
-            nm[base_name] = threet
+            nm[base_name] = threeb
 
-        x = {u'by_2':by_2, u'by_3b':by_3b, u'by_3t':by_3t, u'codes2':codes2,
-                u'codes3b':codes3b, u'codes3t':codes3t, u'2to3':m2to3,
-                u'3to2':m3to2, u'3bto3t':m3bto3t, u'name_map':nm}
+        x = {u'by_2':by_2, u'by_3':by_3, u'codes2':codes2,
+                u'codes3':codes3, u'2to3':m2to3,
+                u'3to2':m3to2, u'name_map':nm}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:
             f.write(msgpack_dumps(x))

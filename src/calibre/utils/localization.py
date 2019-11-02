@@ -369,6 +369,8 @@ def _load_iso639():
         ip = P('localization/iso639.calibre_msgpack', allow_user_override=False, data=True)
         from calibre.utils.serialize import msgpack_loads
         _iso639 = msgpack_loads(ip)
+        if 'by_3' not in _iso639:
+            _iso639['by_3'] = _iso639['by_3t']
     return _iso639
 
 
@@ -379,10 +381,8 @@ def get_iso_language(lang_trans, lang):
     if len(lang) == 2:
         ans = iso639['by_2'].get(lang, ans)
     elif len(lang) == 3:
-        if lang in iso639['by_3b']:
-            ans = iso639['by_3b'][lang]
-        else:
-            ans = iso639['by_3t'].get(lang, ans)
+        if lang in iso639['by_3']:
+            ans = iso639['by_3'][lang]
     return lang_trans(ans)
 
 
@@ -401,7 +401,7 @@ def calibre_langcode_to_name(lc, localize=True):
     iso639 = _load_iso639()
     translate = _ if localize else lambda x: x
     try:
-        return translate(iso639['by_3t'][lc])
+        return translate(iso639['by_3'][lc])
     except:
         pass
     return lc
@@ -426,10 +426,8 @@ def canonicalize_lang(raw):
         if ans is not None:
             return ans
     elif len(raw) == 3:
-        if raw in iso639['by_3t']:
+        if raw in iso639['by_3']:
             return raw
-        if raw in iso639['3bto3t']:
-            return iso639['3bto3t'][raw]
 
     return iso639['name_map'].get(raw, None)
 
@@ -443,7 +441,7 @@ def lang_map():
     translate = _
     global _lang_map
     if _lang_map is None:
-        _lang_map = {k:translate(v) for k, v in iteritems(iso639['by_3t'])}
+        _lang_map = {k:translate(v) for k, v in iteritems(iso639['by_3'])}
     return _lang_map
 
 
@@ -467,7 +465,7 @@ def langnames_to_langcodes(names):
     translate = _
     ans = {}
     names = set(names)
-    for k, v in iteritems(iso639['by_3t']):
+    for k, v in iteritems(iso639['by_3']):
         tv = translate(v)
         if tv in names:
             names.remove(tv)
