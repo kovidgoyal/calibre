@@ -394,18 +394,32 @@ def text_from_serialized_html(data):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
     ans = v'[]'
-    stack = v'[serialized_data.tree[2]]'
+    if tag_map:
+        stack = v'[serialized_data.tree[2]]'
+    else:
+        stack = v'[]'
+        for child in serialized_data.tree.c:
+            if child.n is 'body':
+                stack.push(child)
     ignore_text = {'script':True, 'style':True}
     while stack.length:
         node = stack.pop()
         if jstype(node) is 'string':
             ans.push(node)
             continue
-        src = tag_map[node[0]]
+        if tag_map:
+            src = tag_map[node[0]]
+        else:
+            src = node
         if not ignore_text[src.n] and src.x:
             ans.push(src.x)
         if src.l:
             stack.push(src.l)
-        for v'var i = node.length - 1; i >= 1; i--':
-            stack.push(node[i])
+        if tag_map:
+            for v'var i = node.length - 1; i >= 1; i--':
+                stack.push(node[i])
+        else:
+            if src.c:
+                for v'var i = src.c.length; i-- > 0;':
+                    stack.push(v'src.c[i]')
     return ans.join('')
