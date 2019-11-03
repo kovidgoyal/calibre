@@ -447,11 +447,9 @@ def make_anchors_unique(container, log):
             url += '#'
         if url.startswith('#'):
             href, frag = base, url[1:]
+            name = base
         else:
             href, frag = url.partition('#')[::2]
-        if base is None:
-            name = href
-        else:
             name = container.href_to_name(href, base)
         if not name:
             return url.rstrip('#')
