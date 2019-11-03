@@ -205,8 +205,10 @@ class EbookViewer(MainWindow):
     def set_full_screen(self, on):
         if on:
             self.maximized_at_last_fullscreen = self.isMaximized()
+            self.actions_toolbar.setVisible(False)
             self.showFullScreen()
         else:
+            self.actions_toolbar.update_visibility()
             if self.maximized_at_last_fullscreen:
                 self.showMaximized()
             else:
