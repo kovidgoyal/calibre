@@ -180,11 +180,16 @@ class BuildDep(Command):
     description = (
         'Build a calibre dependency. For e.g. build_dep windows expat.'
         ' Without arguments builds all deps for specified platform. Use windows 32 for 32bit.'
+        ' Use build_dep all somedep to build a dep for all platforms.'
     )
 
     def run(self, opts):
         args = opts.cli_args
-        build_dep(args)
+        if args and args[0] == 'all':
+            for x in ('linux', 'linux 32', 'macos', 'windows', 'windows 32'):
+                build_dep(x.split() + list(args)[1:])
+        else:
+            build_dep(args)
 
 
 class ExportPackages(Command):
