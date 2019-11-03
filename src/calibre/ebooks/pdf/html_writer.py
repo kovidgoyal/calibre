@@ -503,7 +503,7 @@ class AnchorLocation(object):
         self.pagenum, self.left, self.top, self.zoom = pagenum, left, top, zoom
 
     def __repr__(self):
-        return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(self.as_tuple)
+        return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(*self.as_tuple)
 
     @property
     def as_tuple(self):
