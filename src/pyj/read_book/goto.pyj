@@ -58,16 +58,12 @@ def create_location_overlay(current_position_data, overlay, container):
     container_id = ensure_id(container)
     container.appendChild(E.div(style='margin: 0 1rem'))
     container = container.lastChild
-    container.appendChild(E.div(
-        style='padding-top: 1rem',
-        E.h4(_('Using book location (most accurate)'))
-    ))
     current_cfi = current_position_data.cfi
     if current_cfi:
-        container.lastChild.appendChild(E.div(
-            style='margin: 1rem 0; display: flex; align-items: baseline',
+        container.appendChild(E.div(
+            style='margin: 1rem; display: flex; align-items: baseline',
             E.input(
-                type='text', readonly='readonly', value=_('Currently at: {}').format(current_cfi), name='current_location',
+                type='text', readonly='readonly', value=_('Current location: {}').format(current_cfi), name='current_location',
                 style='border-width: 0; background-color: transparent; outline: none; flex-grow: 10; font-family: inherit'
             ),
             create_button(_('Copy'), action=def():
@@ -84,52 +80,42 @@ def create_location_overlay(current_position_data, overlay, container):
             )
         ))
 
-    def goto_loc():
-        src = document.querySelector(f'#{container_id} [name=newloc]')
-        if src.value:
-            if ui_operations.goto_cfi(src.value):
-                overlay.hide()
-            else:
-                error_dialog(_('No such location'), _(
-                    'No location {} found').format(src.value))
+    def goto_cfi(cfi):
+        if ui_operations.goto_cfi(cfi):
+            overlay.hide()
+        else:
+            error_dialog(_('No such location'), _(
+                'No location {} found').format(cfi))
 
-    container.lastChild.appendChild(E.div(
-        style='margin: 1rem 0;',
-        E.div(
-            style='display: flex; align-items: baseline',
-            E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newloc', type='text', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
-                    if ev.key is 'Enter':
-                        goto_loc()
-            ),
-            E.span(' '),
-            create_button(_('Go'), action=goto_loc)
-        )
-    ))
-
-    container.appendChild(E.div(
-        style='margin-top: 1rem; border-top: solid 1px; padding-top: 1rem',
-        E.h4(_('Using book position'))
-    ))
     if current_position_data.book_length > 0:
-        container.lastChild.appendChild(
-            E.div(style='margin: 1rem 0', _('Currently at: {}').format(
+        container.appendChild(
+            E.div(style='margin: 1rem', _('Current position: {}').format(
                 format_pos(current_position_data.progress_frac, current_position_data.book_length))))
 
     def goto_pos():
-        src = document.querySelector(f'#{container_id} [name=newpos]')
-        ui_operations.goto_book_position(float(src.value))
-        overlay.hide()
+        src = document.querySelector(f'#{container_id} [name=newpos]').value
+        if not src:
+            return
+        if src.indexOf('epubcfi(') is 0:
+            return goto_cfi(src)
+        try:
+            ui_operations.goto_book_position(float(src))
+        except:
+            error_dialog(_('Not a valid book position'), _(
+                '{} is not a valid book position').format(src))
+        else:
+            overlay.hide()
 
-    container.lastChild.appendChild(E.div(
-        style='margin: 1rem 0;',
+    container.appendChild(E.div(
+        style='margin: 1rem;',
         E.div(
             style='display: flex; align-items: baseline',
             E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newpos', type='number', min='0', max=str(current_position_data.book_length), step='0.1', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
+            E.input(name='newpos', type='text', min='0', max=str(current_position_data.book_length), step='0.1', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
                     if ev.key is 'Enter':
                         goto_pos()
             ), E.span(' '),
             create_button(_('Go'), action=goto_pos)
         )
     ))
+    container.querySelector('[name=newpos]').focus()

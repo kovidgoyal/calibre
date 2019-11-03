@@ -388,6 +388,8 @@ class View:
             self.overlay.show_prefs()
         elif data.name is 'metadata':
             self.overlay.show_metadata()
+        elif data.name is 'goto_location':
+            self.overlay.show_ask_for_location()
 
 
     def on_selection_change(self, data):
