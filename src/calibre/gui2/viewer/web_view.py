@@ -211,6 +211,8 @@ def create_profile():
     if ans is None:
         ans = QWebEngineProfile(QApplication.instance())
         osname = 'windows' if iswindows else ('macos' if isosx else 'linux')
+        # DO NOT change the user agent as it is used to workaround
+        # Qt bugs see workaround_qt_bug() in ajax.pyj
         ua = 'calibre-viewer {} {}'.format(__version__, osname)
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
