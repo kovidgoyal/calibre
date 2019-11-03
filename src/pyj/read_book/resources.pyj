@@ -286,29 +286,29 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
             proceeded = True
             proceed()
 
+    def process_children(node, parent):
+        if not node.c:
+            return
+        stack = v'[]'
+        for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
+            child = v'node.c[i]'
+            if child.n is not 'meta' and child.n is not 'base':
+                stack.push(v'[child, parent]')
+        process_stack(stack, None, ns_map, load_required, onload)
+
 
     body_done = False
     process_stack.tag_id = 1
     for child in html.c:
         if child.n is 'head':
-            if child.c:
-                stack = v'[]'
-                for v'var i = child.c.length; i-- > 0;':
-                    if child.c[i].n is not 'meta' and child.c[i].n is not 'base':
-                        stack.push(v'[child.c[i], document.head]')
-                process_stack(stack, None, ns_map, load_required, onload)
+            process_children(child, document.head)
         elif child.n is 'body':
             if not body_done:
                 body_done = True
                 apply_attributes(child, document.body, ns_map)
             if child.x:
                 document.body.appendChild(document.createTextNode(child.x))
-            if child.c:
-                stack = v'[]'
-                for v'var i = child.c.length; i-- > 0;':
-                    if child.c[i].n is not 'meta' and child.c[i].n is not 'base':
-                        stack.push(v'[child.c[i], document.body]')
-                process_stack(stack, None, ns_map, load_required, onload)
+            process_children(child, document.body)
 
     if postprocess_dom:
         postprocess_dom()
