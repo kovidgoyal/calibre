@@ -48,7 +48,7 @@ def absolute_path(path):
 
 
 def workaround_qt_bug(xhr, end_type, ok_code=200):
-    if end_type is 'error' and xhr.status is ok_code:
+    if end_type is 'error' and xhr.status is ok_code and window.navigator.userAgent.indexOf('calibre-viewer') is 0:
         end_type = 'load'
     return end_type
 
