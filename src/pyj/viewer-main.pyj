@@ -7,7 +7,7 @@ from elementmaker import E
 from gettext import gettext as _, install
 
 import initialize  # noqa: unused-import
-from ajax import ajax
+from ajax import ajax, workaround_qt_bug
 from book_list.globals import get_session_data, set_session_data
 from book_list.library_data import library_data
 from book_list.theme import get_color
@@ -33,6 +33,7 @@ view = None
 
 
 def file_received(name, file_data, proceed, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'abort':
         return
     if end_type is not 'load':
@@ -61,6 +62,7 @@ def get_file(book, name, proceed):
     xhr.send()
 
 def mathjax_file_received(name, proceed, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'abort':
         return
     if end_type is not 'load':
@@ -138,6 +140,7 @@ def show_error(title, msg, details):
 
 def manifest_received(key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook, end_type, xhr, ev):
     nonlocal book
+    end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'load':
         book = new_book(key, {})
         data = xhr.response
@@ -324,11 +327,15 @@ if window is window.top:
         to_python.toggle_inspector()
     ui_operations.reset_interface = def():
         sd = get_session_data()
+        defaults = session_defaults()
         m = sd.get('standalone_misc_settings', {})
         v'delete m.show_actions_toolbar'
         sd.set('standalone_misc_settings', m)
         sd.set('book_scrollbar', False)
         view.book_scrollbar.apply_visibility()
+        sd.set('header', defaults.header)
+        sd.set('footer', defaults.footer)
+        view.update_header_footer()
         to_python.reset_interface()
     ui_operations.toggle_lookup = def():
         to_python.toggle_lookup()
