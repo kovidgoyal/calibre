@@ -55,9 +55,12 @@ class Prefs:
         else:
             self.close_func()
 
-    def create_panel(self, container, which, create_func):
+    def create_panel(self, container, which, create_func, needs_onchange):
         document.getElementById(self.title_id).textContent = self.title_map[which] or which
-        create_func(container, self.onclose, self.cancel)
+        if needs_onchange:
+            create_func(container, self.onclose, self.cancel, self.onchange)
+        else:
+            create_func(container, self.onclose, self.cancel)
 
     @property
     def container(self):
@@ -131,7 +134,7 @@ class Prefs:
         commit_head_foot(self.onchange, self.container)
 
     def display_keyboard(self, container):
-        self.create_panel(container, 'keyboard', create_keyboard_panel)
+        self.create_panel(container, 'keyboard', create_keyboard_panel, True)
 
     def close_keyboard(self):
         commit_keyboard(self.onchange, self.container)

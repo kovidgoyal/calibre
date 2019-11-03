@@ -425,7 +425,10 @@ class PrefsOverlay: # {{{
     def show(self, container):
         self.changes_occurred = False
         container.style.backgroundColor = get_color('window-background')
-        self.prefs = create_prefs_panel(container, self.overlay.hide_current_panel, def():self.changes_occurred=True;)
+        self.prefs = create_prefs_panel(container, self.overlay.hide_current_panel, self.on_change)
+
+    def on_change(self):
+        self.changes_occurred = True
 
     def handle_escape(self):
         self.prefs.onclose()

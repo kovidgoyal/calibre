@@ -145,7 +145,7 @@ def customize_shortcut(sc_name):
 
 
 
-def create_keyboard_panel(container, close_func, onchange):
+def create_keyboard_panel(container, apply_func, cancel_func, onchange):
     create_keyboard_panel.onchange = onchange
     container.appendChild(E.div(id=unique_id('keyboard-settings'), style='margin: 1rem'))
     container = container.lastChild
@@ -168,7 +168,7 @@ def create_keyboard_panel(container, close_func, onchange):
         create_item_list(container.lastChild, items)
 
     container.appendChild(E.div(
-        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults.bind(None, close_func))
+        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults.bind(None, apply_func))
     ))
 
 
