@@ -408,14 +408,15 @@ def add_anchors_markup(root, uuid, anchors):
     body = last_tag(root)
     div = body.makeelement(
         XHTML('div'), id=uuid,
-        style='display:block; page-break-before: always; break-before: always;'
+        style='display:block !important; page-break-before: always !important; break-before: always !important; white-space: pre-wrap !important'
     )
+    div.text = '\n\n'
     body.append(div)
 
     def a(anchor):
         a = div.makeelement(
             XHTML('a'), href='#' + anchor,
-            style='white-space: pre; min-width: 10px; min-height: 10px; border: solid 1px;'
+            style='min-width: 10px !important; min-height: 10px !important; border: solid 1px !important;'
         )
         a.text = a.tail = ' '
         div.append(a)
