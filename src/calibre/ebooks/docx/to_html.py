@@ -104,6 +104,7 @@ class Convert(object):
     def __call__(self):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
+        self.resolve_alternate_content(doc)
         self.fields(doc, self.log)
         self.read_styles(relationships_by_type)
         self.images(relationships_by_id)
@@ -121,7 +122,6 @@ class Convert(object):
         self.log.debug('Converting Word markup to HTML')
 
         self.read_page_properties(doc)
-        self.resolve_alternate_content(doc)
         self.current_rels = relationships_by_id
         for wp, page_properties in iteritems(self.page_map):
             self.current_page = page_properties
