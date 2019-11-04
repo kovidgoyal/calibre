@@ -132,11 +132,14 @@ class BookInfo(QDialog):
 
         self.fit_cover = QCheckBox(_('Fit &cover within view'), self)
         self.fit_cover.setChecked(gprefs.get('book_info_dialog_fit_cover', True))
-        l2.addWidget(self.fit_cover, l2.rowCount(), 0, 1, 1)
+        self.hl = hl = QHBoxLayout()
+        hl.setContentsMargins(0, 0, 0, 0)
+        l2.addLayout(hl, l2.rowCount(), 0, 1, -1)
+        hl.addWidget(self.fit_cover), hl.addStretch()
         self.clabel = QLabel('<div style="text-align: right"><a href="calibre:conf" title="{}" style="text-decoration: none">{}</a>'.format(
             _('Configure this view'), _('Configure')))
         self.clabel.linkActivated.connect(self.configure)
-        l2.addWidget(self.clabel, l2.rowCount() - 1, 1, 1, 1)
+        hl.addWidget(self.clabel)
         self.previous_button = QPushButton(QIcon(I('previous.png')), _('&Previous'), self)
         self.previous_button.clicked.connect(self.previous)
         l2.addWidget(self.previous_button, l2.rowCount(), 0)
