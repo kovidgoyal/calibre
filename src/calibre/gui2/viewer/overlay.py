@@ -11,16 +11,20 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 
 class LoadingOverlay(QWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.pi = ProgressIndicator(self, 96, 80)
         self.setVisible(False)
         self.label = QLabel(self)
-        self.label.setText('<i>testing')
+        self.label.setText('<i>testing with some long and wrap worthy message that should hopefully still render well')
         self.label.setTextFormat(Qt.RichText)
         self.label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
-        self.resize(parent.size())
+        self.label.setWordWrap(True)
+        if parent is None:
+            self.resize(300, 300)
+        else:
+            self.resize(parent.size())
         self.setAutoFillBackground(True)
         pal = self.palette()
         col = pal.color(pal.Window)
@@ -61,3 +65,11 @@ class LoadingOverlay(QWidget):
         # import time
         # print(1111111, time.monotonic() - self.st)
         self.pi.stop()
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    w = LoadingOverlay()
+    w.show()
+    app.exec_()
