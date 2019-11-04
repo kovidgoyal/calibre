@@ -177,7 +177,7 @@ def main():
         # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
         return gui_main(['calibre'])
-    csw = os.environ.get('CALIBRE_SIMPLE_WORKER', None)
+    csw = os.environ.pop('CALIBRE_SIMPLE_WORKER', None)
     if csw:
         mod, _, func = csw.partition(':')
         mod = importlib.import_module(mod)
