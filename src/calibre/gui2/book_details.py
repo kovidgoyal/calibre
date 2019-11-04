@@ -251,13 +251,14 @@ def add_item_specific_entries(menu, data, book_info):
         field = data.get('field')
         if field is not None:
             book_id = int(data['book_id'])
-            value = data['value']
+            value = remove_value = data['value']
             if field == 'identifiers':
                 menu.addAction(book_info.edit_identifiers_action)
+                remove_value = data['id_type']
             elif field in ('tags', 'series', 'publisher') or is_category(field):
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
             ac = book_info.remove_item_action
-            ac.data = (field, value, book_id)
+            ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % value)
             menu.addAction(ac)
     return search_internet_added

@@ -200,7 +200,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             urls = urls_from_identifiers(mi.identifiers)
             links = [
                 '<a href="%s" title="%s:%s">%s</a>' % (
-                    action('identifier', url=url, name=namel, type=id_typ, value=id_val, field='identifiers', book_id=book_id),
+                    action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
                     a(id_typ), a(id_val), p(namel))
                 for namel, id_typ, id_val, url in urls]
             links = u', '.join(links)
