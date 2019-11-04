@@ -605,7 +605,7 @@ def check_for_books_loaded():
     create_book_details(container)
 
 
-def onkeydown(container_id, ev):
+def onkeydown(container_id, close_action, ev):
     if render_book.book_id:
         if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
             if ev.key is 'ArrowLeft':
@@ -614,6 +614,9 @@ def onkeydown(container_id, ev):
             elif ev.key is 'ArrowRight':
                 next_book(render_book.book_id, 1)
                 ev.preventDefault(), ev.stopPropagation()
+            elif ev.key is 'Escape':
+                ev.preventDefault(), ev.stopPropagation()
+                close_action()
 
 
 def init(container_id):
@@ -629,7 +632,7 @@ def init(container_id):
     create_top_bar(container, title=_('Book details'), action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0'))
-    container.lastChild.addEventListener('keydown', onkeydown.bind(None, container_id), {'passive': False, 'capture': True})
+    container.lastChild.addEventListener('keydown', onkeydown.bind(None, container_id, close_action), {'passive': False, 'capture': True})
     container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)

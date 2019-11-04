@@ -1040,10 +1040,18 @@ def check_for_books_loaded():
     create_edit_metadata(container)
 
 
+def handle_keypress(container_id, ev):
+    if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+        if ev.key is 'Escape':
+            ev.preventDefault(), ev.stopPropagation()
+            on_close(container_id)
+
+
 def init(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
-    container.appendChild(E.div(class_=CLASS_NAME))
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
+    container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
