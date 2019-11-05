@@ -16,7 +16,7 @@ from modals import create_modal_container
 from qt import from_python, to_python
 from read_book.db import new_book
 from read_book.footnotes import main as footnotes_main
-from read_book.globals import runtime, ui_operations
+from read_book.globals import runtime, ui_operations, set_system_colors
 from read_book.iframe import main as iframe_main
 from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
@@ -214,17 +214,25 @@ def create_session_data(prefs, local_storage_data):
 
 
 @from_python
-def create_view(prefs, local_storage, all_font_families, field_metadata, ui_font_family, ui_font_sz, show_home_page_on_ready):
+def create_view(prefs, local_storage, field_metadata, ui_data):
     nonlocal view
-    runtime.all_font_families = all_font_families
+    set_system_colors(ui_data.system_colors)
+    runtime.all_font_families = ui_data.all_font_families
     library_data.field_metadata = field_metadata
-    document.documentElement.style.fontFamily = f'"{ui_font_family}", sans-serif'
-    document.documentElement.style.fontSize = ui_font_sz
+    document.documentElement.style.fontFamily = f'"{ui_data.ui_font_family}", sans-serif'
+    document.documentElement.style.fontSize = ui_data.ui_font_sz
     if view is None:
         create_session_data(prefs, local_storage)
         view = View(document.getElementById('view'))
-        if show_home_page_on_ready:
+        if ui_data.show_home_page_on_ready:
             view.overlay.open_book(False)
+
+
+@from_python
+def set_system_palette(system_colors):
+    set_system_colors(system_colors)
+    if view:
+        view.update_color_scheme()
 
 
 @from_python

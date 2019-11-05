@@ -37,7 +37,7 @@ defaults = {
     'background_image': None,
     'background_image_style': 'scaled',
     'background_image_fade': 0,
-    'current_color_scheme': 'white',
+    'current_color_scheme': 'system',
     'user_color_schemes': {},
     'base_font_size': 16,
     'controls_help_shown_count': 0,

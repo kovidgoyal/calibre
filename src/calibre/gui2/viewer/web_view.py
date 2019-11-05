@@ -269,6 +269,7 @@ class ViewerBridge(Bridge):
     background_image_changed = to_js()
     goto_frac = to_js()
     trigger_shortcut = to_js()
+    set_system_palette = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -384,6 +385,15 @@ class Inspector(QWidget):
         return QSize(600, 1200)
 
 
+def system_colors():
+    pal = QApplication.instance().palette()
+    return {
+        'background': pal.color(pal.Base).name(),
+        'foreground': pal.color(pal.Text).name(),
+        'link': pal.color(pal.Link).name(),
+    }
+
+
 class WebView(RestartingWebEngineView):
 
     cfi_changed = pyqtSignal(object)
@@ -417,6 +427,7 @@ class WebView(RestartingWebEngineView):
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
         w = QApplication.instance().desktop().availableGeometry(self).width()
+        QApplication.instance().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
@@ -508,9 +519,15 @@ class WebView(RestartingWebEngineView):
     def on_bridge_ready(self):
         f = QApplication.instance().font()
         fi = QFontInfo(f)
+        ui_data = {
+            'all_font_families': QFontDatabase().families(),
+            'ui_font_family': f.family(),
+            'ui_font_sz': '{}px'.format(fi.pixelSize()),
+            'show_home_page_on_ready': self.show_home_page_on_ready,
+            'system_colors': system_colors(),
+        }
         self.bridge.create_view(
-            vprefs['session_data'], vprefs['local_storage'], QFontDatabase().families(), field_metadata.all_metadata(),
-            f.family(), '{}px'.format(fi.pixelSize()), self.show_home_page_on_ready)
+            vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
 
@@ -592,3 +609,6 @@ class WebView(RestartingWebEngineView):
 
     def trigger_shortcut(self, which):
         self.execute_when_ready('trigger_shortcut', which)
+
+    def palette_changed(self):
+        self.execute_when_ready('set_system_palette', system_colors())

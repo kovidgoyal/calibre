@@ -48,17 +48,28 @@ def set_toc_anchor_map(val):
     toc_anchor_map.value = val
 
 default_color_schemes = {
+    'system':{'foreground':'#000000', 'background':'#ffffff', 'name':_('System')},
     'white':{'foreground':'#000000', 'background':'#ffffff', 'name':_('White')},
     'black':{'foreground':'#ffffff', 'background':'#000000', 'link': '#4f81bd', 'name':_('Black')},
     'sepia-light':{'foreground':'#39322B', 'background':'#F6F3E9', 'name':_('Sepia light')},
     'sepia-dark': {'background':'#39322B', 'foreground':'#F6F3E9', 'link': '#4f81bd', 'name':_('Sepia dark')},
 }
 
+
+def set_system_colors(spec):
+    c = default_color_schemes.system
+    c.foreground = spec.foreground
+    c.background = spec.background
+    c.link = spec.link
+
 register_callback(def():
     # Ensure the color scheme names are translated
     for key in default_color_schemes:
         scheme = default_color_schemes[key]
         scheme.name = gt(scheme.name)
+    # set the system colors if in dark mode
+    if window.matchMedia and window.matchMedia('(prefers-color-scheme: dark)').matches:
+        set_system_colors({'background': '#111', 'foreground': '#ddd', 'link': '#6cb4ee'})
 )
 
 runtime = {
