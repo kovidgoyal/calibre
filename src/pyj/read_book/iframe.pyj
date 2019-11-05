@@ -363,7 +363,7 @@ class IframeBoss:
             return
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if current_layout_mode() is not 'flow':
-            self.do_layout()
+            self.do_layout(self.is_titlepage)
         if self.last_cfi:
             cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
             if cfi:
