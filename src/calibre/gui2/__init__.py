@@ -881,6 +881,9 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, qargs)
+        sh = self.styleHints()
+        if hasattr(sh, 'setShowShortcutsInContextMenus'):
+            sh.setShowShortcutsInContextMenus(True)
         if isosx:
             plugins['cocoa'][0].disable_cocoa_ui_elements()
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
