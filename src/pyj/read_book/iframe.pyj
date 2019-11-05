@@ -24,7 +24,8 @@ from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs, calc_columns_per_screen, current_cfi,
     handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
     jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
-    onwheel as paged_onwheel, progress_frac, reset_paged_mode_globals,
+    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
+    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
@@ -361,13 +362,16 @@ class IframeBoss:
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
             # Safari at least, generates lots of spurious resize events
             return
-        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if current_layout_mode() is not 'flow':
+            paged_prepare_for_resize(self.last_window_width, self.last_window_height)
             self.do_layout(self.is_titlepage)
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if self.last_cfi:
             cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
             if cfi:
                 paged_jump_to_cfi('/' + cfi)
+        if current_layout_mode() is not 'flow':
+            paged_resize_done()
         self.update_cfi()
         self.update_toc_position()
 

@@ -58,14 +58,15 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
-col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = 0
+col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
 is_full_screen_layout = False
 
 def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols, last_scrolled_to_column
     scroll_viewport.reset_globals()
-    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = 0
+    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
     is_full_screen_layout = _in_paged_mode = False
+    resize_manager.reset()
 
 def column_at(xpos):
     # Return the (zero-based) number of the column that contains xpos
@@ -130,7 +131,7 @@ def calc_columns_per_screen():
     return cps
 
 
-def layout(is_single_page):
+def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
@@ -151,7 +152,7 @@ def layout(is_single_page):
         if not single_screen and cps > 1:
             num = cps - 1
             elems = document.querySelectorAll('body > *')
-            if elems.length == 1:
+            if elems.length is 1:
                 # Workaround for the case when the content is wrapped in a
                 # 100% height <div>. This causes the generated page divs to
                 # not be in the correct location, at least in WebKit. See
@@ -242,12 +243,15 @@ def scroll_to_offset(x):
 
 
 def scroll_to_column(number, notify=False, duration=1000):
+    nonlocal last_scrolled_to_column
+    last_scrolled_to_column = number
     pos = number * col_and_gap
     limit = scroll_viewport.paged_content_width() - screen_width
     pos = min(pos, limit)
     scroll_to_offset(pos)
 
 def scroll_to_xpos(xpos, notify=False, duration=1000):
+    nonlocal last_scrolled_to_column
     # Scroll so that the column containing xpos is the left most column in
     # the viewport
     if jstype(xpos) is not 'number':
@@ -255,6 +259,7 @@ def scroll_to_xpos(xpos, notify=False, duration=1000):
         return
     if is_full_screen_layout:
         scroll_to_offset(0)
+        last_scrolled_to_column = 0
         return
     scroll_to_column(column_at(xpos), notify=notify, duration=duration)
 
@@ -565,3 +570,44 @@ anchor_funcs = {
         return a - b
     ,
 }
+
+
+class ResizeManager:
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.resize_in_progress = None
+        self.last_transition = None
+
+    def start_resize(self, width, height):
+        self.resize_in_progress = {'width': width, 'height': height, 'column': last_scrolled_to_column}
+
+    def end_resize(self):
+        if not self.resize_in_progress:
+            return
+        rp, self.resize_in_progress = self.resize_in_progress, None
+        transition = {'before': rp, 'after': {
+            'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'column': last_scrolled_to_column}}
+        if self.is_inverse_transition(transition):
+            if transition.after.column is not self.last_transition.before.column:
+                self.scroll_to_column(transition.after.column)
+                transition.after.column = last_scrolled_to_column
+        self.last_transition = transition
+
+    def is_inverse_transition(self, transition):
+        p = self.last_transition
+        if not p:
+            return False
+        p = p.after
+        n = transition.before
+        return p.column is n.column and p.width is n.width and p.height is n.height
+
+
+resize_manager = ResizeManager()
+def prepare_for_resize(width, height):
+    resize_manager.start_resize(width, height)
+
+def resize_done():
+    resize_manager.end_resize()
