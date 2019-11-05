@@ -363,7 +363,7 @@ class EbookViewer(MainWindow):
         else:
             if DEBUG:
                 print('Book prepared in {:.2f} seconds'.format(monotonic() - start_time))
-            self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at})
+            self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at, 'reloaded': reload_book})
 
     def prepare_notify(self):
         self.book_preparation_started.emit()
@@ -384,7 +384,13 @@ class EbookViewer(MainWindow):
             self.loading_overlay.hide()
             self.web_view.show_home_page()
             return
-        set_book_path(data['base'], data['pathtoebook'])
+        try:
+            set_book_path(data['base'], data['pathtoebook'])
+        except Exception:
+            if data['reloaded']:
+                raise
+            self.load_ebook(data['pathtoebook'], open_at=data['open_at'], reload_book=True)
+            return
         self.current_book_data = data
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
