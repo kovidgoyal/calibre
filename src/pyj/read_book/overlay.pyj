@@ -305,7 +305,7 @@ class MainOverlay:  # {{{
                 copy_actions.appendChild(ac(_('View image'), _('View the current image'), def():
                     self.overlay.hide(), ui_operations.view_image(self.elements.img)
                 , 'image'))
-                copy_actions.appendChild(ac(_('Copy image'), _('View the current image'), def():
+                copy_actions.appendChild(ac(_('Copy image'), _('Copy the current image'), def():
                     self.overlay.hide(), ui_operations.copy_image(self.elements.img)
                 , 'copy'))
             if copy_actions.childNodes.length:
