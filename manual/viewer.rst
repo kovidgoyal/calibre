@@ -121,3 +121,16 @@ Copying text and images
 You can select text and images by dragging the content with your mouse and then
 right clicking and selecting "Copy" to copy to the clipboard.  The copied
 material can be pasted into another application as plain text and images.
+
+
+Non re-flowable content
+--------------------------
+
+Some books have very wide content that content be broken up at page boundaries.
+For example tables or :code:`<pre>` tags. In such cases, you should switch the
+viewer to *flow mode* by pressing :kbd:`Ctrl+m` to read this content.
+Alternately, you can also add the following CSS to the Styling section of the
+viewer preferences to force the viewer to break up lines of text in
+:code:`<pre>` tags::
+
+    code, pre { white-space: pre-wrap }
