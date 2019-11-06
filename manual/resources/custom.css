@@ -18,7 +18,7 @@
     div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
 }
 
-pre {
+pre, code {
     white-space: pre-wrap;
 }
 
