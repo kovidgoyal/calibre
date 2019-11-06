@@ -28,7 +28,9 @@ from calibre.gui2.viewer.annotations import (
     merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.convert_book import prepare_book, update_book
+from calibre.gui2.viewer.convert_book import (
+    clean_running_workers, prepare_book, update_book
+)
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
@@ -495,5 +497,6 @@ class EbookViewer(MainWindow):
         except Exception:
             import traceback
             traceback.print_exc()
+        clean_running_workers()
         return MainWindow.closeEvent(self, ev)
     # }}}

@@ -129,19 +129,37 @@ class ConversionFailure(ValueError):
                 self, 'Failed to convert book: {} with error:\n{}'.format(book_path, worker_output))
 
 
+running_workers = []
+
+
+def clean_running_workers():
+    for p in running_workers:
+        if p.poll() is None:
+            p.kill()
+    del running_workers[:]
+
+
 def do_convert(path, temp_path, key, instance):
     tdir = os.path.join(temp_path, instance['path'])
-    with TemporaryFile('log.txt') as logpath:
-        with open(logpath, 'w+b') as logf:
-            p = start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stdout=logf, stderr=logf)
-            p.stdin.write(msgpack_dumps((
-                path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
-                )))
-            p.stdin.close()
-        if p.wait() != 0:
-            with lopen(logpath, 'rb') as logf:
-                worker_output = logf.read().decode('utf-8', 'replace')
-            raise ConversionFailure(path, worker_output)
+    p = None
+    try:
+        with TemporaryFile('log.txt') as logpath:
+            with open(logpath, 'w+b') as logf:
+                p = start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stdout=logf, stderr=logf)
+                running_workers.append(p)
+                p.stdin.write(msgpack_dumps((
+                    path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
+                    )))
+                p.stdin.close()
+            if p.wait() != 0:
+                with lopen(logpath, 'rb') as logf:
+                    worker_output = logf.read().decode('utf-8', 'replace')
+                raise ConversionFailure(path, worker_output)
+    finally:
+        try:
+            running_workers.remove(p)
+        except Exception:
+            pass
     size = 0
     for f in walk(tdir):
         size += os.path.getsize(f)
