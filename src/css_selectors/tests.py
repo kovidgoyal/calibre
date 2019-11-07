@@ -510,32 +510,32 @@ by William Shakespeare
             assert len(result) == 1
             return result[0]
 
-        assert parse_one('foo') == ('Element[foo]', None)
-        assert parse_one('*') == ('Element[*]', None)
-        assert parse_one(':empty') == ('Pseudo[Element[*]:empty]', None)
+        self.ae(parse_one('foo'), ('Element[foo]', None))
+        self.ae(parse_one('*'), ('Element[*]', None))
+        self.ae(parse_one(':empty'), ('Pseudo[Element[*]:empty]', None))
 
         # Special cases for CSS 2.1 pseudo-elements
-        assert parse_one(':BEfore') == ('Element[*]', 'before')
-        assert parse_one(':aftER') == ('Element[*]', 'after')
-        assert parse_one(':First-Line') == ('Element[*]', 'first-line')
-        assert parse_one(':First-Letter') == ('Element[*]', 'first-letter')
+        self.ae(parse_one(':BEfore'), ('Element[*]', 'before'))
+        self.ae(parse_one(':aftER'), ('Element[*]', 'after'))
+        self.ae(parse_one(':First-Line'), ('Element[*]', 'first-line'))
+        self.ae(parse_one(':First-Letter'), ('Element[*]', 'first-letter'))
 
-        assert parse_one('::befoRE') == ('Element[*]', 'before')
-        assert parse_one('::AFter') == ('Element[*]', 'after')
-        assert parse_one('::firsT-linE') == ('Element[*]', 'first-line')
-        assert parse_one('::firsT-letteR') == ('Element[*]', 'first-letter')
+        self.ae(parse_one('::befoRE'), ('Element[*]', 'before'))
+        self.ae(parse_one('::AFter'), ('Element[*]', 'after'))
+        self.ae(parse_one('::firsT-linE'), ('Element[*]', 'first-line'))
+        self.ae(parse_one('::firsT-letteR'), ('Element[*]', 'first-letter'))
 
-        assert parse_one('::text-content') == ('Element[*]', 'text-content')
+        self.ae(parse_one('::text-content'), ('Element[*]', 'text-content'))
         self.ae(parse_one('::attr(name)'), (
             "Element[*]", "FunctionalPseudoElement[::attr(['name'])]"))
 
-        assert parse_one('::Selection') == ('Element[*]', 'selection')
-        assert parse_one('foo:after') == ('Element[foo]', 'after')
-        assert parse_one('foo::selection') == ('Element[foo]', 'selection')
-        assert parse_one('lorem#ipsum ~ a#b.c[href]:empty::selection') == (
+        self.ae(parse_one('::Selection'), ('Element[*]', 'selection'))
+        self.ae(parse_one('foo:after'), ('Element[foo]', 'after'))
+        self.ae(parse_one('foo::selection'), ('Element[foo]', 'selection'))
+        self.ae(parse_one('lorem#ipsum ~ a#b.c[href]:empty::selection'), (
             'CombinedSelector[Hash[Element[lorem]#ipsum] ~ '
             'Pseudo[Attrib[Class[Hash[Element[a]#b].c][href]]:empty]]',
-            'selection')
+            'selection'))
 
         parse_pseudo('foo:before, bar, baz:after') == [
             ('Element[foo]', 'before'),

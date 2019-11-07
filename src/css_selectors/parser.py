@@ -414,6 +414,10 @@ def parse_selector(stream):
     return result, pseudo_element
 
 
+special_pseudo_elements = (
+    'first-line', 'first-letter', 'before', 'after')
+
+
 def parse_simple_selector(stream, inside_negation=False):
     stream.skip_whitespace()
     selector_start = len(stream.used)
@@ -462,8 +466,7 @@ def parse_simple_selector(stream, inside_negation=False):
                         pseudo_element, parse_arguments(stream))
                 continue
             ident = stream.next_ident()
-            if ident.lower() in ('first-line', 'first-letter',
-                                 'before', 'after'):
+            if ident.lower() in special_pseudo_elements:
                 # Special case: CSS 2.1 pseudo-elements can have a single ':'
                 # Any new pseudo-element must have two.
                 pseudo_element = unicode_type(ident)
