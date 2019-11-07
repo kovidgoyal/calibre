@@ -571,6 +571,16 @@ def select_nth_last_of_type(cache, function, elem):
 # Pseudo elements {{{
 
 
+def pseudo_func(f):
+    f.is_pseudo = True
+    return f
+
+
+@pseudo_func
+def allow_all(cache, item):
+    return True
+
+
 def select_pseudo(cache, pseudo):
     try:
         func = cache.dispatch_map[pseudo.ident.replace('-', '_')]
@@ -580,9 +590,7 @@ def select_pseudo(cache, pseudo):
             return
 
         if pseudo.ident in cache.ignore_inappropriate_pseudo_classes:
-            def func(cache, item):
-                return True
-            func.is_pseudo = True
+            func = allow_all
         else:
             raise ExpressionError(
                 "The pseudo-class :%s is not supported" % pseudo.ident)
@@ -598,6 +606,7 @@ def select_pseudo(cache, pseudo):
             yield item
 
 
+@pseudo_func
 def select_first_child(cache, elem):
     try:
         return cache.sibling_count(elem) == 0
@@ -605,9 +614,7 @@ def select_first_child(cache, elem):
         return False
 
 
-select_first_child.is_pseudo = True
-
-
+@pseudo_func
 def select_last_child(cache, elem):
     try:
         return cache.sibling_count(elem, before=False) == 0
@@ -615,9 +622,7 @@ def select_last_child(cache, elem):
         return False
 
 
-select_last_child.is_pseudo = True
-
-
+@pseudo_func
 def select_only_child(cache, elem):
     try:
         return cache.all_sibling_count(elem) == 0
@@ -625,9 +630,7 @@ def select_only_child(cache, elem):
         return False
 
 
-select_only_child.is_pseudo = True
-
-
+@pseudo_func
 def select_first_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, same_type=True) == 0
@@ -635,9 +638,7 @@ def select_first_of_type(cache, elem):
         return False
 
 
-select_first_of_type.is_pseudo = True
-
-
+@pseudo_func
 def select_last_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, before=False, same_type=True) == 0
@@ -645,9 +646,7 @@ def select_last_of_type(cache, elem):
         return False
 
 
-select_last_of_type.is_pseudo = True
-
-
+@pseudo_func
 def select_only_of_type(cache, elem):
     try:
         return cache.all_sibling_count(elem, same_type=True) == 0
@@ -655,14 +654,10 @@ def select_only_of_type(cache, elem):
         return False
 
 
-select_only_of_type.is_pseudo = True
-
-
+@pseudo_func
 def select_empty(cache, elem):
     return cache.is_empty(elem)
 
-
-select_empty.is_pseudo = True
 
 # }}}
 
