@@ -13,6 +13,7 @@ from css_selectors.errors import SelectorSyntaxError, ExpressionError
 from css_selectors.parser import tokenize, parse
 from css_selectors.select import Select
 
+
 class TestCSSSelectors(unittest.TestCase):
 
     # Test data {{{
@@ -796,9 +797,11 @@ by William Shakespeare
 
     # }}}
 
+
 # Run tests {{{
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCSSSelectors)
+
 
 def run_tests(find_tests=find_tests, for_build=False):
     if not for_build:
@@ -833,6 +836,7 @@ def run_tests(find_tests=find_tests, for_build=False):
     result = r.run(tests)
     if for_build and result.errors or result.failures:
         raise SystemExit(1)
+
 
 if __name__ == '__main__':
     run_tests()
