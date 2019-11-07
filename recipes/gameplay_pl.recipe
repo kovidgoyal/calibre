@@ -16,8 +16,12 @@ class Gameplay_pl(BasicNewsRecipe):
     no_stylesheets = True
     keep_only_tags = [dict(
         name='div', attrs={'class':'news-container'})]
-    remove_tags = [dict(name='div', attrs={'class': ['galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi', 'news_tagi', 'social-16']}), dict(
-        attrs={'usemap': '#map'}), dict(name='a', attrs={'class': ['pin-it-button', 'twitter-share-button']})]
+    remove_tags = [
+        dict(name='div', attrs={'class': [
+            'galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi', 'news_tagi', 'social-16']}),
+        dict(attrs={'usemap': '#map'}),
+        dict(name='a', attrs={'class': ['pin-it-button', 'twitter-share-button']})
+    ]
     feeds = [(u'Wiadomo\u015bci', u'https://gameplay.pl/rss/')]
 
     def image_url_processor(self, baseurl, url):

@@ -998,7 +998,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
 
-    return ('_'+fname+'()'+\
+    return ('_'+fname+'()'+
 '''
 {
     local cur prev opts

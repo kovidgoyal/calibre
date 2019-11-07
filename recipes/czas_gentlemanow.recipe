@@ -1,5 +1,4 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
