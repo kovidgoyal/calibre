@@ -87,8 +87,8 @@ def normalize_language_tag(tag):
     return taglist
 
 
-INAPPROPRIATE_PSEUDO_CLASSES = frozenset([
-    'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'])
+INAPPROPRIATE_PSEUDO_CLASSES = frozenset((
+    'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'))
 
 
 class Select(object):
