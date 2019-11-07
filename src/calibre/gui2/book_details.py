@@ -230,6 +230,11 @@ def add_item_specific_entries(menu, data, book_info):
         add_format_entries(menu, data, book_info)
     elif dt == 'author':
         author = data['name']
+        if data['url'] != 'calibre':
+            ac = book_info.copy_link_action
+            ac.current_url = data['url']
+            ac.setText(_('&Copy author link'))
+            menu.addAction(ac)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
@@ -253,6 +258,10 @@ def add_item_specific_entries(menu, data, book_info):
             book_id = int(data['book_id'])
             value = remove_value = data['value']
             if field == 'identifiers':
+                ac = book_info.copy_link_action
+                ac.current_url = value
+                ac.setText(_('&Copy identifier'))
+                menu.addAction(ac)
                 menu.addAction(book_info.edit_identifiers_action)
                 remove_value = data['id_type']
             elif field in ('tags', 'series', 'publisher') or is_category(field):
