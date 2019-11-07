@@ -646,6 +646,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def __init__(self):
         QWizardPage.__init__(self)
+        self.initial_library_location = None
         self.setupUi(self)
         self.registerField('library_location', self.location)
         self.button_change.clicked.connect(self.change)
@@ -718,6 +719,9 @@ class LibraryPage(QWizardPage, LibraryUI):
                 enable_plugin(name)
         except:
             pass
+        lp = self.location.text()
+        if lp == self.initial_library_location:
+            self.set_initial_library_location()
 
     def is_library_dir_suitable(self, x):
         from calibre.db.legacy import LibraryDatabase
@@ -766,7 +770,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             _('You must choose an empty folder for '
                 'the calibre library. %s is not empty.')%x, show=True)
 
-    def initializePage(self):
+    def set_initial_library_location(self):
         lp = prefs['library_path']
         self.default_library_name = None
         if not lp:
@@ -788,6 +792,10 @@ class LibraryPage(QWizardPage, LibraryUI):
                     except ValueError:
                         lp = QDir.homePath().replace('/', os.sep)
         self.location.setText(lp)
+        self.initial_library_location = lp
+
+    def initializePage(self):
+        self.set_initial_library_location()
         # Hide the library location settings if we are a portable install
         for x in ('location', 'button_change', 'libloc_label1',
                 'libloc_label2'):
