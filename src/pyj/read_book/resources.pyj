@@ -190,6 +190,16 @@ def apply_attributes(src, elem, ns_map):
                 continue
             elem.setAttribute(name, a[1])
 
+
+def is_loadable_link(attributes):
+    for a in attributes:
+        if a[0].toLowerCase() is 'rel' and a[1]:
+            for x in a[1].split(' '):
+                if x.toLowerCase() is 'stylesheet':
+                    return True
+    return False
+
+
 def process_stack(stack, tag_map, ns_map, load_required, onload):
     while stack.length:
         node, parent = stack.pop()
@@ -216,7 +226,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
             if src.a:
                 for a in src.a:
                     if a[0] is attr:
-                        loadable = True
+                        loadable = is_loadable_link(src.a) if src.n is 'link' else True
                         break
         if loadable:
             load_required.add(tag_id)
