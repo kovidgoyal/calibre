@@ -20,6 +20,97 @@
 #   new recipes:
 #     - title:
 
+- version: 4.3.0
+  date: 2019-11-08
+
+  new features:
+    - title: "Viewer: Halve the time taken to prepare large EPUB files for first open"
+
+    - title: "Viewer: Add an optional toolbar with common actions turn it on under Preferences->Miscellaneous"
+
+    - title: 'Viewer: Change the default color scheme to "System" which matches the colors used by the rest of calibre/the operating system. Also means the colors change automatically when the system color theme changes.'
+
+    - title: "Viewer: Add a keyboard shortcut ; to go to a book location or position"
+
+    - title: "Viewer: Add a control to easily reset the interface to defaults"
+
+    - title: "Viewer: Allow also using --open-at with book positions"
+
+    - title: "Viewer: Add command line option to force reloading of books"
+
+  bug fixes:
+    - title: "Content server: Fix conversion of comics not working."
+      tickets: [1847017]
+
+    - title: "Book details: Allow right click to copy author links and identifiers"
+
+    - title: "Book details: Fix removal of identifiers via right click not working"
+
+    - title: "Book details: Fix clicking on tags etc not generating exact match searches"
+
+    - title: "Viewer: When resizing and the resizing back to the old size ensure we return to the same page in paged mode."
+      tickets: [1847507]
+
+    - title: "Duplicates dialog: Sort sub-list of matching books already in calibre by author for easier inspection."
+      tickets: [1851386]
+
+    - title: "PDF Output: Fix links that go to destinations in the same file not working."
+      tickets: [1849529]
+
+    - title: "Viewer: Fix changes to keyboard shortcuts not being applied until viewer is restarted."
+      tickets: [1851045]
+
+    - title: "DOCX Input: Fix AlternateContent blocks rendering both choice and fallback sections."
+      tickets: [1847365]
+
+    - title: "macOS: Fix unable to re-arrange entries in the CSV catalog list."
+      tickets: [1850918]
+
+    - title: "Windows: fix UTF-16/truncated output when reporting unhandled exceptions"
+
+    - title: "Viewer: Fix mouse wheel not working when mouse is over page margins."
+      tickets: [1850845]
+
+    - title: "Linux: Install bash completions as individual files for each calibre binary"
+
+    - title: "Content server: Fix download button not working with non-ebook formats."
+      tickets: [1850078]
+
+    - title: "Fix a crash in popup completion lists if the mouse is over the list and list is scrolled with the keyboard"
+
+    - title: "Viewer: Fix rare exception when navigating to a CFI."
+      tickets: [1849775]
+
+    - title: "Viewer: Ignore failures printing console message when the viewer is launched with broken stderr."
+      tickets: [1849612]
+
+    - title: "Amazon metadata: Fix failure to get published date from audible book pages."
+      tickets: [1849400]
+
+    - title: "Viewer: Fix shortcuts preferences not being translated"
+
+    - title: "Tag browser: Fix incorrect text color when using dark theme for hovered item"
+
+    - title: "Fix crash if canceling the icon theme download while covers are downloading"
+
+    - title: "Viewer: Fix non-ASCII content in stylesheets not being interpreted correctly."
+      tickets: [1848858]
+
+    - title: "Viewer/Content server: Fix history for completion popups such as search bars not being stored correctly."
+      tickets: [1847976]
+
+    - title: "PDF Output: When a link with a fragment points to a non-existent anchor link to the top of the file instead of not linking at all"
+
+    - title: "PDF Output: Fix standard svg fullscreen image markup not working"
+
+    - title: "PDF Output: Fix some books with full screen images failing to convert."
+      tickets: [1848701]
+
+  improved recipes:
+    - Clarin
+    - Various Polish news sources
+
+
 - version: 4.2.0
   date: 2019-10-18
 
