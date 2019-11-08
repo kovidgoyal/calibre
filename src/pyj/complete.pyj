@@ -83,7 +83,7 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
             items = local_storage().get(history_name) or v'[]'
             idx = items.indexOf(text)
             if idx > -1:
-                items = items.splice(idx, 1)
+                items.splice(idx, 1)
             items.unshift(text)
             local_storage().set(history_name, uniq(items[:history_size]))
             update_completion_items()
