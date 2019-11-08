@@ -48,7 +48,7 @@
 
     - title: "Book details: Fix clicking on tags etc not generating exact match searches"
 
-    - title: "Viewer: When resizing and the resizing back to the old size ensure we return to the same page in paged mode."
+    - title: "Viewer: When resizing and then resizing back to the old size ensure we return to the same page in paged mode."
       tickets: [1847507]
 
     - title: "Duplicates dialog: Sort sub-list of matching books already in calibre by author for easier inspection."
