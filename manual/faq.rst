@@ -209,6 +209,9 @@ Follow these steps to find the problem:
       no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
+    * On macOS if you get permission errors when connecting a device to calibre, you can
+      fix that by looking under :guilabel:`System Preferences > Security and
+      Privacy > Privacy > Files and Folders`.
     * Make sure you are running the latest version of calibre (currently
       |version|). The latest version can always be downloaded from `the calibre
       website <https://calibre-ebook.com/download>`_.  You can tell what
