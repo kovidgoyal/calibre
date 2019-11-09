@@ -1266,7 +1266,7 @@ class ConfigWidget(ConfigWidgetBase):
             if self.server.exception is not None:
                 error_dialog(
                     self,
-                    _('Failed to start content server'),
+                    _('Failed to start Content server'),
                     as_unicode(self.gui.content_server.exception)
                 ).exec_()
                 self.gui.content_server = None
