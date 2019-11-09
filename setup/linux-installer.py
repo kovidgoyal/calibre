@@ -163,7 +163,7 @@ class TerminalController:  # {{{
         if isinstance(cap_name, bytes):
             cap_name = cap_name.decode('utf-8')
         cap = self._escape_code(curses.tigetstr(cap_name))
-        return re.sub(r'\$<\d+>[/*]?', b'', cap)
+        return re.sub(r'\$<\d+>[/*]?', '', cap)
 
     def render(self, template):
         return re.sub(r'\$\$|\${\w+}', self._render_sub, template)
