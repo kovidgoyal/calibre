@@ -301,6 +301,12 @@ def add_standalone_viewer_shortcuts():
         _('Print book to PDF'),
     )
 
+    sc['toggle_toolbar'] = desc(
+        "Ctrl+F11",
+        'ui',
+        _('Toggle the toolbar'),
+    )
+
 
 def create_shortcut_map(custom_shortcuts):
     ans = {}
