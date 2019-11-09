@@ -813,6 +813,8 @@ class ISO639(Command):  # {{{
             name = x.get('name')
             if name:
                 name = unicode_type(name)
+            if not name or name[0] in '!~=/\'"':
+                continue
 
             if two is not None:
                 by_2[two] = name
