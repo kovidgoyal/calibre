@@ -884,18 +884,10 @@ class View:
             nonlocal has_clock
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hca = render_head_foot(div.firstChild, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcc = render_head_foot(div.lastChild, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 has_clock = hca or hcb or hcc
-                if textc and not textb and not texta:
-                    # Want right-aligned
-                    div.firstChild.style.display = 'block'
-                    div.firstChild.nextSibling.style.display = 'block'
-                elif not texta and not textc and textb:
-                    # Want centered
-                    div.firstChild.style.display = 'block'
-                    div.lastChild.style.display = 'block'
             else:
                 for c in div.childNodes:
                     c.style.display = 'none'
