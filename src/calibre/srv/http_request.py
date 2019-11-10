@@ -404,7 +404,9 @@ class HTTPRequest(Connection):
             self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, bytes_read)
 
     def handle_timeout(self):
-        if self.response_started:
+        if not hasattr(self, 'response_protocol') or self.response_started:
+            # Either connection is not ready or a response has already bee
+            # started
             return False
         self.simple_response(http_client.REQUEST_TIMEOUT)
         return True
