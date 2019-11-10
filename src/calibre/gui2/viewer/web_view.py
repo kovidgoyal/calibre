@@ -607,6 +607,9 @@ class WebView(RestartingWebEngineView):
     def clear_history(self):
         self._page.history().clear()
 
+    def clear_caches(self):
+        self._page.profile().clearHttpCache()
+
     def trigger_shortcut(self, which):
         self.execute_when_ready('trigger_shortcut', which)
 

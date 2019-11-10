@@ -372,6 +372,7 @@ class EbookViewer(MainWindow):
 
     def load_finished(self, ok, data):
         open_at, self.pending_open_at = self.pending_open_at, None
+        self.web_view.clear_caches()
         if not ok:
             self.setWindowTitle(self.base_window_title)
             tb = data['tb'].strip()
