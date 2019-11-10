@@ -194,13 +194,13 @@ add_extra_css(def():
 def simple_overlay_title(title, overlay, container):
     container.style.backgroundColor = get_color('window-background')
     container.appendChild(E.div(
-        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
-            E.h2(title),
+        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: flex-start',
             E.div(svgicon('close'), style='cursor:pointer', onclick=def (event):
                     event.preventDefault()
                     event.stopPropagation()
                     overlay.hide_current_panel(event)
             , class_='simple-link'),
+            E.h2(title, style='margin-left: 1ex'),
         ))
 
 
