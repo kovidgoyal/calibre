@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
-        QApplication, QSize, QRectF, QWidget, QTreeView,
+        QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)
 try:
     from PyQt5 import sip
@@ -631,16 +631,15 @@ class ShortcutConfig(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self._layout = l = QGridLayout()
-        self.setLayout(self._layout)
+        self._layout = l = QVBoxLayout(self)
         self.header = QLabel(_('Double click on any entry to change the'
             ' keyboard shortcuts associated with it'))
-        l.addWidget(self.header, 0, 0, 1, 3)
+        l.addWidget(self.header)
         self.view = QTreeView(self)
         self.view.setAlternatingRowColors(True)
         self.view.setHeaderHidden(True)
         self.view.setAnimated(True)
-        l.addWidget(self.view, 1, 0, 1, 3)
+        l.addWidget(self.view)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
         self.delegate.sizeHintChanged.connect(self.editor_opened,
@@ -650,14 +649,15 @@ class ShortcutConfig(QWidget):  # {{{
         self.search.initialize('shortcuts_search_history',
                 help_text=_('Search for a shortcut by name'))
         self.search.search.connect(self.find)
-        l.addWidget(self.search, 2, 0, 1, 1)
+        self._h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(self.search)
         self.nb = QPushButton(QIcon(I('arrow-down.png')), _('&Next'), self)
         self.pb = QPushButton(QIcon(I('arrow-up.png')), _('&Previous'), self)
         self.nb.clicked.connect(self.find_next)
         self.pb.clicked.connect(self.find_previous)
-        l.addWidget(self.nb, 2, 1, 1, 1)
-        l.addWidget(self.pb, 2, 2, 1, 1)
-        l.setColumnStretch(0, 100)
+        h.addWidget(self.nb), h.addWidget(self.pb)
+        h.setStretch(0, 100)
 
     def restore_defaults(self):
         self._model.restore_defaults()
