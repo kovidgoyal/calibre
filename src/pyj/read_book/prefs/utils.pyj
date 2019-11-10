@@ -13,13 +13,12 @@ def create_button_box(restore_defaults_func, apply_func, cancel_func):
     if restore_defaults_func:
         rbutton = create_button(_('Restore defaults'), action=restore_defaults_func)
     else:
-        rbutton = restore_defaults_func or E.div('\xa0')
-    cbutton.style.marginLeft = '1rem'
+        rbutton = E.div('\xa0')
+    obutton = create_button(_('OK'), action=apply_func)
+    for b in (rbutton, obutton, cbutton):
+        b.style.marginTop = '1ex'
     return E.div(
-        style='margin-top: 1rem; display: flex; justify-content: space-between',
+        style='margin-top: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
         rbutton,
-        E.div(
-            create_button(_('OK'), action=apply_func),
-            cbutton
-        ),
+        E.div(obutton, E.div('\xa0'), cbutton, style='margin-left: 1rem; display: flex; align-items: flex-start; flex-wrap: wrap'),
     )
