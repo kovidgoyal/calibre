@@ -9,6 +9,9 @@ from book_list.theme import cached_color_to_rgba
 from dom import unique_id
 
 
+SIZE = 10
+
+
 class BookScrollbar:
 
     def __init__(self, view):
@@ -27,10 +30,10 @@ class BookScrollbar:
         self.on_bob_mouseup = self.on_bob_mouse_event.bind(None, 'up')
         return E.div(
             id=self.container_id,
-            style='height: 100vh; background-color: #aaa; width: 10px; border-radius: 5px',
+            style=f'height: 100vh; background-color: #aaa; width: {SIZE}px; border-radius: 5px',
             onclick=self.bar_clicked,
             E.div(
-                style='position: relative; width: 100%; height: 22px; background-color: #444; border-radius: 5px',
+                style=f'position: relative; width: 100%; height: {int(2.2*SIZE)}px; background-color: #444; border-radius: 5px',
                 onmousedown=self.on_bob_mousedown,
             ),
             E.div(
@@ -81,6 +84,10 @@ class BookScrollbar:
     def apply_visibility(self):
         sd = get_session_data()
         self.container.style.display = 'block' if sd.get('book_scrollbar') else 'none'
+
+    @property
+    def effective_width(self):
+        return SIZE if self.container.style.display is 'block' else 0
 
     def set_position(self, frac):
         c = self.container

@@ -507,8 +507,9 @@ class View:
             if which is 'left':
                 # Explicitly set the width of the central panel. This is needed
                 # on small screens with chrome, without it sometimes the right
-                # margin goes off the screen.
-                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(margin_left + margin_right)
+                # margin/scrollbar goes off the screen.
+                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(
+                    margin_left + margin_right + self.book_scrollbar.effective_width)
             set_css(m, width=val + 'px')
             val = min(val, 25)
             m.firstChild.style.width = val + 'px'
