@@ -67,8 +67,8 @@ def create_layout_panel(container, apply_func, cancel_func):
           ' set based on the screen size.'))
     cps = sd.get('columns_per_screen')
     container.appendChild(E.table(style='margin: 1ex 1rem', id=COLS,
-        E.tr(E.td(_('In portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
-        E.tr(E.td(_('In landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
+        E.tr(E.td(_('Portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
+        E.tr(E.td(_('Landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
     ))
 
     sec(_('Change the maximum screen area (in pixels) used to display text. A value of zero means that all available screen area is used.'))
