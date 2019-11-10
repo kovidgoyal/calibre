@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import errno
 import json as jsonlib
 import os
-import shutil
 import tempfile
 import time
 from functools import partial
@@ -21,6 +20,7 @@ from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
+from calibre.utils.filenames import rmtree
 from calibre.utils.serialize import json_dumps
 from polyglot.builtins import as_unicode, map
 
@@ -66,7 +66,7 @@ def safe_remove(x, is_file=None):
     if is_file is None:
         is_file = os.path.isfile(x)
     try:
-        os.remove(x) if is_file else shutil.rmtree(x, ignore_errors=True)
+        os.remove(x) if is_file else rmtree(x, ignore_errors=True)
     except EnvironmentError:
         pass
 

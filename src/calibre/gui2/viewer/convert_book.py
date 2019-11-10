@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import errno
 import json
 import os
-import shutil
 import tempfile
 import time
 from hashlib import sha1
@@ -16,6 +15,7 @@ from calibre import walk
 from calibre.constants import cache_dir, iswindows
 from calibre.ptempfile import TemporaryFile
 from calibre.srv.render_book import RENDER_VERSION
+from calibre.utils.filenames import rmtree
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.serialize import msgpack_dumps
@@ -55,7 +55,7 @@ def robust_rmtree(x):
     retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
-            shutil.rmtree(x)
+            rmtree(x)
             return True
         except EnvironmentError:
             time.sleep(0.1)
@@ -297,7 +297,7 @@ def find_tests():
             book_cache_dir.override = os.path.join(self.tdir, 'ev2')
 
         def tearDown(self):
-            shutil.rmtree(self.tdir)
+            rmtree(self.tdir)
             del book_cache_dir.override
 
         def test_viewer_cache(self):

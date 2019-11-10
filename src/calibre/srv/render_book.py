@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import os
 import re
-import shutil
 import sys
 import time
 from collections import defaultdict
@@ -15,10 +14,10 @@ from datetime import datetime
 from functools import partial
 from itertools import count
 from math import ceil
-from lxml.etree import Comment
 
 from css_parser import replaceUrls
 from css_parser.css import CSSRule
+from lxml.etree import Comment
 
 from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
 from calibre.constants import iswindows, plugins
@@ -41,6 +40,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.srv.metadata import encode_datetime
 from calibre.srv.opts import grouper
 from calibre.utils.date import EPOCH
+from calibre.utils.filenames import rmtree
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.logging import default_log
@@ -448,11 +448,11 @@ class RenderManager(object):
                     p.kill()
         del self.workers
         try:
-            shutil.rmtree(self.tdir)
+            rmtree(self.tdir)
         except EnvironmentError:
             time.sleep(0.1)
             try:
-                shutil.rmtree(self.tdir)
+                rmtree(self.tdir)
             except EnvironmentError:
                 pass
         del self.tdir
