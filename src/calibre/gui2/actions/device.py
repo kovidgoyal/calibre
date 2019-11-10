@@ -68,11 +68,12 @@ class ShareConnMenu(QMenu):  # {{{
             from calibre.srv.opts import server_config
             opts = server_config()
             listen_on = verify_ipV4_address(opts.listen_on) or get_external_ip()
+            protocol = 'HTTPS' if opts.ssl_certfile and opts.ssl_keyfile else 'HTTP'
             try:
-                ip_text = _(' [%(ip)s, port %(port)d]')%dict(
-                    ip=listen_on, port=opts.port)
+                ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(
+                        ip=listen_on, port=opts.port, protocol=protocol)
             except Exception:
-                ip_text = ' [%s]'%listen_on
+                ip_text = ' [{} {}]'.format(listen_on, protocol)
             self.ip_text = ip_text
             self.server_state_changed_signal.emit(running, ip_text)
             text = _('Stop Content server') + ip_text
