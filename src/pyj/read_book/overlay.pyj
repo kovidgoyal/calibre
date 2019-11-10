@@ -176,17 +176,25 @@ class SyncBook:  # {{{
 MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
 MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
 
+
+def timer_id():
+    if not timer_id.ans:
+        timer_id.ans = unique_id()
+    return timer_id.ans
+
+
 add_extra_css(def():
     style = ''
     sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
     style += build_rule(sel, overflow='hidden')
     sel += '> ul '
-    style += build_rule(sel, display='flex', flex_wrap='wrap', list_style='none', border_bottom='1px solid currentColor')
+    style += build_rule(sel, display='flex', list_style='none', border_bottom='1px solid currentColor')
     sel += '> li'
-    style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', align_items='center', cursor='pointer')
+    style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', flex_wrap='wrap', align_items='center', cursor='pointer')
     style += build_rule(sel + ':last-child', border_right_style='none')
     style += build_rule(sel + ':hover > *:first-child', color=get_color('window-hover-foreground'))
     style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
+    style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
     return style
 )
 # }}}
@@ -210,7 +218,6 @@ class MainOverlay:  # {{{
         self.overlay = overlay
         self.elements = elements or {}
         self.timer = None
-        self.timer_id = unique_id()
         if window.Intl?.DateTimeFormat:
             self.date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
         else:
@@ -227,8 +234,9 @@ class MainOverlay:  # {{{
                 icon = E.span(icon, style='font-size: 175%; font-weight: bold')
             else:
                 icon = svgicon(icon, icon_size, icon_size) if icon else ''
+            icon.style.marginRight = '0.5ex'
 
-            return E.li(icon, '\xa0', text, onclick=action, title=tooltip)
+            return E.li(icon, text, onclick=action, title=tooltip)
 
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         delete_action = ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash')
@@ -321,9 +329,10 @@ class MainOverlay:  # {{{
             onclick=def (evt):evt.stopPropagation();,
 
             set_css(E.div(  # top row
-                          E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap'),
-            E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis; white-space: nowrap'),
-                ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'
+                E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap; overflow: hidden'),
+                E.div(self.date_formatter.format(Date()), id=timer_id(), style='max-width: 9%; white-space: nowrap; overflow: hidden'),
+                ),
+                display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1ex', border_bottom='solid 1px currentColor'
             ),
             actions_div,
         ), user_select='none', background_color=get_color('window-background')))
@@ -342,7 +351,7 @@ class MainOverlay:  # {{{
         self.timer = setInterval(self.update_time, 1000)
 
     def update_time(self):
-        tm = document.getElementById(self.timer_id)
+        tm = document.getElementById(timer_id())
         if tm:
             tm.textContent = self.date_formatter.format(Date())
 
