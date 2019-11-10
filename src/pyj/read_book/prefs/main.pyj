@@ -28,9 +28,9 @@ class Prefs:
         title = E.h2()
         self.title_id = ensure_id(title)
         container.appendChild(E.div(
-            style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+            style='display: flex; justify-content: flex-start; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+            E.div(svgicon('close'), onclick=self.onclose, style='cursor:pointer; margin-right: 1ex'),
             title,
-            E.div(svgicon('close'), onclick=self.onclose, style='cursor:pointer'),
         ))
         container.appendChild(E.div())
         self.container_id = ensure_id(container.lastChild)
