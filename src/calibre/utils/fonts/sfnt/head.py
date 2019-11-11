@@ -99,7 +99,7 @@ class HorizontalHeader(UnknownTable):
         self.left_side_bearings = a[1::2]
 
 
-class VericalHeader(UnknownTable):
+class VerticalHeader(UnknownTable):
 
     version_number = FixedProperty('_version_number')
 
