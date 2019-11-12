@@ -1345,7 +1345,7 @@ class KOBOTOUCH(KOBO):
     description = _(
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
-        ' Aura H2O Edition 2, Clara HD and Forma eReaders.'
+        ' Aura H2O Edition 2, Clara HD, Forma and Libra H2O eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
@@ -1852,9 +1852,13 @@ class KOBOTOUCH(KOBO):
             else:
                 columns += ', -1 as ___ExpirationStatus, -1 as FavouritesIndex, -1 as Accessibility'
             if self.dbversion >= 33:
-                columns += ', Language, IsDownloaded, ISBN'
+                columns += ', Language, IsDownloaded'
             else:
-                columns += ', NULL AS Language, "1" AS IsDownloaded, NULL AS ISBN'
+                columns += ', NULL AS Language, "1" AS IsDownloaded'
+            if self.dbversion >= 46:
+                columns += ', ISBN'
+            else:
+                columns += ', NULL AS ISBN'
             if self.supports_series():
                 columns += ", Series, SeriesNumber, ___UserID, ExternalId, Subtitle"
             else:
