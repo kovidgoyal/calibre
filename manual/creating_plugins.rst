@@ -289,10 +289,10 @@ visible strings as translatable, by surrounding them in _(). For example::
 Then use some program to generate .po files from your plugin source code. There
 should be one .po file for every language you want to translate into. For
 example: de.po for German, fr.po for French and so on. You can use the
-`poedit <https://poedit.net/>`_ program for this.
+`Poedit <https://poedit.net/>`_ program for this.
 
 Send these .po files to your translators. Once you get them back, compile them
-into .mo files. You can again use poedit for that, or just do::
+into .mo files. You can again use Poedit for that, or just do::
 
     calibre-debug -c "from calibre.translations.msgfmt import main; main()" filename.po
 
