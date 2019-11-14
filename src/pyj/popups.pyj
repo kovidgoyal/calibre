@@ -93,7 +93,7 @@ class CompletionPopup:
     def set_all_items(self, items):
         self.items = list(items)
         self.matches = []
-        self.applied_query = ''
+        self.applied_query = None
 
     def add_associated_widget(self, widget_or_id):
         if jstype(widget_or_id) is not 'string':

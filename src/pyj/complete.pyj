@@ -37,6 +37,11 @@ class EditWithComplete:
             event.preventDefault(), event.stopPropagation()
             return
         if event.key is 'Enter':
+            if self.completion_popup.is_visible:
+                if self.apply_completion(self.completion_popup.current_text):
+                    self.completion_popup.hide()
+                    event.preventDefault(), event.stopPropagation()
+                    return
             if self.onenterkey:
                 event.preventDefault(), event.stopPropagation()
                 self.onenterkey()
@@ -46,6 +51,12 @@ class EditWithComplete:
                     self.completion_popup.hide()
                 else:
                     self.completion_popup.move_highlight()
+                event.preventDefault(), event.stopPropagation()
+        elif event.key is 'ArrowDown':
+            ti = self.text_input
+            if not ti.value:
+                self.completion_popup.set_query('')
+                self.completion_popup.popup(ti)
                 event.preventDefault(), event.stopPropagation()
 
     def oninput(self, event):
