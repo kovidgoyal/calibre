@@ -98,7 +98,6 @@ class Completer(QListView):  # {{{
         self.setAlternatingRowColors(True)
         self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
         self.setMouseTracking(True)
-        self.entered.connect(self.item_entered, type=Qt.QueuedConnection)
         self.activated.connect(self.item_chosen)
         self.pressed.connect(self.item_chosen)
         self.installEventFilter(self)
@@ -124,16 +123,6 @@ class Completer(QListView):  # {{{
         self.model().set_completion_prefix(prefix)
         if self.isVisible():
             self.relayout_needed.emit()
-
-    def item_entered(self, idx):
-        if self.visualRect(idx).top() < self.viewport().rect().bottom() - 5:
-            # Prevent any bottom item in the list that is only partially
-            # visible from triggering setCurrentIndex()
-            self.entered.disconnect()
-            try:
-                self.setCurrentIndex(idx)
-            finally:
-                self.entered.connect(self.item_entered, type=Qt.QueuedConnection)
 
     def next_match(self, previous=False):
         c = self.currentIndex()
@@ -205,6 +194,14 @@ class Completer(QListView):  # {{{
         print('Event:', event_type_name(ev))
         if ev.type() in (ev.KeyPress, ev.ShortcutOverride, ev.KeyRelease):
             print('\tkey:', QKeySequence(ev.key()).toString())
+
+    def mouseMoveEvent(self, ev):
+        idx = self.indexAt(ev.pos())
+        if idx.isValid():
+            ci = self.currentIndex()
+            if idx.row() != ci.row():
+                self.setCurrentIndex(idx)
+        return QListView.mouseMoveEvent(self, ev)
 
     def eventFilter(self, obj, e):
         'Redirect key presses from the popup to the widget'
