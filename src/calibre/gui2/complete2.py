@@ -102,6 +102,7 @@ class Completer(QListView):  # {{{
         self.activated.connect(self.item_chosen)
         self.pressed.connect(self.item_chosen)
         self.installEventFilter(self)
+        self.setFocusPolicy(Qt.NoFocus)
 
     def hide(self):
         self.setCurrentIndex(QModelIndex())
