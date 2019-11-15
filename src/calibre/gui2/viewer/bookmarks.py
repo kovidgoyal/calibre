@@ -267,7 +267,7 @@ class BookmarkManager(QWidget):
 
     def create_new_bookmark(self, pos_data):
         title, ok = QInputDialog.getText(self, _('Add bookmark'),
-                _('Enter title for bookmark:'))
+                _('Enter title for bookmark:'), text=_('Bookmark'))
         title = unicode_type(title).strip()
         if not ok or not title:
             return
