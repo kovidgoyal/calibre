@@ -23,6 +23,14 @@ class MissingSection(BaseError):
             'The <%s> section is required in the OPF file. You have to create one.') % section_name)
 
 
+class EmptyID(BaseError):
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Empty id attributes are invalid'), name, lnum)
+        self.HELP = xml(_(
+            'Empty ID attributes are invalid in OPF files.'))
+
+
 class IncorrectIdref(BaseError):
 
     def __init__(self, name, idref, lnum):
@@ -292,6 +300,10 @@ def check_opf(container):
             errors.append(MissingSection(container.opf_name, tag))
 
     all_ids = set(container.opf_xpath('//*/@id'))
+    if '' in all_ids:
+        for empty_id_tag in container.opf_xpath('//*[@id=""]'):
+            errors.append(EmptyID(container.opf_name, empty_id_tag.sourceline))
+    all_ids.discard('')
     for elem in container.opf_xpath('//*[@idref]'):
         if elem.get('idref') not in all_ids:
             errors.append(IncorrectIdref(container.opf_name, elem.get('idref'), elem.sourceline))
