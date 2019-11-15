@@ -60,6 +60,13 @@ def data_as_pdf_doc(data):
     return ans
 
 
+def preprint_js():
+    ans = getattr(preprint_js, 'ans', None)
+    if ans is None:
+        ans = preprint_js.ans = P('pdf-preprint.js', data=True).decode('utf-8')
+    return ans
+
+
 def last_tag(root):
     return tuple(root.iterchildren('*'))[-1]
 
@@ -196,6 +203,9 @@ class Renderer(QWebEnginePage):
             pass
 
     def print_to_pdf(self):
+        self.runJavaScript(preprint_js(), self.start_print)
+
+    def start_print(self, *a):
         self.printToPdf(self.printing_done, self.page_layout)
 
     def printing_done(self, pdf_data):
