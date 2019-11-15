@@ -266,8 +266,17 @@ class BookmarkManager(QWidget):
                 import_current_bookmarks(imported)
 
     def create_new_bookmark(self, pos_data):
+        base_default_title = _('Bookmark')
+        all_titles = {bm['title'] for bm in self.get_bookmarks()}
+        c = 0
+        while True:
+            c += 1
+            default_title = '{} #{}'.format(base_default_title, c)
+            if default_title not in all_titles:
+                break
+
         title, ok = QInputDialog.getText(self, _('Add bookmark'),
-                _('Enter title for bookmark:'), text=_('Bookmark'))
+                _('Enter title for bookmark:'), text=default_title)
         title = unicode_type(title).strip()
         if not ok or not title:
             return
