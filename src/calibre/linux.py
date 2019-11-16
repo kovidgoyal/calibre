@@ -898,7 +898,7 @@ class PostInstall:
                     cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
                     cc(' '.join(cmd), shell=True)
                     self.menu_resources.append(x)
-                    ak = x.partition('.')[0]
+                    ak = x.partition('.desktop')[0]
                     if ak in APPDATA and os.access(appdata, os.W_OK):
                         self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
                 MIME_BASE = 'calibre-mimetypes.xml'
@@ -1089,7 +1089,7 @@ X-GNOME-UsesNotifications=true
 def get_appdata():
     _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
     return {
-        'calibre-gui': {
+        'com.calibre_ebook.Calibre.calibre_gui': {
             'name':'calibre',
             'summary':_('The one stop solution to all your e-book needs'),
             'description':(
@@ -1103,7 +1103,7 @@ def get_appdata():
             ),
         },
 
-        'calibre-ebook-edit': {
+        'com.calibre_ebook.Calibre.calibre_ebook_edit': {
             'name':'calibre - E-book Editor',
             'summary':_('Edit the text and styles inside e-books'),
             'description':(
@@ -1117,7 +1117,7 @@ def get_appdata():
             ),
         },
 
-        'calibre-ebook-viewer': {
+        'com.calibre_ebook.Calibre.calibre_ebook_viewer': {
             'name':'calibre - E-book Viewer',
             'summary':_('Read e-books in over a dozen different formats'),
             'description': (
@@ -1135,8 +1135,7 @@ def get_appdata():
 def write_appdata(key, entry, base, translators):
     from lxml.etree import tostring
     from lxml.builder import E
-    appstream_id = ('com.calibre-ebook.Calibre.' + key).replace('-', '_')
-    fpath = os.path.join(base, '%s.appdata.xml' % appstream_id)
+    fpath = os.path.join(base, '%s.appdata.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
@@ -1152,7 +1151,7 @@ def write_appdata(key, entry, base, translators):
                 description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
 
     root = E.component(
-        E.id(appstream_id),
+        E.id(key),
         E.name(entry['name']),
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
