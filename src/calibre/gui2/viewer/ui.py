@@ -92,6 +92,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None, force_reload=False):
         MainWindow.__init__(self, None)
+        self.shutting_down = False
         self.force_reload = force_reload
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
@@ -371,6 +372,8 @@ class EbookViewer(MainWindow):
         self.book_preparation_started.emit()
 
     def load_finished(self, ok, data):
+        if self.shutting_down:
+            return
         open_at, self.pending_open_at = self.pending_open_at, None
         self.web_view.clear_caches()
         if not ok:
@@ -492,6 +495,7 @@ class EbookViewer(MainWindow):
         self.close()
 
     def closeEvent(self, ev):
+        self.shutting_down = True
         try:
             self.save_annotations()
             self.save_state()
