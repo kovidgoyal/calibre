@@ -865,22 +865,22 @@ class PostInstall:
 
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-                with open('com.calibre_ebook.Calibre.calibre_lrfviewer.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.lrfviewer.desktop', 'wb') as f:
                     f.write(VIEWER.encode('utf-8'))
-                with open('com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.ebook_viewer.desktop', 'wb') as f:
                     f.write(EVIEWER.encode('utf-8'))
                     write_mimetypes(f)
-                with open('com.calibre_ebook.Calibre.calibre_ebook_edit.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.ebook_edit.desktop', 'wb') as f:
                     f.write(ETWEAK.encode('utf-8'))
                     mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
                     f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
-                with open('com.calibre_ebook.Calibre.calibre_gui.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.gui.desktop', 'wb') as f:
                     f.write(GUI.encode('utf-8'))
                     write_mimetypes(f)
-                des = ('com.calibre_ebook.Calibre.calibre_gui.desktop',
-                       'com.calibre_ebook.Calibre.calibre_lrfviewer.desktop',
-                       'com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop',
-                       'com.calibre_ebook.Calibre.calibre_ebook_edit.desktop')
+                des = ('com.calibre_ebook.Calibre.gui.desktop',
+                       'com.calibre_ebook.Calibre.lrfviewer.desktop',
+                       'com.calibre_ebook.Calibre.ebook_viewer.desktop',
+                       'com.calibre_ebook.Calibre.ebook_edit.desktop')
                 appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
                 if not os.path.exists(appdata):
                     try:
@@ -1089,7 +1089,7 @@ X-GNOME-UsesNotifications=true
 def get_appdata():
     _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
     return {
-        'com.calibre_ebook.Calibre.calibre_gui': {
+        'com.calibre_ebook.Calibre.gui': {
             'name':'calibre',
             'summary':_('The one stop solution to all your e-book needs'),
             'description':(
@@ -1103,7 +1103,7 @@ def get_appdata():
             ),
         },
 
-        'com.calibre_ebook.Calibre.calibre_ebook_edit': {
+        'com.calibre_ebook.Calibre.ebook_edit': {
             'name':'calibre - E-book Editor',
             'summary':_('Edit the text and styles inside e-books'),
             'description':(
@@ -1117,7 +1117,7 @@ def get_appdata():
             ),
         },
 
-        'com.calibre_ebook.Calibre.calibre_ebook_viewer': {
+        'com.calibre_ebook.Calibre.ebook_viewer': {
             'name':'calibre - E-book Viewer',
             'summary':_('Read e-books in over a dozen different formats'),
             'description': (
