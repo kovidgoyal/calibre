@@ -1133,7 +1133,8 @@ def get_appdata():
 def write_appdata(key, entry, base, translators):
     from lxml.etree import tostring
     from lxml.builder import E
-    fpath = os.path.join(base, '%s.appdata.xml' % key)
+    appstream_id = ('com.calibre-ebook.Calibre.' + key).replace('-', '_')
+    fpath = os.path.join(base, '%s.appdata.xml' % appstream_id)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
@@ -1149,7 +1150,7 @@ def write_appdata(key, entry, base, translators):
                 description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
 
     root = E.component(
-        E.id(key + '.desktop'),
+        E.id(appstream_id),
         E.name(entry['name']),
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
