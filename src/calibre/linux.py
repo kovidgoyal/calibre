@@ -865,20 +865,20 @@ class PostInstall:
 
                 from calibre.ebooks.oeb.polish.main import SUPPORTED
                 from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-                with open('calibre-lrfviewer.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.calibre_lrfviewer.desktop', 'wb') as f:
                     f.write(VIEWER.encode('utf-8'))
-                with open('calibre-ebook-viewer.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop', 'wb') as f:
                     f.write(EVIEWER.encode('utf-8'))
                     write_mimetypes(f)
-                with open('calibre-ebook-edit.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.calibre_ebook_edit.desktop', 'wb') as f:
                     f.write(ETWEAK.encode('utf-8'))
                     mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
                     f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
-                with open('calibre-gui.desktop', 'wb') as f:
+                with open('com.calibre_ebook.Calibre.calibre_gui.desktop', 'wb') as f:
                     f.write(GUI.encode('utf-8'))
                     write_mimetypes(f)
-                des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                        'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
+                des = ('com.calibre_ebook.Calibre.calibre_gui.desktop', 'com.calibre_ebook.Calibre.calibre_lrfviewer.desktop',
+                        'com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop', 'com.calibre_ebook.Calibre.calibre_ebook_edit.desktop')
                 appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
                 if not os.path.exists(appdata):
                     try:
