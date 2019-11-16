@@ -16,6 +16,51 @@ from calibre.gui2.viewer.web_view import get_session_pref, set_book_path
 from polyglot.builtins import iteritems
 
 
+class Action(object):
+
+    __slots__ = ('icon', 'text', 'shortcut_action')
+
+    def __init__(self, icon=None, text=None, shortcut_action=None):
+        self.icon, self.text, self.shortcut_action = QIcon(I(icon)), text, shortcut_action
+
+
+class Actions(object):
+
+    def __init__(self, a):
+        self.__dict__.update(a)
+
+
+def all_actions():
+    if not hasattr(all_actions, 'ans'):
+        all_actions.ans = Actions({
+            'back': Action('back.png', _('Back')),
+            'forward': Action('back.png', _('Forward')),
+            'open': Action('document_open.png', _('Open e-book')),
+            'copy': Action('edit-copy.png', _('Copy to clipboard')),
+            'increase_font_size': Action('font_size_larger.png', _('Increase font size'), 'increase_font_size'),
+            'decrease_font_size': Action('font_size_smaller.png', _('Decrease font size'), 'decrease_font_size'),
+            'fullscreen': Action('page.png', _('Toggle full screen'), 'toggle_full_screen'),
+            'next': Action('next.png', _('Next page'), 'next'),
+            'previous': Action('previous.png', _('Previous page'), 'previous'),
+            'toc': Action('toc.png', _('Table of Contents'), 'toggle_toc'),
+            'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
+            'lookup': Action('search.png', _('Lookup words'), 'toggle_lookup'),
+            'chrome': Action('tweaks.png', _('Show viewer controls'), 'show_chrome'),
+            'mode': Action('scroll.png', _('Toggle paged mode'), 'toggle_paged_mode'),
+            'print': Action('print.png', _('Print book'), 'print'),
+            'preferences': Action('config.png', _('Preferences'), 'preferences'),
+            'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
+        })
+    return all_actions.ans
+
+
+DEFAULT_ACTIONS = (
+        'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen',
+        None, 'previous', 'next', None, 'toc', 'bookmarks', 'lookup', 'chrome', None, 'mode', 'print', 'preferences',
+        'metadata'
+)
+
+
 class ToolBar(QToolBar):
 
     def __init__(self, parent=None):
@@ -25,9 +70,10 @@ class ToolBar(QToolBar):
         self.setVisible(False)
         self.setAllowedAreas(Qt.AllToolBarAreas)
 
-    def create_shortcut_action(self, icon, text, sc):
-        a = QAction(QIcon(I(icon)), text, self)
-        self.addAction(a)
+    def create_shortcut_action(self, name):
+        a = getattr(all_actions(), name)
+        sc = a.shortcut_action
+        a = QAction(a.icon, a.text, self)
         connect_lambda(a.triggered, self, lambda self: self.action_triggered.emit(sc))
         self.shortcut_actions[sc] = a
         return a
@@ -44,52 +90,57 @@ class ActionsToolBar(ToolBar):
 
     def initialize(self, web_view):
         shortcut_action = self.create_shortcut_action
+        aa = all_actions()
         self.action_triggered.connect(web_view.trigger_shortcut)
         page = web_view.page()
         web_view.paged_mode_changed.connect(self.update_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
 
         self.back_action = page.action(QWebEnginePage.Back)
-        self.back_action.setIcon(QIcon(I('back.png')))
-        self.back_action.setText(_('Back'))
-        self.addAction(self.back_action)
+        self.back_action.setIcon(aa.back.icon)
+        self.back_action.setText(aa.back.text)
         self.forward_action = page.action(QWebEnginePage.Forward)
-        self.forward_action.setIcon(QIcon(I('forward.png')))
-        self.forward_action.setText(_('Forward'))
-        self.addAction(self.forward_action)
-        self.addSeparator()
+        self.forward_action.setIcon(aa.forward.icon)
+        self.forward_action.setText(aa.forward.text)
 
-        self.open_action = a = QAction(QIcon(I('document_open.png')), _('Open e-book'), self)
+        self.open_action = a = QAction(aa.open.icon, aa.open.text, self)
         self.open_menu = m = QMenu(self)
         a.setMenu(m)
         m.aboutToShow.connect(self.populate_open_menu)
         connect_lambda(a.triggered, self, lambda self: self.open_book_at_path.emit(None))
-        self.addAction(a)
         self.copy_action = a = page.action(QWebEnginePage.Copy)
-        a.setIcon(QIcon(I('edit-copy.png'))), a.setText(_('Copy to clipboard'))
-        self.addAction(a)
-        self.increase_font_size_action = shortcut_action('font_size_larger.png', _('Increase font size'), 'increase_font_size')
-        self.decrease_font_size_action = shortcut_action('font_size_smaller.png', _('Decrease font size'), 'decrease_font_size')
-        self.fullscreen_action = shortcut_action('page.png', _('Toggle full screen'), 'toggle_full_screen')
-        self.addSeparator()
+        a.setIcon(aa.copy.icon), a.setText(aa.copy.text)
+        self.increase_font_size_action = shortcut_action('increase_font_size')
+        self.decrease_font_size_action = shortcut_action('decrease_font_size')
+        self.fullscreen_action = shortcut_action('fullscreen')
 
-        self.next_action = shortcut_action('next.png', _('Next page'), 'next')
-        self.previous_action = shortcut_action('previous.png', _('Previous page'), 'previous')
-        self.addSeparator()
+        self.next_action = shortcut_action('next')
+        self.previous_action = shortcut_action('previous')
 
-        self.toc_action = shortcut_action('toc.png', _('Table of Contents'), 'toggle_toc')
-        self.bookmarks_action = shortcut_action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks')
-        self.lookup_action = shortcut_action('search.png', _('Lookup words'), 'toggle_lookup')
-        self.chrome_action = shortcut_action('tweaks.png', _('Show viewer controls'), 'show_chrome')
-        self.addSeparator()
+        self.toc_action = shortcut_action('toc')
+        self.bookmarks_action = shortcut_action('bookmarks')
+        self.lookup_action = shortcut_action('lookup')
+        self.chrome_action = shortcut_action('chrome')
 
-        self.mode_action = a = shortcut_action('scroll.png', _('Toggle paged mode'), 'toggle_paged_mode')
+        self.mode_action = a = shortcut_action('mode')
         a.setCheckable(True)
-        self.print_action = shortcut_action('print.png', _('Print book'), 'print')
-        self.preferences_action = shortcut_action('config.png', _('Preferences'), 'preferences')
-        self.metadata_action = shortcut_action('metadata.png', _('Show book metadata'), 'metadata')
+        self.print_action = shortcut_action('print')
+        self.preferences_action = shortcut_action('preferences')
+        self.metadata_action = shortcut_action('metadata')
         self.update_mode_action()
-        self.addSeparator()
+        self.add_actions()
+
+    def add_actions(self):
+        self.clear()
+        actions = DEFAULT_ACTIONS
+        for x in actions:
+            if x is None:
+                self.addSeparator()
+            else:
+                try:
+                    self.addAction(getattr(self, '{}_action'.format(x)))
+                except AttributeError:
+                    pass
 
     def update_mode_action(self):
         mode = get_session_pref('read_mode', default='paged', group=None)
