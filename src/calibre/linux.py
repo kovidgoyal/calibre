@@ -877,8 +877,10 @@ class PostInstall:
                 with open('com.calibre_ebook.Calibre.calibre_gui.desktop', 'wb') as f:
                     f.write(GUI.encode('utf-8'))
                     write_mimetypes(f)
-                des = ('com.calibre_ebook.Calibre.calibre_gui.desktop', 'com.calibre_ebook.Calibre.calibre_lrfviewer.desktop',
-                        'com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop', 'com.calibre_ebook.Calibre.calibre_ebook_edit.desktop')
+                des = ('com.calibre_ebook.Calibre.calibre_gui.desktop',
+                       'com.calibre_ebook.Calibre.calibre_lrfviewer.desktop',
+                       'com.calibre_ebook.Calibre.calibre_ebook_viewer.desktop',
+                       'com.calibre_ebook.Calibre.calibre_ebook_edit.desktop')
                 appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
                 if not os.path.exists(appdata):
                     try:
