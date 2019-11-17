@@ -12,12 +12,30 @@ from PyQt5.Qt import (
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import (
-    css, details_context_menu_event, render_html, set_html
+    create_open_cover_with_menu, css, details_context_menu_event, render_html,
+    set_html
 )
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from polyglot.builtins import unicode_type
+
+
+class Cover(CoverView):
+
+    open_with_requested = pyqtSignal(object)
+    choose_open_with_requested = pyqtSignal()
+
+    def build_context_menu(self):
+        ans = CoverView.build_context_menu(self)
+        create_open_cover_with_menu(self, ans)
+        return ans
+
+    def open_with(self, entry):
+        self.open_with_requested.emit(entry)
+
+    def choose_open_with(self):
+        self.choose_open_with_requested.emit()
 
 
 class Configure(Dialog):
@@ -95,6 +113,7 @@ class Details(HTMLDisplay):
 class BookInfo(QDialog):
 
     closed = pyqtSignal(object)
+    open_cover_with = pyqtSignal(object, object)
 
     def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
@@ -107,9 +126,11 @@ class BookInfo(QDialog):
         self.setLayout(l)
         l.addWidget(self.splitter)
 
-        self.cover = CoverView(self, show_size=gprefs['bd_overlay_cover_size'])
+        self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
+        self.cover.open_with_requested.connect(self.open_with)
+        self.cover.choose_open_with_requested.connect(self.choose_open_with)
         self.cover_pixmap = None
         self.cover.sizeHint = self.details_size_hint
         self.splitter.addWidget(self.cover)
@@ -290,6 +311,16 @@ class BookInfo(QDialog):
         self.marked = mi.marked
         self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
         self.update_cover_tooltip()
+
+    def open_with(self, entry):
+        id_ = self.view.model().id(self.current_row)
+        self.open_cover_with.emit(id_, entry)
+
+    def choose_open_with(self):
+        from calibre.gui2.open_with import choose_program
+        entry = choose_program('cover_image', self)
+        if entry is not None:
+            self.open_with(entry)
 
 
 if __name__ == '__main__':

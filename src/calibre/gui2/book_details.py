@@ -298,6 +298,25 @@ def details_context_menu_event(view, ev, book_info):
 # }}}
 
 
+def create_open_cover_with_menu(self, parent_menu):
+    from calibre.gui2.open_with import populate_menu, edit_programs
+    m = QMenu(_('Open cover with...'))
+
+    def connect_action(ac, entry):
+        connect_lambda(ac.triggered, self, lambda self: self.open_with(entry))
+
+    populate_menu(m, connect_action, 'cover_image')
+    if len(m.actions()) == 0:
+        parent_menu.addAction(_('Open cover with...'), self.choose_open_with)
+    else:
+        m.addSeparator()
+        m.addAction(_('Add another application to open cover...'), self.choose_open_with)
+        m.addAction(_('Edit Open with applications...'), partial(edit_programs, 'cover_image', self))
+        parent_menu.ocw = m
+        parent_menu.addMenu(m)
+    return m
+
+
 class CoverView(QWidget):  # {{{
 
     cover_changed = pyqtSignal(object, object)
@@ -405,7 +424,6 @@ class CoverView(QWidget):  # {{{
             )
 
     def contextMenuEvent(self, ev):
-        from calibre.gui2.open_with import populate_menu, edit_programs
         cm = QMenu(self)
         paste = cm.addAction(_('Paste cover'))
         copy = cm.addAction(_('Copy cover'))
@@ -420,21 +438,7 @@ class CoverView(QWidget):  # {{{
         remove.triggered.connect(self.remove_cover)
         gc.triggered.connect(self.generate_cover)
         save.triggered.connect(self.save_cover)
-
-        m = QMenu(_('Open cover with...'))
-
-        def connect_action(ac, entry):
-            connect_lambda(ac.triggered, self, lambda self: self.open_with(entry))
-
-        populate_menu(m, connect_action, 'cover_image')
-        if len(m.actions()) == 0:
-            cm.addAction(_('Open cover with...'), self.choose_open_with)
-        else:
-            m.addSeparator()
-            m.addAction(_('Add another application to open cover...'), self.choose_open_with)
-            m.addAction(_('Edit Open with applications...'), partial(edit_programs, 'cover_image', self))
-            cm.ocw = m
-            cm.addMenu(m)
+        create_open_cover_with_menu(self, cm)
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
         cm.exec_(ev.globalPos())

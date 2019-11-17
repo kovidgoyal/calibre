@@ -39,6 +39,7 @@ class ShowBookDetailsAction(InterfaceAction):
         if index.isValid():
             d = BookInfo(self.gui, self.gui.library_view, index,
                     self.gui.book_details.handle_click)
+            d.open_cover_with.connect(self.gui.bd_open_cover_with, type=Qt.QueuedConnection)
             self.memory.append(d)
             d.closed.connect(self.closed, type=Qt.QueuedConnection)
             d.show()
