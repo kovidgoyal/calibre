@@ -18,7 +18,7 @@
 # Contributor(s):
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 __doc__="""Use OpenDocument to generate your documents."""
 
 import mimetypes

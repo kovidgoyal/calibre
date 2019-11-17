@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 """
 Modified version of SHA-1 used in Microsoft LIT files.
 

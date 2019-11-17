@@ -12,7 +12,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import unicode_literals
+
 
 from tinycss import token_data
 

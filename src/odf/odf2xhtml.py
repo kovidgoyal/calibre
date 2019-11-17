@@ -20,7 +20,7 @@
 #
 # import pdb
 # pdb.set_trace()
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 from collections import defaultdict
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr

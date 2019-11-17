@@ -14,7 +14,7 @@
 # General Public License for more details.
 
 # $Id: chm.py,v 1.12 2006/08/07 12:31:51 rubensr Exp $
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 '''
    chm - A high-level front end for the chmlib python module.
