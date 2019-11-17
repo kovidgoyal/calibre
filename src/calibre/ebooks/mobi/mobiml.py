@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 '''
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.

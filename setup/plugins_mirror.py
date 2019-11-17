@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 # Imports {{{
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import ast
 import atexit
