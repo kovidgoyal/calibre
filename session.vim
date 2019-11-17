@@ -3,7 +3,6 @@ let g:project_tags_dirs = ['src/calibre']
 
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
-            \'/usr/include/python2.7',
             \'/usr/include/podofo', 
             \'/usr/include/qt/QtCore', 
             \'/usr/include/qt/QtGui', 

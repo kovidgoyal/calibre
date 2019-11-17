@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 from __future__ import print_function, with_statement, unicode_literals
 
 __license__   = 'GPL v3'
