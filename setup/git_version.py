@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2019, Eli Schwartz <eschwartz@archlinux.org>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import re
 import subprocess

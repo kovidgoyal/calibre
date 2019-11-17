@@ -19,7 +19,7 @@
     Lesser General Public License for more details.
 
 """
-from __future__ import print_function
+
 
 """0.13 update - fix IPv6 support
                  some cleanups in code"""

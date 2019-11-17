@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 # Copyright (C) 2003-2006 Red Hat Inc. <http://www.redhat.com/>
 # Copyright (C) 2003 David Zeuthen

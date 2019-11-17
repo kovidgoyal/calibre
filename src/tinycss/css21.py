@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import unicode_literals
+
 from itertools import chain, islice
 
 from tinycss.decoding import decode
