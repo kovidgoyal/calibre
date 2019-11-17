@@ -82,6 +82,7 @@ class ToolBar(QToolBar):
         self.setToolButtonStyle(Qt.ToolButtonIconOnly)
         self.setVisible(False)
         self.setAllowedAreas(Qt.AllToolBarAreas)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
 
     def create_shortcut_action(self, name):
         a = getattr(all_actions(), name)
@@ -100,8 +101,21 @@ class ActionsToolBar(ToolBar):
     def __init__(self, parent=None):
         ToolBar.__init__(self, parent)
         self.setObjectName('actions_toolbar')
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        m = QMenu(self)
+        a = m.addAction(_('Customize this toolbar'))
+        a.triggered.connect(self.customize)
+        a = m.addAction(_('Hide this toolbar'))
+        a.triggered.connect(self.hide_toolbar)
+        m.exec_(pos)
+
+    def hide_toolbar(self):
+        self.web_view.trigger_shortcut('toggle_toolbar')
 
     def initialize(self, web_view):
+        self.web_view = web_view
         shortcut_action = self.create_shortcut_action
         aa = all_actions()
         self.action_triggered.connect(web_view.trigger_shortcut)
