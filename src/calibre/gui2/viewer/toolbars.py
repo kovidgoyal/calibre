@@ -108,6 +108,7 @@ class ActionsToolBar(ToolBar):
         page = web_view.page()
         web_view.paged_mode_changed.connect(self.update_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
+        web_view.customize_toolbar.connect(self.customize, type=Qt.QueuedConnection)
 
         self.back_action = page.action(QWebEnginePage.Back)
         self.back_action.setIcon(aa.back.icon)
@@ -198,6 +199,11 @@ class ActionsToolBar(ToolBar):
 
     def update_visibility(self):
         self.setVisible(bool(get_session_pref('show_actions_toolbar', default=False)))
+
+    def customize(self):
+        d = ConfigureToolBar(parent=self.parent())
+        if d.exec_() == d.Accepted:
+            self.add_actions()
 
 
 class ActionsList(QListWidget):
@@ -323,6 +329,7 @@ class ConfigureToolBar(Dialog):
             vprefs.__delitem__('actions-toolbar-actions')
         else:
             vprefs.set('actions-toolbar-actions', ans)
+        return Dialog.accept(self)
 
 
 if __name__ == '__main__':

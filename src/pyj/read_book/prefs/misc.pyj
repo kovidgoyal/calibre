@@ -7,9 +7,10 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from dom import unique_id
-from session import defaults
+from read_book.globals import ui_operations
 from read_book.prefs.utils import create_button_box
-
+from session import defaults
+from widgets import create_button
 
 CONTAINER = unique_id('standalone-misc-settings')
 DEFAULTS = {
@@ -46,6 +47,9 @@ def create_misc_panel(container, apply_func, cancel_func):
 
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
     container.append(cb('show_actions_toolbar', _('Show a toolbar with the most useful actions')))
+    container.lastChild.append(E.span('\xa0'))
+    container.lastChild.append(
+        create_button(_('Customize toolbar'), action=ui_operations.customize_toolbar))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
