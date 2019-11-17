@@ -13,15 +13,15 @@ environment (compilers, headers files, etc.)
 
 All installation related functions are accessed by the command::
 
-    python2 setup.py
+    python setup.py
 
 For details on what functions are available, see::
 
-    python2 setup.py -h
+    python setup.py -h
 
 Or for help on any individual functions, see::
 
-    python2 setup.py <function> -h
+    python setup.py <function> -h
 
 Note that many of these functions are only useful for creating official release
 compilations.
@@ -49,14 +49,14 @@ Build
 In order to bootstrap the raw git sources to a release-ready state, run the
 command::
 
-    python2 setup.py bootstrap
+    python setup.py bootstrap
 
 In order to compile the C/C++ extensions etc. for a release-ready tarball
 (these functions are already included by the bootstrap function), run the
 commands::
 
-    python2 setup.py build
-    python2 setup.py gui
+    python setup.py build
+    python setup.py gui
 
 Install
 ==========
@@ -70,7 +70,7 @@ putting its files into the system in the following locations:
 
 This type of install can be run by the command::
 
-    sudo python2 setup.py install
+    sudo python setup.py install
 
 <prefix> is normally the installation prefix of python, usually /usr.  It can
 be controlled by the --prefix option.
@@ -90,4 +90,4 @@ resource files will be read from the calibre source tree in your home directory
 
 This type of install can be run with the command::
 
-    sudo python2 setup.py develop
+    sudo python setup.py develop
