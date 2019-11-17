@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __copyright__ = '2012, faber1971'
 __version__ = 'v1.00'
