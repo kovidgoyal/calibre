@@ -20,7 +20,7 @@
 # Contributor(s):
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 import zipfile, xml.dom.minidom
 from .namespaces import nsdict
 from .elementtypes import empty_elements, inline_elements
