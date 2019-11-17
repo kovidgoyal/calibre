@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __author__ = u'Jordi Balcells'
 __license__ = 'GPL v3'
 description = u'Jornal portugu\xeas - v1.03 (16 June 2010)'
