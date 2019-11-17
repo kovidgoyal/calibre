@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 '''
 Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.

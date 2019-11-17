@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 """
 Original Perl version by: John Gruber https://daringfireball.net/ 10 May 2008

@@ -18,7 +18,7 @@
 # Contributor(s):
 #
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 from .namespaces import SVGNS
 from .element import Element
 from .draw import DrawElement
