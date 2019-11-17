@@ -9,7 +9,7 @@ import ssl
 from mechanize import Browser as B, HTTPSHandler
 
 from polyglot import http_client
-from polyglot.http_cookie import Cookie, CookieJar
+from polyglot.http_cookie import CookieJar
 
 
 class ModernHTTPSHandler(HTTPSHandler):
@@ -90,13 +90,7 @@ class Browser(B):
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
 
     def set_cookie(self, name, value, domain, path='/'):
-        self.cookiejar.set_cookie(Cookie(
-            None, name, value,
-            None, False,
-            domain, True, False,
-            path, True,
-            False, None, False, None, None, None
-        ))
+        return self.set_simple_cookie(name, value, domain, path=path)
 
     @property
     def cookiejar(self):
