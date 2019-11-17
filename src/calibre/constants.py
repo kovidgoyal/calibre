@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function, unicode_literals
 from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv, as_unicode, native_string_type
 import sys, locale, codecs, os, importlib, collections
 

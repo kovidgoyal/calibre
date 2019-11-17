@@ -4,7 +4,7 @@
 # Taken from http://www.zwahlendesign.ch/en/node/20
 # openoffice_icons/openoffice_icons_linux/openoffice11.png
 # License: Freeware
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 import base64
 
 iconstr = b"""\

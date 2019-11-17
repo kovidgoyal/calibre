@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 """Generate binary message catalog from textual translation description.
 

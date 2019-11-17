@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 '''
 Read content from ereader pdb file with a 132 byte header created by Dropbook.

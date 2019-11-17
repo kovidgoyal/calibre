@@ -17,7 +17,7 @@
 #
 # Contributor(s):
 #
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 TOOLSVERSION = u"ODFPY/0.9.4dev"
 
 ANIMNS         = u"urn:oasis:names:tc:opendocument:xmlns:animation:1.0"
