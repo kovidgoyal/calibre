@@ -47,7 +47,7 @@ echo Using python executable: $PYTHON
 $PYTHON -c "import sys; script_launch=lambda:sys.exit('Download of installer failed!'); exec(sys.stdin.read()); script_launch()" "$@" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
 # {{{
 # HEREDOC_START
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
