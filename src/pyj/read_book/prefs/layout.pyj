@@ -49,7 +49,7 @@ def create_layout_panel(container, apply_func, cancel_func):
         ))
 
     def sec(text):
-        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px'))
+        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px; max-width: 70em'))
 
     sec(_('Choose the page layout mode. In paged mode, the text is split up into individual pages, as in a paper book. In flow mode'
             ' text is presented as one long scrolling page, as in web browsers.'))
@@ -71,7 +71,10 @@ def create_layout_panel(container, apply_func, cancel_func):
         E.tr(E.td(_('Landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
     ))
 
-    sec(_('Change the maximum screen area (in pixels) used to display text. A value of zero means that all available screen area is used.'))
+    sec(_('Change the maximum screen area (in pixels) used to display text.'
+          ' A value of zero means that all available screen area is used.'
+          ' Current window width is {0} and height is {1} pixels.'
+    ).format(window.innerWidth, window.innerHeight))
     container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
         E.tr(E.td(_('Max. width:')), E.td(E.input(type='number', name='width',   min='0', step='10', value=str(sd.get('max_text_width'))))),
         E.tr(E.td(_('Max. height:')), E.td(E.input(type='number', name='height', min='0', step='10', value=str(sd.get('max_text_height'))))),
