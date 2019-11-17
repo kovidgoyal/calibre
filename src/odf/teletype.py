@@ -27,7 +27,7 @@ the appropriate <text:s>, <text:tab>, or <text:line-break>
 elements.  This module takes care of that problem.
 """
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+
 from .element import Node
 from .text import S,LineBreak,Tab
 

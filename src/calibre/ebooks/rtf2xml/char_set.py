@@ -1,4 +1,4 @@
-from __future__ import unicode_literals, absolute_import, print_function, division
+
 char_set = """
 <ms_standard>
 NON-BREAKING HYPEHN:_:8290:&#x2011;

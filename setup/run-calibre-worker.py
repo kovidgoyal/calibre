@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 import sys, os
 sys.setup_dir = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.abspath(os.path.join(os.path.dirname(sys.setup_dir), 'src'))

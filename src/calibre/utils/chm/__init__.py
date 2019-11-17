@@ -11,7 +11,7 @@
 # General Public License for more details.
 
 # $Id: __init__.py,v 1.8 2006/06/18 10:50:43 rubensr Exp $
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 '''
    chm - A package to manipulate CHM files
