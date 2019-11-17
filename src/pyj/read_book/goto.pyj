@@ -61,13 +61,13 @@ def create_location_overlay(current_position_data, overlay, container):
     current_cfi = current_position_data.cfi
     if current_cfi:
         container.appendChild(E.div(
-            style='margin: 1rem; display: flex; align-items: baseline',
-            E.input(
-                type='text', readonly='readonly', value=_('Current location: {}').format(current_cfi), name='current_location',
-                style='border-width: 0; background-color: transparent; outline: none; flex-grow: 10; font-family: inherit'
+            style='margin: 1rem; margin-bottom: calc(1rem - 1ex); display: flex; align-items: baseline; flex-wrap: wrap',
+            E.div(
+                _('Current location: {}').format(current_cfi),
+                style='flex-grow: 10; text-overflow: ellipsis; margin-bottom: 1ex'
             ),
             create_button(_('Copy'), action=def():
-                src = document.querySelector(f'#{container_id} [name=current_location]')
+                src = document.querySelector(f'#{container_id} input')
                 orig = src.value
                 src.value = current_cfi
                 src.focus()
@@ -76,7 +76,6 @@ def create_location_overlay(current_position_data, overlay, container):
                     document.execCommand('copy')
                 finally:
                     src.value = orig
-                    src.blur()
             )
         ))
 
@@ -109,7 +108,7 @@ def create_location_overlay(current_position_data, overlay, container):
     container.appendChild(E.div(
         style='margin: 1rem;',
         E.div(
-            style='display: flex; align-items: baseline',
+            style='display: flex; align-items: baseline; flex-wrap: wrap',
             E.label(_('Go to:'), style='margin-right: 1rem'),
             E.input(name='newpos', type='text', min='0', max=str(current_position_data.book_length), step='0.1', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
                     if ev.key is 'Enter':
