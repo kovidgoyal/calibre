@@ -32,7 +32,7 @@ from . import open_for_read, open_for_write
 
 """
 Here is an example script using the ParseRTF module directly
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 def Handle_Main():
     # Handles options and creates a parse object

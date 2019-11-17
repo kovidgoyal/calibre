@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
@@ -74,10 +74,8 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p1 = subprocess.Popen(['flake8-python2', '--filename', '*.py,*.recipe', f])
             p2 = subprocess.Popen(['flake8', '--filename', '*.py,*.recipe', f])
-            codes = p1.wait(), p2.wait()
-            return codes != (0, 0)
+            return p2.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
             return p.wait() != 0

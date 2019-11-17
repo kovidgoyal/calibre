@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __copyright__ = '5, January 2011 Gerardo Diez<gerardo.diez.garcia@gmail.com> & desUBIKado'
 __author__ = 'desUBIKado, based on an earlier version by Gerardo Diez'
