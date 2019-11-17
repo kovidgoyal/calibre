@@ -20,7 +20,7 @@
 # * GNU General Public License for more details.
 # *
 # */
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 from polyglot.builtins import range
