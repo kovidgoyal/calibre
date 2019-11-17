@@ -109,7 +109,7 @@ def find_icons():
                     idx = len(ans[name])
                     ans[name].append((-sz, idx, sz, path))
         for icons in itervalues(ans):
-            icons.sort()
+            icons.sort(key=list)
         return {k:(-v[0][2], v[0][3]) for k, v in iteritems(ans)}
 
     try:
@@ -161,7 +161,7 @@ def find_icons():
             traceback.print_exc()
 
     for icons in itervalues(ans):
-        icons.sort()
+        icons.sort(key=list)
     icon_data = {k:v[0][1] for k, v in iteritems(ans)}
     return icon_data
 
