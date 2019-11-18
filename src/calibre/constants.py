@@ -150,7 +150,7 @@ def cache_dir():
     return ans
 
 
-plugins_loc = os.path.join(sys.extensions_location, sys.version_info.major)
+plugins_loc = os.path.join(sys.extensions_location, str(sys.version_info.major))
 
 
 # plugins {{{
