@@ -2,10 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 from polyglot.builtins import unicode_type
-from calibre.constants import ispy3
 
 
 MSGPACK_MIME = 'application/x-msgpack'
@@ -118,22 +115,11 @@ def json_loads(data):
     return json.loads(data, object_hook=json_decoder)
 
 
-if ispy3:
+def pickle_dumps(data):
+    import pickle
+    return pickle.dumps(data, -1)
 
-    def pickle_dumps(data):
-        import pickle
-        return pickle.dumps(data, -1)
 
-    def pickle_loads(dump):
-        import pickle
-        return pickle.loads(dump, encoding='utf-8')
-
-else:
-
-    def pickle_dumps(data):
-        import cPickle as pickle
-        return pickle.dumps(data, -1)
-
-    def pickle_loads(dump):
-        import cPickle as pickle
-        return pickle.loads(dump)
+def pickle_loads(dump):
+    import pickle
+    return pickle.loads(dump, encoding='utf-8')
