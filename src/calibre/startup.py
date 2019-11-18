@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os
+import locale, sys
 
 # Default translation is NOOP
 from polyglot.builtins import builtins, is_py3, unicode_type
@@ -21,7 +21,7 @@ builtins.__dict__['__'] = lambda s: s
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG, isfreebsd, ispy3
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, DEBUG, isfreebsd
 
 _run_once = False
 winutil = winutilerror = None
@@ -30,43 +30,17 @@ if not _run_once:
     _run_once = True
     from importlib import import_module
 
-    if not isfrozen and not ispy3:
-        # Prevent PyQt4 from being loaded
-        class PyQt4Ban(object):
-
-            def find_module(self, fullname, path=None):
-                if fullname.startswith('PyQt4'):
-                    return self
-
-            def load_module(self, fullname):
-                raise ImportError('Importing PyQt4 is not allowed as calibre uses PyQt5')
-
-        sys.meta_path.insert(0, PyQt4Ban())
-
     class DeVendor(object):
 
-        if ispy3:
-
-            def find_spec(self, fullname, path, target=None):
-                spec = None
-                if fullname == 'calibre.web.feeds.feedparser':
-                    m = import_module('feedparser')
-                    spec = m.__spec__
-                elif fullname.startswith('calibre.ebooks.markdown'):
-                    m = import_module(fullname[len('calibre.ebooks.'):])
-                    spec = m.__spec__
-                return spec
-
-        else:
-
-            def find_module(self, fullname, path=None):
-                if fullname == 'calibre.web.feeds.feedparser' or fullname.startswith('calibre.ebooks.markdown'):
-                    return self
-
-            def load_module(self, fullname):
-                if fullname == 'calibre.web.feeds.feedparser':
-                    return import_module('feedparser')
-                return import_module(fullname[len('calibre.ebooks.'):])
+        def find_spec(self, fullname, path, target=None):
+            spec = None
+            if fullname == 'calibre.web.feeds.feedparser':
+                m = import_module('feedparser')
+                spec = m.__spec__
+            elif fullname.startswith('calibre.ebooks.markdown'):
+                m = import_module(fullname[len('calibre.ebooks.'):])
+                spec = m.__spec__
+            return spec
 
     sys.meta_path.insert(0, DeVendor())
 
@@ -78,25 +52,6 @@ if not _run_once:
             raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
         if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode_type):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
-
-        if not ispy3:
-            # Python2's expanduser is broken for non-ASCII usernames
-            # and unicode paths
-
-            def expanduser(path):
-                if isinstance(path, bytes):
-                    path = path.decode('mbcs')
-                if path[:1] != '~':
-                    return path
-                i, n = 1, len(path)
-                while i < n and path[i] not in '/\\':
-                    i += 1
-                userhome = winutil.special_folder_path(winutil.CSIDL_PROFILE)
-                if i != 1:  # ~user
-                    userhome = os.path.join(os.path.dirname(userhome), path[1:i])
-
-                return userhome + path[i:]
-            os.path.expanduser = expanduser
 
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
