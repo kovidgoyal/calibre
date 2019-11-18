@@ -10,7 +10,7 @@ import codecs, zlib, numbers
 from io import BytesIO
 from datetime import datetime
 
-from calibre.constants import plugins, ispy3
+from calibre.constants import plugins
 from calibre.utils.logging import default_log
 from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr
 from polyglot.binary import as_hex_bytes
@@ -69,7 +69,7 @@ def serialize(o, stream):
         # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, numbers.Integral):
-        stream.write_raw(unicode_type(o).encode('ascii') if ispy3 else bytes(o))
+        stream.write_raw(unicode_type(o).encode('ascii'))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:

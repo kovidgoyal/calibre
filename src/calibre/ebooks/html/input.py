@@ -17,7 +17,7 @@ from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
-from polyglot.builtins import is_py3, unicode_type
+from polyglot.builtins import unicode_type
 from polyglot.urllib import urlparse, urlunparse
 
 
@@ -66,9 +66,6 @@ class Link(object):
 
     def __str__(self):
         return 'Link: %s --> %s'%(self.url, self.path)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class IgnoreFile(Exception):

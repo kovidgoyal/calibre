@@ -6,7 +6,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from polyglot.builtins import int_to_byte, is_py3, range
+from polyglot.builtins import int_to_byte, range
 
 
 class TCRCompressor(object):
@@ -42,8 +42,6 @@ class TCRCompressor(object):
                 possible_codes.append(single_code.pop())
 
         for code in possible_codes:
-            if not is_py3:
-                code = bytearray(code)
             self.coded_txt = self.coded_txt.replace(code, code[0:1])
             self.codes[code[0]] = b'%s%s' % (self.codes[code[0]], self.codes[code[1]])
 
