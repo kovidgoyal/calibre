@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import atexit
 import errno
 import os
@@ -50,7 +48,7 @@ def unix_retry(err):
 
 def windows_open(path):
     if isinstance(path, bytes):
-        path = path.decode('mbcs')
+        path = os.fsdecode(path)
     try:
         h = win32file.CreateFileW(
             path,
