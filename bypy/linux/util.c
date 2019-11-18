@@ -5,258 +5,153 @@
 #include <stdio.h>
 #include <errno.h>
 
-static bool GUI_APP = False;
+#define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
-static char exe_path[PATH_MAX];
-static char base_dir[PATH_MAX];
-static char bin_dir[PATH_MAX];
-static char lib_dir[PATH_MAX];
-static char extensions_dir[PATH_MAX];
-static char resources_dir[PATH_MAX];
+static bool GUI_APP = false;
+static char exe_path_char[PATH_MAX];
+static wchar_t exe_path[PATH_MAX];
+static wchar_t base_dir[PATH_MAX];
+static wchar_t bin_dir[PATH_MAX];
+static wchar_t lib_dir[PATH_MAX];
+static wchar_t extensions_dir[PATH_MAX];
+static wchar_t resources_dir[PATH_MAX];
 
 void set_gui_app(bool yes) { GUI_APP = yes; }
 
-int report_error(const char *msg, int code) {
+static int
+report_error(const char *msg, int code) {
     fprintf(stderr, "%s\n", msg);
     return code;
 }
 
-int report_libc_error(const char *msg) {
-    char buf[2000];
-    int err = errno;
-
-    snprintf(buf, 2000, "%s::%s", msg, strerror(err));
-    return report_error(buf, err);
-}
-
-int pyobject_to_int(PyObject *res) {
-    int ret = 0; PyObject *tmp;
-    if (res != NULL) {
-        tmp = PyNumber_Int(res);
-        if (tmp == NULL) ret = (PyObject_IsTrue(res)) ? 1 : 0;
-        else ret = (int)PyInt_AS_LONG(tmp);
-    }
-    return ret;
-}
-
-int handle_sysexit(PyObject *e) {
-    PyObject *code;
-
-    code = PyObject_GetAttrString(e, "code");
-    if (!code) return 0;
-    return pyobject_to_int(code);
-}
-
-int report_python_error(const char *preamble, int code) {
-    PyObject *exc, *val, *tb, *str;
-    int ret, issysexit = 0; char *i, *buf;
-
-    if (!PyErr_Occurred()) return code;
-    issysexit = PyErr_ExceptionMatches(PyExc_SystemExit);
-
-    PyErr_Fetch(&exc, &val, &tb);
-
-    if (exc != NULL) {
-        PyErr_NormalizeException(&exc, &val, &tb);
-
-        if (issysexit) {
-            return (val) ? handle_sysexit(val) : 0;
-        }
-        if (val != NULL) {
-            str = PyObject_Unicode(val);
-            if (str == NULL) {
-                PyErr_Clear();
-                str = PyObject_Str(val);
-            }
-            i = PyString_AsString(str);
-            if (i == NULL) OOM;
-            buf = (char*)calloc(strlen(i)+strlen(preamble)+5, sizeof(char));
-            if (buf == NULL) OOM;
-            sprintf(buf, "%s::%s", preamble, i);
-            ret = report_error(buf, code);
-            if (buf) free(buf);
-            if (tb != NULL) {
-                PyErr_Restore(exc, val, tb);
-                PyErr_Print();
-            }
-            return ret;
-        }
-    }
-    return report_error(preamble, code);
-}
-
-static void get_paths()
-{
+static void
+get_paths() {
 	char linkname[256]; /* /proc/<pid>/exe */
-    char *p;
+    wchar_t *p;
 	pid_t pid;
 	int ret;
 
 	pid = getpid();
 
-	if (snprintf(linkname, sizeof(linkname), "/proc/%i/exe", pid) < 0)
-		{
+	if (snprintf(linkname, sizeof(linkname), "/proc/%i/exe", pid) < 0) {
 		/* This should only happen on large word systems. I'm not sure
 		   what the proper response is here.
 		   Since it really is an assert-like condition, aborting the
 		   program seems to be in order. */
         exit(report_error("PID too large", EXIT_FAILURE));
-		}
+    }
 
-
-	ret = readlink(linkname, exe_path, sizeof(exe_path));
-
+	ret = readlink(linkname, exe_path_char, sizeof(exe_path_char));
 	if (ret == -1) {
         exit(report_error("Failed to read exe path.", EXIT_FAILURE));
     }
-
-	if ((size_t)ret >= sizeof(exe_path)) {
+	if ((size_t)ret >= sizeof(exe_path_char)) {
         exit(report_error("exe path buffer too small.", EXIT_FAILURE));
     }
+	exe_path_char[ret] = 0;
+    size_t tsz;
+    wchar_t* temp = Py_DecodeLocale(exe_path_char, &tsz);
+    if (!temp) {
+        exit(report_error("Failed to decode exe path", EXIT_FAILURE));
+    }
+    memcpy(exe_path, temp, tsz * sizeof(wchar_t));
+    exe_path[tsz] = 0;
+    PyMem_RawFree(temp);
 
-	exe_path[ret] = 0;
-
-    p = rindex(exe_path, '/');
-
-    if (p ==  NULL) {
+    p = wcsrchr(exe_path, '/');
+    if (p == NULL) {
         exit(report_error("No path separators in executable path", EXIT_FAILURE));
     }
-    strncat(base_dir, exe_path, p - exe_path);
-    p = rindex(base_dir, '/');
-    if (p ==  NULL) {
+    wcsncat(base_dir, exe_path, p - exe_path);
+    p = wcsrchr(base_dir, '/');
+    if (p == NULL) {
         exit(report_error("Only one path separator in executable path", EXIT_FAILURE));
     }
     *p = 0;
-    if (strlen(base_dir) == 0) {
+    if (wcslen(base_dir) == 0) {
         exit(report_error("base directory empty", EXIT_FAILURE));
     }
 
-    snprintf(bin_dir,        sizeof(bin_dir), "%s/bin", base_dir);
-    snprintf(lib_dir,        sizeof(lib_dir), "%s/lib", base_dir);
-    snprintf(resources_dir,  sizeof(resources_dir), "%s/resources", base_dir);
-    snprintf(extensions_dir, sizeof(extensions_dir), "%s/%s/site-packages/calibre/plugins", lib_dir, PYTHON_VER);
+    swprintf(bin_dir,        arraysz(bin_dir), L"%ls/bin", base_dir);
+    swprintf(lib_dir,        arraysz(lib_dir), L"%ls/lib", base_dir);
+    swprintf(resources_dir,  arraysz(resources_dir), L"%ls/resources", base_dir);
+    swprintf(extensions_dir, arraysz(extensions_dir), L"%ls/%ls/site-packages/calibre/plugins", lib_dir, PYTHON_VER);
 }
 
-
-void setup_stream(const char *name, const char *errors) {
-    PyObject *stream;
-    char buf[100];
-
-    snprintf(buf, 20, "%s", name);
-    stream = PySys_GetObject(buf);
-
-    snprintf(buf, 20, "%s", "utf-8");
-    snprintf(buf+21, 30, "%s", errors);
-
-    if (!PyFile_SetEncodingAndErrors(stream, buf, buf+21))
-        exit(report_python_error("Failed to set stream encoding", 1));
-
-}
-
-void setup_streams() {
-    if (!GUI_APP) { // Remove buffering
-        setvbuf(stdin,  NULL, _IONBF, 2);
-        setvbuf(stdout, NULL, _IONBF, 2);
-        setvbuf(stderr, NULL, _IONBF, 2);
+static void
+set_sys_string(const char* key, const wchar_t* val) {
+    PyObject *temp = PyUnicode_FromWideChar(val, -1);
+    if (temp) {
+        if (PySys_SetObject(key, temp) != 0) {
+            exit(report_error("Failed to set attribute on sys", EXIT_FAILURE));
+        }
+        Py_DECREF(temp);
+    } else {
+        exit(report_error("Failed to set attribute on sys, decode failed", EXIT_FAILURE));
     }
-
-    /*setup_stream("stdin", "strict");
-    setup_stream("stdout", "strict");
-    setup_stream("stderr", "strict");*/
 }
 
-void initialize_interpreter(int argc, char **argv, char *outr, char *errr,
-        const char *basename, const char *module, const char *function) {
-    char *encoding, *p;
+static int
+initialize_interpreter(int argc, char * const *argv, const wchar_t *basename, const wchar_t *module, const wchar_t *function) {
+    PyStatus status;
+    PyPreConfig preconfig;
+    PyConfig config;
+    PyPreConfig_InitIsolatedConfig(&preconfig);
+
+    preconfig.utf8_mode = 1;
+    preconfig.coerce_c_locale = 1;
+    preconfig.isolated = 1;
+
+#define CHECK_STATUS if (PyStatus_Exception(status)) { PyConfig_Clear(&config); Py_ExitStatusException(status); return 1; }
+    status = Py_PreInitialize(&preconfig);
+    CHECK_STATUS;
+    PyConfig_InitIsolatedConfig(&config);
 
     get_paths();
-    char path[3*PATH_MAX];
+    static wchar_t* items[3];
+    static wchar_t path[arraysz(items)*PATH_MAX];
+    for (size_t i = 0; i < arraysz(items); i++) items[i] = path + i * PATH_MAX;
+    swprintf(items[0], PATH_MAX, L"%ls/%ls", lib_dir, PYTHON_VER);
+    swprintf(items[1], PATH_MAX, L"%ls/%ls/lib-dynload", lib_dir, PYTHON_VER);
+    swprintf(items[2], PATH_MAX, L"%ls/%ls/site-packages", lib_dir, PYTHON_VER);
+    status = PyConfig_SetWideStringList(&config, &config.module_search_paths, arraysz(items), items);
+    CHECK_STATUS;
+    config.module_search_paths_set = 1;
+    config.optimization_level = 2;
+    config.write_bytecode = 0;
+    config.use_environment = 0;
+    config.user_site_directory = 0;
+    config.configure_c_stdio = 1;
+    config.isolated = 1;
 
-    snprintf(path, sizeof(path),
-            "%s/%s:%s/%s/plat-linux2:%s/%s/lib-dynload:%s/%s/site-packages",
-            lib_dir, PYTHON_VER, lib_dir, PYTHON_VER, lib_dir, PYTHON_VER,
-            lib_dir, PYTHON_VER);
+    status = PyConfig_SetString(&config, &config.program_name, exe_path);
+    CHECK_STATUS;
+    status = PyConfig_SetString(&config, &config.home, base_dir);
+    CHECK_STATUS;
+    status = PyConfig_SetString(&config, &config.run_module, L"site");
+    CHECK_STATUS;
+    status = PyConfig_SetBytesArgv(&config, argc, argv);
+    CHECK_STATUS;
+    status = Py_InitializeFromConfig(&config);
+    CHECK_STATUS;
+#undef CHECK_STATUS
 
-    Py_OptimizeFlag = 2;
-    Py_NoSiteFlag = 1;
-    Py_DontWriteBytecodeFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    Py_NoUserSiteDirectory = 1;
-    Py_VerboseFlag = 0;
-    Py_DebugFlag = 0;
-    Py_HashRandomizationFlag = 1;
-
-    Py_SetProgramName(exe_path);
-    Py_SetPythonHome(base_dir);
-
-    //printf("Path before Py_Initialize(): %s\r\n\n", Py_GetPath());
-    Py_Initialize();
-    if (!Py_FileSystemDefaultEncoding) {
-        encoding = getenv("PYTHONIOENCODING");
-        if (encoding != NULL) {
-            Py_FileSystemDefaultEncoding = strndup(encoding, 20);
-            p = index(Py_FileSystemDefaultEncoding, ':');
-            if (p != NULL) *p = 0;
-        } else
-            Py_FileSystemDefaultEncoding = strndup("UTF-8", 10);
-    }
-
-
-    setup_streams();
-
-    PySys_SetArgv(argc, argv);
-    //printf("Path after Py_Initialize(): %s\r\n\n", Py_GetPath());
-    PySys_SetPath(path);
-    //printf("Path set by me: %s\r\n\n", path);
-    PySys_SetObject("gui_app", PyBool_FromLong((long)GUI_APP));
-    PySys_SetObject("calibre_basename", PyBytes_FromString(basename));
-    PySys_SetObject("calibre_module",   PyBytes_FromString(module));
-    PySys_SetObject("calibre_function", PyBytes_FromString(function));
-    PySys_SetObject("extensions_location", PyBytes_FromString(extensions_dir));
-    PySys_SetObject("resources_location", PyBytes_FromString(resources_dir));
-    PySys_SetObject("executables_location", PyBytes_FromString(base_dir));
-    PySys_SetObject("frozen_path", PyBytes_FromString(base_dir));
+    PySys_SetObject("gui_app", GUI_APP ? Py_True : Py_False);
     PySys_SetObject("frozen", Py_True);
-    Py_INCREF(Py_True);
+    set_sys_string("calibre_basename", basename);
+    set_sys_string("calibre_module",   module);
+    set_sys_string("calibre_function", function);
+    set_sys_string("extensions_location", extensions_dir);
+    set_sys_string("resources_location", resources_dir);
+    set_sys_string("executables_location", base_dir);
+    set_sys_string("frozen_path", base_dir);
 
-
-    if (GUI_APP && outr && errr) {
-    //    PySys_SetObject("stdout_redirect", PyUnicode_FromWideChar(outr, wcslen(outr)));
-    //    PySys_SetObject("stderr_redirect", PyUnicode_FromWideChar(errr, wcslen(outr)));
-    }
-
+    int ret = Py_RunMain();
+    PyConfig_Clear(&config);
+    return ret;
 }
 
-int execute_python_entrypoint(int argc, char **argv, const char *basename, const char *module, const char *function,
-        char *outr, char *errr) {
-    PyObject *site, *pmain, *res;
-    int ret = 0;
-
-    initialize_interpreter(argc, argv, outr, errr, basename, module, function);
-
-    site = PyImport_ImportModule("site");
-
-    if (site == NULL)
-        ret = report_python_error("Failed to import site module",  1);
-    else {
-        Py_XINCREF(site);
-
-        pmain = PyObject_GetAttrString(site, "main");
-        if (pmain == NULL || !PyCallable_Check(pmain))
-            ret = report_python_error("site module has no main function", 1);
-        else {
-            Py_XINCREF(pmain);
-            res = PyObject_CallObject(pmain, NULL);
-
-            if (res == NULL)
-                ret = report_python_error("Python function terminated unexpectedly", 1);
-
-            ret = pyobject_to_int(res);
-        }
-    }
-    PyErr_Clear();
-    Py_Finalize();
-
-    //printf("11111 Returning: %d\r\n", ret);
-    return ret;
+int
+execute_python_entrypoint(int argc, char * const *argv, const wchar_t *basename, const wchar_t *module, const wchar_t *function) {
+    return initialize_interpreter(argc, argv, basename, module, function);
 }
