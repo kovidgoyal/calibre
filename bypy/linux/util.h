@@ -9,10 +9,10 @@
 #define OOM exit(report_error("Out of memory", EXIT_FAILURE))
 #define True 1
 #define False 0
-typedef int bool;
+#include <wchar.h>
+#include <stdbool.h>
 
 void set_gui_app(bool yes);
 
-int execute_python_entrypoint(int argc, char **argv, const char *basename,
-        const char *module, const char *function,
-        char *outr, char *errr);
+int execute_python_entrypoint(int argc, char * const *argv, const wchar_t *basename,
+        const wchar_t *module, const wchar_t *function);
