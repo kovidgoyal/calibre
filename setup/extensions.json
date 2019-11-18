@@ -145,12 +145,6 @@
         "inc_dirs": "calibre/utils/imageops"
     },
     {
-        "name": "lzma_binding",
-        "sources": "calibre_lzma/*.c",
-        "headers": "calibre_lzma/*.h",
-        "defines": "_7ZIP_ST"
-    },
-    {
         "name": "winutil",
         "only": "windows",
         "sources": "calibre/utils/windows/winutil.c calibre/utils/windows/winutilpp.cpp",

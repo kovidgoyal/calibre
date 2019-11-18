@@ -9,7 +9,6 @@ import os
 import re
 import subprocess
 import sys
-from io import BytesIO
 
 from calibre import force_unicode
 from calibre.constants import (
@@ -32,7 +31,7 @@ def abspath(x):
 
 
 def update_rapydscript():
-    from calibre_lzma.xz import compress
+    import lzma
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
@@ -41,8 +40,8 @@ def update_rapydscript():
         with open(os.path.join(tdir, 'rapydscript.js'), 'rb') as f:
             raw = f.read()
     path = P(COMPILER_PATH, allow_user_override=False)
-    with open(path, 'wb') as f:
-        compress(raw, f, 9)
+    with lzma.open(path, 'wb', format=lzma.FORMAT_XZ) as f:
+        f.write(raw)
 # }}}
 
 # Compiler {{{
@@ -53,7 +52,7 @@ def to_dict(obj):
 
 
 def compiler():
-    from calibre_lzma.xz import decompress
+    import lzma
     ans = getattr(compiler, 'ans', None)
     if ans is not None:
         return ans
@@ -64,8 +63,8 @@ def compiler():
     from PyQt5.Qt import QApplication, QEventLoop
     must_use_qt()
 
-    buf = BytesIO()
-    decompress(P(COMPILER_PATH, data=True, allow_user_override=False), buf)
+    with lzma.open(P(COMPILER_PATH, allow_user_override=False)) as lzf:
+        compiler_script = lzf.read().decode('utf-8')
 
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
@@ -129,7 +128,7 @@ document.title = 'compiler initialized';
             QWebEnginePage.__init__(self)
             self.errors = []
             secure_webengine(self)
-            script = buf.getvalue().decode('utf-8')
+            script = compiler_script
             script += '\n\n;;\n\n' + vfs_script()
             self.scripts().insert(create_script(script, 'rapydscript.js'))
             self.setHtml('<p>initialize')
