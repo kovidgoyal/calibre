@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 import os, time, sys
 from functools import cmp_to_key
 
-from calibre.constants import preferred_encoding, DEBUG, ispy3
+from calibre.constants import preferred_encoding, DEBUG
 from calibre import isbytestring
 
 from calibre.ebooks.metadata.book.base import Metadata
@@ -118,8 +118,7 @@ class Book(Book_):
 
         return super(Book,self).__unicode__() + u"\n" + ans
 
-    if ispy3:
-        __str__ = __unicode__
+    __str__ = __unicode__
 
 
 class ImageWrapper(object):

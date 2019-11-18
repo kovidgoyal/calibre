@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.constants import ispy3
 from polyglot.builtins import unicode_type
 from calibre.devices.usbms.driver import debug_print
 
@@ -190,7 +189,6 @@ class Bookmark():  # {{{
 
         return ans
 
-    if ispy3:
-        __str__ = __unicode__
+    __str__ = __unicode__
 
 # }}}

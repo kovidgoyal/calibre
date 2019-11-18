@@ -1,4 +1,3 @@
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -9,8 +8,6 @@ from threading import Thread
 
 from calibre.utils.filenames import ascii_text
 from calibre import force_unicode
-from calibre.constants import ispy3
-from polyglot.builtins import iteritems, unicode_type
 
 _server = None
 
@@ -110,10 +107,7 @@ def get_external_ip():
 def start_server():
     global _server
     if _server is None:
-        if ispy3:
-            from zeroconf import Zeroconf
-        else:
-            from calibre.utils.Zeroconf import Zeroconf
+        from zeroconf import Zeroconf
         try:
             _server = Zeroconf()
         except Exception:
@@ -150,21 +144,7 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
     service_type = service_type+'.local.'
     service_name = desc + '.' + service_type
     server_name = hostname+'.local.'
-    if ispy3:
-        from zeroconf import ServiceInfo
-    else:
-        from calibre.utils.Zeroconf import ServiceInfo
-
-        def enc(x):
-            if isinstance(x, unicode_type):
-                x = x.encode('ascii')
-            return x
-
-        service_type = enc(service_type)
-        service_name = enc(service_name)
-        server_name = enc(server_name)
-        if properties:
-            properties = {enc(k): enc(v) for k, v in iteritems(properties)}
+    from zeroconf import ServiceInfo
 
     return ServiceInfo(
         service_type, service_name,

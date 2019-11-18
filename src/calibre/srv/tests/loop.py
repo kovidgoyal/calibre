@@ -11,7 +11,6 @@ from unittest import skipIf
 from glob import glob
 from threading import Event
 
-from calibre.constants import ispy3
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
@@ -114,10 +113,7 @@ class LoopTest(BaseTest):
     def test_bonjour(self):
         'Test advertising via BonJour'
         from calibre.srv.bonjour import BonJour
-        if ispy3:
-            from zeroconf import Zeroconf
-        else:
-            from calibre.utils.Zeroconf import Zeroconf
+        from zeroconf import Zeroconf
         b = BonJour(wait_for_stop=False)
         with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:
             self.assertTrue(b.started.wait(5), 'BonJour not started')

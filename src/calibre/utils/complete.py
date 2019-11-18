@@ -14,45 +14,8 @@ completion.
 
 import sys, os, shlex, glob, re
 
-from polyglot.builtins import is_py3, unicode_type
 
-
-if is_py3:
-    prints = print
-else:
-    def prints(*args, **kwargs):
-        '''
-        Print unicode arguments safely by encoding them to preferred_encoding
-        Has the same signature as the print function from Python 3, except for the
-        additional keyword argument safe_encode, which if set to True will cause the
-        function to use repr when encoding fails.
-        '''
-        file = kwargs.get('file', sys.stdout)
-        sep  = kwargs.get('sep', ' ')
-        end  = kwargs.get('end', '\n')
-        enc = 'utf-8'
-        safe_encode = kwargs.get('safe_encode', False)
-        for i, arg in enumerate(args):
-            if isinstance(arg, unicode_type):
-                try:
-                    arg = arg.encode(enc)
-                except UnicodeEncodeError:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
-            if not isinstance(arg, bytes):
-                arg = unicode_type(arg)
-                try:
-                    arg = arg.encode(enc)
-                except UnicodeEncodeError:
-                    if not safe_encode:
-                        raise
-                    arg = repr(arg)
-
-            file.write(arg)
-            if i != len(args)-1:
-                file.write(sep)
-        file.write(end)
+prints = print
 
 
 def split(src):
