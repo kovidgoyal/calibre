@@ -18,7 +18,7 @@ except EnvironmentError:
 
 from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
-        win32event, win32api, winerror, fcntl, ispy3,
+        win32event, win32api, winerror, fcntl,
         filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
 from calibre.utils.icu import safe_chr
@@ -446,30 +446,11 @@ class CurrentDir(object):
 _ncpus = None
 
 
-if ispy3:
-    def detect_ncpus():
-        global _ncpus
-        if _ncpus is None:
-            _ncpus = max(1, os.cpu_count() or 1)
-        return _ncpus
-else:
-    def detect_ncpus():
-        """Detects the number of effective CPUs in the system"""
-        global _ncpus
-        if _ncpus is None:
-            if iswindows:
-                import win32api
-                ans = win32api.GetSystemInfo()[5]
-            else:
-                import multiprocessing
-                ans = -1
-                try:
-                    ans = multiprocessing.cpu_count()
-                except Exception:
-                    from PyQt5.Qt import QThread
-                    ans = QThread.idealThreadCount()
-            _ncpus = max(1, ans)
-        return _ncpus
+def detect_ncpus():
+    global _ncpus
+    if _ncpus is None:
+        _ncpus = max(1, os.cpu_count() or 1)
+    return _ncpus
 
 
 relpath = os.path.relpath

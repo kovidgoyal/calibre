@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -9,11 +8,11 @@ __docformat__ = 'restructuredtext en'
 import subprocess, os, sys, time
 from functools import partial
 
-from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding, ispy3
+from calibre.constants import iswindows, isosx, isfrozen
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, environ_item, native_string_type, getcwd
+from polyglot.builtins import string_or_bytes, environ_item, native_string_type, getcwd
 from polyglot.binary import as_hex_unicode
 
 if iswindows:
@@ -86,26 +85,7 @@ class Worker(object):
 
     @property
     def env(self):
-        if ispy3:
-            env = os.environ.copy()
-        else:
-            # We use this inefficient method of copying the environment variables
-            # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
-            env = {}
-            for key in os.environ:
-                try:
-                    val = os.environ[key]
-                    if isinstance(val, unicode_type):
-                        # On windows subprocess cannot handle unicode env vars
-                        try:
-                            val = val.encode(filesystem_encoding)
-                        except ValueError:
-                            val = val.encode('utf-8')
-                    if isinstance(key, unicode_type):
-                        key = key.encode('ascii')
-                    env[key] = val
-                except:
-                    pass
+        env = os.environ.copy()
         env[native_string_type('CALIBRE_WORKER')] = environ_item('1')
         td = as_hex_unicode(msgpack_dumps(base_dir()))
         env[native_string_type('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
@@ -156,22 +136,7 @@ class Worker(object):
         self._env = {}
         self.gui = gui
         self.job_name = job_name
-        if ispy3:
-            self._env = env.copy()
-        else:
-            # Windows cannot handle unicode env vars
-            for k, v in iteritems(env):
-                try:
-                    if isinstance(k, unicode_type):
-                        k = k.encode('ascii')
-                    if isinstance(v, unicode_type):
-                        try:
-                            v = v.encode(filesystem_encoding)
-                        except:
-                            v = v.encode('utf-8')
-                    self._env[k] = v
-                except:
-                    pass
+        self._env = env.copy()
 
     def __call__(self, redirect_output=True, cwd=None, priority=None):
         '''
