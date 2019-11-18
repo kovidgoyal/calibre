@@ -12,18 +12,6 @@ Files: resources/rapydscript/*
 Copyright: Various
 License: BSD
 
-Files: src/html5lib/*
-Copyright: Copyright (c) 2006-2013 James Graham and other contributors
-License: Expat
-
-Files: src/lzma/*
-Copyright: Igor Pavlov
-License: Public Domain
-
-Files: src/lzma/*.py src/lzma/lzma_binding.c
-Copyright: Kovid Goyal
-License: GPLv3
-
 Files: src/templite/*
 Copyright: Copyright (c) 2009 joonis new media, Thimo Kraemer
 License: GPL-2+
