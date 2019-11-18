@@ -10,7 +10,7 @@ Perform various initialization tasks.
 import locale, sys
 
 # Default translation is NOOP
-from polyglot.builtins import builtins, is_py3, unicode_type
+from polyglot.builtins import builtins, unicode_type
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be
@@ -116,44 +116,7 @@ if not _run_once:
             pass
 
     # local_open() opens a file that wont be inherited by child processes
-    if is_py3:
-        local_open = open  # PEP 446
-    elif iswindows:
-        def local_open(name, mode='r', bufsize=-1):
-            mode += 'N'
-            return open(name, mode, bufsize)
-    elif isosx:
-        import fcntl
-        FIOCLEX = 0x20006601
-
-        def local_open(name, mode='r', bufsize=-1):
-            ans = open(name, mode, bufsize)
-            try:
-                fcntl.ioctl(ans.fileno(), FIOCLEX)
-            except EnvironmentError:
-                fcntl.fcntl(ans, fcntl.F_SETFD, fcntl.fcntl(ans, fcntl.F_GETFD) | fcntl.FD_CLOEXEC)
-            return ans
-    else:
-        import fcntl
-        try:
-            cloexec_flag = fcntl.FD_CLOEXEC
-        except AttributeError:
-            cloexec_flag = 1
-        supports_mode_e = False
-
-        def local_open(name, mode='r', bufsize=-1):
-            global supports_mode_e
-            mode += 'e'
-            ans = open(name, mode, bufsize)
-            if supports_mode_e:
-                return ans
-            old = fcntl.fcntl(ans, fcntl.F_GETFD)
-            if not (old & cloexec_flag):
-                fcntl.fcntl(ans, fcntl.F_SETFD, old | cloexec_flag)
-            else:
-                supports_mode_e = True
-            return ans
-
+    local_open = open  # PEP 446
     builtins.__dict__['lopen'] = local_open
 
     from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper

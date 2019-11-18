@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__, ispy3
+from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
 
 def init_symbol_name(name):
-    prefix = 'PyInit_' if ispy3 else 'init'
+    prefix = 'PyInit_'
     return prefix + name
 
 
@@ -44,7 +42,7 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
-            return_type = 'PyObject*' if ispy3 else 'void'
+            return_type = 'PyObject*'
             extern_decl = 'extern "C"' if self.needs_cxx else ''
 
             self.cflags.append(
@@ -220,12 +218,8 @@ def init_env():
 class Build(Command):
 
     short_description = 'Build calibre C/C++ extension modules'
-    if ispy3:
-        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins', '3'))
-        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build', '3'))
-    else:
-        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
-        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
+    DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins', sys.version_info.major))
+    DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build', sys.version_info.major))
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
@@ -274,8 +268,6 @@ class Build(Command):
                 os.makedirs(x)
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
-                continue
-            if ext.needs_py2 and ispy3:
                 continue
             if ext.error:
                 if ext.optional:

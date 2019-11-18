@@ -45,7 +45,7 @@ from dbus.exceptions import (
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
 
-from polyglot.builtins import itervalues, zip, is_py3, native_string_type
+from polyglot.builtins import itervalues, zip, native_string_type
 
 
 class dbus_property(object):
@@ -160,9 +160,6 @@ class _VariantSignature(object):
     def __next__(self):
         """Return 'v' whenever called."""
         return 'v'
-
-    if not is_py3:
-        next = __next__
 
 
 class BusName(object):
