@@ -156,14 +156,9 @@
     {
         "name": "python",
         "unix": {
-            "filename": "Python-2.7.16.tar.xz",
-            "hash": "sha256:f222ef602647eecb6853681156d32de4450a2c39f4de93bd5b20235f2e660ed7",
-            "urls": ["https://www.python.org/ftp/python/2.7.16/{filename}"]
-        },
-        "windows": {
-            "filename":"python-584870604fd8524e17bc2c067595b0210411319e.tar.gz",
-            "hash":"sha256:4f1833cac526f209de5b428d517cbd7a7923f13b89ba056e239dd8aa15894b7d",
-            "urls":["github:kovidgoyal/cpython"]
+            "filename": "Python-3.8.0.tar.xz",
+            "hash": "sha256:b356244e13fb5491da890b35b13b2118c3122977c2cd825e3eb6e7d462030d84",
+            "urls": ["https://www.python.org/ftp/python/3.8.0/{filename}"]
         }
     },
 
