@@ -125,7 +125,7 @@ def base_dir():
 
         try:
             tempfile.gettempdir()
-        except:
+        except Exception:
             # Widows temp vars set to a path not encodable in mbcs
             # Use our temp dir
             tempfile.tempdir = _base_dir

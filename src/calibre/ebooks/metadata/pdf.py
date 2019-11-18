@@ -8,7 +8,7 @@ import os, subprocess, shutil, re
 from functools import partial
 
 from calibre import prints
-from calibre.constants import iswindows, ispy3
+from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
@@ -99,8 +99,6 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
 
 
 def is_pdf_encrypted(path_to_pdf):
-    if not ispy3 and not isinstance(path_to_pdf, bytes):
-        path_to_pdf = path_to_pdf.encode('mbcs' if iswindows else 'utf-8')
     pdfinfo = get_tools()[0]
     raw = subprocess.check_output([pdfinfo, path_to_pdf])
     q = re.search(br'^Encrypted:\s*(\S+)', raw, flags=re.MULTILINE)
