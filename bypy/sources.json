@@ -79,6 +79,15 @@
     },
 
     {
+        "name": "xz",
+        "unix": {
+            "filename": "xz-5.2.4.tar.gz",
+            "hash": "md5:5ace3264bdd00c65eeec2891346f65e6",
+            "urls": ["https://tukaani.org/xz/{filename}"]
+        }
+    },
+
+    {
         "name": "unrar",
         "unix": {
             "filename": "unrarsrc-5.9.1.tar.gz",
