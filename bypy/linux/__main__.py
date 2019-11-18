@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import errno
 import glob
 import os
@@ -141,7 +139,6 @@ def copy_python(env, ext_dir):
     srcdir = j(srcdir, 'site-packages')
     dest = j(env.py_dir, 'site-packages')
     import_site_packages(srcdir, dest)
-    shutil.rmtree(j(dest, 'PyQt5/uic/port_v3'))
 
     filter_pyqt = {x + '.so' for x in PYQT_MODULES} | {'sip.so'}
     pyqt = j(dest, 'PyQt5')
@@ -176,7 +173,7 @@ def build_launchers(env):
     base = self_dir
     sources = [j(base, x) for x in ['util.c']]
     objects = [j(env.obj_dir, os.path.basename(x) + '.o') for x in sources]
-    cflags = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPYTHON_VER="python%s"' % py_ver
+    cflags = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPYTHON_VER=L"python%s"' % py_ver
     cflags = cflags.split() + ['-I%s/include/python%s' % (PREFIX, py_ver)]
     for src, obj in zip(sources, objects):
         cmd = ['gcc'] + cflags + ['-fPIC', '-o', obj, src]
@@ -204,8 +201,8 @@ def build_launchers(env):
             xflags = list(cflags)
             xflags.remove('-c')
             xflags += ['-DGUI_APP=' + ('1' if typ == 'gui' else '0')]
-            xflags += ['-DMODULE="%s"' % mod, '-DBASENAME="%s"' % bname,
-                       '-DFUNCTION="%s"' % func]
+            xflags += ['-DMODULE=L"%s"' % mod, '-DBASENAME=L"%s"' % bname,
+                       '-DFUNCTION=L"%s"' % func]
 
             exe = j(env.bin_dir, bname)
             cmd = ['gcc'] + xflags + [src, '-o', exe, '-L' + env.lib_dir, '-lcalibre-launcher']
