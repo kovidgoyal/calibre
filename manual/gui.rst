@@ -179,9 +179,11 @@ Library
     1. **Switch/create library...**: Allows you to; a) connect to a pre-existing calibre library at another location, b) create an empty library at a new location or, c) move the current library to a newly specified location.
     2. **Quick switch**: Allows you to switch between libraries that have been registered or created within calibre.
     3. **Rename library**: Allows you to rename a Library.
-    4. **Remove library**: Allows you to unregister a library from calibre.
-    5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
-    6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
+    4. **Pick a random book**: Chooses a random book in the library for you
+    5. **Remove library**: Allows you to unregister a library from calibre.
+    6. **Export/import all calibre data**: Allows you to either export calibre data for migration to a new computer or import previously exported data.
+    7. **<library name>**: Actions 7, 8 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
+    8. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
 .. note:: Metadata about your e-books, e.g. title, author, and tags, is stored in a single file in your calibre library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, calibre automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore database action under Library Maintenance described above, you can have calibre rebuild the metadata.db file from the individual OPF files for you.
 
