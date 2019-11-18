@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, re
 
-from calibre.constants import iswindows, ispy3
+from calibre.constants import iswindows
 from polyglot.builtins import iteritems, range, zip, native_string_type
 
 if iswindows:
@@ -150,12 +149,7 @@ class Detect(object):
             while text:
                 t, text = text[:chunk], text[chunk:]
                 wt = c_wchar_p(t)
-                if ispy3:
-                    text_len = len(t.encode('utf-16'))
-                else:
-                    # Use the fact that len(t) == wcslen(wt) in python 2.7 on
-                    # windows where the python unicode type uses UTF-16
-                    text_len = len(t)
+                text_len = len(t.encode('utf-16'))
                 if not self.write_console(self.file_handle, wt, text_len, byref(written), None):
                     # Older versions of windows can fail to write large strings
                     # to console with WriteConsoleW (seen it happen on Win XP)

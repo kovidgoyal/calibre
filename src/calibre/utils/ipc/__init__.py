@@ -10,7 +10,7 @@ import os, errno, sys
 from threading import Thread
 
 from calibre import force_unicode
-from calibre.constants import iswindows, get_windows_username, islinux, filesystem_encoding, ispy3
+from calibre.constants import iswindows, get_windows_username, islinux, filesystem_encoding
 from calibre.utils.filenames import ascii_filename
 from polyglot.functools import lru_cache
 
@@ -48,8 +48,6 @@ def socket_address(which):
             from tempfile import gettempdir
             tmp = force_unicode(gettempdir(), filesystem_encoding)
             ans = os.path.join(tmp, sock_name)
-    if not ispy3 and not isinstance(ans, bytes):
-        ans = ans.encode(filesystem_encoding)
     return ans
 
 

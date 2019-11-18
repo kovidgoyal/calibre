@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import sys
 from functools import partial
 
@@ -77,7 +75,7 @@ def manage_users_cli(path=None):
         return get_valid(_('Enter the username'), validate)
 
     def get_pass(username):
-        from calibre.utils.unicode_getpass import getpass
+        from getpass import getpass
 
         while True:
             one = getpass(

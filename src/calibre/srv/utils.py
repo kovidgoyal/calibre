@@ -11,7 +11,7 @@ from email.utils import formatdate
 from operator import itemgetter
 
 from calibre import prints
-from calibre.constants import iswindows, ispy3
+from calibre.constants import iswindows
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
@@ -48,8 +48,7 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        if ispy3:
-            qs = as_unicode(qs)
+        qs = as_unicode(qs)
         for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
             dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
@@ -60,7 +59,7 @@ class MultiDict(dict):  # {{{
                 self[key] = val
 
     def items(self, duplicates=True):
-        f = dict.items if ispy3 else dict.iteritems
+        f = dict.items
         for k, v in f(self):
             if duplicates:
                 for x in v:
@@ -70,7 +69,7 @@ class MultiDict(dict):  # {{{
     iteritems = items
 
     def values(self, duplicates=True):
-        f = dict.values if ispy3 else dict.itervalues
+        f = dict.values
         for v in f(self):
             if duplicates:
                 for x in v:
@@ -292,8 +291,6 @@ def encode_path(*components):
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        if not ispy3 and not isinstance(key, bytes):
-            key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
 
 
@@ -323,14 +320,11 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        if ispy3:
-            if iswindows:
-                self.stream = share_open(self.filename, 'ab')
-            else:
-                # see https://bugs.python.org/issue27805
-                self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
+        if iswindows:
+            self.stream = share_open(self.filename, 'ab')
         else:
-            self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
+            # see https://bugs.python.org/issue27805
+            self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
@@ -345,14 +339,12 @@ class RotatingStream(object):
         kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
-        if iswindows or ispy3:
-            # For some reason line buffering does not work on windows
-            # and in python 3 it only works with text mode streams
-            end = kwargs.get('end', b'\n')
-            if isinstance(end, unicode_type):
-                end = end.encode('utf-8')
-            if b'\n' in end:
-                self.flush()
+        # line bufferring only works with text mode streams
+        end = kwargs.get('end', b'\n')
+        if isinstance(end, unicode_type):
+            end = end.encode('utf-8')
+        if b'\n' in end:
+            self.flush()
         self.rollover()
 
     def rename(self, src, dest):
