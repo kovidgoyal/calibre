@@ -12,10 +12,10 @@ from itertools import chain, repeat
 from operator import itemgetter
 from functools import wraps
 
-from polyglot.builtins import iteritems, itervalues, reraise, map, is_py3, unicode_type, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, reraise, map, unicode_type, string_or_bytes
 
 from calibre import guess_type, force_unicode
-from calibre.constants import __version__, plugins, ispy3
+from calibre.constants import __version__
 from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
@@ -33,15 +33,8 @@ MULTIPART_SEPARATOR = uuid.uuid4().hex
 if isinstance(MULTIPART_SEPARATOR, bytes):
     MULTIPART_SEPARATOR = MULTIPART_SEPARATOR.decode('ascii')
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
-if is_py3:
-    import zlib
-    from itertools import zip_longest
-else:
-    zlib, zlib2_err = plugins['zlib2']
-    if zlib2_err:
-        raise RuntimeError('Failed to load the zlib2 module with error: ' + zlib2_err)
-    del zlib2_err
-    from itertools import izip_longest as zip_longest
+import zlib
+from itertools import zip_longest
 
 
 def header_list_to_file(buf):  # {{{
@@ -290,8 +283,8 @@ class RequestData(object):  # {{{
         if lang_code != self.lang_code:
             found, lang, t = self.get_translator(lang_code)
             self.lang_code = lang
-            self.gettext_func = getattr(t, 'gettext' if ispy3 else 'ugettext')
-            self.ngettext_func = getattr(t, 'ngettext' if ispy3 else 'ungettext')
+            self.gettext_func = t.gettext
+            self.ngettext_func = t.ngettext
 # }}}
 
 

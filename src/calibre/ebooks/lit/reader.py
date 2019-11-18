@@ -17,7 +17,6 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
-from calibre.constants import ispy3
 from calibre import plugins
 from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
@@ -185,7 +184,7 @@ class UnBinary(object):
         return self.unicode_representation
 
     def __str__(self):
-        return self.unicode_representation if ispy3 else self.binary_representation
+        return self.unicode_representation
 
     def binary_to_text(self, bin, buf):
         stack = [(0, None, None, 0, 0, False, False, 'text', 0)]

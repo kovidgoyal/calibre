@@ -10,7 +10,6 @@ import copy
 from functools import partial
 from polyglot.builtins import iteritems, unicode_type, map, native_string_type
 
-from calibre.constants import ispy3
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key, collation_order
@@ -47,15 +46,8 @@ class Tag(object):
     def string_representation(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
 
-    if ispy3:
-        def __str__(self):
-            return self.string_representation
-    else:
-        def __str__(self):
-            return self.string_representation.encode('utf-8')
-
-        def __unicode__(self):
-            return self.string_representation
+    def __str__(self):
+        return self.string_representation
 
     def __repr__(self):
         return native_string_type(self)

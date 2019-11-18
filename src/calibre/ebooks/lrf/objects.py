@@ -7,7 +7,7 @@ import struct, array, zlib, io, collections, re
 from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
 from calibre import entity_to_unicode, prepare_string_for_xml
 from calibre.ebooks.lrf.tags import Tag
-from polyglot.builtins import is_py3, unicode_type
+from polyglot.builtins import unicode_type
 
 ruby_tags = {
         0xF575: ['rubyAlignAndAdjust', 'W'],
@@ -208,9 +208,6 @@ class StyleObject(object):
         s += '/>\n'
         return s
 
-    if not is_py3:
-        __unicode__ = __str__
-
     def as_dict(self):
         d = {}
         for h in self.tag_map.values():
@@ -256,9 +253,6 @@ class Color(object):
     def __str__(self):
         return '0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
 
-    if not is_py3:
-        __unicode__ = __str__
-
     def __len__(self):
         return 4
 
@@ -289,9 +283,6 @@ class PageDiv(EmptyPageElement):
         return '\n<PageDiv pain="%s" spacesize="%s" linewidth="%s" linecolor="%s" />\n'%\
                 (self.pain, self.spacesize, self.linewidth, self.color)
 
-    if not is_py3:
-        __unicode__ = __str__
-
 
 class RuledLine(EmptyPageElement):
 
@@ -307,9 +298,6 @@ class RuledLine(EmptyPageElement):
         return '\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
                 (self.linelength, self.linetype, self.linewidth, self.linecolor)
 
-    if not is_py3:
-        __unicode__ = __str__
-
 
 class Wait(EmptyPageElement):
 
@@ -318,9 +306,6 @@ class Wait(EmptyPageElement):
 
     def __str__(self):
         return '\n<Wait time="%d" />\n'%(self.time)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class Locate(EmptyPageElement):
@@ -333,9 +318,6 @@ class Locate(EmptyPageElement):
     def __str__(self):
         return '\n<Locate pos="%s" />\n'%(self.pos)
 
-    if not is_py3:
-        __unicode__ = __str__
-
 
 class BlockSpace(EmptyPageElement):
 
@@ -345,9 +327,6 @@ class BlockSpace(EmptyPageElement):
     def __str__(self):
         return '\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
                 (self.xspace, self.yspace)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class Page(LRFStream):
@@ -449,9 +428,6 @@ class Page(LRFStream):
             s += unicode_type(i)
         s += '\n</Page>\n'
         return s
-
-    if not is_py3:
-        __unicode__ = __str__
 
     def to_html(self):
         s = ''
@@ -641,9 +617,6 @@ class Block(LRFStream, TextCSS):
             return s
         return s.rstrip() + ' />\n'
 
-    if not is_py3:
-        __unicode__ = __str__
-
     def to_html(self):
         if self.name == 'TextBlock':
             return '<div class="block%s text%s">%s</div>'%(self.style_id, self.textstyle_id, self.content.to_html())
@@ -721,9 +694,6 @@ class Text(LRFStream):
             for name, val in self.attrs.items():
                 s += '%s="%s" '%(name, val)
             return s.rstrip() + (' />' if self.self_closing else '>')
-
-        if not is_py3:
-            __unicode__ = __str__
 
         def to_html(self):
             s = ''
@@ -922,9 +892,6 @@ class Text(LRFStream):
                 raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
         return s
 
-    if not is_py3:
-        __unicode__ = __str__
-
     def to_html(self):
         s = ''
         open_containers = collections.deque()
@@ -971,9 +938,6 @@ class Image(LRFObject):
         return '<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
         (self.id, self.x0, self.y0, self.x1, self.y1, self.xsize, self.ysize, self.refstream)
 
-    if not is_py3:
-        __unicode__ = __str__
-
 
 class PutObj(EmptyPageElement):
 
@@ -983,9 +947,6 @@ class PutObj(EmptyPageElement):
 
     def __str__(self):
         return '<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class Canvas(LRFStream):
@@ -1035,9 +996,6 @@ class Canvas(LRFStream):
         s += '</%s>\n'%(self.__class__.__name__,)
         return s
 
-    if not is_py3:
-        __unicode__ = __str__
-
     def __iter__(self):
         for i in self._contents:
             yield i
@@ -1074,9 +1032,6 @@ class ImageStream(LRFStream):
     def __str__(self):
         return '<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
             (self.id, self.encoding, self.file)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class Import(LRFStream):
@@ -1167,9 +1122,6 @@ class Button(LRFObject):
         s += '</Button>\n'
         return s
 
-    if not is_py3:
-        __unicode__ = __str__
-
     refpage = property(fget=lambda self : self.jump_action(2)[0])
     refobj = property(fget=lambda self : self.jump_action(2)[1])
 
@@ -1241,9 +1193,6 @@ class BookAttr(StyleObject, LRFObject):
         s += '</BookStyle>\n'
         return s
 
-    if not is_py3:
-        __unicode__ = __str__
-
 
 class SimpleText(Text):
     pass
@@ -1256,9 +1205,6 @@ class TocLabel(object):
 
     def __str__(self):
         return '<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 class TOCObject(LRFStream):
@@ -1286,9 +1232,6 @@ class TOCObject(LRFStream):
         for i in self:
             s += unicode_type(i)
         return s + '</TOC>\n'
-
-    if not is_py3:
-        __unicode__ = __str__
 
 
 object_map = [

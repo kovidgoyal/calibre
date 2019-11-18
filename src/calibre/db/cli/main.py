@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import json
 import os
 import sys
@@ -125,7 +123,7 @@ def read_credentials(opts):
     pw = opts.password
     if pw:
         if pw == '<stdin>':
-            from calibre.utils.unicode_getpass import getpass
+            from getpass import getpass
             pw = getpass(_('Enter the password: '))
         elif pw.startswith('<f:') and pw.endswith('>'):
             with lopen(pw[3:-1], 'rb') as f:

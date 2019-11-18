@@ -13,7 +13,7 @@ import re, sys, unittest, functools, os, uuid, glob, io, json, copy
 from lxml import etree
 
 from calibre.ebooks import escape_xpath_attr
-from calibre.constants import __appname__, __version__, filesystem_encoding, ispy3
+from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
@@ -205,13 +205,7 @@ class ManifestItem(Resource):  # {{{
     def __unicode__representation__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
 
-    if ispy3:
-        __str__ = __unicode__representation__
-    else:
-        __unicode__ = __unicode__representation__
-
-        def __str__(self):
-            return unicode_type(self).encode('utf-8')
+    __str__ = __unicode__representation__
 
     def __repr__(self):
         return unicode_type(self)

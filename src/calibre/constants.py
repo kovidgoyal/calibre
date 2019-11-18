@@ -150,9 +150,7 @@ def cache_dir():
     return ans
 
 
-plugins_loc = sys.extensions_location
-if ispy3:
-    plugins_loc = os.path.join(plugins_loc, '3')
+plugins_loc = os.path.join(sys.extensions_location, sys.version_info.major)
 
 
 # plugins {{{
@@ -186,11 +184,6 @@ class Plugins(collections.Mapping):
                 'certgen',
                 'lzma_binding',
             ]
-        if not ispy3:
-            plugins.extend([
-                'monotonic',
-                'zlib2',
-            ])
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:

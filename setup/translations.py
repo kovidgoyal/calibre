@@ -11,7 +11,7 @@ from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, ispy3
+from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json
 from setup.parallel_build import parallel_check_output
 from polyglot.builtins import codepoint_to_chr, iteritems, range
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -602,7 +602,7 @@ class Translations(POT):  # {{{
             lang_names = {}
             for l in dl:
                 translator = translator_for_lang(l)['translator']
-                t = getattr(translator, 'gettext' if ispy3 else 'ugettext')
+                t = translator.gettext
                 t = partial(get_language, gettext_func=t)
                 lang_names[l] = {x: t(x) for x in dl}
             zi = ZipInfo('lang-names.json')

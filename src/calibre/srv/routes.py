@@ -8,7 +8,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, inspect, re, time, numbers, json as jsonlib, textwrap
 from operator import attrgetter
 
-from calibre.constants import ispy3
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
@@ -88,7 +87,7 @@ def endpoint(route,
         f.ok_code = ok_code
         f.is_endpoint = True
         f.needs_db_write = needs_db_write
-        argspec = inspect.getfullargspec(f) if ispy3 else inspect.getargspec(f)
+        argspec = inspect.getfullargspec(f)
         if len(argspec.args) < 2:
             raise TypeError('The endpoint %r must take at least two arguments' % f.route)
         f.__annotations__ = {
@@ -158,10 +157,7 @@ class Route(object):
         self.names = [n for n, m in matchers if n is not None]
         self.all_names = frozenset(self.names)
         self.required_names = self.all_names - frozenset(self.defaults)
-        if ispy3:
-            argspec = inspect.getfullargspec(self.endpoint)
-        else:
-            argspec = inspect.getargspec(self.endpoint)
+        argspec = inspect.getfullargspec(self.endpoint)
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
             raise route_error('Function must take %d non-default arguments' % (len(self.names) + 2))
         if argspec.args[2:len(self.names)+2] != self.names:
