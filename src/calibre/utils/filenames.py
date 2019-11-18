@@ -490,9 +490,9 @@ if iswindows:
     def rename_file(a, b):
         move_file = plugins['winutil'][0].move_file
         if isinstance(a, bytes):
-            a = a.decode('mbcs')
+            a = os.fsdecode(a)
         if isinstance(b, bytes):
-            b = b.decode('mbcs')
+            b = os.fsdecode(b)
         move_file(a, b)
 
 

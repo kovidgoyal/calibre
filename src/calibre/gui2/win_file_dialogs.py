@@ -30,10 +30,8 @@ def is_ok():
 
 
 try:
-    from calibre.constants import filesystem_encoding
     from calibre.utils.config import dynamic
 except ImportError:
-    filesystem_encoding = 'mbcs'
     dynamic = {}
 
 
@@ -112,7 +110,7 @@ class Loop(QEventLoop):
 
 def process_path(x):
     if isinstance(x, bytes):
-        x = x.decode(filesystem_encoding)
+        x = os.fsdecode(x)
     return os.path.abspath(os.path.expanduser(x))
 
 
@@ -167,7 +165,7 @@ def run_file_dialog(
             data.append(serialize_string('FOLDER', initial_folder))
     if filename:
         if isinstance(filename, bytes):
-            filename = filename.decode(filesystem_encoding)
+            filename = os.fsdecode(filename)
         data.append(serialize_string('FILENAME', filename))
     if only_dirs:
         file_types = ()  # file types not allowed for dir only dialogs
