@@ -121,3 +121,19 @@ def int_to_byte(x):
 def reload(module):
     import importlib
     return importlib.reload(module)
+
+
+def print_to_binary_file(fileobj, encoding='utf-8'):
+
+    def print(*a, **kw):
+        f = kw.get('file', fileobj)
+        if a:
+            sep = as_bytes(kw.get('sep', ' '), encoding)
+            for x in a:
+                x = as_bytes(x, encoding)
+                f.write(x)
+                if x is not a[-1]:
+                    f.write(sep)
+        f.write(as_bytes(kw.get('end', '\n')))
+
+    return print
