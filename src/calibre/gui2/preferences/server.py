@@ -2,8 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import errno
 import json
 import numbers
@@ -49,7 +47,7 @@ if iswindows and not isportable:
         exe_base = os.path.abspath(os.path.dirname(sys.executable))
         exe = os.path.join(exe_base, 'calibre.exe')
         if isinstance(exe, bytes):
-            exe = exe.decode('mbcs')
+            exe = os.fsdecode(exe)
         return exe
 
     def startup_shortcut_path():
