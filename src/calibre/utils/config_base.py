@@ -11,17 +11,14 @@ from collections import defaultdict
 from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
-from calibre.constants import config_dir, CONFIG_DIR_MODE, ispy3, preferred_encoding, filesystem_encoding, iswindows
+from calibre.constants import config_dir, CONFIG_DIR_MODE, preferred_encoding, filesystem_encoding, iswindows
 from polyglot.builtins import unicode_type, iteritems, map
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
 
 def parse_old_style(src):
-    if ispy3:
-        import pickle as cPickle
-    else:
-        import cPickle
+    import pickle as cPickle
     options = {'cPickle':cPickle}
     try:
         if not isinstance(src, unicode_type):

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -12,11 +11,11 @@ from collections import namedtuple
 from functools import partial
 
 from calibre import prints, as_unicode, force_unicode
-from calibre.constants import plugins, islinux, isosx, ispy3
+from calibre.constants import plugins, islinux, isosx
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
-from polyglot.builtins import unicode_type, as_bytes
+from polyglot.builtins import unicode_type
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -167,9 +166,8 @@ class MTP_DEVICE(MTPDeviceBase):
     def create_device(self, connected_device):
         d = connected_device
         man, prod = d.manufacturer, d.product
-        if ispy3:
-            man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
-            prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
+        man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
+        prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
         return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
                 d.product_id, man, prod, d.serial)
 
@@ -399,9 +397,8 @@ class MTP_DEVICE(MTPDeviceBase):
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0xFFFFFFFF
-        ename = name if ispy3 else as_bytes(name)
 
-        ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
+        ans, errs = self.dev.put_file(sid, pid, name, stream, size, callback)
         if ans is None:
             raise DeviceError('Failed to upload file named: %s to %s: %s'
                     %(name, parent.full_path, self.format_errorstack(errs)))

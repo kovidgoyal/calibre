@@ -16,7 +16,7 @@ from polyglot.builtins import (iteritems, itervalues,
 
 from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
-        preferred_encoding, ispy3)
+        preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
@@ -1752,8 +1752,6 @@ class DB(object):
                 x = native_string_type(x)
             x = x.encode('utf-8') if isinstance(x, unicode_type) else x
             x = pickle_binary_string(x)
-            if not ispy3:
-                x = buffer(x)  # noqa
             return x
         options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)

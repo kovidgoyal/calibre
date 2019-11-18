@@ -12,11 +12,8 @@ from functools import partial
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
-from polyglot.builtins import itervalues, is_py3
-if is_py3:
-    from itertools import zip_longest
-else:
-    from itertools import izip_longest as zip_longest
+from polyglot.builtins import itervalues
+from itertools import zip_longest
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
