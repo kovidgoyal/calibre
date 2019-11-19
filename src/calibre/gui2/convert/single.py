@@ -181,7 +181,7 @@ class Config(QDialog):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.help.sizePolicy().hasHeightForWidth())
         self.help.setSizePolicy(sizePolicy)
-        self.help.setMaximumSize(QSize(16777215, 130))
+        self.help.setMaximumHeight(80)
         self.help.setObjectName("help")
         self.gridLayout.addWidget(self.help, 2, 1, 1, 1)
         self.input_label.setBuddy(self.input_formats)
