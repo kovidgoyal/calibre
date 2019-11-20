@@ -173,7 +173,7 @@ def build_launchers(env):
     base = self_dir
     sources = [j(base, x) for x in ['util.c']]
     objects = [j(env.obj_dir, os.path.basename(x) + '.o') for x in sources]
-    cflags = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPYTHON_VER=L"python%s"' % py_ver
+    cflags = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*py_ver.split('.'))
     cflags = cflags.split() + ['-I%s/include/python%s' % (PREFIX, py_ver)]
     for src, obj in zip(sources, objects):
         cmd = ['gcc'] + cflags + ['-fPIC', '-o', obj, src]
