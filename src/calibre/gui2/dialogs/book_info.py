@@ -2,6 +2,8 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import textwrap
+
 from PyQt5.Qt import (
     QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap, QPushButton,
@@ -169,6 +171,7 @@ class BookInfo(QDialog):
         l2.addWidget(self.next_button, l2.rowCount() - 1, 1)
 
         self.view = view
+        self.path_to_book = None
         self.current_row = None
         self.refresh(row)
         self.view.model().new_bookdisplay_data.connect(self.slave)
@@ -275,9 +278,14 @@ class BookInfo(QDialog):
     def update_cover_tooltip(self):
         tt = ''
         if self.marked:
-            tt = _('This book is marked') if self.marked in {True, 'true'} else _(
+            tt += _('This book is marked') if self.marked in {True, 'true'} else _(
                 'This book is marked as: %s') % self.marked
             tt += '\n\n'
+
+        if self.path_to_book is not None:
+            tt += textwrap.fill(_('Path: {}').format(self.path_to_book))
+            tt += '\n\n'
+
         if self.cover_pixmap is not None:
             sz = self.cover_pixmap.size()
             tt += _('Cover size: %(width)d x %(height)d pixels')%dict(width=sz.width(), height=sz.height())
@@ -300,6 +308,7 @@ class BookInfo(QDialog):
         self.current_row = row
         self.setWindowTitle(mi.title)
         self.cover_pixmap = QPixmap.fromImage(mi.cover_data[1])
+        self.path_to_book = getattr(mi, 'path', None)
         try:
             dpr = self.devicePixelRatioF()
         except AttributeError:
