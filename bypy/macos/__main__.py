@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 import errno
 import glob
 import json
@@ -504,7 +502,7 @@ class Freeze(object):
         for x in (
                 'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
                 'icudata.64', 'icui18n.64', 'icuio.64', 'icuuc.64', 'hyphen.0',
-                'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar',
+                'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
                 'crypto.1.0.0', 'ssl.1.0.0', 'iconv.2',  # 'ltdl.7'
         ):
             print('\nAdding', x)

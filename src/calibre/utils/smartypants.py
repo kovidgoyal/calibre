@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 
 
-
 __author__ = "Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>"
 __description__ = "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom"
 

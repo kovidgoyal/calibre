@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from calibre.db.delete_service import delete_service
 from calibre.srv.changes import formats_removed
 
