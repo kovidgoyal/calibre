@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from polyglot.builtins import iteritems
 from polyglot.urllib import quote, quote_plus
 

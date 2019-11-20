@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from collections import OrderedDict
 from polyglot.builtins import map, unicode_type
 

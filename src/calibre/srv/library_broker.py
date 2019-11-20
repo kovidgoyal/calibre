@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import os
 from collections import OrderedDict, defaultdict
 from threading import RLock as Lock

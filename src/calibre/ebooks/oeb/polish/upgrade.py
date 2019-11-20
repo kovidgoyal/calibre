@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import sys
 
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
