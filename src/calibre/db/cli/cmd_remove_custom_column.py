@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import sys
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase

@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from PyQt5.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
         QProgressBar, QSize, QTimer, pyqtSignal, Qt)
 

@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from calibre.constants import iswindows, islinux, isbsd
 from calibre.utils.config_base import tweaks
 

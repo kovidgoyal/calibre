@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 PATCHED_MATHJAX = '''
 
 function postprocess_mathjax(link_uid) {

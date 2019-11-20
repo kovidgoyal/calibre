@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 '''
 Read the header data from a pdb file.
 '''
