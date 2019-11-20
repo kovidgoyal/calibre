@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import re
 import textwrap
 

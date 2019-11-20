@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import sys
 
 from PyQt5.Qt import QApplication, QUrl, QPageLayout, QPageSize, QMarginsF

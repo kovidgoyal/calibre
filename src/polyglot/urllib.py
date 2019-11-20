@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from urllib.request import (build_opener, getproxies, install_opener,  # noqa
         HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler,  # noqa
         url2pathname, urlopen, Request)  # noqa

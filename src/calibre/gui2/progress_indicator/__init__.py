@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 from PyQt5.Qt import (
     QDialog, QLabel, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QVBoxLayout,
     QWidget
