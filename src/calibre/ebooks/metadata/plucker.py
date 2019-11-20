@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 '''
 Read meta information from Plucker pdb files.
 '''

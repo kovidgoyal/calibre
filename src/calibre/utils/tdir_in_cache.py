@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import atexit
 import errno
 import os

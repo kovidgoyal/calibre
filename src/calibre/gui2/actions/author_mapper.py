@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 from polyglot.builtins import iteritems, map, range

@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
 
 from calibre.constants import filesystem_encoding
