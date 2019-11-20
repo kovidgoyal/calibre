@@ -12,7 +12,5 @@
 #include <wchar.h>
 #include <stdbool.h>
 
-void set_gui_app(bool yes);
-
-int execute_python_entrypoint(int argc, char * const *argv, const wchar_t *basename,
-        const wchar_t *module, const wchar_t *function);
+void execute_python_entrypoint(int argc, char * const *argv, const wchar_t *basename,
+        const wchar_t *module, const wchar_t *function, const bool gui_app);
