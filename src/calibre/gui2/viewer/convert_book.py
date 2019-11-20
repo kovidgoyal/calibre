@@ -55,7 +55,10 @@ def robust_rmtree(x):
     retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
-            rmtree(x)
+            try:
+                rmtree(x)
+            except UnicodeDecodeError:
+                rmtree(as_bytes(x))
             return True
         except EnvironmentError:
             time.sleep(0.1)
