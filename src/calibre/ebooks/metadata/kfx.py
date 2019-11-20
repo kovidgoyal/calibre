@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>, John Howell <jhowell@acm.org>'
 
 
-
 # Based on work of John Howell reversing the KFX format
 # https://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
 

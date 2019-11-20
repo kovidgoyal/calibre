@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from PyQt5.Qt import (
     QFontMetrics, QHBoxLayout, QIcon, QMenu, QPainter, QPushButton, QSize,
     QSizePolicy, Qt, QWidget, QStyleOption, QStyle)

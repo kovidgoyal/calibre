@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import weakref
 
 from PyQt5.Qt import (

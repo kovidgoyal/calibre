@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import os, string, re, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
