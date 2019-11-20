@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (

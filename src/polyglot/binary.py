@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from base64 import standard_b64decode, standard_b64encode
 from binascii import hexlify, unhexlify
 

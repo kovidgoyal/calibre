@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import os
 from polyglot.builtins import range, unicode_type
 

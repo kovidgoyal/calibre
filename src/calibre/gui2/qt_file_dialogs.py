@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import os
 
 from PyQt5.Qt import QFileDialog, QObject

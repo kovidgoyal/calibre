@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from functools import partial
 
 from lxml.html import tostring

@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import os
 import unittest
 from polyglot.builtins import unicode_type

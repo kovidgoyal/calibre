@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import unittest
 from .html_writer import merge_w_arrays, merge_cmaps
 

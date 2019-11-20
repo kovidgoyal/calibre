@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 def html2text(html):
     from html2text import HTML2Text
     import re

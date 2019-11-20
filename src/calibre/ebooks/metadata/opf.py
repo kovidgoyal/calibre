@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from lxml import etree
 
 from calibre.ebooks.metadata.opf2 import OPF, pretty_print
