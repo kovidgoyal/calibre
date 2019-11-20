@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import json
 from base64 import standard_b64encode
 from itertools import count

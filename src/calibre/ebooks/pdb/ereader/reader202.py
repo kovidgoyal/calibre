@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 '''
 Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
 '''

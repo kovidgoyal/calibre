@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import shutil
 
 from PyQt5.Qt import (
