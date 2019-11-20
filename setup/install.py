@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import atexit
 import glob
 import os

@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 import bs4
 from bs4 import (  # noqa
     CData, Comment, Declaration, NavigableString, ProcessingInstruction,

@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-
 from calibre import prints
 from calibre.db import _get_series_values
 from calibre.srv.changes import metadata

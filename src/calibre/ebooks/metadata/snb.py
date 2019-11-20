@@ -1,7 +1,6 @@
 '''Read meta information from SNB files'''
 
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 

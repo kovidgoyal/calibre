@@ -3,7 +3,6 @@
 # License: GPLv3 Copyright: 2019, Eli Schwartz <eschwartz@archlinux.org>
 
 
-
 import re
 import subprocess
 

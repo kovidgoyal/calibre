@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-
 from PyQt5.Qt import QToolButton, QAction
 
 from calibre.gui2.actions import InterfaceAction
