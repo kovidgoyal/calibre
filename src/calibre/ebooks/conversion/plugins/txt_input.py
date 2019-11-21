@@ -95,12 +95,14 @@ class TXTInput(InputFormatPlugin):
                    ).format('https://python-markdown.github.io/extensions/') + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     }
 
-    def shift_file(self, base_dir, fname, data):
+    def shift_file(self, fname, data):
         name, ext = os.path.splitext(fname)
-        c = 1
-        while os.path.exists(os.path.join(base_dir, '{}-{}{}'.format(name, c, ext))):
+        candidate = os.path.join(self.output_dir, fname)
+        c = 0
+        while os.path.exists(candidate):
             c += 1
-        ans = os.path.join(base_dir, '{}-{}{}'.format(name, c, ext))
+            candidate = os.path.join(self.output_dir, '{}-{}{}'.format(name, c, ext))
+        ans = candidate
         with open(ans, 'wb') as f:
             f.write(data)
         return f.name
@@ -117,7 +119,7 @@ class TXTInput(InputFormatPlugin):
                 if os.access(src, os.R_OK):
                     with open(src, 'rb') as f:
                         data = f.read()
-                    f = self.shift_file(base_dir, os.path.basename(src), data)
+                    f = self.shift_file(os.path.basename(src), data)
                     changed = True
                     img.set('src', os.path.basename(f))
         if changed:
@@ -141,7 +143,7 @@ class TXTInput(InputFormatPlugin):
         txt = b''
         log.debug('Reading text from file...')
         length = 0
-        base_dir = getcwd()
+        base_dir = self.output_dir = getcwd()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -278,7 +280,7 @@ class TXTInput(InputFormatPlugin):
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
             options.input_encoding = 'utf-8'
-            htmlfile = self.shift_file(base_dir, 'index.html', html.encode('utf-8'))
+            htmlfile = self.shift_file('index.html', html.encode('utf-8'))
             odi = options.debug_pipeline
             options.debug_pipeline = None
             # Generate oeb from html conversion.
