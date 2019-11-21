@@ -96,7 +96,7 @@ static PyMethodDef module_methods[] = {
 
 #if PY_MAJOR_VERSION >= 3
 #define INITERROR return NULL
-#define INITMODULE PyModule_Create(&bzzdec_module)
+#define INITMODULE PyModule_Create(&cocoa_module)
 static struct PyModuleDef cocoa_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "cocoa",
