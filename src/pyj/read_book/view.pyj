@@ -640,7 +640,9 @@ class View:
         if not navigated and jstype(initial_bookpos) is 'number':
             navigated = True
             self.goto_book_position(initial_bookpos)
-        if not navigated:
+        if navigated:
+            self.hide_loading()
+        else:
             self.show_name(name, initial_position=pos)
         sd = get_session_data()
         c = sd.get('controls_help_shown_count', 0)
