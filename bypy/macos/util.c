@@ -1,43 +1,25 @@
 #include "util.h"
-#include <stdlib.h>
-#include <strings.h>
+#include "../run-python.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
-#include <Python.h>
+#include <libproc.h>
 
 #define EXPORT __attribute__((visibility("default")))
 
-static const char *ERR_OOM = "Out of memory";
-
-static int
-report_error(const char *msg) {
-    fprintf(stderr, "%s\n", msg);
-    fflush(stderr);
-    return -1;
-}
-
-static int
-report_code(const char *preamble, const char* msg, int code) {
-    fprintf(stderr, "%s: %s\n", preamble, msg);
-    fflush(stderr);
-    return code;
-}
-
 #define EXE "@executable_path/.."
 
+static const char *env_vars[] = { ENV_VARS };
+static const char *env_var_vals[] = { ENV_VAR_VALS };
+
 static void
-set_env_vars(const char **ENV_VARS, const char **ENV_VAR_VALS, const char* exe_path) {
-    int i = 0;
+set_env_vars(const char* contents_path) {
     char buf[3*PATH_MAX];
     const char *env_var, *val;
 
-    while(1) {
-        env_var = ENV_VARS[i];
-        if (env_var == NULL) break;
-        val = ENV_VAR_VALS[i++];
-        if (strstr(val, EXE) == val && strlen(val) >= strlen(EXE)+1) {
-            strncpy(buf, exe_path, 3*PATH_MAX-150);
-            strncpy(buf+strlen(exe_path), val+strlen(EXE), 150);
+	for (size_t i = 0; i < arraysz(env_vars); i++) {
+        env_var = env_vars[i]; val = env_var_vals[i];
+        if (strstr(val, EXE) == val && strlen(val) >= sizeof(EXE)) {
+			snprintf(buf, sizeof(buf) - 1, "%s%s", contents_path, val + sizeof(EXE) - 1);
             setenv(env_var, buf, 1);
         } else
             setenv(env_var, val, 1);
@@ -45,169 +27,51 @@ set_env_vars(const char **ENV_VARS, const char **ENV_VAR_VALS, const char* exe_p
     return;
 }
 
-void initialize_interpreter(const char **ENV_VARS, const char **ENV_VAR_VALS,
-        char *PROGRAM, const char *MODULE, const char *FUNCTION, const char *PYVER, int IS_GUI,
-        const char* exe_path, const char *rpath, int argc, char* const *argv) {
-    PyObject *pargv, *v;
-    int i;
-    Py_OptimizeFlag = 2;
-    Py_NoSiteFlag = 1;
-    Py_DontWriteBytecodeFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    Py_NoUserSiteDirectory = 1;
-    Py_HashRandomizationFlag = 1;
-
-    //Py_VerboseFlag = 1;
-    //Py_DebugFlag = 1;
-
-    Py_SetProgramName(PROGRAM);
-
-    char pyhome[1000];
-    snprintf(pyhome, 1000, "%s/Python", rpath);
-    Py_SetPythonHome(pyhome);
-
-    set_env_vars(ENV_VARS, ENV_VAR_VALS, exe_path);
-
-    //printf("Path before Py_Initialize(): %s\r\n\n", Py_GetPath());
-    Py_Initialize();
-
-    char *dummy_argv[1] = {""};
-    PySys_SetArgv(1, dummy_argv);
-    //printf("Path after Py_Initialize(): %s\r\n\n", Py_GetPath());
-    char path[3000];
-    snprintf(path, 3000, "%s/lib/python%s:%s/lib/python%s/lib-dynload:%s/site-packages", pyhome, PYVER, pyhome, PYVER, pyhome);
-
-    PySys_SetPath(path);
-    //printf("Path set by me: %s\r\n\n", path);
-
-    PySys_SetObject("calibre_basename", PyBytes_FromString(PROGRAM));
-    PySys_SetObject("calibre_module", PyBytes_FromString(MODULE));
-    PySys_SetObject("calibre_function", PyBytes_FromString(FUNCTION));
-    PySys_SetObject("calibre_is_gui_app", ((IS_GUI) ? Py_True : Py_False));
-    PySys_SetObject("resourcepath", PyBytes_FromString(rpath));
-    snprintf(path, 3000, "%s/site-packages", pyhome);
-    PySys_SetObject("site_packages", PyBytes_FromString(pyhome));
-
-
-    pargv = PyList_New(argc);
-    if (pargv == NULL) exit(report_error(ERR_OOM));
-    for (i = 0; i < argc; i++) {
-        v = PyBytes_FromString(argv[i]);
-        if (v == NULL) exit(report_error(ERR_OOM));
-        PyList_SetItem(pargv, i, v);
-    }
-    PySys_SetObject("argv", pargv);
-
-}
-
-
-int pyobject_to_int(PyObject *res) {
-    int ret; PyObject *tmp;
-    tmp = PyNumber_Int(res);
-    if (tmp == NULL) ret = (PyObject_IsTrue(res)) ? 1 : 0;
-    else ret = (int)PyInt_AS_LONG(tmp);
-
-    return ret;
-}
-
-int handle_sysexit(PyObject *e) {
-    PyObject *code;
-
-    code = PyObject_GetAttrString(e, "code");
-    if (!code) return 0;
-    if (!PyInt_Check(code)) {
-        PyObject_Print(code, stderr, Py_PRINT_RAW);
-        fflush(stderr);
-    }
-    return pyobject_to_int(code);
-}
-
-int calibre_show_python_error(const char *preamble, int code) {
-    PyObject *exc, *val, *tb, *str;
-    int ret, issysexit = 0; char *i;
-
-    if (!PyErr_Occurred()) return code;
-    issysexit = PyErr_ExceptionMatches(PyExc_SystemExit);
-
-    PyErr_Fetch(&exc, &val, &tb);
-
-    if (exc != NULL) {
-        PyErr_NormalizeException(&exc, &val, &tb);
-
-        if (issysexit) {
-            return (val) ? handle_sysexit(val) : 0;
-        }
-        if (val != NULL) {
-            str = PyObject_Unicode(val);
-            if (str == NULL) {
-                PyErr_Clear();
-                str = PyObject_Str(val);
-            }
-            i = PyString_AsString(str);
-            ret = report_code(preamble, (i==NULL)?ERR_OOM:i, code);
-            if (tb != NULL) {
-                PyErr_Restore(exc, val, tb);
-                PyErr_Print();
-            }
-            return ret;
-        }
-    }
-    return report_code(preamble, "", code);
-}
-
-EXPORT
-int
-run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
-        const char *MODULE, const char *FUNCTION, const char *PYVER,
-        int IS_GUI, int argc, char * const *argv, const char **envp, char *full_exe_path) {
-    char *t = NULL;
-    int ret = 0, i;
-    PyObject *site, *mainf, *res;
-    uint32_t buf_size = PATH_MAX+1;
-
-    for (i = 0; i < 3; i++) {
-        t = rindex(full_exe_path, '/');
-        if (t == NULL) return report_error("Failed to determine bundle path.");
+static void
+get_paths() {
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE], realpath_buf[PROC_PIDPATHINFO_MAXSIZE * 5];
+    pid_t pid = getpid();
+    int ret = proc_pidpath(pid, pathbuf, sizeof(pathbuf));
+    if (ret <= 0) fatal("failed to get executable path for current pid with error: %s", strerror(errno));
+    char *path = realpath(pathbuf, realpath_buf);
+    if (path == NULL) fatal("failed to get realpath for executable path with error: %s", strerror(errno));
+	decode_char_buf(path, interpreter_data.exe_path);
+    for (unsigned i = 0; i < 3; i++) {
+        char *t = rindex(path, '/');
+        if (t == NULL) fatal("Failed to determine bundle path.");
         *t = '\0';
     }
-    if (strstr(full_exe_path, "/calibre.app/Contents/") != NULL) {
+    if (strstr(path, "/calibre.app/Contents/") != NULL) {
         // We are one of the duplicate executables created to workaround codesign's limitations
-        for (i = 0; i < 2; i++) {
-            t = rindex(full_exe_path, '/');
-            if (t == NULL) return report_error("Failed to resolve bundle path in dummy executable");
+        for (unsigned i = 0; i < 2; i++) {
+            char *t = rindex(path, '/');
+            if (t == NULL) fatal("Failed to resolve bundle path in dummy executable");
             *t = '\0';
         }
     }
+#define cat_literal(func, path, literal) func(path, literal, arraysz(literal) - 1)
+	cat_literal(strncat, path, "/Contents");
+	set_env_vars(path);
+	decode_char_buf(path, interpreter_data.bundle_resource_path);
+#define set_path(which, fmt, ...) swprintf(interpreter_data.which, arraysz(interpreter_data.which), fmt, interpreter_data.bundle_resource_path, __VA_ARGS__)
+	set_path(python_home_path, L"%ls/Resources/Python", NULL);
+    set_path(frameworks_path,  L"%ls/Frameworks", NULL);
+    set_path(python_lib_path,  L"%ls/Resources/Python/lib/python%d.%d", PY_VERSION_MAJOR, PY_VERSION_MINOR);
+	set_path(extensions_path,  L"%ls/Frameworks/plugins", NULL);
+	set_path(resources_path,   L"%ls/Resources/resources", NULL);
+	set_path(executables_path, L"%ls/MacOS", NULL);
+#undef set_path
+	cat_literal(wcsncat, interpreter_data.bundle_resource_path, L"/Resources");
+#undef cat_literal
+}
 
-    char rpath[PATH_MAX+1], exe_path[PATH_MAX+1];
-    snprintf(exe_path, PATH_MAX+1, "%s/Contents", full_exe_path);
-    snprintf(rpath, PATH_MAX+1, "%s/Resources", exe_path);
-    initialize_interpreter(ENV_VARS, ENV_VAR_VALS, PROGRAM, MODULE, FUNCTION, PYVER, IS_GUI,
-            exe_path, rpath, argc, argv);
-
-    site = PyImport_ImportModule("site");
-
-    if (site == NULL)
-        ret = calibre_show_python_error("Failed to import site module",  -1);
-    else {
-        Py_XINCREF(site);
-
-        mainf = PyObject_GetAttrString(site, "main");
-        if (mainf == NULL || !PyCallable_Check(mainf))
-            ret = calibre_show_python_error("site module has no main function", -1);
-        else {
-            Py_XINCREF(mainf);
-            res = PyObject_CallObject(mainf, NULL);
-
-            if (res == NULL)
-                ret = calibre_show_python_error("Python function terminated unexpectedly", -1);
-            else {
-            }
-        }
-    }
-    PyErr_Clear();
-    Py_Finalize();
-
-    //printf("11111 Returning: %d\r\n", ret);
-    return ret;
+EXPORT
+void
+run(const wchar_t *program, const wchar_t *module, const wchar_t *function, bool gui_app, int argc, char * const *argv) {
+    interpreter_data.argc = argc;
+    interpreter_data.argv = argv;
+    interpreter_data.basename = program; interpreter_data.module = module; interpreter_data.function = function;
+    pre_initialize_interpreter(gui_app);
+	get_paths();
+	run_interpreter();
 }
