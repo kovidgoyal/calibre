@@ -60,7 +60,9 @@ def set_system_colors(spec):
     c = default_color_schemes.system
     c.foreground = spec.foreground
     c.background = spec.background
-    c.link = spec.link
+    v'delete c.link'
+    if spec.link:
+        c.link = spec.link
 
 register_callback(def():
     # Ensure the color scheme names are translated

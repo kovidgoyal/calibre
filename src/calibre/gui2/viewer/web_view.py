@@ -387,12 +387,19 @@ class Inspector(QWidget):
 
 
 def system_colors():
-    pal = QApplication.instance().palette()
-    return {
+    app = QApplication.instance()
+    is_dark_theme = app.is_dark_theme
+    pal = app.palette()
+    ans = {
         'background': pal.color(pal.Base).name(),
         'foreground': pal.color(pal.Text).name(),
-        'link': pal.color(pal.Link).name(),
     }
+    if is_dark_theme:
+        # only override link colors for dark themes
+        # since if the book specifies its own link colors
+        # they will likely work well with light themes
+        ans['link'] = pal.color(pal.Link).name()
+    return ans
 
 
 class WebView(RestartingWebEngineView):
