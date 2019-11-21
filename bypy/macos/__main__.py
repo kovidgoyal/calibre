@@ -37,20 +37,25 @@ QT_FRAMEWORKS = [x.replace('5', '') for x in QT_DLLS]
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-    PYTHONIOENCODING='UTF-8',
     SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
 )
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
 
 
-def compile_launcher_lib(contents_dir, gcc, base):
+def compile_launcher_lib(contents_dir, gcc, base, pyver):
     print('\tCompiling calibre_launcher.dylib')
-    fd = join(contents_dir, 'Frameworks')
-    dest = join(fd, 'calibre-launcher.dylib')
+    env, env_vals = [], []
+    for key, val in ENV.items():
+        env.append(f'"{key}"'), env_vals.append(f'"{val}"')
+    env = ','.join(env)
+    env_vals = ','.join(env_vals)
+
+    dest = join(contents_dir, 'Frameworks', 'calibre-launcher.dylib')
     src = join(base, 'util.c')
     cmd = [gcc] + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
-        ['-I' + base] + \
+        ['-I' + base] + '-DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*pyver.split('.')).split() + \
+        [f'-DENV_VARS={env}', f'-DENV_VAR_VALS={env_vals}'] + \
         ['-I%s/python/Python.framework/Versions/Current/Headers' % PREFIX] + \
         '-current_version 1.0 -compatibility_version 1.0'.split() + \
         '-fvisibility=hidden -o'.split() + [dest] + \
@@ -68,33 +73,19 @@ gcc = os.environ.get('CC', 'clang')
 
 def compile_launchers(contents_dir, xprograms, pyver):
     base = dirname(abspath(__file__))
-    lib = compile_launcher_lib(contents_dir, gcc, base)
-    with open(join(base, 'launcher.c'), 'rb') as f:
-        src = f.read().decode('utf-8')
-    env, env_vals = [], []
-    for key, val in ENV.items():
-        env.append('"%s"' % key)
-        env_vals.append('"%s"' % val)
-    env = ', '.join(env) + ', '
-    env_vals = ', '.join(env_vals) + ', '
-    src = src.replace('/*ENV_VARS*/', env)
-    src = src.replace('/*ENV_VAR_VALS*/', env_vals)
+    lib = compile_launcher_lib(contents_dir, gcc, base, pyver)
+    src = join(base, 'launcher.c')
     programs = [lib]
     for program, x in xprograms.items():
         module, func, ptype = x
         print('\tCompiling', program)
         out = join(contents_dir, 'MacOS', program)
         programs.append(out)
-        psrc = src.replace('**PROGRAM**', program)
-        psrc = psrc.replace('**MODULE**', module)
-        psrc = psrc.replace('**FUNCTION**', func)
-        psrc = psrc.replace('**PYVER**', pyver)
-        psrc = psrc.replace('**IS_GUI**', ('1' if ptype == 'gui' else '0'))
-        fsrc = '/tmp/%s.c' % program
-        with open(fsrc, 'wb') as f:
-            f.write(psrc.encode('utf-8'))
-        cmd = [gcc, '-Wall', '-I' + base, fsrc, lib, '-o', out,
-               '-headerpad_max_install_names']
+        is_gui = 'true' if ptype == 'gui' else 'false'
+        cmd = [
+            gcc, '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
+            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names'
+        ]
         # print('\t'+' '.join(cmd))
         sys.stdout.flush()
         subprocess.check_call(cmd)
@@ -194,9 +185,9 @@ class Freeze(object):
             self.add_misc_libraries()
 
             self.add_resources()
+            self.copy_site()
             self.compile_py_modules()
 
-        self.copy_site()
         self.create_exe()
         if not test_launchers and not self.dont_strip:
             self.strip_files()
@@ -258,6 +249,8 @@ class Freeze(object):
         for x, is_id in self.get_dependencies(path_to_lib):
             if x.startswith('@rpath/Qt'):
                 yield x, x[len('@rpath/'):], is_id
+            elif x == 'libunrar.dylib' and not is_id:
+                yield x, x, is_id
             else:
                 for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
                     if x.startswith(y):
@@ -500,10 +493,10 @@ class Freeze(object):
     @flush
     def add_misc_libraries(self):
         for x in (
-                'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
-                'icudata.64', 'icui18n.64', 'icuio.64', 'icuuc.64', 'hyphen.0',
-                'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
-                'crypto.1.0.0', 'ssl.1.0.0', 'iconv.2',  # 'ltdl.7'
+            'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
+            'icudata.64', 'icui18n.64', 'icuio.64', 'icuuc.64', 'hyphen.0',
+            'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
+            'crypto.1.0.0', 'ssl.1.0.0', 'iconv.2',  # 'ltdl.7'
         ):
             print('\nAdding', x)
             x = 'lib%s.dylib' % x
