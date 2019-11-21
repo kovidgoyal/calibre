@@ -111,12 +111,15 @@ typedef struct {
 	size_t sys_paths_count;
 	wchar_t exe_path[PATH_MAX], python_home_path[PATH_MAX], python_lib_path[PATH_MAX];
 	wchar_t extensions_path[PATH_MAX], resources_path[PATH_MAX], executables_path[PATH_MAX];
+#ifdef __APPLE__
+	wchar_t bundle_resource_path[PATH_MAX], frameworks_path[PATH_MAX];
+#endif
 	const wchar_t *basename, *module, *function;
 	int argc;
 	char * const *argv;
 } InterpreterData;
 
-static InterpreterData interpreter_data = {0};
+static InterpreterData interpreter_data = {{0}};
 
 static wchar_t*
 add_sys_path() {
@@ -133,7 +136,12 @@ static void
 add_sys_paths() {
     swprintf(add_sys_path(), PATH_MAX, L"%ls", interpreter_data.python_lib_path);
     swprintf(add_sys_path(), PATH_MAX, L"%ls/lib-dynload", interpreter_data.python_lib_path);
+#ifdef __APPLE__
+    swprintf(add_sys_path(), PATH_MAX, L"%ls/Python/site-packages", interpreter_data.bundle_resource_path);
+#else
     swprintf(add_sys_path(), PATH_MAX, L"%ls/site-packages", interpreter_data.python_lib_path);
+#endif
+
 }
 #endif
 
@@ -176,6 +184,9 @@ run_interpreter() {
     set_sys_string("resources_location", interpreter_data.resources_path);
     set_sys_string("executables_location", interpreter_data.executables_path);
 #ifdef __APPLE__
+    set_sys_string("resourcepath", interpreter_data.bundle_resource_path);
+    set_sys_string("frameworks_dir", interpreter_data.frameworks_path);
+    set_sys_bool("new_app_bundle", true);
 #elif _WIN32
 #else
     set_sys_string("frozen_path", interpreter_data.executables_path);
