@@ -144,6 +144,9 @@ class TOCItem(QStandardItem):
 
     def __init__(self, toc, depth, all_items, normal_font, emphasis_font, parent=None):
         text = toc.get('title') or ''
+        self.href = (toc.get('dest') or '')
+        if toc.get('frag'):
+            self.href += '#' + toc['frag']
         if text:
             text = re.sub(r'\s', ' ', text)
         self.title = text
@@ -213,6 +216,12 @@ class TOC(QStandardItemModel):
     def node_id_for_text(self, query):
         for item in self.find_items(query):
             return item.node_id
+
+    def node_id_for_href(self, query, exact=False):
+        for item in self.all_items:
+            href = item.href
+            if (exact and query == href) or (not exact and query in href):
+                return item.node_id
 
     def search(self, query):
         cq = self.current_query

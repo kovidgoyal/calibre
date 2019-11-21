@@ -407,6 +407,10 @@ class EbookViewer(MainWindow):
         if open_at:
             if open_at.startswith('toc:'):
                 initial_toc_node = self.toc_model.node_id_for_text(open_at[len('toc:'):])
+            elif open_at.startswith('toc-href:'):
+                initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href:'):], exact=True)
+            elif open_at.startswith('toc-href-contains:'):
+                initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href-contains:'):], exact=False)
             elif open_at.startswith('epubcfi(/'):
                 initial_cfi = open_at
             elif is_float(open_at):

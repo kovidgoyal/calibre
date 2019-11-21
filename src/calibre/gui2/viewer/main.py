@@ -166,7 +166,9 @@ View an e-book.
         'a location or position you can get by using the Go to->Location action in the viewer controls. '
         'Alternately, you can use the form toc:something and it will open '
         'at the location of the first Table of Contents entry that contains '
-        'the string "something".'))
+        'the string "something". The form toc-href:something will match the '
+        'href (internal link destination) of toc nodes. The matching is exact, '
+        'If you want to match a substring, use the form toc-href-contains:something. '))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading at the previously opened book'))
 
@@ -187,8 +189,10 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-
-    if opts.open_at and not (opts.open_at.startswith('toc:') or opts.open_at.startswith('epubcfi(/') or is_float(opts.open_at)):
+    oat = opts.open_at
+    if oat and not (
+            oat.startswith('toc:') or oat.startswith('toc-href:') or oat.startswith('toc-href-contains:') or
+            oat.startswith('epubcfi(/') or is_float(oat)):
         raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
     listener = None
