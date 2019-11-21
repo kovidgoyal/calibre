@@ -19,7 +19,7 @@ from css_parser import replaceUrls
 from css_parser.css import CSSRule
 from lxml.etree import Comment
 
-from calibre import CurrentDir, detect_ncpus, force_unicode, prepare_string_for_xml
+from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
 from calibre.constants import iswindows, plugins
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
@@ -795,8 +795,7 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
             from calibre.customize.ui import quick_metadata
             with lopen(pathtoebook, 'rb') as f, quick_metadata:
                 mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
-        with CurrentDir(output_dir):
-            book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
+        book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
         container, bookmark_data = process_exploded_book(
             book_fmt, opfpath, input_fmt, output_dir, render_manager,
             book_hash=book_hash, save_bookmark_data=extract_annotations,
