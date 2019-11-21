@@ -361,7 +361,7 @@ static void blur_scan_line(const float* kernel, const int kern_width, const QRgb
             scale = 0.0;
             k = kernel;
             src = source;
-            for(i=0; i < columns; ++k, src+=offset){
+            for(i=0; i < columns; ++k, src+=offset, ++i){
                 if((i >= (x-kern_width/2)) && (i <= (x+kern_width/2))){
                     aggregate.red += (*k)*qRed(*src);
                     aggregate.green += (*k)*qGreen(*src);
