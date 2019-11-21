@@ -21,6 +21,7 @@ from calibre.ebooks.metadata import title_sort, authors_to_sort_string, fmt_sidx
 from calibre.gui2 import pixmap_to_data, gprefs
 from calibre.gui2.complete2 import LineEdit as EditWithComplete
 from calibre.gui2.comments_editor import Editor
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
@@ -540,6 +541,7 @@ class CompareMany(QDialog):
                  **kwargs):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
+        self.next_called = False
         self.setLayout(l)
         self.setWindowIcon(QIcon(I('auto_author_sort.png')))
         self.get_metadata = get_metadata
@@ -614,6 +616,7 @@ class CompareMany(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         b.setFocus(Qt.OtherFocusReason)
+        self.next_called = False
 
     @property
     def mark_rejected(self):
@@ -628,6 +631,10 @@ class CompareMany(QDialog):
         super(CompareMany, self).accept()
 
     def reject(self):
+        if self.next_called and not confirm(_(
+            'All reviewed changes will be lost! Are you sure you want to Cancel?'),
+            'confirm-metadata-diff-dialog-cancel'):
+            return
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
         self.compare_widget.save_comments_controls_state()
         super(CompareMany, self).reject()
@@ -637,6 +644,7 @@ class CompareMany(QDialog):
         return self.compare_widget.current_mi
 
     def next_item(self, accept):
+        self.next_called = True
         if not self.ids:
             return self.accept()
         if self.current_mi is not None:
