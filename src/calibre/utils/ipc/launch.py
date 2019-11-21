@@ -58,7 +58,7 @@ class Worker(object):
             return os.path.join(os.path.dirname(sys.executable),
                    e+'.exe' if isfrozen else 'Scripts\\%s.exe'%e)
         if isosx:
-            return os.path.join(sys.binaries_path, e)
+            return os.path.join(sys.executables_location, e)
 
         if isfrozen:
             return os.path.join(sys.executables_location, e)
@@ -73,13 +73,13 @@ class Worker(object):
     def gui_executable(self):
         if isosx and not hasattr(sys, 'running_from_setup'):
             if self.job_name == 'ebook-viewer':
-                base = os.path.dirname(sys.binaries_path)
+                base = os.path.dirname(sys.executables_location)
                 return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/', self.exe_name)
             if self.job_name == 'ebook-edit':
-                base = os.path.dirname(sys.binaries_path)
+                base = os.path.dirname(sys.executables_location)
                 return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/', self.exe_name)
 
-            return os.path.join(sys.binaries_path, self.exe_name)
+            return os.path.join(sys.executables_location, self.exe_name)
 
         return self.executable
 
