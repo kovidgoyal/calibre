@@ -72,15 +72,6 @@
         "inc_dirs": "!sqlite_inc_dirs"
     },
     {
-        "name": "chmlib",
-        "sources": "calibre/utils/chm/swig_chm.c",
-        "libraries": "chm",
-        "windows_libraries": "ChmLib",
-        "inc_dirs": "!chmlib_inc_dirs",
-        "lib_dirs": "!chmlib_lib_dirs",
-        "defines": "SWIG_COBJECT_TYPES SWIG_PYTHON_STRICT_BYTE_CHAR"
-    },
-    {
         "name": "lzx",
         "sources": "calibre/utils/lzx/lzxmodule.c calibre/utils/lzx/compressor.c calibre/utils/lzx/lzxd.c calibre/utils/lzx/lzc.c calibre/utils/lzx/lzxc.c",
         "inc_dirs": "calibre/utils/lzx",
