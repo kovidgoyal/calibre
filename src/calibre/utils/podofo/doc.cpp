@@ -247,7 +247,7 @@ PDFDoc_set_page_box(PDFDoc *self, PyObject *args) {
     int pagenum = 0;
 	double left, bottom, width, height;
 	const char *which;
-    if (PyArg_ParseTuple(args, "sidddd", &which, &pagenum, left, bottom, width, height)) {
+    if (PyArg_ParseTuple(args, "sidddd", &which, &pagenum, &left, &bottom, &width, &height)) {
         try {
 			PdfPagesTree* tree = self->doc->GetPagesTree();
 			PdfPage* page = tree->GetPage(pagenum - 1);
@@ -798,10 +798,10 @@ static PyMethodDef PDFDoc_methods[] = {
      "delete_page(page_num, count=1) -> Delete the specified pages from the pdf."
     },
     {"get_page_box", (PyCFunction)PDFDoc_get_page_box, METH_VARARGS,
-     "get_page_box(which, page_num) -> Get the specified box for the specified page as (left, bottom, width, height)"
+     "get_page_box(which, page_num) -> Get the specified box for the specified page as (left, bottom, width, height) in pts"
     },
     {"set_page_box", (PyCFunction)PDFDoc_set_page_box, METH_VARARGS,
-     "set_page_box(which, page_num, left, bottom, width, height) -> Set the specified box for the specified page."
+     "set_page_box(which, page_num, left, bottom, width, height) -> Set the specified box (in pts) for the specified page."
     },
     {"copy_page", (PyCFunction)PDFDoc_copy_page, METH_VARARGS,
      "copy_page(from, to) -> Copy the specified page."
