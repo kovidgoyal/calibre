@@ -206,12 +206,6 @@ Files: src/calibre/headless/fontconfig_database.cpp
 Copyright: Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies)
 License: LGPL-2.1, LGPL-3
 
-Files: src/calibre/utils/chm/*
-Copyright: Copyright (C) 2003-2006 Rubens Ramos <rubensr@users.sourceforge.net>
-License: GPL-2+
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-2 on Debian systems.
-
 Files: src/calibre/utils/open_search/description.py
 Copyright: 2011, John Schember <john@nachtimwald.com>, 2006, Ed Summers <ehs@pobox.com>
 License: GPL-3

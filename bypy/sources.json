@@ -557,6 +557,15 @@
     },
 
     {
+        "name": "pychm",
+        "unix": {
+            "filename": "pychm-0.8.5.tar.gz",
+            "hash": "sha256:ec440c164a3fe4bd8aa906c24ed32cf296245932fe76b06bfd6b0734761d2cf5",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "html5-parser",
         "unix": {
             "filename": "html5-parser-0.4.9.tar.gz",
