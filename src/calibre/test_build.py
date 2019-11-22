@@ -50,6 +50,10 @@ class BuildTest(unittest.TestCase):
         from calibre.spell.dictionary import build_test
         build_test()
 
+    def test_pychm(self):
+        from chm.chm import CHMFile, chmlib
+        del CHMFile, chmlib
+
     def test_chardet(self):
         from chardet import detect
         raw = 'mūsi Füße'.encode('utf-8')
