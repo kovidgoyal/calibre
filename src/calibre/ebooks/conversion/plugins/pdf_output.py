@@ -130,6 +130,18 @@ class PDFOutput(OutputFormatPlugin):
             recommended_value=False, help=_(
                 'Generate an uncompressed PDF, useful for debugging.')
         ),
+        OptionRecommendation(name='pdf_odd_even_offset', recommended_value=0.0,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'Shift the text horizontally by the specified offset (in pts).'
+                ' On odd numbered pages, it is shifted to the right and on even'
+                ' numbered pages to the left. Use negative numbers for the opposite'
+                ' effect. Note that this setting is ignored on pages where the margins'
+                ' are smaller than the specified offset. Shifting is done by setting'
+                ' the PDF CropBox, not all software respects the CropBox.'
+            )
+        ),
+
     }
 
     def specialize_options(self, log, opts, input_fmt):
