@@ -20,6 +20,70 @@
 #   new recipes:
 #     - title:
 
+- version: 4.4.0
+  date: 2019-11-21
+
+  new features:
+    - title: "Viewer: Allow customizing what actions appear on the toolbar (Preferences->Miscellaneous->Customize toolbar)."
+      tickets: [1852017]
+
+    - title: "Viewer: The --open-at command line argument now allows matching on ToC hrefs as well as titles"
+
+    - title: "Book details window: Show path to book in cover tooltip."
+      tickets: [1853184]
+
+    - title: "Book details popup window: Add Open with actions to context menu when right clicking the cover image."
+      tickets: [1852626]
+
+    - title: "Edit book: Check book: Mark empty id attributes in the OPF as errors."
+      tickets: [1852318]
+
+    - title: "Viewer: Add a shortcut (Ctrl+F11) to toggle the toolbar"
+
+    - title: "Bulk metadata download review dialog: When clicking cancel ask for confirmation if some books have already been reviewed"
+
+  bug fixes:
+    - title: "PDF Output: Fix an error when using fonts with vertical metrics."
+      tickets: [1852036]
+
+    - title: "Viewer: Fix flickering when scrollbar is enabled and the header/footer is too wide for the screen."
+
+    - title: "PDF Output: Improve handling of images that do not fit on a page."
+      tickets: [1852205]
+
+    - title: "Viewer: In paged mode break long text without spaces at arbitrary points instead of overflowing to the next page."
+      tickets: [1852192]
+
+    - title: "Viewer: Fix hang when using --open-at with single instance viewer and the specified location is already open."
+      tickets: [1656573]
+
+    - title: "Viewer: Fix opening .txt files in the standalone viewer leaving behind a temporary index.html file in the directory of the txt file."
+      tickets: [1853232]
+
+    - title: "Linux: Make some cache removal code robust against un-decodeable filenames in the cache directories"
+
+    - title: "Viewer: Fix scrolling of panels in preferences causing artifacts."
+      tickets: [1851933]
+
+    - title: "Viewer: improve appearance of controls on small screens."
+      tickets: [1851921]
+
+    - title: "Move close button in viewer preferences to left to match the rest of the content server UI."
+      tickets: [1851937]
+
+    - title: "Viewer: Fix restoring user stylesheet to default not being applied until a viewer restart"
+
+    - title: "Viewer: Do not wait for loading of <link> tags that are not stylesheets."
+      tickets: [1851814]
+
+    - title: "Viewer: When using the system color theme only override link colors in the book if the theme is dark."
+      tickets: [1852990]
+
+  improved recipes:
+    - The Atlantic
+    - LifeHacker
+
+
 - version: 4.3.0
   date: 2019-11-08
 
