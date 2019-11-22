@@ -1,26 +1,19 @@
-
-
 ''' CHM File decoding support '''
 __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, re
+import codecs
+import os
+import re
 
 from calibre import guess_type as guess_mimetype
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
-from calibre.constants import iswindows, filesystem_encoding
-from calibre.utils.chm.chm import CHMFile
-
-from calibre.constants import plugins
-from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import unicode_type, getcwd, as_unicode
-
-
-chmlib, chmlib_err = plugins['chmlib']
-if chmlib_err:
-    raise RuntimeError('Failed to load chmlib: ' + chmlib_err)
+from calibre.ebooks.metadata.toc import TOC
+from chm.chm import CHMFile, chmlib
+from polyglot.builtins import as_unicode, getcwd, unicode_type
 
 
 def match_string(s1, s2_already_lowered):
@@ -75,6 +68,19 @@ class CHMReader(CHMFile):
         else:
             self.root, ext = os.path.splitext(self.topics.lstrip('/'))
             self.hhc_path = self.root + ".hhc"
+
+    def get_encoding(self):
+        ans = self.GetEncoding()
+        if ans is None:
+            lcid = self.GetLCID()
+            if lcid is not None:
+                ans = lcid[0]
+        if ans:
+            try:
+                codecs.lookup(ans)
+            except Exception:
+                ans = None
+        return ans
 
     def _parse_toc(self, ul, basedir=getcwd()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
