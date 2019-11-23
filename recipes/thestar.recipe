@@ -28,10 +28,12 @@ class TheTorontoStar(BasicNewsRecipe):
     masthead_url = 'http://www.thestar.com/etc/designs/thestar/images/general/logoLrg.png'
 
     keep_only_tags = [
-        classes('article')
+        classes('o-main-content')
     ]
     remove_tags = [
-        classes('article-continue-basic-container label-modal-bottom'),
+        classes(
+            'article-continue-basic-container label-modal-bottom print-header'
+            ' cta-container share-toolbar-container c-related-articles c-partner-articles c-more-articles c-top-articles'),
         dict(name='button')
     ]
     remove_tags_after = [
