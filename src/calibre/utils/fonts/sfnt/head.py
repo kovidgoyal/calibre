@@ -133,7 +133,7 @@ class VerticalHeader(UnknownTable):
             setattr(self, f, val)
 
         raw = vmtx.raw
-        num = self.number_of_h_metrics
+        num = self.number_of_v_metrics
         if len(raw) < 4*num:
             raise UnsupportedFont('The vmtx table has insufficient data')
         long_hor_metric = raw[:4*num]
