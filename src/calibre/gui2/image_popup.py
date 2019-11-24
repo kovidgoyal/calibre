@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
         QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon,
-        Qt, QTransform, QSvgRenderer, QImage, QPainter)
+        Qt, QTransform, QSvgRenderer, QImage, QPainter, QHBoxLayout, QCheckBox)
 
+from calibre import fit_image
 from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING, max_available_height
 from polyglot.builtins import unicode_type
 
@@ -43,7 +44,7 @@ class ImageView(QDialog):
         self.factor = 1.0
         self.geom_name = geom_name
 
-        self.label = l = QLabel()
+        self.label = l = QLabel(self)
         l.setBackgroundRole(QPalette.Base)
         l.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         l.setScaledContents(True)
@@ -68,16 +69,43 @@ class ImageView(QDialog):
         so.clicked.connect(self.save_image)
         ro.clicked.connect(self.rotate_image)
 
-        self.l = l = QVBoxLayout()
-        self.setLayout(l)
+        self.l = l = QVBoxLayout(self)
         l.addWidget(sa)
-        l.addWidget(bb)
+        self.h = h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        l.addLayout(h)
+        self.fit_image = i = QCheckBox(_('&Fit image'))
+        i.setToolTip(_('Fit the image to the available space'))
+        i.setChecked(bool(gprefs.get('image_popup_fit_image')))
+        i.stateChanged.connect(self.fit_changed)
+        h.addWidget(i), h.addStretch(), h.addWidget(bb)
+        if self.fit_image.isChecked():
+            self.set_to_viewport_size()
+
+    def set_to_viewport_size(self):
+        page_size = self.scrollarea.size()
+        pw, ph = page_size.width() - 2, page_size.height() - 2
+        img_size = self.current_img.size()
+        iw, ih = img_size.width(), img_size.height()
+        scaled, nw, nh = fit_image(iw, ih, pw, ph)
+        if scaled:
+            self.factor = min(nw/iw, nh/ih)
+        img_size.setWidth(nw), img_size.setHeight(nh)
+        self.label.resize(img_size)
+
+    def resizeEvent(self, ev):
+        if self.fit_image.isChecked():
+            self.set_to_viewport_size()
 
     def zoom_in(self):
+        if self.fit_image.isChecked():
+            self.fit_image.setChecked(False)
         self.factor *= 1.25
         self.adjust_image(1.25)
 
     def zoom_out(self):
+        if self.fit_image.isChecked():
+            self.fit_image.setChecked(False)
         self.factor *= 0.8
         self.adjust_image(0.8)
 
@@ -90,7 +118,16 @@ class ImageView(QDialog):
             from calibre.utils.img import save_image
             save_image(self.current_img.toImage(), f)
 
+    def fit_changed(self):
+        fitted = bool(self.fit_image.isChecked())
+        gprefs.set('image_popup_fit_image', fitted)
+        if self.fit_image.isChecked():
+            self.set_to_viewport_size()
+
     def adjust_image(self, factor):
+        if self.fit_image.isChecked():
+            self.set_to_viewport_size()
+            return
         self.label.resize(self.factor * self.current_img.size())
         self.zi_button.setEnabled(self.factor <= 3)
         self.zo_button.setEnabled(self.factor >= 0.3333)
@@ -99,7 +136,7 @@ class ImageView(QDialog):
     def adjust_scrollbars(self, factor):
         for sb in (self.scrollarea.horizontalScrollBar(),
                 self.scrollarea.verticalScrollBar()):
-            sb.setValue(int(factor*sb.value()) + ((factor - 1) * sb.pageStep()/2))
+            sb.setValue(int(factor*sb.value()) + int(((factor - 1) * sb.pageStep()/2)))
 
     def rotate_image(self):
         pm = self.label.pixmap()
@@ -108,10 +145,13 @@ class ImageView(QDialog):
         pm = self.current_img = pm.transformed(t)
         self.label.setPixmap(pm)
         self.label.adjustSize()
-        self.factor = 1
-        for sb in (self.scrollarea.horizontalScrollBar(),
-                self.scrollarea.verticalScrollBar()):
-            sb.setValue(0)
+        if self.fit_image.isChecked():
+            self.set_to_viewport_size()
+        else:
+            self.factor = 1
+            for sb in (self.scrollarea.horizontalScrollBar(),
+                    self.scrollarea.verticalScrollBar()):
+                sb.setValue(0)
 
     def __call__(self, use_exec=False):
         geom = self.avail_geom
