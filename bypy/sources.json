@@ -789,7 +789,7 @@
         "name": "pyqt",
         "unix": {
             "filename": "PyQt5_gpl-5.13.1.tar.gz",
-            "hash": "sha256:0cdbffe5135926527b61cc3692dd301cd0328dd87eeaf1313e610787c46faff9",
+            "hash": "sha256:54b7f456341b89eeb3930e786837762ea67f235e886512496c4152ebe106d4af",
             "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQt5/5.13.1/{filename}"]
         }
     },
@@ -798,7 +798,7 @@
         "name": "pyqt-webengine",
         "unix": {
             "filename": "PyQtWebEngine_gpl-5.13.1.tar.gz",
-            "hash": "sha256:bb6cabcc454ed1394aedfb42eb35dbee3ca324cf582e8c0ca5e8c8af0b00e325",
+            "hash": "sha256:8d8c1262005d8465653a848bf67327fb338e0d3c2d26090a6f7eb071dbb42092",
             "urls": ["https://www.riverbankcomputing.com/static/Downloads/PyQtWebEngine/5.13.1/{filename}"]
         }
     },
