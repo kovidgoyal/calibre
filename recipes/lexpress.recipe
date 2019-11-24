@@ -7,12 +7,17 @@ Lexpress.fr
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class lepoint(BasicNewsRecipe):
 
     title = 'L\'express'
     __author__ = 'calibre'
     description = 'Actualités'
-    encoding = 'cp1252'
     publisher = 'LExpress.fr'
     category = 'Actualité, France, Monde'
     language = 'fr'
@@ -39,9 +44,9 @@ class lepoint(BasicNewsRecipe):
         dict(id='footer-article')
     ]
 
-    keep_only_tags = [dict(name='div', attrs={'class': ['bloc-article']})]
-
-    remove_tags_after = dict(id='content-article')
+    keep_only_tags = [
+            classes('article_header_content article_content')
+    ]
 
     feeds = [
         (u'À la une', 'http://www.lexpress.fr/rss/alaune.xml'),
