@@ -829,7 +829,11 @@ def setup_unix_signals(self):
         cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
         for fd in (read_fd, write_fd):
             flags = fcntl.fcntl(fd, fcntl.F_GETFD)
-            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+            if flags != -1:
+                fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag)
+            flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+            if flags != -1:
+                fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
     original_handlers = {}
     for sig in (signal.SIGINT, signal.SIGTERM):
