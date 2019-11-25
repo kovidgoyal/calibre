@@ -58,7 +58,7 @@ def get_stdout(process):
             raw = process.stdout.read(1)
             if raw:
                 try:
-                    sys.stdout.write(raw)
+                    sys.stdout.buffer.write(raw)
                 except EnvironmentError:
                     pass
             else:
