@@ -201,9 +201,6 @@ def freeze(env, ext_dir):
     shutil.copytree(j(comext, 'shell'), j(sp_dir, 'win32com', 'shell'))
     shutil.rmtree(comext)
 
-    for pat in ('PyQt5\\uic\\port_v3', ):
-        x = glob.glob(j(env.lib_dir, 'site-packages', pat))[0]
-        shutil.rmtree(x)
     pyqt = j(env.lib_dir, 'site-packages', 'PyQt5')
     for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
         if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
