@@ -541,7 +541,6 @@ class Freeze(object):
         for x in os.listdir(join(sp, 'PyQt5')):
             if x.endswith('.so') and x.rpartition('.')[0] not in PYQT_MODULES and x != 'sip.so':
                 os.remove(join(sp, 'PyQt5', x))
-        os.remove(join(sp, 'PyQt5', 'uic/port_v3/proxy_base.py'))
         self.remove_bytecode(sp)
 
     @flush
