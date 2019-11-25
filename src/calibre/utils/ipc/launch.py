@@ -6,7 +6,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import subprocess, os, sys, time
-from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen
 from calibre.utils.config import prefs
@@ -171,7 +170,7 @@ class Worker(object):
                     'low'    : 10,
                     'high'   : 20,
             }[priority]
-            args['preexec_fn'] = partial(renice, niceness)
+            args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
         ret = None
         if redirect_output:
             self._file = PersistentTemporaryFile('_worker_redirect.log')
@@ -187,12 +186,6 @@ class Worker(object):
             args['stdin'] = subprocess.PIPE
             args['stdout'] = windows_null_file
             args['stderr'] = subprocess.STDOUT
-
-        if not iswindows:
-            # Close inherited file descriptors in worker
-            # On windows, this is done in the worker process
-            # itself
-            args['close_fds'] = True
 
         self.child = subprocess.Popen(cmd, **args)
         if 'stdin' in args:
