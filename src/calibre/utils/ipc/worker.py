@@ -177,6 +177,12 @@ def main():
         # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
         return gui_main(['calibre'])
+    niceness = os.environ.pop('CALIBRE_WORKER_NICENESS', None)
+    if niceness:
+        try:
+            os.nice(int(niceness))
+        except Exception:
+            pass
     csw = os.environ.pop('CALIBRE_SIMPLE_WORKER', None)
     if csw:
         mod, _, func = csw.partition(':')
