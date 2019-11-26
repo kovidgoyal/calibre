@@ -80,6 +80,7 @@
 
     {
         "name": "xz",
+        "os": "macos,linux",
         "unix": {
             "filename": "xz-5.2.4.tar.gz",
             "hash": "md5:5ace3264bdd00c65eeec2891346f65e6",
