@@ -12,15 +12,31 @@ def cz_title_time():
     """
 
     orig_locale = locale.getlocale(locale.LC_TIME)
+
+    # Try to switch time locale to Czech and return the formatted current date
     try:
         locale.setlocale(locale.LC_TIME, 'cs_CZ')
+        # In Python 2 time.stftime returns czech chars in ISO 8859-2 encoding
+        # e.g. the character Ú is returned as the bytes 'da'
+        # if using the default calibre.strftime function it tries to decode it
+        # with the 'preferred_encoding' which is likely 'utf-8' however that
+        # results in the char u'\ufffd' (�) instead of u'\xda' or u'\u00da'
+        # Passing 'iso-8859-2' to decode fixes this.
+        return strftime('%a, %d %b %Y', enc='iso-8859-2')
     except Exception:
-        return ''
-    try:
-        timestr = strftime('%a, %d %b %Y')
+        # Ignore failure, try to fall back to default locale
+        pass
     finally:
         locale.setlocale(locale.LC_TIME, orig_locale)
-    return timestr
+
+    # We failed to return the czech locale above, falling back to default
+    try:
+        return strftime('%a, %d %b %Y')
+    except Exception:
+        pass
+
+    # Failed again...giving up
+    return ''
 
 
 class DenikNRecipe(BasicNewsRecipe):

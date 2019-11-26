@@ -482,7 +482,7 @@ def walk(dir):
             yield os.path.join(record[0], f)
 
 
-def strftime(fmt, t=None):
+def strftime(fmt, t=None, enc=preferred_encoding):
     ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
     if not fmt:
@@ -508,7 +508,7 @@ def strftime(fmt, t=None):
     else:
         ans = time.strftime(fmt, t)
         if isinstance(ans, bytes):
-            ans = ans.decode(preferred_encoding, 'replace')
+            ans = ans.decode(enc, 'replace')
     if early_year:
         ans = ans.replace('_early year hack##', unicode_type(orig_year))
     return ans
