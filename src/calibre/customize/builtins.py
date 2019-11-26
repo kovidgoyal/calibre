@@ -710,7 +710,7 @@ plugins += input_profiles + output_profiles
 # Device driver plugins {{{
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
-from calibre.devices.cybook.driver import CYBOOK, ORIZON, MUSE
+from calibre.devices.cybook.driver import CYBOOK, ORIZON, MUSE, DIVA
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK, TOLINO,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
@@ -753,7 +753,7 @@ plugins += [
     HANLINV3,
     HANLINV5,
     BLACKBERRY, PLAYBOOK,
-    CYBOOK, ORIZON, MUSE,
+    CYBOOK, ORIZON, MUSE, DIVA,
     ILIAD,
     IREXDR1000,
     IREXDR800,
