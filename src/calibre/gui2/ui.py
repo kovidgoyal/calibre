@@ -930,7 +930,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         try:
             self.shutdown()
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
         if self.system_tray_icon is not None and self.restart_after_quit:
@@ -994,8 +995,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             db.commit_dirty_cache()
             db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
-            if not action.shutting_down():
-                return
+            action.shutting_down()
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()

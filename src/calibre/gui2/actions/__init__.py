@@ -345,9 +345,5 @@ class InterfaceAction(QObject):
         Called once per plugin when the main GUI is in the process of shutting
         down. Release any used resources, but try not to block the shutdown for
         long periods of time.
-
-        :return: False to halt the shutdown. You are responsible for telling
-                 the user why the shutdown was halted.
-
         '''
-        return True
+        pass
