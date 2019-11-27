@@ -533,9 +533,9 @@
         "os": "windows",
         "python": 2,
         "windows": {
-            "filename":"pywin32-224.zip",
-            "hash":"sha256:fa01a3b9f5e6afd0412013b216d40120b92bbc575dbb3d1a0afb45d8bc1c88d8",
-            "urls":["https://github.com/mhammond/pywin32/archive/b224.zip"]
+            "filename":"pywin32-227.zip",
+            "hash":"sha256:f82946fb29d55a27b3abcd0b527ef2e8da6ea05b01dfcc40bfc14847b7673e8e",
+            "urls":["https://github.com/mhammond/pywin32/archive/b227.zip"]
         }
     },
 
