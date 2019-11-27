@@ -705,10 +705,10 @@
     },
 
     {
-        "name": "pycrypto",
+        "name": "pycryptodome",
         "unix": {
-            "filename": "pycrypto-2.6.1.tar.gz",
-            "hash": "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c",
+            "filename": "pycryptodome-3.9.4.tar.gz",
+            "hash": "sha256:a168e73879619b467072509a223282a02c8047d932a48b74fbd498f27224aa04",
             "urls": ["pypi"]
         }
     },
