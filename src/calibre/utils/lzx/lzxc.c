@@ -20,11 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef _MSC_VER
-# include "msstdint.h"
-#else /* _MSC_VER */
-# include <stdint.h>
-#endif /* _MSC_VER */
+#include <stdint.h>
 #include <string.h> /* for memset on Linux */
 #include <assert.h>
 #include <math.h>
@@ -1281,4 +1277,3 @@ int lzxc_finish(struct lzxc_data *lzxd, struct lzxc_results *lzxr)
   free(lzxd);
   return 0;
 }
-
