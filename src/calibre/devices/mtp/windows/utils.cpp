@@ -38,7 +38,7 @@ wchar_t *wpd::unicode_to_wchar(PyObject *o) {
     len = PyUnicode_GET_SIZE(o);
     buf = (wchar_t *)calloc(len+2, sizeof(wchar_t));
     if (buf == NULL) { PyErr_NoMemory(); return NULL; }
-    len = PyUnicode_AsWideChar((PyUnicodeObject*)o, buf, len);
+    len = PyUnicode_AsWideChar(o, buf, len);
     if (len == -1) { free(buf); PyErr_Format(PyExc_TypeError, "Invalid python unicode object."); return NULL; }
     return buf;
 }
@@ -69,4 +69,3 @@ int wpd::pump_waiting_messages() {
 
     return result;
 }
-
