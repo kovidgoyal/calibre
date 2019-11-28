@@ -24,9 +24,9 @@ from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from polyglot.builtins import iteritems, unicode_type
 
 
-def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+def rule_for_font(font_file, added_name):
     try:
-        fm = FontMetadata(BytesIO(file_data)).to_dict()
+        fm = FontMetadata(font_file).to_dict()
     except UnsupportedFont:
         return
     pp = _('Change this to the relative path to: %s') % added_name
@@ -37,10 +37,28 @@ def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
   font-style: {sy};
   font-stretch: {st};
   }}'''.format(pp=pp, ff=fm['font-family'], w=fm['font-weight'], sy=fm['font-style'], st=fm['font-stretch'])
+    return rule
+
+
+def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+    rule = rule_for_font(BytesIO(file_data), added_name)
     QApplication.clipboard().setText(rule)
     QMessageBox.information(parent, _('Font file added'), _(
         'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
         ' to the clipboard. You should paste it into whichever CSS file you want to add this font to.').format(added_name))
+
+
+def show_font_face_rule_for_font_files(container, added_names, parent=None):
+    rules = []
+    for name in sorted(added_names):
+        rule = rule_for_font(container.open(name), name)
+        if rule:
+            rules.append(rule)
+    if rules:
+        QApplication.clipboard().setText('\n\n'.join(rules))
+        QMessageBox.information(parent, _('Font files added'), _(
+        'The specified font files have been added. The text for the CSS @font-face rules for these files has been copied'
+        ' to the clipboard. You should paste it into whichever CSS file you want to add these fonts to.'))
 
 
 class EmbeddingData(Dialog):

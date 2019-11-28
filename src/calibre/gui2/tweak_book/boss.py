@@ -512,6 +512,7 @@ class Boss(QObject):
                      for x, folder in iteritems(folder_map)}
             self.add_savepoint(_('Before Add files'))
             c = current_container()
+            added_fonts = set()
             for path in sorted(files, key=numeric_sort_key):
                 name = files[path]
                 i = 0
@@ -525,11 +526,16 @@ class Boss(QObject):
                 except:
                     self.rewind_savepoint()
                     raise
+                if name.rpartition('.')[2].lower() in ('ttf', 'otf', 'woff'):
+                    added_fonts.add(name)
             self.gui.file_list.build(c)
             if c.opf_name in editors:
                 editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
             self.set_modified()
             completion_worker().clear_caches('names')
+            if added_fonts:
+                from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_files
+                show_font_face_rule_for_font_files(c, added_fonts, self.gui)
 
     def add_cover(self):
         d = AddCover(current_container(), self.gui)
