@@ -6,13 +6,17 @@
 
 #pragma once
 
-#include <sys/time.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#ifdef _WIN32
+#include <string.h>
+#define PATH_MAX MAX_PATH
+#else
 #include <strings.h>
+#endif
 #include <errno.h>
 #include <Python.h>
 #ifdef __APPLE__
@@ -21,13 +25,23 @@
 
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
-void
-log_error(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-
 static bool use_os_log = false;
 
+#ifdef _WIN32
+static void
+log_error(const char *fmt, ...) {
+    va_list ar;
+    va_start(ar, fmt);
+    vfprintf(stderr, fmt, ar);
+    va_end(ar);
+	fprintf(stderr, "\n");
+}
+#else
+static void
+log_error(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
-void
+
+static void
 log_error(const char *fmt, ...) {
     va_list ar;
     struct timeval tv;
@@ -59,6 +73,7 @@ log_error(const char *fmt, ...) {
 #endif
     if (!use_os_log) fprintf(stderr, "\n");
 }
+#endif
 
 
 #define fatal(...) { log_error(__VA_ARGS__); exit(EXIT_FAILURE); }
@@ -76,7 +91,9 @@ set_sys_string(const char* key, const wchar_t* val) {
 
 static void
 set_sys_bool(const char* key, const bool val) {
-	if (PySys_SetObject(key, val ? Py_True : Py_False) != 0) fatal("Failed to set attribute on sys: %s", key);
+	PyObject *pyval = PyBool_FromLong(val);
+	if (PySys_SetObject(key, pyval) != 0) fatal("Failed to set attribute on sys: %s", key);
+	Py_DECREF(pyval);
 }
 
 static void
@@ -113,10 +130,16 @@ typedef struct {
 	wchar_t extensions_path[PATH_MAX], resources_path[PATH_MAX], executables_path[PATH_MAX];
 #ifdef __APPLE__
 	wchar_t bundle_resource_path[PATH_MAX], frameworks_path[PATH_MAX];
+#elif defined(_WIN32)
+	wchar_t app_dir[PATH_MAX];
 #endif
 	const wchar_t *basename, *module, *function;
 	int argc;
-	char * const *argv;
+#ifdef _WIN32
+	wchar_t* const *argv;
+#else
+	char* const *argv;
+#endif
 } InterpreterData;
 
 static InterpreterData interpreter_data = {{0}};
@@ -130,10 +153,12 @@ add_sys_path() {
 	return ans;
 }
 
-#ifdef _WIN32
-#else
 static void
 add_sys_paths() {
+#ifdef _WIN32
+    swprintf(add_sys_path(), PATH_MAX, L"%ls\\app\\pylib.zip", interpreter_data.app_dir);
+    swprintf(add_sys_path(), PATH_MAX, L"%ls\\app\\bin", interpreter_data.app_dir);
+#else
     swprintf(add_sys_path(), PATH_MAX, L"%ls", interpreter_data.python_lib_path);
     swprintf(add_sys_path(), PATH_MAX, L"%ls/lib-dynload", interpreter_data.python_lib_path);
 #ifdef __APPLE__
@@ -141,9 +166,8 @@ add_sys_paths() {
 #else
     swprintf(add_sys_path(), PATH_MAX, L"%ls/site-packages", interpreter_data.python_lib_path);
 #endif
-
-}
 #endif
+}
 
 static void
 run_interpreter() {
@@ -170,7 +194,11 @@ run_interpreter() {
     CHECK_STATUS;
     status = PyConfig_SetString(&config, &config.run_module, L"site");
     CHECK_STATUS;
+#ifdef _WIN32
+    status = PyConfig_SetArgv(&config, interpreter_data.argc, interpreter_data.argv);
+#else
     status = PyConfig_SetBytesArgv(&config, interpreter_data.argc, interpreter_data.argv);
+#endif
     CHECK_STATUS;
     status = Py_InitializeFromConfig(&config);
     CHECK_STATUS;
@@ -187,13 +215,23 @@ run_interpreter() {
     set_sys_string("resourcepath", interpreter_data.bundle_resource_path);
     set_sys_string("frameworks_dir", interpreter_data.frameworks_path);
     set_sys_bool("new_app_bundle", true);
-#elif _WIN32
+#elif defined(_WIN32)
+    set_sys_string("app_dir", interpreter_data.app_dir);
+    set_sys_bool("new_app_layout", true);
 #else
     set_sys_string("frozen_path", interpreter_data.executables_path);
 #endif
 
+#ifdef _WIN32
+    UINT code_page = GetConsoleOutputCP();
+    if (code_page != CP_UTF8) SetConsoleOutputCP(CP_UTF8);
+#endif
+
     int ret = Py_RunMain();
     PyConfig_Clear(&config);
+#ifdef _WIN32
+    if (code_page != CP_UTF8) SetConsoleOutputCP(CP_UTF8);
+#endif
 	exit(ret);
 #undef CHECK_STATUS
 }
