@@ -52,7 +52,7 @@ static int show_last_error(wchar_t *preamble) {
     return ret;
 }
 
-typedef int (__cdecl *ENTRYPROC)(const char*, const char*, const char*, int);
+typedef int (__cdecl *ENTRYPROC)(const wchar_t*, const wchar_t*, const wchar_t*, int);
 typedef void (__cdecl *SIMPLEPRINT)(const wchar_t*);
 typedef BOOL (*SETDEFAULTDIRS)(DWORD);
 static ENTRYPROC entrypoint = NULL;
