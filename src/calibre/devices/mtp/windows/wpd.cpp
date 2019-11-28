@@ -208,7 +208,7 @@ CALIBRE_MODINIT_FUNC initwpd(void) {
 
     wpd::DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&wpd::DeviceType) < 0)
-        return;
+        INITERROR;
 
     m = INITMODULE;
     if (m == NULL) {
