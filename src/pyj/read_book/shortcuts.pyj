@@ -193,7 +193,7 @@ def shortcuts_definition():
     ),
 
     'next_match': desc(
-        v"['F3']",
+        v"['F3', 'Enter']",
         'ui',
         _('Find next'),
     ),
