@@ -13,7 +13,7 @@ import signal
 import sys
 from collections import namedtuple
 from io import BytesIO
-from itertools import repeat
+from itertools import count, repeat
 from operator import attrgetter, itemgetter
 
 from html5_parser import parse
@@ -422,14 +422,21 @@ def add_anchors_markup(root, uuid, anchors):
     )
     div.text = '\n\n'
     body.append(div)
+    c = count()
 
     def a(anchor):
+        num = next(c)
         a = div.makeelement(
             XHTML('a'), href='#' + anchor,
             style='min-width: 10px !important; min-height: 10px !important; border: solid 1px !important;'
         )
         a.text = a.tail = ' '
+        if num % 8 == 0:
+            # prevent too many anchors on a line as it causes chromium to
+            # rescale the viewport
+            a.tail = '\n'
         div.append(a)
+    a.count = 0
     tuple(map(a, anchors))
     a(uuid)
 
