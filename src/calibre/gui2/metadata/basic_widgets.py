@@ -1093,6 +1093,7 @@ class Cover(ImageView):  # {{{
         ImageView.__init__(self, parent, show_size_pref_name='edit_metadata_cover_widget', default_show_size=True)
         self.dialog = parent
         self._cdata = None
+        self.draw_border = False
         self.cdata_before_trim = None
         self.cover_changed.connect(self.set_pixmap_from_data)
 
