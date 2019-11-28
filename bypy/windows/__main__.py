@@ -205,12 +205,6 @@ def freeze(env, ext_dir):
     for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
         if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
             os.remove(j(pyqt, x))
-    with open(j(pyqt, '__init__.py') , 'r+b') as f:
-        raw = f.read()
-        nraw = raw.replace(b'def find_qt():', b'def find_qt():\n    return # disabled for calibre')
-        if nraw == raw:
-            raise Exception('Failed to patch PyQt to disable dll directory manipulation')
-        f.seek(0), f.truncate(), f.write(nraw)
 
     printf('Adding calibre sources...')
     for x in glob.glob(j(CALIBRE_DIR, 'src', '*')):
@@ -552,8 +546,8 @@ def build_launchers(env, debug=False):
             if typ == 'gui':
                 cflags += ['/DGUI_APP=']
 
-            cflags += ['/DMODULE="%s"' % mod, '/DBASENAME="%s"' % bname,
-                       '/DFUNCTION="%s"' % func]
+            cflags += ['/DMODULE=L"%s"' % mod, '/DBASENAME=L"%s"' % bname,
+                       '/DFUNCTION=L"%s"' % func]
             dest = j(env.obj_dir, bname + '.obj')
             printf('Compiling', bname)
             cmd = [CL] + cflags + dflags + ['/Tc' + src, '/Fo' + dest]
@@ -616,7 +610,7 @@ def archive_lib_dir(env):
         handled = {'pywin32.pth', 'win32'}
         base = j(sp, 'win32', 'lib')
         for x in os.listdir(base):
-            if os.path.splitext(x)[1] not in ('.exe',):
+            if os.path.splitext(x)[1] not in ('.exe',) and x != '__pycache__':
                 add_to_zipfile(zf, x, base, zf_names)
         base = os.path.dirname(base)
         for x in os.listdir(base):
@@ -626,6 +620,11 @@ def archive_lib_dir(env):
 
         # We dont want the site.py (if any) from site-packages
         handled.add('site.pyo')
+        handled.add('site.pyc')
+        handled.add('site.py')
+        handled.add('sitecustomize.pyo')
+        handled.add('sitecustomize.pyc')
+        handled.add('sitecustomize.py')
 
         # The rest of site-packages
         for x in os.listdir(sp):
