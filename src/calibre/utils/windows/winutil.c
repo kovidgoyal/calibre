@@ -46,7 +46,6 @@ wherever possible in this module.
 #include <locale.h>
 #include <Python.h>
 #include <structseq.h>
-#include <timefuncs.h>
 #include <shlobj.h>
 #include <stdio.h>
 #include <setupapi.h>
