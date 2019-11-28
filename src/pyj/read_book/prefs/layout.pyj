@@ -49,7 +49,7 @@ def create_layout_panel(container, apply_func, cancel_func):
         ))
 
     def sec(text):
-        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px; max-width: 70em'))
+        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px; max-width: 50em'))
 
     sec(_('Choose the page layout mode. In paged mode, the text is split up into individual pages, as in a paper book. In flow mode'
             ' text is presented as one long scrolling page, as in web browsers.'))
