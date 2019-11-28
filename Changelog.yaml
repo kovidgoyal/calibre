@@ -20,6 +20,35 @@
 #   new recipes:
 #     - title:
 
+- version: 4.5.0
+  date: 2019-11-29
+
+  new features:
+    - title: "Driver for the new PocketBook Inkpad X"
+      tickets: [1854335]
+
+    - title: "Driver for the new Bookeen Diva HD"
+      tickets: [1854063]
+
+    - title: "PDF Output: Add an option to shift text horizontally on odd/even pages."
+      tickets: [1853155]
+
+    - title: "Image viewing popup dialog: Add a checkbox to fit image to window."
+      tickets: [1853671]
+
+    - title: "Edit book: Create @font-face rules when importing multiple font files into book automatically, similar to how it is done when importing a single font file."
+
+  bug fixes:
+    - title: "PDF Output: Fix incorrect rendering if the input document has too many anchors."
+      tickets: [1854345]
+
+    - title: "Fix a regression that could cause window layout settings to sometimes not be saved during shutdown"
+
+  improved recipes:
+    - "L'express"
+    - The Toronto Star
+
+
 - version: 4.4.0
   date: 2019-11-21
 
