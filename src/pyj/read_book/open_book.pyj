@@ -32,7 +32,7 @@ def create_open_book(container, book):
             fname = entry.pathtoebook.replace(/\\/g, '/')
             if '/' in fname:
                 fname = fname.rpartition('/')[-1]
-            items.push(create_item(entry.title, ui_operations.ask_for_open.bind(None, entry.pathtoebook), fname))
+            items.push(create_item(entry.title or _('Unknown'), ui_operations.ask_for_open.bind(None, entry.pathtoebook), fname))
         create_item_list(c.lastChild, items)
 
         c.appendChild(E.div(style='margin: 1rem'))

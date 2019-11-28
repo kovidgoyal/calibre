@@ -444,7 +444,10 @@ class EbookViewer(MainWindow):
             merge_annotations(parse_annotations(raw), amap)
 
     def update_window_title(self):
-        title = self.current_book_data['metadata']['title']
+        try:
+            title = self.current_book_data['metadata']['title']
+        except Exception:
+            title = _('Unknown')
         book_format = self.current_book_data['manifest']['book_format']
         title = '{} [{}] — {}'.format(title, book_format, self.base_window_title)
         self.setWindowTitle(title)
