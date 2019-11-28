@@ -264,12 +264,6 @@ License: LGPL-2.1
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
 
-Files: src/calibre/utils/lzx/msstdint.h
-Copyright: Copyright (C) 2006-2008, Alexander Chemeris
-License: BSD
- The full text of the BSD license is distributed as in
- /usr/share/common-licenses/BSD on Debian systems.
-
 Files: src/calibre/utils/msdes/d3des.h:
 Files: src/calibre/utils/msdes/des.c:
 Copyright: Copyright (C) 1988,1989,1990,1991,1992, Richard Outerbridge

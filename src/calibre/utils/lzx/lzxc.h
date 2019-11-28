@@ -15,10 +15,6 @@
 
 #pragma once
 
-#ifdef _MSC_VER
-#include "msstdint.h"
-#endif
-
 typedef struct lzxc_data lzxc_data;
 typedef int (*lzxc_get_bytes_t)(void *arg, int n, void *buf);
 typedef int (*lzxc_put_bytes_t)(void *arg, int n, void *buf);
@@ -32,7 +28,7 @@ typedef struct lzxc_results
   long len_uncompressed_input;
 } lzxc_results;
 
-int lzxc_init(struct lzxc_data **lzxdp, int wsize_code, 
+int lzxc_init(struct lzxc_data **lzxdp, int wsize_code,
 	     lzxc_get_bytes_t get_bytes, void *get_bytes_arg,
 	     lzxc_at_eof_t at_eof,
 	     lzxc_put_bytes_t put_bytes, void *put_bytes_arg,
@@ -43,4 +39,3 @@ void lzxc_reset(lzxc_data *lzxd);
 int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide);
 
 int lzxc_finish(struct lzxc_data *lzxd, struct lzxc_results *lzxr);
-
