@@ -1,81 +1,48 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import sys
+import builtins
 import os
-import imp
+import sys
+from importlib import import_module
+from importlib.util import spec_from_file_location
+from importlib.machinery import EXTENSION_SUFFIXES
+
+import _sitebuiltins
+
+pyd_items = None
+extension_suffixes = sorted(EXTENSION_SUFFIXES, key=len, reverse=True)
 
 
-class PydImporter(object):
+def remove_extension_suffix(name):
+    for q in extension_suffixes:
+        if name.endswith(q):
+            return name[:-len(q)]
 
-    __slots__ = ('items', 'description')
 
-    def __init__(self):
-        self.items = None
-        self.description = ('.pyd', 'rb', imp.C_EXTENSION)
+class PydImporter:
 
-    def find_module(self, fullname, path=None):
-        if self.items is None:
+    def find_spec(self, fullname, path, target=None):
+        global pyd_items
+        if pyd_items is None:
+            pyd_items = {}
             dlls_dir = os.path.join(sys.app_dir, 'app', 'bin')
-            items = self.items = {}
             for x in os.listdir(dlls_dir):
                 lx = x.lower()
-                if lx.endswith(b'.pyd'):
-                    items[lx[:-4]] = os.path.abspath(os.path.join(dlls_dir, x))
-        return self if fullname.lower() in self.items else None
+                if lx.endswith('.pyd'):
+                    pyd_items[remove_extension_suffix(lx)] = os.path.abspath(os.path.join(dlls_dir, x))
+        q = fullname.lower()
+        path = pyd_items.get(q)
+        if path is not None:
+            return spec_from_file_location(fullname, path)
 
-    def load_module(self, fullname):
-        m = sys.modules.get(fullname)
-        if m is not None:
-            return m
-        try:
-            path = self.items[fullname.lower()]
-        except KeyError:
-            raise ImportError(
-                'The native code module %s seems to have disappeared from self.items'
-                % fullname
-            )
-        package, name = fullname.rpartition(b'.')[::2]
-        m = imp.load_module(
-            fullname, None, path, self.description
-        )  # This inserts the module into sys.modules itself
-        m.__loader__ = self
-        m.__package__ = package or None
-        return m
-
-
-def abs__file__():
-    """Set all module __file__ attribute to an absolute path"""
-    for m in sys.modules.values():
-        if hasattr(m, '__loader__'):
-            continue  # don't mess with a PEP 302-supplied __file__
-        try:
-            m.__file__ = os.path.abspath(m.__file__)
-        except AttributeError:
-            continue
-
-
-def aliasmbcs():
-    import locale, codecs
-    enc = locale.getdefaultlocale()[1]
-    if enc.startswith('cp'):  # "cp***" ?
-        try:
-            codecs.lookup(enc)
-        except LookupError:
-            import encodings
-            encodings._cache[enc] = encodings._unknown
-            encodings.aliases.aliases[enc] = 'mbcs'
+    def invalidate_caches(self):
+        global pyd_items
+        pyd_items = None
 
 
 def add_calibre_vars():
-    sys.new_app_layout = 1
-    sys.resources_location = os.path.join(sys.app_dir, 'app', 'resources')
-    sys.extensions_location = os.path.join(sys.app_dir, 'app', 'bin')
-
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     if dv and os.path.exists(dv):
         sys.path.insert(0, os.path.abspath(dv))
@@ -84,17 +51,23 @@ def add_calibre_vars():
 def run_entry_point():
     bname, mod, func = sys.calibre_basename, sys.calibre_module, sys.calibre_function
     sys.argv[0] = bname + '.exe'
-    pmod = __import__(mod, fromlist=[1], level=0)
+    pmod = import_module(mod)
     return getattr(pmod, func)()
 
 
-def main():
-    sys.frozen = 'windows_exe'
-    sys.setdefaultencoding('utf-8')
-    aliasmbcs()
+def set_helper():
+    builtins.help = _sitebuiltins._Helper()
 
+
+def set_quit():
+    eof = 'Ctrl-Z plus Return'
+    builtins.quit = _sitebuiltins.Quitter('quit', eof)
+    builtins.exit = _sitebuiltins.Quitter('exit', eof)
+
+
+def main():
     sys.meta_path.insert(0, PydImporter())
-    sys.path_importer_cache.clear()
+    os.add_dll_directory(os.path.join(sys.app_dir, 'app', 'bin'))
 
     import linecache
 
@@ -104,11 +77,8 @@ def main():
     linecache.orig_getline = linecache.getline
     linecache.getline = fake_getline
 
-    abs__file__()
-
     add_calibre_vars()
-
-    # Needed to bypass meaningless check in pywintypes.py
-    sys.path.append(os.path.join(sys.app_dir, 'app', 'bin'))
+    set_helper()
+    set_quit()
 
     return run_entry_point()
