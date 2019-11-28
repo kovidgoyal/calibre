@@ -528,7 +528,8 @@ def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
     ans = {}
     anchors = pdf_doc.extract_anchors()
     toc_pagenum = anchors.pop(toc_uuid)[0]
-    pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
+    if toc_pagenum > 1:
+        pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
     for anchor, loc in iteritems(anchors):
         loc = list(loc)
         loc[0] += first_page_num - 1
