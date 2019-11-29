@@ -68,6 +68,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
         self.series.currentTextChanged.connect(self.series_changed)
+        self.cover.draw_border = False
 
     def change_cover(self, data):
         self.cover_changed = True
