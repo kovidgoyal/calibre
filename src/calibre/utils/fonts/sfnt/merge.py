@@ -42,7 +42,7 @@ def merge_truetype_fonts_for_pdf(*fonts):
     vhea = ans.get(b'vhea')
     if vhea is not None:
         vhea.read_data(ans[b'vmtx'])
-        advance_heights = tuple(x/head.units_per_em for x in hhea.advance_heights)
+        advance_heights = tuple(x/head.units_per_em for x in vhea.advance_heights)
 
     def width_for_glyph_id(gid):
         if gid >= len(advance_widths):
@@ -50,7 +50,7 @@ def merge_truetype_fonts_for_pdf(*fonts):
         return advance_widths[gid]
 
     def height_for_glyph_id(gid):
-        if gid >= len(advance_widths):
+        if gid >= len(advance_heights):
             gid = -1
         return advance_heights[gid]
 
