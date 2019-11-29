@@ -50,6 +50,7 @@ class ImageView(QDialog):
         l.setScaledContents(True)
 
         self.scrollarea = sa = QScrollArea()
+        sa.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         sa.setBackgroundRole(QPalette.Dark)
         sa.setWidget(l)
 
