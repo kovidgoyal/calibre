@@ -61,12 +61,15 @@ content             comments
 
 asin                The ISBN 10 for the paper book the pages correspond to
 pageMap             Three value tuple. Looks like: "(N,N,N)"
-                    1) Number of bytes after header that starts the page numbering sequence
-                    2) unknown
-                    3) unknown
+                    1) 1 based page list entry number for the first page described by this tuple.
+                    2) Page number type, a: Indo-Arabic numeral, r: Roman numeral, c: character.
+                    3) Value of page number for the first page of this sequence.
+
+The third value of the tuple is a decimal number if the type is "a" or "r" and
+a character string of page labels separated by "|" characters.
 
 Example:
-{"asin":"1906694184","pageMap":"(4,a,1)"}
+{"asin":"1906694184","pageMap":"(4,a,1),(197,c,A-1|A-2|A-3)"}
 
 
 Page List
@@ -75,3 +78,8 @@ Page List
 The page list is a sequence of offsets in the uncompressed HTML. Each
 value is the beginning of a new page. Each entry is a 4 byte big endian
 int. The list is ordered lowest to highest.
+
+For more information
+--------------------
+
+MobileRead wiki https://wiki.mobileread.com/wiki/APNX
