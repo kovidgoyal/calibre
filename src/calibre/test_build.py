@@ -65,7 +65,7 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(detector.result['encoding'], 'utf-8')
 
     def test_lzma(self):
-        from lzma.xz import test_lzma2
+        from calibre_lzma.xz import test_lzma2
         test_lzma2()
 
     def test_html5lib(self):

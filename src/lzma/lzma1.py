@@ -9,7 +9,8 @@ from io import BytesIO
 from struct import unpack
 
 from calibre.ptempfile import SpooledTemporaryFile
-from lzma.errors import NotLzma, lzma
+from .errors import NotLzma, lzma
+
 
 def read_header(f):
     raw = f.read(13)
@@ -21,16 +22,20 @@ def read_header(f):
         raise NotLzma('Not a LZMA file')
     return uncompressed_size, raw
 
-def decompress(raw, outfile=None, bufsize=10*1024*1024):
+
+def decompress(raw, outfile=None, bufsize=10 * 1024 * 1024):
     if isinstance(raw, bytes):
         raw = BytesIO(raw)
     uncompressed_size, header = read_header(raw)
     outfile = outfile or SpooledTemporaryFile(50 * 1024 * 1024, '_lzma_decompress')
-    lzma.decompress(raw.read, raw.seek, outfile.write, uncompressed_size, header, bufsize)
+    lzma.decompress(
+        raw.read, raw.seek, outfile.write, uncompressed_size, header, bufsize
+    )
     if uncompressed_size < outfile.tell():
         outfile.seek(uncompressed_size)
         outfile.truncate()
     return outfile
+
 
 if __name__ == '__main__':
     import sys

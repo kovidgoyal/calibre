@@ -30,7 +30,7 @@ def abspath(x):
 
 
 def update_rapydscript():
-    from lzma.xz import compress
+    from calibre_lzma.xz import compress
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
@@ -51,7 +51,7 @@ def to_dict(obj):
 
 
 def compiler():
-    from lzma.xz import decompress
+    from calibre_lzma.xz import decompress
     ans = getattr(compiler, 'ans', None)
     if ans is not None:
         return ans

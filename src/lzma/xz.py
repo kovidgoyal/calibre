@@ -14,7 +14,7 @@ from struct import unpack, error as struct_error, pack
 from binascii import crc32 as _crc32
 
 from calibre.ptempfile import SpooledTemporaryFile
-from lzma.errors import NotXZ, InvalidXZ, lzma
+from .errors import NotXZ, InvalidXZ, lzma
 from polyglot.builtins import error_message
 
 HEADER_MAGIC = b'\xfd7zXZ\0'
