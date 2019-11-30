@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess, time, errno
+import sys, re, os, platform, subprocess, time, errno, tempfile, shutil
+from contextlib import contextmanager
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -288,6 +289,14 @@ class Command(object):
         print('_'*50)
         warnings.append((args, kwargs))
         sys.stdout.flush()
+
+    @contextmanager
+    def temp_dir(self, **kw):
+        ans = tempfile.mkdtemp(**kw)
+        try:
+            yield ans
+        finally:
+            shutil.rmtree(ans)
 
 
 def installer_name(ext, is64bit=False):

@@ -15,6 +15,7 @@ build
 dist
 docs
 resources/localization
+resources/hyphenation
 resources/scripts.calibre_msgpack
 resources/ebook-convert-complete.calibre_msgpack
 resources/builtin_recipes.xml
