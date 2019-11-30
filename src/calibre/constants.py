@@ -175,6 +175,7 @@ class Plugins(collections.Mapping):
                 'html_as_json',
                 'unicode_names',
                 'html',
+                'hyphen',
                 'freetype',
                 'imageops',
                 'hunspell',

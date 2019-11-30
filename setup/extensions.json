@@ -15,6 +15,12 @@
         "needs_py2": true
     },
     {
+        "name": "hyphen",
+        "sources": "calibre/utils/hyphenation/hyphen.c",
+		"libraries": "hyphen",
+		"needs_c99": true
+    },
+    {
         "name": "unicode_names",
         "headers": "unicode_names/names.h unicode_names/data-types.h",
         "sources": "unicode_names/unicode_names.c",
