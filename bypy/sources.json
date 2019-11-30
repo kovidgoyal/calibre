@@ -115,6 +115,14 @@
         }
     },
 
+    {
+        "name": "hyphen",
+        "unix": {
+            "filename": "hyphen-2.8.8.tar.gz",
+            "hash": "sha1:0556c392beb59433e577e3517575801212201df6",
+            "urls": ["https://downloads.sourceforge.net/hunspell/{filename}"]
+        }
+    },
 
     {
         "name": "openssl",

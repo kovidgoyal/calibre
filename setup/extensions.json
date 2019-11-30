@@ -18,6 +18,8 @@
         "name": "hyphen",
         "sources": "calibre/utils/hyphenation/hyphen.c",
 		"libraries": "hyphen",
+        "inc_dirs": "!hyphen_inc_dirs",
+        "lib_dirs": "!hyphen_lib_dirs",
 		"needs_c99": true
     },
     {

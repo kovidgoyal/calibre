@@ -128,6 +128,8 @@ zlib_inc_dirs = []
 zlib_lib_dirs = []
 hunspell_inc_dirs = []
 hunspell_lib_dirs = []
+hyphen_inc_dirs = []
+hyphen_lib_dirs = []
 openssl_inc_dirs, openssl_lib_dirs = [], []
 ICU = sw = ''
 
@@ -137,6 +139,8 @@ if iswindows:
     sw_lib_dir  = os.path.join(prefix, 'lib')
     icu_inc_dirs = [sw_inc_dir]
     icu_lib_dirs = [sw_lib_dir]
+    hyphen_inc_dirs = [sw_inc_dir]
+    hyphen_lib_dirs = [sw_lib_dir]
     openssl_inc_dirs = [sw_inc_dir]
     openssl_lib_dirs = [sw_lib_dir]
     sqlite_inc_dirs = [sw_inc_dir]

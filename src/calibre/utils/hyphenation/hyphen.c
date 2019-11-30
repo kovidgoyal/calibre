@@ -63,7 +63,7 @@ simple_hyphenate(PyObject *self, PyObject *args) {
 
 	// we use the simple (old) algorithm since we dont handle replacements
 	// anyway
-    if (hnj_hyphen_hyphenate(dict, word_str, wd_size, hyphens)) {
+    if (hnj_hyphen_hyphenate(dict, word_str, (int)wd_size, hyphens)) {
         PyErr_Format(PyExc_ValueError, "Cannot hyphenate word: %s", word_str);
     } else {
 		for (size_t i = 0; i < wd_size; i++) {
