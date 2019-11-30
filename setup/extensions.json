@@ -161,8 +161,8 @@
     },
     {
         "name": "lzma_binding",
-        "sources": "lzma/*.c",
-        "headers": "lzma/*.h",
+        "sources": "calibre_lzma/*.c",
+        "headers": "calibre_lzma/*.h",
         "defines": "_7ZIP_ST"
     },
     {
