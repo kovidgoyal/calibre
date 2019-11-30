@@ -108,16 +108,21 @@ class Hyphenation(Command):
             if len(os.listdir(src)) == 1:
                 src = os.path.join(src, os.listdir(src)[0])
             process_dictionaries(src, output_dir)
-            dics = [x for x in os.listdir(output_dir) if x.endswith('.dic')]
+            dics = sorted(x for x in os.listdir(output_dir) if x.endswith('.dic'))
             m = hashlib.sha1()
-            for dic in sorted(dics):
+            for dic in dics:
                 with open(os.path.join(output_dir, dic), 'rb') as f:
                     m.update(f.read())
             hsh = type('')(m.hexdigest())
             buf = BytesIO()
             with tarfile.TarFile(fileobj=buf, mode='w') as tf:
                 for dic in dics:
-                    tf.add(os.path.join(output_dir, dic), dic)
+                    with open(os.path.join(output_dir, dic), 'rb') as df:
+                        tinfo = tf.gettarinfo(arcname=dic, fileobj=df)
+                        tinfo.mtime = 0
+                        tinfo.uid = tinfo.gid = 1000
+                        tinfo.uname = tinfo.gname = 'kovid'
+                        tf.addfile(tinfo, df)
             with open(os.path.join(self.hyphenation_dir, 'dictionaries.tar.xz'), 'wb') as f:
                 compress_tar(buf, f)
             with open(os.path.join(self.hyphenation_dir, 'sha1sum'), 'w') as f:
