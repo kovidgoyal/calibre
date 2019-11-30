@@ -8,7 +8,7 @@ import hashlib
 import json
 import os
 import shutil
-import subprocess
+import tarfile
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -72,6 +72,17 @@ def process_dictionaries(src, output_dir):
         f.write(data)
 
 
+def compress_tar(buf, outf):
+    buf.seek(0)
+    try:
+        from calibre_lzma.xz import compress
+    except ImportError:
+        import lzma
+        outf.write(lzma.compress(buf.getvalue(), preset=9 | lzma.PRESET_EXTREME))
+    else:
+        compress(buf, outf)
+
+
 class Hyphenation(Command):
 
     description = 'Download the hyphenation dictionaries'
@@ -103,9 +114,12 @@ class Hyphenation(Command):
                 with open(os.path.join(output_dir, dic), 'rb') as f:
                     m.update(f.read())
             hsh = type('')(m.hexdigest())
-            subprocess.check_call([
-                'tar', '-cJf', os.path.join(self.hyphenation_dir, 'dictionaries.tar.xz')] + dics
-                , env={'XZ_OPT': '-9e -T0'}, cwd=output_dir)
-            shutil.copy(self.j(output_dir, 'locales.json'), self.hyphenation_dir)
+            buf = BytesIO()
+            with tarfile.TarFile(fileobj=buf, mode='w') as tf:
+                for dic in dics:
+                    tf.add(os.path.join(output_dir, dic), dic)
+            with open(os.path.join(self.hyphenation_dir, 'dictionaries.tar.xz'), 'wb') as f:
+                compress_tar(buf, f)
             with open(os.path.join(self.hyphenation_dir, 'sha1sum'), 'w') as f:
                 f.write(hsh)
+            shutil.copy(os.path.join(output_dir, 'locales.json'), self.hyphenation_dir)
