@@ -76,7 +76,7 @@ class ImageView(QDialog):
         h.setContentsMargins(0, 0, 0, 0)
         l.addLayout(h)
         self.fit_image = i = QCheckBox(_('&Fit image'))
-        i.setToolTip(_('Fit the image to the available space'))
+        i.setToolTip(_('Fit image inside the available space'))
         i.setChecked(bool(gprefs.get('image_popup_fit_image')))
         i.stateChanged.connect(self.fit_changed)
         h.addWidget(i), h.addStretch(), h.addWidget(bb)
