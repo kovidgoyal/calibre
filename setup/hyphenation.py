@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import glob
+import hashlib
 import json
 import os
 import shutil
@@ -97,7 +98,14 @@ class Hyphenation(Command):
                 src = os.path.join(src, os.listdir(src)[0])
             process_dictionaries(src, output_dir)
             dics = [x for x in os.listdir(output_dir) if x.endswith('.dic')]
+            m = hashlib.sha1()
+            for dic in sorted(dics):
+                with open(os.path.join(output_dir, dic), 'rb') as f:
+                    m.update(f.read())
+            hsh = type('')(m.hexdigest())
             subprocess.check_call([
                 'tar', '-cJf', os.path.join(self.hyphenation_dir, 'dictionaries.tar.xz')] + dics
                 , env={'XZ_OPT': '-9e -T0'}, cwd=output_dir)
             shutil.copy(self.j(output_dir, 'locales.json'), self.hyphenation_dir)
+            with open(os.path.join(self.hyphenation_dir, 'sha1sum'), 'w') as f:
+                f.write(hsh)
