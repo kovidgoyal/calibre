@@ -124,6 +124,9 @@ class ImageView(QDialog):
         gprefs.set('image_popup_fit_image', fitted)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
+        else:
+            self.factor = 1
+            self.adjust_image(1)
 
     def adjust_image(self, factor):
         if self.fit_image.isChecked():
