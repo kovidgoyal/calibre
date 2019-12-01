@@ -4,8 +4,14 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import errno
 import json
+import os
+import tarfile
+from io import BytesIO
 
+from calibre.constants import cache_dir
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
@@ -38,7 +44,58 @@ def dictionary_name_for_locale(loc):
         return lmap['en_us']
     if loc == 'de':
         return lmap['de_de']
+    if loc == 'es':
+        return lmap['es_es']
     q = loc + '_'
     for k, v in iteritems(lmap):
         if k.startswith(q):
             return lmap[k]
+
+
+def extract_dicts(cache_path):
+    with TemporaryDirectory(dir=cache_path) as tdir:
+        try:
+            from calibre_lzma.xz import decompress
+        except ImportError:
+            tf = tarfile.open(P('hyphenation/dictionaries.tar.xz'))
+        else:
+            buf = BytesIO()
+            decompress(P('hyphenation/dictionaries.tar.xz', data=True), outfile=buf)
+            buf.seek(0)
+            tf = tarfile.TarFile(fileobj=buf)
+        with tf:
+            tf.extractall(tdir)
+        dest = os.path.join(cache_path, 'f')
+        with TemporaryDirectory(dir=cache_path) as trash:
+            try:
+                os.rename(dest, os.path.join(trash, 'f'))
+            except EnvironmentError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+            os.rename(tdir, dest)
+    is_cache_up_to_date.updated = True
+
+
+def is_cache_up_to_date(cache_path):
+    if hasattr(is_cache_up_to_date, 'updated'):
+        return True
+    hsh = P('hyphenation/sha1sum', data=True)
+    try:
+        with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
+            return f.read() == hsh
+    except EnvironmentError:
+        pass
+    return False
+
+
+def path_to_dictionary(dictionary_name):
+    cd = getattr(path_to_dictionary, 'cache_dir', None) or cache_dir()
+    cache_path = os.path.join(cd, 'hyphenation')
+    try:
+        os.makedirs(cache_path)
+    except EnvironmentError as err:
+        if err.errno != errno.EEXIST:
+            raise
+    if not is_cache_up_to_date(cache_path):
+        extract_dicts(cache_path)
+    return os.path.join(cache_path, 'f', dictionary_name)
