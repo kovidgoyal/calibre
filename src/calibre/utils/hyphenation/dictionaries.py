@@ -88,7 +88,7 @@ def is_cache_up_to_date(cache_path):
     return False
 
 
-def path_to_dictionary(dictionary_name):
+def path_to_dictionary(dictionary_name, cache_callback=None):
     cd = getattr(path_to_dictionary, 'cache_dir', None) or cache_dir()
     cache_path = os.path.join(cd, 'hyphenation')
     try:
@@ -98,4 +98,6 @@ def path_to_dictionary(dictionary_name):
             raise
     if not is_cache_up_to_date(cache_path):
         extract_dicts(cache_path)
+        if cache_callback is not None:
+            cache_callback()
     return os.path.join(cache_path, 'f', dictionary_name)

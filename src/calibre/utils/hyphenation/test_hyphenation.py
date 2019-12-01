@@ -45,9 +45,21 @@ class TestHyphenation(unittest.TestCase):
         t('nl', 'nl_NL')
         t('fr', 'fr')
         t('XXX')
+
+        cache = [False]
+
+        def cache_callback():
+            cache[0] = True
+
         self.assertTrue(
-            os.path.exists(path_to_dictionary(dictionary_name_for_locale('en')))
+            os.path.exists(path_to_dictionary(dictionary_name_for_locale('en'), cache_callback))
         )
+        self.assertTrue(cache[0])
+        cache[0] = False
+        self.assertTrue(
+            os.path.exists(path_to_dictionary(dictionary_name_for_locale('es'), cache_callback))
+        )
+        self.assertFalse(cache[0])
 
 
 def find_tests():
