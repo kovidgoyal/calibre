@@ -88,8 +88,8 @@ def create_fonts_panel(container, apply_func, cancel_func):
         row(_('Standard font'), standard_font(settings)),
     ))
 
-    container.append(E.div(_('Zoom related settings'), style='margin-top: 1rem'))
-    container.append(E.table(style='margin-top: 1rem',
+    container.append(E.div(_('Zoom related settings'), style='margin-top: 1rem; padding-top: 1rem; width: 100%; border-top: solid 1px'))
+    container.append(E.table(
         row(_('Zoom step size (%)'), zoom_step_size(settings)),
         row(_('Minimum font size (px)'), minimum_font_size(settings)),
     ))
