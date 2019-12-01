@@ -276,7 +276,7 @@ class BookmarkManager(QWidget):
                 break
 
         title, ok = QInputDialog.getText(self, _('Add bookmark'),
-                _('Enter title for bookmark:'), text=default_title)
+                _('Enter title for bookmark:'), text=pos_data.get('selected_text') or default_title)
         title = unicode_type(title).strip()
         if not ok or not title:
             return
