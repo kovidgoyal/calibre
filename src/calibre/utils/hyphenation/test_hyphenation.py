@@ -4,13 +4,15 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import shutil, os
+import os
+import shutil
 import unittest
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.hyphenation.dictionaries import (
     dictionary_name_for_locale, path_to_dictionary
 )
+from calibre.utils.hyphenation.hyphenate import remove_punctuation
 
 
 class TestHyphenation(unittest.TestCase):
@@ -60,6 +62,11 @@ class TestHyphenation(unittest.TestCase):
             os.path.exists(path_to_dictionary(dictionary_name_for_locale('es'), cache_callback))
         )
         self.assertFalse(cache[0])
+
+    def test_remove_punctuation(self):
+        self.ae(remove_punctuation('word'), ('', 'word', ''))
+        self.ae(remove_punctuation('wo.rd.'), ('', 'wo.rd', '.'))
+        self.ae(remove_punctuation('"«word!!'), ('"«', 'word', '!!'))
 
 
 def find_tests():
