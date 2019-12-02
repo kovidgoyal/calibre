@@ -10,9 +10,11 @@ import unittest
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.hyphenation.dictionaries import (
-    dictionary_name_for_locale, path_to_dictionary
+    dictionary_name_for_locale, get_cache_path, path_to_dictionary
 )
-from calibre.utils.hyphenation.hyphenate import remove_punctuation
+from calibre.utils.hyphenation.hyphenate import (
+    add_soft_hyphens, dictionary_for_locale, remove_punctuation
+)
 
 
 class TestHyphenation(unittest.TestCase):
@@ -23,9 +25,15 @@ class TestHyphenation(unittest.TestCase):
     def setUpClass(cls):
         tdir = PersistentTemporaryDirectory()
         path_to_dictionary.cache_dir = tdir
+        dictionary_name_for_locale.cache_clear()
+        dictionary_for_locale.cache_clear()
+        get_cache_path.cache_clear()
 
     @classmethod
     def tearDownClass(cls):
+        dictionary_name_for_locale.cache_clear()
+        dictionary_for_locale.cache_clear()
+        get_cache_path.cache_clear()
         try:
             shutil.rmtree(path_to_dictionary.cache_dir)
         except EnvironmentError:
@@ -67,6 +75,20 @@ class TestHyphenation(unittest.TestCase):
         self.ae(remove_punctuation('word'), ('', 'word', ''))
         self.ae(remove_punctuation('wo.rd.'), ('', 'wo.rd', '.'))
         self.ae(remove_punctuation('"«word!!'), ('"«', 'word', '!!'))
+
+    def test_add_soft_hyphens(self):
+        dictionary = dictionary_for_locale('en')
+
+        def t(word, expected):
+            self.ae(add_soft_hyphens(word, dictionary, '='), expected)
+
+        t('beautiful', 'beau=ti=ful')
+        t('beautiful.', 'beau=ti=ful.')
+        t('"beautiful.', '"beau=ti=ful.')
+        t('BeauTiful', 'Beau=Ti=ful')
+
+        dictionary = dictionary_for_locale('hu')
+        t('asszonnyal', 'asszonnyal')
 
 
 def find_tests():

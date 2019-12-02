@@ -47,13 +47,14 @@ get_dict_from_args(PyObject *args) {
 
 static PyObject*
 simple_hyphenate(PyObject *self, PyObject *args) {
-    char hyphenated_word[2*MAX_CHARS], hyphens[MAX_CHARS * 3] = {0}, *word_str;
+    char hyphenated_word[2*MAX_CHARS] = {0}, hyphens[MAX_CHARS * 3] = {0}, *word_str;
 	PyObject *dict_obj;
+	char **rep = NULL; int *pos = NULL, *cut = NULL;
 
 	HyphenDict *dict = get_dict_from_args(args);
 	if (!dict) return NULL;
     if (!PyArg_ParseTuple(args, "Oes", &dict_obj, &dict->cset, &word_str)) return NULL;
-    size_t wd_size = strlen(word_str), hwl = 0;
+    size_t wd_size = strlen(word_str);
 
     if (wd_size >= MAX_CHARS) {
         PyErr_Format(PyExc_ValueError, "Word to be hyphenated (%s) may have at most %u characters, has %zu.", word_str, MAX_CHARS-1, wd_size);
@@ -61,22 +62,21 @@ simple_hyphenate(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-	// we use the simple (old) algorithm since we dont handle replacements
-	// anyway
-    if (hnj_hyphen_hyphenate(dict, word_str, (int)wd_size, hyphens)) {
+    if (hnj_hyphen_hyphenate2(dict, word_str, (int)wd_size, hyphens, hyphenated_word, &rep, &pos, &cut)) {
         PyErr_Format(PyExc_ValueError, "Cannot hyphenate word: %s", word_str);
-    } else {
-		for (size_t i = 0; i < wd_size; i++) {
-			if (hyphens[i] & 1) {
-				hyphenated_word[hwl++] = '=';
-			}
-			hyphenated_word[hwl++] = word_str[i];
-		}
 	}
 	PyMem_Free(word_str);
+	if (rep) {
+        PyErr_Format(PyExc_ValueError, "Cannot hyphenate word as it requires replacements: %s", word_str);
+		for (size_t i = 0; i < wd_size; i++) {
+			if (rep[i]) free(rep[i]);
+		}
+		free(rep);
+	}
+	free(pos); free(cut);
 	if (PyErr_Occurred()) return NULL;
 
-	return PyUnicode_Decode(hyphenated_word, hwl, dict->cset, "replace");
+	return PyUnicode_Decode(hyphenated_word, strlen(hyphenated_word), dict->cset, "replace");
 }
 
 
