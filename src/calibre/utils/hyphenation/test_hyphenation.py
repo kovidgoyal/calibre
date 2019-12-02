@@ -10,7 +10,7 @@ import unittest
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.hyphenation.dictionaries import (
-    dictionary_name_for_locale, get_cache_path, path_to_dictionary
+    dictionary_name_for_locale, get_cache_path, path_to_dictionary, is_cache_up_to_date
 )
 from calibre.utils.hyphenation.hyphenate import (
     add_soft_hyphens, dictionary_for_locale, remove_punctuation
@@ -21,17 +21,19 @@ class TestHyphenation(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
 
-    def setUp(cls):
+    def setUp(self):
         tdir = PersistentTemporaryDirectory()
         path_to_dictionary.cache_dir = tdir
         dictionary_name_for_locale.cache_clear()
         dictionary_for_locale.cache_clear()
         get_cache_path.cache_clear()
+        is_cache_up_to_date.updated = False
 
     def tearDown(self):
         dictionary_name_for_locale.cache_clear()
         dictionary_for_locale.cache_clear()
         get_cache_path.cache_clear()
+        is_cache_up_to_date.updated = False
         try:
             shutil.rmtree(path_to_dictionary.cache_dir)
         except EnvironmentError:
@@ -59,8 +61,9 @@ class TestHyphenation(unittest.TestCase):
         def cache_callback():
             cache[0] = True
 
+        dp = path_to_dictionary(dictionary_name_for_locale('en'), cache_callback)
         self.assertTrue(
-            os.path.exists(path_to_dictionary(dictionary_name_for_locale('en'), cache_callback))
+            os.path.exists(dp), 'The dictionary {} does not exist'.format(dp)
         )
         self.assertTrue(cache[0])
         cache[0] = False

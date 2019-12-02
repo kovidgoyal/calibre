@@ -77,7 +77,7 @@ def extract_dicts(cache_path):
 
 
 def is_cache_up_to_date(cache_path):
-    if hasattr(is_cache_up_to_date, 'updated'):
+    if getattr(is_cache_up_to_date, 'updated', False):
         return True
     hsh = P('hyphenation/sha1sum', data=True)
     try:
