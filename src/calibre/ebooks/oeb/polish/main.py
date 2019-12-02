@@ -21,6 +21,7 @@ from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.jacket import (
     replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.ebooks.oeb.polish.css import remove_unused_css
+from calibre.ebooks.oeb.polish.hyphenation import remove_soft_hyphens, add_soft_hyphens
 from calibre.utils.logging import Log
 from polyglot.builtins import iteritems
 
@@ -35,6 +36,8 @@ ALL_OPTS = {
     'remove_unused_css':False,
     'compress_images': False,
     'upgrade_book': False,
+    'add_soft_hyphens': False,
+    'remove_soft_hyphens': False,
 }
 
 CUSTOMIZATION = {
@@ -117,6 +120,15 @@ affecting image quality.</p>
 'upgrade_book': _('''\
 <p>Upgrade the internal structures of the book, if possible. For instance,
 upgrades EPUB 2 books to EPUB 3 books.</p>
+'''),
+
+'add_soft_hyphens': _('''\
+<p>Add soft hyphens to all words in the book. This allows the book to be rendered
+better when the text is justified, in readers that do not support hyphenation.</p>
+'''),
+
+'remove_soft_hyphens': _('''\
+<p>Remove soft hyphens from all text in the book.</p>
 '''),
 }
 
@@ -237,6 +249,15 @@ def polish_one(ebook, opts, report, customization=None):
             changed = True
         report('')
 
+    if opts.remove_soft_hyphens:
+        rt(_('Removing soft hyphens'))
+        remove_soft_hyphens(ebook, report)
+        changed = True
+    elif opts.add_soft_hyphens:
+        rt(_('Adding soft hyphens'))
+        add_soft_hyphens(ebook, report)
+        changed = True
+
     return changed
 
 
@@ -304,6 +325,8 @@ def option_parser():
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
     o('--remove-unused-css', '-u', help=CLI_HELP['remove_unused_css'])
     o('--compress-images', '-i', help=CLI_HELP['compress_images'])
+    o('--add-soft-hyphens', '-H', help=CLI_HELP['add_soft_hyphens'])
+    o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
     o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
