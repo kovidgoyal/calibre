@@ -94,7 +94,7 @@ def add_soft_hyphens_to_words(words, dictionary, hyphen_char='\u00ad'):
     return ''.join(parts)
 
 
-def process_tag(elem, locale, hyphen_char):
+def add_to_tag(stack, elem, locale, hyphen_char):
     name = barename(elem.tag)
     if name in tags_not_to_hyphenate:
         return
@@ -106,8 +106,20 @@ def process_tag(elem, locale, hyphen_char):
         if dictionary is not None and child.tail and not child.tail.isspace():
             child.tail = add_soft_hyphens_to_words(child.tail, dictionary, hyphen_char)
         if not callable(getattr(child, 'tag', None)):
-            process_tag(child, locale, hyphen_char)
+            stack.append((child, tl))
 
 
 def add_soft_hyphens_to_html(root, locale='en', hyphen_char='\u00ad'):
-    process_tag(root, locale, hyphen_char)
+    stack = [(root, locale)]
+    while stack:
+        elem, locale = stack.pop()
+        add_to_tag(stack, elem, locale, hyphen_char)
+
+
+def remove_soft_hyphens_from_html(root, hyphen_char='\u00ad'):
+    for elem in root.iterdescendants():
+        if elem.tail:
+            elem.tail = elem.tail.replace(hyphen_char, '')
+        text = getattr(elem, 'text', None)
+        if text:
+            elem.text = elem.text.replace(hyphen_char, '')
