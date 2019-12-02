@@ -8,12 +8,17 @@ import os
 import shutil
 import unittest
 
+from lxml import etree
+
+from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.hyphenation.dictionaries import (
-    dictionary_name_for_locale, get_cache_path, path_to_dictionary, is_cache_up_to_date
+    dictionary_name_for_locale, get_cache_path, is_cache_up_to_date,
+    path_to_dictionary
 )
 from calibre.utils.hyphenation.hyphenate import (
-    add_soft_hyphens, dictionary_for_locale, remove_punctuation
+    add_soft_hyphens, add_soft_hyphens_to_html, add_soft_hyphens_to_words,
+    dictionary_for_locale
 )
 
 
@@ -73,22 +78,28 @@ class TestHyphenation(unittest.TestCase):
         self.assertFalse(cache[0])
 
     def test_add_soft_hyphens(self):
-        self.ae(remove_punctuation('word'), ('', 'word', ''))
-        self.ae(remove_punctuation('wo.rd.'), ('', 'wo.rd', '.'))
-        self.ae(remove_punctuation('"«word!!'), ('"«', 'word', '!!'))
-
-        dictionary = dictionary_for_locale('en')
-
         def t(word, expected):
             self.ae(add_soft_hyphens(word, dictionary, '='), expected)
 
-        t('beautiful', 'beau=ti=ful')
-        t('beautiful.', 'beau=ti=ful.')
-        t('"beautiful.', '"beau=ti=ful.')
-        t('BeauTiful', 'Beau=Ti=ful')
-
         dictionary = dictionary_for_locale('hu')
         t('asszonnyal', 'asszonnyal')
+
+        dictionary = dictionary_for_locale('en')
+        t('beautiful', 'beau=ti=ful')
+        t('BeauTiful', 'Beau=Ti=ful')
+
+        def w(words, expected):
+            self.ae(add_soft_hyphens_to_words(words, dictionary, '='), expected)
+
+        w(' A\n beautiful  day. ', ' A\n beau=ti=ful  day. ')
+
+    def test_hyphenate_html(self):
+        root = parse_html5('''
+<p>beautiful, <span lang="sv"><!-- x -->tillata\n<span lang="en">Expand</span></span> "latitude!''',
+        line_numbers=False)
+        add_soft_hyphens_to_html(root, hyphen_char='=')
+        raw = etree.tostring(root, method='text', encoding='unicode')
+        self.ae(raw, 'beau=ti=ful, tilla=ta\nEx=pand "lat=i=tude!')
 
 
 def find_tests():

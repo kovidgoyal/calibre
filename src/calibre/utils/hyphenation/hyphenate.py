@@ -16,29 +16,6 @@ from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE
-
-
-def pats():
-    ans = getattr(pats, 'ans', None)
-    if ans is None:
-        pats.ans = ans = regex.compile(r'^\p{P}+', REGEX_FLAGS), regex.compile(r'\p{P}+$', REGEX_FLAGS)
-    return ans
-
-
-def remove_punctuation(word):
-    leading, trailing = pats()
-    prefix = suffix = ''
-    nword, n = leading.subn('', word)
-    if n > 0:
-        count = len(word) - len(nword)
-        prefix, word = word[:count], nword
-    nword, n = trailing.subn('', word)
-    if n > 0:
-        count = len(word) - len(nword)
-        suffix, word = word[-count:], nword
-    return prefix, word, suffix
-
-
 hyphen = None
 
 
@@ -60,7 +37,7 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
     word = unicode_type(word)
     if len(word) > 99 or '=' in word:
         return word
-    prefix, q, suffix = remove_punctuation(word)
+    q = word
     q = q.replace(hyphen_char, '')
     if len(q) < 4:
         return word
@@ -68,7 +45,7 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
     try:
         ans = hyphen.simple_hyphenate(dictionary, lq)
     except ValueError:
-        # Can happen is the word requires non-standard hyphenation (i.e.
+        # Can happen if the word requires non-standard hyphenation (i.e.
         # replacements)
         return word
     parts = ans.split('=')
@@ -82,4 +59,55 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
             aparts.append(q[pos:pos+lp])
             pos += lp
         parts = aparts
-    return prefix + hyphen_char.join(parts) + suffix
+    return hyphen_char.join(parts)
+
+
+tags_not_to_hyphenate = frozenset((
+    'video', 'audio', 'script', 'code', 'pre', 'img', 'br', 'samp', 'kbd',
+    'var', 'abbr', 'acronym', 'sub', 'sup', 'button', 'option', 'label',
+    'textarea', 'input', 'math', 'svg', 'style', 'title', 'head'
+))
+
+
+def barename(x):
+    return x.split('}', 1)[-1]
+
+
+def words_pat():
+    ans = getattr(words_pat, 'ans', None)
+    if ans is None:
+        ans = words_pat.ans = regex.compile(r'\w+', REGEX_FLAGS)
+    return ans
+
+
+def add_soft_hyphens_to_words(words, dictionary, hyphen_char='\u00ad'):
+    pos = 0
+    parts = []
+    for m in words_pat().finditer(words):
+        word = m.group()
+        if m.start() > pos:
+            parts.append(words[pos:m.start()])
+        parts.append(add_soft_hyphens(word, dictionary, hyphen_char))
+        pos = m.end()
+    if pos < len(words):
+        parts.append(words[pos:])
+    return ''.join(parts)
+
+
+def process_tag(elem, locale, hyphen_char):
+    name = barename(elem.tag)
+    if name in tags_not_to_hyphenate:
+        return
+    tl = elem.get('lang') or elem.get('{http://www.w3.org/XML/1998/namespace}lang') or locale
+    dictionary = dictionary_for_locale(tl)
+    if dictionary is not None and elem.text and not elem.text.isspace():
+        elem.text = add_soft_hyphens_to_words(elem.text, dictionary, hyphen_char)
+    for child in elem:
+        if dictionary is not None and child.tail and not child.tail.isspace():
+            child.tail = add_soft_hyphens_to_words(child.tail, dictionary, hyphen_char)
+        if not callable(getattr(child, 'tag', None)):
+            process_tag(child, locale, hyphen_char)
+
+
+def add_soft_hyphens_to_html(root, locale='en', hyphen_char='\u00ad'):
+    process_tag(root, locale, hyphen_char)
