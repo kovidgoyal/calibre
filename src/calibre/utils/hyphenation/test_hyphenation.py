@@ -21,16 +21,14 @@ class TestHyphenation(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(cls):
         tdir = PersistentTemporaryDirectory()
         path_to_dictionary.cache_dir = tdir
         dictionary_name_for_locale.cache_clear()
         dictionary_for_locale.cache_clear()
         get_cache_path.cache_clear()
 
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
         dictionary_name_for_locale.cache_clear()
         dictionary_for_locale.cache_clear()
         get_cache_path.cache_clear()
@@ -71,12 +69,11 @@ class TestHyphenation(unittest.TestCase):
         )
         self.assertFalse(cache[0])
 
-    def test_remove_punctuation(self):
+    def test_add_soft_hyphens(self):
         self.ae(remove_punctuation('word'), ('', 'word', ''))
         self.ae(remove_punctuation('wo.rd.'), ('', 'wo.rd', '.'))
         self.ae(remove_punctuation('"«word!!'), ('"«', 'word', '!!'))
 
-    def test_add_soft_hyphens(self):
         dictionary = dictionary_for_locale('en')
 
         def t(word, expected):
