@@ -1143,6 +1143,9 @@ def add_maths_script(container):
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
     report_progress(0.05, _('Parsed all content for markup transformation'))
+    if opts.pdf_hyphenate:
+        from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens
+        add_soft_hyphens(container)
     has_maths = add_maths_script(container)
     fix_fullscreen_images(container)
 
