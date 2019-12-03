@@ -174,7 +174,7 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'html_as_json',
                 'unicode_names',
-                'html',
+                'html_syntax_highlighter',
                 'hyphen',
                 'freetype',
                 'imageops',

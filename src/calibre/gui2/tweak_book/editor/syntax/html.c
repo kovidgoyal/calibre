@@ -486,7 +486,7 @@ static PyMethodDef html_methods[] = {
 #define INITERROR return NULL
 static struct PyModuleDef html_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "html",
+    /* m_name     */ "html_syntax_highlighter",
     /* m_doc      */ "Speedups for the html syntax highlighter",
     /* m_size     */ -1,
     /* m_methods  */ html_methods,
@@ -496,12 +496,12 @@ static struct PyModuleDef html_module = {
     /* m_free     */ 0,
 };
 
-CALIBRE_MODINIT_FUNC PyInit_html(void) {
+CALIBRE_MODINIT_FUNC PyInit_html_syntax_highlighter(void) {
     PyObject *temp, *mod = PyModule_Create(&html_module);
 #else
 #define INITERROR return
-CALIBRE_MODINIT_FUNC inithtml(void) {
-    PyObject *temp, *mod = Py_InitModule3("html", html_methods,
+CALIBRE_MODINIT_FUNC inithtml_syntax_highlighter(void) {
+    PyObject *temp, *mod = Py_InitModule3("html_syntax_highlighter", html_methods,
         "Speedups for the html syntax highlighter");
 #endif
 

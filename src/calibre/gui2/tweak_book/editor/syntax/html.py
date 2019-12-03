@@ -64,7 +64,7 @@ def refresh_spell_check_status():
 
 from calibre.constants import plugins
 
-_speedup = plugins['html'][0]
+_speedup = plugins['html_syntax_highlighter'][0]
 if _speedup is not None:
     Tag = _speedup.Tag
     bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags

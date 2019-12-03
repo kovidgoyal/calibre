@@ -52,7 +52,7 @@
         "lib_dirs": "!openssl_lib_dirs"
     },
     {
-        "name": "html",
+        "name": "html_syntax_highlighter",
         "sources": "calibre/gui2/tweak_book/editor/syntax/html.c"
     },
     {
