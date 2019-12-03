@@ -72,7 +72,6 @@ int show_last_error(wchar_t *preamble) {
 }
 
 static wchar_t qt_prefix_dir[MAX_PATH] = {0};
-static wchar_t w_program_name[MAX_PATH] = {0};
 
 static void
 get_app_dirw(void) {
@@ -80,11 +79,14 @@ get_app_dirw(void) {
     wchar_t drive[4] = L"\0\0\0";
     DWORD sz; errno_t err;
 
-    sz = GetModuleFileNameW(NULL, w_program_name, MAX_PATH);
+    sz = GetModuleFileNameW(NULL, interpreter_data.exe_path, MAX_PATH);
     if (sz >= MAX_PATH-1) ExitProcess(_show_error(L"Installation directory path too long", L"", 1));
-    err = _wsplitpath_s(w_program_name, drive, 4, buf, MAX_PATH, NULL, 0, NULL, 0);
+    err = _wsplitpath_s(interpreter_data.exe_path, drive, 4, buf, MAX_PATH, NULL, 0, NULL, 0);
     if (err != 0) ExitProcess(show_last_error_crt(L"Failed to find application directory"));
     _snwprintf_s(interpreter_data.app_dir, MAX_PATH, _TRUNCATE, L"%ls%ls", drive, buf);
+    _snwprintf_s(interpreter_data.resources_path, MAX_PATH, _TRUNCATE, L"%ls%lsapp\\resources", drive, buf);
+    _snwprintf_s(interpreter_data.extensions_path, MAX_PATH, _TRUNCATE, L"%ls%lsapp\\bin", drive, buf);
+    _snwprintf_s(interpreter_data.executables_path, MAX_PATH, _TRUNCATE, L"%ls%lsapp\\bin", drive, buf);
 }
 
 static void
