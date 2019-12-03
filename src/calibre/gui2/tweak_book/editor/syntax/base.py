@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 
-
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
 from collections import defaultdict, deque
 
 from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
@@ -15,13 +13,11 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
 from polyglot.builtins import iteritems, unicode_type
 
-is_wide_build = sys.maxunicode >= 0x10ffff
-
 
 def run_loop(user_data, state_map, formats, text):
     state = user_data.state
     i = 0
-    fix_offsets = is_wide_build and utf16_length(text) != len(text)
+    fix_offsets = utf16_length(text) != len(text)
     seen_states = defaultdict(set)
     while i < len(text):
         orig_i = i
