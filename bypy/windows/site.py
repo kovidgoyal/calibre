@@ -82,3 +82,7 @@ def main():
     set_quit()
 
     return run_entry_point()
+
+
+if __name__ == '__main__':
+    main()
