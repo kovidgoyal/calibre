@@ -744,8 +744,8 @@
     {
         "name": "pillow",
         "unix": {
-            "filename": "Pillow-6.0.0.tar.gz",
-            "hash": "sha256:809c0a2ce9032cbcd7b5313f71af4bdc5c8c771cb86eb7559afd954cab82ebb5",
+            "filename": "Pillow-6.2.1.tar.gz",
+            "hash": "sha256:bf4e972a88f8841d8fdc6db1a75e0f8d763e66e3754b03006cbc3854d89f1cb1",
             "urls": ["pypi"]
         }
     },
