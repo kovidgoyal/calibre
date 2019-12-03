@@ -570,6 +570,8 @@ def build_launchers(env, debug=False):
 
 
 def add_to_zipfile(zf, name, base, zf_names):
+    if '__pycache__' in name:
+        return
     abspath = j(base, name)
     name = name.replace(os.sep, '/')
     if name in zf_names:
