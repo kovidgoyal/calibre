@@ -154,7 +154,8 @@ def freeze(env, ext_dir):
             copybin(f)
 
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver.replace('.', '')))
-    for x in glob.glob(os.path.join(env.python_base, 'DLLs', '*')):  # python pyd modules
+    copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver[0]))
+    for x in glob.glob(os.path.join(env.python_base, 'DLLs', '*')):  # python pyd modules and dlls
         copybin(x)
     for f in walk(os.path.join(env.python_base, 'Lib')):
         if f.lower().endswith('.dll') and 'scintilla' not in f.lower():
