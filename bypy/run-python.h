@@ -190,8 +190,10 @@ run_interpreter() {
 
     status = PyConfig_SetString(&config, &config.program_name, interpreter_data.exe_path);
     CHECK_STATUS;
+#ifndef _WIN32
     status = PyConfig_SetString(&config, &config.home, interpreter_data.python_home_path);
     CHECK_STATUS;
+#endif
     status = PyConfig_SetString(&config, &config.run_module, L"site");
     CHECK_STATUS;
 #ifdef _WIN32
