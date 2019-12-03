@@ -13,13 +13,15 @@ from setup import Command, download_securely
 class ReVendor(Command):
 
     # NAME = TAR_NAME = VERSION = DOWNLOAD_URL = ''
+    CAN_USE_SYSTEM_VERSION = True
 
     def add_options(self, parser):
         parser.add_option('--path-to-%s' % self.NAME, help='Path to the extracted %s source' % self.TAR_NAME)
         parser.add_option('--%s-url' % self.NAME, default=self.DOWNLOAD_URL,
                 help='URL to %s source archive in tar.gz format' % self.TAR_NAME)
-        parser.add_option('--system-%s' % self.NAME, default=False, action='store_true',
-                help='Treat %s as system copy and symlink instead of copy' % self.TAR_NAME)
+        if self.CAN_USE_SYSTEM_VERSION:
+            parser.add_option('--system-%s' % self.NAME, default=False, action='store_true',
+                    help='Treat %s as system copy and symlink instead of copy' % self.TAR_NAME)
 
     def download_vendor_release(self, tdir, url):
         self.info('Downloading %s:' % self.TAR_NAME, url)
