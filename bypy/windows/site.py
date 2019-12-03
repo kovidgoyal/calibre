@@ -67,7 +67,7 @@ def set_quit():
 
 def main():
     sys.meta_path.insert(0, PydImporter())
-    os.add_dll_directory(os.path.join(sys.app_dir, 'app', 'bin'))
+    os.add_dll_directory(os.path.abspath(os.path.join(sys.app_dir, 'app', 'bin')))
 
     import linecache
 
