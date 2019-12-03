@@ -163,6 +163,8 @@ class BuildTest(unittest.TestCase):
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
+            if isinstance(fmt, bytes):
+                fmt = fmt.decode('ascii')
             self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
 
     def test_sqlite(self):
