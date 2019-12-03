@@ -9,8 +9,6 @@ __docformat__ = 'restructuredtext en'
 import sys
 from polyglot.builtins import filter
 
-is_narrow_build = sys.maxunicode < 0x10ffff
-
 # Setup code {{{
 import codecs
 
@@ -299,9 +297,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
         c = icu_upper(key(item) or ' ')
         ordnum, ordlen = collation_order(c)
         if last_ordnum != ordnum:
-            if not is_narrow_build:
-                ordlen = 1
-            last_c = c[0:ordlen]
+            last_c = c[0:1]
             last_ordnum = ordnum
         try:
             ans[last_c].append(item)
@@ -311,10 +307,10 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
 
 
 # Return the number of unicode codepoints in a string
-string_length = _icu.string_length if is_narrow_build else len
+string_length = len
 
 # Return the number of UTF-16 codepoints in a string
-utf16_length = len if is_narrow_build else _icu.utf16_length
+utf16_length = _icu.utf16_length
 
 ################################################################################
 

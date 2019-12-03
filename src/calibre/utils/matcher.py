@@ -310,7 +310,7 @@ def test(return_tests=False):
             m = Matcher([raw], scorer=CScorer)
             positions = next(itervalues(m(raw)))
             self.assertEqual(
-                positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3))
+                positions, (0, 1, 2)
             )
 
     if return_tests:
@@ -325,14 +325,8 @@ def test(return_tests=False):
     TestRunner(verbosity=4)
 
 
-if sys.maxunicode >= 0x10ffff:
-    get_char = lambda string, pos: string[pos]
-else:
-
-    def get_char(string, pos):
-        chs = 2 if ('\ud800' <= string[pos] <= '\udbff'
-                    ) else 1  # UTF-16 surrogate pair in python narrow builds
-        return string[pos:pos + chs]
+def get_char(string, pos):
+    return string[pos]
 
 
 def input_unicode(prompt):
