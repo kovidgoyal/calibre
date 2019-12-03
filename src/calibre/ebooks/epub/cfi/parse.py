@@ -5,10 +5,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import regex, sys
+import regex
 from polyglot.builtins import map, zip
-
-is_narrow_build = sys.maxunicode < 0x10ffff
 
 
 class Parser(object):
@@ -21,10 +19,7 @@ class Parser(object):
     def __init__(self):
         # All allowed unicode characters + escaped special characters
         special_char = r'[\[\](),;=^]'
-        if is_narrow_build:
-            unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd]--%s]' % special_char
-        else:
-            unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
+        unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
         escaped_char = r'\^' + special_char
         chars = r'(?:%s|(?:%s))+' % (unescaped_char, escaped_char)
         chars_no_space = chars.replace('0020', '0021')
