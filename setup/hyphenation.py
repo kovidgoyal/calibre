@@ -10,11 +10,8 @@ import os
 import shutil
 import tarfile
 from io import BytesIO
-from zipfile import ZipFile
 
-from setup import Command, download_securely
-
-URL = 'https://github.com/LibreOffice/dictionaries/archive/master.zip'
+from setup.revendor import ReVendor
 
 
 def locales_from_dicts(dicts):
@@ -83,30 +80,19 @@ def compress_tar(buf, outf):
         compress(buf, outf)
 
 
-class Hyphenation(Command):
+class Hyphenation(ReVendor):
 
     description = 'Download the hyphenation dictionaries'
-
-    def add_options(self, parser):
-        pass
-        # parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
-
-    @property
-    def hyphenation_dir(self):
-        return self.j(self.RESOURCES, 'hyphenation')
-
-    def clean(self):
-        if os.path.exists(self.hyphenation_dir):
-            shutil.rmtree(self.hyphenation_dir)
+    NAME = 'hyphenation'
+    TAR_NAME = 'hyphenation dictionaries'
+    VERSION = 'master'
+    DOWNLOAD_URL = 'https://github.com/LibreOffice/dictionaries/archive/%s.tar.gz' % VERSION
 
     def run(self, opts):
         self.clean()
-        os.makedirs(self.hyphenation_dir)
-        self.info('Downloading hyphenation dictionaries...')
-        with self.temp_dir() as src, ZipFile(BytesIO(download_securely(URL))) as zf, self.temp_dir() as output_dir:
-            zf.extractall(src)
-            if len(os.listdir(src)) == 1:
-                src = os.path.join(src, os.listdir(src)[0])
+        os.makedirs(self.vendored_dir)
+        with self.temp_dir() as dl_src, self.temp_dir() as output_dir:
+            src = opts.path_to_hyphenation or self.download_vendor_release(dl_src, opts.hyphenation_url)
             process_dictionaries(src, output_dir)
             dics = sorted(x for x in os.listdir(output_dir) if x.endswith('.dic'))
             m = hashlib.sha1()
@@ -123,8 +109,8 @@ class Hyphenation(Command):
                         tinfo.uid = tinfo.gid = 1000
                         tinfo.uname = tinfo.gname = 'kovid'
                         tf.addfile(tinfo, df)
-            with open(os.path.join(self.hyphenation_dir, 'dictionaries.tar.xz'), 'wb') as f:
+            with open(os.path.join(self.vendored_dir, 'dictionaries.tar.xz'), 'wb') as f:
                 compress_tar(buf, f)
-            with open(os.path.join(self.hyphenation_dir, 'sha1sum'), 'w') as f:
+            with open(os.path.join(self.vendored_dir, 'sha1sum'), 'w') as f:
                 f.write(hsh)
-            shutil.copy(os.path.join(output_dir, 'locales.json'), self.hyphenation_dir)
+            shutil.copy(os.path.join(output_dir, 'locales.json'), self.vendored_dir)
