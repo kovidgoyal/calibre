@@ -263,11 +263,13 @@ run_interpreter() {
     code_page = GetConsoleOutputCP();
     if (code_page != CP_UTF8) SetConsoleOutputCP(CP_UTF8);
     setup_vt_terminal_mode();
-    Py_AtExit(cleanup_console_state);
 #endif
 
     int ret = Py_RunMain();
     PyConfig_Clear(&config);
+#ifdef _WIN32
+    cleanup_console_state();
+#endif
 	exit(ret);
 #undef CHECK_STATUS
 }
