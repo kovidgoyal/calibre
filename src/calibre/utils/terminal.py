@@ -27,6 +27,20 @@ def fmt(code):
     return '\033[%dm' % code
 
 
+def polyglot_write(stream, is_binary, encoding, text):
+    binary = isinstance(text, bytes)
+    if binary:
+        if is_binary:
+            return stream.write(text)
+        buffer = getattr(stream, 'buffer', None)
+        if buffer is None:
+            return stream.write(text.decode('utf-8', 'replace'))
+        return buffer.write(text)
+    if is_binary:
+        text = text.encode(encoding, 'replace')
+    return stream.write(text)
+
+
 RATTRIBUTES = dict(
         zip(range(1, 9), (
             'bold',
@@ -173,18 +187,7 @@ class ANSIStream(Detect):
         return self.strip_and_write(text)
 
     def polyglot_write(self, text):
-        binary = isinstance(text, bytes)
-        stream = self.stream
-        if binary:
-            if self.is_binary:
-                return stream.write(text)
-            buffer = getattr(stream, 'buffer', None)
-            if buffer is None:
-                return stream.write(text.decode('utf-8', 'replace'))
-            return buffer.write(text)
-        if self.is_binary:
-            text = text.encode(self.encoding, 'replace')
-        return stream.write(text)
+        return polyglot_write(self.stream, self.is_binary, self.encoding, text)
 
     def strip_and_write(self, text):
         binary = isinstance(text, bytes)
