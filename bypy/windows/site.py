@@ -88,7 +88,7 @@ if __name__ == '__main__':
     try:
         main()
     except Exception:
-        if sys.gui_app:
+        if sys.gui_app and sys.excepthook == sys.__excepthook__:
             import traceback
             import calibre_os_module
             calibre_os_module.gui_error_message(
