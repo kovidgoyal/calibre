@@ -244,10 +244,10 @@ class Serializer {
 	inline int
 	namespace_index(const char *ns, size_t nslen) {
 		for (size_t i = 0; i < this->nsmap.size(); i++) {
-			if (namespaces_are_equal(this->nsmap[i].c_str(), ns, nslen)) return i;
+			if (namespaces_are_equal(this->nsmap[i].c_str(), ns, nslen)) return (int)i;
 		}
 		this->nsmap.push_back(std::string(ns, nslen));
-		return this->nsmap.size() - 1;
+		return (int)(this->nsmap.size()) - 1;
 	}
 
 	bool
