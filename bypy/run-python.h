@@ -170,6 +170,7 @@ typedef struct {
 #endif
 	const wchar_t *basename, *module, *function;
 	int argc;
+    PyObject* (*calibre_os_module)(void);
 #ifdef _WIN32
 	wchar_t* const *argv;
 #else
@@ -237,6 +238,11 @@ run_interpreter() {
     status = PyConfig_SetBytesArgv(&config, interpreter_data.argc, interpreter_data.argv);
 #endif
     CHECK_STATUS;
+    if (interpreter_data.calibre_os_module) {
+        if (PyImport_AppendInittab("calibre_os_module", interpreter_data.calibre_os_module) == -1) {
+            fatal("Failed to add calibre_os_module to the init table");
+        }
+    }
     status = Py_InitializeFromConfig(&config);
     CHECK_STATUS;
 
