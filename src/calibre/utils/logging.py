@@ -24,7 +24,7 @@ class Stream(object):
         if stream is None:
             stream = io.BytesIO()
         self.stream = getattr(stream, 'buffer', stream)
-        self._prints = partial(prints, safe_encode=True, file=stream)
+        self._prints = partial(prints, file=stream)
 
     def flush(self):
         self.stream.flush()
