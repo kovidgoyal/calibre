@@ -36,6 +36,34 @@ log_error(const char *fmt, ...) {
     va_end(ar);
 	fprintf(stderr, "\n");
 }
+
+static bool stdout_is_a_tty = false, stderr_is_a_tty = false;
+DWORD console_old_mode = 0;
+static bool console_mode_changed = false;
+
+static void
+detect_tty() {
+    stdout_is_a_tty = _isatty(_fileno(stdout));
+    stderr_is_a_tty = _isatty(_fileno(stderr));
+}
+
+static void
+setup_vt_terminal_mode() {
+    if (stdout_is_a_tty || stderr_is_a_tty) {
+        HANDLE h = GetStdHandle(stdout_is_a_tty ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+        if (h != INVALID_HANDLE_VALUE) {
+            if (GetConsoleMode(h, &console_old_mode)) {
+                console_mode_changed = true;
+                SetConsoleMode(h, console_old_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+            }
+        }
+    }
+}
+
+static void
+restore_vt_terminal_mode() {
+    if (console_mode_changed) SetConsoleMode(GetStdHandle(stdout_is_a_tty ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), console_old_mode);
+}
 #else
 static void
 log_error(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -227,12 +255,14 @@ run_interpreter() {
 #ifdef _WIN32
     UINT code_page = GetConsoleOutputCP();
     if (code_page != CP_UTF8) SetConsoleOutputCP(CP_UTF8);
+    setup_vt_terminal_mode();
 #endif
 
     int ret = Py_RunMain();
     PyConfig_Clear(&config);
 #ifdef _WIN32
     if (code_page != CP_UTF8) SetConsoleOutputCP(CP_UTF8);
+    restore_vt_terminal_mode();
 #endif
 	exit(ret);
 #undef CHECK_STATUS
