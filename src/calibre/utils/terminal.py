@@ -118,7 +118,7 @@ class Detect(object):
                 import msvcrt
                 self.msvcrt = msvcrt
                 self.file_handle = msvcrt.get_osfhandle(self.stream.fileno())
-                from ctypes import windll, wintypes, byref, POINTER, WinDLL
+                from ctypes import windll, wintypes, byref, POINTER, WinDLL, c_wchar_p
                 mode = wintypes.DWORD(0)
                 f = windll.kernel32.GetConsoleMode
                 f.argtypes, f.restype = [wintypes.HANDLE, POINTER(wintypes.DWORD)], wintypes.BOOL
@@ -128,7 +128,7 @@ class Detect(object):
                     self.default_console_text_attributes = WCOLORS['white']
                     kernel32 = WinDLL(native_string_type('kernel32'), use_last_error=True)
                     self.write_console = kernel32.WriteConsoleW
-                    self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
+                    self.write_console.argtypes = [wintypes.HANDLE, c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
                     self.write_console.restype = wintypes.BOOL
                     kernel32.GetConsoleScreenBufferInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(CONSOLE_SCREEN_BUFFER_INFO)]
                     kernel32.GetConsoleScreenBufferInfo.restype = wintypes.BOOL
@@ -431,7 +431,7 @@ def test():
     text = [colored(t, fg=t)+'. '+colored(t, fg=t, bold=True)+'.' for t in
             ('red', 'yellow', 'green', 'white', 'cyan', 'magenta', 'blue',)]
     s.write('\n'.join(text))
-    u = u'\u041c\u0438\u0445\u0430\u0438\u043b fällen'
+    u = '\u041c\u0438\u0445\u0430\u0438\u043b fällen'
     print()
     s.write_unicode_text(u)
     print()
