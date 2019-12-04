@@ -109,7 +109,7 @@ redirect_out_stream(FILE *stream) {
     FILE *f = NULL;
     errno_t err;
 
-    err = freopen_s(&f, "NUL", "wt", stream);
+    err = _wfreopen_s(&f, L"NUL", L"wt", stream);
     if (err != 0) {
         ExitProcess(show_last_error_crt(L"Failed to redirect stdout/stderr to NUL. This indicates a corrupted Windows install.\r\n You should contact Microsoft for assistance and/or follow the steps described here:\r\n http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing"));
     }
@@ -138,6 +138,8 @@ execute_python_entrypoint(const wchar_t *basename, const wchar_t *module, const 
     int ret = 0;
     // Prevent Windows' idiotic error dialog popups when various win32 api functions fail
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    // Disable the invalid parameter handler
+    _set_invalid_parameter_handler(null_invalid_parameter_handler);
     detect_tty();
 
     if (is_gui_app) {
@@ -146,8 +148,6 @@ execute_python_entrypoint(const wchar_t *basename, const wchar_t *module, const 
         if (!stderr_is_a_tty) redirect_out_stream(stderr);
     }
     GUI_APP = is_gui_app;
-    // Disable the invalid parameter handler
-    _set_invalid_parameter_handler(null_invalid_parameter_handler);
     interpreter_data.argv = CommandLineToArgvW(GetCommandLineW(), &interpreter_data.argc);
     if (interpreter_data.argv == NULL) ExitProcess(show_last_error(L"Failed to get command line"));
     interpreter_data.basename = basename; interpreter_data.module = module; interpreter_data.function = function;
