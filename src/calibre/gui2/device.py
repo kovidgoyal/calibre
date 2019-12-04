@@ -59,8 +59,7 @@ class DeviceJob(BaseJob):  # {{{
 
     def start_work(self):
         if DEBUG:
-            prints('Job:', self.id, self.description, 'started',
-                safe_encode=True)
+            prints('Job:', self.id, self.description, 'started')
         self.start_time = time.time()
         self.job_manager.changed_queue.put(self)
 
@@ -69,7 +68,7 @@ class DeviceJob(BaseJob):  # {{{
         self.percent = 1
         if DEBUG:
             prints('DeviceJob:', self.id, self.description,
-                    'done, calling callback', safe_encode=True)
+                    'done, calling callback')
 
         try:
             self.callback_on_done(self)
@@ -77,7 +76,7 @@ class DeviceJob(BaseJob):  # {{{
             pass
         if DEBUG:
             prints('DeviceJob:', self.id, self.description,
-                    'callback returned', safe_encode=True)
+                    'callback returned')
         self.job_manager.changed_queue.put(self)
 
     def report_progress(self, percent, msg=''):
