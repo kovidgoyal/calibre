@@ -336,7 +336,6 @@ class RotatingStream(object):
         self.stream.flush()
 
     def prints(self, level, *args, **kwargs):
-        kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
         # line bufferring only works with text mode streams
