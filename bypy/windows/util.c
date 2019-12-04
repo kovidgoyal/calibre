@@ -20,8 +20,6 @@
 static int GUI_APP = 0;
 static char python_dll[] = PYDLL;
 
-void set_gui_app(int yes) { GUI_APP = yes; }
-
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
     static wchar_t buf[4096];
 	static char utf8_buf[4096] = {0};
@@ -105,20 +103,9 @@ load_python_dll() {
 
 const static wchar_t out_of_memory[] = L"Out of memory";
 
-UINT
-setup_streams() {
-    UINT code_page = GetConsoleOutputCP();
-    SetConsoleOutputCP(CP_UTF8);
 
-    //printf("input cp: %d output cp: %d\r\n", GetConsoleCP(), GetConsoleOutputCP());
-
-    return code_page;
-}
-
-
-void
+static void
 redirect_out_stream(FILE *stream) {
-    if (_isatty(_fileno(stream))) return;
     FILE *f = NULL;
     errno_t err;
 
@@ -151,13 +138,14 @@ execute_python_entrypoint(const wchar_t *basename, const wchar_t *module, const 
     int ret = 0;
     // Prevent Windows' idiotic error dialog popups when various win32 api functions fail
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    detect_tty();
 
     if (is_gui_app) {
         // Redirect stdout and stderr to NUL so that python does not fail writing to them
-        redirect_out_stream(stdout);
-        redirect_out_stream(stderr);
+        if (!stdout_is_a_tty) redirect_out_stream(stdout);
+        if (!stderr_is_a_tty) redirect_out_stream(stderr);
     }
-    set_gui_app(is_gui_app);
+    GUI_APP = is_gui_app;
     // Disable the invalid parameter handler
     _set_invalid_parameter_handler(null_invalid_parameter_handler);
     interpreter_data.argv = CommandLineToArgvW(GetCommandLineW(), &interpreter_data.argc);
