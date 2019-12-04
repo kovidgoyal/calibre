@@ -115,6 +115,42 @@ redirect_out_stream(FILE *stream) {
     }
 }
 
+static PyObject*
+gui_error_message(PyObject *self, PyObject *args) {
+    PyObject *pt, *pm;
+    if (!PyArg_ParseTuple(args, "UU", &pt, &pm)) return NULL;
+    wchar_t title[256] = {0}, text[4096] = {0};
+    PyUnicode_AsWideChar(pt, title, arraysz(title)-1);
+    PyUnicode_AsWideChar(pm, text, arraysz(text)-1);
+    MessageBoxW(NULL, text, title, MB_ICONERROR|MB_OK);
+    return PyBool_FromLong(1);
+}
+
+static PyMethodDef methods[] = {
+    {"gui_error_message", (PyCFunction)gui_error_message, METH_VARARGS,
+     "gui_error_message(title, msg) -> Show a GUI based error message."
+    },
+    {NULL}  /* Sentinel */
+};
+
+
+static struct PyModuleDef module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "calibre_os_module",
+    /* m_doc      */ "Integration with OS facilities during startup",
+    /* m_size     */ -1,
+    /* m_methods  */ methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+
+PyObject*
+calibre_os_module(void) {
+    return PyModule_Create(&module);
+}
+
 static void
 null_invalid_parameter_handler(
    const wchar_t * expression,
@@ -151,6 +187,7 @@ execute_python_entrypoint(const wchar_t *basename, const wchar_t *module, const 
     interpreter_data.argv = CommandLineToArgvW(GetCommandLineW(), &interpreter_data.argc);
     if (interpreter_data.argv == NULL) ExitProcess(show_last_error(L"Failed to get command line"));
     interpreter_data.basename = basename; interpreter_data.module = module; interpreter_data.function = function;
+    interpreter_data.calibre_os_module = calibre_os_module;
     load_python_dll();
     pre_initialize_interpreter(is_gui_app);
 	run_interpreter();
