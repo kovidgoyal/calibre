@@ -13,9 +13,10 @@ from xml.sax.saxutils import escape
 
 from lxml import etree
 
+from calibre import my_unichr
 from calibre.ebooks.oeb.base import XHTML_NS, extract
 from calibre.ebooks.mobi.utils import to_base, PolyglotDict
-from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr as mychr
+from polyglot.builtins import iteritems, unicode_type
 
 CHUNK_SIZE = 8192
 
@@ -73,7 +74,7 @@ def tostring(raw, **kwargs):
     ans = etree.tostring(raw, **kwargs)
     if xml_declaration:
         ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
-    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
+    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:my_unichr(int(m.group(1), 16)),
             ans).encode(encoding)
 
 
