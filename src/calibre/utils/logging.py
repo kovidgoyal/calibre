@@ -1,7 +1,6 @@
-
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 'A simplified logging system'
 
@@ -10,21 +9,29 @@ INFO  = 1
 WARN  = 2
 ERROR = 3
 
-import sys, traceback, io
+import io
+import sys
+import traceback
 from functools import partial
 from threading import Lock
 
-from calibre import isbytestring, force_unicode, as_unicode, prints
-from polyglot.builtins import unicode_type, iteritems
+from calibre import as_unicode, force_unicode, isbytestring
+from calibre.utils.terminal import is_binary, polyglot_write
+from polyglot.builtins import iteritems, unicode_type
 
 
 class Stream(object):
 
     def __init__(self, stream=None):
         if stream is None:
-            stream = io.BytesIO()
-        self.stream = getattr(stream, 'buffer', stream)
-        self._prints = partial(prints, file=stream)
+            stream = io.StringIO()
+        self.stream = stream
+        self.is_binary = is_binary(self.stream)
+        self.encoding = getattr(self.stream, 'encoding', None) or 'utf-8'
+        self._prints = partial(print, file=self)
+
+    def write(self, text):
+        return polyglot_write(self.stream, self.is_binary, self.encoding, text)
 
     def flush(self):
         self.stream.flush()
@@ -38,10 +45,10 @@ class ANSIStream(Stream):
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
         self.color = {
-            DEBUG: u'green',
+            DEBUG: 'green',
             INFO: None,
-            WARN: u'yellow',
-            ERROR: u'red',
+            WARN: 'yellow',
+            ERROR: 'red',
         }
 
     def prints(self, level, *args, **kwargs):
@@ -260,7 +267,7 @@ class GUILog(ThreadSafeLog):
 
     @property
     def plain_text(self):
-        return u''.join(self.outputs[0].plain_text)
+        return ''.join(self.outputs[0].plain_text)
 
     def dump(self):
         return self.outputs[0].dump()
