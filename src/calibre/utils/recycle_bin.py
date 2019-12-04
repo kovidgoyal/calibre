@@ -60,7 +60,8 @@ if iswindows:
             raise ValueError('Cannot recycle paths that have newlines in them (%r)' % path)
         with rlock:
             start_recycler()
-            eintr_retry_call(print, path.encode('utf-8'), file=recycler.stdin)
+            recycler.stdin.write(path.encode('utf-8'))
+            recycler.stdin.write(b'\n')
             recycler.stdin.flush()
             # Theoretically this could be made non-blocking using a
             # thread+queue, however the original implementation was blocking,
