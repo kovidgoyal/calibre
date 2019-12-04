@@ -60,10 +60,8 @@ class BaseJob(object):
                 self._status_text = _('Error') if self.failed else _('Finished')
             if DEBUG:
                 try:
-                    prints('Job:', self.id, self.description, 'finished',
-                        safe_encode=True)
-                    prints('\t'.join(self.details.splitlines(True)),
-                        safe_encode=True)
+                    prints('Job:', self.id, self.description, 'finished')
+                    prints('\t'.join(self.details.splitlines(True)))
                 except:
                     pass
             if not self._done_called:
