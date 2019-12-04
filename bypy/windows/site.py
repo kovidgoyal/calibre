@@ -85,4 +85,13 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        if sys.gui_app:
+            import traceback
+            import calibre_os_module
+            calibre_os_module.gui_error_message(
+                f"Unhandled exception running {sys.calibre_basename}",
+                traceback.format_exc())
+        raise
