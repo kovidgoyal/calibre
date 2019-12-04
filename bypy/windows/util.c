@@ -116,7 +116,9 @@ setup_streams() {
 }
 
 
-void redirect_out_stream(FILE *stream) {
+void
+redirect_out_stream(FILE *stream) {
+    if (_isatty(_fileno(stream))) return;
     FILE *f = NULL;
     errno_t err;
 
