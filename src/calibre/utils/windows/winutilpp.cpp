@@ -206,7 +206,7 @@ winutil_move_to_trash(PyObject *self, PyObject *args) {
 
 	CComPtr<IShellItem> delete_item;
 	if (FAILED(SHCreateItemFromParsingName(path.ptr(), NULL, IID_PPV_ARGS(&delete_item)))) {
-		PyErr_SetString(PyExc_OSError, "Failed to create shell item");
+		PyErr_Format(PyExc_OSError, "Failed to create shell item for path: %R", PyTuple_GET_ITEM(args, 0));
 		return NULL;
 	}
 
