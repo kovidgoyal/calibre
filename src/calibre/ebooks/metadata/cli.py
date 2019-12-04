@@ -186,7 +186,7 @@ def main(args=sys.argv):
     metadata = unicode_type(mi)
     if trying_to_set:
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
-    prints(metadata, safe_encode=True)
+    prints(metadata)
 
     if trying_to_set:
         with open(path, 'r+b') as stream:
@@ -202,7 +202,7 @@ def main(args=sys.argv):
         prints('\n' + _('Changed metadata') + '::')
         metadata = unicode_type(mi)
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
-        prints(metadata, safe_encode=True)
+        prints(metadata)
         if lrf is not None:
             prints('\tBookID:', lrf.book_id)
 
