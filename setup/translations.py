@@ -348,7 +348,7 @@ class Translations(POT):  # {{{
                         handle_stats(src, stats_cache(src))
             else:
                 if file_ok is None or file_ok(data, src):
-                    self.info('\t' + os.path.relpath(src, self.j(self.d(self.SRC), 'translations')))
+                    # self.info('\t' + os.path.relpath(src, self.j(self.d(self.SRC), 'translations')))
                     if islinux:
                         msgfmt = ['msgfmt']
                     else:
@@ -359,6 +359,7 @@ class Translations(POT):  # {{{
             if action_per_file is not None:
                 action_per_file(src)
 
+        self.info(f'\tCompiling {len(jobs)} files')
         for (src, dest), line in zip(ok_files, parallel_check_output(jobs, self.info)):
             self.write_cache(open(dest, 'rb').read(), hashmap[src], src)
             nums = tuple(map(int, re.findall(r'\d+', line)))
@@ -500,7 +501,7 @@ class Translations(POT):  # {{{
                 if current_hash == saved_hash:
                     raw = saved_data
                 else:
-                    self.info('\tParsing ' + os.path.basename(src))
+                    # self.info('\tParsing ' + os.path.basename(src))
                     raw = None
                     po_data = data.decode('utf-8')
                     data = json.loads(msgfmt(po_data))
