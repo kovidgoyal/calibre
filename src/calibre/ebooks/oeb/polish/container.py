@@ -296,9 +296,10 @@ class Container(ContainerBase):  # {{{
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
             name = self.href_to_name(href, self.opf_name)
-            if name in self.mime_map and name != self.opf_name:
+            mt = item.get('media-type')
+            if name in self.mime_map and name != self.opf_name and mt:
                 # some epubs include the opf in the manifest with an incorrect mime type
-                self.mime_map[name] = item.get('media-type')
+                self.mime_map[name] = mt
 
     def data_for_clone(self, dest_dir=None):
         dest_dir = dest_dir or self.root
