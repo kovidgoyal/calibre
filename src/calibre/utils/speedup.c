@@ -127,30 +127,6 @@ speedup_detach(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
-static PyObject*
-speedup_fdopen(PyObject *self, PyObject *args) {
-    PyObject *ans = NULL;
-    char *name;
-#if PY_MAJOR_VERSION == 2
-    FILE *fp;
-#endif
-    int fd, bufsize = -1;
-    char *mode;
-
-    if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
-#if PY_MAJOR_VERSION >= 3
-    ans = PyFile_FromFd(fd, NULL, mode, bufsize, NULL, NULL, NULL, 1);
-#else
-    fp = fdopen(fd, mode);
-    if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);
-    ans = PyFile_FromFile(fp, name, mode, fclose);
-    if (ans != NULL) {
-        PyFile_SetBufSize(ans, bufsize);
-    }
-#endif
-    return ans;
-}
-
 static void calculate_gaussian_kernel(Py_ssize_t size, double *kernel, double radius) {
     const double sqr = radius * radius;
     const double factor = 1.0 / (2 * M_PI * sqr);
@@ -631,10 +607,6 @@ static PyMethodDef speedup_methods[] = {
             " 0 <= density <= 1 is used to control the amount of noise in the texture."
             " weight and radius control the Gaussian convolution used for blurring of the noise. weight must be an odd positive integer. Increasing the weight will tend to blur out the noise. Decreasing it will make it sharper."
             " This function returns an image (bytestring) in the PPM format as the texture."
-    },
-
-    {"fdopen", speedup_fdopen, METH_VARARGS,
-        "fdopen(fd, name, mode [, bufsize=-1)\n\nCreate a python file object from an OS file descriptor with a name. Note that this does not do any validation of mode, so you must ensure fd already has the correct flags set."
     },
 
     {"websocket_mask", speedup_websocket_mask, METH_VARARGS,
