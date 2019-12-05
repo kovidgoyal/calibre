@@ -9,6 +9,7 @@ import os
 import tempfile
 import time
 from hashlib import sha1
+from itertools import count
 
 from calibre import walk
 from calibre.constants import cache_dir, iswindows
@@ -23,6 +24,7 @@ from polyglot.builtins import as_bytes, as_unicode, iteritems
 
 DAY = 24 * 3600
 VIEWER_VERSION = 1
+td_counter = count()
 
 
 def book_cache_dir():
@@ -137,7 +139,7 @@ def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_exp
 
 
 def prepare_convert(temp_path, key, st, book_path):
-    tdir = tempfile.mkdtemp(dir=temp_path)
+    tdir = tempfile.mkdtemp(dir=temp_path, prefix=f'c{next(td_counter)}-')
     now = time.time()
     return {
         'path': os.path.basename(tdir),
@@ -233,7 +235,7 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
     convert_func(path, temp_path, key, instance)
     src_path = os.path.join(temp_path, instance['path'])
     with cache_lock() as f:
-        ans = tempfile.mkdtemp(dir=finished_path)
+        ans = tempfile.mkdtemp(dir=finished_path, prefix=f'c{next(td_counter)}-')
         instance['path'] = os.path.basename(ans)
         try:
             metadata = json.loads(f.read())
