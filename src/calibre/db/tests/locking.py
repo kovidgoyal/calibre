@@ -12,6 +12,15 @@ from calibre.db.locking import SHLock, RWLockWrapper, LockingError
 from polyglot.builtins import range
 
 
+def wait_for(period):
+    # time.sleep() is not useful for very small values on windows because the
+    # default timer has a resolutions of about 16ms see
+    # https://stackoverflow.com/questions/40594587/why-time-sleep-is-so-slow-in-windows
+    deadline = time.perf_counter() + period
+    while time.perf_counter() < deadline:
+        pass
+
+
 class TestLock(BaseTest):
     """Tests for db locking """
 
@@ -159,15 +168,15 @@ class TestLock(BaseTest):
                 shared = random.choice([True,False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.release()
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.acquire(shared=shared)
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.release()
                 lock.release()
             done.append(True)
-        threads = [Thread(target=lots_of_acquires) for _ in range(10)]
+        threads = [Thread(target=lots_of_acquires) for _ in range(2)]
         for t in threads:
             t.daemon = True
             t.start()
@@ -178,7 +187,7 @@ class TestLock(BaseTest):
                 break
             t.join(left)
         live = [t for t in threads if t.is_alive()]
-        self.assertEqual(len(live), 0, 'ShLock hung, {} threads alive'.format(len(live)))
+        self.assertEqual(len(live), 0, 'ShLock hung or very slow, {} threads alive'.format(len(live)))
         self.assertEqual(len(done), len(threads), 'SHLock locking failed')
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
