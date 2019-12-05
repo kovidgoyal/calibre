@@ -12,6 +12,7 @@ from operator import itemgetter
 
 from calibre import prints
 from calibre.constants import iswindows
+from calibre.utils.terminal import polyglot_write
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
@@ -335,9 +336,16 @@ class RotatingStream(object):
     def flush(self):
         self.stream.flush()
 
+    def write(self, x):
+        return polyglot_write(self.stream, True, 'utf-8', x)
+
     def prints(self, level, *args, **kwargs):
-        kwargs['file'] = self.stream
-        self.current_pos += prints(*args, **kwargs)
+        kwargs['file'] = self
+        prints(*args, **kwargs)
+        try:
+            self.current_pos = self.stream.tell()
+        except EnvironmentError:
+            self.current_pos = 0
         # line bufferring only works with text mode streams
         end = kwargs.get('end', b'\n')
         if isinstance(end, unicode_type):
