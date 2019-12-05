@@ -171,10 +171,24 @@ class TestLock(BaseTest):
         for t in threads:
             t.daemon = True
             t.start()
+        end_at = time.monotonic() + 20
         for t in threads:
-            t.join(20)
+            left = end_at - time.monotonic()
+            if left <= 0:
+                break
+            t.join(left)
         live = [t for t in threads if t.is_alive()]
-        self.assertListEqual(live, [], 'ShLock hung')
+        self.assertEqual(len(live), 0, 'ShLock hung, {} threads alive'.format(len(live)))
         self.assertEqual(len(done), len(threads), 'SHLock locking failed')
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
+
+
+def find_tests():
+    import unittest
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLock)
+
+
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
