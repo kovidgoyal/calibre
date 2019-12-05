@@ -14,6 +14,7 @@ from calibre.constants import (
     __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins
 )
 from calibre.utils.monotonic import monotonic
+from calibre.utils.shared_file import raise_winerror
 
 speedup = plugins['speedup'][0]
 if iswindows:
@@ -61,7 +62,7 @@ def windows_open(path):
             None,  # No template file
         )
     except pywintypes.error as err:
-        raise WindowsError(err[0], err[2], path)
+        raise_winerror(err)
     fd = msvcrt.open_osfhandle(h.Detach(), 0)
     return os.fdopen(fd, 'r+b')
 
