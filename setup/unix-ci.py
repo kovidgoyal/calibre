@@ -103,7 +103,7 @@ def main():
 
         tball = 'macos-64' if ismacos else 'linux-64'
         download_and_decompress(
-            'https://download.calibre-ebook.com/ci/calibre/{}.tar.xz'.format(tball), SW
+            'https://download.calibre-ebook.com/ci/calibre3/{}.tar.xz'.format(tball), SW
         )
         if not ismacos:
             run('sudo', 'apt-get', 'update', '-y')
