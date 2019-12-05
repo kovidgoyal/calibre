@@ -9,7 +9,7 @@ import os, sys
 
 from polyglot.builtins import reraise
 
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -27,59 +27,6 @@ until all open file handles are closed. You also cannot delete the containing
 directory until all file handles are closed. To get around this, rename the
 file before deleting it.
 '''
-
-speedup, err = plugins['speedup']
-
-if not speedup:
-    raise RuntimeError('Failed to load the speedup plugin with error: %s' % err)
-
-valid_modes = {'a', 'a+', 'a+b', 'ab', 'r', 'rb', 'r+', 'r+b', 'w', 'wb', 'w+', 'w+b'}
-
-
-def validate_mode(mode):
-    return mode in valid_modes
-
-
-class FlagConstants(object):
-
-    def __init__(self):
-        for x in 'APPEND CREAT TRUNC EXCL RDWR RDONLY WRONLY'.split():
-            x = 'O_' + x
-            setattr(self, x, getattr(os, x))
-        for x in 'RANDOM SEQUENTIAL TEXT BINARY'.split():
-            x = 'O_' + x
-            setattr(self, x, getattr(os, x, 0))
-
-
-fc = FlagConstants()
-
-
-def flags_from_mode(mode):
-    if not validate_mode(mode):
-        raise ValueError('The mode is invalid')
-    m = mode[0]
-    random = '+' in mode
-    binary = 'b' in mode
-    if m == 'a':
-        flags = fc.O_APPEND | fc.O_CREAT
-        if random:
-            flags |= fc.O_RDWR | fc.O_RANDOM
-        else:
-            flags |= fc.O_WRONLY | fc.O_SEQUENTIAL
-    elif m == 'r':
-        if random:
-            flags = fc.O_RDWR | fc.O_RANDOM
-        else:
-            flags = fc.O_RDONLY | fc.O_SEQUENTIAL
-    elif m == 'w':
-        if random:
-            flags = fc.O_RDWR | fc.O_RANDOM
-        else:
-            flags = fc.O_WRONLY | fc.O_SEQUENTIAL
-        flags |= fc.O_TRUNC | fc.O_CREAT
-    flags |= (fc.O_BINARY if binary else fc.O_TEXT)
-    return flags
-
 
 if iswindows:
     from numbers import Integral
@@ -127,7 +74,7 @@ if iswindows:
         reraise(
             WindowsError,
             WindowsError(pywinerr.winerror,
-                         (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')),
+                         (pywinerr.funcname or '') + ': ' + (pywinerr.strerror or '')),
             sys.exc_info()[2])
 
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
@@ -168,13 +115,12 @@ if iswindows:
                 path, access_flags, share_flags, None, create_flags, attrib_flags, None)
         except pywintypes.error as e:
             raise_winerror(e)
-        ans = msvcrt.open_osfhandle(h, flags | os.O_NOINHERIT)
-        h.Detach()  # We dont want the handle to be automatically closed when h is deleted
+        ans = msvcrt.open_osfhandle(h.Detach(), flags | os.O_NOINHERIT)
         return ans
 
-    def share_open(path, mode='r', buffering=-1):
-        flags = flags_from_mode(mode)
-        return speedup.fdopen(os_open(path, flags), path, mode, buffering)
+    def share_open(*a, **kw):
+        kw['opener'] = os_open
+        return open(*a, **kw)
 
 else:
     share_open = open
@@ -214,3 +160,8 @@ def find_tests():
                 eq(f3.read(100), b'b' * 100)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(SharedFileTest)
+
+
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
