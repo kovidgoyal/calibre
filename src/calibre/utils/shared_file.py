@@ -70,12 +70,14 @@ if iswindows:
         os.O_CREAT | os.O_TRUNC             : CREATE_ALWAYS
     }
 
-    def raise_winerror(pywinerr):
+    def raise_winerror(pywinerr, path=None):
         reraise(
-            WindowsError,
-            WindowsError(pywinerr.winerror,
-                         (pywinerr.funcname or '') + ': ' + (pywinerr.strerror or '')),
-            sys.exc_info()[2])
+            WindowsError, WindowsError(
+                pywinerr.winerror,
+                (pywinerr.funcname or '') + ': ' + (pywinerr.strerror or ''), path
+            ),
+            sys.exc_info()[2]
+        )
 
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
         '''
@@ -114,7 +116,7 @@ if iswindows:
             h = win32file.CreateFileW(
                 path, access_flags, share_flags, None, create_flags, attrib_flags, None)
         except pywintypes.error as e:
-            raise_winerror(e)
+            raise_winerror(e, path)
         ans = msvcrt.open_osfhandle(h.Detach(), flags | os.O_NOINHERIT)
         return ans
 
