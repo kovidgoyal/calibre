@@ -66,7 +66,7 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
         for name, data, properties in manifest:
             if isinstance(data, unicode_type):
                 data = data.encode('utf-8')
-            zf.writestr(name, data)
+            zf.writestr(name, data or b'\0')
     buf.seek(0)
     return buf
 
@@ -194,3 +194,13 @@ class Structure(BaseTest):
         mark_as_titlepage(c, 'a.html', move_to_start=True)
         self.assertEqual('a.html', find_cover_page(c))
         self.assertEqual('a.html', next(c.spine_names)[0])
+
+
+def find_tests():
+    import unittest
+    return unittest.defaultTestLoader.loadTestsFromTestCase(Structure)
+
+
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
