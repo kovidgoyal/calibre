@@ -42,13 +42,13 @@ class TestResult(unittest.TextTestResult):
         elapsed -= self.start_time.get(test, elapsed)
         self.times[test] = elapsed
         self.stream.writeln = orig
-        self.stream.writeln(' [%.1g s]' % elapsed)
+        self.stream.writeln(' [%.1f s]' % elapsed)
 
     def stopTestRun(self):
         super(TestResult, self).stopTestRun()
         if self.wasSuccessful():
             tests = sorted(self.times, key=self.times.get, reverse=True)
-            slowest = ['%s [%g s]' % (t.id(), self.times[t]) for t in tests[:3]]
+            slowest = ['%s [%.1f s]' % (t.id(), self.times[t]) for t in tests[:3]]
             if len(slowest) > 1:
                 self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 
