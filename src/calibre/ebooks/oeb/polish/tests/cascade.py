@@ -75,7 +75,7 @@ class CascadeTest(BaseTest):
         get_rules({'x/one.css':'@media screen { body { color: red; } }'})
         get_rules({'x/one.css':'@media xyz { body { color: red; } }'}, l=0)
         c = get_rules({'x/one.css':'@import "../two.css";', 'two.css':'@import "x/one.css"; body { color: red; }'})[1]
-        self.assertIn('Recursive import', c.log_stream.getvalue().decode('utf-8'))
+        self.assertIn('Recursive import', c.log_stream.getvalue())
 
     def test_resolve_styles(self):
 
