@@ -191,6 +191,10 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(IPCLockTest)
 
 
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
+
+
 if __name__ == '__main__':
-    suite = find_tests()
-    unittest.TextTestRunner(verbosity=4).run(suite)
+    run_tests()
