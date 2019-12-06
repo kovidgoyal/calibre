@@ -308,9 +308,20 @@ class Build(Command):
             for cmd in link_commands:
                 self.post_link_cleanup(cmd)
 
+        jobs = []
+        sbf_map = {}
         for (ext, dest) in pyqt_extensions:
-            self.info('\n####### Building extension', ext.name, '#'*7)
-            self.build_pyqt_extension(ext, dest)
+            cmd, sbf = self.get_sip_commands(ext)
+            sbf_map[id(ext)] = sbf
+            if cmd is not None:
+                jobs.append(create_job(cmd))
+        if jobs:
+            self.info(f'SIPing {len(jobs)} files...')
+            if not parallel_build(jobs, self.info):
+                raise SystemExit(1)
+        for (ext, dest) in pyqt_extensions:
+            sbf = sbf_map[id(ext)]
+            self.build_pyqt_extension(ext, dest, sbf)
 
         if opts.only in {'all', 'headless'}:
             self.build_headless()
@@ -452,17 +463,21 @@ class Build(Command):
         if isosx:
             os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
 
-    def build_sip_files(self, ext, src_dir):
+    def get_sip_commands(self, ext):
+        pyqt_dir = self.j(self.build_dir, 'pyqt')
+        src_dir = self.j(pyqt_dir, ext.name)
         from setup.build_environment import pyqt
         sip_files = ext.sip_files
         ext.sip_files = []
         sipf = sip_files[0]
+        os.makedirs(src_dir, exist_ok=True)
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
+        cmd = None
         if self.newer(sbf, [sipf]+ext.headers):
             cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-b', sbf, '-I' + pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
-            self.info(' '.join(cmd))
-            self.check_call(cmd)
-            self.info('')
+        return cmd, sbf
+
+    def get_sip_data(self, sbf):
         with open(sbf, 'rb') as f:
             raw = f.read().decode('utf-8')
 
@@ -473,7 +488,7 @@ class Build(Command):
             return ans
         return {x:read(x) for x in ('target', 'sources', 'headers')}
 
-    def build_pyqt_extension(self, ext, dest):
+    def build_pyqt_extension(self, ext, dest, sbf):
         from setup.build_environment import pyqt, qmakespec, QMAKE
         from setup.parallel_build import cpu_count
         from distutils import sysconfig
@@ -481,7 +496,7 @@ class Build(Command):
         src_dir = self.j(pyqt_dir, ext.name)
         if not os.path.exists(src_dir):
             os.makedirs(src_dir)
-        sip = self.build_sip_files(ext, src_dir)
+        sip = self.get_sip_data(sbf)
         pro = textwrap.dedent(
         '''\
         TEMPLATE = lib
