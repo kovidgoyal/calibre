@@ -502,7 +502,9 @@ class BasicNewsRecipe(Recipe):
         '''
         if 'user_agent' not in kwargs:
             # More and more news sites are serving JPEG XR images to IE
-            kwargs['user_agent'] = random_user_agent(allow_ie=False)
+            kwargs['user_agent'] = self.last_used_user_agent = getattr(
+                    self, 'last_used_user_agent', None) or random_user_agent(allow_ie=False)
+        self.log('Using user agent:', kwargs['user_agent'])
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:
