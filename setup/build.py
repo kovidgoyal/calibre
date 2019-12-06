@@ -12,6 +12,8 @@ from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswin
 isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
+CompileCommand = namedtuple('CompileCommand', 'cmd src dest')
+LinkCommand = namedtuple('LinkCommand', 'cmd objects dest')
 
 
 def init_symbol_name(name):
@@ -255,18 +257,19 @@ class Build(Command):
             help='Path to directory in which to place the built extensions. Defaults to src/calibre/plugins')
 
     def run(self, opts):
+        from setup.parallel_build import parallel_build, create_job
         if opts.no_compile:
             self.info('--no-compile specified, skipping compilation')
             return
         self.env = init_env()
-        extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
+        all_extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
         self.build_dir = os.path.abspath(opts.build_dir or self.DEFAULT_BUILDDIR)
         self.output_dir = os.path.abspath(opts.output_dir or self.DEFAULT_OUTPUTDIR)
         self.obj_dir = os.path.join(self.build_dir, 'objects')
         for x in (self.output_dir, self.obj_dir):
-            if not os.path.exists(x):
-                os.makedirs(x)
-        for ext in extensions:
+            os.makedirs(x, exist_ok=True)
+        pyqt_extensions, extensions = [], []
+        for ext in all_extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
             if ext.error:
@@ -276,10 +279,39 @@ class Build(Command):
                 else:
                     raise Exception(ext.error)
             dest = self.dest(ext)
-            if not os.path.exists(self.d(dest)):
-                os.makedirs(self.d(dest))
+            os.makedirs(self.d(dest), exist_ok=True)
+            (pyqt_extensions if ext.sip_files else extensions).append((ext, dest))
+
+        jobs = []
+        objects_map = {}
+        self.info(f'Building {len(extensions)+len(pyqt_extensions)} extensions')
+        for (ext, dest) in extensions:
+            cmds, objects = self.get_compile_commands(ext, dest)
+            objects_map[id(ext)] = objects
+            for cmd in cmds:
+                jobs.append(create_job(cmd.cmd))
+        if jobs:
+            self.info(f'Compiling {len(jobs)} files...')
+            if not parallel_build(jobs, self.info):
+                raise SystemExit(1)
+        jobs, link_commands = [], []
+        for (ext, dest) in extensions:
+            objects = objects_map[id(ext)]
+            cmd = self.get_link_command(ext, dest, objects)
+            if cmd is not None:
+                link_commands.append(cmd)
+                jobs.append(create_job(cmd.cmd))
+        if jobs:
+            self.info(f'Linking {len(jobs)} files...')
+            if not parallel_build(jobs, self.info):
+                raise SystemExit(1)
+            for cmd in link_commands:
+                self.post_link_cleanup(cmd)
+
+        for (ext, dest) in pyqt_extensions:
             self.info('\n####### Building extension', ext.name, '#'*7)
-            self.build(ext, dest)
+            self.build_pyqt_extension(ext, dest)
+
         if opts.only in {'all', 'headless'}:
             self.build_headless()
 
@@ -299,19 +331,14 @@ class Build(Command):
         suff = '.lib' if iswindows else ''
         return [pref+x+suff for x in dirs]
 
-    def build(self, ext, dest):
-        from setup.parallel_build import create_job, parallel_build
-        if ext.sip_files:
-            return self.build_pyqt_extension(ext, dest)
+    def get_compile_commands(self, ext, dest):
         compiler = self.env.cxx if ext.needs_cxx else self.env.cc
-        linker = self.env.linker if iswindows else compiler
         objects = []
+        ans = []
         obj_dir = self.j(self.obj_dir, ext.name)
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
-        if not os.path.exists(obj_dir):
-            os.makedirs(obj_dir)
+        os.makedirs(obj_dir, exist_ok=True)
 
-        jobs = []
         for src in ext.sources:
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+'.o')
             objects.append(obj)
@@ -320,17 +347,16 @@ class Build(Command):
                 sinc = [inf+src] if iswindows else ['-c', src]
                 oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
                 cmd = [compiler] + self.env.cflags + ext.cflags + einc + sinc + oinc
-                jobs.append(create_job(cmd))
-        if jobs:
-            self.info('Compiling', ext.name)
-            if not parallel_build(jobs, self.info):
-                raise SystemExit(1)
+                ans.append(CompileCommand(cmd, src, obj))
+        return ans, objects
 
+    def get_link_command(self, ext, dest, objects):
+        compiler = self.env.cxx if ext.needs_cxx else self.env.cc
+        linker = self.env.linker if iswindows else compiler
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
         xlib = self.libraries_to_ldflags(ext.libraries)
         if self.newer(dest, objects+ext.extra_objs):
-            self.info('Linking', ext.name)
             cmd = [linker]
             if iswindows:
                 pre_ld_flags = []
@@ -341,13 +367,15 @@ class Build(Command):
                     ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
-            self.info('\n\n', ' '.join(cmd), '\n\n')
-            self.check_call(cmd)
-            if iswindows:
-                for x in ('.exp', '.lib'):
-                    x = os.path.splitext(dest)[0]+x
-                    if os.path.exists(x):
-                        os.remove(x)
+            return LinkCommand(cmd, objects, dest)
+
+    def post_link_cleanup(self, link_command):
+        if iswindows:
+            dest = link_command.dest
+            for x in ('.exp', '.lib'):
+                x = os.path.splitext(dest)[0]+x
+                if os.path.exists(x):
+                    os.remove(x)
 
     def check_call(self, *args, **kwargs):
         """print cmdline if an error occured
