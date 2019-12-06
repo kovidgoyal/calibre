@@ -173,6 +173,8 @@ def init_env():
 
     if islinux:
         cflags.append('-pthread')
+        if sys.stdout.isatty():
+            cflags.append('-fdiagnostics-color=always')
         ldflags.append('-shared')
 
     if isbsd:
