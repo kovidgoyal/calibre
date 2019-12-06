@@ -491,6 +491,7 @@ class Build(Command):
         return {x:read(x) for x in ('target', 'sources', 'headers')}
 
     def build_pyqt_extension(self, ext, dest, sbf):
+        self.info(f'\n####### Building {ext.name} extension', '#'*7)
         from setup.build_environment import pyqt, qmakespec, QMAKE
         from setup.parallel_build import cpu_count
         from distutils import sysconfig
