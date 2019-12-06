@@ -40,7 +40,7 @@ def run_worker(job, decorate=True):
 
 
 def create_job(cmd, human_text=None, cwd=None):
-    return (cmd, human_text)
+    return Job(cmd, human_text, cwd)
 
 
 def parallel_build(jobs, log, verbose=True):
