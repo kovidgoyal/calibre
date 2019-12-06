@@ -1008,7 +1008,33 @@ class Application(QApplication):
 
         load_builtin_fonts()
 
+    def set_dark_mode_palette(self):
+        p = self.palette()
+        dark_color = QColor(45,45,45)
+        disabled_color = QColor(127,127,127)
+        p.setColor(p.Window, dark_color)
+        p.setColor(p.WindowText, Qt.white)
+        p.setColor(p.Base, QColor(18,18,18))
+        p.setColor(p.AlternateBase, dark_color)
+        p.setColor(p.ToolTipBase, Qt.white)
+        p.setColor(p.ToolTipText, Qt.white)
+        p.setColor(p.Text, Qt.white)
+        p.setColor(p.Disabled, p.Text, disabled_color)
+        p.setColor(p.Button, dark_color)
+        p.setColor(p.ButtonText, Qt.white)
+        p.setColor(p.Disabled, p.ButtonText, disabled_color)
+        p.setColor(p.BrightText, Qt.red)
+        p.setColor(p.Link, QColor(42, 130, 218))
+
+        p.setColor(p.Highlight, QColor(42, 130, 218))
+        p.setColor(p.HighlightedText, Qt.black)
+        p.setColor(p.Disabled, p.HighlightedText, disabled_color)
+        self.set_palette(p)
+
     def setup_styles(self, force_calibre_style):
+        if iswindows and windows_is_system_dark_mode_enabled():
+            self.set_dark_mode_palette()
+
         if iswindows or isosx:
             using_calibre_style = gprefs['ui_style'] != 'system'
         else:
@@ -1439,3 +1465,10 @@ def set_app_uid(val):
 def add_to_recent_docs(path):
     app = QApplication.instance()
     plugins['winutil'][0].add_to_recent_docs(unicode_type(path), app.windows_app_uid)
+
+
+def windows_is_system_dark_mode_enabled():
+    s = QSettings(r"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", QSettings.NativeFormat)
+    if s.status() == QSettings.NoError:
+        return s.value("AppsUseLightTheme") == 0
+    return False
