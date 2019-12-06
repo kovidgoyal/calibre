@@ -255,7 +255,7 @@ class MainOverlay:  # {{{
             nav_actions = E.ul(home_action, back_action, forward_action)
 
         bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
-        toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True))
+        toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'toc'))
 
         if runtime.is_standalone_viewer:
             toc_actions.appendChild(bookmarks_action)
