@@ -50,7 +50,6 @@ def usage(code, msg=''):
 
 def add(ctxt, id, str, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
-    global MESSAGES
     if not fuzzy and str:
         if id:
             STATS['translated'] += 1
@@ -65,7 +64,6 @@ def add(ctxt, id, str, fuzzy):
 
 def generate():
     "Return the generated output."
-    global MESSAGES
     # the keys are sorted in the .mo file
     keys = sorted(MESSAGES.keys())
     offsets = []
@@ -236,9 +234,28 @@ def make(filename, outfile):
         print(msg, file=sys.stderr)
 
 
+def make_with_stats(filename, outfile):
+    MESSAGES.clear()
+    STATS['translated'] = STATS['untranslated'] = 0
+    make(filename, outfile)
+    return STATS['translated'], STATS['untranslated']
+
+
+def run_batch(pairs):
+    for (filename, outfile) in pairs:
+        yield make_with_stats(filename, outfile)
+
+
 def main():
+    args = sys.argv[1:]
+    if args == ['STDIN']:
+        import json
+        results = tuple(run_batch(json.loads(sys.stdin.buffer.read())))
+        sys.stdout.buffer.write(json.dumps(results).encode('utf-8'))
+        sys.stdout.close()
+        return
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hVso:',
+        opts, args = getopt.getopt(args, 'hVso:',
                                    ['help', 'version', 'statistics', 'output-file='])
     except getopt.error as msg:
         usage(1, msg)
@@ -263,8 +280,7 @@ def main():
         return
 
     for filename in args:
-        STATS['translated'] = STATS['untranslated'] = 0
-        make(filename, outfile)
+        translated, untranslated = make_with_stats(filename, outfile)
         if output_stats:
             print(STATS['translated'], 'translated messages,', STATS['untranslated'], 'untranslated messages.')
 
