@@ -5,45 +5,15 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess, os
+import subprocess, os, itertools, json, sys
 from multiprocessing.dummy import Pool
+from threading import Thread
 from functools import partial
 from contextlib import closing
 
-from setup import iswindows
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
-if iswindows:
-    from ctypes import windll, Structure, POINTER, c_size_t
-    from ctypes.wintypes import WORD, DWORD, LPVOID
-
-    class SYSTEM_INFO(Structure):
-        _fields_ = [
-            ("wProcessorArchitecture",      WORD),
-            ("wReserved",                   WORD),
-            ("dwPageSize",                  DWORD),
-            ("lpMinimumApplicationAddress", LPVOID),
-            ("lpMaximumApplicationAddress", LPVOID),
-            ("dwActiveProcessorMask",       c_size_t),
-            ("dwNumberOfProcessors",        DWORD),
-            ("dwProcessorType",             DWORD),
-            ("dwAllocationGranularity",     DWORD),
-            ("wProcessorLevel",             WORD),
-            ("wProcessorRevision",          WORD)]
-    gsi = windll.kernel32.GetSystemInfo
-    gsi.argtypes = [POINTER(SYSTEM_INFO)]
-    gsi.restype = None
-    si = SYSTEM_INFO()
-    gsi(si)
-    cpu_count = si.dwNumberOfProcessors
-else:
-    from multiprocessing import cpu_count
-    try:
-        cpu_count = cpu_count()
-    except NotImplementedError:
-        cpu_count = 1
-
-cpu_count = min(16, max(1, cpu_count))
+cpu_count = min(16, max(1, os.cpu_count()))
 
 
 def run_worker(job, decorate=True):
@@ -95,3 +65,44 @@ def parallel_check_output(jobs, log):
                     log(stderr)
                 raise SystemExit(1)
             yield stdout
+
+
+def get_tasks(it, size):
+    it = iter(it)
+    while 1:
+        x = tuple(itertools.islice(it, size))
+        if not x:
+            return
+        yield x
+
+
+def batched_parallel_jobs(cmd, jobs, cwd=None):
+    chunksize, extra = divmod(len(jobs), cpu_count)
+    if extra:
+        chunksize += 1
+    workers = []
+
+    def get_output(p):
+        p.output = p.communicate(as_bytes(json.dumps(p.jobs_batch)))
+
+    for batch in get_tasks(jobs, chunksize):
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+        p.jobs_batch = batch
+        p.output_thread = t = Thread(target=get_output, args=(p,))
+        t.daemon = True
+        t.start()
+        workers.append(p)
+
+    failed = False
+    ans = []
+    for p in workers:
+        p.output_thread.join()
+        if p.wait() != 0:
+            sys.stderr.buffer.write(p.output[1])
+            sys.stderr.buffer.flush()
+            failed = True
+        else:
+            ans.extend(json.loads(p.output[0]))
+    if failed:
+        raise SystemExit('Worker process failed')
+    return ans
