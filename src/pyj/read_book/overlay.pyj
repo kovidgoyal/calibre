@@ -625,10 +625,14 @@ class Overlay:
             container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
             table = E.table(class_='metadata')
             container.lastChild.appendChild(table)
-            render_metadata(mi, table)
+            render_metadata(mi, table, None, f'html {{ font-size: {document.documentElement.style.fontSize} }}')
+            for a in table.querySelectorAll('a[href]'):
+                a.removeAttribute('href')
+                a.removeAttribute('title')
+                a.classList.remove('blue-link')
             if pathtoebook:
                 container.lastChild.appendChild(E.div(
-                    style='font-size: smaller; margin-top: 1ex; padding-top: 1ex; border-top: solid 1px',
+                    style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px',
                     _('Path: {}').format(pathtoebook)))
 
         self.panels.push(SimpleOverlay(self, show_metadata_overlay.bind(None, self.view.book.metadata, self.view.book.manifest.pathtoebook), self.view.book.metadata.title))

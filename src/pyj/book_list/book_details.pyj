@@ -133,8 +133,10 @@ def add_stars_to(stars, val, allow_half_stars):
 
 window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
-def adjusting_sandboxed_html(html):
+def adjusting_sandboxed_html(html, extra_css):
     css =  'html, body {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
+    if extra_css:
+        css += '\n\n' + extra_css
     # allow-same-origin is needed for resizing and allow-popups is needed for
     # target="_blank"
     ans = sandboxed_html(html, css, 'allow-same-origin allow-popups allow-popups-to-escape-sandbox')
@@ -144,7 +146,7 @@ def adjusting_sandboxed_html(html):
     return ans
 
 
-def render_metadata(mi, table, book_id):  # {{{
+def render_metadata(mi, table, book_id, iframe_css):  # {{{
     field_metadata = library_data.field_metadata
     interface_data = get_interface_data()
     def allowed_fields(field):
@@ -184,7 +186,7 @@ def render_metadata(mi, table, book_id):  # {{{
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html and /[<>]/.test(val + ''):
-            table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + ''))
+            table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + '', iframe_css))
         else:
             if not join:
                 add_val(val)
@@ -371,7 +373,7 @@ def render_metadata(mi, table, book_id):  # {{{
                 name = fm.name or field
                 all_html += f'<h3>{name}</h3>'
             all_html += comment
-    iframe = adjusting_sandboxed_html(all_html)
+    iframe = adjusting_sandboxed_html(all_html, iframe_css)
     iframe.style.marginTop = '2ex'
     table.parentNode.appendChild(iframe)
 # }}}
