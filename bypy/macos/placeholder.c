@@ -36,6 +36,6 @@ main(int argc, char * const *argv, const char **envp) {
         return 1;
     }
     *(t + 1) = 0;
-    snprintf(t + 1, sizeof(realpath_buf) - strlen(path), "%s", EXE_NAME);
+    snprintf(t + 1, sizeof(realpath_buf) - strlen(path), "%s/%s", REL_PATH, EXE_NAME);
     execv(path, argv);
 }
