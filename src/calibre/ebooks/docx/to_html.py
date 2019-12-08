@@ -10,7 +10,7 @@ from collections import OrderedDict, defaultdict
 
 from lxml import html
 from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, SUP, A, DT, DL, DD, H1)
+    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, A, DT, DL, DD, H1)
 
 from calibre import guess_type
 from calibre.ebooks.docx.container import DOCX, fromstring
@@ -684,7 +684,7 @@ class Convert(object):
             elif self.namespace.is_tag(child, 'w:footnoteReference') or self.namespace.is_tag(child, 'w:endnoteReference'):
                 anchor, name = self.footnotes.get_ref(child)
                 if anchor and name:
-                    l = A(SUP(name, id='back_%s' % anchor), href='#' + anchor, title=name)
+                    l = A(name, id='back_%s' % anchor, href='#' + anchor, title=name)
                     l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
@@ -703,12 +703,7 @@ class Convert(object):
         style = self.styles.resolve_run(run)
         if style.vert_align in {'superscript', 'subscript'}:
             if ans.text or len(ans):
-                ans.tag = 'sub' if style.vert_align == 'subscript' else 'sup'
-                try:
-                    if ans[0].tag == 'a' and ans[0].get('class', 'noteref') and ans[0][0].tag == 'sup' and ans.tag == 'sup':
-                        ans[0][0].tag = 'span'
-                except Exception:
-                    pass
+                ans.set('data-docx-vert', 'sup' if style.vert_align == 'superscript' else 'sub')
         if style.lang is not inherit:
             lang = html_lang(style.lang)
             if lang is not None and lang != self.doc_lang:
