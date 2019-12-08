@@ -18,7 +18,7 @@ def dark_palette():
     p.setColor(p.WindowText, Qt.white)
     p.setColor(p.Base, QColor(18,18,18))
     p.setColor(p.AlternateBase, dark_color)
-    p.setColor(p.ToolTipBase, Qt.white)
+    p.setColor(p.ToolTipBase, dark_color)
     p.setColor(p.ToolTipText, Qt.white)
     p.setColor(p.Text, Qt.white)
     p.setColor(p.Disabled, p.Text, disabled_color)
