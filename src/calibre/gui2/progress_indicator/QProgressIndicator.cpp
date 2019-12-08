@@ -236,8 +236,7 @@ class CalibreStyle: public QProxyStyle {
 										QPalette::Text);
 								w = menuItem->fontMetrics.horizontalAdvance(menuItem->text) + margin;
 							}
-							QColor col = menuItem->palette.color(QPalette::Window);
-							if (col.valueF() < 0.45) painter->setPen(Qt::gray);
+							if (menuItem->palette.color(QPalette::Window).valueF() < 0.45) painter->setPen(Qt::gray);
 							else painter->setPen(QColor(0, 0, 0, 60).lighter(106));
 							bool reverse = menuItem->direction == Qt::RightToLeft;
 							painter->drawLine(menuItem->rect.left() + margin + (reverse ? 0 : w), menuItem->rect.center().y(),
