@@ -209,10 +209,7 @@ class CalibreStyle: public QProxyStyle {
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
                         QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
                         QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
-                        if (color.lightness() > 128)
-                            color = color.darker(widget->property("highlight_current_item").toInt());
-                        else
-                            color = color.lighter(125);
+						color = color.lighter(125);
                         opt.palette.setColor(QPalette::Highlight, color);
                         return QProxyStyle::drawPrimitive(element, &opt, painter, widget);
                     }
