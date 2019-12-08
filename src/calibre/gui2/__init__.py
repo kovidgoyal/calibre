@@ -1021,10 +1021,12 @@ class Application(QApplication):
             using_calibre_style = True
         if using_calibre_style:
             use_dark_palette = False
-            if iswindows:
-                use_dark_palette = windows_is_system_dark_mode_enabled()
-            elif not isosx:
-                use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
+            if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
+                if not isosx:
+                    use_dark_palette = os.environ['CALIBRE_USE_DARK_PALETTE'] != '0'
+            else:
+                if iswindows:
+                    use_dark_palette = windows_is_system_dark_mode_enabled()
             if use_dark_palette:
                 self.set_dark_mode_palette()
 
