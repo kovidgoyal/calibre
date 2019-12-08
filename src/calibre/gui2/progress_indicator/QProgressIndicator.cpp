@@ -10,6 +10,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <algorithm>
+#include <qdrawutil.h>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size, int interval)
         : QWidget(parent),
@@ -214,6 +215,47 @@ class CalibreStyle: public QProxyStyle {
                         return QProxyStyle::drawPrimitive(element, &opt, painter, widget);
                     }
                     break;
+				case PE_IndicatorToolBarSeparator:
+					// Make toolbar separators stand out a bit more in dark themes
+					{
+						QRect rect = option->rect;
+						const int margin = 6;
+						QColor bg = option->palette.color(QPalette::Window);
+						QColor first, second;
+						if (bg.valueF() < 0.45) {
+							first = bg.darker(115);
+							second = bg.lighter(115);
+						} else {
+							first = bg.darker(110);
+							second = bg.lighter(110);
+						}
+						if (option->state & State_Horizontal) {
+							const int offset = rect.width()/2;
+							painter->setPen(QPen(first));
+							painter->drawLine(rect.bottomLeft().x() + offset,
+									rect.bottomLeft().y() - margin,
+									rect.topLeft().x() + offset,
+									rect.topLeft().y() + margin);
+							painter->setPen(QPen(second));
+							painter->drawLine(rect.bottomLeft().x() + offset + 1,
+									rect.bottomLeft().y() - margin,
+									rect.topLeft().x() + offset + 1,
+									rect.topLeft().y() + margin);
+						} else { //Draw vertical separator
+							const int offset = rect.height()/2;
+							painter->setPen(QPen(first));
+							painter->drawLine(rect.topLeft().x() + margin ,
+									rect.topLeft().y() + offset,
+									rect.topRight().x() - margin,
+									rect.topRight().y() + offset);
+							painter->setPen(QPen(second));
+							painter->drawLine(rect.topLeft().x() + margin ,
+									rect.topLeft().y() + offset + 1,
+									rect.topRight().x() - margin,
+									rect.topRight().y() + offset + 1);
+						}
+					}
+					return;
                 default:
                     break;
             }
