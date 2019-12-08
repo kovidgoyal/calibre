@@ -1032,15 +1032,15 @@ class Application(QApplication):
         self.set_palette(p)
 
     def setup_styles(self, force_calibre_style):
-        if iswindows and windows_is_system_dark_mode_enabled():
-            self.set_dark_mode_palette()
-
         if iswindows or isosx:
             using_calibre_style = gprefs['ui_style'] != 'system'
         else:
             using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
         if force_calibre_style:
             using_calibre_style = True
+        if iswindows and windows_is_system_dark_mode_enabled() and using_calibre_style:
+            self.set_dark_mode_palette()
+
         self.using_calibre_style = using_calibre_style
         if DEBUG:
             prints('Using calibre Qt style:', self.using_calibre_style)
@@ -1055,8 +1055,9 @@ class Application(QApplication):
             pal = self.palette()
             # dark blue is unreadable when using dark backgrounds
             pal.setColor(pal.Link, QColor('#6CB4EE'))
-            # alternating row colors look awful in most dark mode themes
-            pal.setColor(pal.AlternateBase, pal.color(pal.Base))
+            if isosx:
+                # alternating row colors look awful in most dark mode themes
+                pal.setColor(pal.AlternateBase, pal.color(pal.Base))
             if isosx and self.using_calibre_style:
                 # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
                 # Buttontext is set to black for some reason
@@ -1064,6 +1065,7 @@ class Application(QApplication):
             self.set_palette(pal)
 
     def set_palette(self, pal):
+        self.is_dark_mode_palette = False
         self.ignore_palette_changes = True
         self.setPalette(pal)
         # Needed otherwise Qt does not emit the paletteChanged signal when
