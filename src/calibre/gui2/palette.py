@@ -5,9 +5,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import QColor, QPalette, Qt
+from calibre.constants import dark_link_color
 
 
-dark_link_color = QColor(42, 130, 218)
+dark_link_color = QColor(dark_link_color)
 
 
 def dark_palette():

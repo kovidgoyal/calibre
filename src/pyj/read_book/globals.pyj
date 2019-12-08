@@ -7,6 +7,8 @@ from encodings import hexlify
 from gettext import gettext as _, register_callback, gettext as gt
 
 _boss = None
+dark_link_color = '__DARK_LINK_COLOR__'
+
 
 def set_boss(b):
     nonlocal _boss
@@ -71,7 +73,7 @@ register_callback(def():
         scheme.name = gt(scheme.name)
     # set the system colors if in dark mode
     if window.matchMedia and window.matchMedia('(prefers-color-scheme: dark)').matches:
-        set_system_colors({'background': '#111', 'foreground': '#ddd', 'link': '#6cb4ee'})
+        set_system_colors({'background': '#111', 'foreground': '#ddd', 'link': dark_link_color})
 )
 
 runtime = {

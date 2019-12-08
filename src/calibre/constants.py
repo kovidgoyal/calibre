@@ -55,6 +55,7 @@ win32event = importlib.import_module('win32event') if iswindows else None
 winerror   = importlib.import_module('winerror') if iswindows else None
 win32api   = importlib.import_module('win32api') if iswindows else None
 fcntl      = None if iswindows else importlib.import_module('fcntl')
+dark_link_color = '#2a82da'
 
 _osx_ver = None
 
