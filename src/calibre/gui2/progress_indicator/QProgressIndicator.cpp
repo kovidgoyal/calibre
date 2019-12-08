@@ -163,7 +163,7 @@ class CalibreStyle: public QProxyStyle {
                     return button_layout;
                 case SH_FormLayoutFieldGrowthPolicy:
                     return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
-                default:
+				default:
                     break;
             }
             return QProxyStyle::styleHint(hint, option, widget, returnData);
@@ -302,6 +302,7 @@ int load_style(QHash<int,QString> icon_map) {
 
 class NoActivateStyle: public QProxyStyle {
  	public:
+        NoActivateStyle(QStyle *base) : QProxyStyle(base) { }
         int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
             if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0;
             return QProxyStyle::styleHint(hint, option, widget, returnData);
@@ -309,7 +310,8 @@ class NoActivateStyle: public QProxyStyle {
 };
 
 void set_no_activate_on_click(QWidget *widget) {
-    widget->setStyle(new NoActivateStyle);
+	QStyle *base_style = widget->style();
+	if (base_style) widget->setStyle(new NoActivateStyle(base_style));
 }
 
 class TouchMenuStyle: public QProxyStyle {
