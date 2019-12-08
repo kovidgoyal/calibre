@@ -314,25 +314,6 @@ void set_no_activate_on_click(QWidget *widget) {
 	if (base_style) widget->setStyle(new NoActivateStyle(base_style));
 }
 
-class TouchMenuStyle: public QProxyStyle {
-    private:
-        int extra_margin;
-
-    public:
-        TouchMenuStyle(int margin) : extra_margin(margin) {}
-        QSize sizeFromContents ( ContentsType type, const QStyleOption * option, const QSize & contentsSize, const QWidget * widget = 0 ) const {
-            QSize ans = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
-            if (type == QStyle::CT_MenuItem) {
-                ans.setHeight(ans.height() + extra_margin);  // Make the menu items more easily touchable
-            }
-            return ans;
-        }
-};
-
-void set_touch_menu_style(QWidget *widget, int margin) {
-    widget->setStyle(new TouchMenuStyle(margin));
-}
-
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) {
 	painter.save();
     painter.setRenderHint(QPainter::Antialiasing);

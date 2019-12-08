@@ -9,7 +9,6 @@
 #include <QPainter>
 int load_style(QHash<int,QString> icon_map);
 void set_no_activate_on_click(QWidget *widget);
-void set_touch_menu_style(QWidget *widget, int margin);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 %End
 
@@ -58,5 +57,4 @@ protected:
 
 int load_style(QHash<int,QString> icon_map);
 void set_no_activate_on_click(QWidget *widget);
-void set_touch_menu_style(QWidget *widget, int margin=20);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
