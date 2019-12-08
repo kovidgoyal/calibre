@@ -16,7 +16,7 @@ def dark_palette():
     dark_color = QColor(45,45,45)
     disabled_color = QColor(127,127,127)
     p.setColor(p.Window, dark_color)
-    p.setColor(p.WindowText, Qt.white)
+    p.setColor(p.WindowText, QColor('#eee'))
     p.setColor(p.Base, QColor(18,18,18))
     p.setColor(p.AlternateBase, dark_color)
     p.setColor(p.ToolTipBase, dark_color)
@@ -29,7 +29,7 @@ def dark_palette():
     p.setColor(p.BrightText, Qt.red)
     p.setColor(p.Link, dark_link_color)
 
-    p.setColor(p.Highlight, QColor(42, 130, 218))
+    p.setColor(p.Highlight, dark_link_color)
     p.setColor(p.HighlightedText, Qt.black)
     p.setColor(p.Disabled, p.HighlightedText, disabled_color)
     return p
