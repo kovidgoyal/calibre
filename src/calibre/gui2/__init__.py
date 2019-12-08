@@ -1009,27 +1009,8 @@ class Application(QApplication):
         load_builtin_fonts()
 
     def set_dark_mode_palette(self):
-        p = self.palette()
-        dark_color = QColor(45,45,45)
-        disabled_color = QColor(127,127,127)
-        p.setColor(p.Window, dark_color)
-        p.setColor(p.WindowText, Qt.white)
-        p.setColor(p.Base, QColor(18,18,18))
-        p.setColor(p.AlternateBase, dark_color)
-        p.setColor(p.ToolTipBase, Qt.white)
-        p.setColor(p.ToolTipText, Qt.white)
-        p.setColor(p.Text, Qt.white)
-        p.setColor(p.Disabled, p.Text, disabled_color)
-        p.setColor(p.Button, dark_color)
-        p.setColor(p.ButtonText, Qt.white)
-        p.setColor(p.Disabled, p.ButtonText, disabled_color)
-        p.setColor(p.BrightText, Qt.red)
-        p.setColor(p.Link, QColor(42, 130, 218))
-
-        p.setColor(p.Highlight, QColor(42, 130, 218))
-        p.setColor(p.HighlightedText, Qt.black)
-        p.setColor(p.Disabled, p.HighlightedText, disabled_color)
-        self.set_palette(p)
+        from calibre.gui2.palette import dark_palette
+        self.set_palette(dark_palette())
 
     def setup_styles(self, force_calibre_style):
         if iswindows or isosx:
@@ -1038,8 +1019,14 @@ class Application(QApplication):
             using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
         if force_calibre_style:
             using_calibre_style = True
-        if iswindows and windows_is_system_dark_mode_enabled() and using_calibre_style:
-            self.set_dark_mode_palette()
+        if using_calibre_style:
+            use_dark_palette = False
+            if iswindows:
+                use_dark_palette = windows_is_system_dark_mode_enabled()
+            elif not isosx:
+                use_dark_palette = os.environ.get('CALIBRE_USE_DARK_PALETTE') == '1'
+            if use_dark_palette:
+                self.set_dark_mode_palette()
 
         self.using_calibre_style = using_calibre_style
         if DEBUG:
