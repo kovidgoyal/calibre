@@ -1037,19 +1037,17 @@ class Application(QApplication):
         self.on_palette_change()
 
     def fix_dark_theme_colors(self):
-        self.is_dark_theme = is_dark_theme()
-        if self.is_dark_theme:
-            pal = self.palette()
-            # dark blue is unreadable when using dark backgrounds
-            pal.setColor(pal.Link, QColor('#6CB4EE'))
-            if isosx:
-                # alternating row colors look awful in most dark mode themes
-                pal.setColor(pal.AlternateBase, pal.color(pal.Base))
-            if isosx and self.using_calibre_style:
-                # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
-                # Buttontext is set to black for some reason
-                pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
-            self.set_palette(pal)
+        from calibre.gui2.palette import dark_link_color
+        pal = self.palette()
+        # dark blue is unreadable when using dark backgrounds
+        pal.setColor(pal.Link, dark_link_color)
+        # alternating row colors look awful in most dark mode themes
+        pal.setColor(pal.AlternateBase, pal.color(pal.Base))
+        if self.using_calibre_style:
+            # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
+            # Buttontext is set to black for some reason
+            pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
+        self.set_palette(pal)
 
     def set_palette(self, pal):
         self.is_dark_mode_palette = False
@@ -1063,7 +1061,9 @@ class Application(QApplication):
     def on_palette_change(self):
         if self.ignore_palette_changes:
             return
-        self.fix_dark_theme_colors()
+        self.is_dark_theme = is_dark_theme()
+        if isosx:
+            self.fix_dark_theme_colors()
         self.palette_changed.emit()
 
     def stylesheet_for_line_edit(self, is_error=False):
@@ -1133,7 +1133,7 @@ class Application(QApplication):
 
     @current_custom_colors.setter
     def current_custom_colors(self, colors):
-        from PyQt5.Qt import QColorDialog, QColor
+        from PyQt5.Qt import QColorDialog
         num = min(len(colors), QColorDialog.customCount())
         for i in range(num):
             QColorDialog.setCustomColor(i, QColor(*colors[i]))

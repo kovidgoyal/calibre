@@ -7,6 +7,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from PyQt5.Qt import QColor, QPalette, Qt
 
 
+dark_link_color = QColor(42, 130, 218)
+
+
 def dark_palette():
     p = QPalette()
     dark_color = QColor(45,45,45)
@@ -23,7 +26,7 @@ def dark_palette():
     p.setColor(p.ButtonText, Qt.white)
     p.setColor(p.Disabled, p.ButtonText, disabled_color)
     p.setColor(p.BrightText, Qt.red)
-    p.setColor(p.Link, QColor(42, 130, 218))
+    p.setColor(p.Link, dark_link_color)
 
     p.setColor(p.Highlight, QColor(42, 130, 218))
     p.setColor(p.HighlightedText, Qt.black)
