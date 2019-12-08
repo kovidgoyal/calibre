@@ -219,6 +219,38 @@ class CalibreStyle: public QProxyStyle {
             }
             return QProxyStyle::drawPrimitive(element, option, painter, widget);
         }
+
+		void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
+			switch(element) {
+				case CE_MenuItem:
+					// Draw menu separators that work in both light and dark modes
+					if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+						if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
+							int w = 0;
+							const int margin = 5;
+							painter->save();
+							if (!menuItem->text.isEmpty()) {
+								painter->setFont(menuItem->font);
+								proxy()->drawItemText(painter, menuItem->rect.adjusted(margin, 0, -margin, 0), Qt::AlignLeft | Qt::AlignVCenter,
+										menuItem->palette, menuItem->state & State_Enabled, menuItem->text,
+										QPalette::Text);
+								w = menuItem->fontMetrics.horizontalAdvance(menuItem->text) + margin;
+							}
+							QColor col = menuItem->palette.color(QPalette::Window);
+							if (col.valueF() < 0.45) painter->setPen(Qt::gray);
+							else painter->setPen(QColor(0, 0, 0, 60).lighter(106));
+							bool reverse = menuItem->direction == Qt::RightToLeft;
+							painter->drawLine(menuItem->rect.left() + margin + (reverse ? 0 : w), menuItem->rect.center().y(),
+									menuItem->rect.right() - margin - (reverse ? w : 0), menuItem->rect.center().y());
+							painter->restore();
+							return;
+						}
+					}
+					break;
+				default: break;
+			}
+            QProxyStyle::drawControl(element, option, painter, widget);
+		}
 };
 
 int load_style(QHash<int,QString> icon_map) {
