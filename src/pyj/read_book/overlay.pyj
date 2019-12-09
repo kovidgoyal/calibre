@@ -259,6 +259,7 @@ class MainOverlay:  # {{{
 
         if runtime.is_standalone_viewer:
             toc_actions.appendChild(bookmarks_action)
+        toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, '🖝', True))
 
         actions_div = E.div( # actions
             nav_actions,
@@ -606,6 +607,10 @@ class Overlay:
             return
         self.panels.push(TOCOverlay(self))
         self.show_current_panel()
+
+    def toggle_reference_mode(self):
+        self.hide_current_panel()
+        self.view.toggle_reference_mode()
 
     def show_bookmarks(self):
         self.hide_current_panel()

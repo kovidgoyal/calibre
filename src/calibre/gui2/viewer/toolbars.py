@@ -50,7 +50,7 @@ def all_actions():
             'previous': Action('previous.png', _('Previous page'), 'previous'),
             'toc': Action('toc.png', _('Table of Contents'), 'toggle_toc'),
             'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
-            'reference': Action('lookfeel.png', _('Toggle Reference mode'), 'toggle_reference_mode'),
+            'reference': Action('reference.png', _('Toggle Reference mode'), 'toggle_reference_mode'),
             'lookup': Action('generic-library.png', _('Lookup words'), 'toggle_lookup'),
             'chrome': Action('tweaks.png', _('Show viewer controls'), 'show_chrome'),
             'mode': Action('scroll.png', _('Toggle paged mode'), 'toggle_paged_mode'),
