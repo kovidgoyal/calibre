@@ -228,6 +228,12 @@ def shortcuts_definition():
         _('Toggle between Paged mode and Flow mode for text layout')
     ),
 
+    'toggle_reference_mode': desc(
+        'Ctrl+x',
+        'ui',
+        _('Toggle the Reference mode')
+    ),
+
     'reload_book': desc(
         v"['F5', 'Ctrl+r']",
         'ui',

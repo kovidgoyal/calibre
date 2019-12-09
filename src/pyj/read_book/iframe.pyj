@@ -29,6 +29,7 @@ from read_book.paged_mode import (
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
+from read_book.referencing import end_reference_mode, start_reference_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
@@ -80,6 +81,7 @@ class IframeBoss:
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
+        self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
         self.blob_url_map = {}
         self.content_ready = False
@@ -100,6 +102,7 @@ class IframeBoss:
             'window_size': self.received_window_size,
             'get_current_cfi': self.get_current_cfi,
             'set_forward_keypresses': self.set_forward_keypresses,
+            'set_reference_mode': self.set_reference_mode,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -155,6 +158,7 @@ class IframeBoss:
         self.content_ready = False
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.reference_mode_enabled = data.reference_mode_enabled
         self.is_titlepage = data.is_titlepage
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
@@ -178,7 +182,13 @@ class IframeBoss:
             self.anchor_funcs = paged_anchor_funcs
         update_settings(data.settings)
         self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
-        set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
+        set_current_spine_item({
+            'name':data.name,
+            'is_first':index is 0,
+            'is_last':index is spine.length - 1,
+            'index': index,
+            'initial_position':data.initial_position
+        })
         self.last_cfi = None
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
@@ -239,6 +249,8 @@ class IframeBoss:
         if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
             document.body.classList.add('cover-fill')
         document.body.classList.add(f'calibre-viewer-{layout_style()}')
+        if self.reference_mode_enabled:
+            start_reference_mode()
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
         fix_fullscreen_svg_images()
@@ -269,8 +281,7 @@ class IframeBoss:
                 self.find(ipos.search_data, True)
         spine = self.book.manifest.spine
         files = self.book.manifest.files
-        current_name = current_spine_item().name
-        spine_index = spine.indexOf(current_name)
+        spine_index = csi.index
         self.length_before = 0
         if spine_index > -1:
             for i in range(spine_index):
@@ -297,9 +308,7 @@ class IframeBoss:
         cfi = current_cfi()
         selected_text = window.getSelection().toString()
         if cfi:
-            spine = self.book.manifest.spine
-            current_name = current_spine_item().name
-            index = spine.indexOf(current_name)
+            index = current_spine_item().index
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 self.send_message(
@@ -312,9 +321,7 @@ class IframeBoss:
     def update_cfi(self):
         cfi = current_cfi()
         if cfi:
-            spine = self.book.manifest.spine
-            current_name = current_spine_item().name
-            index = spine.indexOf(current_name)
+            index = current_spine_item().index
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 pf = self.calculate_progress_frac()
@@ -471,6 +478,16 @@ class IframeBoss:
                     'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
             else:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
+
+    def reference_item_changed(self, ref_num_or_none):
+        self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)
+
+    def set_reference_mode(self, data):
+        self.reference_mode_enabled = data.enabled
+        if data.enabled:
+            start_reference_mode()
+        else:
+            end_reference_mode()
 
 
 def main():

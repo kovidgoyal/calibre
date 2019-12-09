@@ -147,6 +147,7 @@ class View:
 
     def __init__(self, container):
         self.timers = Timers()
+        self.reference_mode_enabled = False
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
@@ -190,8 +191,13 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
-                )
-            )
+                ),
+                E.div(
+                    style=f'color: {get_color("window-foreground")}; background: {get_color("window-background")};' +
+                    'position: absolute; display: none; left: 0; top: 0; padding: 0.5ex; border: solid 2px; z-index: 3000',
+                    id='reference-mode-overlay'
+                ),
+            ),
         )
         handlers = {
             'ready': self.on_iframe_ready,
@@ -216,6 +222,7 @@ class View:
             'selectionchange': self.on_selection_change,
             'handle_shortcut': self.on_handle_shortcut,
             'handle_keypress': self.on_handle_keypress,
+            'reference_item_changed': self.on_reference_item_changed,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         if runtime.is_standalone_viewer:
@@ -235,6 +242,10 @@ class View:
     @property
     def iframe(self):
         return self.iframe_wrapper.iframe
+
+    @property
+    def reference_mode_overlay(self):
+        return document.getElementById('reference-mode-overlay')
 
     def on_lookup_word(self, data):
         if runtime.is_standalone_viewer:
@@ -366,6 +377,8 @@ class View:
             self.bump_font_size({'increase': False})
         elif data.name is 'toggle_full_screen':
             ui_operations.toggle_full_screen()
+        elif data.name is 'toggle_reference_mode':
+            self.toggle_reference_mode()
         elif data.name is 'reload_book':
             ui_operations.reload_book()
         elif data.name is 'search_for_selection':
@@ -456,6 +469,7 @@ class View:
         self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
+        self.reference_mode_overlay.style.display = 'none'
         self.focus_iframe()
 
     def focus_iframe(self):
@@ -932,7 +946,7 @@ class View:
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,
-            settings=self.currently_showing.settings,
+            settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
         )
 
@@ -941,6 +955,7 @@ class View:
         self.hide_loading()
         self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
+        self.on_reference_item_changed()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
         if self.book_load_started:
             self.book_load_started = False
@@ -958,3 +973,17 @@ class View:
     def update_color_scheme(self):
         cs = self.get_color_scheme(True)
         self.iframe_wrapper.send_message('change_color_scheme', color_scheme=cs)
+
+    def toggle_reference_mode(self):
+        self.reference_mode_enabled = not self.reference_mode_enabled
+        self.iframe_wrapper.send_message('set_reference_mode', enabled=self.reference_mode_enabled)
+
+    def on_reference_item_changed(self, data):
+        data = data or {'refnum': None, 'index': None}
+        refnum, index = data.refnum, data.index
+        div = self.reference_mode_overlay
+        if refnum is None:
+            div.style.display = 'none'
+        else:
+            div.style.display = 'block'
+            div.textContent = f'{index}.{refnum}'
