@@ -719,7 +719,7 @@ class ZipFile:
 
     fp = None                   # Set here since __del__ checks it
 
-    def __init__(self, file, mode="r", compression=ZIP_DEFLATED, allowZip64=False):
+    def __init__(self, file, mode="r", compression=ZIP_DEFLATED, allowZip64=True):
         """Open the ZIP file with mode read "r", write "w" or append "a"."""
         if mode not in ("r", "w", "a"):
             raise RuntimeError('ZipFile() requires mode "r", "w", or "a" not %s'%mode)
