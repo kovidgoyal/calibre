@@ -50,6 +50,7 @@ def all_actions():
             'previous': Action('previous.png', _('Previous page'), 'previous'),
             'toc': Action('toc.png', _('Table of Contents'), 'toggle_toc'),
             'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
+            'reference': Action('lookfeel.png', _('Toggle Reference mode'), 'toggle_reference_mode'),
             'lookup': Action('generic-library.png', _('Lookup words'), 'toggle_lookup'),
             'chrome': Action('tweaks.png', _('Show viewer controls'), 'show_chrome'),
             'mode': Action('scroll.png', _('Toggle paged mode'), 'toggle_paged_mode'),
@@ -62,7 +63,7 @@ def all_actions():
 
 DEFAULT_ACTIONS = (
         'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen',
-        None, 'previous', 'next', None, 'toc', 'bookmarks', 'lookup', 'chrome', None, 'mode', 'print', 'preferences',
+        None, 'previous', 'next', None, 'toc', 'bookmarks', 'lookup', 'reference', 'chrome', None, 'mode', 'print', 'preferences',
         'metadata'
 )
 
@@ -121,6 +122,7 @@ class ActionsToolBar(ToolBar):
         self.action_triggered.connect(web_view.trigger_shortcut)
         page = web_view.page()
         web_view.paged_mode_changed.connect(self.update_mode_action)
+        web_view.reference_mode_changed.connect(self.update_reference_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
         web_view.customize_toolbar.connect(self.customize, type=Qt.QueuedConnection)
 
@@ -147,6 +149,8 @@ class ActionsToolBar(ToolBar):
 
         self.toc_action = shortcut_action('toc')
         self.bookmarks_action = shortcut_action('bookmarks')
+        self.reference_action = a = shortcut_action('reference')
+        a.setCheckable(True)
         self.lookup_action = shortcut_action('lookup')
         self.chrome_action = shortcut_action('chrome')
 
@@ -179,6 +183,9 @@ class ActionsToolBar(ToolBar):
         else:
             a.setChecked(True)
             a.setToolTip(_('Switch to paged mode -- where the text is broken into pages'))
+
+    def update_reference_mode_action(self, enabled):
+        self.reference_action.setChecked(enabled)
 
     def set_tooltips(self, rmap):
         for sc, a in iteritems(self.shortcut_actions):

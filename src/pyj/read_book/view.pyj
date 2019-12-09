@@ -976,7 +976,10 @@ class View:
 
     def toggle_reference_mode(self):
         self.reference_mode_enabled = not self.reference_mode_enabled
+        self.on_reference_item_changed()
         self.iframe_wrapper.send_message('set_reference_mode', enabled=self.reference_mode_enabled)
+        if ui_operations.reference_mode_changed:
+            ui_operations.reference_mode_changed(self.reference_mode_enabled)
 
     def on_reference_item_changed(self, data):
         data = data or {'refnum': None, 'index': None}

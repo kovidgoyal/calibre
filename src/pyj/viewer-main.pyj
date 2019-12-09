@@ -369,6 +369,8 @@ if window is window.top:
         to_python.quit()
     ui_operations.overlay_visibility_changed = def(visible):
         to_python.overlay_visibility_changed(visible)
+    ui_operations.reference_mode_changed = def(enabled):
+        to_python.reference_mode_changed(enabled)
     ui_operations.show_loading_message = def(msg):
         to_python.show_loading_message(msg)
     ui_operations.export_shortcut_map = def(smap):
