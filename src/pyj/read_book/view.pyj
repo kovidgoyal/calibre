@@ -655,6 +655,8 @@ class View:
             elif initial_position.type is 'bookpos':
                 navigated = True
                 self.goto_book_position(initial_position.data)
+            elif initial_position.type is 'ref':
+                navigated = self.goto_reference(initial_position.data)
         if navigated:
             self.hide_loading()
         else:
@@ -768,6 +770,20 @@ class View:
             self.show_name(name, initial_position=pos)
             return True
         return False
+
+    def goto_reference(self, reference):
+        if not self.book or not self.book.manifest:
+            return
+        index, refnum = reference.split('.')
+        index, refnum = int(index), int(refnum)
+        chapter_name = self.book.manifest.spine[index]
+        if not chapter_name:
+            return False
+        if self.currently_showing.name is chapter_name:
+            self.iframe_wrapper.send_message('scroll_to_ref', refnum=refnum)
+        else:
+            self.show_name(chapter_name, initial_position={'type':'ref', 'refnum':refnum, 'replace_history':True})
+        return True
 
     def goto_named_destination(self, name, frag):
         if self.currently_showing.name is name:

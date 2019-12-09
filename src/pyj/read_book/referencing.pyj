@@ -6,6 +6,12 @@ from __python__ import bound_methods, hash_literals
 from read_book.globals import get_boss
 
 
+def elem_for_ref(refnum):
+    refnum = int(refnum)
+    p = document.getElementsByTagName('p')[refnum - 1]
+    return p
+
+
 def on_mouse_over(ev):
     p = this
     if p.dataset.calibreRefNum:

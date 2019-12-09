@@ -29,7 +29,9 @@ from read_book.paged_mode import (
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
-from read_book.referencing import end_reference_mode, start_reference_mode
+from read_book.referencing import (
+    elem_for_ref, end_reference_mode, start_reference_mode
+)
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
@@ -92,6 +94,7 @@ class IframeBoss:
             'initialize':self.initialize,
             'display': self.display,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'scroll_to_ref': self.on_scroll_to_ref,
             'scroll_to_frac': self.on_scroll_to_frac,
             'next_screen': self.on_next_screen,
             'change_font_size': self.change_font_size,
@@ -275,6 +278,8 @@ class IframeBoss:
                 self.to_scroll_fraction(ipos.frac)
             elif ipos.type is 'anchor':
                 self.scroll_to_anchor(ipos.anchor)
+            elif ipos.type is 'ref':
+                self.scroll_to_ref(ipos.refnum)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
             elif ipos.type is 'search':
@@ -465,6 +470,17 @@ class IframeBoss:
                 scroll_to_elem(elem)
         else:
             scroll_viewport.scroll_to(0, 0)
+
+    def scroll_to_ref(self, refnum):
+        refnum = int(refnum)
+        elem = elem_for_ref(refnum)
+        if elem:
+            scroll_to_elem(elem)
+
+    def on_scroll_to_ref(self, data):
+        refnum = data.refnum
+        if refnum?:
+            self.scroll_to_ref(refnum)
 
     def find(self, data, from_load):
         if data.searched_in_spine:

@@ -416,6 +416,8 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'toc', 'data': initial_toc_node}
             elif open_at.startswith('epubcfi(/'):
                 initial_position = {'type': 'cfi', 'data': open_at}
+            elif open_at.startswith('ref:'):
+                initial_position = {'type': 'ref', 'data': open_at[len('ref:'):]}
             elif is_float(open_at):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         self.web_view.start_book_load(initial_position=initial_position)

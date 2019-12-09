@@ -168,7 +168,8 @@ View an e-book.
         'at the location of the first Table of Contents entry that contains '
         'the string "something". The form toc-href:something will match the '
         'href (internal link destination) of toc nodes. The matching is exact, '
-        'If you want to match a substring, use the form toc-href-contains:something. '))
+        'If you want to match a substring, use the form toc-href-contains:something. '
+        'The form ref:something will use Reference mode references.'))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading at the previously opened book'))
 
@@ -192,7 +193,7 @@ def main(args=sys.argv):
     oat = opts.open_at
     if oat and not (
             oat.startswith('toc:') or oat.startswith('toc-href:') or oat.startswith('toc-href-contains:') or
-            oat.startswith('epubcfi(/') or is_float(oat)):
+            oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:')):
         raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
     listener = None
