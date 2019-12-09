@@ -83,6 +83,20 @@ book, such as an endnote, you can use the :guilabel:`Back` and
 :guilabel:`Forward` buttons in the top left corner of the viewer controls.
 These buttons behave just like those in a web browser.
 
+Reference mode
+^^^^^^^^^^^^^^^^^
+
+calibre also has a very handy :guilabel:`Reference mode`.  You can turn it on
+by clicking the :guilabel:`Reference mode` button in the viewer controls.  Once
+you do this, every mouse over a paragraph, calibre will display a unique number
+made up of the section and paragraph numbers.
+
+You can use this number to unambiguously refer to parts of the books when
+discussing it with friends or referring to it in other works. You can enter
+these numbers in the :guilabel:`Go to function` to navigate to a particular
+reference location.
+
+
 Customizing the look and feel of your reading experience
 ------------------------------------------------------------
 
