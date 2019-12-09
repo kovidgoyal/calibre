@@ -646,7 +646,7 @@ class Overlay:
     def show_ask_for_location(self):
         self.hide_current_panel()
         self.panels.push(SimpleOverlay(
-            self, create_location_overlay.bind(None, self.view.current_position_data), _('Go to location or position…')))
+            self, create_location_overlay.bind(None, self.view.current_position_data), _('Go to location, position or reference…')))
         self.show_current_panel()
 
     def show_search(self):
