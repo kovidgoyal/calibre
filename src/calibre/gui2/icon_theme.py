@@ -855,8 +855,7 @@ def install_icon_theme(theme, f):
             theme['files'].add(name)
 
     theme['files'] = tuple(theme['files'])
-    buf = BytesIO()
-    json.dump(theme, buf, indent=2)
+    buf = BytesIO(as_bytes(json.dumps(theme, indent=2)))
     buf.seek(0)
     safe_copy(buf, metadata_file)
 
