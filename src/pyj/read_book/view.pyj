@@ -616,7 +616,7 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book, initial_cfi, initial_toc_node, initial_bookpos):
+    def display_book(self, book, initial_position):
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
@@ -636,8 +636,8 @@ class View:
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
         cfi = None
-        if initial_cfi and initial_cfi.startswith('epubcfi(/'):
-            cfi = initial_cfi
+        if initial_position and initial_position.type is 'cfi' and initial_position.data.startswith('epubcfi(/'):
+            cfi = initial_position.data
         else:
             q = parse_url_params()
             if q.bookpos and q.bookpos.startswith('epubcfi(/'):
@@ -649,11 +649,12 @@ class View:
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
         navigated = False
-        if jstype(initial_toc_node) is 'number':
-            navigated = self.goto_toc_node(initial_toc_node)
-        if not navigated and jstype(initial_bookpos) is 'number':
-            navigated = True
-            self.goto_book_position(initial_bookpos)
+        if initial_position:
+            if initial_position.type is 'toc':
+                navigated = self.goto_toc_node(initial_position.data)
+            elif initial_position.type is 'bookpos':
+                navigated = True
+                self.goto_book_position(initial_position.data)
         if navigated:
             self.hide_loading()
         else:

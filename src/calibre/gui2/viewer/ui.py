@@ -403,19 +403,22 @@ class EbookViewer(MainWindow):
         self.load_book_data()
         self.update_window_title()
         initial_cfi = self.initial_cfi_for_current_book()
-        initial_toc_node = initial_bookpos = None
+        initial_position = {'type': 'cfi', 'data': initial_cfi} if initial_cfi else None
         if open_at:
             if open_at.startswith('toc:'):
                 initial_toc_node = self.toc_model.node_id_for_text(open_at[len('toc:'):])
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
             elif open_at.startswith('toc-href:'):
                 initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href:'):], exact=True)
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
             elif open_at.startswith('toc-href-contains:'):
                 initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href-contains:'):], exact=False)
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
             elif open_at.startswith('epubcfi(/'):
-                initial_cfi = open_at
+                initial_position = {'type': 'cfi', 'data': open_at}
             elif is_float(open_at):
-                initial_bookpos = float(open_at)
-        self.web_view.start_book_load(initial_cfi=initial_cfi, initial_toc_node=initial_toc_node, initial_bookpos=initial_bookpos)
+                initial_position = {'type': 'bookpos', 'data': float(open_at)}
+        self.web_view.start_book_load(initial_position=initial_position)
 
     def load_book_data(self):
         self.load_book_annotations()

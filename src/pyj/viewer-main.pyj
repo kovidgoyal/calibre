@@ -138,7 +138,7 @@ def show_error(title, msg, details):
     to_python.show_error(title, msg, details)
 
 
-def manifest_received(key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook, end_type, xhr, ev):
+def manifest_received(key, initial_position, pathtoebook, end_type, xhr, ev):
     nonlocal book
     end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'load':
@@ -151,7 +151,7 @@ def manifest_received(key, initial_cfi, initial_toc_node, initial_bookpos, patht
         book.is_complete = True
         v'delete book.manifest["metadata"]'
         v'delete book.manifest["last_read_positions"]'
-        view.display_book(book, initial_cfi, initial_toc_node, initial_bookpos)
+        view.display_book(book, initial_position)
     else:
         show_error(_('Could not open book'), _(
             'Failed to load book manifest, click "Show details" for more info'),
@@ -241,8 +241,8 @@ def show_home_page():
 
 
 @from_python
-def start_book_load(key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_cfi, initial_toc_node, initial_bookpos, pathtoebook), ok_code=0)
+def start_book_load(key, initial_position, pathtoebook):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 
