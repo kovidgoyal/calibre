@@ -14,7 +14,7 @@
    x="0px"
    y="0px"
    id="svg18"
-   sodipodi:docname="library.svg"
+   sodipodi:docname="generic-library.svg"
    inkscape:version="0.92.4 5da689c313, 2019-01-14">
   <metadata
      id="metadata24">
@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -34,11 +34,11 @@
        inkscape:collect="always"
        id="linearGradient848">
       <stop
-         style="stop-color:#191579;stop-opacity:1"
+         style="stop-color:#0b59bd;stop-opacity:1"
          offset="0"
          id="stop844" />
       <stop
-         style="stop-color:#5989e3;stop-opacity:1"
+         style="stop-color:#b2cffa;stop-opacity:1"
          offset="1"
          id="stop846" />
     </linearGradient>
@@ -65,8 +65,8 @@
      inkscape:window-height="1400"
      id="namedview20"
      showgrid="false"
-     inkscape:zoom="13.882353"
-     inkscape:cx="-9.7245763"
+     inkscape:zoom="55.529412"
+     inkscape:cx="6.6271186"
      inkscape:cy="8.5"
      inkscape:window-x="0"
      inkscape:window-y="40"
