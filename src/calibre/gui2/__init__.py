@@ -1093,6 +1093,8 @@ class Application(QApplication):
             'MessageBoxQuestion': 'dialog_question.png',
             'BrowserReload': 'view-refresh.png',
             'LineEditClearButton': 'clear_left.png',
+            'ToolBarHorizontalExtensionButton': 'v-ellipsis.png',
+            'ToolBarVerticalExtensionButton': 'h-ellipsis.png',
         }):
             if v not in pcache:
                 p = I(v)
