@@ -1185,7 +1185,8 @@ class Editor(QWidget):  # {{{
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     w = Editor()
     w.resize(800, 600)
     w.show()

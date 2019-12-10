@@ -14,7 +14,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.92.1 r"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="format-text-hr.svg">
   <defs
      id="defs4" />
@@ -26,16 +26,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.839192"
-     inkscape:cx="50.735407"
+     inkscape:cx="34.76237"
      inkscape:cy="62.616635"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -89,7 +89,7 @@
     <path
        d="m 127,990.98716 v -5.25 q 0,-1.1484 -0.73828,-1.8867 -0.73828,-0.7383 -1.88672,-0.7383 H 3.6250002 q -1.14844,0 -1.88672,0.7383 -0.7382799,0.7383 -0.7382799,1.8867 v 5.25 q 0,1.1484 0.7382799,1.8867 0.73828,0.7383 1.88672,0.7383 H 124.375 q 1.14844,0 1.88672,-0.7383 Q 127,992.13556 127,990.98716 Z"
        id="path4"
-       style="fill:#0d5cc6;fill-opacity:1"
+       style="fill:#2caf45;fill-opacity:1"
        inkscape:connector-curvature="0" />
   </g>
 </svg>

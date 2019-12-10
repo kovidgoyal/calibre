@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="edit-select-all.svg">
   <defs
      id="defs4">
@@ -23,11 +23,11 @@
        inkscape:collect="always"
        id="linearGradient4142">
       <stop
-         style="stop-color:#545ada;stop-opacity:1;"
+         style="stop-color:#b2cffa;stop-opacity:1"
          offset="0"
          id="stop4144" />
       <stop
-         style="stop-color:#23289f;stop-opacity:1"
+         style="stop-color:#0b59bd;stop-opacity:1"
          offset="1"
          id="stop4146" />
     </linearGradient>
@@ -48,17 +48,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="19.843024"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -115,7 +115,7 @@
        id="path4"
        style="fill:url(#linearGradient4148);fill-opacity:1" />
     <path
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#30a82d;stroke-width:3.94074321;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:3.94074312, 11.82222935;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#2caf45;stroke-width:3.94074321;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:3.94074312, 11.82222935000000064;stroke-dashoffset:0;stroke-opacity:1"
        d="m 2.970371,927.33253 122.059259,0 0,122.05927 -122.059259,0 z"
        id="rect4139"
        inkscape:connector-curvature="0" />

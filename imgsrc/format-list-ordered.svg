@@ -15,19 +15,19 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="chapters.svg">
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   sodipodi:docname="format-list-ordered.svg">
   <defs
      id="defs4">
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4165">
       <stop
-         style="stop-color:#116def;stop-opacity:1"
+         style="stop-color:#b2cffa;stop-opacity:1"
          offset="0"
          id="stop4167" />
       <stop
-         style="stop-color:#020e1e;stop-opacity:1"
+         style="stop-color:#0b59bd;stop-opacity:1"
          offset="1"
          id="stop4169" />
     </linearGradient>
@@ -48,17 +48,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="19.843024"
+     inkscape:zoom="5.656854"
+     inkscape:cx="-24.881482"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -111,19 +111,19 @@
      transform="translate(0,-924.36216)">
     <g
        id="g4155"
-       style="fill:#116def;fill-opacity:1">
+       style="fill:#2caf45;fill-opacity:1">
       <path
          id="path4149"
          d="m 28.258393,1037.5797 q 0,5.4724 -3.728101,8.619 -3.728102,3.1466 -9.26888,3.1466 -7.2509858,0 -11.7656771,-4.5147 l 3.899039,-6.0196 q 3.3518541,3.0782 7.2509851,3.0782 1.983707,0 3.454417,-0.9919 1.47071,-0.9919 1.47071,-2.9072 0,-4.3779 -7.182518,-3.8307 l -1.77849,-3.8307 q 0.547185,-0.6841 2.223112,-2.9756 1.675927,-2.2916 2.907232,-3.6939 1.231304,-1.4023 2.530984,-2.6336 l 0,-0.068 q -1.094462,0 -3.317667,0.068 -2.223112,0.068 -3.317666,0.068 l 0,3.6254 -7.2508934,0 0,-10.3976 22.7788594,0 0,6.0197 -6.498491,7.8665 q 3.488696,0.8209 5.540871,3.3519 2.052174,2.531 2.052174,6.0197 z"
-         style="fill:#116def;fill-opacity:1" />
+         style="fill:#2caf45;fill-opacity:1" />
       <path
          id="path4147"
          d="m 28.395143,994.68968 0,10.87642 -24.7626581,0 q -0.4104349,-2.4626 -0.4104349,-3.6939 0,-3.48869 1.607552,-6.36165 1.6075521,-2.87304 3.8648515,-4.65153 2.2573915,-1.77858 4.5147835,-3.24929 2.257392,-1.47071 3.864852,-2.97561 1.607552,-1.50489 1.607552,-3.07826 0,-1.71011 -0.9919,-2.63355 -0.991807,-0.92352 -2.702014,-0.92352 -3.146637,0 -5.5407787,3.96751 l -5.8144634,-4.03589 q 1.6417395,-3.48869 4.8910311,-5.43821 3.249199,-1.94952 7.216706,-1.94952 4.993593,0 8.413822,2.83876 3.420229,2.83886 3.420229,7.69561 0,3.42023 -2.325766,6.25909 -2.325767,2.83876 -5.130344,4.41213 -2.804669,1.57327 -5.164624,3.45441 -2.359954,1.88115 -2.428329,3.59126 l 8.687415,0 0,-4.10426 7.182518,0 z"
-         style="fill:#116def;fill-opacity:1" />
+         style="fill:#2caf45;fill-opacity:1" />
       <path
          id="path4143"
          d="m 28.463611,955.01471 0,6.77209 -22.9157941,0 0,-6.77209 7.3193601,0 q 0,-2.80457 0.03419,-8.34545 0.03419,-5.54077 0.03419,-8.27698 l 0,-0.82087 -0.136842,0 q -0.547277,1.16284 -3.4202291,3.69392 l -4.8567512,-5.19881 9.3030673,-8.68751 7.250893,0 0,27.6357 7.387828,0 z"
-         style="fill:#116def;fill-opacity:1" />
+         style="fill:#2caf45;fill-opacity:1" />
     </g>
     <g
        id="g4160"
