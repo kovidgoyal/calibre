@@ -40,7 +40,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
         qDrawShadeRect(p, img.rect(), palette, fill=fill, lineWidth=1, midLineWidth=1)
     f = p.font()
     f.setFamily('Liberation Sans'), f.setPixelSize(int(sz // divider)), f.setBold(True)
-    p.setFont(f), p.setPen(Qt.black)
+    p.setFont(f), p.setPen(QColor('#2271d5'))
     p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignCenter, text)
     p.end()
     return QIcon(QPixmap.fromImage(img))
