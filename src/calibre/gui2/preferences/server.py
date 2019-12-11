@@ -126,7 +126,7 @@ class Int(QSpinBox):
 
     def __init__(self, name, layout):
         QSpinBox.__init__(self)
-        self.setRange(0, 10000)
+        self.setRange(0, 20000)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
@@ -144,7 +144,7 @@ class Float(QDoubleSpinBox):
 
     def __init__(self, name, layout):
         QDoubleSpinBox.__init__(self)
-        self.setRange(0, 10000)
+        self.setRange(0, 20000)
         self.setDecimals(1)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
