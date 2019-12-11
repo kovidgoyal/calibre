@@ -205,6 +205,15 @@ class CalibreStyle: public QProxyStyle {
         void drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = 0) const {
             const QStyleOptionViewItem *vopt = NULL;
             switch (element) {
+				case PE_FrameTabBarBase:
+					// dont draw line below tabs in dark mode as it looks bad
+					if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
+						if (tbb->shape == QTabBar::RoundedNorth) {
+							QColor bg = option->palette.color(QPalette::Window);
+							if (bg.valueF() < 0.45) return;
+						}
+					}
+					break;
                 case PE_PanelItemViewItem:
                     // Highlight the current, selected item with a different background in an item view if the highlight current item property is set
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
