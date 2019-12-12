@@ -28,19 +28,35 @@ winutil = winutilerror = None
 
 if not _run_once:
     _run_once = True
+    from importlib.machinery import ModuleSpec
+    from importlib.util import find_spec
     from importlib import import_module
 
-    class DeVendor(object):
+    class DeVendorLoader:
 
-        def find_spec(self, fullname, path, target=None):
-            spec = None
+        def __init__(self, aliased_name):
+            self.aliased_module = import_module(aliased_name)
+            try:
+                self.path = self.aliased_module.__loader__.path
+            except Exception:
+                self.path = aliased_name
+
+        def create_module(self, spec):
+            return self.aliased_module
+
+        def exec_module(self, module):
+            return module
+
+        def __repr__(self):
+            return repr(self.path)
+
+    class DeVendor:
+
+        def find_spec(self, fullname, path=None, target=None):
             if fullname == 'calibre.web.feeds.feedparser':
-                m = import_module('feedparser')
-                spec = m.__spec__
-            elif fullname.startswith('calibre.ebooks.markdown'):
-                m = import_module(fullname[len('calibre.ebooks.'):])
-                spec = m.__spec__
-            return spec
+                return find_spec('feedparser')
+            if fullname.startswith('calibre.ebooks.markdown'):
+                return ModuleSpec(fullname, DeVendorLoader(fullname[len('calibre.ebooks.'):]))
 
     sys.meta_path.insert(0, DeVendor())
 
