@@ -400,12 +400,6 @@ class ZipInfo (object):
         else:
             return self.filename, self.flag_bits
 
-    def _decodeFilename(self):
-        if self.flag_bits & 0x800:
-            return self.filename.decode('utf-8')
-        else:
-            return decode_arcname(self.filename)
-
     def _decodeExtra(self):
         # Try to decode the extra field.
         extra = self.extra
@@ -847,6 +841,13 @@ class ZipFile:
             if self.debug > 2:
                 print(centdir)
             filename = fp.read(centdir[_CD_FILENAME_LENGTH])
+            flags = centdir[5]
+            if flags & 0x800:
+                # UTF-8 file names extension
+                filename = filename.decode('utf-8')
+            else:
+                # Historical ZIP filename encoding
+                filename = filename.decode('cp437')
             # Create ZipInfo instance to store file information
             x = ZipInfo(filename)
             x.extra = fp.read(centdir[_CD_EXTRA_FIELD_LENGTH])
@@ -863,7 +864,6 @@ class ZipFile:
 
             x._decodeExtra()
             x.header_offset = x.header_offset + concat
-            x.filename = x._decodeFilename()
             self.filelist.append(x)
             self.NameToInfo[x.filename] = x
 
