@@ -10,7 +10,7 @@ import os, shutil, subprocess, tempfile, json, time, filecmp, sys
 
 from setup import Command, __version__, require_clean_git, require_git_master
 from setup.upload import installers
-from setup.parallel_build import parallel_build
+from setup.parallel_build import parallel_build, create_job
 
 
 class Stage1(Command):
@@ -167,12 +167,12 @@ class Manual(Command):
         languages = ['en'] + list(set(languages) - {'en'})
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         for language in languages:
-            jobs.append(([
+            jobs.append(create_job([
                 sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'),
                 language, self.j(tdir, language)
             ], '\n\n**************** Building translations for: %s' % language))
         self.info('Building manual for %d languages' % len(jobs))
-        subprocess.check_call(jobs[0][0])
+        subprocess.check_call(jobs[0].cmd)
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
         cwd = os.getcwd()
@@ -258,12 +258,12 @@ class ManPages(Command):
             pass
         jobs = []
         for l in languages:
-            jobs.append((
+            jobs.append(create_job(
                 [sys.executable, self.j(base, 'build.py'), '--man-pages', l, dest],
                 '\n\n**************** Building translations for: %s' % l)
             )
         self.info('\tCreating man pages in {} for {} languages...'.format(dest, len(jobs)))
-        subprocess.check_call(jobs[0][0])
+        subprocess.check_call(jobs[0].cmd)
         if not parallel_build(jobs[1:], self.info, verbose=False):
             raise SystemExit(1)
         cwd = os.getcwd()
@@ -285,7 +285,7 @@ class ManPages(Command):
                 for dirpath, dirnames, filenames in os.walk('.'):
                     for f in filenames:
                         if f.endswith('.1'):
-                            jobs.append((['gzip', '--best', self.j(dirpath, f)], ''))
+                            jobs.append(create_job(['gzip', '--best', self.j(dirpath, f)], ''))
                 if not parallel_build(jobs, self.info, verbose=False):
                     raise SystemExit(1)
         finally:
