@@ -11,7 +11,7 @@ from functools import partial
 
 j, d, a = os.path.join, os.path.dirname, os.path.abspath
 BASE = d(a(__file__))
-SPHINX_BUILD = 'sphinx-build2'
+SPHINX_BUILD = 'sphinx-build'
 
 sys.path.insert(0, d(BASE))
 from setup import __appname__, __version__
@@ -73,7 +73,7 @@ def build_manual(language, base):
 
 def build_pot(base):
     cmd = [SPHINX_BUILD, '-b', 'gettext', '-t', 'online', '-t', 'gettext', '.', base]
-    print (' '.join(cmd))
+    print(' '.join(cmd))
     subprocess.check_call(cmd)
     os.remove(j(base, 'generated.pot'))
     return base
@@ -81,7 +81,7 @@ def build_pot(base):
 
 def build_linkcheck(base):
     cmd = [SPHINX_BUILD, '-b', 'linkcheck', '-t', 'online', '-t', 'linkcheck', '.', base]
-    print (' '.join(cmd))
+    print(' '.join(cmd))
     subprocess.check_call(cmd)
     return base
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             import json
             os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(open('locale/completed.json', 'rb')))
         sphinx_build(language, base, t='online', quiet=False)
-        print ('Manual built in', j(base, 'html'))
+        print('Manual built in', j(base, 'html'))
     else:
         p = argparse.ArgumentParser()
         p.add_argument('language', help='The language to build for')
@@ -122,4 +122,4 @@ if __name__ == '__main__':
         else:
             os.environ['CALIBRE_OVERRIDE_LANG'] = language
             build_manual(language, base)
-            print ('Manual for', language, 'built in', j(base, 'html'))
+            print('Manual for', language, 'built in', j(base, 'html'))
