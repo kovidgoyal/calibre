@@ -55,6 +55,11 @@ class TestImports(unittest.TestCase):
         base = os.path.join(SRC, 'calibre')
         self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)
 
+        import calibre.web.feeds.feedparser as f
+        del f
+        from calibre.ebooks.markdown import Markdown
+        del Markdown
+
 
 def find_tests(which_tests=None, exclude_tests=None):
     ans = []
