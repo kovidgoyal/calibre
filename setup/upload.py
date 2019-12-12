@@ -107,7 +107,7 @@ class ReUpload(Command):  # {{{
 
 # Data {{{
 def get_github_data():
-    with open(os.environ['PENV'] + '/github', 'rb') as f:
+    with open(os.environ['PENV'] + '/github-token', 'rb') as f:
         un, pw = f.read().strip().split(':')
     return {'username': un, 'password': pw}
 
