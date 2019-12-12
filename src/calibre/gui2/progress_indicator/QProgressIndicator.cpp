@@ -214,6 +214,23 @@ class CalibreStyle: public QProxyStyle {
 						}
 					}
 					break;
+				case PE_IndicatorCheckBox:
+					// Fix color used to draw checkbox outline in dark mode
+					if (option->palette.color(QPalette::Window).valueF() < 0.45) {
+						baseStyle()->drawPrimitive(element, option, painter, widget);
+						painter->save();
+						painter->translate(0.5, 0.5);
+						QRect rect = option->rect;
+						rect = rect.adjusted(0, 0, -1, -1);
+
+						painter->setPen(QPen(option->palette.color(QPalette::WindowText)));
+						if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange)
+							painter->setPen(QPen(Qt::white));
+						painter->drawRect(rect);
+						painter->restore();
+						return;
+					}
+					break;
                 case PE_PanelItemViewItem:
                     // Highlight the current, selected item with a different background in an item view if the highlight current item property is set
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
