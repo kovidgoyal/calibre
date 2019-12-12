@@ -30,7 +30,7 @@ from calibre.ebooks.oeb.polish.replace import (
 )
 from calibre.gui2 import (
     choose_dir, choose_files, choose_save_file, elided_text, error_dialog,
-    question_dialog
+    make_view_use_window_background, question_dialog
 )
 from calibre.gui2.tweak_book import (
     CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
@@ -205,6 +205,7 @@ class FileList(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        make_view_use_window_background(self)
         self.categories = {}
         self.ordered_selected_indexes = False
         pi = plugins['progress_indicator'][0]

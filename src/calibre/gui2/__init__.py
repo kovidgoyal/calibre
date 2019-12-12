@@ -1466,3 +1466,11 @@ def windows_is_system_dark_mode_enabled():
     if s.status() == QSettings.NoError:
         return s.value("AppsUseLightTheme") == 0
     return False
+
+
+def make_view_use_window_background(view):
+    p = view.palette()
+    p.setColor(p.Base, p.color(p.Window))
+    p.setColor(p.AlternateBase, p.color(p.Window))
+    view.setPalette(p)
+    return view
