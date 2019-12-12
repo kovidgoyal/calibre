@@ -384,13 +384,12 @@ def create_themeball(report, progress=None, abort=None):
             with lopen(srcpath, 'rb') as f:
                 zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
-    out = BytesIO()
     if abort is not None and abort.is_set():
         return None, None
     if progress is not None:
         progress(next(num), _('Compressing theme file'))
     import lzma
-    lzma.compress(buf.getvalue(), format=lzma.FORMAT_XZ, preset=9)
+    compressed = lzma.compress(buf.getvalue(), format=lzma.FORMAT_XZ, preset=9)
     buf = BytesIO()
     prefix = report.name
     if abort is not None and abort.is_set():
@@ -399,7 +398,7 @@ def create_themeball(report, progress=None, abort=None):
         with lopen(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
         zf.writestr(prefix + '/' + THEME_COVER, create_cover(report))
-        zf.writestr(prefix + '/' + 'icons.zip.xz', out.getvalue(), compression=ZIP_STORED)
+        zf.writestr(prefix + '/' + 'icons.zip.xz', compressed, compression=ZIP_STORED)
     if progress is not None:
         progress(next(num), _('Finished'))
     return buf.getvalue(), prefix
