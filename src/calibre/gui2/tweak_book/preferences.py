@@ -729,6 +729,7 @@ class Preferences(QDialog):
             (_('Integration with calibre'), 'lt.png', 'integration'),
         ]:
             i = QListWidgetItem(QIcon(I(icon)), name, cl)
+            i.setToolTip(name)
             cl.addItem(i)
             self.stacks.addWidget(getattr(self, panel + '_panel'))
 
@@ -741,6 +742,7 @@ class Preferences(QDialog):
 
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
         cl.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        cl.setMinimumWidth(min(cl.maximumWidth(), cl.sizeHint().width()))
 
     @property
     def dictionaries_changed(self):
