@@ -10,8 +10,8 @@ from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
-from calibre import prints, force_unicode, as_unicode
-from polyglot.io import PolyglotBytesIO
+from calibre import prints, as_unicode
+from polyglot.io import PolyglotStringIO
 
 
 def option_parser(usage='''\
@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
             return
         import traceback
         try:
-            sio = PolyglotBytesIO(errors='replace')
+            sio = PolyglotStringIO(errors='replace')
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)
@@ -144,11 +144,10 @@ class MainWindow(QMainWindow):
             if getattr(value, 'locking_debug_msg', None):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
-            prints(fe, file=sys.stderr)
-            fe = force_unicode(fe)
             msg = '<b>%s</b>:'%exc_type.__name__ + as_unicode(value)
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
+            prints(fe, file=sys.stderr)
         except BaseException:
             pass
         except:
