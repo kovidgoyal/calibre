@@ -11,7 +11,7 @@ from functools import partial
 
 j, d, a = os.path.join, os.path.dirname, os.path.abspath
 BASE = d(a(__file__))
-SPHINX_BUILD = 'sphinx-build2'
+SPHINX_BUILD = 'sphinx-build'
 
 sys.path.insert(0, d(BASE))
 from setup import __appname__, __version__
