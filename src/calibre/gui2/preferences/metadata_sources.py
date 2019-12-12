@@ -328,6 +328,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tag_map_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
         self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
+        l = self.page.layout()
+        l.setStretch(0, 1)
+        l.setStretch(1, 1)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():
