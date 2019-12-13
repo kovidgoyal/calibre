@@ -74,11 +74,11 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     from calibre.devices.scanner import DeviceScanner
     from calibre.constants import iswindows, isosx
     from calibre import prints
-    from polyglot.io import PolyglotBytesIO
+    from polyglot.io import PolyglotStringIO
     oldo, olde = sys.stdout, sys.stderr
 
     if buf is None:
-        buf = PolyglotBytesIO()
+        buf = PolyglotStringIO()
     sys.stdout = sys.stderr = buf
     out = partial(prints, file=buf)
 
@@ -187,7 +187,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     out(ioreg)
 
         if hasattr(buf, 'getvalue'):
-            return buf.getvalue().decode('utf-8', 'replace')
+            return buf.getvalue()
     finally:
         sys.stdout = oldo
         sys.stderr = olde

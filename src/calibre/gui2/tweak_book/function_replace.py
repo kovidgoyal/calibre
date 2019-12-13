@@ -22,7 +22,7 @@ from calibre.utils.icu import capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import iteritems, unicode_type
-from polyglot.io import PolyglotBytesIO
+from polyglot.io import PolyglotStringIO
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
@@ -67,7 +67,7 @@ class Function(object):
         self.match_index = 0
         self.boss = get_boss()
         self.data = {}
-        self.debug_buf = PolyglotBytesIO()
+        self.debug_buf = PolyglotStringIO()
         self.functions = {name:func.mod for name, func in iteritems(functions()) if func.mod is not None}
 
     def __hash__(self):
