@@ -21,7 +21,7 @@ from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
 from polyglot.builtins import unicode_type
 from polyglot.binary import as_hex_unicode, from_hex_unicode
-from polyglot.io import PolyglotBytesIO
+from polyglot.io import PolyglotStringIO
 
 
 class TestEmail(QDialog):
@@ -194,7 +194,7 @@ class SendEmail(QWidget, Ui_Form):
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
         from calibre.utils.smtp import sendmail, create_mail
-        buf = PolyglotBytesIO()
+        buf = PolyglotStringIO()
         debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf
@@ -210,7 +210,7 @@ class SendEmail(QWidget, Ui_Form):
         except:
             import traceback
             tb = traceback.format_exc()
-            tb += '\n\nLog:\n' + buf.getvalue().decode('utf-8', 'replace')
+            tb += '\n\nLog:\n' + buf.getvalue()
         finally:
             sys.stdout, sys.stderr = oout, oerr
         return tb
