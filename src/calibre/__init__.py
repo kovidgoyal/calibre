@@ -22,6 +22,7 @@ from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
 from calibre.utils.icu import safe_chr
+from calibre.prints import prints
 
 if False:
     # Prevent pyflakes from complaining
@@ -138,7 +139,6 @@ def sanitize_file_name(name, substitute='_'):
 
 
 sanitize_file_name2 = sanitize_file_name_unicode = sanitize_file_name
-prints = print
 
 
 class CommandLineError(Exception):
