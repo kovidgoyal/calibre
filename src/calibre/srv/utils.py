@@ -12,7 +12,6 @@ from operator import itemgetter
 
 from calibre import prints
 from calibre.constants import iswindows
-from calibre.utils.terminal import polyglot_write
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
@@ -322,36 +321,22 @@ class RotatingStream(object):
 
     def set_output(self):
         if iswindows:
-            self.stream = share_open(self.filename, 'ab')
+            self.stream = share_open(self.filename, 'a')
         else:
             # see https://bugs.python.org/issue27805
-            self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'wb')
+            self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'w')
         try:
-            self.current_pos = self.stream.tell()
+            self.stream.tell()
         except EnvironmentError:
             # Happens if filename is /dev/stdout for example
-            self.current_pos = 0
             self.max_size = None
 
     def flush(self):
         self.stream.flush()
 
-    def write(self, x):
-        return polyglot_write(self.stream, True, 'utf-8', x)
-
     def prints(self, level, *args, **kwargs):
-        kwargs['file'] = self
+        kwargs['file'] = self.stream
         prints(*args, **kwargs)
-        try:
-            self.current_pos = self.stream.tell()
-        except EnvironmentError:
-            self.current_pos = 0
-        # line bufferring only works with text mode streams
-        end = kwargs.get('end', b'\n')
-        if isinstance(end, unicode_type):
-            end = end.encode('utf-8')
-        if b'\n' in end:
-            self.flush()
         self.rollover()
 
     def rename(self, src, dest):
@@ -369,7 +354,7 @@ class RotatingStream(object):
                 raise
 
     def rollover(self):
-        if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
+        if not self.max_size or self.stream.tell() <= self.max_size:
             return
         self.stream.close()
         for i in range(self.history - 1, 0, -1):
