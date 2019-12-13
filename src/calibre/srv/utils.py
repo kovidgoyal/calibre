@@ -321,7 +321,7 @@ class RotatingStream(object):
 
     def set_output(self):
         if iswindows:
-            self.stream = share_open(self.filename, 'a')
+            self.stream = share_open(self.filename, 'a', newline='')
         else:
             # see https://bugs.python.org/issue27805
             self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'w')
