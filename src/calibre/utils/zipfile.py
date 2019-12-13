@@ -24,6 +24,11 @@ __all__ = ["BadZipfile", "error", "ZIP_STORED", "ZIP_DEFLATED", "is_zipfile",
            "ZipInfo", "ZipFile", "PyZipFile", "LargeZipFile"]
 
 
+def decode_zip_internal_file_name(fname, flags):
+    codec = 'utf-8' if flags & 0x800 else 'cp437'
+    return fname.decode(codec, 'replace')
+
+
 class BadZipfile(Exception):
     pass
 
@@ -842,12 +847,7 @@ class ZipFile:
                 print(centdir)
             filename = fp.read(centdir[_CD_FILENAME_LENGTH])
             flags = centdir[5]
-            if flags & 0x800:
-                # UTF-8 file names extension
-                filename = filename.decode('utf-8')
-            else:
-                # Historical ZIP filename encoding
-                filename = filename.decode('cp437')
+            filename = decode_zip_internal_file_name(filename, flags)
             # Create ZipInfo instance to store file information
             x = ZipInfo(filename)
             x.extra = fp.read(centdir[_CD_EXTRA_FIELD_LENGTH])
@@ -890,6 +890,7 @@ class ZipFile:
                            fheader[_FH_FILENAME_LENGTH] +
                            fheader[_FH_EXTRA_FIELD_LENGTH])
             fname = self.fp.read(fheader[_FH_FILENAME_LENGTH])
+            fname = decode_zip_internal_file_name(fname, zip_info.flag_bits)
             if fname != zip_info.orig_filename:
                 raise RuntimeError(
                       'File name in directory "%s" and header "%s" differ.' % (
@@ -1035,6 +1036,7 @@ class ZipFile:
 
         fheader = struct.unpack(structFileHeader, fheader)
         fname = zef_file.read(fheader[_FH_FILENAME_LENGTH])
+        fname = decode_zip_internal_file_name(fname, zinfo.flag_bits)
         if fheader[_FH_EXTRA_FIELD_LENGTH]:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
