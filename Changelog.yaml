@@ -24,7 +24,7 @@
   date: 2019-12-13
 
   new features:
-    - title: "Windows 10: Add support for the dark mode."
+    - title: "Windows 10: Add support for dark mode."
       type: major
       description: "If you turn on dark mode under the Windows Settings->Personalisation->Colors and restart calibre it will use dark colors. Can also be enabled by setting the CALIBRE_USE_DARK_PALETTE environment variable."
 
