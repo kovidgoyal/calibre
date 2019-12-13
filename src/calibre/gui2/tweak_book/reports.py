@@ -11,7 +11,7 @@ from operator import itemgetter
 from functools import partial
 from collections import defaultdict
 from csv import writer as csv_writer
-from io import BytesIO
+from io import StringIO
 
 import regex
 from PyQt5.Qt import (
@@ -35,7 +35,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.icu import primary_contains, numeric_sort_key
 from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
-from polyglot.builtins import filter, iteritems, map, range, unicode_type
+from polyglot.builtins import filter, iteritems, map, range, unicode_type, as_bytes
 
 # Utils {{{
 
@@ -194,7 +194,7 @@ class FilesView(QTableView):
             m.exec_(pos)
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
         cols = self.proxy.columnCount()
@@ -1093,7 +1093,7 @@ class CSSWidget(QWidget):
         self.proxy.sort(0, self.sort_order)
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow([_('Style Rule'), _('Number of matches')])
         for r in range(self.proxy.rowCount()):
@@ -1239,7 +1239,7 @@ class ClassesWidget(CSSWidget):
         self.summary.setText(_('{0} classes, {1} unused').format(self.model.rowCount(), self.model.num_unused))
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow([_('Class'), _('Number of matches')])
         for r in range(self.proxy.rowCount()):
@@ -1361,7 +1361,7 @@ class ReportsWidget(QWidget):
             (_('CSV files'), ['csv'])], all_files=False, initial_filename='%s.csv' % category)
         if fname:
             with open(fname, 'wb') as f:
-                f.write(data)
+                f.write(as_bytes(data))
 
 
 class Reports(Dialog):
