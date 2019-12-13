@@ -15,9 +15,8 @@ import traceback
 from functools import partial
 from threading import Lock
 
-from calibre import as_unicode, force_unicode, isbytestring
-from calibre.utils.terminal import is_binary, polyglot_write
-from polyglot.builtins import iteritems, unicode_type
+from calibre.prints import prints
+from polyglot.builtins import as_unicode
 
 
 class Stream(object):
@@ -26,12 +25,11 @@ class Stream(object):
         if stream is None:
             stream = io.StringIO()
         self.stream = stream
-        self.is_binary = is_binary(self.stream)
         self.encoding = getattr(self.stream, 'encoding', None) or 'utf-8'
-        self._prints = partial(print, file=self)
+        self._prints = partial(prints, file=self.stream)
 
     def write(self, text):
-        return polyglot_write(self.stream, self.is_binary, self.encoding, text)
+        self._prints(text, end='')
 
     def flush(self):
         self.stream.flush()
@@ -72,30 +70,26 @@ class FileStream(Stream):
 class HTMLStream(Stream):
 
     color = {
-        DEBUG: b'<span style="color:green">',
-        INFO: b'<span>',
-        WARN: b'<span style="color:blue">',
-        ERROR: b'<span style="color:red">'
+        DEBUG: '<span style="color:green">',
+        INFO: '<span>',
+        WARN: '<span style="color:blue">',
+        ERROR: '<span style="color:red">'
     }
-    normal = b'</span>'
+    normal = '</span>'
 
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
 
     def prints(self, level, *args, **kwargs):
-        self.stream.write(self.color[level])
-        kwargs['file'] = self.stream
+        self._prints(self.color[level], end='')
         self._prints(*args, **kwargs)
-        self.stream.write(self.normal)
+        self._prints(self.normal, end='')
 
     def flush(self):
         self.stream.flush()
 
 
 class UnicodeHTMLStream(HTMLStream):
-
-    color = {k: v.decode('ascii') for k, v in iteritems(HTMLStream.color)}
-    normal = HTMLStream.normal.decode('ascii')
 
     def __init__(self):
         self.clear()
@@ -111,14 +105,11 @@ class UnicodeHTMLStream(HTMLStream):
             self.data.append(col)
             self.last_col = col
 
-        sep  = kwargs.get(u'sep', u' ')
-        end  = kwargs.get(u'end', u'\n')
+        sep  = kwargs.get('sep', ' ')
+        end  = kwargs.get('end', '\n')
 
         for arg in args:
-            if isbytestring(arg):
-                arg = force_unicode(arg)
-            elif not isinstance(arg, unicode_type):
-                arg = as_unicode(arg)
+            arg = as_unicode(arg)
             self.data.append(arg+sep)
             self.plain_text.append(arg+sep)
         self.data.append(end)
@@ -131,8 +122,8 @@ class UnicodeHTMLStream(HTMLStream):
 
     @property
     def html(self):
-        end = self.normal if self.data else u''
-        return u''.join(self.data) + end
+        end = self.normal if self.data else ''
+        return ''.join(self.data) + end
 
     def dump(self):
         return [self.data, self.plain_text, self.last_col]
