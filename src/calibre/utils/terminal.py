@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, re, io
+import os, sys, re
 
+from calibre.prints import is_binary
 from calibre.constants import iswindows
 from polyglot.builtins import iteritems, range, zip
 
@@ -99,13 +100,6 @@ def colored(text, fg=None, bg=None, bold=False):
         prefix = prefix.encode('ascii')
         suffix = suffix.encode('ascii')
     return prefix + text + suffix
-
-
-def is_binary(stream):
-    mode = getattr(stream, 'mode', None)
-    if mode:
-        return 'b' in mode
-    return not isinstance(stream, io.TextIOBase)
 
 
 class Detect(object):

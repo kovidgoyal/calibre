@@ -36,7 +36,6 @@ class LoopTest(BaseTest):
 
             def log_size():
                 ssize = l.outputs[0].stream.tell()
-                self.ae(ssize, l.outputs[0].current_pos)
                 self.ae(ssize, os.path.getsize(fname))
                 return ssize
 
