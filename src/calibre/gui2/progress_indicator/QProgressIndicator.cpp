@@ -190,7 +190,7 @@ class CalibreStyle: public QProxyStyle {
         void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, QPainter * painter, const QWidget * widget = 0) const {
             const QStyleOptionToolButton *toolbutton = NULL;
             switch (control) {
-                case CC_ToolButton:
+                case CC_ToolButton:  // {{{
                     // We do not want an arrow if the toolbutton has an instant popup
                     toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option);
                     if (toolbutton && (toolbutton->features & QStyleOptionToolButton::HasMenu) && !(toolbutton->features & QStyleOptionToolButton::PopupDelay)) {
@@ -198,7 +198,7 @@ class CalibreStyle: public QProxyStyle {
                         opt.features = toolbutton->features & ~QStyleOptionToolButton::HasMenu;
                         return QProxyStyle::drawComplexControl(control, &opt, painter, widget);
                     }
-                    break;
+                    break; /// }}}
                 default:
                     break;
             }
@@ -208,7 +208,7 @@ class CalibreStyle: public QProxyStyle {
         void drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = 0) const {
             const QStyleOptionViewItem *vopt = NULL;
             switch (element) {
-				case PE_FrameTabBarBase:
+				case PE_FrameTabBarBase: // {{{
 					// dont draw line below tabs in dark mode as it looks bad
 					if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
 						if (tbb->shape == QTabBar::RoundedNorth) {
@@ -216,8 +216,9 @@ class CalibreStyle: public QProxyStyle {
 							if (bg.valueF() < 0.45) return;
 						}
 					}
-					break;
-				case PE_IndicatorCheckBox:
+					break; // }}}
+
+				case PE_IndicatorCheckBox: // {{{
 					// Fix color used to draw checkbox outline in dark mode
 					if (option->palette.color(QPalette::Window).valueF() < 0.45) {
 						baseStyle()->drawPrimitive(element, option, painter, widget);
@@ -233,8 +234,9 @@ class CalibreStyle: public QProxyStyle {
 						painter->restore();
 						return;
 					}
-					break;
-                case PE_PanelItemViewItem:
+					break; // }}}
+
+                case PE_PanelItemViewItem:  // {{{
                     // Highlight the current, selected item with a different background in an item view if the highlight current item property is set
                     if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
                         QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
@@ -243,8 +245,9 @@ class CalibreStyle: public QProxyStyle {
                         opt.palette.setColor(QPalette::Highlight, color);
                         return QProxyStyle::drawPrimitive(element, &opt, painter, widget);
                     }
-                    break;
-				case PE_IndicatorToolBarSeparator:
+                    break; // }}}
+
+				case PE_IndicatorToolBarSeparator:  // {{{
 					// Make toolbar separators stand out a bit more in dark themes
 					{
 						QRect rect = option->rect;
@@ -284,7 +287,8 @@ class CalibreStyle: public QProxyStyle {
 									rect.topRight().y() + offset + 1);
 						}
 					}
-					return;
+					return; // }}}
+
                 default:
                     break;
             }
@@ -293,7 +297,7 @@ class CalibreStyle: public QProxyStyle {
 
 		void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
 			switch(element) {
-				case CE_MenuItem:
+				case CE_MenuItem:  // {{{
 					// Draw menu separators that work in both light and dark modes
 					if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
 						if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
@@ -316,7 +320,8 @@ class CalibreStyle: public QProxyStyle {
 							return;
 						}
 					}
-					break;
+					break; // }}}
+
 				default: break;
 			}
             QProxyStyle::drawControl(element, option, painter, widget);
