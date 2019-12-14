@@ -138,9 +138,10 @@ class CalibreStyle: public QProxyStyle {
         QHash<int, QString> icon_map;
         QByteArray desktop_environment;
         QDialogButtonBox::ButtonLayout button_layout;
+        int transient_scroller;
 
     public:
-        CalibreStyle(QStyle *base, QHash<int, QString> icmap) : QProxyStyle(base), icon_map(icmap) {
+        CalibreStyle(QStyle *base, QHash<int, QString> icmap, int transient_scroller) : QProxyStyle(base), icon_map(icmap), transient_scroller(transient_scroller) {
             setObjectName(QString("calibre"));
             desktop_environment = detectDesktopEnvironment();
             button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
@@ -163,6 +164,8 @@ class CalibreStyle: public QProxyStyle {
                     return button_layout;
                 case SH_FormLayoutFieldGrowthPolicy:
                     return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
+                case SH_ScrollBar_Transient:
+                    return transient_scroller;
 				default:
                     break;
             }
@@ -320,9 +323,9 @@ class CalibreStyle: public QProxyStyle {
 		}
 };
 
-int load_style(QHash<int,QString> icon_map) {
+int load_style(QHash<int,QString> icon_map, int transient_scroller) {
     QStyle *base_style = QStyleFactory::create(QString("Fusion"));
-    QApplication::setStyle(new CalibreStyle(base_style, icon_map));
+    QApplication::setStyle(new CalibreStyle(base_style, icon_map, transient_scroller));
     return 0;
 }
 

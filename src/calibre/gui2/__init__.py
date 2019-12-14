@@ -1104,7 +1104,13 @@ class Application(QApplication):
                 pcache[v] = p
             v = pcache[v]
             icon_map[getattr(QStyle, 'SP_'+k)] = v
-        self.pi.load_style(icon_map)
+        transient_scroller = 0
+        if isosx:
+            transient_scroller = plugins['cocoa'][0].transient_scroller()
+        try:
+            self.pi.load_style(icon_map, transient_scroller)
+        except TypeError:
+            self.pi.load_style(icon_map)
 
     def _send_file_open_events(self):
         with self._file_open_lock:
