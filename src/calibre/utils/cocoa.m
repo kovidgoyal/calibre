@@ -115,3 +115,8 @@ cocoa_cursor_blink_time(void) {
     }
     return ans > max_value ? 0.0 : ans;
 }
+
+int
+cocoa_transient_scroller(void) {
+    return [NSScroller preferredScrollerStyle] == NSScrollerStyleOverlay;
+}
