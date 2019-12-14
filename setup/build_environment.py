@@ -89,17 +89,26 @@ qmakespec = readvar('QMAKE_SPEC') if iswindows else None
 
 pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 
+import PyQt5
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
 
 
 def get_sip_dir():
-    if iswindows:
-        q = os.path.join(sys.prefix, 'share', 'sip')
-    elif isfreebsd:
-        q = os.path.join(sys.prefix, 'share', 'py-sip')
-    else:
-        q = os.path.join(sys.prefix, 'share', 'sip')
+    q = None
+    if getattr(PyQt5, '__file__', None):
+        q = os.path.join(os.path.dirname(PyQt5.__file__), 'bindings')
+        if not os.path.exists(q):
+            q = None
+    if q is None:
+        if iswindows:
+            q = os.path.join(sys.prefix, 'share', 'sip')
+        elif isfreebsd:
+            q = os.path.join(sys.prefix, 'share', 'py-sip')
+        else:
+            q = os.path.join(os.path.dirname(PyQt5.__file__), 'bindings')
+            if not os.path.exists(q):
+                q = os.path.join(sys.prefix, 'share', 'sip')
     q = os.environ.get('SIP_DIR', q)
     for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
