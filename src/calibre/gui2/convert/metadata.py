@@ -79,19 +79,24 @@ class MetadataWidget(Widget, Ui_Form):
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
+        self.author_sort.home(False)
 
     def initialize_metadata_options(self):
         self.initialize_combos()
         self.author.editTextChanged.connect(self.deduce_author_sort)
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
-        self.title.setText(mi.title)
+        self.title.setText(mi.title), self.title.home(False)
         self.publisher.show_initial_value(mi.publisher if mi.publisher else '')
+        self.publisher.home(False)
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
+        self.author_sort.home(False)
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
         self.tags.update_items_cache(self.db.all_tags())
+        self.tags.home(False)
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
         self.series.show_initial_value(mi.series if mi.series else '')
+        self.series.home(False)
         if mi.series_index is not None:
             try:
                 self.series_index.setValue(mi.series_index)
@@ -143,6 +148,7 @@ class MetadataWidget(Widget, Ui_Form):
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
         self.author.show_initial_value(au)
+        self.author.home(False)
 
     def initialize_series(self):
         all_series = self.db.all_series()

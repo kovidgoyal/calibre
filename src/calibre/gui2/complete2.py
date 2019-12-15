@@ -498,6 +498,9 @@ class EditWithComplete(EnComboBox):
         le.setText(val)
         le.no_popup = False
 
+    def home(self, mark=False):
+        self.lineEdit().home(mark)
+
     def setCursorPosition(self, *args):
         self.lineEdit().setCursorPosition(*args)
 
