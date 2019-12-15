@@ -10,7 +10,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar,
-    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal, QApplication
 )
 
 from calibre import prints
@@ -886,12 +886,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
-            col = 'rgba(255, 0, 0, 20%)'
             self.test_result.setText(error_message(self.s_r_error))
-        else:
-            col = 'rgba(0, 255, 0, 20%)'
-        self.test_result.setStyleSheet('QLineEdit { color: black; '
-                                       'background-color: %s; }'%col)
+        self.test_result.setStyleSheet(
+                QApplication.instance().stylesheet_for_line_edit(self.s_r_error is not None))
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
