@@ -98,13 +98,15 @@ def flow_onwheel(evt):
             dx = (scroll_viewport.width() - 30) * evt.deltaX
     if dx:
         window.scrollBy(dx, 0)
-    elif dy:
+    elif Math.abs(dy) >= 1:
         scroll_by(dy)
 
 smooth_y_data = {'last_event_at':0, 'up': False, 'timer':None, 'source':'wheel', 'pixels_per_ms': 0.2, 'scroll_interval':10, 'stop_scrolling_after':100}
 
 def do_y_scroll():
-    if scroll_by((-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval):
+    dy = (-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval
+    if Math.abs(dy) >= 1:
+        scroll_by(dy)
         if Date.now() - smooth_y_data.last_event_at < smooth_y_data.stop_scrolling_after:
             smooth_y_data.timer = setTimeout(do_y_scroll, smooth_y_data.scroll_interval)
 
@@ -218,10 +220,11 @@ def handle_gesture(gesture):
     if gesture.type is 'swipe':
         if gesture.points.length > 1 and not gesture.is_held:
             delta = gesture.points[-2] - gesture.points[-1]
-            if gesture.axis is 'vertical':
-                scroll_by(delta)
-            else:
-                window.scrollBy(delta, 0)
+            if Math.abs(delta) >= 1:
+                if gesture.axis is 'vertical':
+                    scroll_by(delta)
+                else:
+                    window.scrollBy(delta, 0)
         if not gesture.active and not gesture.is_held:
             flick_animator.start(gesture)
     elif gesture.type is 'prev-page':
