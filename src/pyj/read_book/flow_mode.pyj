@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from select import word_at_point
 
 from dom import set_css
-from read_book.globals import get_boss
+from read_book.globals import current_spine_item, get_boss
 from read_book.viewport import scroll_viewport
 from utils import document_height, viewport_to_document
 
@@ -53,10 +53,19 @@ def report_human_scroll(amt):
         clear_small_scrolls()
 
 
+last_change_spine_item_request = {}
+
+
 def _check_for_scroll_end(func, obj, args, report):
     before = window.pageYOffset
     func.apply(obj, args)
     if window.pageYOffset is before:
+        now = Date.now()
+        csi = current_spine_item()
+        if last_change_spine_item_request.name is csi.name and now - last_change_spine_item_request.at < 2000:
+            return False
+        last_change_spine_item_request.name = csi.name
+        last_change_spine_item_request.at = now
         get_boss().send_message('next_spine_item', previous=args[0] < 0)
         return False
     if report:
@@ -105,8 +114,7 @@ smooth_y_data = {'last_event_at':0, 'up': False, 'timer':None, 'source':'wheel',
 
 def do_y_scroll():
     dy = (-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval
-    if Math.abs(dy) >= 1:
-        scroll_by(dy)
+    if Math.abs(dy) >= 1 and scroll_by(dy):
         if Date.now() - smooth_y_data.last_event_at < smooth_y_data.stop_scrolling_after:
             smooth_y_data.timer = setTimeout(do_y_scroll, smooth_y_data.scroll_interval)
 
