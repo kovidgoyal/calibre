@@ -871,13 +871,14 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 ("error", "#FF0000", False, False),
                 ("pyqt", "#50621A", False, False)):
 
-            format = QTextCharFormat(baseFormat)
+            fmt = QTextCharFormat(baseFormat)
             if color is not None:
-                format.setForeground(QColor(color))
+                fmt.setForeground(QColor(color))
             if bold:
-                format.setFontWeight(QFont.Bold)
-            format.setFontItalic(italic)
-            cls.Formats[name] = format
+                fmt.setFontWeight(QFont.Bold)
+            if italic:
+                fmt.setFontItalic(italic)
+            cls.Formats[name] = fmt
 
     def highlightBlock(self, text):
         NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
