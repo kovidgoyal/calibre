@@ -3,10 +3,8 @@ __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 telegraph.co.uk
 '''
-
-import json
-from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
+import json
 
 
 def classes(classes):
@@ -23,8 +21,8 @@ def absolutize(url):
 
 
 class TelegraphUK(BasicNewsRecipe):
-    title = 'Telegraph.co.uk'
-    __author__ = 'Darko Miletic and Sujata Raman'
+    title = 'The Telegraph (UK)'
+    __author__ = 'A10KiloHam, based on work by Darko Miletic and Sujata Raman'
     description = 'News from United Kingdom'
     oldest_article = 2
     category = 'news, politics, UK'
@@ -33,39 +31,73 @@ class TelegraphUK(BasicNewsRecipe):
     no_stylesheets = True
     language = 'en_GB'
     encoding = 'utf-8'
+    needs_subscription = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     use_embedded_content = False
+    INDEX = 'https://www.telegraph.co.uk/'
+    LOGIN = 'https://secure.telegraph.co.uk/customer/secure/login/?redirectTo=https%3A%2F%2Fwww.telegraph.co.uk%2F'
+    PREFIX = u'https://www.telegraph.co.uk'
 
-    feeds = [
-        (u'UK News', u'http://www.telegraph.co.uk/news/uknews/rss'),
-        (u'World News', u'http://www.telegraph.co.uk/news/worldnews/rss'),
-        (u'Politics', u'http://www.telegraph.co.uk/news/newstopics/politics/rss'),
-        (u'Finance', u'http://www.telegraph.co.uk/finance/rss'),
-        (u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss'),
-        (u'UK News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologyreviews/rss'),
-        (u'Science News', u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss'),
-        (u'Sport', u'http://www.telegraph.co.uk/sport/rss'),
-        (u'Earth News', u'http://www.telegraph.co.uk/earth/earthnews/rss'),
-        (u'Comment', u'http://www.telegraph.co.uk/comment/rss'),
-        (u'Travel', u'http://www.telegraph.co.uk/travel/rss'),
-        (u'How about that?', u'http://www.telegraph.co.uk/news/newstopics/howaboutthat/rss')
-    ]
+    feeds = [(u'News', u'http://www.telegraph.co.uk/news/rss.xml'),
+             (u'Politics', u'https://www.telegraph.co.uk/politics/rss.xml'),
+             (u'Business', u'http://www.telegraph.co.uk/business/rss.xml'),
+             (u'Money', u'http://www.telegraph.co.uk/money/rss.xml'),
+             (u'Technology', u'http://www.telegraph.co.uk/technology/rss.xml'),
+             (u'Science', u'http://www.telegraph.co.uk/science/rss.xml'),
+             (u'Opinion', u'http://www.telegraph.co.uk/opinion/rss.xml'),
+             (u'Travel', u'http://www.telegraph.co.uk/travel/rss.xml'),
+             (u'Culture', u'http://www.telegraph.co.uk/culture/rss.xml'),
+             (u'Lifestyle', u'http://www.telegraph.co.uk/lifestyle/rss.xml'),
+             (u'Money', u'http://www.telegraph.co.uk/opinion/rss.xml'),
+             (u'Opinion', u'http://www.telegraph.co.uk/money/rss.xml'),
+             (u'Fashion', u'http://www.telegraph.co.uk/fashion/rss.xml')]
 
     keep_only_tags = [
-        classes('lead-asset-image-container headline__heading footer-author'),
+        classes(
+            'lead-asset-image-container headline__heading footer-author article-author__meta'
+        ),
         dict(itemprop='articleBody'),
     ]
+
     remove_tags = [
         dict(name=['link', 'meta', 'style']),
         classes('videoPlayer'),
     ]
     remove_attributes = 'width height'.split()
 
-    def get_browser(self):
-        return BasicNewsRecipe.get_browser(
-            self, user_agent=random_user_agent(allow_ie=False)
-        )
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'http://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/uk/daily_telegraph.750.jpg'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            index = 'http://en.kiosko.net/uk/np/daily_telegraph.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def get_browser(self, *a, **kw):
+        USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
+        br = BasicNewsRecipe.get_browser(self, user_agent=USER_AGENT)
+        self.log('Forming login request...')
+        if self.username is not None and self.password is not None:
+            self.log('Starting login process...')
+            br.open(self.LOGIN)
+            br.select_form(nr=0)
+            br['email'] = self.username
+            br['password'] = self.password
+            self.log('Sending login request...')
+            br.submit()
+        return br
 
     def get_article_url(self, article):
         url = article.get('link', None)
@@ -85,6 +117,5 @@ class TelegraphUK(BasicNewsRecipe):
         for img in soup.findAll('div', attrs={'data-js': 'LazyImage'}):
             img['style'] = ''
             img.name = 'img'
-            srcs = [x.split(' ')[0].strip() for x in img['data-srcset'].split(',')]
-            img['src'] = srcs[1 if len(srcs) > 0 else 0]
+            img['src'] = img['data-srcset'].split()[0]
         return soup
