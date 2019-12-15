@@ -272,9 +272,9 @@ class SearchDialog(QDialog):
         gprefs['advanced search dialog current tab'] = \
             self.tab_widget.currentIndex()
         if self.tab_widget.currentIndex() == 1:
-            fw = self.tab_widget.focusWidget().objectName()
+            fw = self.tab_widget.focusWidget()
             if fw:
-                gprefs.set('advanced_search_simple_tab_focused_field', fw)
+                gprefs.set('advanced_search_simple_tab_focused_field', fw.objectName())
 
     def accept(self):
         self.save_state()
