@@ -147,11 +147,14 @@ class ActionsToolBar(ToolBar):
         self.next_action = shortcut_action('next')
         self.previous_action = shortcut_action('previous')
 
-        self.toc_action = shortcut_action('toc')
-        self.bookmarks_action = shortcut_action('bookmarks')
+        self.toc_action = a = shortcut_action('toc')
+        a.setCheckable(True)
+        self.bookmarks_action = a = shortcut_action('bookmarks')
+        a.setCheckable(True)
         self.reference_action = a = shortcut_action('reference')
         a.setCheckable(True)
-        self.lookup_action = shortcut_action('lookup')
+        self.lookup_action = a = shortcut_action('lookup')
+        a.setCheckable(True)
         self.chrome_action = shortcut_action('chrome')
 
         self.mode_action = a = shortcut_action('mode')
@@ -186,6 +189,11 @@ class ActionsToolBar(ToolBar):
 
     def update_reference_mode_action(self, enabled):
         self.reference_action.setChecked(enabled)
+
+    def update_dock_actions(self, visibility_map):
+        for k in ('toc', 'bookmarks', 'lookup'):
+            ac = getattr(self, '{}_action'.format(k))
+            ac.setChecked(visibility_map[k])
 
     def set_tooltips(self, rmap):
         for sc, a in iteritems(self.shortcut_actions):
