@@ -35,7 +35,7 @@ from read_book.referencing import (
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
-    update_settings
+    set_color_scheme_class, update_settings
 )
 from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
@@ -246,12 +246,14 @@ class IframeBoss:
         if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
             opts.color_scheme = data.color_scheme
             apply_colors()
+            set_color_scheme_class()
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
         if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
             document.body.classList.add('cover-fill')
         document.body.classList.add(f'calibre-viewer-{layout_style()}')
+        set_color_scheme_class()
         if self.reference_mode_enabled:
             start_reference_mode()
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()

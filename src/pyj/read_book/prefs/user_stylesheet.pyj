@@ -106,7 +106,8 @@ def create_user_stylesheet_panel(container, apply_func, cancel_func):
                         href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here.')),
                     ' ', _(
                         'Note that you can use the selectors body.calibre-viewer-paginated and body.calibre-viewer-scrolling'
-                        ' to target the Paged and Flow modes.')
+                        ' to target the Paged and Flow modes. Similarly, use body.calibre-viewer-light-colors and'
+                        ' body.calibre-viewer-dark-colors to target light and dark color schemes.')
                 ),
                 E.textarea(name='user-stylesheet', style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10'),
             )

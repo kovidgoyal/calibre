@@ -19,6 +19,7 @@ def update_settings(settings):
     opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.is_dark_theme = v'!!settings.is_dark_theme'
 
 update_settings()
 
@@ -46,6 +47,15 @@ def apply_colors():
         text = ''
 
     ss.textContent = text
+
+
+def set_color_scheme_class():
+    if opts.is_dark_theme:
+        document.body.classList.add('calibre-viewer-dark-colors')
+        document.body.classList.remove('calibre-viewer-light-colors')
+    else:
+        document.body.classList.add('calibre-viewer-light-colors')
+        document.body.classList.remove('calibre-viewer-dark-colors')
 
 
 def apply_stylesheet():
