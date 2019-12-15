@@ -20,6 +20,7 @@ def update_settings(settings):
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
     opts.is_dark_theme = v'!!settings.is_dark_theme'
+    opts.override_book_colors = settings.override_book_colors or 'never'
 
 update_settings()
 
@@ -40,11 +41,17 @@ def apply_colors():
     if not ss:
         ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')
         document.documentElement.appendChild(ss)
+    text = ''
+    if opts.override_book_colors is not 'never':
+        text = 'body'
+        if opts.override_book_colors is 'dark':
+            text += '.calibre-viewer-dark-colors'
+        text += f' * {{ color: {opts.color_scheme.foreground} !important; background-color: {opts.color_scheme.background} !important }}'
     if opts.color_scheme.link:
         c = opts.color_scheme.link
-        text = f':link, :link * {{ color: {c} !important }} :visited, :visited * {{ color: {c} !important }}'
-    else:
-        text = ''
+        # we use the html > body form so that these selectors have higher
+        # priority than the override all selectors above
+        text += f'\nhtml > body :link, html > body :link * {{ color: {c} !important }} html > body :visited, html > body :visited * {{ color: {c} !important }}'
 
     ss.textContent = text
 

@@ -185,6 +185,7 @@ def set_action_button_visibility():
 def create_colors_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
+    sd = get_session_data()
     cs = resolve_color_scheme()
     container.dataset.bg = cs.background
     container.dataset.fg = cs.foreground
@@ -192,6 +193,19 @@ def create_colors_panel(container, apply_func, cancel_func):
     container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
     ul = E.ul(id=COLOR_LIST)
     container.appendChild(ul)
+    container.appendChild(E.div(
+        E.span(_('Override all book colors:') + '\xa0'),
+        E.label(E.input(type='radio', name='override_book_colors', value='never'), _('Never')),
+        '  ',
+        E.label(E.input(type='radio', name='override_book_colors', value='dark'), _('In dark mode')),
+        '  ',
+        E.label(E.input(type='radio', name='override_book_colors', value='always'), _('Always')),
+        style='margin:1ex 1em; padding: 1ex 0; white-space: pre-wrap'
+    ))
+    try:
+        container.lastChild.querySelector(f'[name=override_book_colors][value={sd.get("override_book_colors")}]').checked = True
+    except:
+        container.lastChild.querySelector('[name=override_book_colors][value=never]').checked = True
     create_color_buttons()
 
     container.appendChild(E.div(
@@ -229,7 +243,11 @@ def commit_colors(onchange):
     rcs = resolve_color_scheme(ccs)
     c = get_container()
     sd = get_session_data()
+    prev_obc = sd.get('override_book_colors')
+    cur_obc = c.querySelector('[name=override_book_colors]:checked').value
     sd.set('current_color_scheme', ccs)
-    if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg or c.dataset.link is not rcs.link:
+    if cur_obc is not prev_obc:
+        sd.set('override_book_colors', cur_obc)
+    if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg or c.dataset.link is not rcs.link or cur_obc is not prev_obc:
         ui_operations.update_color_scheme()
         onchange()

@@ -691,6 +691,7 @@ class View:
             'read_mode': sd.get('read_mode'),
             'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': cs,
+            'override_book_colors': sd.get('override_book_colors'),
             'is_dark_theme': is_dark_theme,
             'bg_image_fade': bg_image_fade,
             'base_font_size': sd.get('base_font_size'),
