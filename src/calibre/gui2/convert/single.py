@@ -9,8 +9,8 @@ import shutil
 from PyQt5.Qt import (
     QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
     QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
-    QListView, QModelIndex, QRect, QScrollArea, QSize, QSizePolicy, QSpacerItem,
-    QStackedWidget, Qt, QTextEdit, QVBoxLayout, QWidget
+    QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,
+    Qt, QTextEdit, QWidget
 )
 
 from calibre.customize.conversion import OptionRecommendation
@@ -29,7 +29,7 @@ from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.utils.config import prefs
-from polyglot.builtins import native_string_type, range, unicode_type
+from polyglot.builtins import native_string_type, unicode_type
 
 
 class GroupModel(QAbstractListModel):
@@ -73,6 +73,7 @@ class Config(QDialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         QDialog.__init__(self, parent)
+        self.widgets = []
         self.setupUi()
         self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
@@ -148,27 +149,8 @@ class Config(QDialog):
         self.scrollArea.setLineWidth(0)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 810, 494))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents)
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.stack = QStackedWidget(self.scrollAreaWidgetContents)
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.stack.sizePolicy().hasHeightForWidth())
-        self.stack.setSizePolicy(sizePolicy)
-        self.stack.setObjectName("stack")
         self.page = QWidget()
         self.page.setObjectName("page")
-        self.stack.addWidget(self.page)
-        self.page_2 = QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stack.addWidget(self.page_2)
-        self.verticalLayout_3.addWidget(self.stack)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.addWidget(self.scrollArea, 1, 1, 1, 1)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
@@ -213,8 +195,7 @@ class Config(QDialog):
 
     @property
     def manually_fine_tune_toc(self):
-        for i in range(self.stack.count()):
-            w = self.stack.widget(i)
+        for w in self.widgets:
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()
 
@@ -225,7 +206,7 @@ class Config(QDialog):
         self.plumber = create_dummy_plumber(input_format, output_format)
 
         def widget_factory(cls):
-            return cls(self.stack, self.plumber.get_option_by_name,
+            return cls(self, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db, self.book_id)
 
         self.mw = widget_factory(MetadataWidget)
@@ -241,36 +222,32 @@ class Config(QDialog):
         debug = widget_factory(DebugWidget)
 
         output_widget = self.plumber.output_plugin.gui_configuration_widget(
-                self.stack, self.plumber.get_option_by_name,
+                self, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db, self.book_id)
         input_widget = self.plumber.input_plugin.gui_configuration_widget(
-                self.stack, self.plumber.get_option_by_name,
+                self, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db, self.book_id)
-        while True:
-            c = self.stack.currentWidget()
-            if not c:
-                break
-            self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, hw, ps, sd, toc, sr]
+        self.break_cycles()
+        self.widgets = widgets = [self.mw, lf, hw, ps, sd, toc, sr]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:
             widgets.append(output_widget)
         widgets.append(debug)
         for w in widgets:
-            self.stack.addWidget(w)
             w.set_help_signal.connect(self.help.setPlainText)
+            w.setVisible(False)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)
 
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
-        self.stack.setCurrentIndex(idx)
+        self.show_pane(idx)
         try:
             shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
-        except:
+        except Exception:
             pass
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
@@ -290,7 +267,17 @@ class Config(QDialog):
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
     def show_pane(self, index):
-        self.stack.setCurrentIndex(index.row())
+        if hasattr(index, 'row'):
+            index = index.row()
+        ow = self.scrollArea.takeWidget()
+        if ow:
+            ow.setParent(self)
+        for i, w in enumerate(self.widgets):
+            if i == index:
+                self.scrollArea.setWidget(w)
+                w.show()
+            else:
+                w.setVisible(False)
 
     def accept(self):
         recs = GuiRecommendations()
@@ -318,8 +305,7 @@ class Config(QDialog):
         return QDialog.done(self, r)
 
     def break_cycles(self):
-        for i in range(self.stack.count()):
-            w = self.stack.widget(i)
+        for w in self.widgets:
             w.break_cycles()
 
     @property
