@@ -856,16 +856,14 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     @classmethod
     def initializeFormats(cls):
-        if cls.Formats:
-            return
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamily('monospace')
-        baseFormat.setFontPointSize(11)
+        p = QApplication.instance().palette()
         for name, color, bold, italic in (
-                ("normal", "#000000", False, False),
-                ("keyword", "#000080", True, False),
-                ("builtin", "#0000A0", False, False),
-                ("constant", "#0000C0", False, False),
+                ("normal", None, False, False),
+                ("keyword", p.color(p.Link).name(), True, False),
+                ("builtin", p.color(p.Link).name(), False, False),
+                ("constant", p.color(p.Link).name(), False, False),
                 ("decorator", "#0000E0", False, False),
                 ("comment", "#007F00", False, True),
                 ("string", "#808000", False, False),
@@ -874,7 +872,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 ("pyqt", "#50621A", False, False)):
 
             format = QTextCharFormat(baseFormat)
-            format.setForeground(QColor(color))
+            if color is not None:
+                format.setForeground(QColor(color))
             if bold:
                 format.setFontWeight(QFont.Bold)
             format.setFontItalic(italic)
