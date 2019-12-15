@@ -133,6 +133,13 @@ static inline QByteArray detectDesktopEnvironment()
     return QByteArrayLiteral("UNKNOWN");
 }
 
+static inline bool
+is_color_dark(const QColor &col) {
+	int r, g, b;
+	col.getRgb(&r, &g, &b);
+	return r < 115 && g < 155 && b < 115;
+}
+
 class CalibreStyle: public QProxyStyle {
     private:
         QHash<int, QString> icon_map;
@@ -213,14 +220,14 @@ class CalibreStyle: public QProxyStyle {
 					if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
 						if (tbb->shape == QTabBar::RoundedNorth) {
 							QColor bg = option->palette.color(QPalette::Window);
-							if (bg.valueF() < 0.45) return;
+							if (is_color_dark(bg)) return;
 						}
 					}
 					break; // }}}
 
 				case PE_IndicatorCheckBox: // {{{
 					// Fix color used to draw checkbox outline in dark mode
-					if (option->palette.color(QPalette::Window).valueF() < 0.45) {
+					if (is_color_dark(option->palette.color(QPalette::Window))) {
 						baseStyle()->drawPrimitive(element, option, painter, widget);
 						painter->save();
 						painter->translate(0.5, 0.5);
@@ -254,7 +261,7 @@ class CalibreStyle: public QProxyStyle {
 						const int margin = 6;
 						QColor bg = option->palette.color(QPalette::Window);
 						QColor first, second;
-						if (bg.valueF() < 0.45) {
+						if (is_color_dark(bg)) {
 							first = bg.darker(115);
 							second = bg.lighter(115);
 						} else {
@@ -311,7 +318,7 @@ class CalibreStyle: public QProxyStyle {
 										QPalette::Text);
 								w = menuItem->fontMetrics.horizontalAdvance(menuItem->text) + margin;
 							}
-							if (menuItem->palette.color(QPalette::Window).valueF() < 0.45) painter->setPen(Qt::gray);
+							if (is_color_dark(menuItem->palette.color(QPalette::Window))) painter->setPen(Qt::gray);
 							else painter->setPen(QColor(0, 0, 0, 60).lighter(106));
 							bool reverse = menuItem->direction == Qt::RightToLeft;
 							painter->drawLine(menuItem->rect.left() + margin + (reverse ? 0 : w), menuItem->rect.center().y(),

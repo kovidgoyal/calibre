@@ -681,8 +681,9 @@ class View:
         bg_image_fade = 'transparent'
         cs = self.get_color_scheme(True)
         fade = int(sd.get('background_image_fade'))
+        rgba = cached_color_to_rgba(cs.background)
+        is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
         if self.iframe.style.backgroundImage is not 'none' and fade > 0:
-            rgba = cached_color_to_rgba(cs.background)
             bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
         return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
@@ -690,6 +691,7 @@ class View:
             'read_mode': sd.get('read_mode'),
             'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': cs,
+            'is_dark_theme': is_dark_theme,
             'bg_image_fade': bg_image_fade,
             'base_font_size': sd.get('base_font_size'),
             'user_stylesheet': sd.get('user_stylesheet'),

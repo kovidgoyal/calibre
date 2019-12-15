@@ -669,8 +669,7 @@ else:
 def is_dark_theme():
     pal = QApplication.instance().palette()
     col = pal.color(pal.Window)
-    h, s, v, a = col.getHsvF()
-    return v < 0.45
+    return max(col.getRgb()[:3]) < 115
 
 
 def choose_osx_app(window, name, title, default_dir='/Applications'):
