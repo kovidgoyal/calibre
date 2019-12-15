@@ -33,6 +33,7 @@ from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
+from calibre.utils.shared_file import share_open
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import unicode_type, as_bytes
 
@@ -1317,7 +1318,7 @@ class ConfigWidget(ConfigWidgetBase):
         layout.addWidget(el)
         try:
             el.setPlainText(
-                lopen(log_error_file, 'rb').read().decode('utf8', 'replace')
+                share_open(log_error_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
             el.setPlainText(_('No error log found'))
@@ -1326,7 +1327,7 @@ class ConfigWidget(ConfigWidgetBase):
         layout.addWidget(al)
         try:
             al.setPlainText(
-                lopen(log_access_file, 'rb').read().decode('utf8', 'replace')
+                share_open(log_access_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
             al.setPlainText(_('No access log found'))
