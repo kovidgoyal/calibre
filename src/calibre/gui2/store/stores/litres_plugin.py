@@ -112,7 +112,7 @@ def format_price_in_RUR(price):
     '''
     if price and re.match(r"^\d*?\.\d*?$", price):
         try:
-            price = u'{:,.2F} руб.'.format(float(price))
+            price = u'{:,.2F} \u20BD'.format(float(price)) # \u20BD => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except:
             pass
@@ -121,7 +121,7 @@ def format_price_in_RUR(price):
 
 def ungzipResponse(r,b):
     headers = r.info()
-    if headers['Content-Encoding']=='gzip':
+    if headers.get('Content-Encoding', '')=='gzip':
         import gzip
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()
