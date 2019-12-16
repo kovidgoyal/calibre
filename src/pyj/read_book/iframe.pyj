@@ -200,7 +200,7 @@ class IframeBoss:
         unserialize_html(root_data, self.content_loaded, None, data.name)
 
     def on_scroll_to_frac(self, data):
-        self.to_scroll_fraction(data.frac)
+        self.to_scroll_fraction(data.frac, False)
 
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
@@ -224,7 +224,7 @@ class IframeBoss:
         if frag:
             self.scroll_to_anchor(frag)
         else:
-            self.to_scroll_fraction(0.0)
+            self.to_scroll_fraction(0.0, False)
 
     def on_next_screen(self, data):
         backwards = data.backwards
@@ -277,7 +277,7 @@ class IframeBoss:
             ipos = csi.initial_position
             self.replace_history_on_next_cfi_update = ipos.replace_history or False
             if ipos.type is 'frac':
-                self.to_scroll_fraction(ipos.frac)
+                self.to_scroll_fraction(ipos.frac, True)
             elif ipos.type is 'anchor':
                 self.scroll_to_anchor(ipos.anchor)
             elif ipos.type is 'ref':

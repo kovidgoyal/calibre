@@ -10,7 +10,7 @@ from read_book.viewport import scroll_viewport
 from utils import document_height, viewport_to_document
 
 
-def flow_to_scroll_fraction(frac):
+def flow_to_scroll_fraction(frac, on_initial_load):
     scroll_viewport.scroll_to(0, document_height() * frac)
 
 

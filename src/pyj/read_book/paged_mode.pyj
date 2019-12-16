@@ -11,7 +11,7 @@ from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
 )
-from read_book.globals import get_boss
+from read_book.globals import current_spine_item, get_boss
 from read_book.settings import opts
 from read_book.viewport import scroll_viewport
 from utils import (
@@ -132,7 +132,7 @@ def calc_columns_per_screen():
 
 
 def layout(is_single_page, on_resize):
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
     cps = calc_columns_per_screen()
@@ -263,8 +263,19 @@ def scroll_to_xpos(xpos, notify=False, duration=1000):
         return
     scroll_to_column(column_at(xpos), notify=notify, duration=duration)
 
-def scroll_to_fraction(frac):
+
+def scroll_to_previous_position():
+    fsd = next_spine_item.forward_scroll_data
+    next_spine_item.forward_scroll_data = None
+    if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < number_of_cols:
+        scroll_to_column(fsd.current_col, duration=1000)
+        return True
+
+
+def scroll_to_fraction(frac, on_initial_load):
     # Scroll to the position represented by frac (number between 0 and 1)
+    if on_initial_load and frac is 1 and is_return() and scroll_to_previous_position():
+        return
     xpos = Math.floor(scroll_viewport.paged_content_width() * frac)
     scroll_to_xpos(xpos)
 
@@ -283,6 +294,13 @@ def current_column_location():
     c = column_at(current_scroll_offset() + 10)
     return c * col_and_gap
 
+
+def number_of_cols_left():
+    current_col = column_at(current_scroll_offset() + 10)
+    cols_left = number_of_cols - (current_col + cols_per_screen)
+    return Math.max(0, cols_left)
+
+
 def next_screen_location():
     # The position to scroll to for the next screen (which could contain
     # more than one pages). Returns -1 if no further scrolling is possible.
@@ -290,18 +308,15 @@ def next_screen_location():
         return -1
     cc = current_column_location()
     ans = cc + screen_width
-    if cols_per_screen > 1:
-        current_col = column_at(current_scroll_offset() + 10)
-        ncols = (scroll_viewport.paged_content_width() + gap) // col_and_gap
-        cols_left = ncols - (current_col + cols_per_screen)
-        if cols_left < cols_per_screen:
-            return -1  # Only blank, dummy pages left
+    if cols_per_screen > 1 and 0 < number_of_cols_left() < cols_per_screen:
+        return -1  # Only blank, dummy pages left
     limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
     if limit < col_and_gap:
         return -1
     if ans > limit:
         ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
     return ans
+
 
 def previous_screen_location():
     # The position to scroll to for the previous screen (which could contain
@@ -315,6 +330,7 @@ def previous_screen_location():
         # screen
         ans = 0 if current_scroll_offset() > 15 else -1
     return ans
+
 
 def next_col_location():
     # The position to scroll to for the next column (same as
@@ -330,6 +346,7 @@ def next_col_location():
         ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
     return ans
 
+
 def previous_col_location():
     # The position to scroll to for the previous column (same as
     # previous_screen_location() if columns per screen == 1). Returns -1 if
@@ -341,6 +358,7 @@ def previous_col_location():
     if ans < 0:
         ans = 0 if Math.floor(current_scroll_offset()) > 0 else -1
     return ans
+
 
 def jump_to_anchor(name):
     # Jump to the element identified by anchor name. Ensures that the left
@@ -354,6 +372,7 @@ def jump_to_anchor(name):
     if not elem:
         return
     scroll_to_elem(elem)
+
 
 def scroll_to_elem(elem):
     scroll_viewport.scroll_into_view(elem)
@@ -459,6 +478,22 @@ def progress_frac(frac):
     return Math.max(0, Math.min(window.pageYOffset / limit, 1))
 
 
+def next_spine_item(backward):
+    if not backward:
+        csi = current_spine_item()
+        next_spine_item.forward_scroll_data = {
+            'cols_per_screen': cols_per_screen, 'cols_left': number_of_cols_left(),
+            'spine_index': csi.index, 'spine_name': csi.name, 'current_col': column_at(current_scroll_offset() + 10)
+        }
+    get_boss().send_message('next_spine_item', previous=backward)
+
+
+def is_return():
+    fsd = next_spine_item.forward_scroll_data
+    csi = current_spine_item()
+    return fsd and fsd.cols_per_screen is cols_per_screen and fsd.spine_index is csi.index and fsd.spine_name is csi.name
+
+
 def onwheel(evt):
     if evt.deltaY:
         backward = evt.deltaY < 0
@@ -467,7 +502,7 @@ def onwheel(evt):
         else:
             x = previous_col_location() if backward else next_col_location()
         if x is -1:
-            get_boss().send_message('next_spine_item', previous=backward)
+            next_spine_item(backward)
         else:
             scroll_to_xpos(x)
 
@@ -481,7 +516,7 @@ def scroll_by_page(backward, by_screen):
     if pos is -1:
         # dont report human scroll since we dont know if a full page was
         # scrolled or not
-        get_boss().send_message('next_spine_item', previous=backward)
+        next_spine_item(backward)
     else:
         if not backward:
             scrolled_frac = (pages / number_of_cols) if number_of_cols > 0 else 0
