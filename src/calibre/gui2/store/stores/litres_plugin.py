@@ -85,7 +85,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
         sRes = SearchResult()
         sRes.drm = SearchResult.DRM_UNLOCKED
-        sRes.detail_item = data.xpath(xp_template.format('hub_id'))
+        sRes.detail_item = data.xpath(xp_template.format('hub_id'))        
         sRes.title = data.xpath('string(.//title-info/book-title/text()|.//publish-info/book-name/text())')
         # aut = concat('.//title-info/author/first-name', ' ')
         authors = data.xpath('.//title-info/author/first-name/text()|'
@@ -121,7 +121,7 @@ def format_price_in_RUR(price):
 
 def ungzipResponse(r,b):
     headers = r.info()
-    if headers['Content-Encoding']=='gzip':
+    if headers.get('Content-Encoding', '')=='gzip':
         import gzip
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()
