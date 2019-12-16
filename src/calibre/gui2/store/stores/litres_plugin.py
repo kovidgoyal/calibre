@@ -85,7 +85,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
         sRes = SearchResult()
         sRes.drm = SearchResult.DRM_UNLOCKED
-        sRes.detail_item = data.xpath(xp_template.format('hub_id'))        
+        sRes.detail_item = data.xpath(xp_template.format('hub_id'))
         sRes.title = data.xpath('string(.//title-info/book-title/text()|.//publish-info/book-name/text())')
         # aut = concat('.//title-info/author/first-name', ' ')
         authors = data.xpath('.//title-info/author/first-name/text()|'
@@ -112,7 +112,7 @@ def format_price_in_RUR(price):
     '''
     if price and re.match(r"^\d*?\.\d*?$", price):
         try:
-            price = u'{:,.2F} руб.'.format(float(price))
+            price = u'{:,.2F} \u20BD'.format(float(price)) # \u20BD => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except:
             pass
