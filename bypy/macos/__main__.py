@@ -427,6 +427,7 @@ class Freeze(object):
             LSMinimumSystemVersion='10.14.0',
             LSRequiresNativeExecution=True,
             NSAppleScriptEnabled=False,
+            NSSupportsAutomaticGraphicsSwitching=True,
             NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
             CFBundleGetInfoString=('calibre, an E-book management '
                                    'application. Visit https://calibre-ebook.com for details.'),
