@@ -32,7 +32,7 @@ from calibre.utils.date import local_tz
 from calibre.library.comments import merge_comments as merge_two_comments
 from polyglot.builtins import iteritems, unicode_type, filter
 
-BASE_TITLE = _('Edit Metadata')
+BASE_TITLE = _('Edit metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
                   'series_index', 'languages', 'publisher', 'tags', 'rating',
                   'comments', 'pubdate')
