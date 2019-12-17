@@ -112,7 +112,7 @@ def load_translations(namespace, zfp):
         trans = _translations_cache[zfp] = GNUTranslations(BytesIO(mo))
 
     namespace['_'] = getattr(trans, 'gettext' if ispy3 else 'ugettext')
-    namespace['ngettext'] = trans.ungettext
+    namespace['ngettext'] = getattr(trans, 'ngettext' if ispy3 else 'ungettext')
 
 
 class PluginLoader(object):
