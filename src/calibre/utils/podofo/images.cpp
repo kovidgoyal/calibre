@@ -19,7 +19,11 @@ class Image {
     public:
         Image(const PdfReference &reference, const PdfObject *o) : buf(NULL), sz(0), width(0), height(0), ref(reference) {
             const PdfStream *stream = o->GetStream();
-            stream->GetFilteredCopy(&buf, &sz);
+            try {
+                stream->GetFilteredCopy(&buf, &sz);
+            } catch(...) {
+                buf = NULL; sz = -1;
+            }
             const PdfDictionary &dict = o->GetDictionary();
             if (dict.HasKey("Width") && dict.GetKey("Width")->IsNumber()) width = dict.GetKey("Width")->GetNumber();
             if (dict.HasKey("Height") && dict.GetKey("Height")->IsNumber()) height = dict.GetKey("Height")->GetNumber();
@@ -36,7 +40,7 @@ class Image {
         }
         ~Image() noexcept { if (buf) podofo_free(buf); buf = NULL; }
         bool operator==(const Image &other) const noexcept {
-            return other.sz == sz && other.width == width && other.height == height && memcmp(buf, other.buf, sz) == 0;
+            return other.sz == sz && sz > -1 && other.width == width && other.height == height && memcmp(buf, other.buf, sz) == 0;
         }
         std::size_t hash() const noexcept { return sz; }
         const PdfReference& reference() const noexcept { return ref; }
