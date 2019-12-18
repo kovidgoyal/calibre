@@ -232,6 +232,10 @@ class ActionsToolBar(ToolBar):
     def update_visibility(self):
         self.setVisible(bool(get_session_pref('show_actions_toolbar', default=False)))
 
+    @property
+    def visible_in_fullscreen(self):
+        return bool(get_session_pref('show_actions_toolbar_in_fullscreen', default=False))
+
     def customize(self):
         d = ConfigureToolBar(parent=self.parent())
         if d.exec_() == d.Accepted:

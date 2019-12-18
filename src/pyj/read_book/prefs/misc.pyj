@@ -17,6 +17,7 @@ DEFAULTS = {
     'remember_window_geometry': False,
     'remember_last_read': True,
     'show_actions_toolbar': False,
+    'show_actions_toolbar_in_fullscreen': False,
     'save_annotations_in_ebook': True,
     'singleinstance': False,
 }
@@ -50,6 +51,7 @@ def create_misc_panel(container, apply_func, cancel_func):
     container.lastChild.append(E.span('\xa0'))
     container.lastChild.append(
         create_button(_('Customize toolbar'), action=ui_operations.customize_toolbar))
+    container.append(cb('show_actions_toolbar_in_fullscreen', _('Keep the toolbar in full screen mode (needs restart)')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
