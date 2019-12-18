@@ -477,18 +477,20 @@ def from_links(container):
     toc = TOC()
     link_path = XPath('//h:a[@href]')
     seen_titles, seen_dests = set(), set()
-    for spinepath in container.spine_items:
-        name = container.abspath_to_name(spinepath)
+    for name, is_linear in container.spine_names:
         root = container.parsed(name)
         for a in link_path(root):
             href = a.get('href')
             if not href or not href.strip():
                 continue
+            frag = None
             if href.startswith('#'):
                 dest = name
+                frag = href[1:]
             else:
+                href, _, frag = href.partition('#')
                 dest = container.href_to_name(href, base=name)
-            frag = href.rpartition('#')[-1] or None
+            frag = frag or None
             if (dest, frag) in seen_dests:
                 continue
             seen_dests.add((dest, frag))
