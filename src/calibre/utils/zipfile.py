@@ -3,15 +3,22 @@
 Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
 a zip archive, detecting filename encoding, updating zip files, etc.
 """
-import struct, os, time, sys, shutil, stat, re, io
 import binascii
+import io
+import os
+import re
+import shutil
+import stat
+import struct
+import sys
+import time
 from contextlib import closing
-from tempfile import SpooledTemporaryFile
 
 from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
-from polyglot.builtins import unicode_type, string_or_bytes, getcwd, map, as_bytes
+from calibre.ptempfile import SpooledTemporaryFile
+from polyglot.builtins import getcwd, map, string_or_bytes, unicode_type, as_bytes
 
 try:
     import zlib  # We may need its compression method
