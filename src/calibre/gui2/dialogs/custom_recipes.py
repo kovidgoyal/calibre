@@ -9,18 +9,18 @@ import os, re, textwrap, time
 
 from PyQt5.Qt import (
     QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView,
-    QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal,
+    QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal, QSortFilterProxyModel,
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
-    QToolButton, QDialog, QDialogButtonBox)
+    QToolButton, QTreeView)
 
 from calibre.gui2 import error_dialog, open_local_file, choose_files
 from calibre.gui2.widgets2 import Dialog
 from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
-from calibre.utils.icu import sort_key
-from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
+from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import iteritems, unicode_type, range, as_unicode
+from calibre.gui2.search_box import SearchBox2
 
 
 def is_basic_recipe(src):
@@ -442,6 +442,69 @@ class AdvancedRecipe(QWidget):  # {{{
 # }}}
 
 
+class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        idx = self.sourceModel().index(source_row, 0, source_parent)
+        urn = idx.data(Qt.UserRole)
+        if not urn or urn in ('::category::0', '::category::1'):
+            return False
+        return True
+
+
+class ChooseBuiltinRecipe(Dialog):  # {{{
+
+    def __init__(self, recipe_model, parent=None):
+        self.recipe_model = recipe_model
+        Dialog.__init__(self, _("Choose builtin recipe"), 'choose-builtin-recipe', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.recipes = r = QTreeView(self)
+        r.setAnimated(True)
+        r.setHeaderHidden(True)
+        self.model = ChooseBuiltinRecipeModel(self)
+        self.model.setSourceModel(self.recipe_model)
+        r.setModel(self.model)
+        r.doubleClicked.connect(self.accept)
+        l.addWidget(self.recipes)
+        self.search = s = SearchBox2(self)
+        self.search.initialize('scheduler_search_history')
+        self.search.setMinimumContentsLength(15)
+        self.search.search.connect(self.recipe_model.search)
+        self.recipe_model.searched.connect(self.search.search_done, type=Qt.QueuedConnection)
+        self.recipe_model.searched.connect(self.search_done)
+        self.go_button = b = QToolButton(self)
+        b.setText(_("Go"))
+        b.clicked.connect(self.search.do_search)
+        h = QHBoxLayout()
+        h.addWidget(s), h.addWidget(b)
+        l.addLayout(h)
+        l.addWidget(self.bb)
+        self.search.setFocus(Qt.OtherFocusReason)
+
+    def search_done(self, *args):
+        if self.recipe_model.showing_count < 10:
+            self.recipes.expandAll()
+
+    def sizeHint(self):
+        return QSize(600, 450)
+
+    @property
+    def selected_recipe(self):
+        for idx in self.recipes.selectedIndexes():
+            urn = idx.data(Qt.UserRole)
+            if urn and not urn.startswith('::category::'):
+                return urn
+
+    def accept(self):
+        if not self.selected_recipe:
+            return error_dialog(self, _('Choose recipe'), _(
+                'You must choose a recipe to customize first'), show=True)
+        return Dialog.accept(self)
+# }}}
+
+
 class CustomRecipes(Dialog):
 
     def __init__(self, recipe_model, parent=None):
@@ -553,44 +616,13 @@ class CustomRecipes(Dialog):
         self.stack.setCurrentIndex(0)
 
     def customize_recipe(self):
-        d = QDialog(self)
-        d.l = QVBoxLayout()
-        d.setLayout(d.l)
-        d.list = QListWidget(d)
-        connect_lambda(d.list.doubleClicked, d, lambda d: d.accept())
-        d.l.addWidget(d.list)
-        d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
-                Qt.Horizontal, d)
-        d.bb.accepted.connect(d.accept)
-        d.bb.rejected.connect(d.reject)
-        d.l.addWidget(d.bb)
-        d.setWindowTitle(_('Choose builtin recipe'))
-        items = []
-        for r in get_builtin_recipe_collection():
-            id_ = r.get('id', '')
-            title = r.get('title', '')
-            lang = r.get('language', '')
-            if id_ and title:
-                items.append((title + ' [%s]'%lang, id_))
-
-        items.sort(key=lambda x:sort_key(x[0]))
-        for title, id_ in items:
-            item = QListWidgetItem(title)
-            item.setData(Qt.UserRole, id_)
-            d.list.addItem(item)
-
-        d.resize(QSize(450, 400))
-        ret = d.exec_()
-        d.list.doubleClicked.disconnect()
-        if ret != d.Accepted:
+        d = ChooseBuiltinRecipe(self.recipe_model, self)
+        if d.exec_() != d.Accepted:
             return
 
-        items = list(d.list.selectedItems())
-        if not items:
+        id_ = d.selected_recipe
+        if not id_:
             return
-        item = items[-1]
-        id_ = unicode_type(item.data(Qt.UserRole) or '')
-        title = unicode_type(item.data(Qt.DisplayRole) or '').rpartition(' [')[0]
         src = get_builtin_recipe_by_id(id_, download_recipe=True)
         if src is None:
             raise Exception('Something weird happened')
