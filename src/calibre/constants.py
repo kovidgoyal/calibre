@@ -5,7 +5,7 @@ from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv, a
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = 'calibre'
-numeric_version = (4, 99, 0)
+numeric_version = (4, 99, 1)
 __version__   = '.'.join(map(unicode_type, numeric_version))
 git_version   = None
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
