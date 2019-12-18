@@ -202,6 +202,16 @@ def freeze(env, ext_dir):
     shutil.copytree(j(comext, 'shell'), j(sp_dir, 'win32com', 'shell'))
     shutil.rmtree(comext)
 
+    # Fix pycryptodome
+    with open(j(sp_dir, 'Crypto', 'Util', '_file_system.py'), 'w') as fspy:
+        fspy.write('''
+import os, sys
+def pycryptodome_filename(dir_comps, filename):
+    base = os.path.join(sys.app_dir, 'app', 'bin')
+    path = os.path.join(base, '.'.join(dir_comps + [filename]))
+    return path
+''')
+
     pyqt = j(env.lib_dir, 'site-packages', 'PyQt5')
     for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
         if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
