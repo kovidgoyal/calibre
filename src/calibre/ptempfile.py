@@ -277,10 +277,15 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
     def name(self, val):
         self._name = val
 
-    def truncate(self, *args):
-        # The stdlib SpooledTemporaryFile implementation of truncate() doesn't
-        # allow specifying a size.
-        self._file.truncate(*args)
+    # See https://bugs.python.org/issue26175
+    def readable(self):
+        return self._file.readable()
+
+    def seekable(self):
+        return self._file.seekable()
+
+    def writable(self):
+        return self._file.writable()
 
 
 def better_mktemp(*args, **kwargs):
