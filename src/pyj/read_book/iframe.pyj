@@ -91,22 +91,22 @@ class IframeBoss:
         self.forward_keypresses = False
         set_boss(self)
         handlers = {
-            'initialize':self.initialize,
-            'display': self.display,
-            'scroll_to_anchor': self.on_scroll_to_anchor,
-            'scroll_to_ref': self.on_scroll_to_ref,
-            'scroll_to_frac': self.on_scroll_to_frac,
-            'next_screen': self.on_next_screen,
-            'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
-            'gesture_from_margin': self.gesture_from_margin,
-            'wheel_from_margin': self.wheel_from_margin,
+            'change_font_size': self.change_font_size,
+            'display': self.display,
             'find': self.find,
-            'window_size': self.received_window_size,
+            'gesture_from_margin': self.gesture_from_margin,
             'get_current_cfi': self.get_current_cfi,
+            'initialize':self.initialize,
+            'modify_selection': self.modify_selection,
+            'next_screen': self.on_next_screen,
+            'scroll_to_anchor': self.on_scroll_to_anchor,
+            'scroll_to_frac': self.on_scroll_to_frac,
+            'scroll_to_ref': self.on_scroll_to_ref,
             'set_forward_keypresses': self.set_forward_keypresses,
             'set_reference_mode': self.set_reference_mode,
-            'modify_selection': self.modify_selection,
+            'wheel_from_margin': self.wheel_from_margin,
+            'window_size': self.received_window_size,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
