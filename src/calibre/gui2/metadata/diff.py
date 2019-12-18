@@ -13,7 +13,7 @@ from polyglot.builtins import iteritems, itervalues, zip, unicode_type, range, m
 from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
-    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
+    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea,
     QKeySequence, QAction, QMenu, QHBoxLayout, QCheckBox)
 
 from calibre import fit_image
@@ -389,7 +389,7 @@ class CompareSingle(QWidget):
             fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover'), db=None):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
-        l.setContentsMargins(0, 0, 0, 0)
+        # l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         revert_tooltip = revert_tooltip or _('Revert %s')
         self.current_mi = None
@@ -467,12 +467,6 @@ class CompareSingle(QWidget):
                 l.addWidget(w, row, c)
             row += 1
 
-        self.sep = f = QFrame(self)
-        f.setFrameShape(f.VLine)
-        l.addWidget(f, 0, 2, row, 1)
-        self.sep2 = f = QFrame(self)
-        f.setFrameShape(f.VLine)
-        l.addWidget(f, 0, 4, row, 1)
         if 'comments' in self.widgets and not gprefs.get('diff_widget_show_comments_controls', True):
             self.widgets['comments'].new.hide_toolbars()
 
