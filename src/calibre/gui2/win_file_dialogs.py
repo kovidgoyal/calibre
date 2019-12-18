@@ -49,16 +49,16 @@ def get_hwnd(widget=None):
 def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
-    return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
+    return struct.pack('=B4s' + ('Q' if is64bit else 'I'), 4, b'HWND', int(hwnd))
 
 
 def serialize_secret(secret):
-    return struct.pack(b'=B6s32s', 6, b'SECRET', secret)
+    return struct.pack('=B6s32s', 6, b'SECRET', secret)
 
 
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
-    return struct.pack(b'=B%ssB' % len(key), len(key), key, int(val))
+    return struct.pack('=B%ssB' % len(key), len(key), key, int(val))
 
 
 def serialize_string(key, val):
@@ -66,16 +66,16 @@ def serialize_string(key, val):
     val = unicode_type(val).encode('utf-8')
     if len(val) > 2**16 - 1:
         raise ValueError('%s is too long' % key)
-    return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
+    return struct.pack('=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
 
 
 def serialize_file_types(file_types):
     key = b"FILE_TYPES"
-    buf = [struct.pack(b'=B%dsH' % len(key), len(key), key, len(file_types))]
+    buf = [struct.pack('=B%dsH' % len(key), len(key), key, len(file_types))]
 
     def add(x):
         x = x.encode('utf-8').replace(b'\0', b'')
-        buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
+        buf.append(struct.pack('=H%ds' % len(x), len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
         if isinstance(extensions, string_or_bytes):
