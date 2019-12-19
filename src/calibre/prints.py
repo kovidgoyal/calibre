@@ -25,11 +25,11 @@ def prints(*a, **kw):
         end = '\n'
     if is_binary(stream):
         encoding = getattr(stream, 'encoding', None) or 'utf-8'
-        a = tuple(as_bytes(x, encoding=encoding) for x in a)
+        a = (as_bytes(x, encoding=encoding) for x in a)
         sep = as_bytes(sep)
         end = as_bytes(end)
     else:
-        a = tuple(as_unicode(x, errors='replace') for x in a)
+        a = (as_unicode(x, errors='replace') for x in a)
         sep = as_unicode(sep)
         end = as_unicode(end)
     for x in a:
