@@ -230,8 +230,9 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
                         break
         if loadable:
             load_required.add(tag_id)
-            elem.addEventListener('load', onload.bind(tag_id))
-            elem.addEventListener('error', onload.bind(tag_id))
+            load_callback = onload.bind(tag_id)
+            elem.addEventListener('load', load_callback)
+            elem.addEventListener('error', load_callback)
 
         apply_attributes(src, elem, ns_map)
         parent.appendChild(elem)
@@ -286,13 +287,13 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
         nonlocal proceeded
         if not proceeded:
             proceeded = True
-            print('WARNING: All resources did not load in {} seconds, proceeding anyway ({} resources left)'.format(hang_timeout, load_required.length))
+            print(f'WARNING: All resources did not load in {hang_timeout} seconds, proceeding anyway ({load_required.length} resources left)')
             proceed()
 
     def onload():
         nonlocal proceeded
         load_required.discard(this)
-        if not load_required.length:
+        if not load_required.length and not proceeded:
             proceeded = True
             proceed()
 
@@ -368,13 +369,13 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
         nonlocal proceeded
         if not proceeded:
             proceeded = True
-            print('WARNING: All resources did not load in {} seconds, proceeding anyway ({} resources left)'.format(hang_timeout, load_required.length))
+            print(f'WARNING: All resources did not load in {hang_timeout} seconds, proceeding anyway ({load_required.length} resources left)')
             proceed()
 
     def onload():
         nonlocal proceeded
         load_required.discard(this)
-        if not load_required.length:
+        if not load_required.length and not proceeded:
             proceeded = True
             proceed()
 
