@@ -252,8 +252,8 @@ class Key(object):
                 data_buf = ctypes.create_unicode_buffer(max(2 * len(data_buf), size.value // 2))
             except KeyError:
                 return default
-            except WindowsError as err:
-                if fallback and err.errno == winerror.ERROR_BAD_COMMAND:
+            except OSError as err:
+                if fallback and err.winerror == winerror.ERROR_BAD_COMMAND:
                     return self.get(value_name=value_name, default=default)
                 raise
         return data_buf.value
@@ -310,7 +310,7 @@ class Key(object):
         if sub_key is not None:
             try:
                 key = RegOpenKey(key, sub_key)
-            except WindowsError:
+            except OSError:
                 return
         try:
             name_buf = ctypes.create_unicode_buffer(16385)
