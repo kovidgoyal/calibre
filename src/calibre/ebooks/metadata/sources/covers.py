@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from threading import Thread, Event
-from io import BytesIO
+from io import StringIO
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log
@@ -27,7 +27,7 @@ class Worker(Thread):
         self.plugin = plugin
         self.abort = abort
         self.get_best_cover = get_best_cover
-        self.buf = BytesIO()
+        self.buf = StringIO()
         self.log = create_log(self.buf)
         self.title, self.authors, self.identifiers = (title, authors,
                 identifiers)
