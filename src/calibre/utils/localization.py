@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, io, sys
+import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
 from polyglot.builtins import iteritems, unicode_type
@@ -402,8 +402,7 @@ def get_language(lang, gettext_func=None):
         # re-translate
         return translate(_extra_lang_codes[lang])
     if gettext_func is None:
-        attr = 'gettext' if sys.version_info.major > 2 else 'ugettext'
-        gettext_func = getattr(_lang_trans, attr, translate)
+        gettext_func = getattr(_lang_trans, 'gettext', translate)
     return get_iso_language(gettext_func, lang)
 
 
