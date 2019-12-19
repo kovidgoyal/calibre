@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, locale, re, io, sys
+import os, locale, re, io
 from gettext import GNUTranslations, NullTranslations
 
 from polyglot.builtins import iteritems, unicode_type
@@ -390,8 +390,7 @@ def get_language(lang):
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
         return translate(_extra_lang_codes[lang])
-    attr = 'gettext' if sys.version_info.major > 2 else 'ugettext'
-    return get_iso_language(getattr(_lang_trans, attr, translate), lang)
+    return get_iso_language(getattr(_lang_trans, 'gettext', translate), lang)
 
 
 def calibre_langcode_to_name(lc, localize=True):
