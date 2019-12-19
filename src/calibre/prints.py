@@ -32,10 +32,10 @@ def prints(*a, **kw):
         a = (as_unicode(x, errors='replace') for x in a)
         sep = as_unicode(sep)
         end = as_unicode(end)
-    for x in a:
-        stream.write(x)
-        if sep:
+    for i, x in enumerate(a):
+        if sep and i != 0:
             stream.write(sep)
+        stream.write(x)
     if end:
         stream.write(end)
     if kw.get('flush'):
