@@ -34,11 +34,6 @@ dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 
 not_present = object()
 
 
-def normalize_word(word):
-    # remove soft hyphens
-    return unicode_type(word).replace('\u00ad', '')
-
-
 class UserDictionary(object):
 
     __slots__ = ('name', 'is_active', 'words')
@@ -231,17 +226,14 @@ class Dictionaries(object):
         return ans
 
     def ignore_word(self, word, locale):
-        word = normalize_word(word)
         self.ignored_words.add((word, locale.langcode))
         self.word_cache[(word, locale)] = True
 
     def unignore_word(self, word, locale):
-        word = normalize_word(word)
         self.ignored_words.discard((word, locale.langcode))
         self.word_cache.pop((word, locale), None)
 
     def is_word_ignored(self, word, locale):
-        word = normalize_word(word)
         return (word, locale.langcode) in self.ignored_words
 
     @property
@@ -275,14 +267,12 @@ class Dictionaries(object):
         for d in itervalues(self.dictionaries):
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
-                    word = normalize_word(word)
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
         for d in itervalues(self.dictionaries):
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
-                    word = normalize_word(word)
                     d.obj.remove(word)
 
     def add_to_user_dictionary(self, name, word, locale):
@@ -291,11 +281,9 @@ class Dictionaries(object):
             raise ValueError('Cannot add to the dictionary named: %s as no such dictionary exists' % name)
         wl = len(ud.words)
         if isinstance(word, (set, frozenset)):
-            word = frozenset(map(normalize_word, word))
             ud.words |= word
             self.add_user_words(word, locale.langcode)
         else:
-            word = normalize_word(word)
             ud.words.add((word, locale.langcode))
             self.add_user_words((word,), locale.langcode)
         if len(ud.words) > wl:
@@ -308,7 +296,6 @@ class Dictionaries(object):
         return False
 
     def remove_from_user_dictionaries(self, word, locale):
-        word = normalize_word(word)
         key = (word, locale.langcode)
         changed = False
         for ud in self.active_user_dictionaries:
@@ -324,7 +311,7 @@ class Dictionaries(object):
     def remove_from_user_dictionary(self, name, words):
         changed = False
         removals = defaultdict(set)
-        keys = [(normalize_word(w), l.langcode) for w, l in words]
+        keys = [(w, l.langcode) for w, l in words]
         for d in self.all_user_dictionaries:
             if d.name == name:
                 for key in keys:
@@ -341,7 +328,6 @@ class Dictionaries(object):
         return changed
 
     def word_in_user_dictionary(self, word, locale):
-        word = normalize_word(word)
         key = (word, locale.langcode)
         for ud in self.active_user_dictionaries:
             if key in ud.words:
@@ -377,7 +363,6 @@ class Dictionaries(object):
         return changed
 
     def recognized(self, word, locale=None):
-        word = normalize_word(word)
         locale = locale or self.default_locale
         key = (word, locale)
         ans = self.word_cache.get(key, None)
@@ -406,7 +391,6 @@ class Dictionaries(object):
         return ans
 
     def suggestions(self, word, locale=None):
-        word = normalize_word(word)
         locale = locale or self.default_locale
         d = self.dictionary_for_locale(locale)
         has_unicode_hyphen = '\u2010' in word

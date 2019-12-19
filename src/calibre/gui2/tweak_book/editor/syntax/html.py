@@ -11,7 +11,7 @@ from collections import namedtuple
 
 from PyQt5.Qt import QFont, QTextBlockUserData, QTextCharFormat
 
-from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
+from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags, patterns
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
@@ -76,7 +76,18 @@ def spell_property(sfmt, locale):
     return s
 
 
-_speedup.init(spell_property, dictionaries.recognized, split_into_words_and_positions)
+def sanitizing_recognizer():
+    sanitize = patterns().sanitize_invisible_pat.sub
+    r = dictionaries.recognized
+
+    def recognized(word, locale=None):
+        word = sanitize('', word).strip()
+        return r(word, locale)
+
+    return recognized
+
+
+_speedup.init(spell_property, sanitizing_recognizer(), split_into_words_and_positions)
 del spell_property
 check_spelling = _speedup.check_spelling
 
