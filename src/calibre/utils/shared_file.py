@@ -71,13 +71,13 @@ if iswindows:
     }
 
     def raise_winerror(pywinerr, path=None):
-        reraise(
-            WindowsError, WindowsError(
-                pywinerr.winerror,
-                (pywinerr.funcname or '') + ': ' + (pywinerr.strerror or ''), path
-            ),
-            sys.exc_info()[2]
+        exc = OSError(
+            pywinerr.winerror,
+            (pywinerr.funcname or '') + ': ' + (pywinerr.strerror or ''),
+            path,
+            pywinerr.winerror
         )
+        reraise(type(exc), exc, sys.exc_info()[2])
 
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
         '''
