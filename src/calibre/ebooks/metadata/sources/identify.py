@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import time, re
 from datetime import datetime
 from threading import Thread
-from io import BytesIO
+from io import StringIO
 from operator import attrgetter
 from polyglot.urllib import urlparse, quote
 
@@ -38,7 +38,7 @@ class Worker(Thread):
 
         self.plugin, self.kwargs, self.rq = plugin, kwargs, Queue()
         self.abort = abort
-        self.buf = BytesIO()
+        self.buf = StringIO()
         self.log = create_log(self.buf)
 
     def run(self):
