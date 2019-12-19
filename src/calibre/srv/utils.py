@@ -434,12 +434,14 @@ class HandleInterrupt(object):  # {{{
     def __enter__(self):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
-                raise WindowsError()
+                import ctypes
+                raise ctypes.WinError()
 
     def __exit__(self, *args):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
-                raise WindowsError()
+                import ctypes
+                raise ctypes.WinError()
 # }}}
 
 
