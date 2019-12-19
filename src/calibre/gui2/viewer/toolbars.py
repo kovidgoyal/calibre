@@ -13,6 +13,7 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
+from calibre.constants import isosx
 from calibre.gui2 import elided_text
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.viewer.web_view import get_session_pref, set_book_path, vprefs
@@ -251,7 +252,7 @@ class ActionsList(QListWidget):
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)
-        self.setDefaultDropAction(Qt.MoveAction)
+        self.setDefaultDropAction(Qt.CopyAction if isosx else Qt.MoveAction)
         self.setMinimumHeight(400)
         self.is_source = is_source
         if is_source:
