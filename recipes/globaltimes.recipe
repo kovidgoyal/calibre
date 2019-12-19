@@ -43,15 +43,16 @@ class GlobalTimes(BasicNewsRecipe):
 
     def parse_index(self):
         catnames = {}
-        catnames["http://www.globaltimes.cn/china/politics/"] = "China Politics"
-        catnames["http://www.globaltimes.cn/china/diplomacy/"] = "China Diplomacy"
-        catnames["http://www.globaltimes.cn/china/military/"] = "China Military"
-        catnames["http://www.globaltimes.cn/business/economy/"] = "China Economy"
-        catnames["http://www.globaltimes.cn/world/asia-pacific/"] = "Asia Pacific"
+        catnames["https://www.globaltimes.cn/china/politics/"] = "China Politics"
+        catnames["https://www.globaltimes.cn/china/diplomacy/"] = "China Diplomacy"
+        catnames["https://www.globaltimes.cn/china/military/"] = "China Military"
+        catnames["https://www.globaltimes.cn/world/asia-pacific/"] = "Asia Pacific"
+        catnames["https://www.globaltimes.cn/sci-tech"] = "Sci-Tech"
         feeds = []
 
-        for cat in catnames.keys():
+        for cat in catnames:
             articles = []
+            self.log(cat)
             soup = self.index_to_soup(cat)
             for a in soup.findAll(
                 'a',
