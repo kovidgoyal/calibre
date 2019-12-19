@@ -8,6 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import io
 from gettext import GNUTranslations
+from calibre.constants import ispy3
 from calibre.utils.localization import get_lc_messages_path
 from zipfile import ZipFile
 
@@ -34,4 +35,5 @@ def translate(lang, text):
                     _CACHE[lang] = trans
     if trans is None:
         return getattr(__builtins__, '_', lambda x: x)(text)
-    return trans.ugettext(text)
+    f = getattr(trans, 'gettext' if ispy3 else 'ugettext')
+    return f(text)
