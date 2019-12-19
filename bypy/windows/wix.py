@@ -16,7 +16,7 @@ if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
 else:
     UPGRADE_CODE = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1'
-MINVERHUMAN = 'Windows 7'
+MINVERHUMAN = 'Windows 8'
 calibre_constants = globals()['calibre_constants']
 
 CANDLE = WIXP + r'\bin\candle.exe'
@@ -41,7 +41,7 @@ def create_installer(env):
         ProgramFilesFolder='ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
         x64=' 64bit' if is64bit else '',
         minverhuman=MINVERHUMAN,
-        minver='601',
+        minver='602',
         fix_wix='<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
         compression='high',
         app_components=components,
