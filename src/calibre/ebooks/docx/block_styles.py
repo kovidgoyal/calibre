@@ -375,7 +375,7 @@ class ParagraphStyle(object):
                 setattr(self, p, binary_property(pPr, p, namespace.XPath, namespace.get))
 
             for x in ('border', 'indent', 'justification', 'spacing', 'shd', 'numbering', 'frame'):
-                f = globals()['read_%s' % x]
+                f = read_funcs[x]
                 f(pPr, self, namespace.XPath, namespace.get)
 
             for s in namespace.XPath('./w:pStyle[@w:val]')(pPr):
@@ -473,3 +473,6 @@ class ParagraphStyle(object):
             if bw is not inherit and bw and bs is not inherit and bs != 'none':
                 return True
         return False
+
+
+read_funcs = {k[5:]:v for k, v in iteritems(globals()) if k.startswith('read_')}
