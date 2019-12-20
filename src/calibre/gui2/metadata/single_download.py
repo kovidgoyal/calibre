@@ -931,9 +931,13 @@ class CoversWidget(QWidget):  # {{{
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
-            txt = _('Found <b>%(num)d</b> possible covers for %(title)s. '
-                    'When the download completes, the covers will be sorted by size.')%dict(num=num-1,
-                            title=self.title)
+            if num == 2:
+                txt = _('Found a cover for {title}').format(self.title)
+            else:
+                txt = _(
+                    'Found <b>{num}</b> covers for {title}. When the download completes,'
+                    ' the covers will be sorted by size.').format(
+                            title=self.title, num=num-1)
         self.msg.setText(txt)
         self.msg.setWordWrap(True)
         self.covers_view.stop()
