@@ -189,6 +189,7 @@ def main():
             exec(sys.argv[-1])
         except Exception:
             print('Failed to run pipe worker with command:', sys.argv[-1])
+            sys.stdout.flush()
             raise
         return
     address = msgpack_loads(from_hex_bytes(os.environ['CALIBRE_WORKER_ADDRESS']))
