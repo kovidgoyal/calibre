@@ -93,6 +93,7 @@ class IframeBoss:
         handlers = {
             'change_color_scheme': self.change_color_scheme,
             'change_font_size': self.change_font_size,
+            'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'find': self.find,
             'gesture_from_margin': self.gesture_from_margin,
@@ -242,6 +243,10 @@ class IframeBoss:
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             apply_font_size()
+
+    def change_scroll_speed(self, data):
+        if data.lines_per_sec_smooth?:
+            opts.lines_per_sec_smooth = data.lines_per_sec_smooth
 
     def change_stylesheet(self, data):
         opts.user_stylesheet = data.sheet or ''

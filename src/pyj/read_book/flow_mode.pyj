@@ -6,6 +6,7 @@ from select import word_at_point
 
 from dom import set_css
 from read_book.globals import current_spine_item, get_boss
+from read_book.settings import opts
 from read_book.viewport import scroll_viewport
 from utils import document_height, viewport_to_document
 
@@ -167,7 +168,6 @@ def layout(is_single_page):
 DIRECTION = {'Up': -1, 'Down': 1}
 class ScrollAnimator:
     DURATION = 100 # milliseconds
-    SCROLL_SPEED = 30 # lines/sec TODO: This will be configurable
 
     def __init__(self):
         self.animation_id = None
@@ -187,7 +187,7 @@ class ScrollAnimator:
         duration = (self.end_time - self.start_time)
         progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
         scroll_target = self.start_offset
-        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * self.SCROLL_SPEED) / 1000
+        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth) / 1000
 
         window.scrollTo(0, scroll_target)
 
@@ -196,7 +196,7 @@ class ScrollAnimator:
         else:
             self.animation_id = None
             amt = window.pageYOffset - self.start_offset
-            if abs(amt) < 3 and duration is self.DURATION:
+            if abs(amt) < 3 and duration is self.DURATION and !(0 <= scroll_target <= document_height() - window.innerHeight):
                 get_boss().send_message('next_spine_item', previous=self.direction is DIRECTION.Up)
             else:
                 report_human_scroll(amt)

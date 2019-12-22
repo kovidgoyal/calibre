@@ -11,6 +11,8 @@ from read_book.prefs.utils import create_button_box
 from session import defaults
 
 CONTAINER = unique_id('standalone-scrolling-settings')
+MIN_SCROLL_SPEED = 0.5
+MAX_SCROLL_SPEED = 50
 
 
 def restore_defaults():
@@ -21,6 +23,15 @@ def restore_defaults():
 
 def get_container():
     return document.getElementById(CONTAINER)
+
+
+def change_scroll_speed(amt):
+    sd = get_session_data()
+    lps = sd.get('lines_per_sec_smooth')
+    nlps = max(MIN_SCROLL_SPEED, min(lps + amt, MAX_SCROLL_SPEED))
+    if nlps != lps:
+        sd.set('lines_per_sec_smooth', nlps)
+    return nlps
 
 
 def create_scrolling_panel(container, apply_func, cancel_func):

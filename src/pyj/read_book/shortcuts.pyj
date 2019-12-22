@@ -270,6 +270,18 @@ def shortcuts_definition():
         _('Go to a specified book location or position'),
     ),
 
+    'scrollspeed_increase': desc(
+        "Alt+ArrowUp",
+        'scroll',
+        _('Smooth scroll faster'),
+    ),
+
+    'scrollspeed_decrease': desc(
+        "Alt+ArrowDown",
+        'scroll',
+        _('Smooth scroll slower'),
+    ),
+
     }
     return ans
 

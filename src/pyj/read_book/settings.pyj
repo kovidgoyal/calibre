@@ -17,6 +17,7 @@ def update_settings(settings):
     opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
     opts.hide_tooltips = settings.hide_tooltips
     opts.is_dark_theme = v'!!settings.is_dark_theme'
+    opts.lines_per_sec_smooth = settings.lines_per_sec_smooth
     opts.margin_left = max(0, settings.margin_left)
     opts.margin_right = max(0, settings.margin_right)
     opts.override_book_colors = settings.override_book_colors
