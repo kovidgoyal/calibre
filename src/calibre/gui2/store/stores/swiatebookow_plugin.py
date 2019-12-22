@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2017, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2017-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
@@ -73,10 +73,10 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
                     if not id:
                         continue
 
-                    cover_url = ''.join(data.xpath('.//div[@class="cover-xs"]/img/@src'))
+                    cover_url = ''.join(data.xpath('.//div[@class="cover-xs"]//img/@data-src'))
                     price = ''.join(data.xpath('.//span[@class="item-price"]/text()')+data.xpath('.//span[@class="sub-price"]/text()'))
-                    title = ''.join(data.xpath('.//h3/text()'))
-                    author = ', '.join(data.xpath('.//div[@class="details"]/p/a/text()'))
+                    title = ''.join(data.xpath('.//div[@class="largebox-book-info"]//h2/a/text()'))
+                    author = ', '.join(data.xpath('.//div[@class="largebox-book-info"]/p/a/text()'))
 
                     counter -= 1
 
