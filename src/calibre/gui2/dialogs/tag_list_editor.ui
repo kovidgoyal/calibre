@@ -41,6 +41,9 @@
        <property name="toolTip">
         <string>Search for an item in the Tag column</string>
        </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
