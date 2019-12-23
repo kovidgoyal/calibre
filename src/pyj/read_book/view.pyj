@@ -23,7 +23,7 @@ from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
-from read_book.prefs.scrolling import change_scroll_speed, MIN_SCROLL_SPEED as SCROLL_SPEED_STEP
+from read_book.prefs.scrolling import change_scroll_speed, MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.shortcuts import create_shortcut_map
