@@ -49,6 +49,8 @@ def all_actions():
             'fullscreen': Action('page.png', _('Toggle full screen'), 'toggle_full_screen'),
             'next': Action('next.png', _('Next page'), 'next'),
             'previous': Action('previous.png', _('Previous page'), 'previous'),
+            'next_section': Action('arrow-down.png', _('Next section'), 'next_section'),
+            'previous_section': Action('arrow-up.png', _('Previous section'), 'previous_section'),
             'toc': Action('toc.png', _('Table of Contents'), 'toggle_toc'),
             'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
             'inspector': Action('debug.png', _('Inspector'), 'toggle_inspector'),
@@ -148,6 +150,8 @@ class ActionsToolBar(ToolBar):
 
         self.next_action = shortcut_action('next')
         self.previous_action = shortcut_action('previous')
+        self.next_section_action = shortcut_action('next_section')
+        self.previous_section_action = shortcut_action('previous_section')
 
         self.toc_action = a = shortcut_action('toc')
         a.setCheckable(True)
