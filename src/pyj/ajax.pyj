@@ -77,7 +77,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
 
     def set_error(event, is_network_error):
         if is_network_error:
-            xhr.error_html = str.format(_('Failed to communicate with "{}", network error, is the server running and accessible?'), xhr.request_path)
+            xhr.error_html = str.format(_('Failed to communicate with "{}", network error. Is the server running and accessible?'), xhr.request_path)
         elif event is 'timeout':
             xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout)
         elif event is 'abort':

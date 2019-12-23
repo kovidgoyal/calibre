@@ -153,7 +153,7 @@ The server interface
 The server interface is a simplified version of the main calibre interface,
 optimised for use with touch screens. The home screen shows you books
 you are currently reading as well as allowing to choose a calibre library you
-want to browse. The server in calibre 3 gives you access to all your libraries,
+want to browse. The server in calibre gives you access to all your libraries,
 not just a single one, as before.
 
 The book list
