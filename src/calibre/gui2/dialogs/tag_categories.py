@@ -45,6 +45,12 @@ class TagCategories(QDialog, Ui_TagCategories):
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
 
+        # I can't figure out how to get these into the .ui file
+        self.gridLayout_2.setColumnMinimumWidth(0, 50)
+        self.gridLayout_2.setColumnStretch(0, 1)
+        self.gridLayout_2.setColumnMinimumWidth(2, 50)
+        self.gridLayout_2.setColumnStretch(2, 1)
+
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
