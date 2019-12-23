@@ -133,7 +133,7 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     if onclick:
         ans.addEventListener('click', onclick)
     if oncontextmenu:
-        ans.addEventListener('contextmenu', onclick)
+        ans.addEventListener('contextmenu', oncontextmenu)
     if is_ios and which is 'margin_bottom' and not window.navigator.standalone and not /CriOS\//.test(window.navigator.userAgent):
         # On iOS Safari 100vh includes the size of the navbar and there is no way to
         # go fullscreen, so to make the bottom bar visible we add a margin to
