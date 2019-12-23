@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -58,48 +58,40 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://www.legimi.pl/ebooki/?szukaj=' + quote_plus(query)
+        url = 'https://www.legimi.pl/ebooki/?sort=score&searchphrase=' + quote_plus(query)
 
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="listBooks"]/div'):
+            for data in doc.xpath('//div[@class="book-search row auto-clear"]/div'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//a[1]/@href'))
+                id = ''.join(data.xpath('.//div[@class="panel-body"]/a/@href'))
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//span[@class="listImage imageDarkLoader"]/img/@src'))
-                title = ''.join(data.xpath('.//span[@class="bookListTitle ellipsis"]/text()'))
-                author = ''.join(data.xpath('.//span[@class="bookListAuthor ellipsis"]/text()'))
-                price = ''.join(data.xpath('.//div[@class="bookListPrice"]/span/text()'))
-
+                cover_url = ''.join(data.xpath('.//div[@class="img-content"]/img/@data-src'))
+                title = ''.join(data.xpath('.//a[@class="book-title clampBookTitle"]/text()'))
+                author = ' '.join(data.xpath('.//div[@class="authors-container clampBookAuthors"]/a/text()'))
                 counter -= 1
 
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price
-                s.detail_item = 'https://www.legimi.pl/' + id.strip()
+                s.detail_item = 'https://www.legimi.pl' + id.strip()
+                s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s
 
     def get_details(self, search_result, timeout):
-        drm_pattern = re.compile("zabezpieczona DRM")
-        formats = []
         br = browser()
-        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+        with closing(br.open(search_result.detail_item, timeout=timeout/2)) as nf:
             idata = html.fromstring(nf.read())
-            formatlist = idata.xpath('.//div[@class="bookFormatsBox clearfix"]//span[@class="bookFormat"]/text()')
-            for x in formatlist:
-                if x.strip() not in formats:
-                    formats.append(x.strip())
-            drm = drm_pattern.search(''.join(idata.xpath('.//div[@id="fullBookFormats"]/p/text()')))
-            search_result.formats = ', '.join(formats)
-            search_result.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+
+            price = ''.join(idata.xpath('.//section[@class="book-sale-options"]//p[@class="light-text"]/text()'))
+            search_result.price = price.split('bez abonamentu ')[-1]
         return True

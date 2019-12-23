@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2017, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -61,7 +61,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
         url = 'http://virtualo.pl/?q=' + quote(query)
 
         br = browser()
-        no_drm_pattern = re.compile(r'Watermark|Brak')
+        no_drm_pattern = re.compile(r'Watermark|brak')
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -76,9 +76,9 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
 
                 price = ''.join(data.xpath('.//div[@class="information"]//div[@class="price"]/text()'))
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
-                title = ''.join(data.xpath('.//div[@class="title"]/a//text()'))
+                title = ''.join(data.xpath('.//h3[@class="title"]/a//text()'))
                 author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a//text()'))
-                formats = [form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a//text()')]
+                formats = [form.strip() for form in data.xpath('.//div[@class="text-wrapper"]//div[@class="format"]/span[@class="prompt_preview"]/text()')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@class="protection"]/text()')))
 
                 counter -= 1
@@ -89,7 +89,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = re.sub(r'\.',',',price.strip())
                 s.detail_item = id
-                s.formats = ', '.join(formats).upper()
+                s.formats = ', '.join(list(filter(None, formats))).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED
 
                 yield s
