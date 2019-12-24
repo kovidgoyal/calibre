@@ -246,6 +246,18 @@ def shortcuts_definition():
         _('Search for next occurrence of selected text'),
     ),
 
+    'extend_selection_by_word': desc(
+        v"['Ctrl+Shift+ArrowRight']",
+        'ui',
+        _('Alter the current selection forward by a word'),
+    ),
+
+    'shrink_selection_by_word': desc(
+        v"['Ctrl+Shift+ArrowLeft']",
+        'ui',
+        _('Alter the current selection backwards by a word'),
+    ),
+
     'show_chrome': desc(
         v"['Escape', 'ContextMenu']",
         'ui',

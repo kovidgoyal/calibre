@@ -405,7 +405,10 @@ class View:
             self.overlay.show_metadata()
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
-
+        elif data.name is 'shrink_selection_by_word':
+            self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='word')
+        elif data.name is 'extend_selection_by_word':
+            self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='word')
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

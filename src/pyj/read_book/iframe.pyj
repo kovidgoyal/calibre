@@ -106,10 +106,15 @@ class IframeBoss:
             'get_current_cfi': self.get_current_cfi,
             'set_forward_keypresses': self.set_forward_keypresses,
             'set_reference_mode': self.set_reference_mode,
+            'modify_selection': self.modify_selection,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
+
+    def modify_selection(self, data):
+        sel = window.getSelection()
+        sel.modify('extend', data.direction, data.granularity)
 
     def set_forward_keypresses(self, data):
         self.forward_keypresses = data.forward
