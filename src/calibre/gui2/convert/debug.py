@@ -27,10 +27,6 @@ class DebugWidget(Widget, Ui_Form):
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.button_debug_dir.clicked.connect(self.set_debug_dir)
-        self.button_clear.clicked.connect(self.clear_debug_dir)
-
-    def clear_debug_dir(self):
-        self.opt_debug_pipeline.setText('')
 
     def set_debug_dir(self):
         x = choose_dir(self, 'conversion debug dir', _('Choose debug folder'))
