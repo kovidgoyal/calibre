@@ -10,6 +10,9 @@ from read_book.viewport import scroll_viewport
 from utils import document_height, viewport_to_document
 
 
+def line_height():
+    return parseFloat(line_height.doc_style.lineHeight)
+
 def flow_to_scroll_fraction(frac, on_initial_load):
     scroll_viewport.scroll_to(0, document_height() * frac)
 
@@ -95,7 +98,7 @@ def flow_onwheel(evt):
         if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dy = evt.deltaY
         elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
-            dy = 15 * evt.deltaY
+            dy = line_height() * evt.deltaY
         if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
             dy = (scroll_viewport.height() - 30) * evt.deltaY
     if evt.deltaX:
@@ -109,21 +112,6 @@ def flow_onwheel(evt):
         window.scrollBy(dx, 0)
     elif Math.abs(dy) >= 1:
         scroll_by(dy)
-
-smooth_y_data = {'last_event_at':0, 'up': False, 'timer':None, 'source':'wheel', 'pixels_per_ms': 0.2, 'scroll_interval':10, 'stop_scrolling_after':100}
-
-def do_y_scroll():
-    dy = (-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval
-    if Math.abs(dy) >= 1 and scroll_by(dy):
-        if Date.now() - smooth_y_data.last_event_at < smooth_y_data.stop_scrolling_after:
-            smooth_y_data.timer = setTimeout(do_y_scroll, smooth_y_data.scroll_interval)
-
-def smooth_y_scroll(up):
-    clearTimeout(smooth_y_data.timer)
-    smooth_y_data.last_event_at = Date.now()
-    smooth_y_data.up = up
-    do_y_scroll()
-
 
 @check_for_scroll_end
 def goto_boundary(y):
@@ -139,10 +127,10 @@ def scroll_by_page(direction):
 
 def handle_shortcut(sc_name, evt):
     if sc_name is 'down':
-        smooth_y_scroll(False)
+        scroll_animator.start(DIRECTION.Down)
         return True
     if sc_name is 'up':
-        smooth_y_scroll(True)
+        scroll_animator.start(DIRECTION.Up)
         return True
     if sc_name is 'start_of_file':
         goto_boundary(-1)
@@ -173,6 +161,55 @@ def handle_shortcut(sc_name, evt):
 
 def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
+    line_height.doc_style = window.getComputedStyle(document.body)
+
+
+DIRECTION = {'Up': -1, 'Down': 1}
+class ScrollAnimator:
+    DURATION = 100 # milliseconds
+    SCROLL_SPEED = 30 # lines/sec TODO: This will be configurable
+
+    def __init__(self):
+        self.animation_id = None
+
+    def start(self, direction):
+        now = performance.now()
+        self.end_time = now + self.DURATION
+
+        if self.animation_id is None or direction != self.direction:
+            self.stop()
+            self.direction = direction
+            self.start_time = now
+            self.start_offset = window.pageYOffset
+            self.animation_id = window.requestAnimationFrame(self.smooth_scroll)
+
+    def smooth_scroll(self, ts):
+        duration = (self.end_time - self.start_time)
+        progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
+        scroll_target = self.start_offset
+        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * self.SCROLL_SPEED) / 1000
+
+        window.scrollTo(0, scroll_target)
+
+        if progress < 1:
+            self.animation_id = window.requestAnimationFrame(self.smooth_scroll)
+        else:
+            self.animation_id = None
+            amt = window.pageYOffset - self.start_offset
+            if abs(amt) < 3 and duration is self.DURATION:
+                get_boss().send_message('next_spine_item', previous=self.direction is DIRECTION.Up)
+            else:
+                report_human_scroll(amt)
+
+    def stop(self):
+        if self.animation_id is not None:
+            window.cancelAnimationFrame(self.animation_id)
+            self.animation_id = None
+            amt = window.pageYOffset - self.start_offset
+            if amt > 0:
+                report_human_scroll(amt)
+
+scroll_animator = ScrollAnimator()
 
 
 class FlickAnimator:
