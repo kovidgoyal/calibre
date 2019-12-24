@@ -339,6 +339,8 @@ class View:
 
     def overlay_visibility_changed(self, visible):
         if self.iframe_wrapper.send_message:
+            if visible:
+                self.iframe_wrapper.send_message('overlay_shown')
             self.iframe_wrapper.send_message('set_forward_keypresses', forward=v'!!visible')
         if ui_operations.overlay_visibility_changed:
             ui_operations.overlay_visibility_changed(visible)
@@ -708,6 +710,7 @@ class View:
             'hide_tooltips': sd.get('hide_tooltips'),
             'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
             'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
+            'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
         }
 
@@ -1000,7 +1003,7 @@ class View:
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
 
     def update_scroll_speed(self, amt):
-        self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_smooth=change_scroll_speed(amt))
+        self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_auto=change_scroll_speed(amt))
 
     def update_color_scheme(self):
         cs = self.get_color_scheme(True)

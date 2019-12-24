@@ -12,7 +12,7 @@ from session import defaults
 
 CONTAINER = unique_id('standalone-scrolling-settings')
 MIN_SCROLL_SPEED = 0.5
-MAX_SCROLL_SPEED = 50
+MAX_SCROLL_SPEED = 5
 
 
 def restore_defaults():
