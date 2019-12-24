@@ -47,7 +47,7 @@ set_env_vars(const char **ENV_VARS, const char **ENV_VAR_VALS, const char* exe_p
 
 void initialize_interpreter(const char **ENV_VARS, const char **ENV_VAR_VALS,
         char *PROGRAM, const char *MODULE, const char *FUNCTION, const char *PYVER, int IS_GUI,
-        const char* exe_path, const char *rpath, int argc, const char **argv) {
+        const char* exe_path, const char *rpath, int argc, char* const *argv) {
     PyObject *pargv, *v;
     int i;
     Py_OptimizeFlag = 2;
@@ -59,7 +59,7 @@ void initialize_interpreter(const char **ENV_VARS, const char **ENV_VAR_VALS,
 
     //Py_VerboseFlag = 1;
     //Py_DebugFlag = 1;
-    
+
     Py_SetProgramName(PROGRAM);
 
     char pyhome[1000];
@@ -124,7 +124,7 @@ int handle_sysexit(PyObject *e) {
 
 int calibre_show_python_error(const char *preamble, int code) {
     PyObject *exc, *val, *tb, *str;
-    int ret, issysexit = 0; char *i; 
+    int ret, issysexit = 0; char *i;
 
     if (!PyErr_Occurred()) return code;
     issysexit = PyErr_ExceptionMatches(PyExc_SystemExit);
@@ -159,41 +159,28 @@ EXPORT
 int
 run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
         const char *MODULE, const char *FUNCTION, const char *PYVER,
-        int IS_GUI, int argc, const char **argv, const char **envp) {
-    char *pathPtr = NULL, *t = NULL;
-    char buf[3*PATH_MAX];
+        int IS_GUI, int argc, char * const *argv, const char **envp, char *full_exe_path) {
+    char *t = NULL;
     int ret = 0, i;
     PyObject *site, *mainf, *res;
     uint32_t buf_size = PATH_MAX+1;
-    char *ebuf = calloc(buf_size, sizeof(char));
 
-    ret = _NSGetExecutablePath(ebuf, &buf_size);
-    if (ret == -1) {
-        free(ebuf);
-        ebuf = calloc(buf_size, sizeof(char));
-        if (_NSGetExecutablePath(ebuf, &buf_size) != 0)
-            return report_error("Failed to find real path of executable.");
-    }
-    pathPtr = realpath(ebuf, buf);
-    if (pathPtr == NULL) {
-        return report_error(strerror(errno));
-    }
     for (i = 0; i < 3; i++) {
-        t = rindex(pathPtr, '/');
+        t = rindex(full_exe_path, '/');
         if (t == NULL) return report_error("Failed to determine bundle path.");
         *t = '\0';
     }
-    if (strstr(pathPtr, "/calibre.app/Contents/") != NULL) {
+    if (strstr(full_exe_path, "/calibre.app/Contents/") != NULL) {
         // We are one of the duplicate executables created to workaround codesign's limitations
         for (i = 0; i < 2; i++) {
-            t = rindex(pathPtr, '/');
+            t = rindex(full_exe_path, '/');
             if (t == NULL) return report_error("Failed to resolve bundle path in dummy executable");
             *t = '\0';
         }
     }
 
     char rpath[PATH_MAX+1], exe_path[PATH_MAX+1];
-    snprintf(exe_path, PATH_MAX+1, "%s/Contents", pathPtr);
+    snprintf(exe_path, PATH_MAX+1, "%s/Contents", full_exe_path);
     snprintf(rpath, PATH_MAX+1, "%s/Resources", exe_path);
     initialize_interpreter(ENV_VARS, ENV_VAR_VALS, PROGRAM, MODULE, FUNCTION, PYVER, IS_GUI,
             exe_path, rpath, argc, argv);
@@ -206,13 +193,13 @@ run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
         Py_XINCREF(site);
 
         mainf = PyObject_GetAttrString(site, "main");
-        if (mainf == NULL || !PyCallable_Check(mainf)) 
+        if (mainf == NULL || !PyCallable_Check(mainf))
             ret = calibre_show_python_error("site module has no main function", -1);
         else {
             Py_XINCREF(mainf);
             res = PyObject_CallObject(mainf, NULL);
 
-            if (res == NULL) 
+            if (res == NULL)
                 ret = calibre_show_python_error("Python function terminated unexpectedly", -1);
             else {
             }
@@ -224,6 +211,3 @@ run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
     //printf("11111 Returning: %d\r\n", ret);
     return ret;
 }
-
-
-
