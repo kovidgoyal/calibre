@@ -2,7 +2,6 @@
 #include "../run-python.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
-#include <libproc.h>
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -28,13 +27,7 @@ set_env_vars(const char* contents_path) {
 }
 
 static void
-get_paths() {
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE], realpath_buf[PROC_PIDPATHINFO_MAXSIZE * 5];
-    pid_t pid = getpid();
-    int ret = proc_pidpath(pid, pathbuf, sizeof(pathbuf));
-    if (ret <= 0) fatal("failed to get executable path for current pid with error: %s", strerror(errno));
-    char *path = realpath(pathbuf, realpath_buf);
-    if (path == NULL) fatal("failed to get realpath for executable path with error: %s", strerror(errno));
+get_paths(char *path) {
 	decode_char_buf(path, interpreter_data.exe_path);
     for (unsigned i = 0; i < 3; i++) {
         char *t = rindex(path, '/');
@@ -67,11 +60,11 @@ get_paths() {
 
 EXPORT
 void
-run(const wchar_t *program, const wchar_t *module, const wchar_t *function, bool gui_app, int argc, char * const *argv) {
+run(const wchar_t *program, const wchar_t *module, const wchar_t *function, bool gui_app, int argc, char * const *argv, char* exe_path) {
     interpreter_data.argc = argc;
     interpreter_data.argv = argv;
     interpreter_data.basename = program; interpreter_data.module = module; interpreter_data.function = function;
     pre_initialize_interpreter(gui_app);
-	get_paths();
+	get_paths(exe_path);
 	run_interpreter();
 }
