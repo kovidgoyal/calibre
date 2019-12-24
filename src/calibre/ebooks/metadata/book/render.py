@@ -87,7 +87,11 @@ def author_search_href(which, title=None, author=None):
     return func(key, title=title, author=author), tt
 
 
-def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):
+def mi_to_html(
+        mi,
+        field_list=None, default_author_link=None, use_roman_numbers=True,
+        rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide'
+    ):
     if field_list is None:
         field_list = get_field_list(mi)
     ans = []
@@ -131,10 +135,11 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                     val = markdown(val)
                 else:
                     val = comments_to_html(val)
-                if disp.get('heading_position', 'hide') == 'side':
+                heading_position = disp.get('heading_position', comments_heading_pos)
+                if heading_position == 'side':
                     ans.append((field, row % (name, val)))
                 else:
-                    if disp.get('heading_position', 'hide') == 'above':
+                    if heading_position == 'above':
                         val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
                     comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
         elif metadata['datatype'] == 'rating':

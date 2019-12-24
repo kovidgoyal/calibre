@@ -441,6 +441,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
         r('booklist_grid', gprefs)
+        r('book_details_comments_heading_pos', gprefs, choices=[
+            (_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')])
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
