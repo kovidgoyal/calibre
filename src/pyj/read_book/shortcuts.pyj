@@ -94,7 +94,7 @@ def shortcuts_definition():
         v"['Ctrl+ArrowUp', 'Ctrl+ArrowLeft', 'Home']",
         'scroll',
         _('Scroll to the beginning of the current file'),
-        _('When the e-book is made of of multiple individual files, scroll to the start of the current file.'),
+        _('When the e-book is made of multiple individual files, scroll to the start of the current file.'),
     ),
 
     'start_of_book': desc(
@@ -113,7 +113,7 @@ def shortcuts_definition():
         v"['Ctrl+ArrowDown', 'Ctrl+ArrowRight', 'End']",
         'scroll',
         _('Scroll to the end of the current file'),
-        _('When the e-book is made of of multiple individual files, scroll to the end of the current file.'),
+        _('When the e-book is made of multiple individual files, scroll to the end of the current file.'),
     ),
 
     'up': desc(
