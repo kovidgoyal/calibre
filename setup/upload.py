@@ -379,6 +379,7 @@ class UploadToServer(Command):  # {{{
 
     def run(self, opts):
         check_call('scp translations/website/locales.zip main:/srv/main/'.split())
+        check_call('scp translations/changelog/locales.zip main:/srv/main/changelog-locales.zip'.split())
         check_call('ssh main /apps/static/generate.py'.split())
         src_file = glob.glob('dist/calibre-*.tar.xz')[0]
         upload_signatures()

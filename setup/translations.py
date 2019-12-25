@@ -284,6 +284,7 @@ class Translations(POT):  # {{{
         self.freeze_locales()
         self.compile_user_manual_translations()
         self.compile_website_translations()
+        self.compile_changelog_translations()
 
     def compile_group(self, files, handle_stats=None, file_ok=None, action_per_file=None):
         from calibre.constants import islinux
@@ -523,12 +524,12 @@ class Translations(POT):  # {{{
     def stats(self):
         return self.j(self.d(self.DEST), 'stats.calibre_msgpack')
 
-    def compile_website_translations(self):
+    def _compile_website_translations(self, name='website', threshold=50):
         from calibre.utils.zipfile import ZipFile, ZipInfo, ZIP_STORED
         from calibre.ptempfile import TemporaryDirectory
         from calibre.utils.localization import get_iso639_translator, get_language, get_iso_language
-        self.info('Compiling website translations...')
-        srcbase = self.j(self.d(self.SRC), 'translations', 'website')
+        self.info('Compiling', name, 'translations...')
+        srcbase = self.j(self.d(self.SRC), 'translations', name)
         fmap = {}
         files = []
         stats = {}
@@ -554,7 +555,7 @@ class Translations(POT):  # {{{
             self.compile_group(files, handle_stats=handle_stats)
 
             for locale, translated in iteritems(stats):
-                if translated >= 20:
+                if translated >= 50:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
                     zi = ZipInfo(os.path.basename(f.name))
@@ -574,12 +575,19 @@ class Translations(POT):  # {{{
             zi = ZipInfo('lang-names.json')
             zi.compress_type = ZIP_STORED
             zf.writestr(zi, json.dumps(lang_names, ensure_ascii=False).encode('utf-8'))
+            return done
+
+    def compile_website_translations(self):
+        done = self._compile_website_translations()
         dest = self.j(self.d(self.stats), 'website-languages.txt')
         data = ' '.join(sorted(done))
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         with open(dest, 'wb') as f:
             f.write(data)
+
+    def compile_changelog_translations(self):
+        self._compile_website_translations('changelog', 0)
 
     def compile_user_manual_translations(self):
         self.info('Compiling user manual translations...')
