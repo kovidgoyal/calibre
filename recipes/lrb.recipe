@@ -28,6 +28,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     encoding = 'utf-8'
     INDEX = 'https://www.lrb.co.uk'
     publication_type = 'magazine'
+    needs_subscription = True
     requires_version = (3, 0, 0)
 
     keep_only_tags = [
@@ -37,6 +38,18 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         classes('social-button article-mask'),
     ]
     remove_attributes = ['width', 'height']
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            br.open('https://www.lrb.co.uk/login')
+            br.select_form(id='login_form')
+            br['_username'] = self.username
+            br['_password'] = self.password
+            raw = br.submit().read()
+            if b'>My Account<' not in raw:
+                raise ValueError('Failed to login check username and password')
+        return br
 
     def parse_index(self):
         articles = []
