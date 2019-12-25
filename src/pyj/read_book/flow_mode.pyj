@@ -12,7 +12,13 @@ from utils import document_height, viewport_to_document
 
 
 def line_height():
-    return parseFloat(line_height.doc_style.lineHeight)
+    try:
+        # will fail if line-height = "normal"
+        lh = parseFloat(line_height.doc_style.lineHeight)
+    except:
+        lh = 1.2 * parseFloat(line_height.doc_style.fontSize)
+
+    return lh
 
 def flow_to_scroll_fraction(frac, on_initial_load):
     scroll_viewport.scroll_to(0, document_height() * frac)

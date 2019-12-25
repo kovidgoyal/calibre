@@ -9,7 +9,7 @@ from session import defaults
 opts = {}
 
 def update_settings(settings):
-    settings = settings or defaults
+    settings = Object.assign({}, defaults, settings)
     opts.base_font_size = max(8, min(settings.base_font_size, 64))
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.color_scheme = settings.color_scheme
