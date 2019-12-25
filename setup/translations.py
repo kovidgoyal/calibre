@@ -139,17 +139,23 @@ class POT(Command):  # {{{
         self.info('Generating translation template for website')
         self.wn_path = os.path.expanduser('~/work/srv/main/static/generate.py')
         data = subprocess.check_output([self.wn_path, '--pot', '/tmp/wn'])
-        bdir = os.path.join(self.TRANSLATIONS, 'website')
-        if not os.path.exists(bdir):
-            os.makedirs(bdir)
-        pot = os.path.join(bdir, 'website.pot')
-        with open(pot, 'wb') as f:
-            f.write(self.pot_header().encode('utf-8'))
-            f.write(b'\n')
-            f.write(data)
-        self.info('Website translations:', os.path.abspath(pot))
-        self.upload_pot(resource='website')
-        self.git(['add', os.path.abspath(pot)])
+        data = json.loads(data)
+
+        def do(name):
+            messages = data[name]
+            bdir = os.path.join(self.TRANSLATIONS, name)
+            if not os.path.exists(bdir):
+                os.makedirs(bdir)
+            pot = os.path.abspath(os.path.join(bdir, name + '.pot'))
+            with open(pot, 'wb') as f:
+                f.write(self.pot_header().encode('utf-8'))
+                f.write(b'\n')
+                f.write('\n'.join(messages).encode('utf-8'))
+            self.upload_pot(resource=name)
+            self.git(['add', pot])
+
+        do('website')
+        do('changelog')
 
     def pot_header(self, appname=__appname__, version=__version__):
         return textwrap.dedent('''\
@@ -427,7 +433,7 @@ class Translations(POT):  # {{{
 
         if self.iso639_errors:
             for err in self.iso639_errors:
-                print (err)
+                print(err)
             raise SystemExit(1)
 
         dest = self.stats
