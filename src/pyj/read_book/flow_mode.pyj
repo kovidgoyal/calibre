@@ -124,8 +124,8 @@ def flow_onwheel(evt):
         scroll_by(dy)
 
 @check_for_scroll_end
-def goto_boundary(y):
-    scroll_viewport.scroll_to(window.pageXOffset, 0)
+def goto_boundary(dir):
+    scroll_viewport.scroll_to(window.pageXOffset, 0 if dir is DIRECTION.Up else document_height())
     get_boss().report_human_scroll()
 
 
@@ -143,10 +143,10 @@ def handle_shortcut(sc_name, evt):
         scroll_animator.start(DIRECTION.Up, False)
         return True
     if sc_name is 'start_of_file':
-        goto_boundary(-1)
+        goto_boundary(DIRECTION.Up)
         return True
     if sc_name is 'end_of_file':
-        goto_boundary(1)
+        goto_boundary(DIRECTION.Down)
         return True
     if sc_name is 'left':
         window.scrollBy(-15, 0)
