@@ -712,6 +712,8 @@ class View:
             'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
             'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
+            'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
+            'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
         }
 
     def show_name(self, name, initial_position=None):

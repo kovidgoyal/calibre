@@ -270,7 +270,6 @@ class IframeBoss:
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
         fix_fullscreen_svg_images()
-        self.do_layout(self.is_titlepage)
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
         # window.setTimeout(self.content_loaded_stage2, 1000)
@@ -307,6 +306,7 @@ class IframeBoss:
                 if si:
                     self.length_before += files[si]?.length or 0
         self.onscroll()
+        self.do_layout(self.is_titlepage)
         self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
         window.setTimeout(self.update_cfi, 0)
