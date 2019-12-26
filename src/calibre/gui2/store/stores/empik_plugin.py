@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9 # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 from base64 import b64encode
 from contextlib import closing
 try:
@@ -78,7 +77,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="name"]/a/@title'))
                 price = ''.join(data.xpath('.//div[@class="price ta-price-tile "]/text()'))
 
-                #with closing(br.open('https://empik.com' + id.strip(), timeout=timeout/4)) as nf:
+                # with closing(br.open('https://empik.com' + id.strip(), timeout=timeout/4)) as nf:
                 #    idata = html.fromstring(nf.read())
                 #    crawled = idata.xpath('.//a[(@class="chosen hrefstyle") or (@class="connectionsLink hrefstyle")]/text()')
                 #    formats = ','.join([re.sub('ebook, ','', x.strip()) for x in crawled if 'ebook' in x])
@@ -91,6 +90,6 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = 'https://empik.com' + id.strip()
-                #s.formats = formats.upper().strip()
+                # s.formats = formats.upper().strip()
 
                 yield s
