@@ -24,7 +24,7 @@ from polyglot.queue import Queue, Empty
 
 def image_extensions():
     if not hasattr(image_extensions, 'ans'):
-        image_extensions.ans = [as_unicode_polyglot(x) for x in QImageReader.supportedImageFormats()]
+        image_extensions.ans = [x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()]
     return image_extensions.ans
 
 
