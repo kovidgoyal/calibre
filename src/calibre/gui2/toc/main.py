@@ -11,7 +11,7 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon,
+    QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon, QApplication,
     QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu, QPushButton,
     QSize, QSizePolicy, QStackedWidget, Qt, QToolButton, QTreeWidget,
     QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
@@ -1031,7 +1031,7 @@ class TOCEditor(QDialog):  # {{{
         self.resize(950, 630)
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         self.stacks.currentChanged.connect(self.update_history_buttons)
         self.update_history_buttons()
 

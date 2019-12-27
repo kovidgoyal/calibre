@@ -63,7 +63,7 @@ class DuplicatesQuestion(QDialog):
         self.resize(self.sizeHint())
         geom = gprefs.get('duplicates-question-dialog-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.exec_()
 
     def copy_to_clipboard(self):

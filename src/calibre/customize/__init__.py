@@ -147,7 +147,8 @@ class Plugin(object):  # {{{
             if geom is None:
                 config_dialog.resize(config_dialog.sizeHint())
             else:
-                config_dialog.restoreGeometry(geom)
+                from PyQt5.Qt import QApplication
+                QApplication.instance().safe_restore_geometry(config_dialog, geom)
 
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)

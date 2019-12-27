@@ -911,7 +911,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def read_settings(self):
         geometry = config['main_window_geometry']
         if geometry is not None:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
         self.read_layout_settings()
 
     def write_settings(self):

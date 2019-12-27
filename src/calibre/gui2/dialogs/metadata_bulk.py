@@ -552,7 +552,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.central_widget.setCurrentIndex(tab)
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         else:
             self.resize(self.sizeHint())
         ct = gprefs.get('bulk_metadata_window_tab', 0)

@@ -8,7 +8,7 @@ from PyQt5.Qt import (
     QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap, QPushButton,
     QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    pyqtSignal, QApplication
 )
 
 from calibre import fit_image
@@ -192,7 +192,7 @@ class BookInfo(QDialog):
         saved_layout = gprefs.get('book_info_dialog_layout', None)
         if saved_layout is not None:
             try:
-                self.restoreGeometry(saved_layout[0])
+                QApplication.instance().safe_restore_geometry(self, saved_layout[0])
                 self.splitter.restoreState(saved_layout[1])
             except Exception:
                 pass

@@ -10,7 +10,7 @@ import re
 from random import shuffle
 
 from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout)
+                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QApplication)
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -264,7 +264,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def restore_state(self):
         geometry = self.config.get('geometry', None)
         if geometry:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
 
         splitter_state = self.config.get('store_splitter_state', None)
         if splitter_state:
@@ -333,7 +333,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Restore dialog state.
         geometry = self.config.get('config_dialog_geometry', None)
         if geometry:
-            d.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(d, geometry)
         else:
             d.resize(800, 600)
         tab_index = self.config.get('config_dialog_tab_index', 0)

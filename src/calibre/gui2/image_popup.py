@@ -164,7 +164,7 @@ class ImageView(QDialog):
         self.resize(QSize(int(geom.width()/2.5), geom.height()-50))
         geom = gprefs.get(self.geom_name, None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         try:
             self.current_image_name = unicode_type(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
         except AttributeError:

@@ -41,7 +41,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                         gprefs.get('manage_authors_table_widths', None)
             geom = gprefs.get('manage_authors_dialog_geometry', None)
             if geom:
-                self.restoreGeometry(QByteArray(geom))
+                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
 

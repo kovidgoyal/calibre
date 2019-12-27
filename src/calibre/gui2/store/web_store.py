@@ -10,7 +10,7 @@ import shutil
 
 from PyQt5.Qt import (
     QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl, QVBoxLayout,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, QApplication
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEngineView
 
@@ -140,7 +140,7 @@ class Main(MainWindow):
         self.setCentralWidget(c)
         geometry = gprefs.get('store_dialog_main_window_geometry')
         if geometry is not None:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
         self.go_to(data['detail_url'] or None)
 
     def sizeHint(self):

@@ -159,7 +159,7 @@ class AuthorsEdit(QDialog):
         self.resize(self.sizeHint() + QSize(150, 100))
         geom = gprefs.get('authors-edit-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.author.setFocus(Qt.OtherFocusReason)
 
     def save_geometry(self):

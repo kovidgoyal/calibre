@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
+from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, QApplication,
     QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout,
     QDialogButtonBox)
 
@@ -382,7 +382,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     w.genesis(gui)
     w.initialize()
     if geom is not None:
-        d.restoreGeometry(geom)
+        QApplication.instance().safe_restore_geometry(d, geom)
     d.exec_()
     geom = bytearray(d.saveGeometry())
     gprefs[conf_name] = geom

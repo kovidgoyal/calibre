@@ -608,7 +608,7 @@ class CompareMany(QDialog):
         self.resize(QSize(width, height))
         geom = gprefs.get('diff_dialog_geom', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         b.setFocus(Qt.OtherFocusReason)
         self.next_called = False
 

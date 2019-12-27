@@ -174,7 +174,7 @@ class Dialog(QDialog):
         self.resize(self.sizeHint())
         geom = self.prefs_for_persistence.get(name + '-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         if hasattr(self, 'splitter'):
             state = self.prefs_for_persistence.get(name + '-splitter-state', None)
             if state is not None:

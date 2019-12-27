@@ -509,7 +509,7 @@ class EbookViewer(MainWindow):
         state = vprefs['main_window_state']
         geom = vprefs['main_window_geometry']
         if geom and get_session_pref('remember_window_geometry', default=False):
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
             self.inspector_dock.setVisible(False)

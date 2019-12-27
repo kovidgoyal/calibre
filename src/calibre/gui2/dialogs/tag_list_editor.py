@@ -4,7 +4,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox, QTableWidget, QItemDelegate)
+                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -169,7 +169,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)
             if geom is not None:
-                self.restoreGeometry(QByteArray(geom))
+                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
             else:
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:

@@ -224,7 +224,7 @@ class Preferences(QDialog):
 
         geom = gprefs.get('preferences dialog geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
         # Center
         if islinux:

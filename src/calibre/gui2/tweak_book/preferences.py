@@ -17,7 +17,7 @@ from copy import copy, deepcopy
 from PyQt5.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings
@@ -710,7 +710,7 @@ class Preferences(QDialog):
         self.resize(800, 600)
         geom = tprefs.get('preferences_geom', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
         self.keyboard_panel = ShortcutConfig(self)
         self.keyboard_panel.initialize(gui.keyboard)

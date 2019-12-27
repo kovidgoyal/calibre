@@ -157,7 +157,7 @@ class Quickview(QDialog, Ui_Quickview):
             if not self.is_pane:
                 geom = gprefs.get('quickview_dialog_geometry', None)
                 if geom:
-                    self.restoreGeometry(QByteArray(geom))
+                    QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except:
             pass
 

@@ -56,7 +56,7 @@ class TOCEditor(QDialog):
         self.resize(950, 630)
         geom = tprefs.get('toc_editor_window_geom', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)

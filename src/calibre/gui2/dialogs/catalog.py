@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys, importlib, weakref
 
-from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea
+from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea, QApplication
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -130,7 +130,7 @@ class Catalog(QDialog, Ui_Dialog):
 
         geom = dynamic.get('catalog_window_geom', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         else:
             self.resize(self.sizeHint())
         d = QCoreApplication.instance().desktop()

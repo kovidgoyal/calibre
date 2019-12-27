@@ -62,7 +62,7 @@ class TrimImage(QDialog):
         self.resize(QSize(900, 600))
         geom = gprefs.get('image-trim-dialog-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.setWindowIcon(self.trim_action.icon())
         self.image_data = None
 

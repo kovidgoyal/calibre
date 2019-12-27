@@ -973,6 +973,19 @@ class Application(QApplication):
             if cft >= 0:
                 self.setCursorFlashTime(int(cft))
 
+    def safe_restore_geometry(self, widget, geom):
+        # See https://bugreports.qt.io/browse/QTBUG-77385
+        if not geom:
+            return
+        restored = widget.restoreGeometry(geom)
+        screen_rect = self.desktop().availableGeometry(widget)
+        if not widget.geometry().intersects(screen_rect):
+            w = min(widget.width(), screen_rect.width() - 10)
+            h = min(widget.height(), screen_rect.height() - 10)
+            widget.resize(w, h)
+            widget.move((screen_rect.width() - w) // 2, (screen_rect.height() - h) // 2)
+        return restored
+
     def setup_ui_font(self):
         f = QFont(QApplication.font())
         q = (f.family(), f.pointSize())

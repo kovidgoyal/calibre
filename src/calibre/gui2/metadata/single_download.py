@@ -1066,7 +1066,7 @@ class FullFetch(QDialog):  # {{{
         self.resize(850, 600)
         geom = gprefs.get('metadata_single_gui_geom', None)
         if geom is not None and geom:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
         self.finished.connect(self.cleanup)
 
@@ -1168,7 +1168,7 @@ class CoverFetch(QDialog):  # {{{
 
         geom = gprefs.get('single-cover-fetch-dialog-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
     def cleanup(self):
         self.covers_widget.cleanup()

@@ -10,7 +10,7 @@ import os, errno
 from datetime import datetime
 from functools import partial
 
-from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
+from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QApplication,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, QCoreApplication,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, QInputDialog,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
@@ -120,7 +120,7 @@ class MetadataSingleDialogBase(QDialog):
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         else:
             self.resize(self.sizeHint())
         self.restore_widget_settings()
@@ -1219,8 +1219,8 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None, edit_s
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application as QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     from calibre.library import db
     db = db()
     row_list = list(range(len(db.data)))

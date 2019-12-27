@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox,
+from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox, QApplication,
         QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
@@ -52,7 +52,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.match_locs = []
         geom = gprefs.get('regex_builder_geometry', None)
         if geom is not None:
-            self.restoreGeometry(QByteArray(geom))
+            QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         self.finished.connect(self.save_state)
 
     def save_state(self, result):

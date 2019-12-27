@@ -60,7 +60,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
                         gprefs.get('match_books_dialog_books_table_widths', None)
             geom = gprefs.get('match_books_dialog_geometry', None)
             if geom:
-                self.restoreGeometry(QByteArray(geom))
+                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except:
             pass
 

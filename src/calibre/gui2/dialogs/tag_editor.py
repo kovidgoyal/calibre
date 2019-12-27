@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import Qt, QDialog, QAbstractItemView
+from PyQt5.Qt import Qt, QDialog, QAbstractItemView, QApplication
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
@@ -92,7 +92,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which

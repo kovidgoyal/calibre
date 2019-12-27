@@ -10,7 +10,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
     QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
-    QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon,
+    QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon, QApplication,
     QColorDialog, QToolButton, QLineEdit, QColor, QFrame, QTimer, QCheckBox)
 
 from calibre.ebooks.covers import all_styles, cprefs, generate_cover, override_prefs, default_color_themes
@@ -530,7 +530,7 @@ class CoverSettingsDialog(QDialog):
         self.resize(self.sizeHint())
         geom = gprefs.get('cover_settings_dialog_geom', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.prefs_for_rendering = None
 
     def restore_defaults(self):

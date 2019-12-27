@@ -10,7 +10,7 @@ from PyQt5.Qt import (
     QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
     QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
     QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,
-    Qt, QTextEdit, QWidget
+    Qt, QTextEdit, QWidget, QApplication
 )
 
 from calibre.customize.conversion import OptionRecommendation
@@ -94,7 +94,7 @@ class Config(QDialog):
         self.groups.setMouseTracking(True)
         geom = gprefs.get('convert_single_dialog_geom', None)
         if geom:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         else:
             self.resize(self.sizeHint())
 

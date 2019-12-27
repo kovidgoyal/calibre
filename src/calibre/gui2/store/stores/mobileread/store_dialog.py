@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (Qt, QDialog, QIcon, QComboBox)
+from PyQt5.Qt import (Qt, QDialog, QIcon, QComboBox, QApplication)
 
 from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.stores.mobileread.models import BooksModel
@@ -58,7 +58,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
     def restore_state(self):
         geometry = self.plugin.config.get('dialog_geometry', None)
         if geometry:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
 
         results_cwidth = self.plugin.config.get('dialog_results_view_column_width')
         if results_cwidth:

@@ -13,7 +13,7 @@ import calendar, textwrap
 from collections import OrderedDict
 
 from PyQt5.Qt import (
-    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex,
+    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex, QApplication,
     QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
     QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
     QScrollArea, QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
@@ -373,7 +373,7 @@ class SchedulerDialog(QDialog):
 
         geom = gprefs.get('scheduler_dialog_geometry')
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -729,7 +729,6 @@ class Scheduler(QObject):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
     app = QApplication([])
     d = SchedulerDialog(RecipeModel())
     d.exec_()
