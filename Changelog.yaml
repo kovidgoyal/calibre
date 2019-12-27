@@ -20,6 +20,64 @@
 #   new recipes:
 #     - title:
 
+- version: 4.7.0
+  date: 2019-12-26
+
+  new features:
+    - title: "macOS: Use transient scrollbars unless they are disabled in system preferences"
+
+    - title: "Viewer toolbar: Add actions for next and previous section. They are not added to the toolbar by default, customize it to add them."
+
+    - title: "Viewer: Add an option to keep the toolbar visible in full screen mode (Viewer Preferences->Miscellaneous)"
+
+    - title: "Viewer: Allow modifying the current selection using Ctrl+Shift+Arrow."
+      tickets: [1855942]
+
+    - title: "Book details: Add an option in Preferences->Look & feel->Book details to show a heading for the comments in the book details panel"
+      tickets: [1855942]
+
+    - title: "Edit book: Spell check: Ignore soft hyphens in words"
+
+    - title: "Viewer: In multiple pages per screen mode, When paging back to a chapter we have just paged forward from return to the exact position we left from in terms of number of blank trailing pages displayed."
+      tickets: [1856472]
+
+    - title: "Viewer: Add a setting under Preferences->Colors to control when the viewer will override all book colors or not."
+
+  bug fixes:
+    - title: "Viewer: Fix flick scrolling in flow mode jumping to next chapter."
+      tickets: [1856398]
+
+    - title: "Windows: Possible fix for some windows appearing off screen on multi-monitor setups"
+      tickets: [1857651]
+
+    - title: "macOS: Fix PDF Output not working when running ebook-convert via symlink on the command line."
+      tickets: [1857377]
+
+    - title: "PDF Output: Ignore upto 8 byte glyph data size mismatches when merging identical glyphs."
+      tickets: [1857268]
+
+    - title: "Edit Book: Spell Check: Fix words surrounded by narrow non-breaking spaces being incorrectly detected as mis-spelled"
+
+    - title: "Get books: Update various Polish language stores"
+
+    - title: "macOS: Fix drag and drop to re-arrange items in the viewer toolbar not working"
+
+    - title: "PDF Output: When an inline image is placed alone inside a block tag, ensure that it is not split over two pages."
+
+    - title: "ToC editor: Fix generate from links not working correctly when links have no fragments."
+      tickets: [1856395]
+
+    - title: "PDF Output: Dont dedup images that cannot be uncompressed"
+      tickets: [1856564]
+
+    - title: "Advanced search dialog: Fix an error when closing dialog if on the second tab and no field is focused"
+
+  improved recipes:
+    - Global Times
+    - London Review of Books
+    - The Telegraph (UK)
+    - The Economist
+
 - version: 4.6.0
   date: 2019-12-13
 
