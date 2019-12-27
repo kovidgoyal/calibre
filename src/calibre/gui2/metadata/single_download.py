@@ -932,7 +932,7 @@ class CoversWidget(QWidget):  # {{{
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
             if num == 2:
-                txt = _('Found a cover for {title}').format(self.title)
+                txt = _('Found a cover for {title}').format(title=self.title)
             else:
                 txt = _(
                     'Found <b>{num}</b> covers for {title}. When the download completes,'
