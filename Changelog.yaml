@@ -32,6 +32,8 @@
 
     - title: "Viewer: Re-enable the old reference mode from calibre 3.x"
 
+    - title: "Kobo driver: Support for new firmware"
+
   bug fixes:
     - title: "PDF Output: Fix the option to break long words at the end of lines not working since calibre 4."
       tickets: [1854349]
