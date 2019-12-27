@@ -75,6 +75,13 @@ def encode_query_with_path(query, path):
     return path + encode_query(query, '#')
 
 
+def full_screen_supported(elem):
+    elem = elem or document.documentElement
+    if elem.requestFullScreen or elem.webkitRequestFullScreen or elem.mozRequestFullScreen:
+        return True
+    return False
+
+
 def request_full_screen(elem):
     elem = elem or document.documentElement
     options = {'navigationUI': 'hide'}
