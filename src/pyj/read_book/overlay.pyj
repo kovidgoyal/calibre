@@ -291,7 +291,7 @@ class MainOverlay:  # {{{
             if not full_screen_element() and not is_ios:
                 # No fullscreen on iOS, see http://caniuse.com/#search=fullscreen
                 full_screen_actions.push(
-                    ac(_('Full screen'), _('Enter full screen mode'), def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen')
+                    ac(_('Toggle full screen'), _('Toggle full screen mode'), def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen')
                 )
         if full_screen_actions.length:
             actions_div.appendChild(E.ul(*full_screen_actions))
