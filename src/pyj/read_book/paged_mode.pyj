@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 import traceback
 from elementmaker import E
+from gettext import gettext as _
 from select import word_at_point
 
 from dom import set_css
@@ -560,6 +561,12 @@ def handle_shortcut(sc_name, evt):
         return True
     if sc_name is 'pagedown':
         scroll_by_page(False, True)
+        return True
+    if sc_name is 'toggle_autoscroll':
+        get_boss().send_message('error', title=_('No auto scroll in paged mode'), msg=_(
+            'Switch to flow mode (Viewer preferences->Page layout) to enable auto'
+            ' scrolling')
+        )
         return True
     return False
 
