@@ -203,6 +203,8 @@ class View:
         handlers = {
             'autoscroll_state_changed': def(data):
                 self.autoscroll_active = v'!!data.running'
+                if ui_operations.autoscroll_state_changed:
+                    ui_operations.autoscroll_state_changed(self.autoscroll_active)
             ,
             'bump_font_size': self.bump_font_size,
             'content_loaded': self.on_content_loaded,
@@ -417,6 +419,8 @@ class View:
             self.update_scroll_speed(SCROLL_SPEED_STEP)
         elif data.name is 'scrollspeed_decrease':
             self.update_scroll_speed(-SCROLL_SPEED_STEP)
+        elif data.name is 'toggle_autoscroll':
+            self.toggle_autoscroll()
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

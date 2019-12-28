@@ -55,6 +55,7 @@ def all_actions():
             'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
             'inspector': Action('debug.png', _('Inspector'), 'toggle_inspector'),
             'reference': Action('reference.png', _('Toggle Reference mode'), 'toggle_reference_mode'),
+            'autoscroll': Action('auto-scroll.png', _('Toggle auto-scrolling'), 'toggle_autoscroll'),
             'lookup': Action('generic-library.png', _('Lookup words'), 'toggle_lookup'),
             'chrome': Action('tweaks.png', _('Show viewer controls'), 'show_chrome'),
             'mode': Action('scroll.png', _('Toggle paged mode'), 'toggle_paged_mode'),
@@ -128,6 +129,7 @@ class ActionsToolBar(ToolBar):
         web_view.paged_mode_changed.connect(self.update_mode_action)
         web_view.reference_mode_changed.connect(self.update_reference_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
+        web_view.autoscroll_state_changed.connect(self.update_autoscroll_action)
         web_view.customize_toolbar.connect(self.customize, type=Qt.QueuedConnection)
 
         self.back_action = page.action(QWebEnginePage.Back)
@@ -163,6 +165,9 @@ class ActionsToolBar(ToolBar):
         a.setCheckable(True)
         self.inspector_action = a = shortcut_action('inspector')
         a.setCheckable(True)
+        self.autoscroll_action = a = shortcut_action('autoscroll')
+        a.setCheckable(True)
+        self.update_autoscroll_action(False)
         self.chrome_action = shortcut_action('chrome')
 
         self.mode_action = a = shortcut_action('mode')
@@ -194,6 +199,11 @@ class ActionsToolBar(ToolBar):
         else:
             a.setChecked(True)
             a.setToolTip(_('Switch to paged mode -- where the text is broken into pages'))
+
+    def update_autoscroll_action(self, active):
+        self.autoscroll_action.setChecked(active)
+        self.autoscroll_action.setToolTip(
+            _('Turn off auto-scrolling') if active else _('Turn on auto-scrolling'))
 
     def update_reference_mode_action(self, enabled):
         self.reference_action.setChecked(enabled)

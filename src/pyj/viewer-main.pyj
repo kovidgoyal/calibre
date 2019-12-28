@@ -384,6 +384,8 @@ if window is window.top:
         to_python.clear_history()
     ui_operations.customize_toolbar = def():
         to_python.customize_toolbar()
+    ui_operations.autoscroll_state_changed = def(active):
+        to_python.autoscroll_state_changed(active)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
