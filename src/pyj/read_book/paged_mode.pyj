@@ -653,3 +653,7 @@ def prepare_for_resize(width, height):
 
 def resize_done():
     resize_manager.end_resize()
+
+
+def paged_auto_scroll_resume():
+    pass

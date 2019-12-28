@@ -10,9 +10,10 @@ from iframe_comm import IframeClient
 from read_book.cfi import scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
 from read_book.flow_mode import (
-    anchor_funcs as flow_anchor_funcs, flow_onwheel, flow_to_scroll_fraction,
+    anchor_funcs as flow_anchor_funcs, cancel_scroll as flow_cancel_auto_scroll,
+    flow_auto_scroll_resume, flow_onwheel, flow_to_scroll_fraction,
     handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
-    layout as flow_layout, scroll_by_page as flow_scroll_by_page, cancel_scroll as flow_cancel_auto_scroll
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -24,8 +25,9 @@ from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs, calc_columns_per_screen, current_cfi,
     handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
     jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
-    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
-    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
+    onwheel as paged_onwheel, paged_auto_scroll_resume,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac,
+    reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
@@ -186,6 +188,7 @@ class IframeBoss:
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
             self.anchor_funcs = flow_anchor_funcs
+            self.auto_scroll_resume = flow_auto_scroll_resume
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
@@ -194,6 +197,7 @@ class IframeBoss:
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
+            self.auto_scroll_resume = paged_auto_scroll_resume
         update_settings(data.settings)
         self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
         set_current_spine_item({
@@ -313,6 +317,7 @@ class IframeBoss:
         self.onscroll()
         self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
+        self.auto_scroll_resume()
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
 

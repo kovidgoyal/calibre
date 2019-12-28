@@ -187,9 +187,13 @@ def handle_shortcut(sc_name, evt):
 
 def layout(is_single_page):
     line_height.ans = None
+    set_css(document.body, margin='0', border_width='0', padding='0')
+
+
+def flow_auto_scroll_resume():
     scroll_animator.wait = False
     scroll_animator.sync()
-    set_css(document.body, margin='0', border_width='0', padding='0')
+
 
 # Pause auto-scroll while minimized
 document.addEventListener("visibilitychange", def():
