@@ -563,10 +563,7 @@ def handle_shortcut(sc_name, evt):
         scroll_by_page(False, True)
         return True
     if sc_name is 'toggle_autoscroll':
-        get_boss().send_message('error', title=_('No auto scroll in paged mode'), msg=_(
-            'Switch to flow mode (Viewer preferences->Page layout) to enable auto'
-            ' scrolling')
-        )
+        auto_scroll_action('toggle')
         return True
     return False
 
@@ -655,5 +652,10 @@ def resize_done():
     resize_manager.end_resize()
 
 
-def paged_auto_scroll_resume():
-    pass
+def auto_scroll_action(action):
+    if action is 'toggle':
+        get_boss().send_message('error', title=_('No auto scroll in paged mode'), msg=_(
+            'Switch to flow mode (Viewer preferences->Page layout) to enable auto'
+            ' scrolling')
+        )
+    return False

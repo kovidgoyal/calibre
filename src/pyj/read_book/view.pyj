@@ -201,6 +201,9 @@ class View:
             ),
         )
         handlers = {
+            'autoscroll_state_changed': def(data):
+                self.autoscroll_active = v'!!data.running'
+            ,
             'bump_font_size': self.bump_font_size,
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
@@ -339,9 +342,7 @@ class View:
 
     def overlay_visibility_changed(self, visible):
         if self.iframe_wrapper.send_message:
-            if visible:
-                self.iframe_wrapper.send_message('overlay_shown')
-            self.iframe_wrapper.send_message('set_forward_keypresses', forward=v'!!visible')
+            self.iframe_wrapper.send_message('overlay_visibility_changed', visible=visible)
         if ui_operations.overlay_visibility_changed:
             ui_operations.overlay_visibility_changed(visible)
 
@@ -428,6 +429,9 @@ class View:
         new_mode = 'flow' if mode is 'paged' else 'paged'
         sd.set('read_mode', new_mode)
         ui_operations.redisplay_book()
+
+    def toggle_autoscroll(self):
+        self.iframe_wrapper.send_message('toggle_autoscroll')
 
     def toggle_toolbar(self):
         sd = get_session_data()

@@ -141,6 +141,24 @@ def scroll_by_page(direction):
     window.scrollBy(0, h * direction)
 
 
+def is_auto_scroll_active():
+    return scroll_animator.auto and scroll_animator.is_running()
+
+
+def start_autoscroll():
+    scroll_animator.start(DIRECTION.Down, True)
+
+
+def toggle_autoscroll():
+    running = False
+    if is_auto_scroll_active():
+        cancel_scroll()
+    else:
+        start_autoscroll()
+        running = True
+    get_boss().send_message('autoscroll_state_changed', running=running)
+
+
 def handle_shortcut(sc_name, evt):
     if sc_name is 'down':
         scroll_animator.start(DIRECTION.Down, False)
@@ -173,10 +191,7 @@ def handle_shortcut(sc_name, evt):
         scroll_by_page(1)
         return True
     if sc_name is 'toggle_autoscroll':
-        if scroll_animator.auto and scroll_animator.is_running():
-            cancel_scroll()
-        else:
-            scroll_animator.start(DIRECTION.Down, True)
+        toggle_autoscroll()
         return True
 
     if sc_name.startsWith('scrollspeed_'):
@@ -190,7 +205,7 @@ def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
 
 
-def flow_auto_scroll_resume():
+def auto_scroll_resume():
     scroll_animator.wait = False
     scroll_animator.sync()
 
@@ -422,3 +437,17 @@ anchor_funcs = {
         return (a[0] - b[0]) or (a[1] - b[1])
     ,
 }
+
+
+def auto_scroll_action(action):
+    if action is 'toggle':
+        toggle_autoscroll()
+    elif action is 'start':
+        if not is_auto_scroll_active():
+            toggle_autoscroll()
+    elif action is 'stop':
+        if is_auto_scroll_active():
+            toggle_autoscroll()
+    elif action is 'resume':
+        auto_scroll_resume()
+    return is_auto_scroll_active()

@@ -6,6 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
+from book_list.globals import get_session_data
 from book_list.library_data import sync_library_books
 from book_list.router import home
 from book_list.theme import get_color
@@ -230,6 +231,7 @@ class MainOverlay:  # {{{
     def show(self, container):
         self.container_id = container.getAttribute('id')
         icon_size = '3.5ex'
+        sd = get_session_data()
 
         def ac(text, tooltip, action, icon, is_text_button):
             if is_text_button:
@@ -296,6 +298,14 @@ class MainOverlay:  # {{{
                 full_screen_actions.push(
                     ac(text, _('Toggle full screen mode'), def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen')
                 )
+        if sd.get('read_mode') is 'flow':
+            asa = self.overlay.view.autoscroll_active
+            full_screen_actions.append(ac(
+                _('Stop auto scroll') if asa else _('Auto scroll'), _('Toggle auto-scrolling'), def():
+                    self.overlay.hide()
+                    window.setTimeout(self.overlay.view.toggle_autoscroll, 0)
+                , 'auto-scroll'))
+
         if full_screen_actions.length:
             actions_div.appendChild(E.ul(*full_screen_actions))
 
@@ -510,7 +520,6 @@ class Overlay:
         c.style.color = get_color('window-foreground')
         if c.style.display is not 'block':
             c.style.display = 'block'
-            self.view.overlay_visibility_changed(True)
         return c
 
     @property
