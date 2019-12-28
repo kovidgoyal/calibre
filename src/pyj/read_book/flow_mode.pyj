@@ -6,8 +6,24 @@ from select import word_at_point
 
 from dom import set_css
 from read_book.globals import current_spine_item, get_boss
+from read_book.settings import opts
 from read_book.viewport import scroll_viewport
 from utils import document_height, viewport_to_document
+
+
+def line_height():
+    if not line_height.ans:
+        ds = window.getComputedStyle(document.body)
+        try:
+            # will fail if line-height = "normal"
+            lh = float(ds.lineHeight)
+        except:
+            try:
+                lh = 1.2 * float(ds.fontSize)
+            except:
+                lh = 15
+        line_height.ans = max(5, lh)
+    return line_height.ans
 
 
 def flow_to_scroll_fraction(frac, on_initial_load):
@@ -41,15 +57,15 @@ def add_small_scroll(amt):
 
 
 def report_human_scroll(amt):
+    h = scroll_viewport.height()
+    is_large_scroll = (abs(amt) / h) >= 0.5
     if amt > 0:
-        h = scroll_viewport.height()
-        is_large_scroll = (amt / h) >= 0.5
         if is_large_scroll:
             clear_small_scrolls()
             get_boss().report_human_scroll(amt / document_height())
         else:
             add_small_scroll(amt)
-    else:
+    elif amt is 0 or is_large_scroll:
         clear_small_scrolls()
 
 
@@ -59,8 +75,11 @@ last_change_spine_item_request = {}
 def _check_for_scroll_end(func, obj, args, report):
     before = window.pageYOffset
     func.apply(obj, args)
+
+    now = window.performance.now()
+    scroll_animator.sync(now)
+
     if window.pageYOffset is before:
-        now = Date.now()
         csi = current_spine_item()
         if last_change_spine_item_request.name is csi.name and now - last_change_spine_item_request.at < 2000:
             return False
@@ -95,7 +114,7 @@ def flow_onwheel(evt):
         if evt.deltaMode is WheelEvent.DOM_DELTA_PIXEL:
             dy = evt.deltaY
         elif evt.deltaMode is WheelEvent.DOM_DELTA_LINE:
-            dy = 15 * evt.deltaY
+            dy = line_height() * evt.deltaY
         if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
             dy = (scroll_viewport.height() - 30) * evt.deltaY
     if evt.deltaX:
@@ -110,24 +129,9 @@ def flow_onwheel(evt):
     elif Math.abs(dy) >= 1:
         scroll_by(dy)
 
-smooth_y_data = {'last_event_at':0, 'up': False, 'timer':None, 'source':'wheel', 'pixels_per_ms': 0.2, 'scroll_interval':10, 'stop_scrolling_after':100}
-
-def do_y_scroll():
-    dy = (-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval
-    if Math.abs(dy) >= 1 and scroll_by(dy):
-        if Date.now() - smooth_y_data.last_event_at < smooth_y_data.stop_scrolling_after:
-            smooth_y_data.timer = setTimeout(do_y_scroll, smooth_y_data.scroll_interval)
-
-def smooth_y_scroll(up):
-    clearTimeout(smooth_y_data.timer)
-    smooth_y_data.last_event_at = Date.now()
-    smooth_y_data.up = up
-    do_y_scroll()
-
-
 @check_for_scroll_end
-def goto_boundary(y):
-    scroll_viewport.scroll_to(window.pageXOffset, 0)
+def goto_boundary(dir):
+    scroll_viewport.scroll_to(window.pageXOffset, 0 if dir is DIRECTION.Up else document_height())
     get_boss().report_human_scroll()
 
 
@@ -139,16 +143,16 @@ def scroll_by_page(direction):
 
 def handle_shortcut(sc_name, evt):
     if sc_name is 'down':
-        smooth_y_scroll(False)
+        scroll_animator.start(DIRECTION.Down, False)
         return True
     if sc_name is 'up':
-        smooth_y_scroll(True)
+        scroll_animator.start(DIRECTION.Up, False)
         return True
     if sc_name is 'start_of_file':
-        goto_boundary(-1)
+        goto_boundary(DIRECTION.Up)
         return True
     if sc_name is 'end_of_file':
-        goto_boundary(1)
+        goto_boundary(DIRECTION.Down)
         return True
     if sc_name is 'left':
         window.scrollBy(-15, 0)
@@ -168,11 +172,153 @@ def handle_shortcut(sc_name, evt):
     if sc_name is 'pagedown':
         scroll_by_page(1)
         return True
+    if sc_name is 'toggle_autoscroll':
+        if scroll_animator.auto and scroll_animator.is_running():
+            cancel_scroll()
+        else:
+            scroll_animator.start(DIRECTION.Down, True)
+        return True
+
+    if sc_name.startsWith('scrollspeed_'):
+        scroll_animator.sync()
+
     return False
 
 
 def layout(is_single_page):
+    line_height.ans = None
+    scroll_animator.wait = False
+    scroll_animator.sync()
     set_css(document.body, margin='0', border_width='0', padding='0')
+
+# Pause auto-scroll while minimized
+document.addEventListener("visibilitychange", def():
+    if (document.visibilityState is 'visible'):
+        scroll_animator.sync()
+    else:
+        scroll_animator.pause()
+)
+
+
+def cancel_scroll():
+    scroll_animator.stop()
+
+
+def is_scroll_end(pos):
+    return not (0 <= pos <= document_height() - window.innerHeight)
+
+DIRECTION = {'Up': -1, 'Down': 1}
+
+
+class ScrollAnimator:
+    DURATION = 100 # milliseconds
+
+    def __init__(self):
+        self.animation_id = None
+        self.auto = False
+
+    def is_running(self):
+        return self.animation_id is not None
+
+    def start(self, direction, auto):
+        if self.wait:
+            return
+
+        now = window.performance.now()
+        self.end_time = now + self.DURATION
+        clearTimeout(self.auto_timer)
+
+        if not self.is_running() or direction is not self.direction or auto is not self.auto:
+            if self.auto and not auto:
+                self.pause()
+            self.stop()
+            self.auto = auto
+            self.direction = direction
+            self.start_time = now
+            self.start_offset = window.pageYOffset
+            self.csi_idx = current_spine_item().index
+            self.animation_id = window.requestAnimationFrame(self.auto_scroll if auto else self.smooth_scroll)
+
+    def smooth_scroll(self, ts):
+        duration = self.end_time - self.start_time
+        progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
+        scroll_target = self.start_offset
+        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth) / 1000
+
+        window.scrollTo(0, scroll_target)
+        amt = window.pageYOffset - self.start_offset
+
+        if is_scroll_end(scroll_target) and (not opts.scroll_stop_boundaries or (abs(amt) < 3 and duration is self.DURATION)):
+            # "Turn the page" if stop at boundaries option is false or
+            # this is a new scroll action and we were already at the end
+            self.animation_id = None
+            self.wait = True
+            report_human_scroll(amt)
+            get_boss().send_message('next_spine_item', previous=self.direction is DIRECTION.Up)
+        elif progress < 1:
+            self.animation_id = window.requestAnimationFrame(self.smooth_scroll)
+        elif self.paused:
+            self.resume()
+        else:
+            self.animation_id = None
+            report_human_scroll(amt)
+
+    def auto_scroll(self, ts):
+        elapsed = max(0, ts - self.start_time) # max to account for jitter
+        scroll_target = self.start_offset
+        scroll_target += Math.trunc(self.direction * elapsed * line_height() * opts.lines_per_sec_auto) / 1000
+
+        window.scrollTo(0, scroll_target)
+        scroll_finished = is_scroll_end(scroll_target)
+
+        # report every second
+        if elapsed >= 1000:
+            self.sync(ts)
+
+        if scroll_finished:
+            self.pause()
+            if opts.scroll_auto_boundary_delay >= 0:
+                self.auto_timer = setTimeout(def():
+                        get_boss().send_message('next_spine_item', previous=self.direction is DIRECTION.Up)
+                    , opts.scroll_auto_boundary_delay * 1000)
+        else:
+            self.animation_id = window.requestAnimationFrame(self.auto_scroll)
+
+    def report(self):
+        amt = window.pageYOffset - self.start_offset
+        if abs(amt) > 0 and self.csi_idx is current_spine_item().index:
+            report_human_scroll(amt)
+
+    def sync(self, ts):
+        if self.auto:
+            self.report()
+            self.csi_idx = current_spine_item().index
+            self.start_time = ts or window.performance.now()
+            self.start_offset = window.pageYOffset
+        else:
+            self.resume()
+
+    def stop(self):
+        self.auto = False
+        if self.animation_id is not None:
+            window.cancelAnimationFrame(self.animation_id)
+            self.animation_id = None
+            self.report()
+
+    def pause(self):
+        if self.auto:
+            self.paused = self.direction
+            self.stop()
+        else:
+            self.paused = False
+
+    # Resume auto-scroll
+    def resume(self):
+        if self.paused:
+            self.start(self.paused, True)
+            self.paused = False
+
+scroll_animator = ScrollAnimator()
 
 
 class FlickAnimator:

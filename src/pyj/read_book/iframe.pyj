@@ -12,7 +12,7 @@ from read_book.extract import get_elements
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, flow_onwheel, flow_to_scroll_fraction,
     handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
-    layout as flow_layout, scroll_by_page as flow_scroll_by_page
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page, cancel_scroll as flow_cancel_auto_scroll
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -91,26 +91,32 @@ class IframeBoss:
         self.forward_keypresses = False
         set_boss(self)
         handlers = {
-            'initialize':self.initialize,
-            'display': self.display,
-            'scroll_to_anchor': self.on_scroll_to_anchor,
-            'scroll_to_ref': self.on_scroll_to_ref,
-            'scroll_to_frac': self.on_scroll_to_frac,
-            'next_screen': self.on_next_screen,
-            'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
-            'gesture_from_margin': self.gesture_from_margin,
-            'wheel_from_margin': self.wheel_from_margin,
+            'change_font_size': self.change_font_size,
+            'change_scroll_speed': self.change_scroll_speed,
+            'display': self.display,
             'find': self.find,
-            'window_size': self.received_window_size,
+            'gesture_from_margin': self.gesture_from_margin,
             'get_current_cfi': self.get_current_cfi,
+            'initialize':self.initialize,
+            'modify_selection': self.modify_selection,
+            'next_screen': self.on_next_screen,
+            'scroll_to_anchor': self.on_scroll_to_anchor,
+            'scroll_to_frac': self.on_scroll_to_frac,
+            'scroll_to_ref': self.on_scroll_to_ref,
             'set_forward_keypresses': self.set_forward_keypresses,
             'set_reference_mode': self.set_reference_mode,
-            'modify_selection': self.modify_selection,
+            'wheel_from_margin': self.wheel_from_margin,
+            'window_size': self.received_window_size,
+            'overlay_shown': self.on_overlay_shown,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
+
+    def on_overlay_shown(self):
+        if current_layout_mode() is 'flow':
+            flow_cancel_auto_scroll()
 
     def modify_selection(self, data):
         sel = window.getSelection()
@@ -242,6 +248,10 @@ class IframeBoss:
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             apply_font_size()
+
+    def change_scroll_speed(self, data):
+        if data.lines_per_sec_auto?:
+            opts.lines_per_sec_auto = data.lines_per_sec_auto
 
     def change_stylesheet(self, data):
         opts.user_stylesheet = data.sheet or ''

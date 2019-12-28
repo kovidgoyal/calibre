@@ -23,6 +23,7 @@ from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
+from read_book.prefs.scrolling import change_scroll_speed, MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP
 from read_book.resources import load_resources
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.shortcuts import create_shortcut_map
@@ -133,7 +134,7 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     if onclick:
         ans.addEventListener('click', onclick)
     if oncontextmenu:
-        ans.addEventListener('contextmenu', onclick)
+        ans.addEventListener('contextmenu', oncontextmenu)
     if is_ios and which is 'margin_bottom' and not window.navigator.standalone and not /CriOS\//.test(window.navigator.userAgent):
         # On iOS Safari 100vh includes the size of the navbar and there is no way to
         # go fullscreen, so to make the bottom bar visible we add a margin to
@@ -200,29 +201,29 @@ class View:
             ),
         )
         handlers = {
-            'ready': self.on_iframe_ready,
+            'bump_font_size': self.bump_font_size,
+            'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
-            'next_spine_item': self.on_next_spine_item,
-            'next_section': self.on_next_section,
-            'lookup_word': self.on_lookup_word,
+            'find_in_spine': self.on_find_in_spine,
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
+            'handle_keypress': self.on_handle_keypress,
+            'handle_shortcut': self.on_handle_shortcut,
+            'human_scroll': self.on_human_scroll,
+            'lookup_word': self.on_lookup_word,
+            'next_section': self.on_next_section,
+            'next_spine_item': self.on_next_spine_item,
+            'print': self.on_print,
+            'ready': self.on_iframe_ready,
+            'reference_item_changed': self.on_reference_item_changed,
+            'report_cfi': self.on_report_cfi,
+            'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'selectionchange': self.on_selection_change,
+            'show_chrome': self.show_chrome,
+            'show_footnote': self.on_show_footnote,
             'update_cfi': self.on_update_cfi,
             'update_progress_frac': self.on_update_progress_frac,
-            'report_cfi': self.on_report_cfi,
             'update_toc_position': self.on_update_toc_position,
-            'content_loaded': self.on_content_loaded,
-            'show_chrome': self.show_chrome,
-            'bump_font_size': self.bump_font_size,
-            'find_in_spine': self.on_find_in_spine,
-            'request_size': self.on_request_size,
-            'show_footnote': self.on_show_footnote,
-            'print': self.on_print,
-            'human_scroll': self.on_human_scroll,
-            'selectionchange': self.on_selection_change,
-            'handle_shortcut': self.on_handle_shortcut,
-            'handle_keypress': self.on_handle_keypress,
-            'reference_item_changed': self.on_reference_item_changed,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         if runtime.is_standalone_viewer:
@@ -338,6 +339,8 @@ class View:
 
     def overlay_visibility_changed(self, visible):
         if self.iframe_wrapper.send_message:
+            if visible:
+                self.iframe_wrapper.send_message('overlay_shown')
             self.iframe_wrapper.send_message('set_forward_keypresses', forward=v'!!visible')
         if ui_operations.overlay_visibility_changed:
             ui_operations.overlay_visibility_changed(visible)
@@ -409,6 +412,10 @@ class View:
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='word')
         elif data.name is 'extend_selection_by_word':
             self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='word')
+        elif data.name is 'scrollspeed_increase':
+            self.update_scroll_speed(SCROLL_SPEED_STEP)
+        elif data.name is 'scrollspeed_decrease':
+            self.update_scroll_speed(-SCROLL_SPEED_STEP)
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
@@ -703,6 +710,10 @@ class View:
             'hide_tooltips': sd.get('hide_tooltips'),
             'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
             'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
+            'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
+            'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
+            'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
+            'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
         }
 
     def show_name(self, name, initial_position=None):
@@ -992,6 +1003,9 @@ class View:
 
     def update_font_size(self):
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
+
+    def update_scroll_speed(self, amt):
+        self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_auto=change_scroll_speed(amt))
 
     def update_color_scheme(self):
         cs = self.get_color_scheme(True)

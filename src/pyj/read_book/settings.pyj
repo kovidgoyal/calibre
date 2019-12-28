@@ -4,23 +4,28 @@ from __python__ import hash_literals
 
 from elementmaker import E
 from read_book.globals import runtime
+from session import defaults
 
 opts = {}
 
 def update_settings(settings):
-    settings = settings or {}
-    opts.columns_per_screen = settings.columns_per_screen or {'portrait':0, 'landscape':0}
-    opts.margin_left = max(0, settings.margin_left or 0)
-    opts.margin_right = max(0, settings.margin_right or 0)
-    opts.color_scheme = settings.color_scheme
-    opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
-    opts.user_stylesheet = settings.user_stylesheet or ''
-    opts.hide_tooltips = settings.hide_tooltips
-    opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
+    settings = Object.assign({}, defaults, settings)
+    opts.base_font_size = max(8, min(settings.base_font_size, 64))
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
-    opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.color_scheme = settings.color_scheme
+    opts.columns_per_screen = settings.columns_per_screen
+    opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
+    opts.hide_tooltips = settings.hide_tooltips
     opts.is_dark_theme = v'!!settings.is_dark_theme'
-    opts.override_book_colors = settings.override_book_colors or 'never'
+    opts.lines_per_sec_auto = settings.lines_per_sec_auto
+    opts.lines_per_sec_smooth = settings.lines_per_sec_smooth
+    opts.margin_left = max(0, settings.margin_left)
+    opts.margin_right = max(0, settings.margin_right)
+    opts.override_book_colors = settings.override_book_colors
+    opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.scroll_auto_boundary_delay = settings.scroll_auto_boundary_delay
+    opts.scroll_stop_boundaries = v'!!settings.scroll_stop_boundaries'
+    opts.user_stylesheet = settings.user_stylesheet
 
 update_settings()
 
