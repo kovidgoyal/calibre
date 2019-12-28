@@ -211,7 +211,8 @@ def cancel_scroll():
 def is_scroll_end(pos):
     return not (0 <= pos <= document_height() - window.innerHeight)
 
-DIRECTION = {'Up': -1, 'Down': 1}
+
+DIRECTION = {'Up': -1, 'up': -1, 'Down': 1, 'down': 1, 'UP': -1, 'DOWN': 1}
 
 
 class ScrollAnimator:
