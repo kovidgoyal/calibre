@@ -12,6 +12,7 @@ Transform OEB content into RTF markup
 import os
 import re
 import io
+from binascii import hexlify
 
 from lxml import etree
 
@@ -184,24 +185,14 @@ class RTFMLizer(object):
         return text
 
     def image_to_hexstring(self, data):
+        # Images must be hex-encoded in 128 character lines
         data = save_cover_data_to(data)
         width, height = identify(data)[1:]
-
-        raw_hex = ''
-        for char in bytearray(data):
-            raw_hex += hex(char).replace('0x', '').rjust(2, '0')
-
-        # Images must be broken up so that they are no longer than 129 chars
-        # per line
-        hex_string = ''
-        col = 1
-        for char in raw_hex:
-            if col == 129:
-                hex_string += '\n'
-                col = 1
-            col += 1
-            hex_string += char
-
+        lines = []
+        v = memoryview(data)
+        for i in range(0, len(data), 64):
+            lines.append(hexlify(v[i:i+64]))
+        hex_string = b'\n'.join(lines).decode('ascii')
         return hex_string, width, height
 
     def clean_text(self, text):
