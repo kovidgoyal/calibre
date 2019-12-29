@@ -742,20 +742,20 @@ class DeviceMenu(QMenu):  # {{{
 
         delete_actions = [
                 ('main:', True, False,   I('reader.png'),
-                    _('Main Memory')),
+                    _('Main memory')),
                 ('carda:0', True, False,  I('sd.png'),
-                    _('Storage Card A')),
+                    _('Storage card A')),
                 ('cardb:0', True, False,  I('sd.png'),
-                    _('Storage Card B')),
+                    _('Storage card B')),
         ]
 
         specific_actions = [
                 ('main:', False, True,  I('reader.png'),
-                    _('Main Memory')),
+                    _('Main memory')),
                 ('carda:0', False, True, I('sd.png'),
-                    _('Storage Card A')),
+                    _('Storage card A')),
                 ('cardb:0', False, True, I('sd.png'),
-                    _('Storage Card B')),
+                    _('Storage card B')),
         ]
 
         later_menus = []

@@ -274,8 +274,8 @@ class DeleteAction(InterfaceAction):
         to_delete = {}
         some_to_delete = False
         for model,name in ((self.gui.memory_view.model(), _('Main memory')),
-                           (self.gui.card_a_view.model(), _('Storage Card A')),
-                           (self.gui.card_b_view.model(), _('Storage Card B'))):
+                           (self.gui.card_a_view.model(), _('Storage card A')),
+                           (self.gui.card_b_view.model(), _('Storage card B'))):
             to_delete[name] = (model, model.paths_for_db_ids(ids))
             if len(to_delete[name][1]) > 0:
                 some_to_delete = True
