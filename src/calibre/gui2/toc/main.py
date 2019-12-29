@@ -1001,7 +1001,7 @@ class TOCEditor(QDialog):  # {{{
         ll = self.ll = QVBoxLayout()
         lw.setLayout(ll)
         self.pi = pi = ProgressIndicator()
-        pi.setDisplaySize(200)
+        pi.setDisplaySize(QSize(200, 200))
         pi.startAnimation()
         ll.addWidget(pi, alignment=Qt.AlignHCenter|Qt.AlignCenter)
         la = self.wait_label = QLabel(_('Loading %s, please wait...')%t)

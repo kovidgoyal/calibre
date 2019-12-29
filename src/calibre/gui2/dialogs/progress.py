@@ -6,7 +6,7 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
-    QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar,
+    QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar, QSize,
     QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
 
 from calibre.gui2 import elided_text
@@ -145,7 +145,7 @@ class BlockingBusy(QDialog):
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
         self.pi = ProgressIndicator(self)
-        self.pi.setDisplaySize(100)
+        self.pi.setDisplaySize(QSize(100, 100))
         self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)

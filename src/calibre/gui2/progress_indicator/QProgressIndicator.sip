@@ -44,6 +44,7 @@ public slots:
     void set_colors(const QColor & dark, const QColor & light);
 
     void setDisplaySize(QSize size);
+    void setDisplaySize(int size);
     void setSizeHint(int size);
     void setSizeHint(QSize size);
 

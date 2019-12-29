@@ -64,6 +64,7 @@ public slots:
      * \sa displaySize
      */
     void setDisplaySize(QSize size);
+    void setDisplaySize(int size) { setDisplaySize(QSize(size, size)); }
 	void setSizeHint(int size);
 	void setSizeHint(QSize size);
 protected:
