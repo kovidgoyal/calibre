@@ -143,7 +143,8 @@ def layout(is_single_page, on_resize):
         # cover, if so we treat it specially.
         single_screen = (document_height() < scroll_viewport.height() + 75)
         first_layout = True
-        has_svg = document.getElementsByTagName('svg').length > 0
+        svgs = document.getElementsByTagName('svg')
+        has_svg = svgs.length > 0
         imgs = document.getElementsByTagName('img')
         only_img = imgs.length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
         if only_img and window.getComputedStyle(imgs[0]).zIndex < 0:
@@ -206,9 +207,14 @@ def layout(is_single_page, on_resize):
         # width 100% are wider than body and lead to a blank page after the
         # current page (when cols_per_screen == 1). Similarly img elements
         # with height=100% overflow the first column
-        is_full_screen_layout = (only_img or has_svg) and single_screen and (scroll_viewport.paged_content_width() < 2*ww + 10)
-        if is_single_page:
-            is_full_screen_layout = True
+        is_full_screen_layout = is_single_page
+        if not is_full_screen_layout:
+            has_no_more_than_two_columns = (scroll_viewport.paged_content_width() < 2*ww + 10)
+            if has_no_more_than_two_columns and single_screen:
+                if only_img and imgs.length and imgs[0].getBoundingClientRect().left < ww:
+                    is_full_screen_layout = True
+                if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < ww:
+                    is_full_screen_layout = True
 
     # Some browser engine, WebKit at least, adjust column widths to please
     # themselves, unless the container width is an exact multiple, so we check
