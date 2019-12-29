@@ -369,6 +369,7 @@ def transform_svg_image(container, name, link_uid, virtualize_resources, virtual
 
 def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names):
     link_xpath = XPath('//h:a[@href]')
+    svg_link_xpath = XPath('//svg:a')
     img_xpath = XPath('//h:img[@src]')
     res_link_xpath = XPath('//h:link[@href]')
     root = container.parsed(name)
@@ -404,14 +405,23 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
     if virtualize_resources:
         virtualize_html(container, name, link_uid, link_to_map, virtualized_names)
     else:
-        for a in link_xpath(root):
-            href = link_replacer(name, a.get('href'))
+
+        def handle_link(a, attr='href'):
+            href = a.get(attr)
+            if href:
+                href = link_replacer(name, href)
             if href and href.startswith(link_uid):
-                a.set('href', 'javascript:void(0)')
+                a.set(attr, 'javascript:void(0)')
                 parts = decode_url(href.split('|')[1])
                 lname, lfrag = parts[0], parts[1]
                 link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
                 a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+
+        for a in link_xpath(root):
+            handle_link(a)
+        xhref = XLINK('href')
+        for a in svg_link_xpath(root):
+            handle_link(a, xhref)
 
     shtml = html_as_json(root)
     with container.open(name, 'wb') as f:
@@ -518,22 +528,30 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
 
     changed = set()
     link_xpath = XPath('//h:a[@href]')
+    svg_link_xpath = XPath('//svg:a')
     link_replacer = create_link_replacer(container, link_uid, changed)
 
     virtualized_names.add(name)
     root = container.parsed(name)
     rewrite_links(root, partial(link_replacer, name))
-    for a in link_xpath(root):
-        href = a.get('href')
+
+    def handle_link(a, attr='href'):
+        href = a.get(attr) or ''
         if href.startswith(link_uid):
-            a.set('href', 'javascript:void(0)')
+            a.set(attr, 'javascript:void(0)')
             parts = decode_url(href.split('|')[1])
             lname, lfrag = parts[0], parts[1]
             link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
             a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
-        else:
+        elif href:
             a.set('target', '_blank')
             a.set('rel', 'noopener noreferrer')
+
+    for a in link_xpath(root):
+        handle_link(a)
+    xhref = XLINK('href')
+    for a in svg_link_xpath(root):
+        handle_link(a, xhref)
 
     return name in changed
 
