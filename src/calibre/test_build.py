@@ -108,7 +108,7 @@ class BuildTest(unittest.TestCase):
         test_clean_xml_chars()
         from lxml import etree
         raw = b'<a/>'
-        root = etree.fromstring(raw)
+        root = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         self.assertEqual(etree.tostring(root), raw)
 
     def test_certgen(self):

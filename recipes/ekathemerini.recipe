@@ -42,7 +42,7 @@ class Ekathimerini(BasicNewsRecipe):
 
     def parse_index(self):
         idx_contents = self.browser.open(self.rss_url).read()
-        idx = etree.fromstring(idx_contents)
+        idx = etree.fromstring(idx_contents, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
 
         cats = sorted({self.tag_to_string(subcat)
                          for subcat in idx.xpath('//*[local-name()="subcat"]')})

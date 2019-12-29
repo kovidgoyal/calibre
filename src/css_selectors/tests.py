@@ -646,7 +646,7 @@ by William Shakespeare
     # }}}
 
     def test_select(self):  # {{{
-        document = etree.fromstring(self.HTML_IDS)
+        document = etree.fromstring(self.HTML_IDS, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         select = Select(document)
 
         def select_ids(selector):
@@ -823,7 +823,7 @@ def run_tests(find_tests=find_tests, for_build=False):
         except StopIteration:
             pass
         if ans is None:
-            print ('No test named %s found' % args.name)
+            print('No test named %s found' % args.name)
             raise SystemExit(1)
         tests = ans
     else:

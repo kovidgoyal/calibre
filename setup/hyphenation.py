@@ -26,7 +26,7 @@ def locales_from_dicts(dicts):
 def locales_from_xcu(xcu, dicts):
     from lxml import etree
     with open(xcu, 'rb') as f:
-        root = etree.fromstring(f.read())
+        root = etree.fromstring(f.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
     ans = {}
     dicts = {os.path.basename(x) for x in dicts}
     for value in root.xpath('//*[contains(text(),"DICT_HYPH")]'):

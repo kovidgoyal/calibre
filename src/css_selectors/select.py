@@ -687,6 +687,8 @@ default_dispatch_map = {name.partition('_')[2]:obj for name, obj in globals().it
 
 if __name__ == '__main__':
     from pprint import pprint
-    root = etree.fromstring('<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/><b/><c/><d/></p></body>')
+    root = etree.fromstring(
+            '<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/><b/><c/><d/></p></body>',
+            parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
     select = Select(root, ignore_inappropriate_pseudo_classes=True, trace=True)
     pprint(list(select('p:disabled')))
