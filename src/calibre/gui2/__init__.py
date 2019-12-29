@@ -1077,7 +1077,7 @@ class Application(QApplication):
             return
         self.is_dark_theme = is_dark_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
-        if isosx:
+        if isosx and self.is_dark_theme:
             self.fix_dark_theme_colors()
         self.palette_changed.emit()
 
