@@ -17,6 +17,8 @@ CONTAINER = unique_id('reader-color-scheme')
 COLOR_LIST = unique_id()
 ACTION_BUTTONS = unique_id()
 EDIT_SCHEME = unique_id()
+MARGINS = ('left', 'right', 'top', 'bottom')
+
 
 add_extra_css(def():
     sel = '#' + COLOR_LIST
@@ -35,6 +37,12 @@ add_extra_css(def():
 
 def get_container():
     return document.getElementById(CONTAINER)
+
+
+def set_radio_group_value(parent, name, val):
+    for inp in parent.querySelector(f'input[name={name}]'):
+        inp.checked = inp.value is val
+
 
 def resolve_color_scheme(current_color_scheme):
     sd = get_session_data()
@@ -60,8 +68,10 @@ def new_color_scheme(ev):
     container = document.getElementById(EDIT_SCHEME)
     container.style.display = 'block'
     for inp in container.querySelectorAll('input'):
-        if inp.name is 'link_color_type':
+        if inp.name.endswith('_color_type'):
             inp.checked = inp.value is 'default'
+        elif inp.name.startswith('margin_'):
+            pass
         else:
             inp.value = {'name':'', 'bg':'#ffffff', 'fg':'#000000', 'link': '#0000ee'}[inp.name]
     container.querySelector('input').focus()
@@ -77,11 +87,17 @@ def edit_color_scheme(ev):
         container.querySelector('input').value = scheme.name
         container.querySelector('input[name=bg]').value = scheme.background
         container.querySelector('input[name=fg]').value = scheme.foreground
+        set_radio_group_value(container, 'link_color_type', 'custom' if scheme.link else 'default')
         if scheme.link:
-            container.querySelector('input[value=custom]').checked = True
             container.querySelector('input[name=link]').value = scheme.link
-        else:
-            container.querySelector('input[value=default]').checked = True
+        for which in MARGINS:
+            attr = f'margin_{which}'
+            val = scheme[attr]
+            set_radio_group_value(container, f'input[name={attr}_color_type]', 'custom' if val else 'default')
+            if val:
+                bg, fg = val.split(':')
+                container.querySelector(f'input[name={attr}_bg]').value = bg
+                container.querySelector(f'input[name={attr}_fg]').value = fg
 
 def remove_color_scheme(ev):
     ccs = current_color_scheme()
@@ -117,6 +133,16 @@ def set_current_color_scheme(value):
     set_action_button_visibility()
 
 def add_color_scheme(ev):
+    colors = {}
+    def check_color(col):
+        colors[col] = div.querySelector(f'input[name={col}]').value
+        if not /^#[0-9A-F]{6}$/i.test(colors[col]):
+            error_dialog(_('Invalid color'), _(
+                'The color {} is not a valid color').format(colors[col]))
+            return False
+        return True
+
+
     div = document.getElementById(EDIT_SCHEME)
     if this is not 'cancel':
         name = div.querySelector('input[name=name]').value
@@ -124,19 +150,25 @@ def add_color_scheme(ev):
             error_dialog(_('Name not specified'), _(
                 'You must specify a name for the color scheme'))
             return
-        colors = {}
+
+
         for col in ('bg', 'fg', 'link'):
-            colors[col] = div.querySelector(f'input[name={col}]').value
-            if not /^#[0-9A-F]{6}$/i.test(colors[col]):
-                error_dialog(_('Invalid color'), _(
-                    'The color {} is not a valid color').format(colors[col]))
+            if not check_color(col):
                 return
+        for margin in MARGINS:
+            for which in ('fg', 'bg'):
+                if not check_color(f'margin_{margin}_{which}'):
+                    return
+
         key = '*' + name
         sd = get_session_data()
         ucs = sd.get('user_color_schemes')
         ucs[key] = {'name':name, 'foreground':colors.fg, 'background':colors.bg}
         if div.querySelector('input[name=link_color_type]:checked').value is 'custom':
-            ucs[key]['link'] = colors.link
+            ucs[key].link = colors.link
+        for margin in MARGINS:
+            if div.querySelector(f'input[name=margin_{margin}_color_type]:checked').value is 'custom':
+                ucs[key][f'margin_{margin}'] = colors[f'margin_{margin}_bg'] + ':' + colors[f'margin_{margin}_fg']
         sd.set('user_color_schemes', ucs)
         create_color_buttons()
         set_current_color_scheme(key)
@@ -215,6 +247,22 @@ def create_colors_panel(container, apply_func, cancel_func):
         id=ACTION_BUTTONS,
     ))
 
+    def margin_row(title, which):
+        return E.tr(
+            E.td(title), E.td(
+                E.label(E.input(type='radio', name=f'margin_{which}_color_type', value='default'), _('Default')),
+                '\xa0\xa0',
+                E.label(E.input(type='radio', name=f'margin_{which}_color_type', value='custom'), _('Custom')),
+                '\xa0\xa0',
+                E.label(E.input(name=f'margin_{which}_bg', type='color', value='#ffffff', onclick=def (ev):
+                    set_radio_group_value(ev.currentTarget.closest('td'), f'margin_{which}_color_type', 'custom')
+                ), '\xa0' + _('Background')),
+                '\xa0\xa0',
+                E.label(E.input(name=f'margin_{which}_fg', type='color', value='#000000', onclick=def (ev):
+                    set_radio_group_value(ev.currentTarget.closest('td'), f'margin_{which}_color_type', 'custom')
+                ), '\xa0' + _('Foreground')),
+            )
+        )
     container.appendChild(E.div(id=EDIT_SCHEME, style='display:none',
         E.table(
             E.tr(E.td(_('Name:')), E.td(E.input(name='name'))),
@@ -226,9 +274,13 @@ def create_colors_panel(container, apply_func, cancel_func):
                 E.label(E.input(type='radio', name='link_color_type', value='custom'), _('Custom')),
                 '\xa0',
                 E.input(name='link', type='color', value='#000000', onclick=def (ev):
-                    ev.currentTarget.parentNode.querySelector('[name=link_color_type][value=custom]').checked = True
+                    set_radio_group_value(ev.currentTarget.closest('td'), 'link_color_type', 'custom')
                 )
             )),
+            margin_row(_('Top margin:'), 'top'),
+            margin_row(_('Bottom margin:'), 'bottom'),
+            margin_row(_('Left margin:'), 'left'),
+            margin_row(_('Right margin:'), 'right'),
         ),
         E.div(style="display:flex; justify-content: flex-end; margin: 1ex 1em",
             create_button(_('Apply'), 'check', add_color_scheme), E.span('\xa0'), create_button(_('Discard'), 'close', add_color_scheme.bind('cancel'))
