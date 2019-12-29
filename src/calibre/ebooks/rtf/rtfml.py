@@ -109,6 +109,7 @@ class RTFMLizer(object):
     def mlize_spine(self):
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.utils.xml_parse import safe_xml_fromstring
         output = self.header()
         if 'titlepage' in self.oeb_book.guide:
             href = self.oeb_book.guide['titlepage'].href
@@ -126,7 +127,7 @@ class RTFMLizer(object):
             content = re.sub('<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
-            content = etree.fromstring(content)
+            content = safe_xml_fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             self.currently_dumping_item = item
             output += self.dump_text(content.find(XHTML('body')), stylizer)

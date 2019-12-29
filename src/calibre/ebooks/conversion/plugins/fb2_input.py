@@ -39,10 +39,11 @@ class FB2Input(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from lxml import etree
+        from calibre.utils.xml_parse import safe_xml_fromstring
         from calibre.ebooks.metadata.fb2 import ensure_namespace, get_fb2_data
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
+        from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS
         from calibre.ebooks.chardet import xml_to_unicode
         self.log = log
         log.debug('Parsing XML...')
@@ -51,15 +52,9 @@ class FB2Input(InputFormatPlugin):
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
             assume_utf8=True, resolve_entities=True)[0]
         try:
-            doc = etree.fromstring(raw)
+            doc = safe_xml_fromstring(raw)
         except etree.XMLSyntaxError:
-            try:
-                doc = etree.fromstring(raw, parser=RECOVER_PARSER)
-                if doc is None:
-                    raise Exception('parse failed')
-            except:
-                doc = etree.fromstring(raw.replace('& ', '&amp;'),
-                        parser=RECOVER_PARSER)
+            doc = safe_xml_fromstring(raw.replace('& ', '&amp;'))
         if doc is None:
             raise ValueError('The FB2 file is not valid XML')
         doc = ensure_namespace(doc)
@@ -99,7 +94,7 @@ class FB2Input(InputFormatPlugin):
             ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',
                     re.DOTALL).sub('', ss)
 
-        styledoc = etree.fromstring(ss)
+        styledoc = safe_xml_fromstring(ss)
 
         transform = etree.XSLT(styledoc)
         result = transform(doc)

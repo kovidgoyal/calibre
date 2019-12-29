@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, 2013, John Schember <john@nachtimwald.com>'
@@ -43,7 +43,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
         if write_raw_to is not None:
             with open(write_raw_to, 'wb') as f:
                 f.write(raw)
-        doc = etree.fromstring(raw)
+        doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         for data in doc.xpath('//*[local-name() = "entry"]'):
             if counter <= 0:
                 break
@@ -63,7 +63,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
             # Get the formats and direct download links.
             with closing(br.open(id, timeout=timeout/4)) as nf:
-                ndoc = etree.fromstring(nf.read())
+                ndoc = etree.fromstring(nf.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
                 for link in ndoc.xpath('//*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
                     type = link.get('type')
                     href = link.get('href')

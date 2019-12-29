@@ -23,6 +23,7 @@ from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems, unicode_type, getcwd, map
 from polyglot.urllib import unquote, urlparse
 
@@ -1588,7 +1589,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
                 is None else default_lang)
         mi.languages = [lang]
 
-    root = etree.fromstring(textwrap.dedent(
+    root = safe_xml_fromstring(textwrap.dedent(
     '''
     <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">

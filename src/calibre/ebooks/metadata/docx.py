@@ -8,9 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 from io import BytesIO
 
-from lxml import etree
-
 from calibre.ebooks.docx.container import DOCX
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.docx.writer.container import update_doc_props, xml2str
 from calibre.utils.imghdr import identify
 
@@ -61,11 +60,11 @@ def set_metadata(stream, mi):
         ap_raw = c.read(ap_name)
     except Exception:
         ap_raw = None
-    cp = etree.fromstring(dp_raw)
+    cp = safe_xml_fromstring(dp_raw)
     update_doc_props(cp, mi, c.namespace)
     replacements = {}
     if ap_raw is not None:
-        ap = etree.fromstring(ap_raw)
+        ap = safe_xml_fromstring(ap_raw)
         comp = ap.makeelement('{%s}Company' % c.namespace.namespaces['ep'])
         for child in tuple(ap):
             if child.tag == comp.tag:

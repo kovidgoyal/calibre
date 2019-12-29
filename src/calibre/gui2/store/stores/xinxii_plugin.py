@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -47,7 +47,7 @@ class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
         counter = max_results
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = etree.fromstring(f.read())
+            doc = etree.fromstring(f.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
             for data in doc.xpath('//*[local-name() = "entry"]'):
                 if counter <= 0:
                     break

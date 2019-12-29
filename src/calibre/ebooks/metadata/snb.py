@@ -9,7 +9,7 @@ import os
 import io
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
-from lxml import etree
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def get_metadata(stream, extract_cover=True):
@@ -27,7 +27,7 @@ def get_metadata(stream, extract_cover=True):
         meta = snbFile.GetFileStream('snbf/book.snbf')
 
         if meta is not None:
-            meta = etree.fromstring(meta)
+            meta = safe_xml_fromstring(meta)
             mi.title = meta.find('.//head/name').text
             mi.authors = [meta.find('.//head/author').text]
             mi.language = meta.find('.//head/language').text.lower().replace('_', '-')

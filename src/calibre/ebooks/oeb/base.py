@@ -16,11 +16,11 @@ from lxml import etree, html
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, __version__, ispy3
 from calibre.translations.dynamic import translate
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 from calibre import (isbytestring, as_unicode, get_types_map)
-from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
-        namespace, XHTML, parse_html, NotHTML)
+from calibre.ebooks.oeb.parse_utils import barename, XHTML_NS, namespace, XHTML, parse_html, NotHTML
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter, codepoint_to_chr
@@ -946,7 +946,7 @@ class Manifest(object):
                 return
             data = xml_to_unicode(data, strip_encoding_pats=True,
                     assume_utf8=True, resolve_entities=True)[0]
-            return etree.fromstring(data, parser=RECOVER_PARSER)
+            return safe_xml_fromstring(data)
 
         def _parse_xhtml(self, data):
             orig_data = data

@@ -11,6 +11,7 @@ import re
 from lxml import etree, html
 
 from calibre import xml_replace_entities, force_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, map
@@ -114,12 +115,7 @@ def _html4_parse(data):
             elem.text = elem.text.strip('-')
     data = etree.tostring(data, encoding='unicode')
 
-    # Setting huge_tree=True causes crashes in windows with large files
-    parser = etree.XMLParser(no_network=True)
-    try:
-        data = etree.fromstring(data, parser=parser)
-    except etree.XMLSyntaxError:
-        data = etree.fromstring(data, parser=RECOVER_PARSER)
+    data = safe_xml_fromstring(data)
     return data
 
 
@@ -210,19 +206,16 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     data = data.replace('\0', '')
     data = raw = clean_word_doc(data, log)
 
-    # Setting huge_tree=True causes crashes in windows with large files
-    parser = etree.XMLParser(no_network=True)
-
     # Try with more & more drastic measures to parse
     try:
-        data = etree.fromstring(data, parser=parser)
+        data = safe_xml_fromstring(data)
         check_for_html5(pre, data)
     except (HTML5Doc, etree.XMLSyntaxError):
         log.debug('Initial parse failed, using more'
                 ' forgiving parsers')
         raw = data = xml_replace_entities(raw)
         try:
-            data = etree.fromstring(data, parser=parser)
+            data = safe_xml_fromstring(data)
             check_for_html5(pre, data)
         except (HTML5Doc, etree.XMLSyntaxError):
             log.debug('Parsing %s as HTML' % filename)
@@ -251,7 +244,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         if barename(data.tag) in non_html_file_tags:
             raise NotHTML(data.tag)
         log.warn('File %r does not appear to be (X)HTML'%filename)
-        nroot = etree.fromstring('<html></html>')
+        nroot = safe_xml_fromstring('<html></html>')
         has_body = False
         for child in list(data):
             if isinstance(child.tag, (unicode_type, bytes)) and barename(child.tag) == 'body':
@@ -260,7 +253,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         parent = nroot
         if not has_body:
             log.warn('File %r appears to be a HTML fragment'%filename)
-            nroot = etree.fromstring('<html><body/></html>')
+            nroot = safe_xml_fromstring('<html><body/></html>')
             parent = nroot[0]
         for child in list(data.iter()):
             oparent = child.getparent()
@@ -276,12 +269,12 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         data = etree.tostring(data, encoding='unicode')
 
         try:
-            data = etree.fromstring(data, parser=parser)
+            data = safe_xml_fromstring(data)
         except:
             data = data.replace(':=', '=').replace(':>', '>')
             data = data.replace('<http:/>', '')
             try:
-                data = etree.fromstring(data, parser=parser)
+                data = safe_xml_fromstring(data)
             except etree.XMLSyntaxError:
                 log.warn('Stripping comments from %s'%
                         filename)
@@ -292,12 +285,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     '')
                 data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
                 try:
-                    data = etree.fromstring(data,
-                            parser=RECOVER_PARSER)
+                    data = safe_xml_fromstring(data)
                 except etree.XMLSyntaxError:
                     log.warn('Stripping meta tags from %s'% filename)
                     data = re.sub(r'<meta\s+[^>]+?>', '', data)
-                    data = etree.fromstring(data, parser=RECOVER_PARSER)
+                    data = safe_xml_fromstring(data)
     elif namespace(data.tag) != XHTML_NS:
         # OEB_DOC_NS, but possibly others
         ns = namespace(data.tag)

@@ -7,10 +7,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from lxml.etree import XMLParser, fromstring, Element as LxmlElement
+from lxml.etree import Element as LxmlElement
 import html5_parser
 
 from calibre import xml_replace_entities
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.utils.cleantext import clean_xml_chars
 from polyglot.builtins import unicode_type
@@ -77,8 +78,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
     if force_html5_parse:
         return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
     try:
-        parser = XMLParser(no_network=True)
-        ans = fromstring(raw, parser=parser)
+        ans = safe_xml_fromstring(raw)
         if ans.tag != '{%s}html' % XHTML_NS:
             raise ValueError('Root tag is not <html> in the XHTML namespace')
         if linenumber_attribute:

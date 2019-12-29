@@ -251,6 +251,7 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         from calibre.ebooks.rtf.input import InlineClass
+        from calibre.utils.xml_parse import safe_xml_fromstring
         self.opts = options
         self.log = log
         self.log('Converting RTF to XML...')
@@ -270,8 +271,7 @@ class RTFInput(InputFormatPlugin):
                 self.log.exception('Failed to extract images...')
 
         self.log('Parsing XML...')
-        parser = etree.XMLParser(recover=True, no_network=True)
-        doc = etree.fromstring(xml, parser=parser)
+        doc = safe_xml_fromstring(xml)
         border_styles = self.convert_borders(doc)
         for pict in doc.xpath('//rtf:pict[@num]',
                 namespaces={'rtf':'http://rtf2xml.sourceforge.net/'}):
@@ -282,7 +282,7 @@ class RTFInput(InputFormatPlugin):
 
         self.log('Converting XML to HTML...')
         inline_class = InlineClass(self.log)
-        styledoc = etree.fromstring(P('templates/rtf.xsl', data=True))
+        styledoc = safe_xml_fromstring(P('templates/rtf.xsl', data=True))
         extensions = {('calibre', 'inline-class') : inline_class}
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)

@@ -92,7 +92,7 @@ def uuid():
 class XMLCache(object):
 
     def __init__(self, paths, ext_paths, prefixes, use_author_sort):
-        from lxml import etree
+        from calibre.utils.xml_parse import safe_xml_fromstring
 
         if DEBUG:
             debug_print('Building XMLCache...', paths)
@@ -101,7 +101,6 @@ class XMLCache(object):
         self.use_author_sort = use_author_sort
 
         # Parse XML files {{{
-        parser = etree.XMLParser(recover=True)
         self.roots = {}
         for source_id, path in paths.items():
             if source_id == 0:
@@ -116,10 +115,9 @@ class XMLCache(object):
                     with lopen(path, 'rb') as f:
                         raw = f.read()
 
-            self.roots[source_id] = etree.fromstring(xml_to_unicode(
-                        raw, strip_encoding_pats=True, assume_utf8=True,
-                        verbose=DEBUG)[0],
-                        parser=parser)
+            self.roots[source_id] = safe_xml_fromstring(
+                xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True, verbose=DEBUG)[0]
+            )
             if self.roots[source_id] is None:
                 raise Exception(('The SONY database at %r is corrupted. Try '
                         ' disconnecting and reconnecting your reader.')%path)
@@ -136,10 +134,9 @@ class XMLCache(object):
             if os.access(path, os.W_OK):
                 try:
                     with lopen(path, 'rb') as f:
-                        self.ext_roots[source_id] = etree.fromstring(
-                                xml_to_unicode(f.read(),
-                                    strip_encoding_pats=True, assume_utf8=True,
-                                    verbose=DEBUG)[0], parser=parser)
+                        self.ext_roots[source_id] = safe_xml_fromstring(
+                            xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True, verbose=DEBUG)[0]
+                        )
                         self.ext_paths[source_id] = path
                 except:
                     pass

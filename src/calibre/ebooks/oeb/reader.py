@@ -21,6 +21,7 @@ from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
@@ -108,23 +109,18 @@ class OEBReader(object):
         data = re.sub(r'http://openebook.org/namespaces/oeb-package/1.0(/*)',
                 OPF1_NS, data)
         try:
-            opf = etree.fromstring(data)
+            opf = safe_xml_fromstring(data)
         except etree.XMLSyntaxError:
             data = xml_replace_entities(clean_xml_chars(data), encoding=None)
             try:
-                opf = etree.fromstring(data)
+                opf = safe_xml_fromstring(data)
                 self.logger.warn('OPF contains invalid HTML named entities')
             except etree.XMLSyntaxError:
                 data = re.sub(r'(?is)<tours>.+</tours>', '', data)
                 data = data.replace('<dc-metadata>',
                     '<dc-metadata xmlns:dc="http://purl.org/metadata/dublin_core">')
-                try:
-                    opf = etree.fromstring(data)
-                    self.logger.warn('OPF contains invalid tours section')
-                except etree.XMLSyntaxError:
-                    self.logger.warn('OPF contains invalid markup, trying to parse it anyway')
-                    from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
-                    opf = etree.fromstring(data, parser=RECOVER_PARSER)
+                opf = safe_xml_fromstring(data)
+                self.logger.warn('OPF contains invalid tours section')
 
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):

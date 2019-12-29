@@ -11,9 +11,9 @@ Read metadata from LRX files
 
 import struct
 from zlib import decompress
-from lxml import etree
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def _read(f, at, amount):
@@ -66,7 +66,7 @@ def get_metadata(f):
         info = decompress(f.read(compressed_size))
         if len(info) != uncompressed_size:
             raise ValueError('LRX file has malformed metadata section')
-        root = etree.fromstring(info)
+        root = safe_xml_fromstring(info)
         bi = root.find('BookInfo')
         title = bi.find('Title')
         title_sort = title.get('reading', None)

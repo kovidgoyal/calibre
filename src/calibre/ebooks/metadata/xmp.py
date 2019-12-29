@@ -14,6 +14,7 @@ from lxml.builder import ElementMaker
 
 from calibre import prints
 from calibre.ebooks.metadata import check_isbn, check_doi
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
@@ -74,9 +75,9 @@ def parse_xmp_packet(raw_bytes):
             enc = emap.get(m.group(1), enc)
             break
     if enc is None:
-        return etree.fromstring(raw_bytes)
+        return safe_xml_fromstring(raw_bytes)
     raw = _xml_declaration.sub('', raw_bytes.decode(enc))  # lxml barfs if encoding declaration present in unicode string
-    return etree.fromstring(raw)
+    return safe_xml_fromstring(raw)
 
 
 def serialize_xmp_packet(root, encoding='utf-8'):

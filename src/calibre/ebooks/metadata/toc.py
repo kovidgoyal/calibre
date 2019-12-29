@@ -12,6 +12,7 @@ from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.cleantext import clean_xml_chars
 from polyglot.builtins import unicode_type, getcwd
 from polyglot.urllib import unquote, urlparse
@@ -177,8 +178,7 @@ class TOC(list):
             with open(toc, 'rb') as f:
                 raw  = xml_to_unicode(f.read(), assume_utf8=True,
                         strip_encoding_pats=True)[0]
-            root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
-                no_network=True))
+            root = safe_xml_fromstring(raw)
         xpn = {'re': 'http://exslt.org/regular-expressions'}
         XPath = functools.partial(etree.XPath, namespaces=xpn)
 

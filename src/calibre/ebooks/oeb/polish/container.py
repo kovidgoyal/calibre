@@ -18,7 +18,6 @@ from io import BytesIO
 from itertools import count
 
 from css_parser import getUrls, replaceUrls
-from lxml import etree
 
 from calibre import CurrentDir, walk
 from calibre.constants import iswindows
@@ -42,7 +41,7 @@ from calibre.ebooks.oeb.base import (
     DC11_NS, OEB_DOCS, OEB_STYLES, OPF, OPF2_NS, Manifest, itercsslinks, iterlinks,
     rewrite_links, serialize, urlquote, urlunquote
 )
-from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER, NotHTML, parse_html
+from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html
 from calibre.ebooks.oeb.polish.errors import DRMError, InvalidBook
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
 from calibre.ebooks.oeb.polish.utils import (
@@ -52,6 +51,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryF
 from calibre.utils.filenames import hardlink_file, nlinks_file
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems, map, unicode_type, zip
 from polyglot.urllib import urlparse
@@ -201,7 +201,7 @@ class ContainerBase(object):  # {{{
         data, self.used_encoding = xml_to_unicode(
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         data = unicodedata.normalize('NFC', data)
-        return etree.fromstring(data, parser=RECOVER_PARSER)
+        return safe_xml_fromstring(data)
 
     def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
         if self.tweak_mode:
@@ -1178,7 +1178,7 @@ class EpubContainer(Container):
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in epub')
-        container = etree.fromstring(open(container_path, 'rb').read())
+        container = safe_xml_fromstring(open(container_path, 'rb').read())
         opf_files = container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
             '[@media-type="%s" and @full-path]'%guess_type('a.opf')

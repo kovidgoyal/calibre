@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
@@ -63,8 +63,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             ungzipResponse(r,br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
-            parser = etree.XMLParser(recover=True, no_network=True)
-            doc = etree.fromstring(raw, parser=parser)
+            doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
             for data in doc.xpath('//*[local-name() = "fb2-book"]'):
                 if counter <= 0:
                     break

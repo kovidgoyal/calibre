@@ -51,9 +51,9 @@ def return_raster_image(path):
 
 
 def extract_cover_from_embedded_svg(html, base, log):
-    from lxml import etree
     from calibre.ebooks.oeb.base import XPath, SVG, XLINK
-    root = etree.fromstring(html)
+    from calibre.utils.xml_parse import safe_xml_fromstring
+    root = safe_xml_fromstring(html)
 
     svg = XPath('//svg:svg')(root)
     if len(svg) == 1 and len(svg[0]) == 1 and svg[0][0].tag == SVG('image'):

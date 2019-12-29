@@ -15,6 +15,7 @@ from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, rating_to_stars
 from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
@@ -123,7 +124,7 @@ def html_to_lxml(raw):
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
     try:
-        return etree.fromstring(raw)
+        return safe_xml_fromstring(raw)
     except:
         for x in root.iterdescendants():
             remove = []
@@ -134,7 +135,7 @@ def html_to_lxml(raw):
                 del x.attrib[a]
         raw = etree.tostring(root, encoding=None)
         try:
-            return etree.fromstring(raw)
+            return safe_xml_fromstring(raw)
         except:
             from calibre.ebooks.oeb.parse_utils import _html4_parse
             return _html4_parse(raw)

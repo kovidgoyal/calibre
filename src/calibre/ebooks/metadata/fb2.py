@@ -15,6 +15,7 @@ from lxml import etree
 
 from calibre.utils.date import parse_only_date
 from calibre.utils.img import save_cover_data_to
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.imghdr import identify
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
@@ -315,9 +316,8 @@ def _parse_language(root, mi, ctx):
 
 
 def _get_fbroot(raw):
-    parser = etree.XMLParser(recover=True, no_network=True)
     raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
-    root = etree.fromstring(raw, parser=parser)
+    root = safe_xml_fromstring(raw)
     return ensure_namespace(root)
 
 
@@ -452,5 +452,5 @@ def ensure_namespace(doc):
         import re
         raw = etree.tostring(doc, encoding='unicode')
         raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
-        doc = etree.fromstring(raw)
+        doc = safe_xml_fromstring(raw)
     return doc

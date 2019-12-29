@@ -231,7 +231,7 @@ class EPUBInput(InputFormatPlugin):
         return removed
 
     def find_opf(self):
-        from lxml import etree
+        from calibre.utils.xml_parse import safe_xml_fromstring
 
         def attr(n, attr):
             for k, v in n.attrib.items():
@@ -239,7 +239,7 @@ class EPUBInput(InputFormatPlugin):
                     return v
         try:
             with lopen('META-INF/container.xml', 'rb') as f:
-                root = etree.fromstring(f.read())
+                root = safe_xml_fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
                     if attr(r, 'media-type') != "application/oebps-package+xml":
                         continue
@@ -356,12 +356,13 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.oeb.polish.parsing import parse
         from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize, urlunquote, serialize
         from calibre.ebooks.oeb.polish.toc import first_child
+        from calibre.utils.xml_parse import safe_xml_fromstring
         from tempfile import NamedTemporaryFile
         with lopen(nav_path, 'rb') as f:
             raw = f.read()
         raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
         root = parse(raw, log=log)
-        ncx = etree.fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
+        ncx = safe_xml_fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
         navmap = ncx[0]
         et = '{%s}type' % EPUB_NS
         bn = os.path.basename(nav_path)

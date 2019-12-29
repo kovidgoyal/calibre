@@ -20,25 +20,19 @@ class LRFInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from lxml import etree
         from calibre.ebooks.lrf.input import (MediaType, Styles, TextBlock,
                 Canvas, ImageBlock, RuledLine)
         self.log = log
         self.log('Generating XML')
         from calibre.ebooks.lrf.lrfparser import LRFDocument
+        from calibre.utils.xml_parse import safe_xml_fromstring
+        from lxml import etree
         d = LRFDocument(stream)
         d.parse()
         xml = d.to_xml(write_files=True)
         if options.verbose > 2:
             open(u'lrs.xml', 'wb').write(xml.encode('utf-8'))
-        parser = etree.XMLParser(no_network=True, huge_tree=True)
-        try:
-            doc = etree.fromstring(xml, parser=parser)
-        except:
-            self.log.warn('Failed to parse XML. Trying to recover')
-            parser = etree.XMLParser(no_network=True, huge_tree=True,
-                    recover=True)
-            doc = etree.fromstring(xml, parser=parser)
+        doc = safe_xml_fromstring(xml)
 
         char_button_map = {}
         for x in doc.xpath('//CharButton[@refobj]'):
@@ -60,7 +54,7 @@ class LRFInput(InputFormatPlugin):
                     plot_map[ro] = imgstr[0].get('file')
 
         self.log('Converting XML to HTML...')
-        styledoc = etree.fromstring(P('templates/lrf.xsl', data=True))
+        styledoc = safe_xml_fromstring(P('templates/lrf.xsl', data=True))
         media_type = MediaType()
         styles = Styles()
         text_block = TextBlock(styles, char_button_map, plot_map, log)

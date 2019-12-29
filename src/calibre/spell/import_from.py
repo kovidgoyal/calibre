@@ -10,6 +10,7 @@ import sys, glob, os, tempfile, re, codecs
 from lxml import etree
 
 from calibre.constants import config_dir
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems
 
@@ -26,7 +27,7 @@ BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
 def parse_xcu(raw, origin='%origin%'):
     ' Get the dictionary and affix file names as well as supported locales for each dictionary '
     ans = {}
-    root = etree.fromstring(raw)
+    root = safe_xml_fromstring(raw)
 
     for node in XPath('//prop[@oor:name="Format"]/value[text()="DICT_SPELL"]/../..')(root):
         value = XPath('descendant::prop[@oor:name="Locations"]/value')(node)
@@ -123,7 +124,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
                     key = key[3:]
                 return zf.open(key.lstrip('/')).read()
 
-        root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
+        root = safe_xml_fromstring(zf.open('META-INF/manifest.xml').read())
         xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
             '{%s}full-path' % NS_MAP['manifest'])
         for (dic, aff), locales in iteritems(parse_xcu(zf.open(xcu).read(), origin='')):

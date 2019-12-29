@@ -12,13 +12,12 @@ import os
 import posixpath
 from contextlib import closing
 
-from lxml import etree
-
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf import (
     get_metadata as get_metadata_from_opf, set_metadata as set_metadata_opf
 )
 from calibre.ebooks.metadata.opf2 import OPF
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localunzip import LocalZipFile
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
@@ -42,7 +41,7 @@ class Container(dict):
     def __init__(self, stream=None):
         if not stream:
             return
-        container = etree.fromstring(stream.read())
+        container = safe_xml_fromstring(stream.read())
         if container.get('version', None) != '1.0':
             raise EPubException("unsupported version of OCF")
         rootfiles = container.xpath('./*[local-name()="rootfiles"]')
@@ -70,8 +69,7 @@ class Encryption(object):
             'http://www.idpf.org/2008/embedding'])
 
     def __init__(self, raw):
-        from lxml import etree
-        self.root = etree.fromstring(raw) if raw else None
+        self.root = safe_xml_fromstring(raw) if raw else None
         self.entries = {}
         if self.root is not None:
             for em in self.root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):

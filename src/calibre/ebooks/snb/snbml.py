@@ -84,6 +84,7 @@ class SNBMLizer(object):
     def mlize(self):
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.utils.xml_parse import safe_xml_fromstring
         output = [u'']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
@@ -98,7 +99,7 @@ class SNBMLizer(object):
             etree.SubElement(snbcTree, "body")
             trees[subitem] = snbcTree
         output.append('%s%s\n\n' % (CALIBRE_SNB_BM_TAG, ""))
-        output += self.dump_text(self.subitems, etree.fromstring(content), stylizer)[0]
+        output += self.dump_text(self.subitems, safe_xml_fromstring(content), stylizer)[0]
         output = self.cleanup_text(''.join(output))
 
         subitem = ''

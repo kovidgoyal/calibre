@@ -14,6 +14,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import force_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.constants import numeric_version
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
@@ -124,7 +125,7 @@ def get_custom_recipe_collection(*args):
             import traceback
             traceback.print_exc()
             continue
-    return etree.fromstring(serialize_collection(rmap))
+    return safe_xml_fromstring(serialize_collection(rmap))
 
 
 def update_custom_recipe(id_, title, script):
@@ -287,7 +288,7 @@ class SchedulerConfig(object):
         if os.access(self.conf_path, os.R_OK):
             with ExclusiveFile(self.conf_path) as f:
                 try:
-                    self.root = etree.fromstring(f.read())
+                    self.root = safe_xml_fromstring(f.read())
                 except:
                     print('Failed to read recipe scheduler config')
                     import traceback

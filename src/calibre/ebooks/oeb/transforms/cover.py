@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from lxml import etree
 from calibre import guess_type
 from calibre.utils.imghdr import identify
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import unicode_type
 from polyglot.urllib import unquote
 
@@ -156,7 +156,7 @@ class CoverManager(object):
                 tp = templ%unquote(href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
-                        data=etree.fromstring(tp))
+                        data=safe_xml_fromstring(tp))
         else:
             item = self.oeb.manifest.hrefs[
                     urldefrag(self.oeb.guide['titlepage'].href)[0]]

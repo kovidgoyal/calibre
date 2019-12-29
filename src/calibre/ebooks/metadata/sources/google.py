@@ -105,7 +105,8 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     try:
         raw = get_details(browser, id_url, timeout)
         feed = etree.fromstring(
-            xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0]
+            xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
+            parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
         )
         extra = entry(feed)[0]
     except:
@@ -173,7 +174,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -371,10 +372,9 @@ class GoogleBooks(Source):
             return as_unicode(e)
 
         try:
-            parser = etree.XMLParser(recover=True, no_network=True)
             feed = etree.fromstring(
                 xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
-                parser=parser
+                parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
             )
             entries = entry(feed)
         except Exception as e:

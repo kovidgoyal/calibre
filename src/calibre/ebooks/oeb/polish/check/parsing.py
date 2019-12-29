@@ -7,11 +7,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from lxml.etree import XMLParser, fromstring, XMLSyntaxError
+from lxml.etree import XMLSyntaxError
 import css_parser
 
 from calibre import force_unicode, human_readable, prepare_string_for_xml
 from calibre.ebooks.chardet import replace_encoding_declarations, find_declared_encoding
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
@@ -276,7 +277,6 @@ def check_xml_parsing(name, mt, raw):
     # Get rid of entities as named entities trip up the XML parser
     eproc = EntitityProcessor(mt)
     eraw = entity_pat.sub(eproc, raw)
-    parser = XMLParser(recover=False)
     errcls = HTMLParseError if mt in OEB_DOCS else XMLParseError
     errors = []
     if eproc.ok_named_entities:
@@ -288,7 +288,7 @@ def check_xml_parsing(name, mt, raw):
             errors.append(BadEntity(ent, name, lnum, col))
 
     try:
-        root = fromstring(eraw, parser=parser)
+        root = safe_xml_fromstring(eraw, recover=False)
     except UnicodeDecodeError:
         return errors + [DecodeError(name)]
     except XMLSyntaxError as err:

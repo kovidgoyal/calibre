@@ -28,6 +28,7 @@ from calibre.gui2.tweak_book.editor.text import PlainTextEdit, default_font_fami
 from calibre.gui2.tweak_book.editor.themes import theme_color, get_theme
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
 from calibre.gui2.tweak_book.diff.highlight import get_highlighter
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -47,7 +48,7 @@ def beautify_text(raw, syntax):
     from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
     from calibre.ebooks.chardet import strip_encoding_declarations
     if syntax == 'xml':
-        root = etree.fromstring(strip_encoding_declarations(raw))
+        root = safe_xml_fromstring(strip_encoding_declarations(raw))
         pretty_xml_tree(root)
     elif syntax == 'css':
         import logging

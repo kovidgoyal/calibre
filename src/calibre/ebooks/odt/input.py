@@ -19,6 +19,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd, as_bytes
 
 
@@ -45,7 +46,7 @@ class Extract(ODF2XHTML):
                 ol.set('start', val)
 
     def fix_markup(self, html, log):
-        root = etree.fromstring(html)
+        root = safe_xml_fromstring(html)
         self.filter_css(root, log)
         self.extract_css(root, log)
         self.epubify_markup(root, log)

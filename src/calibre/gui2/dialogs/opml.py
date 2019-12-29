@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from lxml import etree
 
 from calibre.gui2 import choose_files, error_dialog
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.icu import sort_key
 from polyglot.builtins import unicode_type
 
@@ -32,7 +33,7 @@ def uniq(vals, kmap=lambda x:x):
 
 
 def import_opml(raw, preserve_groups=True):
-    root = etree.fromstring(raw)
+    root = safe_xml_fromstring(raw)
     groups = defaultdict(list)
     ax = etree.XPath('ancestor::outline[@title or @text]')
     for outline in root.xpath('//outline[@type="rss" and @xmlUrl]'):

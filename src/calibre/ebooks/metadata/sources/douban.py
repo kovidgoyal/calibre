@@ -49,7 +49,7 @@ class Douban(Source):
 
     name = 'Douban Books'
     author = 'Li Fanxi'
-    version = (2, 1, 1)
+    version = (2, 1, 2)
     minimum_calibre_version = (2, 80, 0)
 
     description = _('Downloads metadata and covers from Douban.com. '
@@ -119,8 +119,10 @@ class Douban(Source):
         try:
             log.info(id_url)
             raw = get_details(browser, id_url, timeout)
-            feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
-                strip_encoding_pats=True)[0])
+            feed = etree.fromstring(
+                xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
+                parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
+            )
             extra = entry(feed)[0]
         except:
             log.exception('Failed to get additional details for', mi.title)

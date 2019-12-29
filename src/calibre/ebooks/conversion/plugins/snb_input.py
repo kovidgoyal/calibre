@@ -32,10 +32,10 @@ class SNBInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         import uuid
-        from lxml import etree
 
         from calibre.ebooks.oeb.base import DirContainer
         from calibre.ebooks.snb.snbfile import SNBFile
+        from calibre.utils.xml_parse import safe_xml_fromstring
 
         log.debug("Parsing SNB file...")
         snbFile = SNBFile()
@@ -52,7 +52,7 @@ class SNBInput(InputFormatPlugin):
                 encoding=options.input_encoding, populate=False)
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta is not None:
-            meta = etree.fromstring(meta)
+            meta = safe_xml_fromstring(meta)
             l = {'title'    : './/head/name',
                   'creator'  : './/head/author',
                   'language' : './/head/language',
@@ -87,7 +87,7 @@ class SNBInput(InputFormatPlugin):
             toc = snbFile.GetFileStream('snbf/toc.snbf')
             oeb.container = DirContainer(tdir, log)
             if toc is not None:
-                toc = etree.fromstring(toc)
+                toc = safe_xml_fromstring(toc)
                 i = 1
                 for ch in toc.find('.//body'):
                     chapterName = ch.text
@@ -96,7 +96,7 @@ class SNBInput(InputFormatPlugin):
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
                     if data is None:
                         continue
-                    snbc = etree.fromstring(data)
+                    snbc = safe_xml_fromstring(data)
                     lines = []
                     for line in snbc.find('.//body'):
                         if line.tag == 'text':

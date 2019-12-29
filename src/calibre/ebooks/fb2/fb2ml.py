@@ -17,6 +17,7 @@ from lxml import etree
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
 from polyglot.builtins import unicode_type, string_or_bytes, range, filter
@@ -69,7 +70,7 @@ class FB2MLizer(object):
         output = self.clean_text('\n'.join(output))
 
         if self.opts.pretty_print:
-            output = etree.tostring(etree.fromstring(output), encoding='unicode', pretty_print=True)
+            output = etree.tostring(safe_xml_fromstring(output), encoding='unicode', pretty_print=True)
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + output
 

@@ -21,6 +21,7 @@ from calibre import (
     replace_entities, strftime, xml_replace_entities
 )
 from calibre.constants import cache_dir, isosx
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
@@ -2992,7 +2993,7 @@ class CatalogBuilder(object):
             <navMap/>
             </ncx>
         '''
-        root = self.ncx_root = etree.fromstring(header)
+        root = self.ncx_root = safe_xml_fromstring(header)
         navMapTag = root[0]
 
         if self.generate_for_kindle_mobi:
@@ -3668,7 +3669,7 @@ class CatalogBuilder(object):
                 lang=prepare_string_for_xml(lang),
                 pt="periodical:default" if self.generate_for_kindle_mobi else ""
         )
-        root = etree.fromstring(header)
+        root = safe_xml_fromstring(header)
         manifest = root.xpath('//*[local-name()="manifest"]')[0]
         spine = root.xpath('//*[local-name()="spine"]')[0]
         guide = root.xpath('//*[local-name()="guide"]')[0]
