@@ -467,7 +467,6 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
         self.model.setSourceModel(self.recipe_model)
         r.setModel(self.model)
         r.doubleClicked.connect(self.accept)
-        l.addWidget(self.recipes)
         self.search = s = SearchBox2(self)
         self.search.initialize('scheduler_search_history')
         self.search.setMinimumContentsLength(15)
@@ -480,6 +479,7 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
         h = QHBoxLayout()
         h.addWidget(s), h.addWidget(b)
         l.addLayout(h)
+        l.addWidget(self.recipes)
         l.addWidget(self.bb)
         self.search.setFocus(Qt.OtherFocusReason)
 
