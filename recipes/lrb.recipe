@@ -35,7 +35,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         classes('article-header--title paperArticle-reviewsHeader article-content letters-content'),
     ]
     remove_tags = [
-        classes('social-button article-mask'),
+        classes('social-button article-mask lrb-readmorelink article-send-letter article-share'),
     ]
     remove_attributes = ['width', 'height']
 
