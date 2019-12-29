@@ -19,10 +19,9 @@ from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
 from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
 
 
-def fromstring(raw, parser=RECOVER_PARSER):
+def fromstring(raw, parser=None):
     return safe_xml_fromstring(raw)
 
 # Read metadata {{{

@@ -16,7 +16,7 @@ from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, map
 
-RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
+RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 XMLNS_NS     = 'http://www.w3.org/2000/xmlns/'
 
