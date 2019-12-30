@@ -264,6 +264,12 @@ def shortcuts_definition():
         _('Show the viewer controls'),
     ),
 
+    'preferences': desc(
+        v"['Ctrl+Escape']",
+        'ui',
+        _('Show viewer preferences'),
+    ),
+
     'goto_location': desc(
         v"[';', ':', 'Shift+:', 'Shift+;', 'Ctrl+g']",
         'ui',
