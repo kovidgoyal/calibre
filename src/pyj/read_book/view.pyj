@@ -39,9 +39,9 @@ from viewer.constants import READER_BACKGROUND_URL
 add_extra_css(def():
     sel = '.book-side-margin'
     ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
-    ans += build_rule(sel + ' > svg', visibility='hidden')
-    ans += build_rule(sel + ':hover > svg', visibility='visible')
-    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), visibility='visible', transform='scale(2)')
+    ans += build_rule(sel + ' > svg', display='none')
+    ans += build_rule(sel + ':hover > svg', display='block')
+    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), display='block', transform='scale(2)')
     return ans
 )
 
@@ -144,6 +144,14 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     return ans
 
 
+def side_margin_elem(self, sd, which):
+    ans = E.div(
+        svgicon(f'caret-{which}'), style='width:{}px;'.format(sd.get(f'margin_{which}', 20)),
+        class_='book-side-margin', id=f'book-{which}-margin', onclick=self.side_margin_clicked.bind(None, which),
+        oncontextmenu=self.margin_context_menu.bind(None, which), onwheel=self.on_margin_wheel.bind(None, which))
+    return ans
+
+
 class View:
 
     def __init__(self, container):
@@ -161,15 +169,9 @@ class View:
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         if ui_operations.export_shortcut_map:
             ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
-        left_margin = E.div(
-            svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)),
-            class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked,
-            oncontextmenu=self.margin_context_menu.bind(None, 'left'), onwheel=self.on_margin_wheel.bind(None, 'left'))
+        left_margin = side_margin_elem(self, sd, 'left')
         set_left_margin_handler(left_margin)
-        right_margin = E.div(
-            svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)),
-            class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked,
-            oncontextmenu=self.margin_context_menu.bind(None, 'right'), onwheel=self.on_margin_wheel.bind(None, 'right'))
+        right_margin = side_margin_elem(self, sd, 'right')
         set_right_margin_handler(right_margin)
         iframe_id = unique_id('read-book-iframe')
         sandbox = 'allow-popups allow-scripts allow-popups-to-escape-sandbox'
@@ -278,6 +280,9 @@ class View:
             event.preventDefault(), event.stopPropagation()
             window.setTimeout(self.show_chrome, 0)
         self.focus_iframe()
+
+    def side_margin_clicked(self, which, event):
+        self.left_margin_clicked(event) if which is 'left' else self.right_margin_clicked(event)
 
     def top_margin_clicked(self, event):
         if event.button is 0 or event.button is 2:
@@ -949,7 +954,8 @@ class View:
                 hca = render_head_foot(div.firstChild, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 hcc = render_head_foot(div.lastChild, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                has_clock = hca or hcb or hcc
+                if hca or hcb or hcc:
+                    has_clock = True
             else:
                 for c in div.childNodes:
                     c.style.display = 'none'
