@@ -567,8 +567,12 @@ class View:
         for which in 'left top right bottom'.split(' '):
             m = document.getElementById('book-{}-margin'.format(which))
             s = m.style
-            s.color = ans.foreground
-            s.backgroundColor = ans.background
+            mc = ans[f'margin_{which}']
+            if mc:
+                s.backgroundColor, s.color = mc.split(':')
+            else:
+                s.color = ans.foreground
+                s.backgroundColor = ans.background
         sd = get_session_data()
         iframe = self.iframe
         iframe.style.backgroundColor = ans.background or 'white'
