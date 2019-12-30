@@ -561,40 +561,39 @@ class View:
     def on_iframe_error(self, data):
         ui_operations.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
 
-    def get_color_scheme(self, apply_to_margins):
+    def apply_color_scheme(self):
         ans = resolve_color_scheme()
         self.current_color_scheme = ans
-        if apply_to_margins:
-            for which in 'left top right bottom'.split(' '):
-                m = document.getElementById('book-{}-margin'.format(which))
-                s = m.style
-                s.color = ans.foreground
-                s.backgroundColor = ans.background
-            sd = get_session_data()
-            iframe = self.iframe
-            iframe.style.backgroundColor = ans.background or 'white'
-            bg_image = sd.get('background_image')
-            if bg_image:
-                iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
-            else:
-                iframe.style.backgroundImage = 'none'
-            if sd.get('background_image_style') is 'scaled':
-                iframe.style.backgroundSize = '100% 100%'
-                iframe.style.backgroundRepeat = 'no-repeat'
-                iframe.style.backgroundAttachment = 'scroll'
-                iframe.style.backgroundPosition = 'center'
-            else:
-                iframe.style.backgroundSize = 'auto'
-                iframe.style.backgroundRepeat = 'repeat'
-                iframe.style.backgroundAttachment = 'scroll'
-                iframe.style.backgroundPosition = '0 0'
+        for which in 'left top right bottom'.split(' '):
+            m = document.getElementById('book-{}-margin'.format(which))
+            s = m.style
+            s.color = ans.foreground
+            s.backgroundColor = ans.background
+        sd = get_session_data()
+        iframe = self.iframe
+        iframe.style.backgroundColor = ans.background or 'white'
+        bg_image = sd.get('background_image')
+        if bg_image:
+            iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
+        else:
+            iframe.style.backgroundImage = 'none'
+        if sd.get('background_image_style') is 'scaled':
+            iframe.style.backgroundSize = '100% 100%'
+            iframe.style.backgroundRepeat = 'no-repeat'
+            iframe.style.backgroundAttachment = 'scroll'
+            iframe.style.backgroundPosition = 'center'
+        else:
+            iframe.style.backgroundSize = 'auto'
+            iframe.style.backgroundRepeat = 'repeat'
+            iframe.style.backgroundAttachment = 'scroll'
+            iframe.style.backgroundPosition = '0 0'
 
-            self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
-            self.book_scrollbar.apply_color_scheme(ans)
-            # this is needed on iOS where the bottom margin has its own margin,
-            # so we dont want the body background color to bleed through
-            iframe.parentNode.style.backgroundColor = ans.background
-            iframe.parentNode.parentNode.style.backgroundColor = ans.background
+        self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
+        self.book_scrollbar.apply_color_scheme(ans)
+        # this is needed on iOS where the bottom margin has its own margin,
+        # so we dont want the body background color to bleed through
+        iframe.parentNode.style.backgroundColor = ans.background
+        iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
@@ -697,7 +696,7 @@ class View:
     def iframe_settings(self, name):
         sd = get_session_data()
         bg_image_fade = 'transparent'
-        cs = self.get_color_scheme(True)
+        cs = self.apply_color_scheme()
         fade = int(sd.get('background_image_fade'))
         rgba = cached_color_to_rgba(cs.background)
         is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
@@ -1016,7 +1015,7 @@ class View:
         self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_auto=change_scroll_speed(amt))
 
     def update_color_scheme(self):
-        cs = self.get_color_scheme(True)
+        cs = self.apply_color_scheme()
         self.iframe_wrapper.send_message('change_color_scheme', color_scheme=cs)
 
     def toggle_reference_mode(self):
