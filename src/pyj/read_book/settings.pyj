@@ -51,7 +51,12 @@ def apply_colors():
         text = 'body'
         if opts.override_book_colors is 'dark':
             text += '.calibre-viewer-dark-colors'
-        text += f' * {{ color: {opts.color_scheme.foreground} !important; background-color: {opts.color_scheme.background} !important }}'
+        text += f'''
+        * {{
+            color: {opts.color_scheme.foreground} !important; /**/
+            background-color: {opts.color_scheme.background} !important; /**/
+            border-color: {opts.color_scheme.foreground} !important; /**/
+        }}'''
     if opts.color_scheme.link:
         c = opts.color_scheme.link
         # we use the html > body form so that these selectors have higher
