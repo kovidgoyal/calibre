@@ -6,7 +6,10 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from dom import (
+    add_extra_css, build_rule, clear, set_css, set_radio_group_value, svgicon,
+    unique_id
+)
 from modals import error_dialog
 from read_book.globals import default_color_schemes, ui_operations
 from read_book.prefs.utils import create_button_box
@@ -37,11 +40,6 @@ add_extra_css(def():
 
 def get_container():
     return document.getElementById(CONTAINER)
-
-
-def set_radio_group_value(parent, name, val):
-    for inp in parent.querySelector(f'input[name={name}]'):
-        inp.checked = inp.value is val
 
 
 def resolve_color_scheme(current_color_scheme):
@@ -93,7 +91,7 @@ def edit_color_scheme(ev):
         for which in MARGINS:
             attr = f'margin_{which}'
             val = scheme[attr]
-            set_radio_group_value(container, f'input[name={attr}_color_type]', 'custom' if val else 'default')
+            set_radio_group_value(container, f'{attr}_color_type', 'custom' if val else 'default')
             if val:
                 bg, fg = val.split(':')
                 container.querySelector(f'input[name={attr}_bg]').value = bg

@@ -133,3 +133,12 @@ def add_extra_css(func):
 
 def get_widget_css():
     return extra_css.join('\n')
+
+
+def set_radio_group_value(parent, name, val):
+    changed = False
+    for inp in parent.querySelectorAll(f'input[name={name}]'):
+        inp.checked = inp.value is val
+        changed = True
+    if not changed:
+        raise KeyError(f'No radio group with name={name} found')
