@@ -46,12 +46,20 @@ def create_item(region, label):
 
 
 def create_items(which):
-    ans = E.table(
-        data_which=which,
-        create_item('left', _('Left')),
-        create_item('middle', _('Middle')),
-        create_item('right', _('Right'))
-    )
+    if which is 'header' or which is 'footer':
+        ans = E.table(
+            data_which=which,
+            create_item('left', _('Left')),
+            create_item('middle', _('Middle')),
+            create_item('right', _('Right'))
+        )
+    else:
+        ans = E.table(
+            data_which=which,
+            create_item('left', _('Top')),
+            create_item('middle', _('Middle')),
+            create_item('right', _('Bottom'))
+        )
     return ans
 
 
@@ -79,7 +87,7 @@ def get_setting(table):
 
 def restore_defaults():
     container = document.getElementById(CONTAINER)
-    for which in 'header footer'.split(' '):
+    for which in 'header footer left-margin right-margin'.split(' '):
         table = container.querySelector(f'table[data-which={which}]')
         apply_setting(table, defaults[which] or {})
 
@@ -92,9 +100,15 @@ def create_head_foot_panel(container, apply_func, cancel_func):
     container.appendChild(E.hr())
     container.appendChild(E.h4(_('Footer'), style="margin: 1rem; margin-top: 0"))
     container.appendChild(create_items('footer'))
+    container.appendChild(E.hr())
+    container.appendChild(E.h4(_('Left margin'), style="margin: 1rem; margin-top: 0"))
+    container.appendChild(create_items('left-margin'))
+    container.appendChild(E.hr())
+    container.appendChild(E.h4(_('Right margin'), style="margin: 1rem; margin-top: 0"))
+    container.appendChild(create_items('right-margin'))
 
     sd = get_session_data()
-    for which in 'header footer'.split(' '):
+    for which in 'header footer left-margin right-margin'.split(' '):
         table = container.querySelector(f'table[data-which={which}]')
         apply_setting(table, sd.get(which) or {})
     container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
@@ -103,7 +117,7 @@ def create_head_foot_panel(container, apply_func, cancel_func):
 def commit_head_foot(onchange, container):
     sd = get_session_data()
     changed = False
-    for which in 'header footer'.split(' '):
+    for which in 'header footer left-margin right-margin'.split(' '):
         prev = sd.get(which) or {}
         table = container.querySelector(f'table[data-which={which}]')
         current = get_setting(table)

@@ -35,6 +35,8 @@ defaults = {
     'current_color_scheme': 'system',
     'footer': {'right': 'progress'},
     'header': {},
+    'left-margin': {},
+    'right-margin': {},
     'hide_tooltips': False,
     'keyboard_shortcuts': {},
     'lines_per_sec_auto': 1,
