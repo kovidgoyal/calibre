@@ -83,7 +83,7 @@ def filter_qt_styles(style):
 
 def remove_margins(tag, style):
     ml, mr, mt, mb = (style.pop('margin-' + k, None) for k in 'left right top bottom'.split())
-    is_blockquote = ml == mr and ml and ml != '0px'
+    is_blockquote = ml == mr and ml and ml != '0px' and (ml != mt or ml != mb)
     if is_blockquote:
         tag.tag = 'blockquote'
 
