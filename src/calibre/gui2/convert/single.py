@@ -158,6 +158,7 @@ class Config(QDialog):
         self.buttonBox.setObjectName("buttonBox")
         self.gridLayout.addWidget(self.buttonBox, 3, 1, 1, 1)
         self.help = QTextEdit(self)
+        self.help.setReadOnly(True)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

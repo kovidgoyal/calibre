@@ -48,7 +48,7 @@
           </property>
           <item>
            <widget class="QLineEdit" name="cover_path">
-            <property name="readOnly">
+            <property name="clearButtonEnabled">
              <bool>true</bool>
             </property>
            </widget>
