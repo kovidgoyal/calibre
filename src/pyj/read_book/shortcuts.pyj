@@ -265,7 +265,7 @@ def shortcuts_definition():
     ),
 
     'preferences': desc(
-        v"['Ctrl+,', 'Ctrl+Esc', 'Meta+Esc', 'Meta+,']",
+        v"['Ctrl+,', 'Ctrl+Escape', 'Meta+Escape', 'Meta+,']",
         'ui',
         _('Show viewer preferences'),
     ),
