@@ -63,9 +63,6 @@
    </item>
    <item row="1" column="0">
     <widget class="QLineEdit" name="opt_debug_pipeline">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
      <property name="clearButtonEnabled">
       <bool>true</bool>
      </property>

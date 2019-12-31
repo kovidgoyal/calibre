@@ -15,6 +15,7 @@ from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, QApplica
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.widgets import HistoryLineEdit
 from polyglot.builtins import unicode_type, string_or_bytes
 
 
@@ -109,9 +110,11 @@ class Setting(object):
         elif isinstance(self.gui_obj, QAbstractSpinBox):
             self.datatype = 'number'
             self.gui_obj.valueChanged.connect(self.changed)
-        elif isinstance(self.gui_obj, QLineEdit):
+        elif isinstance(self.gui_obj, (QLineEdit, HistoryLineEdit)):
             self.datatype = 'string'
             self.gui_obj.textChanged.connect(self.changed)
+            if isinstance(self.gui_obj, HistoryLineEdit):
+                self.gui_obj.initialize('preferences_setting_' + self.name)
         elif isinstance(self.gui_obj, QComboBox):
             self.datatype = 'choice'
             self.gui_obj.editTextChanged.connect(self.changed)

@@ -93,6 +93,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 _('Choose a folder'))
         if path:
             self.opt_auto_add_path.setText(path)
+            self.opt_auto_add_path.save_history()
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

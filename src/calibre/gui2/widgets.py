@@ -669,6 +669,7 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(10)
         self.setClearButtonEnabled = self.lineEdit().setClearButtonEnabled
+        self.textChanged = self.editTextChanged
 
     def setPlaceholderText(self, txt):
         return self.lineEdit().setPlaceholderText(txt)
