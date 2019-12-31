@@ -203,5 +203,4 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         text = '\xa0'
     if text is not div.textContent:
         div.textContent = text
-    div.style.display = 'block'
     return has_clock

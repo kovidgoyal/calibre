@@ -9,11 +9,10 @@ import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.globals import get_session_data
 from book_list.theme import cached_color_to_rgba, get_color
-from dom import add_extra_css, build_rule, set_css, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
-from read_book.scrollbar import BookScrollbar
 from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
@@ -23,8 +22,11 @@ from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
-from read_book.prefs.scrolling import change_scroll_speed, MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP
+from read_book.prefs.scrolling import (
+    MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
+)
 from read_book.resources import load_resources
+from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
@@ -38,8 +40,13 @@ from viewer.constants import READER_BACKGROUND_URL
 
 add_extra_css(def():
     sel = '.book-side-margin'
-    ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='space-between')
+    ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
     ans += build_rule(sel + ' > .arrow', display='none')
+    ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
+    ans += build_rule(sel + ':hover', flex_direction='row', justify_content='center')
+    ans += build_rule(sel + ':active', flex_direction='row', justify_content='center')
+    ans += build_rule(sel + ':hover > not(.arrow)', display='none')
+    ans += build_rule(sel + ':active > not(.arrow)', display='none')
     ans += build_rule(sel + ':hover > .arrow', display='block')
     ans += build_rule(sel + ':active > .arrow', color=get_color('window-hover-foreground'), display='block', transform='scale(2)')
     return ans
@@ -147,6 +154,7 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
 def side_margin_elem(self, sd, which):
     ans = E.div(
         E.div(class_='arrow', svgicon(f'caret-{which}', '100%', '100%')),
+        E.div(), E.div(), E.div(),
 
         style='width:{}px;'.format(sd.get(f'margin_{which}', 20)),
         class_='book-side-margin', id=f'book-{which}-margin',
@@ -955,23 +963,24 @@ class View:
 
         def render_template(div, sz_attr, name):
             nonlocal has_clock
+            c = div.lastChild
+            b = c.previousSibling
+            a = b.previousSibling
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                hca = render_head_foot(div.firstChild, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                hcc = render_head_foot(div.lastChild, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hca = render_head_foot(a, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcb = render_head_foot(b, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcc = render_head_foot(c, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
                 if hca or hcb or hcc:
                     has_clock = True
             else:
-                for c in div.childNodes:
-                    c.style.display = 'none'
+                clear(a), clear(b), clear(c)
 
-        div = document.getElementById('book-bottom-margin')
-        if div:
-            render_template(div, 'margin_bottom', 'footer')
-        div = document.getElementById('book-top-margin')
-        if div:
-            render_template(div, 'margin_top', 'header')
+        for edge in ('left', 'right', 'top', 'bottom'):
+            div = document.getElementById(f'book-{edge}-margin')
+            if div:
+                tname = {'left':'left-margin', 'right': 'right-margin', 'top': 'header', 'bottom': 'footer'}[edge]
+                render_template(div, f'margin_{edge}', tname)
         if has_clock:
             if not self.timer_ids.clock:
                 self.timer_ids.clock = window.setInterval(self.update_header_footer, 60000)
