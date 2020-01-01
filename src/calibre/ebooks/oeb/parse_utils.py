@@ -208,14 +208,14 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
 
     # Try with more & more drastic measures to parse
     try:
-        data = safe_xml_fromstring(data)
+        data = safe_xml_fromstring(data, recover=False)
         check_for_html5(pre, data)
     except (HTML5Doc, etree.XMLSyntaxError):
         log.debug('Initial parse failed, using more'
                 ' forgiving parsers')
         raw = data = xml_replace_entities(raw)
         try:
-            data = safe_xml_fromstring(data)
+            data = safe_xml_fromstring(data, recover=False)
             check_for_html5(pre, data)
         except (HTML5Doc, etree.XMLSyntaxError):
             log.debug('Parsing %s as HTML' % filename)
@@ -269,12 +269,12 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         data = etree.tostring(data, encoding='unicode')
 
         try:
-            data = safe_xml_fromstring(data)
+            data = safe_xml_fromstring(data, recover=False)
         except:
             data = data.replace(':=', '=').replace(':>', '>')
             data = data.replace('<http:/>', '')
             try:
-                data = safe_xml_fromstring(data)
+                data = safe_xml_fromstring(data, recover=False)
             except etree.XMLSyntaxError:
                 log.warn('Stripping comments from %s'%
                         filename)

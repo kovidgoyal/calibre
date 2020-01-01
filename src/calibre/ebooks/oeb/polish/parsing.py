@@ -78,7 +78,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
     if force_html5_parse:
         return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
     try:
-        ans = safe_xml_fromstring(raw)
+        ans = safe_xml_fromstring(raw, recover=False)
         if ans.tag != '{%s}html' % XHTML_NS:
             raise ValueError('Root tag is not <html> in the XHTML namespace')
         if linenumber_attribute:

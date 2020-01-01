@@ -124,7 +124,7 @@ def html_to_lxml(raw):
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
     try:
-        return safe_xml_fromstring(raw)
+        return safe_xml_fromstring(raw, recover=False)
     except:
         for x in root.iterdescendants():
             remove = []
@@ -135,7 +135,7 @@ def html_to_lxml(raw):
                 del x.attrib[a]
         raw = etree.tostring(root, encoding=None)
         try:
-            return safe_xml_fromstring(raw)
+            return safe_xml_fromstring(raw, recover=False)
         except:
             from calibre.ebooks.oeb.parse_utils import _html4_parse
             return _html4_parse(raw)

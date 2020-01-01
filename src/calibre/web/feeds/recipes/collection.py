@@ -125,7 +125,7 @@ def get_custom_recipe_collection(*args):
             import traceback
             traceback.print_exc()
             continue
-    return safe_xml_fromstring(serialize_collection(rmap))
+    return safe_xml_fromstring(serialize_collection(rmap), recover=False)
 
 
 def update_custom_recipe(id_, title, script):
@@ -288,7 +288,7 @@ class SchedulerConfig(object):
         if os.access(self.conf_path, os.R_OK):
             with ExclusiveFile(self.conf_path) as f:
                 try:
-                    self.root = safe_xml_fromstring(f.read())
+                    self.root = safe_xml_fromstring(f.read(), recover=False)
                 except:
                     print('Failed to read recipe scheduler config')
                     import traceback

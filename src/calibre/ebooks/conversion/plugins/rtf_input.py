@@ -282,7 +282,7 @@ class RTFInput(InputFormatPlugin):
 
         self.log('Converting XML to HTML...')
         inline_class = InlineClass(self.log)
-        styledoc = safe_xml_fromstring(P('templates/rtf.xsl', data=True))
+        styledoc = safe_xml_fromstring(P('templates/rtf.xsl', data=True), recover=False)
         extensions = {('calibre', 'inline-class') : inline_class}
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
