@@ -20,7 +20,7 @@ from PyQt5.QtWebEngineWidgets import (
 from calibre import prints, random_user_agent
 from calibre.constants import cache_dir
 from calibre.gui2 import error_dialog
-from calibre.gui2.viewer.web_view import vprefs
+from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.webengine import create_script, insert_scripts, secure_webengine
 from calibre.gui2.widgets2 import Dialog
 
@@ -209,6 +209,26 @@ class Page(QWebEnginePage):
             prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
             sys.stderr.flush()
 
+    def zoom_in(self):
+        self.setZoomFactor(min(self.zoomFactor() + 0.25, 5))
+
+    def zoom_out(self):
+        self.setZoomFactor(max(0.25, self.zoomFactor() - 0.25))
+
+    def default_zoom(self):
+        self.setZoomFactor(1)
+
+
+class View(QWebEngineView):
+
+    def contextMenuEvent(self, ev):
+        menu = self.page().createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction(_('Zoom in'), self.page().zoom_in)
+        menu.addAction(_('Zoom out'), self.page().zoom_out)
+        menu.addAction(_('Default zoom'), self.page().default_zoom)
+        menu.exec_(ev.globalPos())
+
 
 class Lookup(QWidget):
 
@@ -226,8 +246,9 @@ class Lookup(QWidget):
         self.source_box = sb = QComboBox(self)
         self.label = la = QLabel(_('Lookup &in:'))
         h.addWidget(la), h.addWidget(sb), la.setBuddy(sb)
-        self.view = QWebEngineView(self)
+        self.view = View(self)
         self._page = Page(create_profile(), self.view)
+        apply_font_settings(self._page)
         secure_webengine(self._page, for_viewer=True)
         self.view.setPage(self._page)
         l.addWidget(self.view)

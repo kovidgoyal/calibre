@@ -504,7 +504,7 @@ class WebView(RestartingWebEngineView):
         # TODO: Add UI for this
         ss = vprefs['session_data'].get('zoom_step_size') or 20
         amt = (ss / 100) * steps
-        self._page.setZoomFactor(self._page.zoomFactor() + amt)
+        self._page.setZoomFactor(max(0.25, min(self._page.zoomFactor() + amt, 5)))
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
