@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="connect_share.svg">
   <defs
      id="defs4">
@@ -23,7 +23,7 @@
        inkscape:collect="always"
        id="linearGradient4151">
       <stop
-         style="stop-color:#3d70e4;stop-opacity:1"
+         style="stop-color:#5280e7;stop-opacity:1"
          offset="0"
          id="stop4153" />
       <stop
@@ -31,7 +31,7 @@
          offset="0.53151304"
          style="stop-color:#123380;stop-opacity:1" />
       <stop
-         style="stop-color:#161c1c;stop-opacity:1"
+         style="stop-color:#405151;stop-opacity:1"
          offset="0.53151304"
          id="stop4161" />
       <stop
@@ -63,10 +63,10 @@
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
