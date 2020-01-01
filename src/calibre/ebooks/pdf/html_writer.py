@@ -799,7 +799,6 @@ class CMap(object):
         lines = ['1 begincodespacerange', '<{}> <{}>'.format(*map(ashex, (self.start_codespace, self.end_codespace))), 'endcodespacerange']
         while chars:
             group, chars = chars[:100], chars[100:]
-            del chars[:100]
             lines.append('{} beginbfchar'.format(len(group)))
             for g in group:
                 lines.append('<{}> <{}>'.format(*map(ashex, g)))
