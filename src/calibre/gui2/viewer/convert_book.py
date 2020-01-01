@@ -128,7 +128,10 @@ def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_exp
                 for r in removed:
                     rkey = r['key']
                     if rkey in entries:
-                        entries[rkey].remove(r)
+                        try:
+                            entries[rkey].remove(r)
+                        except ValueError:
+                            pass
                         if not entries[rkey]:
                             del entries[rkey]
     metadata['last_clear_at'] = now
