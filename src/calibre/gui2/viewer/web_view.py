@@ -535,9 +535,12 @@ class WebView(RestartingWebEngineView):
     def on_bridge_ready(self):
         f = QApplication.instance().font()
         fi = QFontInfo(f)
+        family = f.family()
+        if family in ('.AppleSystemUIFont', 'MS Shell Dlg 2'):
+            family = 'system-ui'
         ui_data = {
             'all_font_families': QFontDatabase().families(),
-            'ui_font_family': f.family(),
+            'ui_font_family': family,
             'ui_font_sz': '{}px'.format(fi.pixelSize()),
             'show_home_page_on_ready': self.show_home_page_on_ready,
             'system_colors': system_colors(),
