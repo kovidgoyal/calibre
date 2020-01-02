@@ -121,11 +121,35 @@ def run_entry_point():
     return getattr(pmod, func)()
 
 
+def read_user_env_vars():
+    try:
+        with open(os.path.expanduser('~/Library/Preferences/calibre/macos-env.txt'), 'rb') as f:
+            raw = f.read().decode('utf-8', 'replace')
+    except EnvironmentError as err:
+        return
+    for line in raw.splitlines():
+        if line.startswith('#'):
+            continue
+        parts = line.split('=', 1)
+        if len(parts) == 2:
+            key, val = parts
+            os.environ[key] = os.path.expandvars(os.path.expanduser(val))
+
+
 def add_calibre_vars(base):
     sys.frameworks_dir = os.path.join(os.path.dirname(base), 'Frameworks')
     sys.resources_location = os.path.abspath(os.path.join(base, 'resources'))
     sys.extensions_location = os.path.join(sys.frameworks_dir, 'plugins')
     sys.binaries_path = os.path.join(os.path.dirname(base), 'MacOS')
+
+    try:
+        read_user_env_vars()
+    except Exception as err:
+        try:
+            sys.stderr.write('Failed to read user env vars with error: {}\n'.format(err))
+            sys.stderr.flush()
+        except Exception:
+            pass
 
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     if dv and os.path.exists(dv):

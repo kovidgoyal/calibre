@@ -43,10 +43,16 @@ Environment variables
     * ``CALIBRE_USE_DARK_PALETTE`` - Set it to ``1`` to have calibre use dark colors and ``0`` for normal colors (ignored on macOS).
       On Windows 10 in the absence of this variable, the windows system preference for dark colors is used.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
-    * ``http_proxy``, ``https_proxy`` - Used on linux to specify an HTTP(S) proxy
+    * ``http_proxy``, ``https_proxy`` - Used on Linux to specify an HTTP(S) proxy
 
-See `How to set environment variables in Windows <https://www.computerhope.com/issues/ch000549.htm>`_ or
-`How to set environment variables in macOS <https://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-launchd-plist/>`_.
+See `How to set environment variables in Windows <https://www.computerhope.com/issues/ch000549.htm>`_. If you are on macOS
+you can set environment variables by creating the :file:`~/Library/Preferences/calibre/macos-env.txt` and putting
+the environment variables one per line in it, for example::
+
+    CALIBRE_DEVELOP_FROM=$HOME/calibre-src/src
+    CALIBRE_NO_NATIVE_FILEDIALOGS=1
+    CALIBRE_CONFIG_DIRECTORY=~/.config/calibre
+
 
 Tweaks
 ------------
