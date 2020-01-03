@@ -662,6 +662,6 @@ def auto_scroll_action(action):
     if action is 'toggle':
         get_boss().send_message('error', title=_('No auto scroll in paged mode'), msg=_(
             'Switch to flow mode (Viewer preferences->Page layout) to enable auto'
-            ' scrolling')
+            ' scrolling'), is_non_critical=True
         )
     return False

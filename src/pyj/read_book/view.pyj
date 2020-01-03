@@ -578,7 +578,11 @@ class View:
             self.show_spine_item_stage2(data)
 
     def on_iframe_error(self, data):
-        ui_operations.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
+        title = data.title or _('There was an error processing the book')
+        if data.is_non_critical:
+            warning_dialog(title, data.msg, data.details, on_close=ui_operations.focus_iframe)
+            return
+        ui_operations.show_error(title, data.msg, data.details)
 
     def apply_color_scheme(self):
         ans = resolve_color_scheme()
