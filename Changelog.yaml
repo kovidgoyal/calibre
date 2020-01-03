@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title:
 
+- version: 4.8.0
+  date: 2020-01-03
+
+  new features:
+    - title: "Viewer in flow mode: Add auto-scrolling which can be triggered from the viewer controls and also make smooth scrolling by pressing down the arrow keys configurable"
+
+    - title: "Viewer: Allow showing data in left and right margins in addition to headers/footers."
+      tickets: [1855121]
+
+    - title: "Viewer: Allow right clicking in the lookup panel to zoom in/out."
+      tickets: [1857989]
+
+    - title: "Viewer: Allow setting colors for the margins when creating new color schemes in Preferences->Colors"
+
+    - title: "Viewer: Ctrl+, to show preferences"
+
+  bug fixes:
+    - title: "PDF Output: Fix extracting text from generated PDFs not working if more than 100 characters per font are used in the text."
+      tickets: [1857886]
+
+    - title: "macOS: Fix viewer controls not using system UI font"
+
+    - title: "Viewer: Fix images not being rendered at certain sizes when they are the only content on the page in paged mode with single page per screen."
+      tickets: [1857803]
+
+    - title: "Viewer: Fix svg links not working."
+      tickets: [1857812]
+
+    - title: "Viewer: Fix a bug that could allow maliciously crafted EPUB files to read data from files on the computer. Thanks to dozernz for discovering this attack vector."
+      tickets: [1857800]
+
+    - title: "macOS: Fix regression in previous release that caused link color to be light blue even when not using dark color themes"
+
+    - title: "RTF Output: Fix a regression that slowed down conversion of images."
+      tickets: [1857732]
+
+    - title: "Server viewer: Make the Exit full screen action available in viewer controls."
+      tickets: [1857677]
+
+    - title: "Viewer: Fix error when trying to change more than a single keyboard shortcut at once"
+      tickets: [1858117]
+
+    - title: "Fix typo causing a harmless error message when downloading covers and only a single cover is found"
+
+  improved recipes:
+    - London Review of Books
+
+
 - version: 4.7.0
   date: 2019-12-26
 
