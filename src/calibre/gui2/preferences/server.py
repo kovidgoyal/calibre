@@ -210,7 +210,7 @@ class Path(QWidget):
         ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)
         if ans:
             self.set(ans[0])
-            self.save_history()
+            self.text.save_history()
 
 
 class Choices(QComboBox):
