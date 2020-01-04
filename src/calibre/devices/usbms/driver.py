@@ -34,8 +34,10 @@ def debug_print(*args):
         prints('DEBUG: %6.1f'%(time.time()-BASE_TIME), *args)
 
 
-def safe_walk(top, topdown=True, onerror=None, followlinks=False):
+def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
     ' A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem'
+    if maxdepth < 0:
+        return
     islink, join, isdir = os.path.islink, os.path.join, os.path.isdir
 
     # We may not have read permission for top, in which case we can't
@@ -45,7 +47,7 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False):
     # left to visit.  That logic is copied here.
     try:
         names = os.listdir(top)
-    except os.error as err:
+    except OSError as err:
         if onerror is not None:
             onerror(err)
         return
@@ -68,7 +70,7 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False):
     for name in dirs:
         new_path = join(top, name)
         if followlinks or not islink(new_path):
-            for x in safe_walk(new_path, topdown, onerror, followlinks):
+            for x in safe_walk(new_path, topdown, onerror, followlinks, maxdepth-1):
                 yield x
     if not topdown:
         yield top, dirs, nondirs
