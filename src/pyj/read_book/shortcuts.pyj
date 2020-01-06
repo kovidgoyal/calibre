@@ -145,7 +145,7 @@ def shortcuts_definition():
     ),
 
     'pageup': desc(
-        'PageUp',
+        v"['PageUp', 'Shift+ ']",
         'scroll',
         _('Scroll backwards by screen-fulls'),
     ),
