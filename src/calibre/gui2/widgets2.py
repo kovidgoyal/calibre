@@ -489,10 +489,12 @@ class ScrollingTabWidget(QTabWidget):
 
     def wrap_widget(self, page):
         sw = QScrollArea(self)
+        name = 'STW{}'.format(abs(id(self)))
+        sw.setObjectName(name)
         sw.setWidget(page)
         sw.setWidgetResizable(True)
         page.setAutoFillBackground(False)
-        sw.setStyleSheet('QScrollArea { background: transparent }')
+        sw.setStyleSheet('#%s { background: transparent }' % name)
         return sw
 
     def indexOf(self, page):
