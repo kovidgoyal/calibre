@@ -162,7 +162,7 @@ class TestICU(unittest.TestCase):
 
     def test_break_iterator(self):
         ' Test the break iterator '
-        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
+        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions, count_words
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
             self.ae(split(unicode_type(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
@@ -171,6 +171,7 @@ class TestICU(unittest.TestCase):
         self.ae(split(u'-one a-b-c-d e'), ['-one', 'a-b-c-d', 'e'])
         self.ae(split(u'-one -a-b-c-d- e'), ['-one', '-a-b-c-d-', 'e'])
         self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (7 if icu.is_narrow_build else 6, 5)])
+        self.ae(count_words('a b c d e f'), 6)
         for needle, haystack, pos in (
                 ('word', 'a word b', 2),
                 ('word', 'a word', 2),

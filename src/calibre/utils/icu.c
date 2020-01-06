@@ -649,12 +649,26 @@ end:
 } // }}}
 
 // BreakIterator.split2 {{{
+
+static inline void
+unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_count32, int32_t *word_start, int32_t *sz) {
+	int32_t chars_to_new_word_from_last_pos = *word_start - *last_count;
+	int32_t sz32 = u_countChar32(*count_start + chars_to_new_word_from_last_pos, *sz);
+	int32_t codepoints_to_new_word_from_last_pos = u_countChar32(*count_start, chars_to_new_word_from_last_pos);
+	*count_start += chars_to_new_word_from_last_pos + *sz;
+	*last_count += chars_to_new_word_from_last_pos + *sz;
+	*last_count32 += codepoints_to_new_word_from_last_pos;
+	*word_start = *last_count32;
+	*last_count32 += sz32;
+	*sz = sz32;
+}
+
 static PyObject *
 icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 
-    int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0;
+    int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0, last_count = 0, last_count32 = 0;
     int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0;
-    UChar sep = 0;
+    UChar sep = 0, *count_start = self->text;
     PyObject *ans = NULL, *temp = NULL, *t = NULL;
 
     ans = PyList_New(0);
@@ -681,9 +695,8 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
                 if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
             }
             last_pos = p;
-#ifdef Py_UNICODE_WIDE
-            sz = u_countChar32(self->text + word_start, sz);
-            word_start = u_countChar32(self->text, word_start);
+#if defined(Py_UNICODE_WIDE) || PY_MAJOR_VERSION > 2
+			unicode_code_point_count(&count_start, &last_count, &last_count32, &word_start, &sz);
 #endif
             if (is_hyphen_sep && PyList_GET_SIZE(ans) > 0) {
                 sz = last_sz + sz + trailing_hyphen;
