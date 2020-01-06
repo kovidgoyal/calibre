@@ -43,10 +43,8 @@ add_extra_css(def():
     ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
     ans += build_rule(sel + ' > .arrow', display='none')
     ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
-    ans += build_rule(sel + ':hover', flex_direction='row', justify_content='center')
-    ans += build_rule(sel + ':active', flex_direction='row', justify_content='center')
-    ans += build_rule(sel + ':hover > not(.arrow)', display='none')
-    ans += build_rule(sel + ':active > not(.arrow)', display='none')
+    ans += build_rule(sel + ':hover > .not-arrow', display='none')
+    ans += build_rule(sel + ':active > .not-arrow', display='none')
     ans += build_rule(sel + ':hover > .arrow', display='block')
     ans += build_rule(sel + ':active > .arrow', color=get_color('window-hover-foreground'), display='block', transform='scale(2)')
     return ans
@@ -153,8 +151,8 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
 
 def side_margin_elem(self, sd, which):
     ans = E.div(
-        E.div(class_='arrow', svgicon(f'caret-{which}', '100%', '100%')),
-        E.div(), E.div(), E.div(),
+        E.div(class_='arrow', style='order: 3', svgicon(f'caret-{which}', '100%', '100%')),
+        E.div(style='order:1'), E.div(style='order:2', class_='not-arrow'), E.div(style='order:4'),
 
         style='width:{}px;'.format(sd.get(f'margin_{which}', 20)),
         class_='book-side-margin', id=f'book-{which}-margin',
