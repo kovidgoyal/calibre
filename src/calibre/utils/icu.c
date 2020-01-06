@@ -745,6 +745,7 @@ static PyObject *
 icu_BreakIterator_count_words(icu_BreakIterator *self, PyObject *args) {
 	unsigned long ans = 0;
 	do_split(self, count_words_callback, &ans);
+	if (PyErr_Occurred()) return NULL;
 	return Py_BuildValue("k", ans);
 }
 
