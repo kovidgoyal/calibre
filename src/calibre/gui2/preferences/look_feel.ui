@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="ScrollingTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>2</number>
      </property>
@@ -1318,6 +1318,12 @@ column being examined (the left-hand pane)</string>
    <class>EditWithComplete</class>
    <extends>QComboBox</extends>
    <header>calibre/gui2/complete2.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollingTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

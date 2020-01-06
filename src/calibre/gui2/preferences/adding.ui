@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="ScrollingTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>2</number>
      </property>
@@ -47,10 +47,10 @@
        <item>
         <widget class="QCheckBox" name="opt_swap_author_names">
          <property name="toolTip">
-          <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+          <string>Swap the first name and last name of the author. This affects only metadata read from file names.</string>
          </property>
          <property name="text">
-          <string>&amp;Swap author firstname and lastname when reading author from filename</string>
+          <string>&amp;Swap author first name and last name when reading author from filename</string>
          </property>
         </widget>
        </item>
@@ -444,6 +444,12 @@ that have been explicitly ignored below.</string>
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollingTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
