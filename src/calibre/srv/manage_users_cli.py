@@ -122,10 +122,10 @@ def manage_users_cli(path=None):
     def change_readonly(username):
         readonly = m.is_readonly(username)
         if readonly:
-            q = _('Allow {} to make changes (i.e. grant write access)?')
+            q = _('Allow {} to make changes (i.e. grant write access)')
         else:
-            q = _('Prevent {} from making changes (i.e. remove write access)?')
-        if get_input(q.format(username) + ' [y/n]:').lower() == 'y':
+            q = _('Prevent {} from making changes (i.e. remove write access)')
+        if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
             m.set_readonly(username, not readonly)
 
     def change_restriction(username):

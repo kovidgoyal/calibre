@@ -725,7 +725,7 @@ class User(QWidget):
         self.cpb = b = QPushButton(_('Change &password'))
         l.addWidget(b)
         b.clicked.connect(self.change_password)
-        self.ro_text = _('Allow {} to make &changes (i.e. grant write access)?')
+        self.ro_text = _('Allow {} to make &changes (i.e. grant write access)')
         self.rw = rw = QCheckBox(self)
         rw.setToolTip(
             _(
