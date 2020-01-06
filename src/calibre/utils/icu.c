@@ -663,16 +663,44 @@ unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_cou
 	*sz = sz32;
 }
 
-static PyObject *
-icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
+static int
+add_split_pos_callback(void *data, int32_t pos, int32_t sz) {
+	PyObject *ans = (PyObject*) data;
+	PyObject *t, *temp;
+	if (pos < 0) {
+		if (PyList_GET_SIZE(ans) > 0) {
+#if PY_MAJOR_VERSION < 3
+			t = PyInt_FromLong((long)sz);
+#else
+			t = PyLong_FromLong((long)sz);
+#endif
+			if (t == NULL) return 0;
+			temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
+			Py_DECREF(PyTuple_GET_ITEM(temp, 1));
+			PyTuple_SET_ITEM(temp, 1, t);
+		}
+	} else {
+		temp = Py_BuildValue("ll", (long)(pos), (long)sz);
+		if (temp == NULL) return 0;
+		if (PyList_Append(ans, temp) != 0) { Py_DECREF(temp); return 0; }
+		Py_DECREF(temp);
+	}
+	return 1;
+}
 
+static int
+count_words_callback(void *data, int32_t pos, int32_t sz) {
+	unsigned long *total = (unsigned long*)data;
+	if (pos >= 0) (*total)++;
+	return 1;
+}
+
+
+static inline void
+do_split(icu_BreakIterator *self, int(*callback)(void*, int32_t, int32_t), void *callback_data) {
     int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0, last_count = 0, last_count32 = 0;
-    int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0;
+    int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0, found_one = 0;
     UChar sep = 0, *count_start = self->text;
-    PyObject *ans = NULL, *temp = NULL, *t = NULL;
-
-    ans = PyList_New(0);
-    if (ans == NULL) return PyErr_NoMemory();
 
     p = ubrk_first(self->break_iterator);
     while (p != UBRK_DONE) {
@@ -698,33 +726,35 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 #if defined(Py_UNICODE_WIDE) || PY_MAJOR_VERSION > 2
 			unicode_code_point_count(&count_start, &last_count, &last_count32, &word_start, &sz);
 #endif
-            if (is_hyphen_sep && PyList_GET_SIZE(ans) > 0) {
+            if (is_hyphen_sep && found_one) {
                 sz = last_sz + sz + trailing_hyphen;
                 last_sz = sz;
-#if PY_MAJOR_VERSION < 3
-                t = PyInt_FromLong((long)sz);
-#else
-                t = PyLong_FromLong((long)sz);
-#endif
-                if (t == NULL) { Py_DECREF(ans); ans = NULL; break; }
-                temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
-                Py_DECREF(PyTuple_GET_ITEM(temp, 1));
-                PyTuple_SET_ITEM(temp, 1, t);
+				if (!callback(callback_data, -1, sz)) break;
             } else {
+				found_one = 1;
                 sz += leading_hyphen + trailing_hyphen;
                 last_sz = sz;
-                temp = Py_BuildValue("ll", (long)(word_start - leading_hyphen), (long)sz);
-                if (temp == NULL) {
-                    Py_DECREF(ans); ans = NULL; break;
-                }
-                if (PyList_Append(ans, temp) != 0) {
-                    Py_DECREF(temp); Py_DECREF(ans); ans = NULL; break;
-                }
-                Py_DECREF(temp);
+				if (!callback(callback_data, word_start - leading_hyphen, sz)) break;
             }
         }
     }
 
+}
+
+static PyObject *
+icu_BreakIterator_count_words(icu_BreakIterator *self, PyObject *args) {
+	unsigned long ans = 0;
+	do_split(self, count_words_callback, &ans);
+	return Py_BuildValue("k", ans);
+}
+
+static PyObject *
+icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
+    PyObject *ans = NULL;
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+	do_split(self, add_split_pos_callback, ans);
+	if (PyErr_Occurred()) { Py_DECREF(ans); ans = NULL; }
     return ans;
 
 } // }}}
@@ -736,6 +766,10 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
     {"split2", (PyCFunction)icu_BreakIterator_split2, METH_NOARGS,
      "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"count_words", (PyCFunction)icu_BreakIterator_count_words, METH_NOARGS,
+     "count_words() -> Split the current text into tokens as in split2() and count the number of tokens."
     },
 
     {"index", (PyCFunction)icu_BreakIterator_index, METH_O,

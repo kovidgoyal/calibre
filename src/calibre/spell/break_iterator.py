@@ -47,4 +47,4 @@ def count_words(text, lang='en'):
         if it is None:
             it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
         it.set_text(text)
-        return len(it.split2())
+        return it.count_words()
