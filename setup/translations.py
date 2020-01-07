@@ -530,6 +530,8 @@ class Translations(POT):  # {{{
         from calibre.utils.localization import get_iso639_translator, get_language, get_iso_language
         self.info('Compiling', name, 'translations...')
         srcbase = self.j(self.d(self.SRC), 'translations', name)
+        if not os.path.exists(srcbase):
+            os.makedirs(srcbase)
         fmap = {}
         files = []
         stats = {}
