@@ -42,7 +42,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     if fmt == 'txt':
         with open(path, 'wb') as f:
             if not mi.is_null('title'):
-                f.write(mi.title)
+                f.write(mi.title.encode('utf-8'))
         return
     if fmt == 'docx':
         from calibre.ebooks.conversion.plumber import Plumber
