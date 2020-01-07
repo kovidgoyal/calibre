@@ -76,7 +76,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         _('Stop at internal file boundaries when smooth scrolling by holding down the scroll key')
     ))
     container.appendChild(
-        E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:25em min-content;grid-gap:1ex',
+        E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
             *spinner(
                 'lines_per_sec_smooth',
                 _('Smooth scrolling speed in lines/sec'),
