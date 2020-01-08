@@ -79,21 +79,21 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
             *spinner(
                 'lines_per_sec_smooth',
-                _('Smooth scrolling speed in lines/sec'),
+                _('Smooth scrolling speed in lines/sec:'),
                 step=5,
                 min=MIN_SCROLL_SPEED_SMOOTH,
                 max=MAX_SCROLL_SPEED_SMOOTH
             ),
             *spinner(
                 'lines_per_sec_auto',
-                _('Auto scrolling speed in lines/sec'),
+                _('Auto scrolling speed in lines/sec:'),
                 step=MIN_SCROLL_SPEED_AUTO,
                 min=MIN_SCROLL_SPEED_AUTO,
                 max=MAX_SCROLL_SPEED_AUTO
             ),
             *spinner(
                 'scroll_auto_boundary_delay',
-                _('Seconds to pause before auto-scrolling past internal file boundaries'),
+                _('Seconds to pause before auto-scrolling past internal file boundaries:'),
                 title=_('Use negative values to not auto-scroll past internal file boundaries'),
                 step=0.25,
                 min=MIN_SCROLL_AUTO_DELAY,
