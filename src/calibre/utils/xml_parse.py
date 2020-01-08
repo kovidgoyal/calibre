@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from lxml import etree
 
-# resolving of SYSTEM entitties is turned off as entities can cause
+# resolving of SYSTEM entities is turned off as entities can cause
 # reads of local files, for example:
 # <!DOCTYPE foo [ <!ENTITY passwd SYSTEM "file:///etc/passwd" >]>
 
@@ -44,7 +44,7 @@ def find_tests():
 
         def test_safe_xml_fromstring(self):
             templ = '''<!DOCTYPE foo [ <!ENTITY e {id} "{val}" > ]><r>&e;</r>'''
-            external = 'file:///' + self.temp_file
+            external = 'file:///' + self.temp_file.replace(os.sep, '/')
             self.assertEqual(etree.fromstring(templ.format(id='SYSTEM', val=external)).text, 'external')
             for eid, val, expected in (
                 ('', 'normal entity', 'normal entity'),
