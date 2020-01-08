@@ -48,9 +48,11 @@ def find_tests():
             self.assertEqual(etree.fromstring(templ.format(id='SYSTEM', val=external)).text, 'external')
             for eid, val, expected in (
                 ('', 'normal entity', 'normal entity'),
+                ('', external, external),
+
                 ('SYSTEM', external, None),
                 ('SYSTEM', 'http://example.com', None),
-                ('', external, external),
+
                 ('PUBLIC', external, None),
                 ('PUBLIC', 'http://example.com', None),
             ):
