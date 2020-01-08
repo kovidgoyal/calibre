@@ -63,7 +63,7 @@ def message_to_error(message, name, line_offset=0):
     ans.HELP = rule.get('desc') or ''
     ans.css_rule_id = rule_id
     if ans.HELP and 'url' in rule:
-        ans.HELP += ' ' + _('See {}').format(rule['url'])
+        ans.HELP += ' ' + _('See <a href="{}">detailed description</a>.').format(rule['url'])
     return ans
 
 
@@ -237,8 +237,10 @@ def create_job(name, css, line_offset=0, is_declaration=False):
 
 
 def check_css(jobs):
-    results = pool.check_css([j.css for j in jobs])
     errors = []
+    if not jobs:
+        return errors
+    results = pool.check_css([j.css for j in jobs])
     for job, result in zip(jobs, results):
         if isinstance(result, dict):
             for msg in result['messages']:
