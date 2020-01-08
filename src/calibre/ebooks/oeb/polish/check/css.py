@@ -46,8 +46,6 @@ def as_int_or_none(x):
 
 def message_to_error(message, name, line_offset=0):
     rule = message.get('rule', {})
-    if rule.get('browsers', 'All') != 'All':
-        return
     rule_id = rule.get('id') or ''
     cls = CSSWarning
     if message.get('type') == 'error':
@@ -106,7 +104,7 @@ def csslint_js():
 
             for (var i = 0; i < rules.length; i++) {
                 var rule = rules[i];
-                if (!ignored_rules[rule.id]) ruleset[rule.id] = error_rules[rule.id] ? 2 : 1;
+                if (!ignored_rules[rule.id] && rule.browsers === "All") ruleset[rule.id] = error_rules[rule.id] ? 2 : 1;
             }
             var result = CSSLint.verify(src, ruleset);
             return result;
