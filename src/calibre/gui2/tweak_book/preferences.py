@@ -20,7 +20,6 @@ from PyQt5.Qt import (
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
-from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 
 from calibre import prepare_string_for_xml
 from calibre.utils.localization import get_lang
@@ -345,6 +344,7 @@ class PreviewSettings(BasicSettings):
         self.setLayout(l)
 
         def default_font(which):
+            from PyQt5.QtWebEngineWidgets import QWebEngineSettings
             s = QWebEngineSettings.defaultSettings()
             which = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[which])
             return s.fontFamily(which)
