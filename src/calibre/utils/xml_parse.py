@@ -5,27 +5,61 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from lxml import etree
-import threading
 
-# resolve_entities is turned off as entities can cause
+# resolving of SYSTEM entitties is turned off as entities can cause
 # reads of local files, for example:
 # <!DOCTYPE foo [ <!ENTITY passwd SYSTEM "file:///etc/passwd" >]>
 
-_global_tls = threading.local()
 fs = etree.fromstring
 
 
-def parser(recover):
-    parsers = getattr(_global_tls, 'parsers', None)
-    if parsers is None:
-        _global_tls.parsers = parsers = {
-            True:
-            etree.XMLParser(recover=True, no_network=True, resolve_entities=False),
-            False:
-            etree.XMLParser(recover=False, no_network=True, resolve_entities=False)
-        }
-        return parsers[recover]
+class Resolver(etree.Resolver):
+
+    def resolve(self, url, id, context):
+        return self.resolve_string('', context)
+
+
+def create_parser(recover):
+    parser = etree.XMLParser(recover=recover, no_network=True)
+    parser.resolvers.add(Resolver())
+    return parser
 
 
 def safe_xml_fromstring(string_or_bytes, recover=True):
-    return fs(string_or_bytes, parser(recover))
+    return fs(string_or_bytes, parser=create_parser(recover))
+
+
+def find_tests():
+    import unittest, tempfile, os
+
+    class TestXMLParse(unittest.TestCase):
+
+        def setUp(self):
+            with tempfile.NamedTemporaryFile(delete=False) as tf:
+                tf.write(b'external')
+                self.temp_file = tf.name
+
+        def tearDown(self):
+            os.remove(self.temp_file)
+
+        def test_safe_xml_fromstring(self):
+            templ = '''<!DOCTYPE foo [ <!ENTITY e {id} "{val}" > ]><r>&e;</r>'''
+            external = 'file:///' + self.temp_file
+            self.assertEqual(etree.fromstring(templ.format(id='SYSTEM', val=external)).text, 'external')
+            for eid, val, expected in (
+                ('', 'normal entity', 'normal entity'),
+                ('SYSTEM', external, None),
+                ('SYSTEM', 'http://example.com', None),
+                ('', external, external),
+                ('PUBLIC', external, None),
+                ('PUBLIC', 'http://example.com', None),
+            ):
+                got = safe_xml_fromstring(templ.format(id=eid, val=val)).text
+                self.assertEqual(got, expected)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestXMLParse)
+
+
+if __name__ == '__main__':
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)

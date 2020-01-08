@@ -135,6 +135,8 @@ def find_tests(which_tests=None):
         a(find_tests())
         from calibre.utils.hyphenation.test_hyphenation import find_tests
         a(find_tests())
+        from calibre.utils.xml_parse import find_tests
+        a(find_tests())
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
             a(find_tests())
