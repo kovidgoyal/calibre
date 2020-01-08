@@ -8,7 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from lxml.etree import XMLSyntaxError
-import css_parser
 
 from calibre import force_unicode, human_readable, prepare_string_for_xml
 from calibre.ebooks.chardet import replace_encoding_declarations, find_declared_encoding
@@ -463,21 +462,6 @@ class ErrorHandler(object):
     def warn(self, *args):
         self.__handle(WARN, *args)
     warning = warn
-
-
-def check_css_parsing(name, raw, line_offset=0, is_declaration=False):
-    log = ErrorHandler(name)
-    parser = css_parser.CSSParser(fetcher=lambda x: (None, None), log=log)
-    if is_declaration:
-        parser.parseStyle(raw, validate=True)
-    else:
-        try:
-            parser.parseString(raw, validate=True)
-        except UnicodeDecodeError:
-            return [DecodeError(name)]
-    for err in log.errors:
-        err.line += line_offset
-    return log.errors
 
 
 def check_filenames(container):

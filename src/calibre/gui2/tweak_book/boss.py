@@ -1294,7 +1294,7 @@ class Boss(QObject):
             if is_mult:
                 editor.go_to_line(*(item.all_locations[item.current_location_index][1:3]))
             else:
-                editor.go_to_line(item.line, item.col)
+                editor.go_to_line(item.line or 0, item.col or 0)
             editor.set_focus()
 
     @in_thread_job
