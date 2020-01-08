@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack, pack
+from struct import pack, unpack_from
 from polyglot.builtins import range, unicode_type
 
 t1_operand_encoding = [None] * 256
@@ -44,18 +44,15 @@ class ByteCode(dict):
         return -(b0-251)*256 - b1 - 108, index+1
 
     def read_short_int(self, b0, data, index):
-        bin = data[index] + data[index+1]
-        value, = unpack(b">h", bin)
+        value, = unpack_from(b">h", data, index)
         return value, index+2
 
     def read_long_int(self, b0, data, index):
-        bin = data[index] + data[index+1] + data[index+2] + data[index+3]
-        value, = unpack(b">l", bin)
+        value, = unpack_from(b">l", data, index)
         return value, index+4
 
     def read_fixed_1616(self, b0, data, index):
-        bin = data[index] + data[index+1] + data[index+2] + data[index+3]
-        value, = unpack(b">l", bin)
+        value, = unpack_from(b">l", data, index)
         return value / 65536.0, index+4
 
     def read_real_number(self, b0, data, index):
