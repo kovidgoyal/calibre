@@ -54,7 +54,7 @@ def find_tests():
                 ('PUBLIC', external, None),
                 ('PUBLIC', 'http://example.com', None),
             ):
-                got = safe_xml_fromstring(templ.format(id=eid, val=val)).text
+                got = getattr(safe_xml_fromstring(templ.format(id=eid, val=val)), 'text', None)
                 self.assertEqual(got, expected)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestXMLParse)
