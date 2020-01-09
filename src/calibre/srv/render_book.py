@@ -106,7 +106,10 @@ def create_link_replacer(container, link_uid, changed):
                 return url
             changed.add(base)
             return resource_template.format(encode_url(base, frag))
-        purl = urlparse(url)
+        try:
+            purl = urlparse(url)
+        except Exception:
+            return url
         if purl.netloc or purl.query:
             return url
         if purl.scheme and purl.scheme != 'file':
