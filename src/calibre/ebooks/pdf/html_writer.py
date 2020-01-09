@@ -26,7 +26,7 @@ from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
 from calibre import detect_ncpus, prepare_string_for_xml
 from calibre.constants import __version__, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
-from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.pdf.image_writer import (
@@ -531,10 +531,16 @@ class AnchorLocation(object):
         return self.pagenum, self.left, self.top, self.zoom
 
 
-def get_anchor_locations(pdf_doc, first_page_num, toc_uuid):
+def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
     ans = {}
     anchors = pdf_doc.extract_anchors()
-    toc_pagenum = anchors.pop(toc_uuid)[0]
+    try:
+        toc_pagenum = anchors.pop(toc_uuid)[0]
+    except KeyError:
+        toc_pagenum = None
+    if toc_pagenum is None:
+        log.warn('Failed to find ToC anchor in {}'.format(name))
+        toc_pagenum = 0
     if toc_pagenum > 1:
         pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
     for anchor, loc in iteritems(anchors):
@@ -1139,8 +1145,18 @@ def add_maths_script(container):
 # }}}
 
 
+def fix_markup(container):
+    for file_name, is_linear in container.spine_names:
+        root = container.parsed(file_name)
+        for canvas in XPath('//h:canvas')(root):
+            # Canvas causes rendering issues, see https://bugs.launchpad.net/bugs/1859040
+            # for an example.
+            canvas.tag = XHTML('div')
+
+
 def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, cover_data=None, report_progress=lambda x, y: None):
     container = Container(opf_path, log)
+    fix_markup(container)
     report_progress(0.05, _('Parsed all content for markup transformation'))
     if opts.pdf_hyphenate:
         from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens
@@ -1172,7 +1188,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         if not isinstance(data, bytes):
             raise SystemExit(data)
         doc = data_as_pdf_doc(data)
-        anchor_locations.update(get_anchor_locations(doc, num_pages + 1, links_page_uuid))
+        anchor_locations.update(get_anchor_locations(name, doc, num_pages + 1, links_page_uuid, log))
         doc_pages = doc.page_count()
         page_margins_map.extend(repeat(resolve_margins(margin_file.margins, page_layout), doc_pages))
         num_pages += doc_pages
