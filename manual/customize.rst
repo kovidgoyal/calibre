@@ -74,8 +74,8 @@ Overriding icons, templates, et cetera
 calibre allows you to override the static resources, like icons, javascript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
 you like.  All static resources are stored in the resources sub-folder of the
-calibre install location. On Windows, this is usually :file:`C:\\Program Files\\Calibre2\\resources`.
-On macOS, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if
+calibre install location. On Windows, this is usually :file:`C:\\Program Files\\Calibre2\\app\\resources`.
+On macOS, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On Linux, if
 you are using the binary installer from the calibre website it will be
 :file:`/opt/calibre/resources`. These paths can change depending on where you
 choose to install calibre.
