@@ -1146,9 +1146,10 @@ def add_maths_script(container):
 
 
 def fix_markup(container):
+    xp = XPath('//h:canvas')
     for file_name, is_linear in container.spine_names:
         root = container.parsed(file_name)
-        for canvas in XPath('//h:canvas')(root):
+        for canvas in xp(root):
             # Canvas causes rendering issues, see https://bugs.launchpad.net/bugs/1859040
             # for an example.
             canvas.tag = XHTML('div')
