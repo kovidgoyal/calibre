@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
-        QAbstractListModel, QListView, QSize
+        QAbstractListModel, QListView, QSize, QApplication
 
 from calibre.gui2 import file_icon_provider
 
@@ -63,9 +63,11 @@ class SelectFormats(QDialog):
         self.fview.doubleClicked.connect(self.double_clicked,
                 type=Qt.QueuedConnection)
         if exclude:
-            self.fview.setStyleSheet('''
-                    QListView { background-color: #FAE7B5}
-                    ''')
+            if QApplication.instance().is_dark_theme:
+                sheet = 'background-color: #DAA520; color: black'
+            else:
+                sheet = 'background-color: #fae7b5'
+            self.fview.setStyleSheet('QListView { %s }' % sheet)
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
         self.fview.setSelectionMode(self.fview.SingleSelection if single else
@@ -93,8 +95,8 @@ class SelectFormats(QDialog):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
     d.exec_()
     print(d.selected_formats)
