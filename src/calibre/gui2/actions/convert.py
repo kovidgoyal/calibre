@@ -25,6 +25,7 @@ class ConvertAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
     action_add_menu = True
+    action_menu_clone_qaction = _('Convert individually')
 
     accepts_drops = True
 
@@ -54,9 +55,6 @@ class ConvertAction(InterfaceAction):
     def genesis(self):
         m = self.convert_menu = self.qaction.menu()
         cm = partial(self.create_menu_action, self.convert_menu)
-        cm('convert-individual', _('Convert individually'),
-                icon=self.qaction.icon(), triggered=partial(self.convert_ebook,
-            False, bulk=False))
         cm('convert-bulk', _('Bulk convert'),
                 triggered=partial(self.convert_ebook, False, bulk=True))
         m.addSeparator()
