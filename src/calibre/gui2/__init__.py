@@ -1047,6 +1047,7 @@ class Application(QApplication):
             prints('Using calibre Qt style:', self.using_calibre_style)
         if self.using_calibre_style:
             self.load_calibre_style()
+            self.setStyleSheet('QTabBar::tab:selected { font-style: italic }')
         self.paletteChanged.connect(self.on_palette_change)
         self.on_palette_change()
 
