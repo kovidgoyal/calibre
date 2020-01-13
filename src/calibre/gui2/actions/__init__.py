@@ -163,8 +163,10 @@ class InterfaceAction(QObject):
         else:
             action = QAction(text, self.gui)
         if attr == 'qaction':
-            mt = (action.text() if self.action_menu_clone_qaction is True else
-                    unicode_type(self.action_menu_clone_qaction))
+            if hasattr(self.action_menu_clone_qaction, 'rstrip'):
+                mt = unicode_type(self.action_menu_clone_qaction)
+            else:
+                mt = action.text()
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
             ma.triggered.connect(action.trigger)
         for a in ((action, ma) if attr == 'qaction' else (action,)):
@@ -198,6 +200,7 @@ class InterfaceAction(QObject):
                     shortcut_action.setShortcuts([QKeySequence(key,
                         QKeySequence.PortableText) for key in keys])
                 else:
+                    self.shortcut_action_for_context_menu = shortcut_action
                     if isosx:
                         # In Qt 5 keyboard shortcuts dont work unless the
                         # action is explicitly added to the main window

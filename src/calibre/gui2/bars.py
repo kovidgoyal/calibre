@@ -410,7 +410,11 @@ if isosx:
             if what is None:
                 m.addSeparator()
             elif what in iactions:
-                m.addAction(CloneAction(iactions[what].qaction, m))
+                ia = iactions[what]
+                ac = ia.qaction
+                if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ac = ia.shortcut_action_for_context_menu
+                m.addAction(CloneAction(ac, m))
 
     class MenuBar(QObject):
 
@@ -499,7 +503,11 @@ else:
             if what is None:
                 m.addSeparator()
             elif what in iactions:
-                m.addAction(iactions[what].qaction)
+                ia = iactions[what]
+                ac = ia.qaction
+                if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ac = ia.shortcut_action_for_context_menu
+                m.addAction(ac)
 
     from calibre.gui2.dbus_export.widgets import factory
 
