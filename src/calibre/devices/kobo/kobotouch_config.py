@@ -187,7 +187,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super(BookUploadsGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Book uploading"))
+        self.setTitle(_("Uploading of books"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
