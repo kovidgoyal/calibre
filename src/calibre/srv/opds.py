@@ -35,7 +35,7 @@ from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
 def atom(ctx, rd, endpoint, output):
-    rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
+    rd.outheaders.set('Content-Type', 'application/xml; charset=UTF-8', replace_all=True)
     rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
