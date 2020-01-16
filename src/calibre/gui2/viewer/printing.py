@@ -10,7 +10,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPageSize, QPrinter, QProgressDialog, QTimer, QToolButton
+    QLineEdit, QPageSize, QPrinter, QProgressDialog, QTimer, QToolButton, QVBoxLayout
 )
 
 from calibre import sanitize_file_name
@@ -42,7 +42,10 @@ class PrintDialog(Dialog):
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
     def setup_ui(self):
-        self.l = l = QFormLayout(self)
+        self.vl = vl = QVBoxLayout(self)
+        self.l = l = QFormLayout()
+        vl.addLayout(l)
+        l.setContentsMargins(0, 0, 0, 0)
         l.addRow(QLabel(_('Print %s to a PDF file') % elided_text(self.book_title)))
         self.h = h = QHBoxLayout()
         self.file_name = f = QLineEdit(self)
@@ -91,7 +94,8 @@ class PrintDialog(Dialog):
         sf.setChecked(vprefs.get('print-to-pdf-show-file', True))
         l.addRow(sf)
 
-        l.addRow(self.bb)
+        vl.addStretch(10)
+        vl.addWidget(self.bb)
 
     @property
     def data(self):
@@ -237,4 +241,5 @@ def print_book(path_to_book, parent=None, book_title=None):
 if __name__ == '__main__':
     app = Application([])
     print_book(sys.argv[-1])
+
     del app
