@@ -437,11 +437,17 @@ class View:
             self.update_scroll_speed(-SCROLL_SPEED_STEP)
         elif data.name is 'toggle_autoscroll':
             self.toggle_autoscroll()
+        elif data.name.startsWith('switch_color_scheme:'):
+            self.switch_color_scheme(data.name.partition(':')[-1])
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
         if ui_operations.selection_changed:
             ui_operations.selection_changed(data.text)
+
+    def switch_color_scheme(self, name):
+        get_session_data().set('current_color_scheme', name)
+        ui_operations.redisplay_book()
 
     def toggle_paged_mode(self):
         sd = get_session_data()

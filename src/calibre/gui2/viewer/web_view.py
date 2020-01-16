@@ -234,6 +234,7 @@ def create_profile():
 
 class ViewerBridge(Bridge):
 
+    view_created = from_js(object)
     set_session_data = from_js(object, object)
     set_local_storage = from_js(object, object)
     reload_book = from_js()
@@ -430,6 +431,7 @@ class WebView(RestartingWebEngineView):
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
+    view_created = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -445,6 +447,7 @@ class WebView(RestartingWebEngineView):
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
+        self.bridge.view_created.connect(self.on_view_created)
         self.bridge.set_session_data.connect(self.set_session_data)
         self.bridge.set_local_storage.connect(self.set_local_storage)
         self.bridge.reload_book.connect(self.reload_book)
@@ -549,6 +552,9 @@ class WebView(RestartingWebEngineView):
             vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)
         for func, args in iteritems(self.pending_bridge_ready_actions):
             getattr(self.bridge, func)(*args)
+
+    def on_view_created(self, data):
+        self.view_created.emit(data)
 
     def start_book_load(self, initial_position=None):
         key = (set_book_path.path,)

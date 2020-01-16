@@ -16,7 +16,7 @@ from modals import create_modal_container
 from qt import from_python, to_python
 from read_book.db import new_book
 from read_book.footnotes import main as footnotes_main
-from read_book.globals import runtime, set_system_colors, ui_operations
+from read_book.globals import runtime, set_system_colors, ui_operations, default_color_schemes
 from read_book.iframe import main as iframe_main
 from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
@@ -225,6 +225,7 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
         create_session_data(prefs, local_storage)
         view = View(document.getElementById('view'))
         window.addEventListener('resize', debounce(view.on_resize.bind(self), 250))
+        to_python.view_created({'default_color_schemes': default_color_schemes})
         if ui_data.show_home_page_on_ready:
             view.overlay.open_book(False)
 
