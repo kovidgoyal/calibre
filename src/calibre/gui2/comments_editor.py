@@ -77,7 +77,8 @@ def lift_styles(tag, style_map):
 
 def filter_qt_styles(style):
     for k in tuple(style):
-        if k.startswith('-qt-'):
+        # -qt-paragraph-type is a hack used by Qt for empty paragraphs
+        if k.startswith('-qt-') and k != '-qt-paragraph-type':
             del style[k]
 
 
