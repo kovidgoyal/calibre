@@ -31,6 +31,12 @@ from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 vprefs = JSONConfig('viewer')
 
 
+def format_page_size(s):
+    sz = QPageSize.definitionSize(s)
+    unit = {QPageSize.Millimeter: 'mm', QPageSize.Inch: 'inch'}[QPageSize.definitionUnits(s)]
+    return '{} ({:g} x {:g} {})'.format(QPageSize.name(s), sz.width(), sz.height(), unit)
+
+
 class PrintDialog(Dialog):
 
     OUTPUT_NAME = 'print-to-pdf-choose-file'
@@ -64,13 +70,15 @@ class PrintDialog(Dialog):
         l.addRow(w, h), w.setBuddy(f)
 
         self.paper_size = ps = QComboBox(self)
-        ps.addItems([a.upper() for a in sorted(self.paper_size_map, key=numeric_sort_key)])
+        for a in sorted(self.paper_size_map, key=numeric_sort_key):
+            qtsz = self.paper_size_map[a]
+            ps.addItem(format_page_size(qtsz), a.upper())
         previous_size = vprefs.get('print-to-pdf-page-size', None)
         if previous_size not in self.paper_size_map:
             previous_size = (QPrinter().pageLayout().pageSize().name() or '').lower()
         if previous_size not in self.paper_size_map:
             previous_size = 'a4'
-        ps.setCurrentIndex(ps.findText(previous_size.upper()))
+        ps.setCurrentIndex(ps.findData(previous_size.upper()))
         l.addRow(_('Paper &size:'), ps)
         tmap = {
                 'left':_('&Left margin:'),
@@ -107,7 +115,7 @@ class PrintDialog(Dialog):
             fpath = os.path.join(head, tail)
         ans = {
             'output': fpath,
-            'paper_size': self.paper_size.currentText().lower(),
+            'paper_size': self.paper_size.currentData().lower(),
             'page_numbers':self.pnum.isChecked(),
             'show_file':self.show_file.isChecked(),
         }
