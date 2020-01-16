@@ -10,9 +10,9 @@ import re, os
 from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
-        Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
+        Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
-        QCompleter, QTimer, QRect, QGraphicsView)
+        QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice)
 
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
@@ -958,6 +958,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
 # }}}
 
+
 # Splitter {{{
 
 
@@ -1232,6 +1233,37 @@ class Splitter(QSplitter):
 
     # }}}
 
+# }}}
+
+
+class PaperSizes(QComboBox):  # {{{
+
+    system_default_paper_size = None
+
+    def initialize(self, choices=None):
+        from calibre.utils.icu import numeric_sort_key
+        if self.system_default_paper_size is None:
+            QComboBox.system_default_paper_size = 'letter' if QPrinter().pageSize() == QPagedPaintDevice.Letter else 'a4'
+        if not choices:
+            from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
+            choices = PAPER_SIZES
+        for a in sorted(choices, key=numeric_sort_key):
+            s = getattr(QPageSize, a.capitalize())
+            sz = QPageSize.definitionSize(s)
+            unit = {QPageSize.Millimeter: 'mm', QPageSize.Inch: 'inch'}[QPageSize.definitionUnits(s)]
+            name = '{} ({:g} x {:g} {})'.format(QPageSize.name(s), sz.width(), sz.height(), unit)
+            self.addItem(name, a)
+
+    @property
+    def get_value_for_config(self):
+        return self.currentData()
+
+    @get_value_for_config.setter
+    def set_value_for_config(self, val):
+        idx = self.findData(val or self.system_default_paper_size)
+        if idx == -1:
+            idx = self.findData('a4')
+        self.setCurrentIndex(idx)
 # }}}
 
 

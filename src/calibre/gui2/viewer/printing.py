@@ -9,8 +9,8 @@ import sys
 from threading import Thread
 
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPageSize, QPrinter, QProgressDialog, QTimer, QToolButton, QVBoxLayout
+    QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QPageSize, QProgressDialog, QTimer, QToolButton, QVBoxLayout
 )
 
 from calibre import sanitize_file_name
@@ -19,22 +19,16 @@ from calibre.gui2 import (
     Application, choose_save_file, dynamic, elided_text, error_dialog,
     open_local_file
 )
+from calibre.gui2.widgets import PaperSizes
 from calibre.gui2.widgets2 import Dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import expanduser
-from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
 
 vprefs = JSONConfig('viewer')
-
-
-def format_page_size(s):
-    sz = QPageSize.definitionSize(s)
-    unit = {QPageSize.Millimeter: 'mm', QPageSize.Inch: 'inch'}[QPageSize.definitionUnits(s)]
-    return '{} ({:g} x {:g} {})'.format(QPageSize.name(s), sz.width(), sz.height(), unit)
 
 
 class PrintDialog(Dialog):
@@ -69,16 +63,9 @@ class PrintDialog(Dialog):
         w = QLabel(_('&File:'))
         l.addRow(w, h), w.setBuddy(f)
 
-        self.paper_size = ps = QComboBox(self)
-        for a in sorted(self.paper_size_map, key=numeric_sort_key):
-            qtsz = self.paper_size_map[a]
-            ps.addItem(format_page_size(qtsz), a.upper())
-        previous_size = vprefs.get('print-to-pdf-page-size', None)
-        if previous_size not in self.paper_size_map:
-            previous_size = (QPrinter().pageLayout().pageSize().name() or '').lower()
-        if previous_size not in self.paper_size_map:
-            previous_size = 'a4'
-        ps.setCurrentIndex(ps.findData(previous_size.upper()))
+        self.paper_size = ps = PaperSizes(self)
+        ps.initialize()
+        ps.set_value_for_config = vprefs.get('print-to-pdf-page-size', None)
         l.addRow(_('Paper &size:'), ps)
         tmap = {
                 'left':_('&Left margin:'),
@@ -115,7 +102,7 @@ class PrintDialog(Dialog):
             fpath = os.path.join(head, tail)
         ans = {
             'output': fpath,
-            'paper_size': self.paper_size.currentData().lower(),
+            'paper_size': self.paper_size.get_value_for_config,
             'page_numbers':self.pnum.isChecked(),
             'show_file':self.show_file.isChecked(),
         }
