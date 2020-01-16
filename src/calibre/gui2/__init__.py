@@ -1120,10 +1120,9 @@ class Application(QApplication):
         transient_scroller = 0
         if isosx:
             transient_scroller = plugins['cocoa'][0].transient_scroller()
-        try:
-            self.pi.load_style(icon_map, transient_scroller)
-        except TypeError:
-            self.pi.load_style(icon_map)
+        icon_map[QStyle.SP_CustomBase + 1] = I('close-for-light-theme.png')
+        icon_map[QStyle.SP_CustomBase + 2] = I('close-for-dark-theme.png')
+        self.pi.load_style(icon_map, transient_scroller)
 
     def _send_file_open_events(self):
         with self._file_open_lock:
