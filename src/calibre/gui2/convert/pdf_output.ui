@@ -32,7 +32,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QComboBox" name="opt_paper_size"/>
+    <widget class="PaperSizes" name="opt_paper_size"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
@@ -300,6 +300,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PaperSizes</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

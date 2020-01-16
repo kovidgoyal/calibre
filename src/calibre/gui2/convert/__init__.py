@@ -146,6 +146,8 @@ class Widget(QWidget):
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
+        if hasattr(g, 'get_value_for_config'):
+            return g.get_value_for_config
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
@@ -217,6 +219,9 @@ class Widget(QWidget):
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
+            return
+        if hasattr(g, 'set_value_for_config'):
+            g.set_value_for_config = val
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.setValue(val)
