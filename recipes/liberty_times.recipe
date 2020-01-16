@@ -37,5 +37,5 @@ class AdvancedUserRecipe1277443634(BasicNewsRecipe):
     encoding = 'utf-8'
     conversion_options = {'linearize_tables': True}
     masthead_url = 'https://cache.ltn.com.tw/images/rwd_ltnlogo.png',
-    cover_url = 'https://cache.ltn.com.tw/images/rwd_ltnlogo.png',,
+    cover_url = 'https://cache.ltn.com.tw/images/rwd_ltnlogo.png'
     auto_cleanup = True
