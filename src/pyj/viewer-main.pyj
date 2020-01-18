@@ -339,6 +339,8 @@ if window is window.top:
         to_python.toggle_inspector()
     ui_operations.content_file_changed = def(name):
         to_python.content_file_changed(name)
+    ui_operations.show_search = def():
+        to_python.show_search()
     ui_operations.reset_interface = def():
         sd = get_session_data()
         defaults = session_defaults()

@@ -140,8 +140,8 @@ class SearchBox2(QComboBox):  # {{{
             icon = QIcon(I(icon))
         return self.lineEdit().addAction(icon, position)
 
-    def initialize(self, opt_name, colorize=False, help_text=_('Search')):
-        self.as_you_type = config['search_as_you_type']
+    def initialize(self, opt_name, colorize=False, help_text=_('Search'), as_you_type=None):
+        self.as_you_type = config['search_as_you_type'] if as_you_type is None else as_you_type
         self.opt_name = opt_name
         items = []
         for item in config[opt_name]:

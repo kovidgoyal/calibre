@@ -33,6 +33,7 @@ from calibre.gui2.viewer.convert_book import (
 )
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
+from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
 from calibre.gui2.viewer.web_view import (
@@ -68,6 +69,7 @@ def dock_defs():
     d(_('Table of Contents'), 'toc', Qt.LeftDockWidgetArea),
     d(_('Lookup'), 'lookup', Qt.RightDockWidgetArea),
     d(_('Bookmarks'), 'bookmarks', Qt.RightDockWidgetArea)
+    d(_('Search'), 'search', Qt.LeftDockWidgetArea)
     d(_('Inspector'), 'inspector', Qt.RightDockWidgetArea, Qt.AllDockWidgetAreas)
     return ans
 
@@ -134,6 +136,9 @@ class EbookViewer(MainWindow):
         w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
         self.toc_dock.setWidget(w)
 
+        self.search_widget = w = SearchPanel(self)
+        self.search_dock.setWidget(w)
+
         self.lookup_widget = w = Lookup(self)
         self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
         self.lookup_dock.setWidget(w)
@@ -151,6 +156,7 @@ class EbookViewer(MainWindow):
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
+        self.web_view.show_search.connect(self.show_search)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
@@ -236,6 +242,10 @@ class EbookViewer(MainWindow):
 
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
+
+    def show_search(self):
+        self.search_dock.setVisible(True)
+        self.search_widget.focus_input()
 
     def toggle_bookmarks(self):
         is_visible = self.bookmarks_dock.isVisible()

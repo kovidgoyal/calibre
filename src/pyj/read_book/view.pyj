@@ -529,7 +529,10 @@ class View:
 
     def show_search(self):
         self.hide_overlays()
-        self.search_overlay.show()
+        if runtime.is_standalone_viewer:
+            ui_operations.show_search()
+        else:
+            self.search_overlay.show()
 
     def show_content_popup(self):
         self.hide_overlays()
