@@ -1035,6 +1035,8 @@ class View:
             self.book_load_started = False
             if ui_operations.clear_history:
                 ui_operations.clear_history()
+        if ui_operations.content_file_changed:
+            ui_operations.content_file_changed(self.currently_showing.name)
 
     def set_progress_frac(self, progress_frac, file_progress_frac):
         self.current_progress_frac = progress_frac or 0

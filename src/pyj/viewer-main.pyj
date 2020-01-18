@@ -337,6 +337,8 @@ if window is window.top:
         to_python.toggle_bookmarks()
     ui_operations.toggle_inspector = def():
         to_python.toggle_inspector()
+    ui_operations.content_file_changed = def(name):
+        to_python.content_file_changed(name)
     ui_operations.reset_interface = def():
         sd = get_session_data()
         defaults = session_defaults()
