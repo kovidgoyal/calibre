@@ -113,6 +113,14 @@ def filter_tests_by_name(suite, *names):
     return filter_tests(suite, q)
 
 
+def remove_tests_by_name(suite, *names):
+    names = {x if x.startswith('test_') else 'test_' + x for x in names}
+
+    def q(test):
+        return test._testMethodName not in names
+    return filter_tests(suite, q)
+
+
 def filter_tests_by_module(suite, *names):
     names = frozenset(names)
 
