@@ -137,6 +137,7 @@ class EbookViewer(MainWindow):
         self.toc_dock.setWidget(w)
 
         self.search_widget = w = SearchPanel(self)
+        w.search_requested.connect(self.start_search)
         self.search_dock.setWidget(w)
 
         self.lookup_widget = w = Lookup(self)
@@ -246,6 +247,11 @@ class EbookViewer(MainWindow):
     def show_search(self):
         self.search_dock.setVisible(True)
         self.search_widget.focus_input()
+
+    def start_search(self, search_query):
+        name = self.web_view.current_name
+        if name:
+            self.search_widget.start_search(search_query, name)
 
     def toggle_bookmarks(self):
         is_visible = self.bookmarks_dock.isVisible()
@@ -366,6 +372,7 @@ class EbookViewer(MainWindow):
         self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
         self.current_book_data = {}
+        self.search_widget.clear_searches()
         t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book or self.force_reload))
         t.daemon = True
         t.start()
@@ -529,6 +536,7 @@ class EbookViewer(MainWindow):
 
     def closeEvent(self, ev):
         self.shutting_down = True
+        self.search_widget.shutdown()
         try:
             self.save_annotations()
             self.save_state()

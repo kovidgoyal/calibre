@@ -62,6 +62,10 @@ def set_book_path(path, pathtoebook):
     set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
 
 
+def get_manifest():
+    return getattr(set_book_path, 'parsed_manifest', None)
+
+
 def get_path_for_name(name):
     bdir = getattr(set_book_path, 'path', None)
     if bdir is None:
