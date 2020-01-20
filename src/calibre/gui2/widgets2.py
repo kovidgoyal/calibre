@@ -36,7 +36,7 @@ class HistoryMixin(object):
 
     def initialize(self, name):
         self._name = name
-        self.history = history.get(self.store_name, [])
+        self.history = self.load_history()
         self.set_separator(None)
         self.update_items_cache(self.history)
         self.setText('')
@@ -44,6 +44,9 @@ class HistoryMixin(object):
             self.editingFinished.connect(self.save_history)
         except AttributeError:
             self.lineEdit().editingFinished.connect(self.save_history)
+
+    def load_history(self):
+        return history.get(self.store_name, [])
 
     def save_history(self):
         ct = unicode_type(self.text())
