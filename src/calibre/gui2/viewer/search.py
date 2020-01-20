@@ -60,7 +60,7 @@ class SearchResult(object):
     def __init__(self, search_query, before, text, after, name, spine_idx, index):
         self.search_query = search_query
         self.before, self.text, self.after = before, text, after
-        self.spine_idx, self.index = self.spine_idx, index
+        self.spine_idx, self.index = spine_idx, index
         self.file_name = name
 
 
@@ -72,7 +72,7 @@ def searchable_text_for_name(name):
     for child in serialized_data['tree']['c']:
         if child.get('n') == 'body':
             stack.append(child)
-    ignore_text = {'script':True, 'style':True, 'title':True}
+    ignore_text = {'script', 'style', 'title'}
     while stack:
         node = stack.pop()
         if isinstance(node, unicode_type):
@@ -83,7 +83,7 @@ def searchable_text_for_name(name):
         text = g('x')
         tail = g('l')
         children = g('c')
-        if name and not ignore_text[name] and text:
+        if name and text and name not in ignore_text:
             ans.append(text)
         if tail:
             stack.append(tail)
@@ -165,22 +165,24 @@ class SearchInput(QWidget):
         h.addWidget(cs)
 
     def history_saved(self, new_text, history):
-        sss = vprefs.get('saved-search-settings') or {}
-        sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
-        history = frozenset(history)
-        sss = {k: v for k, v in iteritems(sss) if k in history}
-        vprefs['saved-search-settings'] = sss
+        if new_text:
+            sss = vprefs.get('saved-search-settings') or {}
+            sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
+            history = frozenset(history)
+            sss = {k: v for k, v in iteritems(sss) if k in history}
+            vprefs['saved-search-settings'] = sss
 
     def saved_search_selected(self):
         text = self.search_box.currentText().strip()
-        s = (vprefs.get('saved-search-settings') or {}).get(text)
-        if s:
-            if 'case_sensitive' in s:
-                self.case_sensitive.setChecked(s['case_sensitive'])
-            if 'mode' in s:
-                idx = self.query_type.findData(s['mode'])
-                if idx > -1:
-                    self.query_type.setCurrentIndex(idx)
+        if text:
+            s = (vprefs.get('saved-search-settings') or {}).get(text)
+            if s:
+                if 'case_sensitive' in s:
+                    self.case_sensitive.setChecked(s['case_sensitive'])
+                if 'mode' in s:
+                    idx = self.query_type.findData(s['mode'])
+                    if idx > -1:
+                        self.query_type.setCurrentIndex(idx)
 
     def search_query(self, backwards=False):
         text = self.search_box.currentText().strip()
@@ -214,6 +216,7 @@ class Results(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
+        self.setFocusPolicy(Qt.NoFocus)
 
 
 class SearchPanel(QWidget):
@@ -232,9 +235,7 @@ class SearchPanel(QWidget):
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
         self.results = r = Results(self)
-        l.addWidget(r)
-
-        l.addStretch(10)
+        l.addWidget(r, 100)
 
     def focus_input(self):
         self.search_input.focus_input()
@@ -263,6 +264,8 @@ class SearchPanel(QWidget):
                 idx_map = {name: i for i, name in enumerate(spine)}
                 spine_idx = idx_map.get(current_name, -1)
             except Exception:
+                import traceback
+                traceback.print_exc()
                 spine_idx = -1
             if spine_idx < 0:
                 self.results_found.emit(SearchFinished(search_query))
@@ -277,7 +280,8 @@ class SearchPanel(QWidget):
                         counter[text] += 1
                         self.results_found.emit(SearchResult(search_query, before, text, after, name, spine_idx, counter[text]))
                 except Exception:
-                    pass
+                    import traceback
+                    traceback.print_exc()
             self.results_found.emit(SearchFinished(search_query))
 
     def on_result_found(self, result):
