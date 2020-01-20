@@ -456,7 +456,7 @@ class WebView(RestartingWebEngineView):
         self._page = WebPage(self)
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.view_created.connect(self.on_view_created)
-        self.bridge.content_file_changed.connect(self.on_content_file_created)
+        self.bridge.content_file_changed.connect(self.on_content_file_changed)
         self.bridge.set_session_data.connect(self.set_session_data)
         self.bridge.set_local_storage.connect(self.set_local_storage)
         self.bridge.reload_book.connect(self.reload_book)
@@ -566,7 +566,7 @@ class WebView(RestartingWebEngineView):
     def on_view_created(self, data):
         self.view_created.emit(data)
 
-    def on_content_file_created(self, data):
+    def on_content_file_changed(self, data):
         self.current_content_file = data
 
     def start_book_load(self, initial_position=None):

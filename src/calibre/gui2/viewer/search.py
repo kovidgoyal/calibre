@@ -11,14 +11,14 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, Qt, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QCheckBox, QComboBox, QHBoxLayout, QIcon, QListWidget, Qt, QToolButton,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
 
@@ -64,7 +64,7 @@ class SearchResult(object):
         self.file_name = name
 
 
-@lru_cache(maxsize=1024)
+@lru_cache(maxsize=None)
 def searchable_text_for_name(name):
     ans = []
     serialized_data = json.loads(get_data(name)[0])
@@ -72,7 +72,7 @@ def searchable_text_for_name(name):
     for child in serialized_data['tree']['c']:
         if child.get('n') == 'body':
             stack.append(child)
-    ignore_text = {'script':True, 'style':True, 'title': True}
+    ignore_text = {'script':True, 'style':True, 'title':True}
     while stack:
         node = stack.pop()
         if isinstance(node, unicode_type):
@@ -101,6 +101,16 @@ def search_in_name(name, search_query, ctx_size=50):
         yield before, match.group(), after
 
 
+class SearchBox(HistoryComboBox):
+
+    history_saved = pyqtSignal(object, object)
+
+    def save_history(self):
+        ret = HistoryComboBox.save_history(self)
+        self.history_saved.emit(self.text(), self.history)
+        return ret
+
+
 class SearchInput(QWidget):
 
     do_search = pyqtSignal(object)
@@ -113,11 +123,13 @@ class SearchInput(QWidget):
         h.setContentsMargins(0, 0, 0, 0)
         l.addLayout(h)
 
-        self.search_box = sb = HistoryComboBox(self)
+        self.search_box = sb = SearchBox(self)
+        sb.initialize('viewer-search-panel-expression')
+        sb.item_selected.connect(self.saved_search_selected)
+        sb.history_saved.connect(self.history_saved)
         sb.lineEdit().setPlaceholderText(_('Search'))
         sb.lineEdit().setClearButtonEnabled(True)
         sb.lineEdit().returnPressed.connect(self.find_next)
-        sb.initialize('viewer-search-box-history')
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -152,10 +164,31 @@ class SearchInput(QWidget):
         cs.setChecked(bool(vprefs.get('viewer-search-case-sensitive', False)))
         h.addWidget(cs)
 
+    def history_saved(self, new_text, history):
+        sss = vprefs.get('saved-search-settings') or {}
+        sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
+        history = frozenset(history)
+        sss = {k: v for k, v in iteritems(sss) if k in history}
+        vprefs['saved-search-settings'] = sss
+
+    def saved_search_selected(self):
+        text = self.search_box.currentText().strip()
+        s = (vprefs.get('saved-search-settings') or {}).get(text)
+        if s:
+            if 'case_sensitive' in s:
+                self.case_sensitive.setChecked(s['case_sensitive'])
+            if 'mode' in s:
+                idx = self.query_type.findData(s['mode'])
+                if idx > -1:
+                    self.query_type.setCurrentIndex(idx)
+
     def search_query(self, backwards=False):
         text = self.search_box.currentText().strip()
         if text:
-            return Search(text, self.query_type.currentData() or 'normal', self.case_sensitive.isChecked(), backwards)
+            return Search(
+                text, self.query_type.currentData() or 'normal',
+                self.case_sensitive.isChecked(), backwards
+            )
 
     def emit_search(self, backwards=False):
         vprefs['viewer-search-case-sensitive'] = self.case_sensitive.isChecked()
@@ -177,6 +210,12 @@ class SearchInput(QWidget):
         le.selectAll()
 
 
+class Results(QListWidget):
+
+    def __init__(self, parent=None):
+        QListWidget.__init__(self, parent)
+
+
 class SearchPanel(QWidget):
 
     search_requested = pyqtSignal(object)
@@ -192,6 +231,9 @@ class SearchPanel(QWidget):
         self.results_found.connect(self.on_result_found, type=Qt.QueuedConnection)
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
+        self.results = r = Results(self)
+        l.addWidget(r)
+
         l.addStretch(10)
 
     def focus_input(self):

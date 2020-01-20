@@ -249,7 +249,7 @@ class EbookViewer(MainWindow):
         self.search_widget.focus_input()
 
     def start_search(self, search_query):
-        name = self.web_view.current_name
+        name = self.web_view.current_content_file
         if name:
             self.search_widget.start_search(search_query, name)
 
