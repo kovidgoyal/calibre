@@ -455,6 +455,10 @@ class SearchPanel(QWidget):  # {{{
             self.results.setCurrentRow(0)
             self.results.item_activated()
 
+    def visibility_changed(self, visible):
+        if visible:
+            self.focus_input()
+
     def clear_searches(self):
         self.current_search = None
         searchable_text_for_name.cache_clear()

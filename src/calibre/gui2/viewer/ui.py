@@ -139,6 +139,7 @@ class EbookViewer(MainWindow):
         self.search_widget = w = SearchPanel(self)
         w.search_requested.connect(self.start_search)
         self.search_dock.setWidget(w)
+        self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
         self.lookup_widget = w = Lookup(self)
         self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
@@ -176,7 +177,7 @@ class EbookViewer(MainWindow):
         self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
         self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
-        self.actions_toolbar.initialize(self.web_view)
+        self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()

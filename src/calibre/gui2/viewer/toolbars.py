@@ -53,6 +53,7 @@ def all_actions():
             'next_section': Action('arrow-down.png', _('Next section'), 'next_section'),
             'previous_section': Action('arrow-up.png', _('Previous section'), 'previous_section'),
             'toc': Action('toc.png', _('Table of Contents'), 'toggle_toc'),
+            'search': Action('search.png', _('Search'), 'toggle_search'),
             'bookmarks': Action('bookmarks.png', _('Bookmarks'), 'toggle_bookmarks'),
             'inspector': Action('debug.png', _('Inspector'), 'toggle_inspector'),
             'reference': Action('reference.png', _('Toggle Reference mode'), 'toggle_reference_mode'),
@@ -69,7 +70,7 @@ def all_actions():
 
 DEFAULT_ACTIONS = (
         'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-        None, 'previous', 'next', None, 'toc', 'bookmarks', 'lookup', 'reference', 'chrome', None, 'mode', 'print', 'preferences',
+        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'reference', 'chrome', None, 'mode', 'print', 'preferences',
         'metadata', 'inspector'
 )
 
@@ -121,7 +122,7 @@ class ActionsToolBar(ToolBar):
     def hide_toolbar(self):
         self.web_view.trigger_shortcut('toggle_toolbar')
 
-    def initialize(self, web_view):
+    def initialize(self, web_view, toggle_search_action):
         self.web_view = web_view
         shortcut_action = self.create_shortcut_action
         aa = all_actions()
@@ -157,6 +158,8 @@ class ActionsToolBar(ToolBar):
         self.next_section_action = shortcut_action('next_section')
         self.previous_section_action = shortcut_action('previous_section')
 
+        self.search_action = a = toggle_search_action
+        a.setText(aa.search.text), a.setIcon(aa.search.icon)
         self.toc_action = a = shortcut_action('toc')
         a.setCheckable(True)
         self.bookmarks_action = a = shortcut_action('bookmarks')
