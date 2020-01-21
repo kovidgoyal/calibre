@@ -177,6 +177,7 @@ class SearchInput(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.ignore_search_type_changes = False
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         h = QHBoxLayout()
@@ -219,11 +220,13 @@ class SearchInput(QWidget):  # {{{
             ' equal the entered text and Regex will interpret the text as a'
             ' regular expression.')))
         qt.setCurrentIndex(qt.findData(vprefs.get('viewer-search-mode', 'normal') or 'normal'))
+        qt.currentIndexChanged.connect(self.save_search_type)
         h.addWidget(qt)
 
         self.case_sensitive = cs = QCheckBox(_('&Case sensitive'), self)
         cs.setFocusPolicy(Qt.NoFocus)
         cs.setChecked(bool(vprefs.get('viewer-search-case-sensitive', False)))
+        cs.stateChanged.connect(self.save_search_type)
         h.addWidget(cs)
 
     def history_saved(self, new_text, history):
@@ -234,17 +237,26 @@ class SearchInput(QWidget):  # {{{
             sss = {k: v for k, v in iteritems(sss) if k in history}
             vprefs['saved-search-settings'] = sss
 
+    def save_search_type(self):
+        text = self.search_box.currentText().strip()
+        if text and not self.ignore_search_type_changes:
+            sss = vprefs.get('saved-search-settings') or {}
+            sss[text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
+            vprefs['saved-search-settings'] = sss
+
     def saved_search_selected(self):
         text = self.search_box.currentText().strip()
         if text:
             s = (vprefs.get('saved-search-settings') or {}).get(text)
             if s:
+                self.ignore_search_type_changes = True
                 if 'case_sensitive' in s:
                     self.case_sensitive.setChecked(s['case_sensitive'])
                 if 'mode' in s:
                     idx = self.query_type.findData(s['mode'])
                     if idx > -1:
                         self.query_type.setCurrentIndex(idx)
+                self.ignore_search_type_changes = False
             self.find_next()
 
     def search_query(self, backwards=False):
