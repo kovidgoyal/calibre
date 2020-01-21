@@ -296,7 +296,7 @@ class Results(QListWidget):  # {{{
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
-        self.setSpacing(2)
+        self.setStyleSheet('QListWidget::item { padding: 3px; }')
         self.delegate = ResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.itemClicked.connect(self.item_activated)
@@ -355,6 +355,7 @@ class SearchPanel(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.current_search = None
         self.l = l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
         self.search_input = si = SearchInput(self)
         self.searcher = None
         self.search_tasks = Queue()
