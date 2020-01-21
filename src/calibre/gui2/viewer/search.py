@@ -275,17 +275,35 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 
 class Results(QListWidget):  # {{{
 
+    show_search_result = pyqtSignal(object)
+
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
         self.setSpacing(2)
         self.delegate = ResultsDelegate(self)
         self.setItemDelegate(self.delegate)
+        self.itemClicked.connect(self.item_activated)
 
     def add_result(self, result):
         i = QListWidgetItem(' ', self)
         i.setData(Qt.UserRole, result)
         return self.count()
+
+    def item_activated(self):
+        i = self.currentItem()
+        if i:
+            sr = i.data(Qt.UserRole)
+            self.show_search_result.emit(sr)
+
+    def find_next(self, previous):
+        if self.count() < 1:
+            return
+        i = self.currentRow()
+        i += -1 if previous else 1
+        i %= self.count()
+        self.setCurrentRow(i)
+        self.item_activated()
 # }}}
 
 
@@ -315,13 +333,13 @@ class SearchPanel(QWidget):  # {{{
 
     def start_search(self, search_query, current_name):
         if self.current_search is not None and search_query == self.current_search:
-            # TODO: go to next or previous result as required
+            self.find_next_requested(search_query.backwards)
             return
         if self.searcher is None:
             self.searcher = Thread(name='Searcher', target=self.run_searches)
             self.searcher.daemon = True
             self.searcher.start()
-        # TODO: Clear the current search results
+        self.results.clear()
         self.spinner.start()
         self.current_search = search_query
         self.search_tasks.put((search_query, current_name))
@@ -364,7 +382,10 @@ class SearchPanel(QWidget):  # {{{
         if isinstance(result, SearchFinished):
             self.spinner.stop()
             return
-        self.results.add_result(result)
+        if self.results.add_result(result) == 1:
+            # first result
+            self.results.setCurrentRow(0)
+            self.results.item_activated()
 
     def clear_searches(self):
         self.current_search = None
@@ -377,4 +398,7 @@ class SearchPanel(QWidget):  # {{{
         self.spinner.stop()
         self.current_search = None
         self.searcher = None
+
+    def find_next_requested(self, previous):
+        self.results.find_next(previous)
 # }}}

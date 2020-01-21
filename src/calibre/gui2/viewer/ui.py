@@ -158,6 +158,7 @@ class EbookViewer(MainWindow):
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.show_search.connect(self.show_search)
+        self.web_view.find_next.connect(self.search_widget.find_next_requested)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
@@ -252,6 +253,7 @@ class EbookViewer(MainWindow):
         name = self.web_view.current_content_file
         if name:
             self.search_widget.start_search(search_query, name)
+            self.web_view.setFocus(Qt.OtherFocusReason)
 
     def toggle_bookmarks(self):
         is_visible = self.bookmarks_dock.isVisible()

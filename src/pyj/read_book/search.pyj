@@ -89,10 +89,16 @@ class SearchOverlay:
         self.view.find(text, backwards)
 
     def find_next(self):
-        self.find(self.search_text, False)
+        if ui_operations.find_next:
+            ui_operations.find_next(False)
+        else:
+            self.find(self.search_text, False)
 
     def find_previous(self):
-        self.find(self.search_text, True)
+        if ui_operations.find_next:
+            ui_operations.find_next(True)
+        else:
+            self.find(self.search_text, True)
 
 
 def find_in_serialized_html(data, text):
