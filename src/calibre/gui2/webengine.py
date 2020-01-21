@@ -130,8 +130,9 @@ class Bridge(QObject):
                     elif mt == 'qt-ready':
                         self._register_signals()
         except Exception:
-            import traceback
-            traceback.print_exc()
+            if messages:
+                import traceback
+                traceback.print_exc()
 
 
 class RestartingWebEngineView(QWebEngineView):
