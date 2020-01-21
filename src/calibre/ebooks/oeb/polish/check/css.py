@@ -10,7 +10,10 @@ import numbers
 import sys
 from collections import namedtuple
 
-from PyQt5 import sip
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 from PyQt5.Qt import QApplication, QEventLoop, pyqtSignal
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript
