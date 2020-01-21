@@ -11,16 +11,38 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, QListWidget, Qt, QToolButton,
+    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, Qt, QToolButton,
     QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
+from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
-from polyglot.builtins import unicode_type, iteritems
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
+
+
+class BusySpinner(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.pi = ProgressIndicator(self, 24)
+        l.addWidget(self.pi)
+        self.la = la = QLabel(_('Searching...'))
+        l.addWidget(la)
+        l.addStretch(10)
+
+    def start(self):
+        self.setVisible(True)
+        self.pi.start()
+
+    def stop(self):
+        self.setVisible(False)
+        self.pi.stop()
 
 
 class Search(object):
@@ -111,7 +133,7 @@ class SearchBox(HistoryComboBox):
         return ret
 
 
-class SearchInput(QWidget):
+class SearchInput(QWidget):  # {{{
 
     do_search = pyqtSignal(object)
 
@@ -210,6 +232,7 @@ class SearchInput(QWidget):
         le = self.search_box.lineEdit()
         le.end(False)
         le.selectAll()
+# }}}
 
 
 class Results(QListWidget):
@@ -236,6 +259,9 @@ class SearchPanel(QWidget):
         l.addWidget(si)
         self.results = r = Results(self)
         l.addWidget(r, 100)
+        self.spinner = s = BusySpinner(self)
+        s.setVisible(False)
+        l.addWidget(s)
 
     def focus_input(self):
         self.search_input.focus_input()
@@ -248,7 +274,8 @@ class SearchPanel(QWidget):
             self.searcher = Thread(name='Searcher', target=self.run_searches)
             self.searcher.daemon = True
             self.searcher.start()
-        # TODO: Clear the current search results, and start spinner
+        # TODO: Clear the current search results
+        self.spinner.start()
         self.current_search = search_query
         self.search_tasks.put((search_query, current_name))
 
@@ -288,14 +315,16 @@ class SearchPanel(QWidget):
         if self.current_search is None or result.search_query != self.current_search:
             return
         if isinstance(result, SearchFinished):
-            # TODO: Hide spinner
+            self.spinner.stop()
             return
 
     def clear_searches(self):
         self.current_search = None
         searchable_text_for_name.cache_clear()
-        # TODO: clear the results list and hide the searching spinner
+        self.spinner.stop()
+        # TODO: clear the results list
+        self.searcher = None
 
     def shutdown(self):
         self.search_tasks.put(None)
-        self.searcher = None
+        pass
