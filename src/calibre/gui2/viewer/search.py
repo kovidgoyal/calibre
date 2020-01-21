@@ -11,8 +11,9 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal
+    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
+    QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
@@ -24,7 +25,7 @@ from polyglot.functools import lru_cache
 from polyglot.queue import Queue
 
 
-class BusySpinner(QWidget):
+class BusySpinner(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -43,6 +44,7 @@ class BusySpinner(QWidget):
     def stop(self):
         self.setVisible(False)
         self.pi.stop()
+# }}}
 
 
 class Search(object):
@@ -77,13 +79,28 @@ class SearchFinished(object):
 
 class SearchResult(object):
 
-    __slots__ = ('search_query', 'before', 'text', 'after', 'spine_idx', 'index', 'file_name')
+    __slots__ = ('search_query', 'before', 'text', 'after', 'spine_idx', 'index', 'file_name', '_static_text')
 
     def __init__(self, search_query, before, text, after, name, spine_idx, index):
         self.search_query = search_query
         self.before, self.text, self.after = before, text, after
         self.spine_idx, self.index = spine_idx, index
         self.file_name = name
+        self._static_text = None
+
+    @property
+    def static_text(self):
+        if self._static_text is None:
+            before_words = self.before.split()
+            before = '…' + ' '.join(before_words[-3:])[:15]
+            before_space = '' if self.before.rstrip() == self.before else ' '
+            after_words = self.after.split()
+            after = ' '.join(after_words[:3])[:15] + '…'
+            after_space = '' if self.after.lstrip() == self.after else ' '
+            self._static_text = st = QStaticText('<p>{}{}<b>{}</b>{}{}'.format(before, before_space, self.text, after_space, after))
+            st.setTextFormat(Qt.RichText)
+            st.setTextWidth(10000)
+        return self._static_text
 
 
 @lru_cache(maxsize=None)
@@ -235,14 +252,44 @@ class SearchInput(QWidget):  # {{{
 # }}}
 
 
-class Results(QListWidget):
+class ResultsDelegate(QStyledItemDelegate):  # {{{
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        result = index.data(Qt.UserRole)
+        painter.save()
+        p = option.palette
+        c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
+        group = (p.Active if option.state & QStyle.State_Active else p.Inactive)
+        c = p.color(group, c)
+        painter.setClipRect(option.rect)
+        painter.setPen(c)
+        try:
+            painter.drawStaticText(option.rect.topLeft(), result.static_text)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        painter.restore()
+# }}}
+
+
+class Results(QListWidget):  # {{{
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
+        self.setSpacing(2)
+        self.delegate = ResultsDelegate(self)
+        self.setItemDelegate(self.delegate)
+
+    def add_result(self, result):
+        i = QListWidgetItem(' ', self)
+        i.setData(Qt.UserRole, result)
+        return self.count()
+# }}}
 
 
-class SearchPanel(QWidget):
+class SearchPanel(QWidget):  # {{{
 
     search_requested = pyqtSignal(object)
     results_found = pyqtSignal(object)
@@ -317,6 +364,7 @@ class SearchPanel(QWidget):
         if isinstance(result, SearchFinished):
             self.spinner.stop()
             return
+        self.results.add_result(result)
 
     def clear_searches(self):
         self.current_search = None
@@ -329,3 +377,4 @@ class SearchPanel(QWidget):
         self.spinner.stop()
         self.current_search = None
         self.searcher = None
+# }}}
