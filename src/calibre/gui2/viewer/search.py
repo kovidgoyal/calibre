@@ -170,6 +170,12 @@ class SearchBox(HistoryComboBox):
         self.history_saved.emit(self.text(), self.history)
         return ret
 
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction(_('Clear search history'), self.clear_history)
+        menu.exec_(event.globalPos())
+
 
 class SearchInput(QWidget):  # {{{
 
