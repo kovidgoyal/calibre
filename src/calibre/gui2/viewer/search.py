@@ -322,9 +322,10 @@ class SearchPanel(QWidget):
         self.current_search = None
         searchable_text_for_name.cache_clear()
         self.spinner.stop()
-        # TODO: clear the results list
-        self.searcher = None
+        self.results.clear()
 
     def shutdown(self):
         self.search_tasks.put(None)
-        pass
+        self.spinner.stop()
+        self.current_search = None
+        self.searcher = None
