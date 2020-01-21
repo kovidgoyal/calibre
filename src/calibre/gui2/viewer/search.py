@@ -70,7 +70,13 @@ class Search(object):
             if not self.case_sensitive:
                 flags = regex.IGNORECASE
             if self.mode != 'regex':
-                expr = regex.escape(expr)
+                if self.mode == 'word':
+                    words = []
+                    for part in expr.split():
+                        words.append(r'\b{}\b'.format(regex.escape(part)))
+                    expr = r'\s+'.join(words)
+                else:
+                    expr = regex.escape(expr)
             self._regex = regex.compile(expr, flags)
         return self._regex
 
@@ -206,10 +212,12 @@ class SearchInput(QWidget):  # {{{
         self.query_type = qt = QComboBox(self)
         qt.setFocusPolicy(Qt.NoFocus)
         qt.addItem(_('Normal'), 'normal')
+        qt.addItem(_('Whole words'), 'word')
         qt.addItem(_('Regex'), 'regex')
         qt.setToolTip(textwrap.fill(_('Choose the type of search: Normal will search'
-            ' for the entered text, Regex will interpret the text as a'
-            ' regular expression')))
+            ' for the entered text, Whole words will search for whole words that'
+            ' equal the entered text and Regex will interpret the text as a'
+            ' regular expression.')))
         qt.setCurrentIndex(qt.findData(vprefs.get('viewer-search-mode', 'normal') or 'normal'))
         h.addWidget(qt)
 
