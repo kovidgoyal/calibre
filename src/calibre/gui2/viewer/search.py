@@ -237,6 +237,7 @@ class SearchInput(QWidget):  # {{{
                     idx = self.query_type.findData(s['mode'])
                     if idx > -1:
                         self.query_type.setCurrentIndex(idx)
+            self.find_next()
 
     def search_query(self, backwards=False):
         text = self.search_box.currentText().strip()
