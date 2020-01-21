@@ -242,6 +242,9 @@ class View:
             'update_cfi': self.on_update_cfi,
             'update_progress_frac': self.on_update_progress_frac,
             'update_toc_position': self.on_update_toc_position,
+            'search_result_not_found': def (data): if ui_operations.search_result_not_found:
+                ui_operations.search_result_not_found(data.search_result)
+            ,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         if runtime.is_standalone_viewer:
@@ -1072,3 +1075,9 @@ class View:
         else:
             div.style.display = 'block'
             div.textContent = f'{index}.{refnum}'
+
+    def show_search_result(self, sr):
+        if self.currently_showing.name is sr.file_name:
+            self.iframe_wrapper.send_message('show_search_result', search_result=sr)
+        else:
+            self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})

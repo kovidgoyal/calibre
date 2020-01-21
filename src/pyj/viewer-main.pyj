@@ -288,6 +288,12 @@ def trigger_shortcut(which):
         view.on_handle_shortcut({'name': which})
 
 
+@from_python
+def show_search_result(sr):
+    if view:
+        view.show_search_result(sr)
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error
@@ -393,6 +399,8 @@ if window is window.top:
         to_python.customize_toolbar()
     ui_operations.autoscroll_state_changed = def(active):
         to_python.autoscroll_state_changed(active)
+    ui_operations.search_result_not_found = def(sr):
+        to_python.search_result_not_found(sr)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

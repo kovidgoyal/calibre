@@ -112,6 +112,7 @@ class IframeBoss:
             'wheel_from_margin': self.wheel_from_margin,
             'window_size': self.received_window_size,
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
+            'show_search_result': self.show_search_result,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -312,6 +313,8 @@ class IframeBoss:
                 self.scroll_to_ref(ipos.refnum)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
+            elif ipos.type is 'search_result':
+                self.show_search_result(ipos, True)
             elif ipos.type is 'search':
                 self.find(ipos.search_data, True)
         spine = self.book.manifest.spine
@@ -525,6 +528,18 @@ class IframeBoss:
                     'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
             else:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
+
+    def show_search_result(self, data, from_load):
+        sr = data.search_result
+        idx = -1
+        window.getSelection().removeAllRanges()
+        while idx < sr.index:
+            if not window.find(sr.text, True, False, False, False, False):
+                self.send_message('search_result_not_found', search_result=sr)
+                break
+            idx += 1
+        if idx > -1 and current_layout_mode() is not 'flow':
+            snap_to_selection()
 
     def reference_item_changed(self, ref_num_or_none):
         self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)

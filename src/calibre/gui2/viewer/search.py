@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
+from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
@@ -36,14 +37,17 @@ class BusySpinner(QWidget):  # {{{
         self.la = la = QLabel(_('Searching...'))
         l.addWidget(la)
         l.addStretch(10)
+        self.is_running = False
 
     def start(self):
         self.setVisible(True)
         self.pi.start()
+        self.is_running = True
 
     def stop(self):
         self.setVisible(False)
         self.pi.stop()
+        self.is_running = False
 # }}}
 
 
@@ -92,7 +96,11 @@ class SearchResult(object):
     def static_text(self):
         if self._static_text is None:
             before_words = self.before.split()
-            before = '…' + ' '.join(before_words[-3:])[:15]
+            before = ' '.join(before_words[-3:])
+            before_extra = len(before) - 15
+            if before_extra > 0:
+                before = before[before_extra:]
+            before = '…' + before
             before_space = '' if self.before.rstrip() == self.before else ' '
             after_words = self.after.split()
             after = ' '.join(after_words[:3])[:15] + '…'
@@ -101,6 +109,13 @@ class SearchResult(object):
             st.setTextFormat(Qt.RichText)
             st.setTextWidth(10000)
         return self._static_text
+
+    @property
+    def for_js(self):
+        return {'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text}
+
+    def is_or_is_after(self, result_from_js):
+        return result_from_js['spine_idx'] == self.spine_idx and self.index >= result_from_js['index'] and result_from_js['text'] == self.text
 
 
 @lru_cache(maxsize=None)
@@ -198,7 +213,7 @@ class SearchInput(QWidget):  # {{{
         qt.setCurrentIndex(qt.findData(vprefs.get('viewer-search-mode', 'normal') or 'normal'))
         h.addWidget(qt)
 
-        self.case_sensitive = cs = QCheckBox(_('Case sensitive'), self)
+        self.case_sensitive = cs = QCheckBox(_('&Case sensitive'), self)
         cs.setFocusPolicy(Qt.NoFocus)
         cs.setChecked(bool(vprefs.get('viewer-search-case-sensitive', False)))
         h.addWidget(cs)
@@ -304,6 +319,28 @@ class Results(QListWidget):  # {{{
         i %= self.count()
         self.setCurrentRow(i)
         self.item_activated()
+
+    def search_result_not_found(self, sr):
+        remove = []
+        for i in range(self.count()):
+            item = self.item(i)
+            r = item.data(Qt.UserRole)
+            if r.is_or_is_after(sr):
+                remove.append(i)
+        if remove:
+            last_i = remove[-1]
+            if last_i < self.count() - 1:
+                self.setCurrentRow(last_i + 1)
+                self.item_activated()
+            elif remove[0] > 0:
+                self.setCurrentRow(remove[0] - 1)
+                self.item_activated()
+            for i in reversed(remove):
+                self.takeItem(i)
+            if self.count():
+                warning_dialog(self, _('Hidden text'), _(
+                    'Some search results were for hidden text, they have been removed.'), show=True)
+
 # }}}
 
 
@@ -311,6 +348,7 @@ class SearchPanel(QWidget):  # {{{
 
     search_requested = pyqtSignal(object)
     results_found = pyqtSignal(object)
+    show_search_result = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -323,6 +361,7 @@ class SearchPanel(QWidget):  # {{{
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
         self.results = r = Results(self)
+        r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
         l.addWidget(r, 100)
         self.spinner = s = BusySpinner(self)
         s.setVisible(False)
@@ -362,15 +401,14 @@ class SearchPanel(QWidget):  # {{{
             if spine_idx < 0:
                 self.results_found.emit(SearchFinished(search_query))
                 continue
-            names = spine[spine_idx:] + spine[:spine_idx]
-            for name in names:
+            for name in spine:
                 counter = Counter()
                 spine_idx = idx_map[name]
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after = result
-                        counter[text] += 1
                         self.results_found.emit(SearchResult(search_query, before, text, after, name, spine_idx, counter[text]))
+                        counter[text] += 1
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -381,6 +419,8 @@ class SearchPanel(QWidget):  # {{{
             return
         if isinstance(result, SearchFinished):
             self.spinner.stop()
+            if not self.results.count():
+                self.show_no_results_found()
             return
         if self.results.add_result(result) == 1:
             # first result
@@ -401,4 +441,17 @@ class SearchPanel(QWidget):  # {{{
 
     def find_next_requested(self, previous):
         self.results.find_next(previous)
+
+    def do_show_search_result(self, sr):
+        self.show_search_result.emit(sr.for_js)
+
+    def search_result_not_found(self, sr):
+        self.results.search_result_not_found(sr)
+        if not self.results.count() and not self.spinner.is_running:
+            self.show_no_results_found()
+
+    def show_no_results_found(self):
+        if self.current_search:
+            warning_dialog(self, _('No matches found'), _(
+                'No matches were found for: <b>{}</b>').format(self.current_search.text), show=True)
 # }}}
