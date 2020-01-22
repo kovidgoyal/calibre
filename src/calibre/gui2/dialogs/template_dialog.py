@@ -82,15 +82,16 @@ class TemplateHighlighter(QSyntaxHighlighter):
     def initializeFormats(self):
         Config = self.Config
         Config["fontfamily"] = "monospace"
+        pal = QApplication.instance().palette()
         for name, color, bold, italic in (
-                ("normal", "#000000", False, False),
-                ("keyword", "#000080", True, False),
-                ("builtin", "#0000A0", False, False),
+                ("normal", None, False, False),
+                ("keyword", pal.color(pal.Link).name(), True, False),
+                ("builtin", pal.color(pal.Link).name(), False, False),
                 ("comment", "#007F00", False, True),
                 ("string", "#808000", False, False),
                 ("number", "#924900", False, False),
-                ("lparen", "#000000", True, True),
-                ("rparen", "#000000", True, True)):
+                ("lparen", None, True, True),
+                ("rparen", None, True, True)):
             Config["%sfontcolor" % name] = color
             Config["%sfontbold" % name] = bold
             Config["%sfontitalic" % name] = italic
@@ -102,7 +103,9 @@ class TemplateHighlighter(QSyntaxHighlighter):
         for name in ("normal", "keyword", "builtin", "comment",
                      "string", "number", "lparen", "rparen"):
             format = QTextCharFormat(baseFormat)
-            format.setForeground(QColor(Config["%sfontcolor" % name]))
+            col = Config["%sfontcolor" % name]
+            if col:
+                format.setForeground(QColor(col))
             if Config["%sfontbold" % name]:
                 format.setFontWeight(QFont.Bold)
             format.setFontItalic(Config["%sfontitalic" % name])
