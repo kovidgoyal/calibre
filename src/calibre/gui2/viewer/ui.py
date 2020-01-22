@@ -279,6 +279,8 @@ class EbookViewer(MainWindow):
 
     def bookmarks_edited(self, bookmarks):
         self.current_book_data['annotations_map']['bookmark'] = bookmarks
+        # annotations will be saved in book file on exit
+        self.save_annotations(in_book_file=False)
 
     def bookmark_activated(self, cfi):
         self.web_view.goto_cfi(cfi)
@@ -507,14 +509,14 @@ class EbookViewer(MainWindow):
     # }}}
 
     # State serialization {{{
-    def save_annotations(self):
+    def save_annotations(self, in_book_file=True):
         if not self.current_book_data:
             return
         amap = self.current_book_data['annotations_map']
         annots = as_bytes(serialize_annotations(amap))
         with open(os.path.join(annotations_dir, self.current_book_data['annotations_path_key']), 'wb') as f:
             f.write(annots)
-        if self.current_book_data.get('pathtoebook', '').lower().endswith(
+        if in_book_file and self.current_book_data.get('pathtoebook', '').lower().endswith(
                 '.epub') and get_session_pref('save_annotations_in_ebook', default=True):
             path = self.current_book_data['pathtoebook']
             if os.access(path, os.W_OK):
