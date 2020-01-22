@@ -64,12 +64,14 @@ from calibre.gui2.tweak_book.widgets import (
     AddCover, BusyCursor, FilterCSS, ImportForeign, InsertLink, InsertSemantics,
     InsertTag, MultiSplit, QuickOpen, RationalizeFolders
 )
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, map, unicode_type
+from polyglot.builtins import (
+    iteritems, itervalues, map, string_or_bytes, unicode_type
+)
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -138,6 +140,7 @@ class Boss(QObject):
         fl.link_stylesheets_requested.connect(self.link_stylesheets_requested)
         fl.initiate_file_copy.connect(self.copy_files_to_clipboard)
         fl.initiate_file_paste.connect(self.paste_files_from_clipboard)
+        fl.open_file_with.connect(self.open_file_with)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -1360,6 +1363,29 @@ class Boss(QObject):
                     if err.errno != errno.EEXIST:
                         raise
             self.export_file(name, dest)
+
+    def open_file_with(self, file_name, fmt, entry):
+        if file_name in editors and not editors[file_name].is_synced_to_container:
+            self.commit_editor_to_container(file_name)
+        with current_container().open(file_name) as src:
+            tdir = PersistentTemporaryDirectory(suffix='-ee-ow')
+            with open(os.path.join(tdir, os.path.basename(file_name)), 'wb') as dest:
+                shutil.copyfileobj(src, dest)
+        from calibre.gui2.open_with import run_program
+        run_program(entry, dest.name, self)
+        if question_dialog(self.gui, _('File opened'), _(
+            'When you are done editing {0} click "Update" to update'
+            ' the file in the book or "Discard" to lose any changes.').format(file_name),
+            yes_text=_('Import'), no_text=_('Discard')
+        ):
+            self.add_savepoint(_('Before: Replace %s') % file_name)
+            with open(dest.name, 'rb') as src, current_container().open(file_name, 'wb') as cdest:
+                shutil.copyfileobj(src, cdest)
+            self.apply_container_update_to_gui()
+        try:
+            shutil.rmtree(tdir)
+        except Exception:
+            pass
 
     @in_thread_job
     def copy_files_to_clipboard(self, names):

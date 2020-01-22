@@ -202,6 +202,7 @@ class FileList(QTreeWidget):
     link_stylesheets_requested = pyqtSignal(object, object, object)
     initiate_file_copy = pyqtSignal(object)
     initiate_file_paste = pyqtSignal()
+    open_file_with = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -540,6 +541,8 @@ class FileList(QTreeWidget):
                 m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
             if num > 1:
                 m.addAction(QIcon(I('save.png')), _('Export all %d selected files') % num, self.export_selected)
+            if cn not in container.names_that_must_not_be_changed:
+                self.add_open_with_actions(m, cn)
 
             m.addSeparator()
 
@@ -582,6 +585,35 @@ class FileList(QTreeWidget):
 
         if len(list(m.actions())) > 0:
             m.popup(self.mapToGlobal(point))
+
+    def add_open_with_actions(self, menu, file_name):
+        from calibre.gui2.open_with import populate_menu, edit_programs
+        fmt = file_name.rpartition('.')[-1].lower()
+        if not fmt:
+            return
+        m = QMenu(_('Open %s with...') % file_name)
+
+        def connect_action(ac, entry):
+            connect_lambda(ac.triggered, self, lambda self: self.open_with(file_name, fmt, entry))
+
+        populate_menu(m, connect_action, fmt)
+        if len(m.actions()) == 0:
+            menu.addAction(_('Open %s with...') % file_name, partial(self.choose_open_with, file_name, fmt))
+        else:
+            m.addSeparator()
+            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_name, fmt))
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, file_name))
+            menu.addMenu(m)
+            menu.ow = m
+
+    def choose_open_with(self, file_name, fmt):
+        from calibre.gui2.open_with import choose_program
+        entry = choose_program(fmt, self)
+        if entry is not None:
+            self.open_with(file_name, fmt, entry)
+
+    def open_with(self, file_name, fmt, entry):
+        self.open_file_with.emit(file_name, fmt, entry)
 
     def index_of_name(self, name):
         for category, parent in iteritems(self.categories):
