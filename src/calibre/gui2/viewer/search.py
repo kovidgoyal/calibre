@@ -5,7 +5,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-import textwrap
 from collections import Counter
 from threading import Thread
 
@@ -218,13 +217,15 @@ class SearchInput(QWidget):  # {{{
         l.addLayout(h)
         self.query_type = qt = QComboBox(self)
         qt.setFocusPolicy(Qt.NoFocus)
-        qt.addItem(_('Normal'), 'normal')
+        qt.addItem(_('Contains'), 'normal')
         qt.addItem(_('Whole words'), 'word')
         qt.addItem(_('Regex'), 'regex')
-        qt.setToolTip(textwrap.fill(_('Choose the type of search: Normal will search'
-            ' for the entered text, Whole words will search for whole words that'
-            ' equal the entered text and Regex will interpret the text as a'
-            ' regular expression.')))
+        qt.setToolTip(('<p>' + _(
+            'Choose the type of search: <ul>'
+            '<li><b>Contains</b> will search for the entered text anywhere.'
+            '<li><b>Whole words</b> will search for whole words that equal the entered text.'
+            '<li><b>Regex</b> will interpret the text as a regular expression.'
+        )))
         qt.setCurrentIndex(qt.findData(vprefs.get('viewer-search-mode', 'normal') or 'normal'))
         qt.currentIndexChanged.connect(self.save_search_type)
         h.addWidget(qt)
