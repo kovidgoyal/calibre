@@ -67,17 +67,18 @@ class DeleteBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, display='flex', justify_content='center', flex_direction='column', background_color=get_color('window-background'))
-        container.appendChild(
-            E.div(style='margin:1ex 1em',
+        set_css(container, background_color=get_color('window-background'))
+        container.appendChild(E.div(
+            style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
+            E.div(style='margin:1ex 1em; max-width: 80%',
                 E.h2(self.question),
-                E.div(style='display:flex; justify-content:flex-end',
+                E.div(style='display:flex; justify-content:flex-end; margin-top:1rem',
                     create_button(self.ok_text, self.ok_icon, action=self.delete_book, highlight=True),
                     E.span('\xa0'),
                     create_button(_('Cancel'), action=self.cancel),
                 )
             )
-        )
+        ))
 
     def show_working(self):
         container = document.getElementById(self.container_id)
