@@ -11,6 +11,7 @@ from collections import OrderedDict
 from html5_parser import parse
 from lxml import etree
 
+from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -34,6 +35,7 @@ def process_node(node, html_parent):
     elif ntype == 'text':
         text = node.get('data')
         if text:
+            text = replace_entities(text)
             if len(html_parent):
                 t = html_parent[-1]
                 t.tail = (t.tail or '') + text
