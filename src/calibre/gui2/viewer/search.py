@@ -155,7 +155,7 @@ def search_in_name(name, search_query, ctx_size=50):
     raw = searchable_text_for_name(name)
     for match in search_query.regex.finditer(raw):
         start, end = match.span()
-        before = raw[start-ctx_size:start]
+        before = raw[max(0, start-ctx_size):start]
         after = raw[end:end+ctx_size]
         yield before, match.group(), after
 
