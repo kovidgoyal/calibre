@@ -124,19 +124,20 @@ class SyncBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, display='flex', justify_content='center', flex_direction='column', background_color=get_color('window-background'))
+        set_css(container, background_color=get_color('window-background'))
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
         sync_library_books(book.key[0], to_sync, self.sync_data_received)
-        container.appendChild(
-            E.div(style='margin:1ex 1em',
+        container.appendChild(E.div(
+            style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
+            E.div(style='margin:1ex 1em; max-width: 80vw',
                 E.h2(_('Syncing to last read position')),
                 E.p(_('Downloading last read data from server, please wait...')),
                 E.div(style='display:flex; justify-content:flex-end',
                     create_button(_('Cancel'), action=self.cancel),
                 )
             )
-        )
+        ))
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
