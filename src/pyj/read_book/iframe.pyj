@@ -46,7 +46,9 @@ from read_book.shortcuts import (
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.viewport import scroll_viewport
-from utils import debounce, html_escape, is_ios
+from utils import (
+    apply_cloned_selection, clone_selection, debounce, html_escape, is_ios
+)
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -537,6 +539,29 @@ class IframeBoss:
             if not window.find(sr.text, True, False, False, False, False):
                 self.send_message('search_result_not_found', search_result=sr)
                 break
+            if sr.mode is not 'normal':
+                # verify we have the correct match since regexes can have
+                # boundary conditions
+                sel = window.getSelection()
+                ranges = clone_selection(sel)
+                r = ranges[0]
+                if sr.before:
+                    p = r.cloneRange()
+                    p.collapse(True)
+                    sel = apply_cloned_selection(v'[p]')
+                    sel.modify('extend', 'left', 'character')
+                    if sel.toString() is not sr.before[-1]:
+                        apply_cloned_selection(ranges)
+                        continue
+                if sr.after:
+                    p = r.cloneRange()
+                    p.collapse(False)
+                    sel = apply_cloned_selection(v'[p]')
+                    sel.modify('extend', 'right', 'character')
+                    if sel.toString() is not sr.after[0]:
+                        apply_cloned_selection(ranges)
+                        continue
+                apply_cloned_selection(ranges)
             idx += 1
         if idx > -1 and current_layout_mode() is not 'flow':
             snap_to_selection()

@@ -117,7 +117,10 @@ class SearchResult(object):
 
     @property
     def for_js(self):
-        return {'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text}
+        return {
+            'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text,
+            'before': self.before, 'after': self.after, 'mode': self.search_query.mode
+        }
 
     def is_or_is_after(self, result_from_js):
         return result_from_js['spine_idx'] == self.spine_idx and self.index >= result_from_js['index'] and result_from_js['text'] == self.text
@@ -148,7 +151,10 @@ def searchable_text_for_name(name):
             stack.append(tail)
         if children:
             stack.extend(reversed(children))
-    return ''.join(ans)
+    # Normalize whitespace to a single space, this will cause failures
+    # when searching over spaces in pre nodes, but that is a lesser evil
+    # since the DOM converts \n, \t etc to a single space
+    return regex.sub(r'\s+', ' ', ''.join(ans))
 
 
 def search_in_name(name, search_query, ctx_size=50):
