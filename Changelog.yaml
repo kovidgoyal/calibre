@@ -38,7 +38,7 @@
       tickets: [1859547]
 
   bug fixes:
-    - title: "version 4.9.1 fixes a couple of regressions in 4.9.0 with Check Bok reporting false positives and an error when using the source editing view in the comments editor"
+    - title: "version 4.9.1 fixes a couple of regressions in 4.9.0 with Check Book reporting false positives and an error when using the source editing view in the comments editor"
 
     - title: "Comments editor: Fix inserted blank paragraph being rendered as two lines."
 
