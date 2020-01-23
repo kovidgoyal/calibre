@@ -9,6 +9,7 @@ import json
 import numbers
 import sys
 from collections import namedtuple
+from itertools import repeat
 
 try:
     from PyQt5 import sip
@@ -190,7 +191,7 @@ class Pool(object):
 
     def check_css(self, css_sources):
         self.pending = list(enumerate(css_sources))
-        self.results = list(range(len(css_sources)))
+        self.results = list(repeat(None, len(css_sources)))
         self.working = True
         self.assign_work()
         app = QApplication.instance()
@@ -212,10 +213,10 @@ class Pool(object):
                 break
 
     def work_done(self, worker, result):
-        self.assign_work()
         if not isinstance(result, dict):
             result = worker.console_messages
         self.results[worker.result_idx] = result
+        self.assign_work()
         if not self.pending and not [w for w in self.workers if w.working]:
             self.working = False
 
@@ -232,7 +233,7 @@ Job = namedtuple('Job', 'name css line_offset')
 
 def create_job(name, css, line_offset=0, is_declaration=False):
     if is_declaration:
-        css = 'a{\n' + css + '\n}'
+        css = 'div{\n' + css + '\n}'
         line_offset -= 1
     return Job(name, css, line_offset)
 
