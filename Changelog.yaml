@@ -20,6 +20,46 @@
 #   new recipes:
 #     - title:
 
+- version: 4.9.0
+  date: 2020-01-23
+
+  new features:
+    - title: "Viewer: Much improved search functionality"
+      description: "Now all matches are displayed when searching in a side bar with a few words of context. Also supports searching using regular expressions."
+      type: major
+      tickets: [1834247]
+
+    - title: "Edit book: The Check book function has a new, improved CSS checker with support for CSS 3"
+
+    - title: 'Edit book: Add an "Open with" action to the context menu of the files browser to easily open files with external programs.'
+      tickets: [1860462]
+
+    - title: "Viewer toolbar: Add button to easily change color schemes"
+      tickets: [1859547]
+
+  bug fixes:
+    - title: "Comments editor: Fix inserted blank paragraph being rendered as two lines."
+
+    - title: "PDF Output: Fix conversion of files containing <canvas> elements failing."
+      tickets: [1859040]
+
+    - title: "Viewer: Fix failure to open some books that contain unparseable URLs."
+      tickets: [1858836]
+
+    - title: "Viewer: Fix data displayed in side margins getting moved out of position when mouse hovers over side margin."
+      tickets: [1858263]
+
+    - title: "Book details panel: When right clicking to save the cover, replace invalid characters in the suggested filename"
+
+    - title: "Fix harmless error popup when adding SSL key/certificate in server settings"
+      tickets: [1858198]
+
+    - title: "Dark mode: Fix colors in remove all formats except dialog"
+
+  improved recipes:
+    - Liberty Times
+
+
 - version: 4.8.0
   date: 2020-01-03
 
