@@ -25,6 +25,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
 from calibre.gui2.book_details import css
 from calibre.gui2.widgets import LineEditECM
+from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
@@ -1138,8 +1139,7 @@ class Editor(QWidget):  # {{{
                 self.wyswyg_dirty = False
         elif index == 0:  # changing to wyswyg
             if self.source_dirty:
-                from calibre.gui2.tweak_book.widgets import PlainTextEdit
-                self.editor.html = PlainTextEdit.toPlainText(self.code_edit)
+                self.editor.html = to_plain_text(self.code_edit)
                 self.source_dirty = False
 
     @property

@@ -22,14 +22,13 @@ from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
-from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox
+from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox, to_plain_text, PARAGRAPH_SEPARATOR
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
 from polyglot.builtins import iteritems, unicode_type, zip, getcwd, filter as ignore_me
 
 ROOT = QModelIndex()
-PARAGRAPH_SEPARATOR = '\u2029'
 ignore_me
 
 
@@ -1199,17 +1198,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         self.syntax = None
 
     def toPlainText(self):
-        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
-        # space, so we re-implement it using QTextCursor, which does not do
-        # that
-        c = self.textCursor()
-        c.clearSelection()
-        c.movePosition(c.Start)
-        c.movePosition(c.End, c.KeepAnchor)
-        ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
-        # QTextCursor pads the return value of selectedText with null bytes if
-        # non BMP characters such as 0x1f431 are present.
-        return ans.rstrip('\0')
+        return to_plain_text(self)
 
     def selected_text_from_cursor(self, cursor):
         return unicodedata.normalize('NFC', unicode_type(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))

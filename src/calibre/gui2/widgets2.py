@@ -511,6 +511,23 @@ class ScrollingTabWidget(QTabWidget):
         return QTabWidget.addTab(self, self.wrap_widget(page), *args)
 
 
+PARAGRAPH_SEPARATOR = '\u2029'
+
+
+def to_plain_text(self):
+    # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
+    # space, so we re-implement it using QTextCursor, which does not do
+    # that
+    c = self.textCursor()
+    c.clearSelection()
+    c.movePosition(c.Start)
+    c.movePosition(c.End, c.KeepAnchor)
+    ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+    # QTextCursor pads the return value of selectedText with null bytes if
+    # non BMP characters such as 0x1f431 are present.
+    return ans.rstrip('\0')
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
