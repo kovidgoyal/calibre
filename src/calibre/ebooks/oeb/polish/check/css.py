@@ -250,10 +250,10 @@ def check_css(jobs):
                 if err is not None:
                     errors.append(err)
         elif isinstance(result, list) and result:
-            errors.append(CSSParseError(_('Failed to process {name} with errors: {errors}').format(
+            errors.append(CSSParseError(_('Failed to process CSS in {name} with errors: {errors}').format(
                 name=job.name, errors='\n'.join(result)), job.name))
         else:
-            errors.append(CSSParseError(_('Failed to process {name}').format(name=job.name), job.name))
+            errors.append(CSSParseError(_('Failed to process CSS in {name}').format(name=job.name), job.name))
     return errors
 
 
