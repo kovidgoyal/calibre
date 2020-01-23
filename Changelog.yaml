@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 4.9.0
+- version: 4.9.1
   date: 2020-01-23
 
   new features:
@@ -38,6 +38,8 @@
       tickets: [1859547]
 
   bug fixes:
+    - title: "version 4.9.1 fixes a couple of regressions in 4.9.0 with Check Bok reporting false positives and an error when using the source editing view in the comments editor"
+
     - title: "Comments editor: Fix inserted blank paragraph being rendered as two lines."
 
     - title: "PDF Output: Fix conversion of files containing <canvas> elements failing."
