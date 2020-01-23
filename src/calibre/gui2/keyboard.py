@@ -545,7 +545,7 @@ class Delegate(QStyledItemDelegate):  # {{{
                 prepare_string_for_xml(shortcut['name']), _('Shortcuts'), prepare_string_for_xml(keys))
         else:
             # Group
-            html = '<h3>%s</h3>'%data.data
+            html = data.data
         doc =  QTextDocument()
         doc.setHtml(html)
         return doc
