@@ -496,7 +496,7 @@ def create_global_prefs(conf_obj=None):
               help=_('The default output format for e-book conversions. When auto-converting'
                   ' to send to a device this can be overridden by individual device preferences.'
                   ' These can be changed by right clicking the device icon in calibre and'
-                  ' choosing and "Configure".'))
+                  ' choosing "Configure".'))
     c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
         'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'DOCX', 'ODT', 'RTF', 'PDF',
         'TXT'],
