@@ -478,7 +478,7 @@ antivirus program.
     and use it only for calibre.
 
 
-My device is getting mounted read-only in linux, so calibre cannot connect to it?
+My device is getting mounted read-only in Linux, so calibre cannot connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
@@ -1064,7 +1064,7 @@ How do I run calibre from my USB stick?
 
 A portable version of calibre is available `here <https://calibre-ebook.com/download_portable>`_.
 
-How do I run parts of calibre like news download and the Content server on my own linux server?
+How do I run parts of calibre like news download and the Content server on my own Linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, you must install calibre onto your Linux server. If your server is using
