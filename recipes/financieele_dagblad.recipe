@@ -15,7 +15,7 @@ class fd(BasicNewsRecipe):
     remove_tags = [dict(name='span', attrs={'class': ['opties']})]
 
     feeds = [
-        (u'Overzicht', u'http://www.fd.nl/nieuws/overzicht/?view=RSS&profiel=OPENBAAR')
+        (u'Overzicht', u'https://fd.nl/laatste-nieuws?rss&profiel=OPENBAAR')
 
 
     ]
