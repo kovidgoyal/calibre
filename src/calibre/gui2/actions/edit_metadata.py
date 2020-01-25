@@ -36,7 +36,6 @@ class EditMetadataAction(InterfaceAction):
     action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of books'), _('E'))
     action_type = 'current'
     action_add_menu = True
-    action_menu_clone_qaction = _('Edit metadata individually')
 
     accepts_drops = True
 
@@ -69,6 +68,8 @@ class EditMetadataAction(InterfaceAction):
     def genesis(self):
         md = self.qaction.menu()
         cm = partial(self.create_menu_action, md)
+        cm('individual', _('Edit metadata individually'), icon=self.qaction.icon(),
+                triggered=partial(self.edit_metadata, False, bulk=False))
         cm('bulk', _('Edit metadata in bulk'),
                 triggered=partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
