@@ -88,6 +88,7 @@ def csslint_js():
                 'box-sizing': 1,
                 'compatible-vendor-prefixes': 1,
                 'text-indent': 1,
+                'unique-headings': 1,
                 'fallback-colors': 1,
                 'font-faces': 1,
                 'regex-selectors': 1,
