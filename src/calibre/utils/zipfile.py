@@ -11,7 +11,7 @@ from tempfile import SpooledTemporaryFile
 from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
-from polyglot.builtins import unicode_type, string_or_bytes, getcwd, map
+from polyglot.builtins import unicode_type, string_or_bytes, getcwd, map, as_bytes
 
 try:
     import zlib  # We may need its compression method
@@ -327,8 +327,12 @@ class ZipInfo (object):
         # This is used to ensure paths in generated ZIP files always use
         # forward slashes as the directory separator, as required by the
         # ZIP format specification.
-        if os.sep != "/" and os.sep in filename:
-            filename = filename.replace(os.sep, "/")
+        if os.sep != '/':
+            os_sep, sep = os.sep, '/'
+            if isinstance(filename, bytes):
+                os_sep, sep = as_bytes(os_sep), b'/'
+            if os_sep in filename:
+                filename = filename.replace(os_sep, sep)
 
         self.filename = filename        # Normalized file name
         self.date_time = date_time      # year, month, day, hour, min, sec
