@@ -91,6 +91,28 @@ class POT(Command):  # {{{
 
         return '\n'.join(ans)
 
+    def get_iso639_strings(self):
+        self.info('Generating translation template for iso639')
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639-3.json')
+        if not os.path.exists(src):
+            raise Exception(src + ' does not exist')
+        with open(src, 'rb') as f:
+            root = json.load(f)
+        entries = root['639-3']
+        ans = []
+        for x in sorted(entries, key=lambda x:(x.get('name') or '').lower()):
+            name = x.get('name')
+            if name:
+                ans.append(u'msgid "{}"'.format(name))
+                ans.append('msgstr ""')
+                ans.append('')
+        pot = self.pot_header() + '\n\n' + '\n'.join(ans)
+        dest = self.j(self.TRANSLATIONS, 'iso_639', 'iso_639_3.pot')
+        with open(dest, 'wb') as f:
+            f.write(pot.encode('utf-8'))
+        self.upload_pot(resource='iso639')
+        self.git(['add', dest])
+
     def get_content_server_strings(self):
         self.info('Generating translation template for content_server')
         from calibre import walk
@@ -182,6 +204,7 @@ class POT(Command):  # {{{
 
     def run(self, opts):
         require_git_master()
+        self.get_iso639_strings()
         self.get_website_strings()
         self.get_content_server_strings()
         self.get_user_manual_docs()
