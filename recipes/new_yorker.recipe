@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
-import re
 from collections import defaultdict
 
 from calibre import browser
@@ -32,8 +31,8 @@ def new_tag(soup, name, attrs=()):
 
 class NewYorker(BasicNewsRecipe):
 
-    title = u'New Yorker Magazine'
-    description = u'Content from the New Yorker website'
+    title = 'New Yorker Magazine'
+    description = 'Content from the New Yorker website'
 
     url_list = []
     language = 'en'
@@ -42,30 +41,32 @@ class NewYorker(BasicNewsRecipe):
     timefmt = ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
-                .byline { font-size:xx-small; font-weight: bold;}
-                h3 { margin-bottom: 6px; }
-                .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
-                '''
+        .byline { font-size:xx-small; font-weight: bold;}
+        h3 { margin-bottom: 6px; }
+        .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
+    '''
+
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and 'ArticleHeader__hed___' in x}),
-        dict(attrs={'class': lambda x: x and 'ArticleHeader__dek___' in x}),
-        dict(attrs={'class': lambda x: x and 'Byline__articleHeader___' in x}),
-        dict(attrs={'class': lambda x: x and 'ArticleLedeImage__container___' in x}),
-        dict(itemprop=['headline', 'alternativeHeadline']),
-        dict(name='h1'),
         classes(
-            'featured-image byline-and-date inset-mobile-crop-image hero-image-caption'
+            'split-screen-content-header__dek split-screen-content-header__hed'
+            ' content-header__dek content-header__hed content-header__publish-date content-header__lede-block'
+            ' content-header__rubric--issue-date content-header__lead-asset'
+            ' split-screen-content-header__publish-date split-screen-content-header__lede-block'
+            ' article__body bylines featured-image byline-and-date inset-mobile-crop-image hero-image-caption'
         ),
-        dict(id=['articleBody', 'article-content']),
-        dict(attrs={'class': lambda x: x and 'ArticleDisclaimer__articleDisclaimer___' in x}),
-        dict(attrs={'class': lambda x: x and 'ArticleContributors__bio___' in x}), ]
+    ]
     remove_tags = [
-        classes('content-ad-wrapper social-hover background-image'),
-        dict(id=['newsletter-signup']),
-        dict(attrs={'class': lambda x: x and 'ImageEmbed__button___' in x}),
-        dict(attrs={'class': lambda x: x and 'ArticleLedeImage__button___' in x}),
-        dict(name='links source'.split()), ]
+        classes(
+            'social-icons'
+        ),
+        dict(childtypes='iframe'),
+    ]
     remove_attributes = ['style']
+
+    def preprocess_html(self, soup):
+        for noscript in soup.findAll('noscript'):
+            noscript.name = 'div'
+        return soup
 
     def parse_index(self):
         soup = self.index_to_soup(
@@ -114,39 +115,6 @@ class NewYorker(BasicNewsRecipe):
                 'description': desc})
 
         return [(k, stories[k]) for k in sorted(stories)]
-
-    def preprocess_raw_html(self, html, url):
-        self.featured_image = None
-        m = m = re.search(r'"featured_image".+?,"url":("https[^"]+")', html)
-        if m is not None:
-            self.featured_image = json.loads(m.group(1))
-            self.log('Found featured image in JSON at', url, ':', self.featured_image)
-        return html
-
-    def preprocess_html(self, soup):
-        body = soup.find('body')
-        if not body.find('h1'):
-            title = soup.find('meta', itemprop='name')
-            if title:
-                if self.featured_image:
-                    img = new_tag(soup, 'img')
-                    img['src'] = self.featured_image
-                    div = new_tag(soup, 'div')
-                    div.append(img)
-                    body.insert(0, div)
-                h1 = new_tag(soup, 'h1')
-                h1.append(title.get('content'))
-                body.insert(0, h1)
-        for attr in 'srcset data-src-mobile'.split():
-            for img in soup.findAll('img'):
-                try:
-                    ds = img[attr].split()[0]
-                    del img[attr]
-                except KeyError:
-                    continue
-                if ds:
-                    img['src'] = ds
-        return soup
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
