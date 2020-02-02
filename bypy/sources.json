@@ -81,8 +81,8 @@
     {
         "name": "unrar",
         "unix": {
-            "filename": "unrarsrc-5.7.4.tar.gz",
-            "hash": "sha1:71ef4c898cd777f1c244c455826c5cdaeb85dfd0",
+            "filename": "unrarsrc-5.8.5.tar.gz",
+            "hash": "sha256:a725923a627bc8b3dd670a347b57701e1ad61f5f4e7b789d09244fb4b7f97b29",
             "urls": ["https://www.rarlab.com/rar/{filename}"]
         }
     },
