@@ -703,9 +703,9 @@
         "name": "apsw",
         "python": 2,
         "unix": {
-            "filename": "apsw-3.27.2-r1.zip",
-            "hash": "sha1:1b9fec89a713dc6f0cc8c49219381670e361939e",
-            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.27.2-r1/{filename}"]
+            "filename": "apsw-3.30.1-r1.zip",
+            "hash": "sha256:b7be3dca5f95b88ff2285dbfb61e7449c8cb4214d3d18172ffdb163360c7aa2f",
+            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.30.1-r1/{filename}"]
         }
     },
 
