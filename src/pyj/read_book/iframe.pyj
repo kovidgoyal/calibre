@@ -198,6 +198,7 @@ class IframeBoss:
             self.jump_to_cfi = scroll_to_cfi
             self.anchor_funcs = flow_anchor_funcs
             self.auto_scroll_action = flow_auto_scroll_action
+            paged_auto_scroll_action('stop')
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
@@ -207,6 +208,7 @@ class IframeBoss:
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
             self.auto_scroll_action = paged_auto_scroll_action
+            flow_auto_scroll_action('stop')
         update_settings(data.settings)
         self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
         set_current_spine_item({
