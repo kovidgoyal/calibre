@@ -413,7 +413,7 @@ class Build(Command):
             greaterThan(QT_MAJOR_VERSION, 5)|greaterThan(QT_MINOR_VERSION, 7): {{
                 TEMPLATE = lib
                 CONFIG += plugin
-                QT += theme_support-private fontdatabase_support_private service_support_private eventdispatcher_support_private
+                QT += fontdatabase_support_private service_support_private eventdispatcher_support_private
             }} else {{
                 load(qt_plugin)
                 QT += platformsupport-private
