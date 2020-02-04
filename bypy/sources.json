@@ -99,9 +99,9 @@
     {
         "name": "sqlite",
         "unix": {
-            "filename": "sqlite-autoconf-3280000.tar.gz",
-            "hash": "sha256:d61b5286f062adfce5125eaf544d495300656908e61fca143517afcc0a89b7c3",
-            "urls": ["https://www.sqlite.org/2019/{filename}"]
+            "filename": "sqlite-autoconf-3310100.tar.gz",
+            "hash": "sha1:0c30f5b22152a8166aa3bebb0f4bc1f3e9cc508b",
+            "urls": ["https://www.sqlite.org/2020/{filename}"]
         }
     },
 
