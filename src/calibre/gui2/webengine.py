@@ -149,13 +149,16 @@ class RestartingWebEngineView(QWebEngineView):
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.NormalTerminationStatus:
             return
+        self.webengine_crash_message = 'The Qt WebEngine Render process crashed with termination type: {} and exit code: {}'.format(
+                termination_type, exit_code)
+        prints(self.webengine_crash_message)
         if self._last_reload_at is not None and monotonic() - self._last_reload_at < 2:
             self.render_process_failed.emit()
-            print('The Qt WebEngine Render process crashed too often')
+            prints('The Qt WebEngine Render process crashed too often')
         else:
             self._last_reload_at = monotonic()
             self.render_process_restarted.emit()
-            prints('The Qt WebEngine Render process crashed, restarting it')
+            prints('Restarting Qt WebEngine')
 
 
 if __name__ == '__main__':
