@@ -50,6 +50,21 @@ class BusySpinner(QWidget):  # {{{
 # }}}
 
 
+quote_map= {'"':'"“”', "'": "'‘’"}
+qpat = regex.compile(r'''(['"])''')
+
+
+def text_to_regex(text):
+    ans = []
+    for part in qpat.split(text):
+        r = quote_map.get(part)
+        if r is not None:
+            ans.append('[' + r + ']')
+        else:
+            ans.append(regex.escape(part))
+    return ''.join(ans)
+
+
 class Search(object):
 
     def __init__(self, text, mode, case_sensitive, backwards):
@@ -72,10 +87,10 @@ class Search(object):
                 if self.mode == 'word':
                     words = []
                     for part in expr.split():
-                        words.append(r'\b{}\b'.format(regex.escape(part)))
+                        words.append(r'\b{}\b'.format(text_to_regex(part)))
                     expr = r'\s+'.join(words)
                 else:
-                    expr = regex.escape(expr)
+                    expr = text_to_regex(expr)
             self._regex = regex.compile(expr, flags)
         return self._regex
 
