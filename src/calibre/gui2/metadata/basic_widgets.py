@@ -1360,6 +1360,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
             'or phrases, separated by commas.')
     FIELD_NAME = 'tags'
     data_changed = pyqtSignal()
+    tag_editor_requested = pyqtSignal()
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -1416,6 +1417,13 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
                 id_, self.current_val, notify=False, commit=False,
                 allow_case_change=True)
         return True
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_F2:
+            self.tag_editor_requested.emit()
+            ev.accept()
+            return
+        return EditWithComplete.keyPressEvent(self, ev)
 
 # }}}
 

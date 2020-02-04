@@ -235,6 +235,7 @@ class MetadataSingleDialogBase(QDialog):
         self.tags_editor_button.setToolTip(_('Open Tag editor'))
         self.tags_editor_button.setIcon(QIcon(I('chapters.png')))
         self.tags_editor_button.clicked.connect(self.tags_editor)
+        self.tags.tag_editor_requested.connect(self.tags_editor)
         self.clear_tags_button = QToolButton(self)
         self.clear_tags_button.setToolTip(_('Clear all tags'))
         self.clear_tags_button.setIcon(QIcon(I('trash.png')))
