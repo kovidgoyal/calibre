@@ -67,7 +67,7 @@
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
-#include <QTime>
+#include <QElapsedTimer>
 
 #ifdef Q_WS_QWS
 #include <QScreen>
@@ -367,7 +367,7 @@ public:
   int    singlePressThreshold;
   QPoint firstPress;
   QPoint previousPos;
-  QTime  previousPosTimestamp;
+  QElapsedTimer  previousPosTimestamp;
   int    pixelDistanceMoved;
   int    pixelsToMovePerSlide;
   bool   preserveAspectRatio;
