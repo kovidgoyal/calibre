@@ -42,7 +42,9 @@ public:
     QPlatformWindow *createPlatformWindow(QWindow *window) const;
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
     QAbstractEventDispatcher *createEventDispatcher() const;
-    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const; 
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const;
+	QStringList themeNames() const override;
+	QPlatformTheme *createPlatformTheme(const QString &name) const override;
 
     unsigned options() const { return 0; }
 
@@ -56,4 +58,3 @@ private:
 };
 
 QT_END_NAMESPACE
-

@@ -20,6 +20,7 @@ class QCoreTextFontEngine;
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformwindow.h>
 #include <qpa/qplatformfontdatabase.h>
+#include <qpa/qplatformtheme.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -126,6 +127,37 @@ QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 HeadlessIntegration *HeadlessIntegration::instance()
 {
     return static_cast<HeadlessIntegration *>(QGuiApplicationPrivate::platformIntegration());
+}
+
+static QString themeName() { return QStringLiteral("headless"); }
+
+QStringList HeadlessIntegration::themeNames() const
+{
+    return QStringList(themeName());
+}
+
+// Restrict the styles to "fusion" to prevent native styles requiring native
+// window handles (eg Windows Vista style) from being used.
+class HeadlessTheme : public QPlatformTheme
+{
+public:
+	HeadlessTheme() {}
+
+	QVariant themeHint(ThemeHint h) const override
+	{
+		switch (h) {
+		case StyleNames:
+			return QVariant(QStringList(QStringLiteral("fusion")));
+		default:
+			break;
+		}
+		return QPlatformTheme::themeHint(h);
+	}
+};
+
+QPlatformTheme *HeadlessIntegration::createPlatformTheme(const QString &name) const
+{
+    return name == themeName() ? new HeadlessTheme() : nullptr;
 }
 
 QT_END_NAMESPACE
