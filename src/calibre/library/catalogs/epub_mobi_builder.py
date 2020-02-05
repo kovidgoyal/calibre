@@ -2746,7 +2746,10 @@ class CatalogBuilder(object):
         # Date of publication
         if book['date']:
             pubdate = book['date']
-            pubmonth, pubyear = pubdate.split()
+            try:
+                pubmonth, pubyear = pubdate.split()
+            except Exception:
+                pubmonth = pubyear = ''
         else:
             pubdate = pubyear = pubmonth = ''
 
