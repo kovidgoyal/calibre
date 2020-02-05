@@ -37,6 +37,8 @@ class GenericUnixServices : public QGenericUnixServices {
      * does not make sense anyway.
      */
     QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
+	bool openUrl(const QUrl &url) { Q_UNUSED(url); return false; }
+	bool openDocument(const QUrl &url) { Q_UNUSED(url); return false; }
 };
 #endif
 
