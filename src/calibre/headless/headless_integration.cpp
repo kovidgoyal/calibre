@@ -2,33 +2,18 @@
 #include "headless_integration.h"
 #include "headless_backingstore.h"
 #ifdef __APPLE__
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
 #include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
 class QCoreTextFontEngine;
-#else
-#include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
-#endif
 #include <qpa/qplatformservices.h>
 #include <QtCore/private/qeventdispatcher_unix_p.h>
 #else
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 1))
 #include "fontconfig_database.h"
-#else
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#include <QtFontDatabaseSupport/private/qfontconfigdatabase_p.h>
-#else
-#include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
 #endif
-#endif
-#ifndef Q_OS_WIN
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
-#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
-#else
-#include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
-#endif
-#else
+
+#ifdef Q_OS_WIN
 #include <QtCore/private/qeventdispatcher_win_p.h>
-#endif
+#else
+#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
 #endif
 
 #include <QtGui/private/qpixmap_raster_p.h>
