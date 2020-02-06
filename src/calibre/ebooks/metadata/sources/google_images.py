@@ -23,10 +23,30 @@ def parse_html(raw):
         return parse(raw)
 
 
+def imgurl_from_id(raw, tbnid):
+    from json import JSONDecoder
+    q = '"{}",['.format(tbnid)
+    start_pos = raw.index(q)
+    if start_pos < 100:
+        return
+    jd = JSONDecoder()
+    data = jd.raw_decode('[' + raw[start_pos:])[0]
+    # from pprint import pprint
+    # pprint(data)
+    url_num = 0
+    for x in data:
+        if isinstance(x, list) and len(x) == 3:
+            q = x[0]
+            if hasattr(q, 'lower') and q.lower().startswith('http'):
+                url_num += 1
+                if url_num > 1:
+                    return q
+
+
 class GoogleImages(Source):
 
     name = 'Google Images'
-    version = (1, 0, 1)
+    version = (1, 0, 2)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
@@ -68,7 +88,6 @@ class GoogleImages(Source):
             from urllib.parse import urlencode
         except ImportError:
             from urllib import urlencode
-        import json
         from collections import OrderedDict
         ans = OrderedDict()
         br = self.browser
@@ -88,13 +107,16 @@ class GoogleImages(Source):
         log('Search URL: ' + url)
         raw = clean_ascii_chars(br.open(url).read().decode('utf-8'))
         root = parse_html(raw)
-        for div in root.xpath('//div[@class="rg_meta notranslate"]'):
+        results = root.xpath('//div/@data-tbnid')  # could also use data-id
+        # from calibre.utils.ipython import ipython
+        # ipython({'root': root, 'raw': raw, 'url': url, 'results': results})
+        for tbnid in results:
             try:
-                data = json.loads(div.text)
+                imgurl = imgurl_from_id(raw, tbnid)
             except Exception:
                 continue
-            if 'ou' in data:
-                ans[data['ou']] = True
+            if imgurl:
+                ans[imgurl] = True
         return list(ans)
 
 
