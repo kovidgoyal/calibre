@@ -1771,7 +1771,10 @@ class DeviceMixin(object):  # {{{
         string_pat = re.compile(r'(?u)\W|[_]')
 
         def clean_string(x):
-            x = x.lower() if x else ''
+            try:
+                x = x.lower() if x else ''
+            except Exception:
+                x = ''
             return string_pat.sub('', x)
 
         update_metadata = (
