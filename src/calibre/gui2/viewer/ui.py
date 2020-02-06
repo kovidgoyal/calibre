@@ -250,6 +250,8 @@ class EbookViewer(MainWindow):
 
     def show_search(self):
         self.search_dock.setVisible(True)
+        self.search_dock.activateWindow()
+        self.search_dock.raise_()
         self.search_widget.focus_input()
 
     def start_search(self, search_query):
