@@ -175,6 +175,12 @@ class AddEmptyBookDialog(QDialog):
         return self.title_edit.text().strip()
 
 
+class AddFromArchive(QDialog):
+
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+
+
 if __name__ == '__main__':
     from calibre.library import db
     db = db()
