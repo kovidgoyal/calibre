@@ -136,6 +136,7 @@ class TextRun(object):
 class Block(object):
 
     def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False, parent_bg=None):
+        self.force_not_empty = False
         self.namespace = namespace
         self.bookmarks = set()
         self.list_tag = (html_block, style) if is_list_item else None
@@ -242,6 +243,8 @@ class Block(object):
     __str__ = __repr__
 
     def is_empty(self):
+        if self.force_not_empty:
+            return False
         for run in self.runs:
             if not run.is_empty():
                 return False
@@ -571,8 +574,11 @@ class Convert(object):
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
-            if html_tag.text:
-                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
+            text = html_tag.text
+            if text:
+                block.add_text(text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
+            elif tagname == 'li' and len(html_tag) and barename(html_tag[0].tag) in ('ul', 'ol') and len(html_tag[0]):
+                block.force_not_empty = True
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
         anchor = html_tag.get('id') or html_tag.get('name') or None
