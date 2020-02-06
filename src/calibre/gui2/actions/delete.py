@@ -128,6 +128,7 @@ class DeleteAction(InterfaceAction):
         m('delete-except',
                 _('Remove all formats from selected books, except...'),
                 triggered=self.delete_all_but_selected_formats)
+        self.delete_menu.addSeparator()
         m('delete-all',
                 _('Remove all formats from selected books'),
                 triggered=self.delete_all_formats)
