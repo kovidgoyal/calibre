@@ -21,7 +21,7 @@
 #     - title:
 
 - version: 4.10.0
-  date: 2020-01-07
+  date: 2020-02-07
 
   new features:
     - title: "Viewer: When searching have single and double quotes match their curly variants as well."
