@@ -48,7 +48,7 @@
 
     - title: "Check Book: Turn off unique headings CSS warning"
 
-    - title: "DOCX Output: When a list item contains a nested listed but no text, it should be output as an empty list item."
+    - title: "DOCX Output: When a list item contains a nested list but no text, it should be output as an empty list item."
 
 
   improved recipes:
