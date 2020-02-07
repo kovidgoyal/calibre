@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title:
 
+- version: 4.10.0
+  date: 2020-01-07
+
+  new features:
+    - title: "Viewer: When searching have single and double quotes match their curly variants as well."
+      tickets: [1861715]
+
+  bug fixes:
+    - title: "Fix a regression that caused the edit metadata individually and convert individually actions to use the bulk actions when multiple books are selected."
+
+    - title: "Linux: Fix a crash caused by broken/incompatible CUPS Qt system plugin."
+      tickets: [1861741]
+
+    - title: "Viewer: Fix search shortcut button not focusing search input if the search panel is placed in a tab or a floating window"
+
+    - title: "Update Google Images cover download plugin for website markup changes"
+      tickets: [1862034]
+
+    - title: "Catalog generation: Ignore invalid pubdates"
+
+    - title: "Viewer: Stop autoscroll when changing page layout mode."
+      tickets: [1861621]
+
+    - title: "zipfile: Fix regression that broke handling of zipfiles with internal filenames not encoded in UTF-8."
+      tickets: [1860889]
+
+    - title: "Check Book: Turn off unique headings CSS warning"
+
+    - title: "DOCX Output: When a list item contains a nested listed but no text, it should be output as an empty list item."
+
+
+  improved recipes:
+    - The New Yorker
+    - Financiele Dagblad
+
+
 - version: 4.9.1
   date: 2020-01-23
 
