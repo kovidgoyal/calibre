@@ -1069,8 +1069,10 @@ class Application(QApplication):
         self.ignore_palette_changes = True
         self.setPalette(pal)
         # Needed otherwise Qt does not emit the paletteChanged signal when
-        # appearance is changed.
-        self.setAttribute(Qt.AA_SetPalette, False)
+        # appearance is changed. And it has to be after current event
+        # processing finishes as of Qt 5.14 otherwise the palette change is
+        # ignored.
+        QTimer.singleShot(1000, lambda: QApplication.instance().setAttribute(Qt.AA_SetPalette, False))
         self.ignore_palette_changes = False
 
     def on_palette_change(self):
