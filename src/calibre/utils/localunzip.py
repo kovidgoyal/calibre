@@ -264,14 +264,16 @@ class LocalZipFile(object):
         _extractall(stream, file_info=self.file_info)
         self.stream = stream
 
+    def _get_file_info(self, name):
+        fi = self.file_info.get(name)
+        if fi is None:
+            raise ValueError('This ZIP container has no file named: %s'%name)
+        return fi
+
     def open(self, name, spool_size=5*1024*1024):
         if isinstance(name, LocalHeader):
             name = name.filename
-        try:
-            offset, header = self.file_info.get(name)
-        except KeyError:
-            raise ValueError('This ZIP container has no file named: %s'%name)
-
+        offset, header = self._get_file_info(name)
         self.stream.seek(offset)
         dest = SpooledTemporaryFile(max_size=spool_size)
 
@@ -283,10 +285,7 @@ class LocalZipFile(object):
         return dest
 
     def getinfo(self, name):
-        try:
-            offset, header = self.file_info.get(name)
-        except KeyError:
-            raise ValueError('This ZIP container has no file named: %s'%name)
+        offset, header = self._get_file_info(name)
         return header
 
     def read(self, name, spool_size=5*1024*1024):
