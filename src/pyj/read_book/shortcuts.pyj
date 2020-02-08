@@ -234,6 +234,12 @@ def shortcuts_definition():
         _('Toggle the Reference mode')
     ),
 
+    'metadata': desc(
+        'Ctrl+n',
+        'ui',
+        _('Show the book metadata')
+    ),
+
     'reload_book': desc(
         v"['F5', 'Ctrl+r']",
         'ui',
