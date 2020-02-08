@@ -337,7 +337,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     tags can used, but calibre does not provide the ability to add the image during conversion, this must be done after the fact using
     the 'Edit book' feature.
 
-        Example image tag (place the image within an 'Images' folder inside the epub after conversion):
+        Example image tag (place the image within an 'Images' folder inside the EPUB after conversion):
             <img style="width:10%" src="../Images/scenebreak.png" />
 
         Example horizontal rule with styles:
