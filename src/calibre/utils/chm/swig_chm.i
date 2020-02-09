@@ -55,25 +55,25 @@ int dummy_enumerator (struct chmFile *h,
 
     py_h  = SWIG_NewPointerObj((void *) h, SWIGTYPE_p_chmFile, 0);
     py_ui = SWIG_NewPointerObj((void *) ui, SWIGTYPE_p_chmUnitInfo, 0);
-    py_c  = PyCObject_AsVoidPtr(context);
+    py_c  = PyCapsule_GetPointer(context, NULL);
 
     /* Time to call the callback */
     arglist = Py_BuildValue("(OOO)", py_h, py_ui, py_c);
     if (arglist) {
-      result = PyEval_CallObject(my_callback, arglist);
-      Py_DECREF(arglist);
-      Py_DECREF(result);
-      
-      Py_DECREF(py_h);
-      Py_DECREF(py_ui);
-      
-      if (result == NULL) {
-        return 0; /* Pass error back */
-      } else {
+        result = PyEval_CallObject(my_callback, arglist);
+        Py_DECREF(arglist);
+        
+        Py_DECREF(py_h);
+        Py_DECREF(py_ui);
+        
+        if (result == NULL) {
+            PyErr_Print();
+            return 0; /* Pass error back */
+        }
+        Py_DECREF(result);
         return 1;
-      }
-    } else
-      return 0;
+    }
+    return 0;
  }
 %}
 
@@ -83,7 +83,7 @@ int dummy_enumerator (struct chmFile *h,
 }
 
 %typemap(in) void *context {
-  if (!($1 = PyCObject_FromVoidPtr($input, NULL))) goto fail;
+  if (!($1 = PyCapsule_New($input, NULL, NULL))) goto fail;
 }
 
 %typemap(in, numinputs=0) struct chmUnitInfo *OutValue (struct chmUnitInfo *temp = (struct chmUnitInfo *) calloc(1, sizeof(struct chmUnitInfo))) {
@@ -122,7 +122,7 @@ int dummy_enumerator (struct chmFile *h,
 
 %typemap(argout,fragment="t_output_helper") unsigned char *OUTPUT {
    PyObject *o;
-   o = PyString_FromStringAndSize($1, arg5);
+   o = PyBytes_FromStringAndSize((const char*)$1, arg5);
    $result = t_output_helper($result,o);
 #ifdef __cplusplus
    delete [] $1;

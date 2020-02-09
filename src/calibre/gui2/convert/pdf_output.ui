@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>638</width>
-    <height>634</height>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QComboBox" name="opt_paper_size"/>
+    <widget class="PaperSizes" name="opt_paper_size"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
@@ -210,14 +210,14 @@
    <item row="16" column="1">
     <widget class="QLineEdit" name="opt_pdf_page_number_map"/>
    </item>
-   <item row="17" column="0" colspan="2">
+   <item row="18" column="0" colspan="2">
     <widget class="QGroupBox" name="page_margins_box">
      <property name="title">
       <string>Page  margins</string>
      </property>
     </widget>
    </item>
-   <item row="18" column="0" colspan="2">
+   <item row="19" column="0" colspan="2">
     <widget class="QGroupBox" name="template_box">
      <property name="title">
       <string>Page headers and footers</string>
@@ -272,8 +272,41 @@
      </property>
     </widget>
    </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Odd/even &amp;offset:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_pdf_odd_even_offset</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QDoubleSpinBox" name="opt_pdf_odd_even_offset">
+     <property name="suffix">
+      <string> pt</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>-100000.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>100000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PaperSizes</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

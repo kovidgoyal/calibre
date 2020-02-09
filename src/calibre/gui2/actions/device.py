@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
+from polyglot.builtins import unicode_type
 
 
 class ShareConnMenu(QMenu):  # {{{
@@ -22,7 +24,7 @@ class ShareConnMenu(QMenu):  # {{{
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     server_state_changed_signal = pyqtSignal(object, object)
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
 
     DEVICE_MSGS = [_('Start wireless device connection'),
             _('Stop wireless device connection')]
@@ -54,7 +56,7 @@ class ShareConnMenu(QMenu):  # {{{
             gr = ConnectShareAction.action_spec[0]
             for attr in ('folder', ):
                 ac = getattr(self, 'connect_to_%s_action'%attr)
-                r(prefix + attr, unicode(ac.text()), action=ac,
+                r(prefix + attr, unicode_type(ac.text()), action=ac,
                         group=gr)
             r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
@@ -66,11 +68,12 @@ class ShareConnMenu(QMenu):  # {{{
             from calibre.srv.opts import server_config
             opts = server_config()
             listen_on = verify_ipV4_address(opts.listen_on) or get_external_ip()
+            protocol = 'HTTPS' if opts.ssl_certfile and opts.ssl_keyfile else 'HTTP'
             try:
-                ip_text = _(' [%(ip)s, port %(port)d]')%dict(
-                    ip=listen_on, port=opts.port)
+                ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(
+                        ip=listen_on, port=opts.port, protocol=protocol)
             except Exception:
-                ip_text = ' [%s]'%listen_on
+                ip_text = ' [{} {}]'.format(listen_on, protocol)
             self.ip_text = ip_text
             self.server_state_changed_signal.emit(running, ip_text)
             text = _('Stop Content server') + ip_text
@@ -110,7 +113,8 @@ class ShareConnMenu(QMenu):  # {{{
                         (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
-                map(self.memory.append, (action1, action2))
+                self.memory.append(action1)
+                self.memory.append(action2)
                 if default:
                     ac = DeviceAction(dest, False, False,
                             I('mail.png'), _('Email to') + ' ' +(alias or
@@ -126,12 +130,14 @@ class ShareConnMenu(QMenu):  # {{{
                     _('Select recipients') + ' ' + _('(delete from library)'))
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
-            map(self.memory.append, (action1, action2))
+            self.memory.append(action1)
+            self.memory.append(action2)
             tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
                     _('Email to selected recipients...'))
             self.addAction(tac1)
             tac1.a_s.connect(sync_menu.action_triggered)
-            self.memory.append(tac1), self.email_actions.append(tac1)
+            self.memory.append(tac1)
+            self.email_actions.append(tac1)
             ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
             action1.a_s.connect(sync_menu.action_triggered)
@@ -154,7 +160,7 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)

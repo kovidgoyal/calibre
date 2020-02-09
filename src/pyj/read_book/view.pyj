@@ -7,33 +7,46 @@ from gettext import gettext as _
 
 import read_book.iframe  # noqa
 from ajax import ajax_send
-from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
-from book_list.router import push_state, read_book_mode
-from book_list.theme import get_color
+from book_list.theme import cached_color_to_rgba, get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
-from read_book.globals import current_book, set_current_spine_item
+from read_book.globals import (
+    current_book, runtime, set_current_spine_item, ui_operations
+)
 from read_book.goto import get_next_section
+from read_book.open_book import add_book_to_recently_viewed
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.prefs.head_foot import render_head_foot
+from read_book.prefs.scrolling import (
+    MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
+)
 from read_book.resources import load_resources
+from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
+from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
-from utils import html_escape, is_ios, parse_url_params, username_key
+from utils import (
+    html_escape, is_ios, parse_url_params, safe_set_inner_html, username_key
+)
+from viewer.constants import READER_BACKGROUND_URL
 
 add_extra_css(def():
     sel = '.book-side-margin'
-    ans = build_rule(sel, cursor='pointer', color='rgba(0, 0, 0, 0)', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
-    ans += build_rule(sel + ':hover', background_color=get_color('window-background') + ' !important', color=get_color('window-foreground') + ' !important')
-    ans += build_rule(sel + ':active > svg', color=get_color('window-hover-foreground'), transform='scale(2)')
+    ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
+    ans += build_rule(sel + ' > .arrow', display='none')
+    ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
+    ans += build_rule(sel + ':hover > .not-arrow', display='none')
+    ans += build_rule(sel + ':active > .not-arrow', display='none')
+    ans += build_rule(sel + ':hover > .arrow', display='block')
+    ans += build_rule(sel + ':active > .arrow', color=get_color('window-hover-foreground'), display='block', transform='scale(2)')
     return ans
 )
 
@@ -43,13 +56,54 @@ add_extra_css(def():
 def show_controls_help():
     container = document.getElementById('controls-help-overlay')
     container.style.display = 'block'
+    container.style.backgroundColor = get_color('window-background')
     if not show_controls_help.listener_added:
         show_controls_help.listener_added = True
         container.addEventListener('click', def():
-                document.getElementById('controls-help-overlay').style.display = 'none'
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
         )
+        container.addEventListener('contextmenu', def(evt):
+            evt.preventDefault(), evt.stopPropagation()
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
+        , {'passive': False})
+        container.addEventListener('keydown', def(event):
+            event.preventDefault(), event.stopPropagation()
+            document.getElementById('controls-help-overlay').style.display = 'none'
+            ui_operations.focus_iframe()
+        , {'passive': False})
+
+    def focus():
+        if container.style.display is 'block':
+            container.querySelector('input').focus()
+            window.setTimeout(focus, 10)
+
+    if runtime.is_standalone_viewer:
+        container.appendChild(E.div(
+            style='margin: 1rem',
+            E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+            E.div(style='margin-top: 1rem'),
+            E.input(style='background: transparent; border-width: 0; outline: none', readonly='readonly'),
+        ))
+        div = container.lastChild.firstChild
+        safe_set_inner_html(div, _('Welcome to the <b>calibre viewer</b>!'))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Use the <b>PageUp/PageDn</b> or <b>Arrow keys</b> to turn pages'))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Press the <b>Esc</b> key or <b>{}</b> or <b>tap on the top third</b> of the text area to show the viewer controls').format(
+            _('control+click') if 'macos' in window.navigator.userAgent else _('right click')
+        ))
+        div = div.nextSibling
+        safe_set_inner_html(div, _('Press any key to continue…'))
+        focus()
+        return
+
     def msg(txt):
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
+
     container.appendChild(E.div(
         style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
                 'display:flex; flex-direction: column; align-items: stretch',
@@ -71,29 +125,9 @@ def show_controls_help():
     ))
 
 
-def show_metadata_overlay(mi):
-    container = document.getElementById('book-metadata-overlay')
-    clear(container)
-    container.style.display = 'block'
-    container.style.backgroundColor = get_color('window-background')
-    container.appendChild(E.div(
-        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between;',
-            E.h2(mi.title),
-            E.div(svgicon('close'), style='cursor:pointer', class_='simple-link', onclick=def(event):
-                  event.preventDefault()
-                  event.stopPropagation()
-                  document.getElementById('book-metadata-overlay').style.display = 'none'
-            )
-        )
-    )
-    container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
-    table = E.table(class_='metadata')
-    container.lastChild.appendChild(table)
-    render_metadata(mi, table)
-
 # }}}
 
-def margin_elem(sd, which, id, onclick):
+def margin_elem(sd, which, id, onclick, oncontextmenu):
     sz = sd.get(which, 20)
     fsz = min(max(0, sz - 6), 12)
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
@@ -104,6 +138,8 @@ def margin_elem(sd, which, id, onclick):
     )
     if onclick:
         ans.addEventListener('click', onclick)
+    if oncontextmenu:
+        ans.addEventListener('contextmenu', oncontextmenu)
     if is_ios and which is 'margin_bottom' and not window.navigator.standalone and not /CriOS\//.test(window.navigator.userAgent):
         # On iOS Safari 100vh includes the size of the navbar and there is no way to
         # go fullscreen, so to make the bottom bar visible we add a margin to
@@ -113,89 +149,178 @@ def margin_elem(sd, which, id, onclick):
     return ans
 
 
+def side_margin_elem(self, sd, which):
+    ans = E.div(
+        E.div(class_='arrow', style='order: 3', svgicon(f'caret-{which}', '100%', '100%')),
+        E.div(style='order:1'), E.div(style='order:2', class_='not-arrow'), E.div(style='order:4'),
+
+        style='width:{}px;'.format(sd.get(f'margin_{which}', 20)),
+        class_='book-side-margin', id=f'book-{which}-margin',
+        onclick=self.side_margin_clicked.bind(None, which),
+        oncontextmenu=self.margin_context_menu.bind(None, which),
+        onwheel=self.on_margin_wheel.bind(None, which)
+    )
+    return ans
+
+
 class View:
 
-    def __init__(self, container, ui):
-        self.ui = ui
+    def __init__(self, container):
         self.timers = Timers()
+        self.reference_mode_enabled = False
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
-        self.clock_timer_id = 0
+        self.report_cfi_callbacks = {}
+        self.show_chrome_counter = 0
+        self.show_loading_callback_timer = None
+        self.timer_ids = {'clock': 0}
+        self.book_scrollbar = BookScrollbar(self)
         sd = get_session_data()
-        left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
+        self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
+        if ui_operations.export_shortcut_map:
+            ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
+        left_margin = side_margin_elem(self, sd, 'left')
         set_left_margin_handler(left_margin)
-        right_margin = E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked)
+        right_margin = side_margin_elem(self, sd, 'right')
         set_right_margin_handler(right_margin)
         iframe_id = unique_id('read-book-iframe')
+        sandbox = 'allow-popups allow-scripts allow-popups-to-escape-sandbox'
+        if runtime.is_standalone_viewer:
+            sandbox += '  allow-same-origin'
         container.appendChild(
             E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                   E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked),
-                            E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2', allowfullscreen='true'),
-                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin'),
+                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
+                            E.iframe(id=iframe_id, seamless=True, sandbox=sandbox, style='flex-grow: 2', allowfullscreen='true'),
+                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
                         ),
                         right_margin,
+                        self.book_scrollbar.create(),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; min-height: 100%; display:none', id='book-metadata-overlay'),  # book metadata overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
-                )
-            )
+                ),
+                E.div(
+                    style=f'color: {get_color("window-foreground")}; background: {get_color("window-background")};' +
+                    'position: absolute; display: none; left: 0; top: 0; padding: 0.5ex; border: solid 2px; z-index: 3000',
+                    id='reference-mode-overlay'
+                ),
+            ),
         )
         handlers = {
-            'ready': self.on_iframe_ready,
-            'error': self.on_iframe_error,
-            'next_spine_item': self.on_next_spine_item,
-            'next_section': self.on_next_section,
-            'lookup_word': self.on_lookup_word,
-            'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
-            'scroll_to_anchor': self.on_scroll_to_anchor,
-            'update_cfi': self.on_update_cfi,
-            'update_toc_position': self.on_update_toc_position,
-            'content_loaded': self.on_content_loaded,
-            'show_chrome': self.show_chrome,
+            'autoscroll_state_changed': def(data):
+                self.autoscroll_active = v'!!data.running'
+                if ui_operations.autoscroll_state_changed:
+                    ui_operations.autoscroll_state_changed(self.autoscroll_active)
+            ,
             'bump_font_size': self.bump_font_size,
+            'content_loaded': self.on_content_loaded,
+            'error': self.on_iframe_error,
             'find_in_spine': self.on_find_in_spine,
-            'request_size': self.on_request_size,
-            'show_footnote': self.on_show_footnote,
-            'print': self.on_print,
+            'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
+            'handle_keypress': self.on_handle_keypress,
+            'handle_shortcut': self.on_handle_shortcut,
             'human_scroll': self.on_human_scroll,
+            'lookup_word': self.on_lookup_word,
+            'next_section': self.on_next_section,
+            'next_spine_item': self.on_next_spine_item,
+            'print': self.on_print,
+            'ready': self.on_iframe_ready,
+            'reference_item_changed': self.on_reference_item_changed,
+            'report_cfi': self.on_report_cfi,
+            'request_size': self.on_request_size,
+            'scroll_to_anchor': self.on_scroll_to_anchor,
+            'selectionchange': self.on_selection_change,
+            'show_chrome': self.show_chrome,
+            'show_footnote': self.on_show_footnote,
+            'update_cfi': self.on_update_cfi,
+            'update_progress_frac': self.on_update_progress_frac,
+            'update_toc_position': self.on_update_toc_position,
+            'search_result_not_found': def (data): if ui_operations.search_result_not_found:
+                ui_operations.search_result_not_found(data.search_result)
+            ,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, document.getElementById(iframe_id), 'read_book.iframe', _('Bootstrapping book reader...'))
+        entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
+        if runtime.is_standalone_viewer:
+            document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
+        self.current_color_scheme = resolve_color_scheme()
+        self.iframe_wrapper = IframeWrapper(
+            handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'),
+            f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__index__')
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {}
+        self.book_scrollbar.apply_visibility()
 
     @property
     def iframe(self):
         return self.iframe_wrapper.iframe
 
+    @property
+    def reference_mode_overlay(self):
+        return document.getElementById('reference-mode-overlay')
+
     def on_lookup_word(self, data):
+        if runtime.is_standalone_viewer:
+            ui_operations.selection_changed(data.word)
+            return
         self.overlay.show_word_actions(data.word)
 
     def left_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
-            self.iframe_wrapper.send_message('next_screen', backwards=True)
+            sd = get_session_data()
+            self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+        elif event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
+        self.focus_iframe()
 
     def right_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
-            self.iframe_wrapper.send_message('next_screen', backwards=False)
+            sd = get_session_data()
+            self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+        elif event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
+        self.focus_iframe()
+
+    def side_margin_clicked(self, which, event):
+        self.left_margin_clicked(event) if which is 'left' else self.right_margin_clicked(event)
 
     def top_margin_clicked(self, event):
-        if event.button is 0:
+        if event.button is 0 or event.button is 2:
             event.preventDefault(), event.stopPropagation()
             self.show_chrome()
+        else:
+            self.focus_iframe()
+
+    def bottom_margin_clicked(self, event):
+        if event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
+        self.focus_iframe()
+
+    def margin_context_menu(self, which, event):
+        event.preventDefault(), event.stopPropagation()
+        self.show_chrome()
+
+    def on_margin_wheel(self, which, event):
+        event.preventDefault()
+        evt = {}
+        for attr in ('deltaX', 'deltaY', 'deltaMode', 'altKey', 'ctrlKey', 'shiftKey', 'metaKey'):
+            evt[attr] = event[attr]
+        self.iframe_wrapper.send_message('wheel_from_margin', evt=evt)
 
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
@@ -227,25 +352,148 @@ class View:
                 amt_scrolled = data.scrolled_by_frac * length
                 self.timers.on_human_scroll(amt_scrolled)
 
+    def on_handle_keypress(self, data):
+        self.handle_keypress(data.evt)
+
+    def handle_keypress(self, evt):
+        if self.overlay.is_visible and evt.key is 'Escape':
+            if self.overlay.handle_escape():
+                if evt.preventDefault:
+                    evt.preventDefault(), evt.stopPropagation()
+
+    def overlay_visibility_changed(self, visible):
+        if self.iframe_wrapper.send_message:
+            self.iframe_wrapper.send_message('overlay_visibility_changed', visible=visible)
+        if ui_operations.overlay_visibility_changed:
+            ui_operations.overlay_visibility_changed(visible)
+
+    def on_handle_shortcut(self, data):
+        if data.name is 'back':
+            window.history.back()
+        elif data.name is 'forward':
+            window.history.forward()
+        elif data.name is 'show_chrome':
+            self.show_chrome()
+        elif data.name is 'toggle_toc':
+            ui_operations.toggle_toc()
+        elif data.name is 'toggle_bookmarks':
+            ui_operations.toggle_bookmarks()
+        elif data.name is 'toggle_inspector':
+            ui_operations.toggle_inspector()
+        elif data.name is 'toggle_lookup':
+            ui_operations.toggle_lookup()
+        elif data.name is 'toggle_full_screen':
+            ui_operations.toggle_full_screen()
+        elif data.name is 'toggle_paged_mode':
+            self.toggle_paged_mode()
+        elif data.name is 'toggle_toolbar':
+            self.toggle_toolbar()
+        elif data.name is 'quit':
+            ui_operations.quit()
+        elif data.name is 'start_search':
+            self.show_search()
+        elif data.name is 'next_match':
+            self.search_overlay.find_next()
+        elif data.name is 'previous_match':
+            self.search_overlay.find_previous()
+        elif data.name is 'increase_font_size':
+            self.bump_font_size({'increase': True})
+        elif data.name is 'decrease_font_size':
+            self.bump_font_size({'increase': False})
+        elif data.name is 'toggle_full_screen':
+            ui_operations.toggle_full_screen()
+        elif data.name is 'toggle_reference_mode':
+            self.toggle_reference_mode()
+        elif data.name is 'reload_book':
+            ui_operations.reload_book()
+        elif data.name is 'search_for_selection':
+            if self.currently_showing.selected_text:
+                self.search_overlay.set_text(self.currently_showing.selected_text)
+                self.search_overlay.find_next()
+        elif data.name is 'next_section':
+            self.on_next_section({'forward': True})
+        elif data.name is 'previous_section':
+            self.on_next_section({'forward': False})
+        elif data.name is 'open_book':
+            self.overlay.open_book()
+        elif data.name is 'next':
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=False, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+        elif data.name is 'previous':
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=True, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+        elif data.name is 'print':
+            ui_operations.print_book()
+        elif data.name is 'preferences':
+            self.overlay.show_prefs()
+        elif data.name is 'metadata':
+            self.overlay.show_metadata()
+        elif data.name is 'goto_location':
+            self.overlay.show_ask_for_location()
+        elif data.name is 'shrink_selection_by_word':
+            self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='word')
+        elif data.name is 'extend_selection_by_word':
+            self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='word')
+        elif data.name is 'scrollspeed_increase':
+            self.update_scroll_speed(SCROLL_SPEED_STEP)
+        elif data.name is 'scrollspeed_decrease':
+            self.update_scroll_speed(-SCROLL_SPEED_STEP)
+        elif data.name is 'toggle_autoscroll':
+            self.toggle_autoscroll()
+        elif data.name.startsWith('switch_color_scheme:'):
+            self.switch_color_scheme(data.name.partition(':')[-1])
+
+    def on_selection_change(self, data):
+        self.currently_showing.selected_text = data.text
+        if ui_operations.selection_changed:
+            ui_operations.selection_changed(data.text)
+
+    def switch_color_scheme(self, name):
+        get_session_data().set('current_color_scheme', name)
+        ui_operations.redisplay_book()
+
+    def toggle_paged_mode(self):
+        sd = get_session_data()
+        mode = sd.get('read_mode')
+        new_mode = 'flow' if mode is 'paged' else 'paged'
+        sd.set('read_mode', new_mode)
+        ui_operations.redisplay_book()
+
+    def toggle_autoscroll(self):
+        self.iframe_wrapper.send_message('toggle_autoscroll')
+
+    def toggle_toolbar(self):
+        sd = get_session_data()
+        misc = sd.get('standalone_misc_settings')
+        misc.show_actions_toolbar = v'!misc.show_actions_toolbar'
+        sd.set('standalone_misc_settings', misc)
+
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
 
     def on_find_in_spine(self, data):
         if data.searched_in_spine:
-            warning_dialog(_('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)))
+            warning_dialog(
+                _('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)),
+                on_close=def():
+                    self.search_overlay.show()
+            )
             return
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)
         if idx < 0:
             error_dialog(_('Missing file'), _(
-                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name))
+                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name),
+                on_close=def():
+                    self.search_overlay.show()
+            )
             return
         names = v'[]'
         item_groups = [range(idx-1, -1, -1), range(spine.length-1, idx, -1)] if data.backwards else [range(idx + 1, spine.length), range(idx)]
         for items in item_groups:
             for i in items:
                 names.push(spine[i])
-        find_in_spine(names, self.book, self.ui.db, data.text, def(found_in):
+        find_in_spine(names, self.book, data.text, def(found_in):
             if found_in:
                 self.show_name(found_in, initial_position={'type':'search', 'search_data':data, 'replace_history':True})
             else:
@@ -264,14 +512,30 @@ class View:
         self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
+        self.reference_mode_overlay.style.display = 'none'
+        self.focus_iframe()
 
-    def show_chrome(self):
+    def focus_iframe(self):
+        self.iframe.contentWindow.focus()
+
+    def show_chrome(self, data):
+        self.show_chrome_counter += 1
+        elements = {}
+        if data and data.elements:
+            elements = data.elements
+        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements))
+
+    def do_show_chrome(self, elements, request_id, cfi_data):
         self.hide_overlays()
-        self.overlay.show()
+        self.update_cfi_data(cfi_data)
+        self.overlay.show(elements)
 
     def show_search(self):
         self.hide_overlays()
-        self.search_overlay.show()
+        if runtime.is_standalone_viewer:
+            ui_operations.show_search()
+        else:
+            self.search_overlay.show()
 
     def show_content_popup(self):
         self.hide_overlays()
@@ -303,12 +567,14 @@ class View:
             if which is 'left':
                 # Explicitly set the width of the central panel. This is needed
                 # on small screens with chrome, without it sometimes the right
-                # margin goes off the screen.
-                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(margin_left + margin_right)
+                # margin/scrollbar goes off the screen.
+                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(
+                    margin_left + margin_right + self.book_scrollbar.effective_width)
             set_css(m, width=val + 'px')
-            val = min(val, 75)
-            m.firstChild.style.width = val + 'px'
-            m.firstChild.style.height = val + 'px'
+            val = min(val, 25)
+            s = m.querySelector('.arrow').style
+            s.width = val + 'px'
+            s.height = val + 'px'
         side_margin('left', margin_left), side_margin('right', margin_right)
 
     def on_iframe_ready(self, data):
@@ -322,19 +588,49 @@ class View:
             self.show_spine_item_stage2(data)
 
     def on_iframe_error(self, data):
-        self.ui.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
+        title = data.title or _('There was an error processing the book')
+        if data.is_non_critical:
+            warning_dialog(title, data.msg, data.details, on_close=ui_operations.focus_iframe)
+            return
+        ui_operations.show_error(title, data.msg, data.details)
 
-    def get_color_scheme(self, apply_to_margins):
+    def apply_color_scheme(self):
         ans = resolve_color_scheme()
-        if apply_to_margins:
-            for which in 'left top right bottom'.split(' '):
-                m = document.getElementById('book-{}-margin'.format(which))
-                s = m.style
-                if which is 'top' or which is 'bottom':
-                    s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
+        self.current_color_scheme = ans
+        for which in 'left top right bottom'.split(' '):
+            m = document.getElementById('book-{}-margin'.format(which))
+            s = m.style
+            mc = ans[f'margin_{which}']
+            if mc:
+                s.backgroundColor, s.color = mc.split(':')
+            else:
+                s.color = ans.foreground
                 s.backgroundColor = ans.background
-            m.parentNode.style.backgroundColor = ans.background  # this is needed on iOS where the bottom margin has its own margin, so we dont want the body background color to bleed through
-            self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
+        sd = get_session_data()
+        iframe = self.iframe
+        iframe.style.backgroundColor = ans.background or 'white'
+        bg_image = sd.get('background_image')
+        if bg_image:
+            iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
+        else:
+            iframe.style.backgroundImage = 'none'
+        if sd.get('background_image_style') is 'scaled':
+            iframe.style.backgroundSize = '100% 100%'
+            iframe.style.backgroundRepeat = 'no-repeat'
+            iframe.style.backgroundAttachment = 'scroll'
+            iframe.style.backgroundPosition = 'center'
+        else:
+            iframe.style.backgroundSize = 'auto'
+            iframe.style.backgroundRepeat = 'repeat'
+            iframe.style.backgroundAttachment = 'scroll'
+            iframe.style.backgroundPosition = '0 0'
+
+        self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
+        self.book_scrollbar.apply_color_scheme(ans)
+        # this is needed on iOS where the bottom margin has its own margin,
+        # so we dont want the body background color to bleed through
+        iframe.parentNode.style.backgroundColor = ans.background
+        iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
@@ -343,14 +639,22 @@ class View:
             if sd.get('max_text_width') or sd.get('max_text_height'):
                 self.set_margins()
 
+    def show_loading_message(self, msg):
+        self.overlay.show_loading_message(msg)
+
     def show_loading(self):
-        title = self.book.metadata.title
-        name = self.currently_showing.name
-        self.overlay.show_loading_message(_(
-            'Loading <i>{name}</i> from <i>{title}</i>, please wait...').format(name=name, title=title))
+        msg = _('Loading next section from <i>{title}</i>, please wait…').format(title=self.book.metadata.title or _('Unknown'))
+        if self.show_loading_callback_timer is not None:
+            clearTimeout(self.show_loading_callback_timer)
+        self.show_loading_callback_timer = setTimeout(self.show_loading_message.bind(None, msg), 200)
 
     def hide_loading(self):
+        if self.show_loading_callback_timer is not None:
+            clearTimeout(self.show_loading_callback_timer)
+            self.show_loading_callback_timer = None
+        self.iframe.style.visibility = 'visible'
         self.overlay.hide_loading_message()
+        self.focus_iframe()
 
     def parse_cfi(self, encoded_cfi, book):
         name = cfi = None
@@ -366,9 +670,11 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book):
+    def display_book(self, book, initial_position):
         self.hide_overlays()
+        self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
+        self.book_load_started = True
         if not is_current_book:
             self.iframe_wrapper.reset()
             self.content_popup_overlay.iframe_wrapper.reset()
@@ -376,40 +682,82 @@ class View:
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)
         self.book = current_book.book = book
-        self.ui.db.update_last_read_time(book)
+        if runtime.is_standalone_viewer:
+            add_book_to_recently_viewed(book)
+        if ui_operations.update_last_read_time:
+            ui_operations.update_last_read_time(book)
         pos = {'replace_history':True}
         unkey = username_key(get_interface_data().username)
         name = book.manifest.spine[0]
         cfi = None
-        q = parse_url_params()
-        if q.bookpos and q.bookpos.startswith('epubcfi(/'):
-            cfi = q.bookpos
-        elif book.last_read_position and book.last_read_position[unkey]:
-            cfi = book.last_read_position[unkey]
+        if initial_position and initial_position.type is 'cfi' and initial_position.data.startswith('epubcfi(/'):
+            cfi = initial_position.data
+        else:
+            q = parse_url_params()
+            if q.bookpos and q.bookpos.startswith('epubcfi(/'):
+                cfi = q.bookpos
+            elif book.last_read_position and book.last_read_position[unkey]:
+                cfi = book.last_read_position[unkey]
         cfiname, internal_cfi = self.parse_cfi(cfi, book)
         if cfiname and internal_cfi:
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
-        self.show_name(name, initial_position=pos)
+        navigated = False
+        if initial_position:
+            if initial_position.type is 'toc':
+                navigated = self.goto_toc_node(initial_position.data)
+            elif initial_position.type is 'bookpos':
+                navigated = True
+                self.goto_book_position(initial_position.data)
+            elif initial_position.type is 'ref':
+                navigated = self.goto_reference(initial_position.data)
+        if navigated:
+            self.hide_loading()
+        else:
+            self.show_name(name, initial_position=pos)
         sd = get_session_data()
         c = sd.get('controls_help_shown_count', 0)
-        if c < 1:
+        if c < 2:
             show_controls_help()
             sd.set('controls_help_shown_count', c + 1)
 
     def redisplay_book(self):
+        # redisplay_book() is called when settings are changed
+        sd = get_session_data()
+        self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
+        if ui_operations.export_shortcut_map:
+            ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
+        self.book_scrollbar.apply_visibility()
         self.display_book(self.book)
 
     def iframe_settings(self, name):
         sd = get_session_data()
+        bg_image_fade = 'transparent'
+        cs = self.apply_color_scheme()
+        fade = int(sd.get('background_image_fade'))
+        rgba = cached_color_to_rgba(cs.background)
+        is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
+        if self.iframe.style.backgroundImage is not 'none' and fade > 0:
+            bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
         return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
             'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
             'read_mode': sd.get('read_mode'),
             'columns_per_screen': sd.get('columns_per_screen'),
-            'color_scheme': self.get_color_scheme(True),
+            'color_scheme': cs,
+            'override_book_colors': sd.get('override_book_colors'),
+            'is_dark_theme': is_dark_theme,
+            'bg_image_fade': bg_image_fade,
             'base_font_size': sd.get('base_font_size'),
             'user_stylesheet': sd.get('user_stylesheet'),
+            'keyboard_shortcuts': sd.get('keyboard_shortcuts'),
+            'hide_tooltips': sd.get('hide_tooltips'),
+            'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
+            'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
+            'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
+            'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
+            'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
+            'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
         }
 
     def show_name(self, name, initial_position=None):
@@ -431,28 +779,72 @@ class View:
         def cb(resource_data):
             self.loaded_resources = resource_data
             done_callback(resource_data)
-        load_resources(self.ui.db, self.book, name, self.loaded_resources, cb)
+        load_resources(self.book, name, self.loaded_resources, cb)
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
         self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
 
-    def show_book_metadata(self):
-        mi = self.book.metadata
-        show_metadata_overlay(mi)
+    def goto_frac(self, frac):
+        if not self.book or not self.book.manifest:
+            return
+        chapter_start_page = 0
+        total_length = self.book.manifest.spine_length
+        page = total_length * frac
+        chapter_frac = 0
+        chapter_name = None
+        for name in self.book.manifest.spine:
+            chapter_length = self.book.manifest.files[name]?.length or 0
+            chapter_end_page = chapter_start_page + chapter_length
+            if chapter_start_page <= page <= chapter_end_page:
+                num_pages = chapter_end_page - chapter_start_page - 1
+                if num_pages > 0:
+                    chapter_frac = (page - chapter_start_page) / num_pages
+                else:
+                    chapter_frac = 0
+                chapter_name = name
+                break
+            chapter_start_page = chapter_end_page
+        if not chapter_name:
+            chapter_name = self.book.manifest.spine[-1]
+        chapter_frac = max(0, min(chapter_frac, 1))
+        if self.currently_showing.name is chapter_name:
+            self.iframe_wrapper.send_message('scroll_to_frac', frac=chapter_frac)
+        else:
+            self.show_name(chapter_name, initial_position={'type':'frac', 'frac':chapter_frac, 'replace_history':True})
+
+    def goto_book_position(self, bpos):
+        val = max(0, min(1000 * float(bpos) / self.current_position_data.book_length, 1))
+        return self.goto_frac(val)
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
-    def goto_bookpos(self, bookpos):
+    def goto_cfi(self, bookpos):
         cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
         if cfiname and internal_cfi:
             # replace_history has to be true here otherwise forward does not
-            # work after back, as back uses goto_bookpos
+            # work after back, as back uses goto_cfi
             pos = {'replace_history': True}
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
             self.show_name(name, initial_position=pos)
+            return True
+        return False
+
+    def goto_reference(self, reference):
+        if not self.book or not self.book.manifest:
+            return
+        index, refnum = reference.split('.')
+        index, refnum = int(index), int(refnum)
+        chapter_name = self.book.manifest.spine[index]
+        if not chapter_name:
+            return False
+        if self.currently_showing.name is chapter_name:
+            self.iframe_wrapper.send_message('scroll_to_ref', refnum=refnum)
+        else:
+            self.show_name(chapter_name, initial_position={'type':'ref', 'refnum':refnum, 'replace_history':True})
+        return True
 
     def goto_named_destination(self, name, frag):
         if self.currently_showing.name is name:
@@ -462,9 +854,28 @@ class View:
             idx = spine.indexOf(name)
             if idx is -1:
                 error_dialog(_('Destination does not exist'), _(
-                    'The file {} does not exist in this book').format(name))
-                return
+                    'The file {} does not exist in this book').format(name), on_close=def():
+                        ui_operations.focus_iframe()
+                )
+                return False
             self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
+        return True
+
+    def goto_toc_node(self, node_id):
+        toc = self.book.manifest.toc
+        found = False
+
+        def process_node(x):
+            nonlocal found
+            if x.id is node_id:
+                self.goto_named_destination(x.dest or '', x.frag or '')
+                found = True
+                return
+            for c in x.children:
+                process_node(c)
+        if toc:
+            process_node(toc)
+        return found
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
@@ -485,6 +896,39 @@ class View:
         if toc_node:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
+    def get_current_cfi(self, request_id, callback):
+        self.report_cfi_callbacks[request_id] = callback
+        self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
+
+    def update_cfi_data(self, data):
+        self.currently_showing.bookpos = data.cfi
+        self.currently_showing.selected_text = data.selected_text
+        username = get_interface_data().username
+        unkey = username_key(username)
+        if not self.book.last_read_position:
+            self.book.last_read_position = {}
+        self.book.last_read_position[unkey] = data.cfi
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+        self.update_header_footer()
+        if ui_operations.update_last_read_time:
+            ui_operations.update_last_read_time(self.book)
+        return username
+
+    def on_report_cfi(self, data):
+        cb = self.report_cfi_callbacks[data.request_id]
+        if cb:
+            cb(data.request_id, {
+                'cfi': data.cfi,
+                'progress_frac': data.progress_frac,
+                'file_progress_frac': data.file_progress_frac,
+                'selected_text': data.selected_text,
+            })
+            v'delete self.report_cfi_callbacks[data.request_id]'
+
+    def on_update_progress_frac(self, data):
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+        self.update_header_footer()
+
     def on_update_cfi(self, data):
         overlay_shown = not self.processing_spine_item_display and self.overlay.is_visible
         if overlay_shown or self.search_overlay.is_visible or self.content_popup_overlay.is_visible:
@@ -494,79 +938,76 @@ class View:
             # type anything into text boxes.
             # See https://bugs.chromium.org/p/chromium/issues/detail?id=404315
             return
-        self.currently_showing.bookpos = data.cfi
-        push_state(self.ui.url_data, replace=data.replace_history, mode=read_book_mode)
-        username = get_interface_data().username
-        unkey = username_key(username)
-        if not self.book.last_read_position:
-            self.book.last_read_position = {}
-        self.book.last_read_position[unkey] = data.cfi
-        self.ui.db.update_last_read_time(self.book)
-        lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
-        self.current_progress_frac = data.progress_frac
-        self.current_file_progress_frac = data.file_progress_frac
-        self.update_header_footer()
-        key = self.book.key
+        username = self.update_cfi_data(data)
+        ui_operations.update_url_state(data.replace_history)
         if username:
+            key = self.book.key
+            lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
                 library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
                     if end_type is not 'load':
                         print('Failed to update last read position, AJAX call did not succeed')
             )
 
-    def update_header_footer(self):
-        sd = get_session_data()
-        has_clock = False
-
+    @property
+    def current_position_data(self):
         if self.book?.manifest:
-            book_length = self.book.manifest.total_length or 0
+            book_length = self.book.manifest.spine_length or 0
             name = self.currently_showing.name
             chapter_length = self.book.manifest.files[name]?.length or 0
         else:
             book_length = chapter_length = 0
-        book_length *= max(0, 1 - self.current_progress_frac)
-        chapter_length *=  max(0, 1 - self.current_file_progress_frac)
+        pos = {
+            'progress_frac': self.current_progress_frac,
+            'book_length': book_length, 'chapter_length': chapter_length,
+            'file_progress_frac': self.current_file_progress_frac,
+            'cfi': self.currently_showing?.bookpos
+        }
+        return pos
+
+    def update_header_footer(self):
+        sd = get_session_data()
+        has_clock = False
+        pos = self.current_position_data
+
+        book_length = pos.book_length * max(0, 1 - pos.progress_frac)
+        chapter_length =  pos.chapter_length * max(0, 1 - pos.file_progress_frac)
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
 
         def render_template(div, sz_attr, name):
             nonlocal has_clock
+            c = div.lastChild
+            b = c.previousSibling
+            a = b.previousSibling
             if sd.get(sz_attr, 20) > 5:
                 mi = self.book.metadata
-                texta, hca = render_head_foot(div.firstChild, name, 'left', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
-                textb, hcb = render_head_foot(div.firstChild.nextSibling, name, 'middle', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
-                textc, hcc = render_head_foot(div.lastChild, name, 'right', self.current_progress_frac, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time)
-                has_clock = hca or hcb or hcc
-                if textc and not textb and not texta:
-                    # Want right-aligned
-                    div.firstChild.style.display = 'block'
-                    div.firstChild.nextSibling.style.display = 'block'
-                elif not texta and not textc and textb:
-                    # Want centered
-                    div.firstChild.style.display = 'block'
-                    div.lastChild.style.display = 'block'
+                hca = render_head_foot(a, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcb = render_head_foot(b, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                hcc = render_head_foot(c, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                if hca or hcb or hcc:
+                    has_clock = True
             else:
-                for c in div.childNodes:
-                    c.style.display = 'none'
+                clear(a), clear(b), clear(c)
 
-        div = document.getElementById('book-bottom-margin')
-        if div:
-            render_template(div, 'margin_bottom', 'footer')
-        div = document.getElementById('book-top-margin')
-        if div:
-            render_template(div, 'margin_top', 'header')
+        for edge in ('left', 'right', 'top', 'bottom'):
+            div = document.getElementById(f'book-{edge}-margin')
+            if div:
+                tname = {'left':'left-margin', 'right': 'right-margin', 'top': 'header', 'bottom': 'footer'}[edge]
+                render_template(div, f'margin_{edge}', tname)
         if has_clock:
-            if not self.clock_timer_id:
-                self.clock_timer_id = window.setInterval(self.update_header_footer, 60000)
+            if not self.timer_ids.clock:
+                self.timer_ids.clock = window.setInterval(self.update_header_footer, 60000)
         else:
-            if self.clock_timer_id:
-                window.clearInterval(self.clock_timer_id)
-                self.clock_timer_id = 0
-
+            if self.timer_ids.clock:
+                window.clearInterval(self.timer_ids.clock)
+                self.timer_ids.clock = 0
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
         self.current_toc_node, self.current_toc_toplevel_node = get_current_toc_nodes()
+        if runtime.is_standalone_viewer:
+            ui_operations.update_current_toc_nodes(self.current_toc_node?.id, self.current_toc_toplevel_node?.id)
         self.update_header_footer()
 
     def show_spine_item(self, resource_data):
@@ -581,23 +1022,62 @@ class View:
         # We cannot encrypt this message because the resource data contains
         # Blob objects which do not survive encryption
         self.processing_spine_item_display = True
+        self.iframe.style.visibility = 'hidden'
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
             initial_position=self.currently_showing.initial_position,
-            settings=self.currently_showing.settings,
+            settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
+            is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
         )
 
     def on_content_loaded(self, data):
         self.processing_spine_item_display = False
         self.hide_loading()
-        frac = data.progress_frac or 0
-        self.current_progress_frac = frac
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
+        self.on_reference_item_changed()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
+        if self.book_load_started:
+            self.book_load_started = False
+            if ui_operations.clear_history:
+                ui_operations.clear_history()
+        if ui_operations.content_file_changed:
+            ui_operations.content_file_changed(self.currently_showing.name)
+
+    def set_progress_frac(self, progress_frac, file_progress_frac):
+        self.current_progress_frac = progress_frac or 0
+        self.current_file_progress_frac = file_progress_frac or 0
+        self.book_scrollbar.sync_to_contents(self.current_progress_frac)
 
     def update_font_size(self):
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
 
+    def update_scroll_speed(self, amt):
+        self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_auto=change_scroll_speed(amt))
+
     def update_color_scheme(self):
-        cs = self.get_color_scheme(True)
+        cs = self.apply_color_scheme()
         self.iframe_wrapper.send_message('change_color_scheme', color_scheme=cs)
+
+    def toggle_reference_mode(self):
+        self.reference_mode_enabled = not self.reference_mode_enabled
+        self.on_reference_item_changed()
+        self.iframe_wrapper.send_message('set_reference_mode', enabled=self.reference_mode_enabled)
+        if ui_operations.reference_mode_changed:
+            ui_operations.reference_mode_changed(self.reference_mode_enabled)
+
+    def on_reference_item_changed(self, data):
+        data = data or {'refnum': None, 'index': None}
+        refnum, index = data.refnum, data.index
+        div = self.reference_mode_overlay
+        if refnum is None:
+            div.style.display = 'none'
+        else:
+            div.style.display = 'block'
+            div.textContent = f'{index}.{refnum}'
+
+    def show_search_result(self, sr):
+        if self.currently_showing.name is sr.file_name:
+            self.iframe_wrapper.send_message('show_search_result', search_result=sr)
+        else:
+            self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})

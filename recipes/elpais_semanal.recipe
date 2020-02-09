@@ -35,17 +35,16 @@ class ElPaisSemanal(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.index)
-        for item in soup.findAll('a', attrs={'class': ['g19i003', 'g17r003', 'g17i003']}):
+        for item in soup.findAll('a', attrs={'class': ['g19i003', 'g17r003', 'g17i003']}, href=True):
             description = ''
             title_prefix = ''
             feed_link = item
-            if item.has_key('href'):  # noqa
-                url = 'http://www.elpais.com' + item['href'].rpartition('/')[0]
-                title = title_prefix + self.tag_to_string(feed_link)
-                date = strftime(self.timefmt)
-                articles.append({
-                    'title': title, 'date': date, 'url': url, 'description': description
-                })
+            url = 'http://www.elpais.com' + item['href'].rpartition('/')[0]
+            title = title_prefix + self.tag_to_string(feed_link)
+            date = strftime(self.timefmt)
+            articles.append({
+                'title': title, 'date': date, 'url': url, 'description': description
+            })
         return [(soup.head.title.string, articles)]
 
     def print_version(self, url):

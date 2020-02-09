@@ -8,6 +8,9 @@ from book_list.theme import get_font_family
 
 
 is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
+if !is_ios and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
+    # iPad Safari in desktop mode https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
+    is_ios = True
 
 
 def debounce(func, wait, immediate=False):
@@ -72,10 +75,18 @@ def encode_query_with_path(query, path):
     return path + encode_query(query, '#')
 
 
+def full_screen_supported(elem):
+    elem = elem or document.documentElement
+    if elem.requestFullScreen or elem.webkitRequestFullScreen or elem.mozRequestFullScreen:
+        return True
+    return False
+
+
 def request_full_screen(elem):
     elem = elem or document.documentElement
+    options = {'navigationUI': 'hide'}
     if elem.requestFullScreen:
-        elem.requestFullScreen()
+        elem.requestFullScreen(options)
     elif elem.webkitRequestFullScreen:
         elem.webkitRequestFullScreen()
     elif elem.mozRequestFullScreen:
@@ -239,6 +250,22 @@ def sandboxed_html(html, style, sandbox):
     # Microsoft Edge does not support srcdoc not does it work using a data URI.
     ans.srcdoc = final_html
     return ans
+
+
+def clone_selection(sel):
+    ans = v'[]'
+    for i in range(sel.rangeCount):
+        ans.push(sel.getRangeAt(i).cloneRange())
+    return ans
+
+
+def apply_cloned_selection(ranges):
+    sel = window.getSelection()
+    sel.removeAllRanges()
+    for r in ranges:
+        sel.addRange(r)
+    return sel
+
 
 if __name__ is '__main__':
     from pythonize import strings

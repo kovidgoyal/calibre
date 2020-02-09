@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,6 +21,7 @@ msprefs.defaults['append_comments'] = False
 msprefs.defaults['tag_map_rules'] = []
 msprefs.defaults['author_map_rules'] = []
 msprefs.defaults['id_link_rules'] = {}
+msprefs.defaults['keep_dups'] = False
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they

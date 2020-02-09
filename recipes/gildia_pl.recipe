@@ -46,7 +46,7 @@ class Gildia(BasicNewsRecipe):
 
         words = ('recenzj', 'zapowied', 'fragmen',
                  'relacj', 'wywiad', 'nominacj')
-        document_title = soup.title.renderContents().lower()
+        document_title = soup.title.renderContents().decode('utf-8').lower()
         for word in words:
             if word in document_title:
                 for link in content.findAll(name='a'):
@@ -57,9 +57,9 @@ class Gildia(BasicNewsRecipe):
                 return self.index_to_soup(tag['href'], raw=True)
 
     def preprocess_html(self, soup):
-        title = soup.title.renderContents().lower()
-        for a in soup('a'):
-            if a.has_key('href') and not a['href'].startswith('http'):  # noqa
+        title = soup.title.renderContents().decode('utf-8').lower()
+        for a in soup('a', href=True):
+            if not a['href'].startswith('http'):
                 if '/gry/' in a['href']:
                     a['href'] = 'http://www.gry.gildia.pl' + a['href']
                 elif u'książk' in title or u'komiks' in title:

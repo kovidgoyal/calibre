@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -11,7 +10,7 @@ import re, datetime, traceback
 from lxml import html
 from PyQt5.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
-                      QAbstractTableModel, QTableView, QModelIndex,
+                      QAbstractTableModel, QTableView, QModelIndex, QApplication,
                       QSortFilterProxyModel, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize, QLineEdit)
 
@@ -24,6 +23,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
+from polyglot.builtins import itervalues, map, unicode_type, filter
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
@@ -44,7 +44,7 @@ def get_plugin_updates_available(raise_error=False):
         return None
     display_plugins = read_available_plugins(raise_error=raise_error)
     if display_plugins:
-        update_plugins = filter(filter_upgradeable_plugins, display_plugins)
+        update_plugins = list(filter(filter_upgradeable_plugins, display_plugins))
         if len(update_plugins) > 0:
             return update_plugins
     return None
@@ -71,7 +71,7 @@ def read_available_plugins(raise_error=False):
             raise
         traceback.print_exc()
         return
-    for plugin in raw.itervalues():
+    for plugin in itervalues(raw):
         try:
             display_plugin = DisplayPlugin(plugin)
             get_installed_plugin_status(display_plugin)
@@ -156,7 +156,7 @@ class SizePersistedDialog(QDialog):
         if self.geom is None:
             self.resize(self.sizeHint()+self.initial_extra_size)
         else:
-            self.restoreGeometry(self.geom)
+            QApplication.instance().safe_restore_geometry(self, self.geom)
 
     def dialog_closing(self, result):
         geom = bytearray(self.saveGeometry())
@@ -204,7 +204,7 @@ class DisplayPlugin(object):
         self.donation_link = plugin['donate']
         self.available_version = tuple(plugin['version'])
         self.release_date = datetime.datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).date()
-        self.calibre_required_version = plugin['minimum_calibre_version']
+        self.calibre_required_version = tuple(plugin['minimum_calibre_version'])
         self.author = plugin['author']
         self.platforms = plugin['supported_platforms']
         self.uninstall_plugins = plugin['uninstall'] or []
@@ -267,7 +267,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def set_filter_text(self, filter_text_value):
-        self.filter_text = icu_lower(unicode(filter_text_value))
+        self.filter_text = icu_lower(unicode_type(filter_text_value))
         self.invalidateFilter()
 
 
@@ -276,8 +276,8 @@ class DisplayPluginModel(QAbstractTableModel):
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
-        self.headers = map(unicode, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
-                                      _('Available'), _('Released'), _('calibre'), _('Author')])
+        self.headers = list(map(unicode_type, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
+                                      _('Available'), _('Released'), _('calibre'), _('Author')]))
 
     def rowCount(self, *args):
         return len(self.display_plugins)
@@ -357,7 +357,7 @@ class DisplayPluginModel(QAbstractTableModel):
     def _get_display_version(self, version):
         if version is None:
             return ''
-        return '.'.join([str(v) for v in list(version)])
+        return '.'.join([unicode_type(v) for v in list(version)])
 
     def _get_status(self, display_plugin):
         if not display_plugin.is_valid_platform():
@@ -411,13 +411,12 @@ class DisplayPluginModel(QAbstractTableModel):
             return (_('You must upgrade to at least calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
+        if display_plugin.installed_version is None:
+            return (_('You can install this plugin')+'\n\n'+
+                            _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
-            if display_plugin.installed_version is None:
-                return (_('You can install this plugin')+'\n\n'+
-                                _('Right-click to see more options'))
-            else:
-                return (_('A new version of this plugin is available')+'\n\n'+
-                                _('Right-click to see more options'))
+            return (_('A new version of this plugin is available')+'\n\n'+
+                            _('Right-click to see more options'))
         return (_('This plugin is installed and up-to-date')+'\n\n'+
                         _('Right-click to see more options'))
 
@@ -588,7 +587,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _finished(self, *args):
         if self.model:
-            update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
+            update_plugins = list(filter(filter_upgradeable_plugins, self.model.display_plugins))
             self.gui.recalc_update_label(len(update_plugins))
 
     def _plugin_current_changed(self, current, previous):
@@ -726,7 +725,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 plugin = add_plugin(zip_path)
             except NameConflict as e:
                 return error_dialog(self.gui, _('Already exists'),
-                        unicode(e), show=True)
+                        unicode_type(e), show=True)
             # Check for any toolbars to add to.
             widget = ConfigWidget(self.gui)
             widget.gui = self.gui
@@ -841,8 +840,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
                     continue
                 if heading_node.text_content().lower().find('version history') != -1:
                     div_node = spoiler_node.xpath('div')[0]
-                    text = html.tostring(div_node, method='html', encoding=unicode)
-                    return re.sub('<div\s.*?>', '<div>', text)
+                    text = html.tostring(div_node, method='html', encoding='unicode')
+                    return re.sub(r'<div\s.*?>', '<div>', text)
             except:
                 if DEBUG:
                     prints('======= MobileRead Parse Error =======')

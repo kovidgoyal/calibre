@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -7,6 +8,7 @@ import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import getcwd
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
@@ -17,12 +19,12 @@ def decrypt_font_data(key, data, algorithm):
     crypt_len = 1024 if is_adobe else 1040
     crypt = bytearray(data[:crypt_len])
     key = cycle(iter(bytearray(key)))
-    decrypt = bytes(bytearray(x^key.next() for x in crypt))
+    decrypt = bytes(bytearray(x^next(key) for x in crypt))
     return decrypt + data[crypt_len:]
 
 
 def decrypt_font(key, path, algorithm):
-    with open(path, 'r+b') as f:
+    with lopen(path, 'r+b') as f:
         data = decrypt_font_data(key, f.read(), algorithm)
         f.seek(0), f.truncate(), f.write(data)
 
@@ -43,7 +45,7 @@ class EPUBInput(InputFormatPlugin):
         import uuid, hashlib
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
-            idpf_key = re.sub(u'[\u0020\u0009\u000d\u000a]', u'', idpf_key)
+            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in opf.identifier_iter():
@@ -54,7 +56,7 @@ class EPUBInput(InputFormatPlugin):
             if (scheme and scheme.lower() == 'uuid') or \
                     (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = bytes(item.text).rpartition(':')[-1]
+                    key = item.text.rpartition(':')[-1]
                     key = uuid.UUID(key).bytes
                 except:
                     import traceback
@@ -221,33 +223,33 @@ class EPUBInput(InputFormatPlugin):
             if os.path.exists(guide_cover):
                 renderer = render_html_svg_workaround(guide_cover, log)
                 if renderer is not None:
-                    open('calibre_raster_cover.jpg', 'wb').write(
-                        renderer)
+                    with lopen('calibre_raster_cover.jpg', 'wb') as f:
+                        f.write(renderer)
 
         # Set the titlepage guide entry
         self.set_guide_type(opf, 'titlepage', guide_cover, 'Title Page')
         return removed
 
     def find_opf(self):
-        from lxml import etree
+        from calibre.utils.xml_parse import safe_xml_fromstring
 
         def attr(n, attr):
             for k, v in n.attrib.items():
                 if k.endswith(attr):
                     return v
         try:
-            with open('META-INF/container.xml') as f:
-                root = etree.fromstring(f.read())
+            with lopen('META-INF/container.xml', 'rb') as f:
+                root = safe_xml_fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
                     if attr(r, 'media-type') != "application/oebps-package+xml":
                         continue
                     path = attr(r, 'full-path')
                     if not path:
                         continue
-                    path = os.path.join(os.getcwdu(), *path.split('/'))
+                    path = os.path.join(getcwd(), *path.split('/'))
                     if os.path.exists(path):
                         return path
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -258,7 +260,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.metadata.opf2 import OPF
         try:
             zf = ZipFile(stream)
-            zf.extractall(os.getcwdu())
+            zf.extractall(getcwd())
         except:
             log.exception('EPUB appears to be invalid ZIP file, trying a'
                     ' more forgiving ZIP parser')
@@ -268,7 +270,7 @@ class EPUBInput(InputFormatPlugin):
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
-            for f in walk(u'.'):
+            for f in walk('.'):
                 if f.lower().endswith('.opf') and '__MACOSX' not in f and \
                         not os.path.basename(f).startswith('.'):
                     opf = os.path.abspath(f)
@@ -278,7 +280,7 @@ class EPUBInput(InputFormatPlugin):
         if opf is None:
             raise ValueError('%s is not a valid EPUB file (could not find opf)'%path)
 
-        opf = os.path.relpath(opf, os.getcwdu())
+        opf = os.path.relpath(opf, getcwd())
         parts = os.path.split(opf)
         opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
 
@@ -346,7 +348,7 @@ class EPUBInput(InputFormatPlugin):
         with lopen('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
-        return os.path.abspath(u'content.opf')
+        return os.path.abspath('content.opf')
 
     def convert_epub3_nav(self, nav_path, opf, log, opts):
         from lxml import etree
@@ -354,12 +356,13 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.oeb.polish.parsing import parse
         from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize, urlunquote, serialize
         from calibre.ebooks.oeb.polish.toc import first_child
+        from calibre.utils.xml_parse import safe_xml_fromstring
         from tempfile import NamedTemporaryFile
         with lopen(nav_path, 'rb') as f:
             raw = f.read()
         raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
         root = parse(raw, log=log)
-        ncx = etree.fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
+        ncx = safe_xml_fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
         navmap = ncx[0]
         et = '{%s}type' % EPUB_NS
         bn = os.path.basename(nav_path)
@@ -367,7 +370,9 @@ class EPUBInput(InputFormatPlugin):
         def add_from_li(li, parent):
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
-                text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+                text = etree.tostring(
+                    x, method='text', encoding='unicode', with_tail=False).strip() or ' '.join(
+                            x.xpath('descendant-or-self::*/@title')).strip()
                 href = x.get('href')
                 if href:
                     if href.startswith('#'):
@@ -400,7 +405,7 @@ class EPUBInput(InputFormatPlugin):
 
         with NamedTemporaryFile(suffix='.ncx', dir=os.path.dirname(nav_path), delete=False) as f:
             f.write(etree.tostring(ncx, encoding='utf-8'))
-        ncx_href = os.path.relpath(f.name, os.getcwdu()).replace(os.sep, '/')
+        ncx_href = os.path.relpath(f.name, getcwd()).replace(os.sep, '/')
         ncx_id = opf.create_manifest_item(ncx_href, NCX_MIME, append=True).get('id')
         for spine in opf.root.xpath('//*[local-name()="spine"]'):
             spine.set('toc', ncx_id)
@@ -417,7 +422,7 @@ class EPUBInput(InputFormatPlugin):
                     changed = True
                     elem.set('data-calibre-removed-titlepage', '1')
             if changed:
-                with open(nav_path, 'wb') as f:
+                with lopen(nav_path, 'wb') as f:
                     f.write(serialize(root, 'application/xhtml+xml'))
 
     def postprocess_book(self, oeb, opts, log):

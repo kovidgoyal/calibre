@@ -1,19 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
-from polyglot.builtins import map
-from urlparse import urlparse
+from polyglot.builtins import map, string_or_bytes, range
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
+from polyglot.builtins import iteritems, unicode_type
+from polyglot.urllib import urlparse
 
 
 class AbortError(ValueError):
@@ -184,7 +184,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     '''
 
     root = container.parsed(name)
-    if isinstance(loc_or_xpath, type('')):
+    if isinstance(loc_or_xpath, unicode_type):
         split_point = root.xpath(loc_or_xpath)[0]
     else:
         try:
@@ -241,7 +241,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
                         a.set('href', '#' + purl.fragment)
 
     # Fix all links in the container that point to anchors in the bottom tree
-    for fname, media_type in container.mime_map.iteritems():
+    for fname, media_type in iteritems(container.mime_map):
         if fname not in {name, bottom_name}:
             repl = SplitLinkReplacer(fname, anchors_in_bottom, name, bottom_name, container)
             container.replace_links(fname, repl)
@@ -282,11 +282,11 @@ def multisplit(container, name, xpath, before=True):
             raise AbortError('Cannot split on the <body> tag')
 
     for i, tag in enumerate(nodes):
-        tag.set('calibre-split-point', str(i))
+        tag.set('calibre-split-point', unicode_type(i))
 
     current = name
     all_names = [name]
-    for i in xrange(len(nodes)):
+    for i in range(len(nodes)):
         current = split(container, current, '//*[@calibre-split-point="%d"]' % i, before=before)
         all_names.append(current)
 
@@ -357,7 +357,7 @@ def remove_name_attributes(root):
         elem.set('id', elem.attrib.pop('name'))
 
 
-def merge_html(container, names, master):
+def merge_html(container, names, master, insert_page_breaks=False):
     p = container.parsed
     root = p(master)
 
@@ -372,6 +372,7 @@ def merge_html(container, names, master):
     master_body = p(master).findall('h:body', namespaces=XPNSMAP)[-1]
     master_base = os.path.dirname(master)
     anchor_map = {n:{} for n in names if n != master}
+    first_anchor_map = {}
 
     for name in names:
         if name == master:
@@ -395,9 +396,9 @@ def merge_html(container, names, master):
 
         first_child = ''
         for first_child in children:
-            if not isinstance(first_child, basestring):
+            if not isinstance(first_child, string_or_bytes):
                 break
-        if isinstance(first_child, basestring):
+        if isinstance(first_child, string_or_bytes):
             # body contained only text, no tags
             first_child = body.makeelement(XHTML('p'))
             first_child.text, children[0] = children[0], first_child
@@ -419,6 +420,10 @@ def merge_html(container, names, master):
         if 'id' not in first_child.attrib:
             first_child.set('id', unique_anchor(seen_anchors, 'top'))
             seen_anchors.add(first_child.get('id'))
+        first_anchor_map[name] = first_child.get('id')
+
+        if insert_page_breaks:
+            first_child.set('style', first_child.get('style', '') + '; page-break-before: always')
 
         amap[''] = first_child.get('id')
 
@@ -429,7 +434,7 @@ def merge_html(container, names, master):
                 a.set('href', '#' + amap[q])
 
         for child in children:
-            if isinstance(child, basestring):
+            if isinstance(child, string_or_bytes):
                 add_text(master_body, child)
             else:
                 master_body.append(copy.deepcopy(child))
@@ -437,9 +442,11 @@ def merge_html(container, names, master):
         container.remove_item(name, remove_from_guide=False)
 
     # Fix all links in the container that point to merged files
-    for fname, media_type in container.mime_map.iteritems():
+    for fname, media_type in iteritems(container.mime_map):
         repl = MergeLinkReplacer(fname, anchor_map, master, container)
         container.replace_links(fname, repl)
+
+    return first_anchor_map
 
 
 def merge_css(container, names, master):
@@ -468,7 +475,7 @@ def merge_css(container, names, master):
 
     # Remove links to merged stylesheets in the html files, replacing with a
     # link to the master sheet
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             removed = False
             root = p(name)

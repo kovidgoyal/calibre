@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,13 +12,14 @@ from calibre.constants import DEBUG
 from calibre.db.errors import NoSuchFormat
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.filenames import shorten_components_to, supports_long_names, ascii_filename
+from calibre.utils.filenames import shorten_components_to, ascii_filename
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import as_local_time
-from calibre import strftime, prints, sanitize_file_name_unicode
+from calibre import strftime, prints, sanitize_file_name
 from calibre.db.lazy import FormatsList
+from polyglot.builtins import unicode_type
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -133,7 +134,7 @@ def preprocess_template(template):
     template = template.replace('//', '/')
     template = template.replace('{author}', '{authors}')
     template = template.replace('{tag}', '{tags}')
-    if not isinstance(template, unicode):
+    if not isinstance(template, unicode_type):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
@@ -216,7 +217,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
-    format_args['id'] = str(id)
+    format_args['id'] = unicode_type(id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
@@ -235,7 +236,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                         divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
-                    format_args[key] = unicode(format_args[key])
+                    format_args[key] = unicode_type(format_args[key])
                 else:
                     format_args[key] = ''
     if safe_format:
@@ -246,7 +247,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
-        components = [str(id)]
+        components = [unicode_type(id)]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
@@ -278,7 +279,7 @@ def save_book_to_disk(book_id, db, root, opts, length):
 def get_path_components(opts, mi, book_id, path_length):
     try:
         components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
-            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
+            ascii_filename if opts.asciiize else sanitize_file_name,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace, safe_format=False,
             last_has_extension=False, single_dir=opts.single_dir)
@@ -359,7 +360,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         return not formats_written, book_id, mi.title
 
     for fmt in formats:
-        fmt_path = base_path+'.'+str(fmt)
+        fmt_path = base_path+'.'+unicode_type(fmt)
         try:
             db.copy_format_to(book_id, fmt, fmt_path)
             formats_written = True
@@ -378,7 +379,7 @@ def sanitize_args(root, opts):
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)
-    length = 1000 if supports_long_names(root) else 240
+    length = 240
     length -= len(root)
     if length < 5:
         raise ValueError('%r is too long.'%root)
@@ -436,18 +437,17 @@ def update_serialized_metadata(book, common_data=None):
     plugboard_cache = common_data
     from calibre.customize.ui import apply_null_metadata
     with apply_null_metadata:
+        fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
+        mi, cdata = read_serialized_metadata(book)
 
-            fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
-            mi, cdata = read_serialized_metadata(book)
+        def report_error(fmt, tb):
+            result.append((fmt, tb))
 
-            def report_error(fmt, tb):
-                result.append((fmt, tb))
-
-            for fmt, fmtpath in zip(fmts, book['fmts']):
-                try:
-                    with lopen(fmtpath, 'r+b') as stream:
-                        update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
-                except Exception:
-                    report_error(fmt, traceback.format_exc())
+        for fmt, fmtpath in zip(fmts, book['fmts']):
+            try:
+                with lopen(fmtpath, 'r+b') as stream:
+                    update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
+            except Exception:
+                report_error(fmt, traceback.format_exc())
 
     return result

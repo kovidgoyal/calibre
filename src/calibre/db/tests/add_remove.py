@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,7 @@ from datetime import timedelta
 from calibre.db.tests.base import BaseTest, IMG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now, UNDEFINED_DATE
+from polyglot.builtins import iteritems, itervalues
 
 
 def import_test(replacement_data, replacement_fmt=None):
@@ -217,14 +217,14 @@ class AddRemoveTest(BaseTest):
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning
-        self.assertIn(_('Unknown'), set(authors.id_map.itervalues()))
+        self.assertIn('Unknown', set(itervalues(authors.id_map)))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in authors.id_map.iteritems()}[_('Unknown')]
+        item_id = {v:k for k, v in iteritems(authors.id_map)}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(3, c.all_book_ids())
-            self.assertNotIn(_('Unknown'), set(table.id_map.itervalues()))
+            self.assertNotIn('Unknown', set(itervalues(table.id_map)))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.alink_map)
             ae(len(table.id_map), olen-1)
@@ -235,17 +235,17 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         os.mkdir(os.path.join(authorpath, '.DS_Store'))
         open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
+        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
-            self.assertNotIn('Author Two', set(table.id_map.itervalues()))
-            self.assertNotIn(6, set(c.fields['rating'].table.id_map.itervalues()))
-            self.assertIn('A Series One', set(c.fields['series'].table.id_map.itervalues()))
-            self.assertNotIn('My Series Two', set(c.fields['#series'].table.id_map.itervalues()))
+            self.assertNotIn('Author Two', set(itervalues(table.id_map)))
+            self.assertNotIn(6, set(itervalues(c.fields['rating'].table.id_map)))
+            self.assertIn('A Series One', set(itervalues(c.fields['series'].table.id_map)))
+            self.assertNotIn('My Series Two', set(itervalues(c.fields['#series'].table.id_map)))
             self.assertNotIn(item_id, c.fields['#series'].table.col_book_map)
             self.assertNotIn(1, c.fields['#series'].table.book_col_map)
 
@@ -264,7 +264,7 @@ class AddRemoveTest(BaseTest):
         fmtpath = cache.format_abspath(1, 'FMT1')
         bookpath = os.path.dirname(fmtpath)
         authorpath = os.path.dirname(bookpath)
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
+        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
         delete_service().wait()
         for x in (fmtpath, bookpath, authorpath):
@@ -304,4 +304,50 @@ class AddRemoveTest(BaseTest):
         self.assertNotEqual(old, new)
         self.assertEqual(len(old), len(new))
         self.assertNotIn(prefix, cache.fields['formats'].format_fname(1, 'FMT1'))
+    # }}}
+
+    def test_copy_to_library(self):  # {{{
+        from calibre.db.copy_to_library import copy_one_book
+        from calibre.ebooks.metadata import authors_to_string
+        src_db = self.init_cache()
+        dest_db = self.init_cache(self.cloned_library)
+
+        def make_rdata(book_id=1, new_book_id=None, action='add'):
+            return {
+                    'title': src_db.field_for('title', book_id),
+                    'authors': list(src_db.field_for('authors', book_id)),
+                    'author': authors_to_string(src_db.field_for('authors', book_id)),
+                    'book_id': book_id, 'new_book_id': new_book_id, 'action': action
+            }
+
+        def compare_field(field, func=self.assertEqual):
+            func(src_db.field_for(field, rdata['book_id']), dest_db.field_for(field, rdata['new_book_id']))
+
+        rdata = copy_one_book(1, src_db, dest_db)
+        self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
+        compare_field('timestamp')
+        compare_field('uuid', self.assertNotEqual)
+        rdata = copy_one_book(1, src_db, dest_db, preserve_date=False, preserve_uuid=True)
+        self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
+        compare_field('timestamp', self.assertNotEqual)
+        compare_field('uuid')
+        rdata = copy_one_book(1, src_db, dest_db, duplicate_action='ignore')
+        self.assertIsNone(rdata['new_book_id'])
+        self.assertEqual(rdata['action'], 'duplicate')
+        src_db.add_format(1, 'FMT1', BytesIO(b'replaced'), run_hooks=False)
+        rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing')
+        self.assertEqual(rdata['action'], 'automerge')
+        for new_book_id in (1, 4, 5):
+            self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+        src_db.add_format(1, 'FMT1', BytesIO(b'second-round'), run_hooks=False)
+        rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='ignore')
+        self.assertEqual(rdata['action'], 'automerge')
+        for new_book_id in (1, 4, 5):
+            self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+        rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='new record')
+        self.assertEqual(rdata['action'], 'automerge')
+        for new_book_id in (1, 4, 5):
+            self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+        self.assertEqual(dest_db.format(rdata['new_book_id'], 'FMT1'), b'second-round')
+
     # }}}

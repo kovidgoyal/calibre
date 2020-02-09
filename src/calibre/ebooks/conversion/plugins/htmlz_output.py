@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import io
 import os
-from cStringIO import StringIO
-
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
+from polyglot.builtins import unicode_type
 
 
 class HTMLZOutput(OutputFormatPlugin):
@@ -81,9 +81,9 @@ class HTMLZOutput(OutputFormatPlugin):
             fname = u'index'
             if opts.htmlz_title_filename:
                 from calibre.utils.filenames import shorten_components_to
-                fname = shorten_components_to(100, (ascii_filename(unicode(oeb_book.metadata.title[0])),))[0]
+                fname = shorten_components_to(100, (ascii_filename(unicode_type(oeb_book.metadata.title[0])),))[0]
             with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
-                if isinstance(html, unicode):
+                if isinstance(html, unicode_type):
                     html = html.encode('utf-8')
                 tf.write(html)
 
@@ -100,7 +100,7 @@ class HTMLZOutput(OutputFormatPlugin):
                 for item in oeb_book.manifest:
                     if item.media_type in OEB_IMAGES and item.href in images:
                         if item.media_type == SVG_MIME:
-                            data = unicode(etree.tostring(item.data, encoding=unicode))
+                            data = etree.tostring(item.data, encoding='unicode')
                         else:
                             data = item.data
                         fname = os.path.join(tdir, u'images', images[item.href])
@@ -126,7 +126,7 @@ class HTMLZOutput(OutputFormatPlugin):
 
             # Metadata
             with open(os.path.join(tdir, u'metadata.opf'), 'wb') as mdataf:
-                opf = OPF(StringIO(etree.tostring(oeb_book.metadata.to_opf1())))
+                opf = OPF(io.BytesIO(etree.tostring(oeb_book.metadata.to_opf1(), encoding='UTF-8')))
                 mi = opf.to_book_metadata()
                 if cover_path:
                     mi.cover = u'cover.jpg'

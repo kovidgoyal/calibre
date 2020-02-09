@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -22,7 +22,7 @@ class CacheUpdateThread(Thread, QObject):
 
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
-    update_details = pyqtSignal(unicode)
+    update_details = pyqtSignal(type(u''))
 
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)

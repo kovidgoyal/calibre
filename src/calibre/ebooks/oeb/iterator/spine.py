@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from polyglot.builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
+from polyglot.builtins import map, unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -45,7 +44,7 @@ def all_links(html):
     return ans
 
 
-class SpineItem(unicode):
+class SpineItem(unicode_type):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
             run_char_count=True, from_epub=False, read_links=True):
@@ -53,7 +52,7 @@ class SpineItem(unicode):
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
         obj = super(SpineItem, cls).__new__(cls, path)
-        with open(path, 'rb') as f:
+        with lopen(path, 'rb') as f:
             raw = f.read()
         if from_epub:
             # According to the spec, HTML in EPUB must be encoded in utf-8 or
@@ -149,5 +148,3 @@ def create_indexing_data(spine, toc):
             start = i.anchor if i.spine_pos == spine_pos else None
             end = i.end_anchor if i.spine_pos == spine_pos else None
             spine_item.index_entries.append(ie(i, start, end))
-
-

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal'
@@ -36,5 +37,3 @@ class EDGE(USBMS):
 
     EBOOK_DIR_MAIN = 'download'
     SUPPORTS_SUB_DIRS = True
-
-

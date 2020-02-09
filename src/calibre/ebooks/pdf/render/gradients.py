@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, copy
-from polyglot.builtins import map
+from polyglot.builtins import map, range
 from collections import namedtuple
 
 from PyQt5.Qt import QLinearGradient, QPointF
@@ -92,8 +91,8 @@ class LinearGradientPattern(Dictionary):
             page_rect = tuple(map(inv.map, (
                 QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
                 QPointF(pixel_page_width, pixel_page_height))))
-            maxx = maxy = -sys.maxint-1
-            minx = miny = sys.maxint
+            maxx = maxy = -sys.maxsize-1
+            minx = miny = sys.maxsize
 
             for p in page_rect:
                 minx, maxx = min(minx, p.x()), max(maxx, p.x())
@@ -111,7 +110,7 @@ class LinearGradientPattern(Dictionary):
             do_reflect = spread == gradient.ReflectSpread
             totl = abs(stops[-1][0] - stops[0][0])
             intervals = [abs(stops[i+1][0] - stops[i][0])/totl
-                         for i in xrange(len(stops)-1)]
+                         for i in range(len(stops)-1)]
 
             while in_page(llimit):
                 reflect ^= True
@@ -139,14 +138,14 @@ class LinearGradientPattern(Dictionary):
                 intervals = [i*rlen for i in intervals]
                 rintervals = list(reversed(intervals))
 
-                for i in xrange(num):
+                for i in range(num):
                     reflect ^= True
                     pos = i * len(base_stops)
                     tvals = [t]
                     for ival in (rintervals if reflect and do_reflect else
                                  intervals):
                         tvals.append(tvals[-1] + ival)
-                    for j in xrange(len(base_stops)):
+                    for j in range(len(base_stops)):
                         stops[pos+j][0] = tvals[j]
                     t = tvals[-1]
 

@@ -9,16 +9,15 @@ from gettext import gettext as _
 
 from ajax import ajax
 from book_list.constants import read_book_container_id
-from book_list.library_data import (
-    current_library_id, library_data
-)
+from book_list.library_data import current_library_id, library_data
+from book_list.router import home, push_state, read_book_mode, update_window_title
 from book_list.ui import show_panel
-from book_list.router import update_window_title, home
 from dom import clear
 from modals import create_simple_dialog_markup, error_dialog
 from read_book.db import get_db
+from read_book.globals import ui_operations
 from read_book.view import View
-from utils import debounce, human_readable
+from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
 
 RENDER_VERSION = __RENDER_VERSION__
@@ -53,9 +52,27 @@ class ReadUI:
         container.appendChild(E.div(
             id=self.display_id, style='display:none',
         ))
-        self.view = View(container.lastChild, self)
+        self.view = View(container.lastChild)
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
+        ui_operations.get_file = self.db.get_file
+        ui_operations.get_mathjax_files = self.db.get_mathjax_files
+        ui_operations.update_url_state = self.update_url_state.bind(self)
+        ui_operations.update_last_read_time = self.db.update_last_read_time
+        ui_operations.show_error = self.show_error.bind(self)
+        ui_operations.redisplay_book = self.redisplay_book.bind(self)
+        ui_operations.reload_book = self.reload_book.bind(self)
+        ui_operations.forward_gesture = self.forward_gesture.bind(self)
+        ui_operations.update_color_scheme = self.update_color_scheme.bind(self)
+        ui_operations.update_font_size = self.update_font_size.bind(self)
+        ui_operations.goto_cfi = self.goto_cfi.bind(self)
+        ui_operations.goto_frac = self.goto_frac.bind(self)
+        ui_operations.goto_book_position = self.goto_book_position.bind(self)
+        ui_operations.goto_book_position = self.goto_reference.bind(self)
+        ui_operations.delete_book = self.delete_book.bind(self)
+        ui_operations.focus_iframe = self.focus_iframe.bind(self)
+        ui_operations.toggle_toc = self.toggle_toc.bind(self)
+        ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -139,8 +156,38 @@ class ReadUI:
     def redisplay_book(self):
         self.view.redisplay_book()
 
+    def forward_gesture(self, gesture):
+        self.view.forward_gesture(gesture)
+
     def update_font_size(self):
         self.view.update_font_size()
+
+    def goto_cfi(self, bookpos):
+        return self.view.goto_cfi(bookpos)
+
+    def goto_frac(self, frac):
+        return self.view.goto_frac(frac)
+
+    def goto_book_position(self, bpos):
+        return self.view.goto_book_position(bpos)
+
+    def goto_reference(self, ref):
+        return self.view.goto_reference(ref)
+
+    def delete_book(self, book, proceed):
+        self.db.delete_book(book, proceed)
+
+    def focus_iframe(self):
+        self.view.focus_iframe()
+
+    def toggle_toc(self):
+        self.view.overlay.show_toc()
+
+    def toggle_full_screen(self):
+        if full_screen_element():
+            document.exitFullscreen()
+        else:
+            request_full_screen(document.documentElement)
 
     def update_color_scheme(self):
         self.view.update_color_scheme()
@@ -200,7 +247,7 @@ class ReadUI:
             return
         if end_type is not 'load':
             return self.show_error(_('Failed to load book manifest'),
-                _('Could not open {title} as the book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                _('The book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)
         try:
             manifest = JSON.parse(xhr.responseText)
@@ -251,6 +298,16 @@ class ReadUI:
         progress_track = {}
         pbar.setAttribute('max', total + '')
         raster_cover_name = book.manifest.raster_cover_name
+        if not raster_cover_name:
+            nnum = 1
+            base = 'raster-cover-image-{}.jpg'
+            inserted_name = base.format(nnum)
+            while inserted_name in files_left:
+                nnum += 1
+                inserted_name = base.format(nnum)
+            raster_cover_name = inserted_name
+            files_left.add(raster_cover_name)
+
         raster_cover_size = 0
 
         def update_progress():
@@ -299,7 +356,7 @@ class ReadUI:
             if this is raster_cover_name and not cover_total_updated:
                 raster_cover_size = ftotal
                 cover_total_updated = True
-                total = total - files[raster_cover_name].size + raster_cover_size
+                total = total - (files[raster_cover_name]?.size or 0) + raster_cover_size
                 pbar.setAttribute('max', total + '')
             progress_track[this] = loaded
             update_progress()
@@ -307,7 +364,7 @@ class ReadUI:
         def start_download(fname, path):
             xhr = ajax(path, on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=fname is raster_cover_name)
             xhr.responseType = 'text'
-            if not book.manifest.files[fname].is_virtualized:
+            if not book.manifest.files[fname]?.is_virtualized:
                 xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
             xhr.send()
             self.downloads_in_progress.append(xhr)
@@ -335,7 +392,7 @@ class ReadUI:
                 return
             if end_type is not 'load':
                 return self.show_error(_('Failed to load MathJax manifest'),
-                    _('Could not open {title} as the MathJax manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                    _('The MathJax manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
                                     xhr.error_html)
             try:
                 manifest = JSON.parse(xhr.responseText)
@@ -445,6 +502,9 @@ class ReadUI:
         window.scrollTo(0, 0)  # Ensure we are at the top of the window
         if same:
             if current_state.bookpos is not current_query.bookpos and current_query.bookpos:
-                self.view.goto_bookpos(current_query.bookpos)
+                self.view.goto_cfi(current_query.bookpos)
         else:
             self.load_book(current_query.library_id, int(current_query.book_id), current_query.fmt, library_data.metadata[current_query.book_id])
+
+    def update_url_state(self, replace):
+        push_state(self.url_data, replace=replace, mode=read_book_mode)

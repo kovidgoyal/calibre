@@ -151,7 +151,7 @@ static inline int
 compare_lines(struct line *a, struct line *b)
 {
     return ((a->hash != b->hash)
-            || PyObject_Compare(a->data, b->data));
+            || PyObject_RichCompareBool(a->data, b->data, Py_NE));
 }
 
 
@@ -804,7 +804,7 @@ PatienceSequenceMatcher_dealloc(PatienceSequenceMatcher* self)
     free(self->hashtable.table);
     delete_lines(self->b, self->bsize);
     delete_lines(self->a, self->asize);
-    self->ob_type->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 
@@ -1209,73 +1209,91 @@ static char PatienceSequenceMatcher_doc[] =
 
 
 static PyTypeObject PatienceSequenceMatcherType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                           /* ob_size */
-    "PatienceSequenceMatcher",                   /* tp_name */
-    sizeof(PatienceSequenceMatcher),             /* tp_basicsize */
-    0,                                           /* tp_itemsize */
-    (destructor)PatienceSequenceMatcher_dealloc, /* tp_dealloc */
-    0,                                           /* tp_print */
-    0,                                           /* tp_getattr */
-    0,                                           /* tp_setattr */
-    0,                                           /* tp_compare */
-    0,                                           /* tp_repr */
-    0,                                           /* tp_as_number */
-    0,                                           /* tp_as_sequence */
-    0,                                           /* tp_as_mapping */
-    0,                                           /* tp_hash */
-    0,                                           /* tp_call */
-    0,                                           /* tp_str */
-    0,                                           /* tp_getattro */
-    0,                                           /* tp_setattro */
-    0,                                           /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,                          /* tp_flags*/
-    PatienceSequenceMatcher_doc,                 /* tp_doc */
-    0,                                           /* tp_traverse */
-    0,                                           /* tp_clear */
-    0,                                           /* tp_richcompare */
-    0,                                           /* tp_weaklistoffset */
-    0,                                           /* tp_iter */
-    0,                                           /* tp_iternext */
-    PatienceSequenceMatcher_methods,             /* tp_methods */
-    0,                                           /* tp_members */
-    0,                                           /* tp_getset */
-    0,                                           /* tp_base */
-    0,                                           /* tp_dict */
-    0,                                           /* tp_descr_get */
-    0,                                           /* tp_descr_set */
-    0,                                           /* tp_dictoffset */
-    0,                                           /* tp_init */
-    0,                                           /* tp_alloc */
-    PatienceSequenceMatcher_new,                 /* tp_new */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "PatienceSequenceMatcher",
+    /* tp_basicsize      */ sizeof(PatienceSequenceMatcher),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)PatienceSequenceMatcher_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT,
+    /* tp_doc            */ PatienceSequenceMatcher_doc,
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ PatienceSequenceMatcher_methods,
+    /* tp_members        */ 0,
+    /* tp_getset         */ 0,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ 0,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ PatienceSequenceMatcher_new,
 };
 
-
-static PyMethodDef cpatiencediff_methods[] = {
+static PyMethodDef _patiencediff_c_methods[] = {
     {"unique_lcs_c", py_unique_lcs, METH_VARARGS},
     {"recurse_matches_c", py_recurse_matches, METH_VARARGS},
-    {NULL, NULL}
+    {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef _patiencediff_c_module = {
+        /* m_base     */ PyModuleDef_HEAD_INIT,
+        /* m_name     */ "_patiencediff_c",
+        /* m_doc      */ "C implementation of PatienceSequenceMatcher.",
+        /* m_size     */ -1,
+        /* m_methods  */ _patiencediff_c_methods,
+        /* m_slots    */ 0,
+        /* m_traverse */ 0,
+        /* m_clear    */ 0,
+        /* m_free     */ 0,
+};
 
-CALIBRE_MODINIT_FUNC
-init_patiencediff_c(void)
-{
-    PyObject* m;
-
+CALIBRE_MODINIT_FUNC PyInit__patiencediff_c(void) {
     if (PyType_Ready(&PatienceSequenceMatcherType) < 0)
-        return;
+        INITERROR;
 
-    m = Py_InitModule3("_patiencediff_c", cpatiencediff_methods,
-                       "C implementation of PatienceSequenceMatcher");
-    if (m == NULL)
-      return;
+    PyObject *mod = PyModule_Create(&_patiencediff_c_module);
+#else
+#define INITERROR return
+CALIBRE_MODINIT_FUNC init_patiencediff_c(void) {
+    if (PyType_Ready(&PatienceSequenceMatcherType) < 0)
+        INITERROR;
+
+    PyObject *mod = Py_InitModule3("_patiencediff_c", _patiencediff_c_methods,
+        "C implementation of PatienceSequenceMatcher");
+#endif
+
+    if (mod == NULL) INITERROR;
 
     Py_INCREF(&PatienceSequenceMatcherType);
-    PyModule_AddObject(m, "PatienceSequenceMatcher_c",
+    PyModule_AddObject(mod, "PatienceSequenceMatcher_c",
                        (PyObject *)&PatienceSequenceMatcherType);
+
+
+#if PY_MAJOR_VERSION >= 3
+    return mod;
+#endif
 }
 
-
-/* vim: sw=4 et 
- */
+/* vim: sw=4 et */

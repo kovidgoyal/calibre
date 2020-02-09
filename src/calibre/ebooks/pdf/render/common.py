@@ -1,19 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, zlib
+import codecs, zlib, numbers
 from io import BytesIO
 from datetime import datetime
-from binascii import hexlify
 
 from calibre.constants import plugins, ispy3
 from calibre.utils.logging import default_log
+from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr
+from polyglot.binary import as_hex_bytes
 
 pdf_float = plugins['speedup'][0].pdf_float
 
@@ -55,16 +55,11 @@ PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
 
 # }}}
 
-# Basic PDF datatypes {{{
-
-ic = str if ispy3 else unicode
-icb = (lambda x: str(x).encode('ascii')) if ispy3 else bytes
-
 
 def fmtnum(o):
     if isinstance(o, float):
         return pdf_float(o)
-    return ic(o)
+    return unicode_type(o)
 
 
 def serialize(o, stream):
@@ -73,8 +68,8 @@ def serialize(o, stream):
     elif isinstance(o, bool):
         # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
-    elif isinstance(o, (int, long)):
-        stream.write_raw(icb(o))
+    elif isinstance(o, numbers.Integral):
+        stream.write_raw(unicode_type(o).encode('ascii') if ispy3 else bytes(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:
@@ -88,14 +83,17 @@ def serialize(o, stream):
         raise ValueError('Unknown object: %r'%o)
 
 
-class Name(unicode):
+class Name(unicode_type):
 
     def pdf_serialize(self, stream):
         raw = self.encode('ascii')
         if len(raw) > 126:
             raise ValueError('Name too long: %r'%self)
-        buf = [x if 33 < ord(x) < 126 and x != b'#' else b'#'+hex(ord(x)) for x
-               in raw]
+        raw = bytearray(raw)
+        sharp = ord(b'#')
+        buf = (
+            codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
+            '#{:x}'.format(x).encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
 
@@ -122,7 +120,7 @@ def escape_pdf_string(bytestring):
     return bytes(ba)
 
 
-class String(unicode):
+class String(unicode_type):
 
     def pdf_serialize(self, stream):
         try:
@@ -134,14 +132,14 @@ class String(unicode):
         stream.write(b'('+escape_pdf_string(raw)+b')')
 
 
-class UTF16String(unicode):
+class UTF16String(unicode_type):
 
     def pdf_serialize(self, stream):
         raw = codecs.BOM_UTF16_BE + self.encode('utf-16-be')
         if False:
             # Disabled as the parentheses based strings give easier to debug
             # PDF files
-            stream.write(b'<' + hexlify(raw) + b'>')
+            stream.write(b'<' + as_hex_bytes(raw) + b'>')
         else:
             stream.write(b'('+escape_pdf_string(raw)+b')')
 
@@ -150,7 +148,7 @@ class Dictionary(dict):
 
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
-        sorted_keys = sorted(self.iterkeys(),
+        sorted_keys = sorted(self,
                              key=lambda x:({'Type':'1', 'Subtype':'2'}.get(
                                  x, x)+x))
         for k in sorted_keys:
@@ -165,7 +163,7 @@ class InlineDictionary(Dictionary):
 
     def pdf_serialize(self, stream):
         stream.write(b'<< ')
-        for k, v in self.iteritems():
+        for k, v in iteritems(self):
             serialize(Name(k), stream)
             stream.write(b' ')
             serialize(v, stream)

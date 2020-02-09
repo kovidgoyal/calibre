@@ -10,6 +10,7 @@ from textwrap import TextWrapper
 from io import BytesIO
 
 from calibre import prints
+from polyglot.builtins import unicode_type, map
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -79,13 +80,13 @@ def do_list(fields, data, opts):
     widths = list(map(lambda x: 0, fields))
     for i in data:
         for j, field in enumerate(fields):
-            widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
+            widths[j] = max(widths[j], max(len(field), len(unicode_type(i[field]))))
 
     screen_width = geometry()[0]
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = map(lambda x: min(x + 1, field_width), widths)
+    base_widths = list(map(lambda x: min(x + 1, field_width), widths))
 
     while sum(base_widths) < screen_width:
         adjusted = False
@@ -106,11 +107,11 @@ def do_list(fields, data, opts):
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))
 
-    wrappers = map(lambda x: TextWrapper(x - 1), widths)
+    wrappers = list(map(lambda x: TextWrapper(x - 1), widths))
 
     for record in data:
         text = [
-            wrappers[i].wrap(unicode(record[field]))
+            wrappers[i].wrap(unicode_type(record[field]))
             for i, field in enumerate(fields)
         ]
         lines = max(map(len, text))
@@ -129,7 +130,7 @@ def do_csv(fields, data, opts):
     for d in data:
         row = [d[f] for f in fields]
         csv_print.writerow([
-            x if isinstance(x, bytes) else unicode(x).encode('utf-8') for x in row
+            x if isinstance(x, bytes) else unicode_type(x).encode('utf-8') for x in row
         ])
     print(buf.getvalue())
 
@@ -148,9 +149,7 @@ def main(opts, args, dbctx):
         (not report_on or k in report_on)
     ]
 
-    categories.sort(
-        cmp=lambda x, y: cmp(x if x[0] != '#' else x[1:], y if y[0] != '#' else y[1:])
-    )
+    categories.sort(key=lambda x: x if x[0] != '#' else x[1:])
 
     def fmtr(v):
         v = v or 0
@@ -164,11 +163,11 @@ def main(opts, args, dbctx):
             is_rating = category_metadata(category)['datatype'] == 'rating'
             for tag in category_data[category]:
                 if is_rating:
-                    tag.name = unicode(len(tag.name))
+                    tag.name = unicode_type(len(tag.name))
                 data.append({
                     'category': category,
                     'tag_name': tag.name,
-                    'count': unicode(tag.count),
+                    'count': unicode_type(tag.count),
                     'rating': fmtr(tag.avg_rating),
                 })
     else:
@@ -176,7 +175,7 @@ def main(opts, args, dbctx):
             data.append({
                 'category': category,
                 'tag_name': _('CATEGORY ITEMS'),
-                'count': unicode(len(category_data[category])),
+                'count': unicode_type(len(category_data[category])),
                 'rating': ''
             })
 

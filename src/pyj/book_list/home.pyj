@@ -9,7 +9,7 @@ from ajax import ajax_send
 from book_list.constants import has_offline_support
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
-from book_list.library_data import last_virtual_library_for, sync_library_books
+from book_list.library_data import last_virtual_library_for, sync_library_books, all_libraries
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
@@ -241,8 +241,7 @@ def init(container_id):
     container.appendChild(E.h2(_('Choose the calibre library to browse…')))
     container.appendChild(E.div(style='display: flex; flex-wrap: wrap'))
     cl = container.lastChild
-    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
-    for library_id in lids:
+    for library_id, library_name in all_libraries():
         library_name = interface_data.library_map[library_id]
         if library_name:
             cl.appendChild(

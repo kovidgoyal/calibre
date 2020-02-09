@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -7,8 +8,10 @@ Code for the conversion of ebook formats and the reading of metadata
 from various formats.
 '''
 
-import traceback, os, re
-from calibre import CurrentDir, prints
+import os, re, numbers, sys
+from calibre import prints
+from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import unicode_type
 
 
 class ConversionError(Exception):
@@ -38,40 +41,6 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'textile', 'markdown', 'ibook', 'ibooks', 'iba', 'azw3', 'ps', 'kepub', 'kfx']
 
 
-class HTMLRenderer(object):
-
-    def __init__(self, page, loop):
-        self.page, self.loop = page, loop
-        self.data = ''
-        self.exception = self.tb = None
-
-    def __call__(self, ok):
-        from PyQt5.Qt import QImage, QPainter, QByteArray, QBuffer
-        try:
-            if not ok:
-                raise RuntimeError('Rendering of HTML failed.')
-            de = self.page.mainFrame().documentElement()
-            pe = de.findFirst('parsererror')
-            if not pe.isNull():
-                raise ParserError(pe.toPlainText())
-            image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
-            image.setDotsPerMeterX(96*(100/2.54))
-            image.setDotsPerMeterY(96*(100/2.54))
-            painter = QPainter(image)
-            self.page.mainFrame().render(painter)
-            painter.end()
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            image.save(buf, 'JPEG')
-            self.data = str(ba.data())
-        except Exception as e:
-            self.exception = e
-            self.traceback = traceback.format_exc()
-        finally:
-            self.loop.exit(0)
-
-
 def return_raster_image(path):
     from calibre.utils.imghdr import what
     if os.access(path, os.R_OK):
@@ -82,9 +51,9 @@ def return_raster_image(path):
 
 
 def extract_cover_from_embedded_svg(html, base, log):
-    from lxml import etree
     from calibre.ebooks.oeb.base import XPath, SVG, XLINK
-    root = etree.fromstring(html)
+    from calibre.utils.xml_parse import safe_xml_fromstring
+    root = safe_xml_fromstring(html)
 
     svg = XPath('//svg:svg')(root)
     if len(svg) == 1 and len(svg[0]) == 1 and svg[0][0].tag == SVG('image'):
@@ -100,7 +69,7 @@ def extract_calibre_cover(raw, base, log):
     soup = BeautifulSoup(raw)
     matches = soup.find(name=['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span',
         'font', 'br'])
-    images = soup.findAll('img')
+    images = soup.findAll('img', src=True)
     if matches is None and len(images) == 1 and \
             images[0].get('alt', '').lower()=='cover':
         img = images[0]
@@ -113,104 +82,77 @@ def extract_calibre_cover(raw, base, log):
     if matches is None:
         body = soup.find('body')
         if body is not None:
-            text = u''.join(map(unicode, body.findAll(text=True)))
+            text = u''.join(map(unicode_type, body.findAll(text=True)))
             if text.strip():
                 # Body has text, abort
                 return
             images = body.findAll('img', src=True)
-            if 0 < len(images) < 2:
+            if len(images) == 1:
                 img = os.path.join(base, *images[0]['src'].split('/'))
                 return return_raster_image(img)
 
 
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
-    raw = open(path_to_html, 'rb').read()
+    with open(path_to_html, 'rb') as f:
+        raw = f.read()
+    raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     data = None
     if SVG_NS in raw:
         try:
             data = extract_cover_from_embedded_svg(raw,
                    os.path.dirname(path_to_html), log)
-        except:
+        except Exception:
             pass
     if data is None:
         try:
             data = extract_calibre_cover(raw, os.path.dirname(path_to_html), log)
-        except:
+        except Exception:
             pass
 
     if data is None:
-        from calibre.gui2 import is_ok_to_use_qt
-        if is_ok_to_use_qt():
-            data = render_html_data(path_to_html, width, height)
-        else:
-            from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-            try:
-                result = fork_job('calibre.ebooks',
-                                  'render_html_data',
-                                  (path_to_html, width, height),
-                                  no_output=True)
-                data = result['result']
-            except WorkerError as err:
-                prints(err.orig_tb)
-            except:
-                traceback.print_exc()
+        data = render_html_data(path_to_html, width, height)
     return data
 
 
 def render_html_data(path_to_html, width, height):
-    renderer = render_html(path_to_html, width, height)
-    return getattr(renderer, 'data', None)
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+    result = {}
 
+    def report_error(text=''):
+        prints('Failed to render', path_to_html, 'with errors:', file=sys.stderr)
+        if text:
+            prints(text, file=sys.stderr)
+        if result and result['stdout_stderr']:
+            with open(result['stdout_stderr'], 'rb') as f:
+                prints(f.read(), file=sys.stderr)
 
-def render_html(path_to_html, width=590, height=750, as_xhtml=True):
-    from PyQt5.QtWebKitWidgets import QWebPage
-    from PyQt5.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
-    from calibre.gui2 import is_ok_to_use_qt, secure_web_page
-    if not is_ok_to_use_qt():
-        return None
-    path_to_html = os.path.abspath(path_to_html)
-    with CurrentDir(os.path.dirname(path_to_html)):
-        page = QWebPage()
-        settings = page.settings()
-        secure_web_page(settings)
-        pal = page.palette()
-        pal.setBrush(QPalette.Background, Qt.white)
-        page.setPalette(pal)
-        page.setViewportSize(QSize(width, height))
-        page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-        loop = QEventLoop()
-        renderer = HTMLRenderer(page, loop)
-        page.loadFinished.connect(renderer, type=Qt.QueuedConnection)
-        if as_xhtml:
-            page.mainFrame().setContent(open(path_to_html, 'rb').read(),
-                    'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
+    with TemporaryDirectory('-render-html') as tdir:
+        try:
+            result = fork_job('calibre.ebooks.render_html', 'main', args=(path_to_html, tdir, 'jpeg'))
+        except WorkerError as e:
+            report_error(e.orig_tb)
         else:
-            page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
-        loop.exec_()
-    renderer.loop = renderer.page = None
-    page.loadFinished.disconnect()
-    del page
-    del loop
-    if isinstance(renderer.exception, ParserError) and as_xhtml:
-        return render_html(path_to_html, width=width, height=height,
-                as_xhtml=False)
-    return renderer
+            if result['result']:
+                with open(os.path.join(tdir, 'rendered.jpeg'), 'rb') as f:
+                    return f.read()
+            else:
+                report_error()
 
 
 def check_ebook_format(stream, current_guess):
     ans = current_guess
     if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
-        if stream.read(3) == 'TPZ':
+        if stream.read(3) == b'TPZ':
             ans = 'tpz'
         stream.seek(0)
     return ans
 
 
 def normalize(x):
-    if isinstance(x, unicode):
+    if isinstance(x, unicode_type):
         import unicodedata
         x = unicodedata.normalize('NFC', x)
     return x
@@ -232,7 +174,7 @@ UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem
 
 def unit_convert(value, base, font, dpi, body_font_size=12):
     ' Return value in pts'
-    if isinstance(value, (int, long, float)):
+    if isinstance(value, numbers.Number):
         return value
     try:
         return float(value) * 72.0 / dpi

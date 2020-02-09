@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,6 +17,7 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
 from calibre.gui2 import error_dialog, question_dialog
+from polyglot.builtins import iteritems
 
 
 class SourcesModel(QAbstractTableModel):  # {{{
@@ -117,7 +117,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         return Qt.ItemIsEditable | ans
 
     def commit(self):
-        for plugin, val in self.enabled_overrides.iteritems():
+        for plugin, val in iteritems(self.enabled_overrides):
             if val == Qt.Checked:
                 enable_plugin(plugin)
             elif val == Qt.Unchecked:
@@ -125,7 +125,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
         if self.cover_overrides:
             cp = msprefs['cover_priorities']
-            for plugin, val in self.cover_overrides.iteritems():
+            for plugin, val in iteritems(self.cover_overrides):
                 if val == 1:
                     cp.pop(plugin.name, None)
                 else:
@@ -235,7 +235,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit(self):
         ignored_fields = {x for x in msprefs['ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in self.overrides.iteritems() if v ==
+        changed = {k for k, v in iteritems(self.overrides) if v ==
             Qt.Unchecked}
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
@@ -251,7 +251,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit_user_defaults(self):
         default_ignored_fields = {x for x in msprefs['user_default_ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in self.overrides.iteritems() if v ==
+        changed = {k for k, v in iteritems(self.overrides) if v ==
             Qt.Unchecked}
         msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 
@@ -306,6 +306,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('fewer_tags', msprefs)
         r('find_first_edition_date', msprefs)
         self.opt_find_first_edition_date.setVisible(False)
+        r('keep_dups', msprefs)
         r('append_comments', msprefs)
 
         self.configure_plugin_button.clicked.connect(self.configure_plugin)
@@ -327,6 +328,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tag_map_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
         self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
+        l = self.page.layout()
+        l.setStretch(0, 1)
+        l.setStretch(1, 1)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

@@ -1,25 +1,26 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys, re
+import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, string_or_bytes, filter
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import cache_dir, get_windows_number_formats, iswindows
+from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 
 from calibre.utils.localization import canonicalize_lang
 
 
 def force_to_bool(val):
-    if isinstance(val, (str, unicode)):
+    if isinstance(val, (bytes, unicode_type)):
+        if isinstance(val, bytes):
+            val = val.decode(preferred_encoding, 'replace')
         try:
             val = icu_lower(val)
             if not val:
@@ -43,7 +44,7 @@ def fuzzy_title_patterns():
     if _fuzzy_title_patterns is None:
         from calibre.ebooks.metadata import get_title_sort_pat
         _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
+            isinstance(pat, string_or_bytes) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),
@@ -162,7 +163,7 @@ class ThumbnailCache(object):
         invalidate = set()
         try:
             with open(os.path.join(self.location, 'invalidate'), 'rb') as f:
-                raw = f.read()
+                raw = f.read().decode('utf-8')
         except EnvironmentError as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
                 self.log('Failed to read thumbnail invalidate data:', as_unicode(err))
@@ -200,13 +201,13 @@ class ThumbnailCache(object):
         except EnvironmentError as err:
             self.log('Failed to read thumbnail cache dir:', as_unicode(err))
 
-        self.items = OrderedDict(sorted(items, key=lambda x:order.get(hash(x[0]), 0)))
+        self.items = OrderedDict(sorted(items, key=lambda x:order.get(x[0], 0)))
         self._apply_size()
 
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = (key for key, entry in self.items.iteritems() if size != entry.thumbnail_size)
+            remove = tuple(key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False
@@ -226,17 +227,20 @@ class ThumbnailCache(object):
     def _write_order(self):
         if hasattr(self, 'items'):
             try:
-                with open(os.path.join(self.location, 'order'), 'wb') as f:
-                    f.write(cPickle.dumps(tuple(map(hash, self.items)), -1))
+                data = '\n'.join(group_id + ' ' + unicode_type(book_id) for (group_id, book_id) in self.items)
+                with lopen(os.path.join(self.location, 'order'), 'wb') as f:
+                    f.write(data.encode('utf-8'))
             except EnvironmentError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
     def _read_order(self):
         order = {}
         try:
-            with open(os.path.join(self.location, 'order'), 'rb') as f:
-                order = cPickle.loads(f.read())
-                order = {k:i for i, k in enumerate(order)}
+            with lopen(os.path.join(self.location, 'order'), 'rb') as f:
+                for line in f.read().decode('utf-8').splitlines():
+                    parts = line.split(' ', 1)
+                    if len(parts) == 2:
+                        order[(parts[0], int(parts[1]))] = len(order)
         except Exception as err:
             if getattr(err, 'errno', None) != errno.ENOENT:
                 self.log('Failed to load thumbnail cache order:', as_unicode(err))
@@ -251,9 +255,13 @@ class ThumbnailCache(object):
             self.group_id = group_id
 
     def set_thumbnail_size(self, width, height):
+        new_size = (width, height)
         with self.lock:
-            self.thumbnail_size = (width, height)
-            self.size_changed = True
+            if new_size != self.thumbnail_size:
+                self.thumbnail_size = new_size
+                self.size_changed = True
+                return True
+        return False
 
     def insert(self, book_id, timestamp, data):
         if self.max_size < len(data):
@@ -360,7 +368,7 @@ class ThumbnailCache(object):
                 pass
             if not hasattr(self, 'total_size'):
                 self._load_index()
-            for entry in self.items.itervalues():
+            for entry in itervalues(self.items):
                 self._do_delete(entry.path)
             self.total_size = 0
             self.items = OrderedDict()

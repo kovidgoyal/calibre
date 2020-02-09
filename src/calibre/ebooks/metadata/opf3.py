@@ -8,7 +8,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from functools import wraps
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, map, filter
 
 from lxml import etree
 
@@ -190,9 +190,9 @@ def ensure_prefix(root, prefixes, prefix, value=None):
     if prefixes is None:
         prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
-    prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
+    prefixes = {k:v for k, v in iteritems(prefixes) if reserved_prefixes.get(k) != v}
     if prefixes:
-        root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in prefixes.iteritems()))
+        root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in iteritems(prefixes)))
     else:
         root.attrib.pop('prefix', None)
 
@@ -299,7 +299,7 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             remove_element(ident, refines)
             continue
     metadata = XPath('./opf:metadata')(root)[0]
-    for scheme, val in new_identifiers.iteritems():
+    for scheme, val in iteritems(new_identifiers):
         ident = metadata.makeelement(DC('identifier'))
         ident.text = '%s:%s' % (scheme, val)
         if package_identifier is None:
@@ -382,7 +382,7 @@ def set_title(root, prefixes, refines, title, title_sort=None):
     main_title = find_main_title(root, refines, remove_blanks=True)
     if main_title is None:
         m = XPath('./opf:metadata')(root)[0]
-        main_title = m.makeelement('dc:title')
+        main_title = m.makeelement(DC('title'))
         m.insert(0, main_title)
     main_title.text = title or None
     ts = [refdef('file-as', title_sort)] if title_sort else ()
@@ -411,7 +411,7 @@ def set_languages(root, prefixes, refines, languages):
         val = (lang.text or '').strip()
         if val:
             opf_languages.append(val)
-    languages = filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages))
+    languages = list(filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages)))
     if not languages:
         # EPUB spec says dc:language is required
         languages = ['und']
@@ -432,7 +432,8 @@ def is_relators_role(props, q):
     for role in props.get('role'):
         if role:
             scheme_ns, scheme, role = role
-            return role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators'))
+            if role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                return True
     return False
 
 
@@ -688,7 +689,7 @@ def read_tags(root, prefixes, refines):
     for dc in XPath('./opf:metadata/dc:subject')(root):
         if dc.text:
             ans.extend(map(normalize_whitespace, dc.text.split(',')))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def set_tags(root, prefixes, refines, val):
@@ -696,7 +697,7 @@ def set_tags(root, prefixes, refines, val):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
     if val:
-        val = uniq(filter(None, val))
+        val = uniq(list(filter(None, val)))
         for x in val:
             c = m.makeelement(DC('subject'))
             c.text = normalize_whitespace(x)
@@ -854,7 +855,7 @@ set_author_link_map = dict_writer('author_link_map')
 def deserialize_user_metadata(val):
     val = json.loads(val, object_hook=from_json)
     ans = {}
-    for name, fm in val.iteritems():
+    for name, fm in iteritems(val):
         decode_is_multiple(fm)
         ans[name] = fm
     return ans
@@ -969,7 +970,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
     identifiers = read_identifiers(root, prefixes, refines)
     ids = {}
-    for key, vals in identifiers.iteritems():
+    for key, vals in iteritems(identifiers):
         if key == 'calibre':
             ans.application_id = vals[0]
         elif key == 'uuid':
@@ -1007,7 +1008,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
         ans.series, ans.series_index = s, si
     ans.author_link_map = read_author_link_map(root, prefixes, refines) or ans.author_link_map
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
-    for name, fm in (read_user_metadata(root, prefixes, refines) or {}).iteritems():
+    for name, fm in iteritems((read_user_metadata(root, prefixes, refines) or {})):
         ans.set_user_metadata(name, fm)
     if return_extra_data:
         ans = ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)
@@ -1052,7 +1053,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
         set_publisher(root, prefixes, refines, mi.publisher)
     if ok('tags'):
         set_tags(root, prefixes, refines, mi.tags)
-    if ok('rating') and mi.rating > 0.1:
+    if ok('rating') and mi.rating is not None and mi.rating > 0.1:
         set_rating(root, prefixes, refines, mi.rating)
     if ok('series'):
         set_series(root, prefixes, refines, mi.series, mi.series_index or 1)

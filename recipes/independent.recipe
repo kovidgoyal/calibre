@@ -11,6 +11,13 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class TheIndependentNew(BasicNewsRecipe):
 
     title = u'The Independent'
@@ -65,7 +72,7 @@ class TheIndependentNew(BasicNewsRecipe):
             for li in div.findAll('li', attrs={'data-gallery-legend': True}):
                 src = imgs.get(li['data-gallery-legend'])
                 if src is not None:
-                    img = Tag(soup, 'img')
+                    img = new_tag(soup, 'img')
                     img['src'] = src
                     img['style'] = 'display:block'
                     li.append(img)

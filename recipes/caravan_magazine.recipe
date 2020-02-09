@@ -1,10 +1,11 @@
 # coding: utf-8
-import html5lib
-import re
-from lxml import etree
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.utils.cleantext import clean_xml_chars
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class CaravanMagazine(BasicNewsRecipe):
@@ -18,125 +19,47 @@ class CaravanMagazine(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(attrs={'class': ['post-title']}),
-        dict(attrs={'class': ['post-subhheading',
-                              'authorndate', 'rg-thumbs', 'entry-content']}),
+            classes('post-title short-desc author-details cover'),
+            dict(itemprop='articleBody'),
     ]
 
     remove_tags = [
+        dict(name='meta'),
         dict(attrs={'class': ['share-with']}),
     ]
 
-    def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(
-            clean_xml_chars(raw_html), treebuilder='lxml',
-            namespaceHTMLElements=False)
-        for s in root.xpath('//script'):
-            s.getparent().remove(s)
-        return etree.tostring(root, encoding=unicode)
-
-    def preprocess_html(self, soup):
-        # Handle the image carousel
-        carousel = soup.find('div', {'class': 'rg-thumbs'})
-        if carousel is not None:
-            # create a new container to collect all images
-            all_images = Tag(soup, 'div')
-            # all_images['class'] = 'rg-thumbs'
-            for index, img in enumerate(carousel.findAll('img')):
-                # create a new div to contain image and caption
-                div = Tag(soup, 'div')
-                div['style'] = 'text-align:left;font-size:70%;margin-bottom: 0.4em;'
-                ns = NavigableString(img['data-caption'])
-                img['src'] = img['data-large']
-                del img['data-large']
-                del img['data-caption']
-                del img['data-credit']
-                img.extract()
-                div.insert(0, img)
-                div.insert(1, Tag(soup, 'br'))
-                div.insert(3, ns)
-                div.insert(3, Tag(soup, 'br'))
-
-                all_images.insert(index, div)
-
-            # extracted all images, replace carousel with extracted images
-            carousel.replaceWith(all_images)
-
-        return soup
-
     # To parse artice toc
     def parse_index(self):
-
-        base_url = 'http://www.caravanmagazine.in'
-        raw = self.index_to_soup('{0}/current-issue'.format(base_url),
-                                 raw=True)
-        raw = raw.decode('utf-8')
-        raw = self.preprocess_raw_html(raw, None)
-        soup = self.index_to_soup(raw)
+        base_url = 'https://www.caravanmagazine.in/'
+        soup = self.index_to_soup('{0}magazine'.format(base_url))
 
         # find current issue cover
-        try:
-            cover_img = soup.find('div', {'class': 'issue-image'}).find('img')
-            # a = soup.find('a', rel=lambda x:x and '[field_c_issues_image]' in x)
-            # if a is not None:
-            self.cover_url = cover_img['src']
-        except:
-            pass
-
-        # ci = soup.find(attrs={'class': 'current-issue-block'})
-        ci = soup.findAll(attrs={'class': re.compile('archive-story.*')})
-        current_section = 'Section'
-        current_articles = []
         feeds = []
-
-        # define some reusable constants
-        heading_class = 'subject-heading'
-        content_class = 'subject-content'
-        stories_re = re.compile('({0}|{1}).*'.format(heading_class,
-                                                     content_class))
-
-        for story in ci:
-            for ele in story.findAll(attrs={'class': stories_re}):
-                if ele['class'].startswith(heading_class):
-                    # heading section
-                    if current_articles:
-                        self.log('Adding {0} articles to {1}'.format(
-                            len(current_articles), current_section))
-                        feeds.append((current_section, current_articles))
-                    current_section = self.tag_to_string(ele)
-                    current_articles = []
-                    self.log('Section:', current_section)
-                    pass
-                else:
-                    # content Section
-                    for art in ele.findAll('article',
-                                           attrs={'id': re.compile('post-.*')}):
-                        title = art.find('h1')
-                        if title is not None:
-                            a = title.find('a', href=True)
-                            if a is not None:
-                                href = a['href']
-
-                                # convert relative url to absolute url
-                                if href.startswith('/'):
-                                    href = '{0}{1}'.format(base_url, href)
-                                article = {
-                                    'title': self.tag_to_string(title),
-                                    'url': href
-                                }
-                                title.extract()
-                                desc = self.tag_to_string(art).strip()
-                                if desc:
-                                    article['description'] = desc
-                                current_articles.append(article)
-                                self.log('\t' + article['title'])
-                                self.log('\t\t' + article['url'])
-
-        # append any remaining articles that were probably from last section,
-        # we ran out of heading_class to push them
-        if current_articles:
-            self.log('Adding {0} articles to {1}'.format(
-                len(current_articles), current_section))
-            feeds.append((current_section, current_articles))
+        sections = soup.find(attrs={'class': lambda x: x and 'current-magazine-issue' in x.split()}).find(
+                attrs={'class': lambda x: x and 'sections' in x.split()})
+        for section in sections.findAll(attrs={'class': lambda x: x and 'section' in x.split()}):
+            a = section.find('a')
+            section_title = self.tag_to_string(a)
+            self.log('\nSection:', section_title)
+            articles = []
+            for article in section.findAll('article'):
+                details = article.find(attrs={'class': lambda x: x and 'details' in x.split()})
+                pre = details.find(attrs={'class': lambda x: x and 'pre-heading' in x.split()})
+                if pre is not None:
+                    pre.extract()
+                a = details.find('a')
+                url = base_url + a['href']
+                title = self.tag_to_string(a)
+                desc = self.tag_to_string(details.find('div'))
+                self.log('\t', title, url)
+                articles.append({'title': title, 'description': desc, 'url': url})
+            if articles:
+                feeds.append((section_title, articles))
 
         return feeds
+
+    def preprocess_html(self, soup):
+        for div in soup.findAll(itemprop='image'):
+            for img in div.findAll('img'):
+                img['src'] = div['content']
+        return soup

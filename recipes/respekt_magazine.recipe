@@ -107,7 +107,7 @@ class respektRecipe(BasicNewsRecipe):
         self.browser.open('https://www.respekt.cz/?do=logout')
 
     def preprocess_html(self,soup):
-        raw = u''.join(unicode(a) for a in soup.contents)
+        raw = u''.join(type(u'')(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
         # Fix Letem světem
         if "Letem sv" in root.xpath("//title")[0].text:
@@ -169,4 +169,4 @@ class respektRecipe(BasicNewsRecipe):
             o.getparent().replace(o,e)
         except:
             pass
-        return(BeautifulSoup(lxml.etree.tostring(root,encoding=unicode)))
+        return(BeautifulSoup(lxml.etree.tostring(root,encoding='unicode')))

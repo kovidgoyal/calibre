@@ -4,7 +4,10 @@ __copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 tomshardware.com/us
 '''
 
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
@@ -30,7 +33,7 @@ class Tomshardware(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX + '/us/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'action': 'login_action', 'r': self.INDEX + '/us/', 'login': self.username, 'mdp': self.password
+            data = urlencode({'action': 'login_action', 'r': self.INDEX + '/us/', 'login': self.username, 'mdp': self.password
                                      })
             br.open(self.LOGIN, data)
         return br
@@ -57,8 +60,8 @@ class Tomshardware(BasicNewsRecipe):
     def cleanup_image_tags(self, soup):
         for item in soup.findAll('img'):
             for attrib in ['height', 'width', 'border', 'align']:
-                if item.has_key(attrib):  # noqa
-                    del item[attrib]
+                item[attrib] = ''
+                del item[attrib]
         return soup
 
     def preprocess_html(self, soup):

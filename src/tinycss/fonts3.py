@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -50,13 +49,14 @@ def serialize_single_font_family(x):
             xl = 'sans-serif'
         return xl
     if SIMPLE_NAME_PAT.match(x) is not None and not x.lower().startswith('and'):
-        # cssutils dies if a font name starts with and
+        # css_parser dies if a font name starts with and
         return x
     return '"%s"' % x.replace('"', r'\"')
 
 
 def serialize_font_family(families):
     return ', '.join(map(serialize_single_font_family, families))
+
 
 GLOBAL_IDENTS = frozenset('inherit initial unset normal'.split())
 STYLE_IDENTS = frozenset('italic oblique'.split())

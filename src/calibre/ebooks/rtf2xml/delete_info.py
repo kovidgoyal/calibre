@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class DeleteInfo:
@@ -185,8 +187,8 @@ class DeleteInfo:
     def delete_info(self):
         """Main method for handling other methods. Read one line at
         a time, and determine whether to print the line based on the state."""
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     # ob<nu<open-brack<0001
                     self.__token_info = line[:16]

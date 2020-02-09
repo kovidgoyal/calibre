@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>843</width>
-    <height>552</height>
+    <width>839</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,9 +15,9 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="ScrollingTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="main_interface_tab">
       <attribute name="icon">
@@ -726,24 +726,54 @@ A value of zero means calculate automatically.</string>
       <attribute name="title">
        <string>&amp;Book details</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_12">
-       <item row="4" column="1">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="6" column="0">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Text styling</string>
          </property>
-         <property name="wordWrap">
-          <bool>true</bool>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QPlainTextEdit" name="opt_book_details_css"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QPushButton" name="id_links_button">
+         <property name="text">
+          <string>Create rules to convert &amp;identifiers into links</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0" rowspan="2">
+       <item row="1" column="0" colspan="2">
+        <widget class="QWidget" name="default_author_link_container" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="1">
+          <item row="3" column="1">
+           <widget class="QToolButton" name="df_down_button">
+            <property name="toolTip">
+             <string>Move down</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
            <widget class="QToolButton" name="df_up_button">
             <property name="toolTip">
              <string>Move up</string>
@@ -755,24 +785,6 @@ A value of zero means calculate automatically.</string>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QToolButton" name="df_down_button">
-            <property name="toolTip">
-             <string>Move down</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" rowspan="3">
-           <widget class="QListView" name="field_display_order">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
            <spacer name="verticalSpacer_5">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -785,10 +797,27 @@ A value of zero means calculate automatically.</string>
             </property>
            </spacer>
           </item>
+          <item row="1" column="0" rowspan="3">
+           <widget class="QListView" name="field_display_order">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="0" column="0" colspan="2">
         <layout class="QHBoxLayout">
          <item>
           <widget class="QCheckBox" name="opt_bd_show_cover">
@@ -832,35 +861,29 @@ A value of zero means calculate automatically.</string>
          </item>
         </layout>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QPushButton" name="id_links_button">
-         <property name="text">
-          <string>Create rules to convert &amp;identifiers into links</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QWidget" name="default_author_link_container" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_25">
-         <property name="text">
-          <string>How to display text in the 'Narrow' &amp;layout:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_book_details_narrow_comments_layout</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="opt_book_details_narrow_comments_layout"/>
+       <item row="4" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_25">
+           <property name="text">
+            <string>Show comments &amp;heading:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_book_details_comments_heading_pos</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="opt_book_details_comments_heading_pos">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -1295,6 +1318,12 @@ column being examined (the left-hand pane)</string>
    <class>EditWithComplete</class>
    <extends>QComboBox</extends>
    <header>calibre/gui2/complete2.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollingTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

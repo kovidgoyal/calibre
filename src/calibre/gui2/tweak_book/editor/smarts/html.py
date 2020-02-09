@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,11 +9,12 @@ import sys, re
 from operator import itemgetter
 from itertools import chain
 
-from cssutils import parseStyle
+from css_parser import parseStyle
 from PyQt5.Qt import QTextEdit, Qt, QTextCursor
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
+from calibre.ebooks.oeb.base import css_text
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.gui2.tweak_book import tprefs, current_container
@@ -23,9 +23,11 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
     get_text_after_cursor, smart_home, smart_backspace, smart_tab, expand_tabs)
 from calibre.utils.icu import utf16_length
+from polyglot.builtins import unicode_type
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
+DEFAULT_LINK_TEMPLATE = '<a href="_TARGET_">_TEXT_</a>'
 
 
 class Tag(object):
@@ -56,7 +58,7 @@ def next_tag_boundary(block, offset, forward=True, max_lines=10000):
                 if not forward and boundary.offset < offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
-        offset = -1 if forward else sys.maxint
+        offset = -1 if forward else sys.maxsize
         max_lines -= 1
     return None, None
 
@@ -72,11 +74,11 @@ def next_attr_boundary(block, offset, forward=True):
                 if not forward and boundary.offset <= offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
-        offset = -1 if forward else sys.maxint
+        offset = -1 if forward else sys.maxsize
     return None, None
 
 
-def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
+def find_closest_containing_tag(block, offset, max_tags=sys.maxsize):
     ''' Find the closest containing tag. To find it, we search for the first
     opening tag that does not have a matching closing tag before the specified
     position. Search through at most max_tags. '''
@@ -178,7 +180,7 @@ def find_end_of_attribute(block, offset):
     return block, boundary.offset
 
 
-def find_closing_tag(tag, max_tags=sys.maxint):
+def find_closing_tag(tag, max_tags=sys.maxsize):
     ''' Find the closing tag corresponding to the specified tag. To find it we
     search for the first closing tag after the specified tag that does not
     match a previous opening tag. Search through at most max_tags. '''
@@ -212,7 +214,7 @@ def find_closing_tag(tag, max_tags=sys.maxint):
 def select_tag(cursor, tag):
     cursor.setPosition(tag.start_block.position() + tag.start_offset)
     cursor.setPosition(tag.end_block.position() + tag.end_offset + 1, cursor.KeepAnchor)
-    return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+    return unicode_type(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
 
 
 def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
@@ -278,7 +280,7 @@ def set_style_property(tag, property_name, value, editor):
     c = editor.textCursor()
 
     def css(d):
-        return d.cssText.replace('\n', ' ')
+        return css_text(d).replace('\n', ' ')
     if block is None or offset is None:
         d = parseStyle('')
         d.setProperty(property_name, value)
@@ -320,10 +322,10 @@ class Smarts(NullSmarts):
             a = QTextEdit.ExtraSelection()
             a.cursor, a.format = editor.textCursor(), editor.match_paren_format
             a.cursor.setPosition(tag.start_block.position()), a.cursor.movePosition(a.cursor.EndOfBlock, a.cursor.KeepAnchor)
-            text = unicode(a.cursor.selectedText())
+            text = unicode_type(a.cursor.selectedText())
             start_pos = utf16_length(text[:tag.start_offset])
             a.cursor.setPosition(tag.end_block.position()), a.cursor.movePosition(a.cursor.EndOfBlock, a.cursor.KeepAnchor)
-            text = unicode(a.cursor.selectedText())
+            text = unicode_type(a.cursor.selectedText())
             end_pos = utf16_length(text[:tag.end_offset + 1])
             a.cursor.setPosition(tag.start_block.position() + start_pos)
             a.cursor.setPosition(tag.end_block.position() + end_pos, a.cursor.KeepAnchor)
@@ -407,18 +409,18 @@ class Smarts(NullSmarts):
             editor.setTextCursor(cursor)
         return editor.selected_text_from_cursor(cursor)
 
-    def insert_hyperlink(self, editor, target, text):
+    def insert_hyperlink(self, editor, target, text, template=None):
+        template = template or DEFAULT_LINK_TEMPLATE
+        template = template.replace('_TARGET_', prepare_string_for_xml(target, True))
+        offset = template.find('_TEXT_')
         editor.highlighter.join()
         c = editor.textCursor()
         if c.hasSelection():
             c.insertText('')  # delete any existing selected text
         ensure_not_within_tag_definition(c)
-        c.insertText('<a href="%s">' % prepare_string_for_xml(target, True))
-        p = c.position()
-        c.insertText('</a>')
+        p = c.position() + offset
+        c.insertText(template.replace('_TEXT_', text or ''))
         c.setPosition(p)  # ensure cursor is positioned inside the newly created tag
-        if text:
-            c.insertText(text)
         editor.setTextCursor(c)
 
     def insert_tag(self, editor, name):
@@ -489,7 +491,7 @@ class Smarts(NullSmarts):
                             if boundary.is_start and not boundary.closing and boundary.offset <= offset:
                                 start_block, start_offset = block, boundary.offset
                                 break
-                    block, offset = block.previous(), sys.maxint
+                    block, offset = block.previous(), sys.maxsize
             end_block = None
             if start_block is not None:
                 end_block, boundary = next_tag_boundary(start_block, start_offset)
@@ -526,11 +528,12 @@ class Smarts(NullSmarts):
         block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
         if not block.isValid():
             return found_tag
+        editor.highlighter.join()
         c = editor.textCursor()
         ud = block.userData()
         all_tags = [] if ud is None else [t for t in ud.tags if (t.is_start and not t.closing)]
         tag_names = [t.name for t in all_tags]
-        if tag_names[:len(tags)] == tags:
+        if all_tags and tag_names[:len(tags)] == tags:
             c.setPosition(block.position() + all_tags[len(tags)-1].offset)
             found_tag = True
         else:
@@ -603,7 +606,10 @@ class Smarts(NullSmarts):
         key = ev.key()
         is_xml = editor.syntax == 'xml'
 
-        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in ev_text):
+        if tprefs['replace_entities_as_typed'] and (
+                ';' in ev_text or
+                (key == Qt.Key_Semicolon and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier))
+        ):
             self.replace_possible_entity(editor)
             return True
 
@@ -686,6 +692,7 @@ class Smarts(NullSmarts):
                     return True
             return False
 
+        editor.highlighter.join()
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
         if check_if_in_tag(block, offset) or check_if_in_tag(block.next()):
@@ -727,12 +734,14 @@ class Smarts(NullSmarts):
 
             return 'complete_names', (names_type, doc_name, c.root), query
 
-    def find_text(self, pat, cursor):
+    def find_text(self, pat, cursor, reverse):
         from calibre.gui2.tweak_book.text_search import find_text_in_chunks
         chunks = []
 
         cstart = min(cursor.position(), cursor.anchor())
         cend = max(cursor.position(), cursor.anchor())
+        if reverse:
+            cend -= 1
         c = QTextCursor(cursor)
         c.setPosition(cstart)
         block = c.block()

@@ -15,6 +15,7 @@ build
 dist
 docs
 resources/localization
+resources/hyphenation
 resources/scripts.calibre_msgpack
 resources/ebook-convert-complete.calibre_msgpack
 resources/builtin_recipes.xml
@@ -28,8 +29,7 @@ resources/viewer.html
 resources/content-server/index-generated.html
 resources/content-server/calibre.appcache
 resources/content-server/locales.zip
-resources/content-server/mathjax.zip.xz
-resources/content-server/mathjax.version
+resources/mathjax
 resources/mozilla-ca-certs.pem
 resources/user-agent-data.json
 icons/icns/*.iconset
@@ -52,3 +52,5 @@ recipes/debug
 /.metadata/
 .idea
 /*env*/
+cmake-build-*
+bypy/b

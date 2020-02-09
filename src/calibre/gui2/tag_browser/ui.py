@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,6 +22,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+from polyglot.builtins import unicode_type
 
 
 class TagBrowserMixin(object):  # {{{
@@ -121,7 +121,7 @@ class TagBrowserMixin(object):  # {{{
             if new_cat not in user_cats:
                 break
             i += 1
-            n = new_name + unicode(i)
+            n = new_name + unicode_type(i)
         # Add the new category
         user_cats[new_cat] = []
         db.new_api.set_pref('user_categories', user_cats)
@@ -237,13 +237,15 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.current_db
-        data = db.new_api.get_categories()
-        if category in data:
-            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
-        else:
-            result = None
-        if result is None:
-            return
+
+        def get_book_ids(use_virtual_library):
+            book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
+            data = db.new_api.get_categories(book_ids=book_ids)
+            if category in data:
+                result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+            else:
+                result = None
+            return result
 
         if category == 'series':
             key = lambda x:sort_key(title_sort(x))
@@ -251,7 +253,7 @@ class TagBrowserMixin(object):  # {{{
             key = sort_key
 
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
-                          tag_to_match=tag, data=result, sorter=key)
+                          tag_to_match=tag, get_book_ids=get_book_ids, sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -265,7 +267,7 @@ class TagBrowserMixin(object):  # {{{
                     m.delete_item_from_all_user_categories(orig_name[item], category)
                 for old_id in to_rename:
                     m.rename_item_in_all_user_categories(orig_name[old_id],
-                                            category, unicode(to_rename[old_id]))
+                                            category, unicode_type(to_rename[old_id]))
 
                 db.new_api.remove_items(category, to_delete)
                 db.new_api.rename_items(category, to_rename, change_index=False)
@@ -457,6 +459,7 @@ class TagBrowserBar(QWidget):  # {{{
             self.toggle_search_button.setVisible(True)
             self.search_button.setVisible(False)
             self.item_search.setVisible(False)
+
 # }}}
 
 
@@ -477,7 +480,6 @@ class TagBrowserWidget(QFrame):  # {{{
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
-        self.item_search.lineEdit().returnPressed.connect(self.do_find)
         self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
         self.item_search.activated[str].connect(self.do_find)
 
@@ -587,10 +589,14 @@ class TagBrowserWidget(QFrame):  # {{{
         self.current_find_position = None
         self.find()
 
+    @property
+    def find_text(self):
+        return unicode_type(self.item_search.currentText()).strip()
+
     def find(self):
         model = self.tags_view.model()
         model.clear_boxed()
-        txt = unicode(self.item_search.currentText()).strip()
+        txt = self.find_text
 
         if txt.startswith('*'):
             model.set_categories_filter(txt[1:])
@@ -635,5 +641,13 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return) and self.find_text:
+            self.find()
+            ev.accept()
+            return
+        return QFrame.keyPressEvent(self, ev)
+
 
 # }}}

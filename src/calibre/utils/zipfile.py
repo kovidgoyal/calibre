@@ -1,16 +1,17 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 """
 Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
 a zip archive, detecting filename encoding, updating zip files, etc.
 """
-from __future__ import print_function
 import struct, os, time, sys, shutil, stat, re, io
-import binascii, cStringIO
+import binascii
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
-from calibre import sanitize_file_name2
+from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
+from polyglot.builtins import unicode_type, string_or_bytes, getcwd, map, as_bytes
 
 try:
     import zlib  # We may need its compression method
@@ -56,7 +57,7 @@ ZIP_DEFLATED = 8
 # The "end of central directory" structure, magic number, size, and indices
 # (section V.I in the format document)
 structEndArchive = "<4s4H2LH"
-stringEndArchive = "PK\005\006"
+stringEndArchive = b"PK\005\006"
 sizeEndCentDir = struct.calcsize(structEndArchive)
 
 _ECD_SIGNATURE = 0
@@ -75,7 +76,7 @@ _ECD_LOCATION = 9
 # The "central directory" structure, magic number, size, and indices
 # of entries in the structure (section V.F in the format document)
 structCentralDir = "<4s4B4HL2L5H2L"
-stringCentralDir = "PK\001\002"
+stringCentralDir = b"PK\001\002"
 sizeCentralDir = struct.calcsize(structCentralDir)
 
 # indexes of entries in the central directory structure
@@ -102,7 +103,7 @@ _CD_LOCAL_HEADER_OFFSET = 18
 # The "local file header" structure, magic number, size, and indices
 # (section V.A in the format document)
 structFileHeader = "<4s2B4HL2L2H"
-stringFileHeader = "PK\003\004"
+stringFileHeader = b"PK\003\004"
 sizeFileHeader = struct.calcsize(structFileHeader)
 
 _FH_SIGNATURE = 0
@@ -120,13 +121,13 @@ _FH_EXTRA_FIELD_LENGTH = 11
 
 # The "Zip64 end of central directory locator" structure, magic number, and size
 structEndArchive64Locator = "<4sLQL"
-stringEndArchive64Locator = "PK\x06\x07"
+stringEndArchive64Locator = b"PK\x06\x07"
 sizeEndCentDir64Locator = struct.calcsize(structEndArchive64Locator)
 
 # The "Zip64 end of central directory" record, magic number, size, and indices
 # (section V.G in the format document)
 structEndArchive64 = "<4sQ2H2L4Q"
-stringEndArchive64 = "PK\x06\x06"
+stringEndArchive64 = b"PK\x06\x06"
 sizeEndCentDir64 = struct.calcsize(structEndArchive64)
 
 _CD64_SIGNATURE = 0
@@ -142,15 +143,15 @@ _CD64_OFFSET_START_CENTDIR = 9
 
 
 def decode_arcname(name):
-    if not isinstance(name, unicode):
+    if not isinstance(name, unicode_type):
         try:
             name = name.decode('utf-8')
-        except:
+        except Exception:
             res = detect(name)
             encoding = res['encoding']
             try:
                 name = name.decode(encoding)
-            except:
+            except Exception:
                 name = name.decode('utf-8', 'replace')
     return name
 
@@ -247,13 +248,13 @@ def _EndRecData(fpin):
     except IOError:
         return None
     data = fpin.read()
-    if data[0:4] == stringEndArchive and data[-2:] == "\000\000":
+    if data[0:4] == stringEndArchive and data[-2:] == b"\000\000":
         # the signature is correct and there's no comment, unpack structure
         endrec = struct.unpack(structEndArchive, data)
         endrec=list(endrec)
 
         # Append a blank comment and record start offset
-        endrec.append("")
+        endrec.append(b"")
         endrec.append(filesize - sizeEndCentDir)
 
         # Try to read the "Zip64 end of central directory" structure
@@ -315,26 +316,30 @@ class ZipInfo (object):
             'file_offset',
         )
 
-    def __init__(self, filename=u"NoName", date_time=(1980,1,1,0,0,0)):
+    def __init__(self, filename="NoName", date_time=(1980,1,1,0,0,0)):
         self.orig_filename = filename   # Original file name in archive
 
         # Terminate the file name at the first null byte.  Null bytes in file
         # names are used as tricks by viruses in archives.
-        null_byte = filename.find(chr(0))
+        null_byte = filename.find(b'\0' if isinstance(filename, bytes) else '\0')
         if null_byte >= 0:
             filename = filename[0:null_byte]
         # This is used to ensure paths in generated ZIP files always use
         # forward slashes as the directory separator, as required by the
         # ZIP format specification.
-        if os.sep != "/" and os.sep in filename:
-            filename = filename.replace(os.sep, "/")
+        if os.sep != '/':
+            os_sep, sep = os.sep, '/'
+            if isinstance(filename, bytes):
+                os_sep, sep = as_bytes(os_sep), b'/'
+            if os_sep in filename:
+                filename = filename.replace(os_sep, sep)
 
         self.filename = filename        # Normalized file name
         self.date_time = date_time      # year, month, day, hour, min, sec
         # Standard values:
         self.compress_type = ZIP_STORED  # Type of compression for the file
-        self.comment = ""               # Comment for each file
-        self.extra = ""                 # ZIP extra data
+        self.comment = b""               # Comment for each file
+        self.extra = b""                 # ZIP extra data
         if sys.platform == 'win32':
             self.create_system = 0          # System which created ZIP archive
         else:
@@ -390,7 +395,7 @@ class ZipInfo (object):
         return header + filename + extra
 
     def _encodeFilenameFlags(self):
-        if isinstance(self.filename, unicode):
+        if isinstance(self.filename, unicode_type):
             return self.filename.encode('utf-8'), self.flag_bits | 0x800
         else:
             return self.filename, self.flag_bits
@@ -473,7 +478,7 @@ class _ZipDecrypter:
 
     def _crc32(self, ch, crc):
         """Compute the CRC32 primitive on one byte."""
-        return ((crc >> 8) & 0xffffff) ^ self.crctable[(crc ^ ord(ch)) & 0xff]
+        return ((crc >> 8) & 0xffffff) ^ self.crctable[(crc ^ ch) & 0xff]
 
     def __init__(self, pwd):
         self.key0 = 305419896
@@ -486,14 +491,12 @@ class _ZipDecrypter:
         self.key0 = self._crc32(c, self.key0)
         self.key1 = (self.key1 + (self.key0 & 255)) & 4294967295
         self.key1 = (self.key1 * 134775813 + 1) & 4294967295
-        self.key2 = self._crc32(chr((self.key1 >> 24) & 255), self.key2)
+        self.key2 = self._crc32(((self.key1 >> 24) & 255), self.key2)
 
     def __call__(self, c):
-        """Decrypt a single character."""
-        c = ord(c)
+        """Decrypt a single byte."""
         k = self.key2 | 2
         c = c ^ (((k * (k^1)) >> 8) & 255)
-        c = chr(c)
         self._UpdateKeys(c)
         return c
 
@@ -511,7 +514,7 @@ class ZipExtFile(io.BufferedIOBase):
     MIN_READ_SIZE = 4096
 
     # Search for universal newlines or line chunks.
-    PATTERN = re.compile(r'^(?P<chunk>[^\r\n]+)|(?P<newline>\n|\r\n?)')
+    PATTERN = re.compile(br'^(?P<chunk>[^\r\n]+)|(?P<newline>\n|\r\n?)')
 
     def __init__(self, fileobj, mode, zipinfo, decrypter=None):
         self._fileobj = fileobj
@@ -524,9 +527,9 @@ class ZipExtFile(io.BufferedIOBase):
 
         if self._compress_type == ZIP_DEFLATED:
             self._decompressor = zlib.decompressobj(-15)
-        self._unconsumed = ''
+        self._unconsumed = b''
 
-        self._readbuffer = ''
+        self._readbuffer = b''
         self._offset = 0
 
         self._universal = 'U' in mode
@@ -554,7 +557,7 @@ class ZipExtFile(io.BufferedIOBase):
 
         if not self._universal and limit < 0:
             # Shortcut common case - newline found in buffer.
-            i = self._readbuffer.find('\n', self._offset) + 1
+            i = self._readbuffer.find(b'\n', self._offset) + 1
             if i > 0:
                 line = self._readbuffer[self._offset: i]
                 self._offset = i
@@ -563,10 +566,10 @@ class ZipExtFile(io.BufferedIOBase):
         if not self._universal:
             return io.BufferedIOBase.readline(self, limit)
 
-        line = ''
+        line = b''
         while limit < 0 or len(line) < limit:
             readahead = self.peek(2)
-            if readahead == '':
+            if not readahead:
                 return line
 
             #
@@ -585,7 +588,7 @@ class ZipExtFile(io.BufferedIOBase):
                 if newline not in self.newlines:
                     self.newlines.append(newline)
                 self._offset += len(newline)
-                return line + '\n'
+                return line + b'\n'
 
             chunk = match.group('chunk')
             if limit >= 0:
@@ -612,7 +615,7 @@ class ZipExtFile(io.BufferedIOBase):
         """Read and return up to n bytes.
         If the argument is omitted, None, or negative, data is read and returned until EOF is reached..
         """
-        buf = ''
+        buf = b''
         if n is None:
             n = -1
         while True:
@@ -656,7 +659,7 @@ class ZipExtFile(io.BufferedIOBase):
             self._compress_left -= len(data)
 
             if data and self._decrypter is not None:
-                data = ''.join(map(self._decrypter, data))
+                data = b''.join(bytes(bytearray(map(self._decrypter, bytearray(data)))))
 
             if self._compress_type == ZIP_STORED:
                 self._update_crc(data, eof=(self._compress_left==0))
@@ -720,7 +723,7 @@ class ZipFile:
 
     fp = None                   # Set here since __del__ checks it
 
-    def __init__(self, file, mode="r", compression=ZIP_DEFLATED, allowZip64=False):
+    def __init__(self, file, mode="r", compression=ZIP_DEFLATED, allowZip64=True):
         """Open the ZIP file with mode read "r", write "w" or append "a"."""
         if mode not in ("r", "w", "a"):
             raise RuntimeError('ZipFile() requires mode "r", "w", or "a" not %s'%mode)
@@ -743,10 +746,10 @@ class ZipFile:
         self.compression = compression  # Method of compression
         self.mode = key = mode.replace('b', '')[0]
         self.pwd = None
-        self.comment = ''
+        self.comment = b''
 
         # Check if we were passed a file-like object
-        if isinstance(file, basestring):
+        if isinstance(file, string_or_bytes):
             self._filePassed = 0
             self.filename = file
             modeDict = {'r' : 'rb', 'w': 'wb', 'a' : 'r+b'}
@@ -834,7 +837,7 @@ class ZipFile:
         self.start_dir = offset_cd + concat
         fp.seek(self.start_dir, 0)
         data = fp.read(size_cd)
-        fp = cStringIO.StringIO(data)
+        fp = io.BytesIO(data)
         total = 0
         while total < size_cd:
             centdir = fp.read(sizeCentralDir)
@@ -903,11 +906,11 @@ class ZipFile:
         self.delete(deleteName)
         self.write(filename, arcname, compress_type)
 
-    def replacestr(self, zinfo, bytes):
+    def replacestr(self, zinfo, byts):
         """Delete zinfo.filename, and write a new file into the archive. The
         contents is the string 'bytes'."""
         self.delete(zinfo.filename)
-        self.writestr(zinfo, bytes)
+        self.writestr(zinfo, byts)
 
     def delete(self, name):
         """Delete the file from the archive. If it appears multiple
@@ -1036,9 +1039,9 @@ class ZipFile:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
         if fname != zinfo.orig_filename:
-            print (('WARNING: Header (%r) and directory (%r) filenames do not'
+            print(('WARNING: Header (%r) and directory (%r) filenames do not'
                     ' match inside ZipFile')%(fname, zinfo.orig_filename))
-            print ('Using directory filename %r'%zinfo.orig_filename)
+            print('Using directory filename %r'%zinfo.orig_filename)
             # raise BadZipfile, \
             #          'File name in directory "%r" and header "%r" differ.' % (
             #              zinfo.orig_filename, fname)
@@ -1059,15 +1062,15 @@ class ZipFile:
             #  completely random, while the 12th contains the MSB of the CRC,
             #  or the MSB of the file time depending on the header type
             #  and is used to check the correctness of the password.
-            bytes = zef_file.read(12)
-            h = map(zd, bytes[0:12])
+            byts = zef_file.read(12)
+            h = list(map(zd, bytearray(byts[0:12])))
             if zinfo.flag_bits & 0x8:
                 # compare against the file type from extended local headers
                 check_byte = (zinfo._raw_time >> 8) & 0xff
             else:
                 # compare against the CRC otherwise
                 check_byte = (zinfo.CRC >> 24) & 0xff
-            if ord(h[11]) != check_byte:
+            if h[11] != check_byte:
                 raise RuntimeError("Bad password for file", name)
 
         return ZipExtFile(zef_file, mode, zinfo, zd)
@@ -1082,7 +1085,7 @@ class ZipFile:
             member = self.getinfo(member)
 
         if path is None:
-            path = os.getcwdu()
+            path = getcwd()
 
         return self._extract_member(member, path, pwd)
 
@@ -1136,7 +1139,7 @@ class ZipFile:
                 os.makedirs(upperdirs)
             except:  # Added by Kovid
                 targetpath = os.path.join(base_target,
-                        sanitize_file_name2(fname))
+                        sanitize_file_name(fname))
                 upperdirs = os.path.dirname(targetpath)
                 if upperdirs and not os.path.exists(upperdirs):
                     os.makedirs(upperdirs)
@@ -1157,7 +1160,7 @@ class ZipFile:
                 except:
                     # Try sanitizing the file name to remove invalid characters
                     components = list(os.path.split(targetpath))
-                    components[-1] = sanitize_file_name2(components[-1])
+                    components[-1] = sanitize_file_name(components[-1])
                     targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
@@ -1211,7 +1214,7 @@ class ZipFile:
         arcname = os.path.normpath(os.path.splitdrive(arcname)[1])
         while arcname[0] in (os.sep, os.altsep):
             arcname = arcname[1:]
-        if not isinstance(arcname, unicode):
+        if not isinstance(arcname, unicode_type):
             arcname = arcname.decode(filesystem_encoding)
         if isdir and not arcname.endswith('/'):
             arcname += '/'
@@ -1279,15 +1282,17 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes, permissions=0o600,
+    def writestr(self, zinfo_or_arcname, byts, permissions=0o600,
             compression=ZIP_DEFLATED, raw_bytes=False):
         """Write a file into the archive.  The contents is the string
-        'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
+        'byts'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
+        if not isinstance(byts, bytes):
+            byts = byts.encode('utf-8')
         if not isinstance(zinfo_or_arcname, ZipInfo):
-            if not isinstance(zinfo_or_arcname, unicode):
+            if not isinstance(zinfo_or_arcname, unicode_type):
                 zinfo_or_arcname = zinfo_or_arcname.decode(filesystem_encoding)
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
@@ -1301,22 +1306,22 @@ class ZipFile:
                   "Attempt to write to ZIP archive that was already closed")
 
         if not raw_bytes:
-            zinfo.file_size = len(bytes)            # Uncompressed size
+            zinfo.file_size = len(byts)            # Uncompressed size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self._writecheck(zinfo)
         self._didModify = True
         if not raw_bytes:
-            zinfo.CRC = crc32(bytes) & 0xffffffff       # CRC-32 checksum
+            zinfo.CRC = crc32(byts) & 0xffffffff       # CRC-32 checksum
             if zinfo.compress_type == ZIP_DEFLATED:
                 co = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION,
                     zlib.DEFLATED, -15)
-                bytes = co.compress(bytes) + co.flush()
-                zinfo.compress_size = len(bytes)    # Compressed size
+                byts = co.compress(byts) + co.flush()
+                zinfo.compress_size = len(byts)    # Compressed size
             else:
                 zinfo.compress_size = zinfo.file_size
         zinfo.header_offset = self.fp.tell()    # Start of header bytes
         self.fp.write(zinfo.FileHeader())
-        self.fp.write(bytes)
+        self.fp.write(byts)
         self.fp.flush()
         if zinfo.flag_bits & 0x08:
             # Write CRC and file sizes after the file data
@@ -1330,21 +1335,17 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            self.writestr(prefix+'/', '', 0o755)
-        cwd = os.path.abspath(os.getcwdu())
-        try:
-            os.chdir(path)
-            fp = (prefix + ('/' if prefix else '')).replace('//', '/')
-            for f in os.listdir('.'):
-                if simple_filter(f):  # Added by Kovid
-                    continue
-                arcname = fp + f
-                if os.path.isdir(f):
-                    self.add_dir(f, prefix=arcname, simple_filter=simple_filter)
-                else:
-                    self.write(f, arcname)
-        finally:
-            os.chdir(cwd)
+            self.writestr(prefix+'/', b'', 0o755)
+        fp = (prefix + ('/' if prefix else '')).replace('//', '/')
+        for f in os.listdir(path):
+            if simple_filter(f):  # Added by Kovid
+                continue
+            arcname = fp + f
+            f = os.path.join(path, f)
+            if os.path.isdir(f):
+                self.add_dir(f, prefix=arcname, simple_filter=simple_filter)
+            else:
+                self.write(f, arcname)
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""
@@ -1484,7 +1485,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     replacements = {name:datastream}
     replacements.update(extra_replacements)
     names = frozenset(replacements.keys())
-    found = set([])
+    found = set()
 
     def rbytes(name):
         r = replacements[name]
@@ -1495,7 +1496,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
         ztemp = ZipFile(temp, 'w')
         for obj in z.infolist():
-            if isinstance(obj.filename, unicode):
+            if isinstance(obj.filename, unicode_type):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
             if obj.filename in names:
                 ztemp.writestr(obj, rbytes(obj.filename))

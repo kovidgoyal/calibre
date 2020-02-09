@@ -62,7 +62,7 @@ static void set_bool_property(PyObject *dict, REFPROPERTYKEY key, const char *py
     HRESULT hr;
 
     hr = properties->GetBoolValue(key, &ok);
-    if (SUCCEEDED(hr)) 
+    if (SUCCEEDED(hr))
         PyDict_SetItemString(dict, pykey, (ok)?Py_True:Py_False);
 }
 
@@ -147,7 +147,7 @@ public:
 
     HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) { SetEvent(this->complete); return S_OK; }
 
-    ULONG __stdcall AddRef() { InterlockedIncrement((long*) &self_ref); return self_ref; } 
+    ULONG __stdcall AddRef() { InterlockedIncrement((long*) &self_ref); return self_ref; }
 
     ULONG __stdcall Release() {
         ULONG refcnt = self_ref - 1;
@@ -169,8 +169,8 @@ public:
         }
         return hr;
     }
- 
-    HRESULT __stdcall OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) { 
+
+    HRESULT __stdcall OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) {
         DWORD num = 0, i;
         wchar_t *property = NULL;
         IPortableDeviceValues *properties = NULL;
@@ -194,7 +194,7 @@ public:
                         if (obj == NULL) continue;
                         PyDict_SetItem(this->items, temp, obj);
                         Py_DECREF(obj); // We want a borrowed reference to obj
-                    } 
+                    }
                     Py_DECREF(temp);
 
                     set_properties(obj, properties);
@@ -263,7 +263,7 @@ static bool bulk_get_filesystem(unsigned int level, IPortableDevice *device, IPo
     if (!ok) {
         bulk_properties->Cancel(guid_context);
         pump_waiting_messages();
-    } 
+    }
 end:
     if (ev != NULL) CloseHandle(ev);
     if (properties != NULL) properties->Release();
@@ -306,7 +306,7 @@ static bool find_objects_in(IPortableDeviceContent *content, IPortableDeviceProp
         if (SUCCEEDED(hr)) {
             for(i = 0; i < fetched; i++) {
                 pv.pwszVal = child_ids[i];
-                hr2 = object_ids->Add(&pv); 
+                hr2 = object_ids->Add(&pv);
                 pv.pwszVal = NULL;
                 if (FAILED(hr2)) { hresult_set_exc("Failed to add child ids to propvariantcollection", hr2); break; }
             }
@@ -332,11 +332,11 @@ static PyObject* get_object_properties(IPortableDeviceProperties *devprops, IPor
     hr = devprops->GetValues(object_id, properties, &values);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); goto end; }
-    
+
     ans = Py_BuildValue("{s:N}", "id", wchar_to_unicode(object_id));
     if (ans == NULL) goto end;
     set_properties(ans, values);
-     
+
 end:
     Py_XDECREF(temp);
     if (values != NULL) values->Release();
@@ -377,7 +377,7 @@ static bool single_get_filesystem(unsigned int level, IPortableDeviceContent *co
                 ok = true;
             }
         } else hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr);
-            
+
         PropVariantClear(&pv);
         if (!ok) break;
         if (recurse != NULL) {
@@ -391,7 +391,7 @@ end:
     if (properties != NULL) properties->Release();
 
     return ok;
-} 
+}
 // }}}
 
 static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type, unsigned PY_LONG_LONG size) { // {{{
@@ -452,7 +452,7 @@ static bool get_files_and_folders(unsigned int level, IPortableDevice *device, I
     else ok = single_get_filesystem(level, content, object_ids, callback, ans, subfolders);
     if (!ok) goto end;
 
-    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders); i++) { 
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders); i++) {
         const wchar_t *child_id = unicode_to_wchar(PyList_GET_ITEM(subfolders, i));
         if (child_id == NULL) { ok = false; break; }
         ok = get_files_and_folders(level+1, device, content, bulk_properties, child_id, callback, ans);
@@ -471,7 +471,7 @@ PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id
 
     ans = PyDict_New();
     if (ans == NULL) return PyErr_NoMemory();
-    
+
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
@@ -534,11 +534,11 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
     Py_BEGIN_ALLOW_THREADS;
     hr = resources->GetStream(object_id, WPD_RESOURCE_DEFAULT, STGM_READ, &bufsize, &stream);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { 
+    if (FAILED(hr)) {
         if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
             PyErr_SetString(WPDFileBusy, "Object is in use");
-        } else hresult_set_exc("Failed to create stream interface to read from object", hr); 
-        goto end; 
+        } else hresult_set_exc("Failed to create stream interface to read from object", hr);
+        goto end;
     }
 
     buf = (char *)calloc(bufsize+10, 1);
@@ -550,19 +550,23 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
         hr = stream->Read(buf, bufsize, &bytes_read);
         Py_END_ALLOW_THREADS;
         total_read = total_read + bytes_read;
-        if (hr == STG_E_ACCESSDENIED) { 
-            PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break; 
+        if (hr == STG_E_ACCESSDENIED) {
+            PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break;
         } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
+#if PY_MAJOR_VERSION >= 3
+                res = PyObject_CallMethod(dest, "write", "y#", buf, bytes_read);
+#else
                 res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
+#endif
                 if (res == NULL) break;
                 Py_DECREF(res); res = NULL;
                 if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_read, filesize));
             }
         } else { hresult_set_exc("Failed to read file from device", hr); break; }
 
-        if (bytes_read == 0) { 
-            ok = TRUE; 
+        if (bytes_read == 0) {
+            ok = TRUE;
             Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
             break;
         }
@@ -640,7 +644,7 @@ PyObject* wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) 
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); goto end; }
     pv.pwszVal = (wchar_t*)object_id;
-    hr = object_ids->Add(&pv); 
+    hr = object_ids->Add(&pv);
     pv.pwszVal = NULL;
     if (FAILED(hr)) { hresult_set_exc("Failed to add device id to propvariantcollection", hr); goto end; }
 
@@ -697,11 +701,11 @@ PyObject* wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const
     Py_BEGIN_ALLOW_THREADS;
     hr = content->CreateObjectWithPropertiesAndData(values, &temp, &bufsize, NULL);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { 
+    if (FAILED(hr)) {
         if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
             PyErr_SetString(WPDFileBusy, "Object is in use");
-        } else hresult_set_exc("Failed to create stream interface to write to object", hr); 
-        goto end; 
+        } else hresult_set_exc("Failed to create stream interface to write to object", hr);
+        goto end;
     }
 
     hr = temp->QueryInterface(IID_PPV_ARGS(&dest));

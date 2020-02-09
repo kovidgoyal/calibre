@@ -117,6 +117,6 @@ class Pagina12(BasicNewsRecipe):
                 self.temp_files.append(tfile)
                 result = tfile.name
             except:
-                print "Retrying download..."
+                self.info("Retrying download...")
             count += 1
         return result

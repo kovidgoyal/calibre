@@ -7,8 +7,12 @@ __copyright__ = '2014, spswerling'
 www.todayszaman.com
 '''
 import re
-from urlparse import urljoin
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
 
 
 class TodaysZaman(BasicNewsRecipe):

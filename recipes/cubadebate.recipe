@@ -46,7 +46,6 @@ class CubaDebate(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):  # noqa
-                item['alt'] = 'image'
+        for item in soup.findAll('img', alt=False):
+            item['alt'] = 'image'
         return soup

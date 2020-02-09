@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -24,6 +23,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.constants import islinux
+from polyglot.builtins import unicode_type, long_type
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -142,7 +142,7 @@ class PRST1(USBMS):
             main, carda, cardb = self.find_device_nodes(detected_device=dev)
             if main is None and carda is None and cardb is None:
                 if debug:
-                    print ('\tPRS-T1: Appears to be in non data mode'
+                    print('\tPRS-T1: Appears to be in non data mode'
                             ' or was ejected, ignoring')
                 return False
         return True
@@ -170,7 +170,7 @@ class PRST1(USBMS):
 
         with closing(sqlite.connect(dbpath)) as connection:
             # Replace undecodable characters in the db instead of erroring out
-            connection.text_factory = lambda x: unicode(x, "utf-8", "replace")
+            connection.text_factory = lambda x: x if isinstance(x, unicode_type) else x.decode('utf-8', 'replace')
 
             cursor = connection.cursor()
             # Query collections
@@ -329,7 +329,7 @@ class PRST1(USBMS):
         cursor.execute(query)
         row = cursor.fetchone()
 
-        return long(row[0])
+        return long_type(row[0])
 
     def get_database_min_id(self, source_id):
         sequence_min = 0
@@ -757,7 +757,7 @@ class PRST1(USBMS):
 
         thumbnail_path = THUMBPATH%book.bookId
 
-        prefix = self._main_prefix if source_id is 0 else self._card_a_prefix
+        prefix = self._main_prefix if source_id == 0 else self._card_a_prefix
         thumbnail_file_path = os.path.join(prefix, *thumbnail_path.split('/'))
         thumbnail_dir_path = os.path.dirname(thumbnail_file_path)
         if not os.path.exists(thumbnail_dir_path):

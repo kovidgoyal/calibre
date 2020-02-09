@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -17,6 +18,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
 from calibre.utils.config import prefs, tweaks
+from polyglot.builtins import unicode_type
 
 
 class UnpackBook(QDialog):
@@ -34,7 +36,7 @@ class UnpackBook(QDialog):
             index_is_id=True))
 
         button = self.fmt_choice_buttons[0]
-        button_map = {unicode(x.text()):x for x in self.fmt_choice_buttons}
+        button_map = {unicode_type(x.text()):x for x in self.fmt_choice_buttons}
         of = prefs['output_format'].upper()
         df = tweaks.get('default_tweak_format', None)
         lf = gprefs.get('last_tweak_format', None)
@@ -281,7 +283,7 @@ class UnpackBook(QDialog):
     def current_format(self):
         for b in self.fmt_choice_buttons:
             if b.isChecked():
-                return unicode(b.text())
+                return unicode_type(b.text())
 
 
 class UnpackBookAction(InterfaceAction):
@@ -307,7 +309,7 @@ class UnpackBookAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False

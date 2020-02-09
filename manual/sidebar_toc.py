@@ -3,6 +3,7 @@
 
 from docutils import nodes
 from itertools import count
+from sphinx.environment.adapters.toctree import TocTree
 
 id_counter = count()
 ID = 'sidebar-collapsible-toc'
@@ -69,7 +70,8 @@ def modify_li(li):
 
 
 def create_toc(app, pagename):
-    toctree = app.env.get_toc_for(pagename, app.builder)
+    tt = TocTree(app.env)
+    toctree = tt.get_toc_for(pagename, app.builder)
     if toctree is not None:
         subtree = toctree[toctree.first_child_matching_class(nodes.list_item)]
         bl = subtree.first_child_matching_class(nodes.bullet_list)

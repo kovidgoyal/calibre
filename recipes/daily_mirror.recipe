@@ -82,7 +82,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         cov = soup.find(attrs={'id': 'large'})
         cov = str(cov)
         cov2 = re.findall(
-            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
         cov2 = str(cov2)
         cov2 = cov2[2:len(cov2) - 2]
         # cov2 now is pic url, now  go back to original function

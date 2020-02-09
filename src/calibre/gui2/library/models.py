@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback, errno, time
+import functools, re, os, traceback, errno, time, numbers
 from collections import defaultdict, namedtuple
 from itertools import groupby
 
@@ -30,13 +31,14 @@ from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range, map
 
 Counts = namedtuple('Counts', 'library_total total current')
 
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
-    return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
+    return ('%.'+unicode_type(precision)+'f') % (size/(1024*1024))
 
 
 TIME_FMT = '%d %b %Y'
@@ -70,7 +72,7 @@ class ColumnColor(object):  # {{{
         self.formatter = formatter
 
     def __call__(self, id_, key, fmt, db, color_cache, template_cache):
-        key += str(hash(fmt))
+        key += unicode_type(hash(fmt))
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
             color = color_cache[id_][key]
@@ -111,7 +113,7 @@ class ColumnIcon(object):  # {{{
             icons = []
             for dex, (kind, fmt) in enumerate(fmts):
                 rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi,
-                                    column_name=cache_index+str(dex),
+                                    column_name=cache_index+unicode_type(dex),
                                     template_cache=template_cache)
                 if not rule_icons:
                     continue
@@ -262,7 +264,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if alignment != 'left':
                 self.alignment_map[colname] = alignment
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
@@ -277,7 +279,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 old[colname] = font_type
             self.db.new_api.set_pref('styled_columns', old)
             col = self.column_map.index(colname)
-            for row in xrange(self.rowCount(QModelIndex())):
+            for row in range(self.rowCount(QModelIndex())):
                 self.dataChanged.emit(self.index(row, col), self.index(row,
                     col))
 
@@ -306,7 +308,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if db:
             style_map = {'bold': self.bold_font, 'bi': self.bi_font, 'italic': self.italic_font}
-            self.styled_columns = {k: style_map.get(v, None) for k, v in db.new_api.pref('styled_columns', {}).iteritems()}
+            self.styled_columns = {k: style_map.get(v, None) for k, v in iteritems(db.new_api.pref('styled_columns', {}))}
         self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
@@ -322,7 +324,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return 100000
             return self.db.field_metadata[name]['rec_index']
 
-        self.column_map.sort(cmp=lambda x,y: cmp(col_idx(x), col_idx(y)))
+        self.column_map.sort(key=lambda x: col_idx(x))
         for col in self.column_map:
             if col in self.orig_headers:
                 self.headers[col] = self.orig_headers[col]
@@ -406,7 +408,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.beginResetModel(), self.endResetModel()
 
     def delete_books(self, indices, permanent=False):
-        ids = map(self.id, indices)
+        ids = list(map(self.id, indices))
         self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
@@ -499,7 +501,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.searched.emit(True)
         self.search_done.emit()
 
-    def sort(self, col, order, reset=True):
+    def sort(self, col, order=Qt.AscendingOrder, reset=True):
         if not self.db:
             return
         if not isinstance(order, bool):
@@ -508,7 +510,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self._sort(label, order, reset)
 
     def sort_by_named_field(self, field, order, reset=True):
-        if field in self.db.field_metadata.keys():
+        if field in list(self.db.field_metadata.keys()):
             self._sort(field, order, reset)
 
     def _sort(self, label, order, reset):
@@ -579,7 +581,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return data
 
     def get_book_info(self, index):
-        if isinstance(index, int):
+        if isinstance(index, numbers.Integral):
             index = self.index(index, 0)
         # If index is not valid returns None
         data = self.current_changed(index, None, False)
@@ -773,14 +775,14 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return None if bt else bn
                     return by if val else bn
             elif field == 'size':
-                sz_mult = 1.0/(1024**2)
+                sz_mult = 1/(1024**2)
 
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
-                    if val is 0:
+                    if val == 0:
                         return None
-                    ans = u'%.1f' % (val * sz_mult)
-                    return (u'<0.1' if ans == u'0.0' else ans)
+                    ans = '%.1f' % (val * sz_mult)
+                    return ('<0.1' if ans == '0.0' else ans)
             elif field == 'languages':
                 def func(idx):
                     return (', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
@@ -873,12 +875,12 @@ class BooksModel(QAbstractTableModel):  # {{{
         def stars_tooltip(func, allow_half=True):
             def f(idx):
                 ans = val = int(func(idx))
-                ans = str(val // 2)
+                ans = unicode_type(val // 2)
                 if allow_half and val % 2:
                     ans += '.5'
                 return _('%s stars') % ans
             return f
-        for f, allow_half in rating_fields.iteritems():
+        for f, allow_half in iteritems(rating_fields):
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
@@ -920,7 +922,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return (QColor('lightgreen'))
+                return QColor('#027524') if QApplication.instance().is_dark_theme else QColor('#b4ecb4')
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             id_ = self.id(index)
@@ -942,7 +944,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
                 values = cc.get('enum_values', [])
-                txt = unicode(index.data(Qt.DisplayRole) or '')
+                txt = unicode_type(index.data(Qt.DisplayRole) or '')
                 if len(colors) > 0 and txt in values:
                     try:
                         color = QColor(colors[values.index(txt)])
@@ -1026,8 +1028,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return (self.headers[self.column_map[section]])
             return None
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
-                col = self.db.field_metadata['uuid']['rec_index']
-                return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
+            col = self.db.field_metadata['uuid']['rec_index']
+            return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
 
         if role == Qt.DisplayRole:  # orientation is vertical
             return (section+1)
@@ -1055,10 +1057,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
         if typ in ('text', 'comments'):
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             val = val if val else None
         elif typ == 'enumeration':
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             if not val:
                 val = None
         elif typ == 'bool':
@@ -1069,7 +1071,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if value == 0:
                 val = '0'
             else:
-                val = unicode(value or '').strip()
+                val = unicode_type(value or '').strip()
             if not val:
                 val = None
         elif typ == 'datetime':
@@ -1081,7 +1083,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             if val:
                 pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
@@ -1095,7 +1097,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
-            tmpl = unicode(value or '').strip()
+            tmpl = unicode_type(value or '').strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display=disp,
@@ -1151,7 +1153,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value) if column == 'rating' else
                     value if column in ('timestamp', 'pubdate')
-                    else re.sub(u'\\s', u' ', unicode(value or '').strip()))
+                    else re.sub(r'\s', ' ', unicode_type(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = {id}
             if column == 'rating':
@@ -1241,8 +1243,8 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
-            return set([])
-        matches = set([])
+            return set()
+        matches = set()
         all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags'}
         locations = all_locs if location == 'all' else [location]
         q = {
@@ -1281,7 +1283,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     vals = accessor(row)
                     if vals is None:
                         vals = ''
-                    if isinstance(vals, basestring):
+                    if isinstance(vals, string_or_bytes):
                         vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
@@ -1303,8 +1305,8 @@ class DeviceDBSortKeyGen(object):  # {{{
     def __call__(self, x):
         try:
             ans = self.keyfunc(getattr(self.db[x], self.attr))
-        except:
-            ans = None
+        except Exception:
+            ans = ''
         return ans
 # }}}
 
@@ -1399,7 +1401,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
 
         path = getattr(item, 'path', None)
-        for items in self.marked_for_deletion.itervalues():
+        for items in itervalues(self.marked_for_deletion):
             for x in items:
                 if x is item or (path and path == getattr(x, 'path', None)):
                     return True
@@ -1484,7 +1486,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 'timestamp': ('datetime', functools.partial(dt_factory, assume_utc=True)),
                 'collections': ('device_collections', lambda x:sorted(x,
                     key=sort_key)),
-                'inlibrary': ('in_library', lambda x: x),
+                'inlibrary': ('in_library', lambda x: x or ''),
                 }[cname]
         keygen = keygen if callable(keygen) else DeviceDBSortKeyGen(
             keygen[0], keygen[1], self.db)
@@ -1648,7 +1650,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 return (authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
-                if not isinstance(size, (float, int)):
+                if not isinstance(size, numbers.Number):
                     size = 0
                 return (human_readable(size))
             elif cname == 'timestamp':
@@ -1714,7 +1716,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             cname = self.column_map[col]
             if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
-            val = unicode(value or '').strip()
+            val = unicode_type(value or '').strip()
             idx = self.map[row]
             if cname == 'collections':
                 tags = [i.strip() for i in val.split(',')]

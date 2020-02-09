@@ -1,5 +1,4 @@
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -11,7 +10,7 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store, ViewerPlugin, EditBookToolPlugin,
+                              StoreBase as Store, EditBookToolPlugin,
                               LibraryClosedPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
@@ -23,6 +22,7 @@ from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.constants import DEBUG, numeric_version
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
@@ -37,8 +37,8 @@ def _config():
     c.add_opt('plugins', default={}, help=_('Installed plugins'))
     c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
     c.add_opt('plugin_customization', default={}, help=_('Local plugin customization'))
-    c.add_opt('disabled_plugins', default=set([]), help=_('Disabled plugins'))
-    c.add_opt('enabled_plugins', default=set([]), help=_('Enabled plugins'))
+    c.add_opt('disabled_plugins', default=set(), help=_('Disabled plugins'))
+    c.add_opt('enabled_plugins', default=set(), help=_('Enabled plugins'))
 
     return ConfigProxy(c)
 
@@ -195,7 +195,7 @@ def run_plugins_on_postimport(db, book_id, fmt):
             try:
                 plugin.postimport(book_id, fmt, db)
             except:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -210,7 +210,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
             try:
                 plugin.postadd(book_id, fmt_map, db)
             except Exception:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -307,14 +307,14 @@ def available_store_plugins():
 
 
 def stores():
-    stores = set([])
+    stores = set()
     for plugin in store_plugins():
         stores.add(plugin.name)
     return stores
 
 
 def available_stores():
-    stores = set([])
+    stores = set()
     for plugin in available_store_plugins():
         stores.add(plugin.name)
     return stores
@@ -347,7 +347,7 @@ def reread_metadata_plugins():
         return (1 if plugin.plugin_path is None else 0), plugin.name
 
     for group in (_metadata_readers, _metadata_writers):
-        for plugins in group.itervalues():
+        for plugins in itervalues(group):
             if len(plugins) > 1:
                 plugins.sort(key=key)
 
@@ -361,7 +361,7 @@ def metadata_readers():
 
 
 def metadata_writers():
-    ans = set([])
+    ans = set()
     for plugins in _metadata_writers.values():
         for plugin in plugins:
             ans.add(plugin)
@@ -557,7 +557,7 @@ def plugin_for_output_format(fmt):
 
 
 def available_output_formats():
-    formats = set([])
+    formats = set()
     for plugin in output_format_plugins():
         if not is_disabled(plugin):
             formats.add(plugin.file_type)
@@ -575,7 +575,7 @@ def catalog_plugins():
 
 
 def available_catalog_formats():
-    formats = set([])
+    formats = set()
     for plugin in catalog_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:
@@ -640,17 +640,8 @@ def patch_metadata_plugins(possibly_updated_plugins):
                     # Metadata source plugins dont use initialize() but that
                     # might change in the future, so be safe.
                     patches[i].initialize()
-    for i, pup in patches.iteritems():
+    for i, pup in iteritems(patches):
         _initialized_plugins[i] = pup
-# }}}
-
-# Viewer plugins {{{
-
-
-def all_viewer_plugins():
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, ViewerPlugin):
-            yield plugin
 # }}}
 
 # Editor plugins {{{
@@ -726,9 +717,9 @@ def initialize_plugins(perf=False):
     # ipython
     sys.stdout, sys.stderr = ostdout, ostderr
     if perf:
-        for x in sorted(times, key=lambda x:times[x]):
-            print ('%50s: %.3f'%(x, times[x]))
-    _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
+        for x in sorted(times, key=lambda x: times[x]):
+            print('%50s: %.3f'%(x, times[x]))
+    _initialized_plugins.sort(key=lambda x: x.priority, reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
 
@@ -749,18 +740,18 @@ def build_plugin(path):
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZipFile, ZIP_STORED
-    path = type(u'')(path)
+    path = unicode_type(path)
     names = frozenset(os.listdir(path))
-    if u'__init__.py' not in names:
+    if '__init__.py' not in names:
         prints(path, ' is not a valid plugin')
         raise SystemExit(1)
     t = PersistentTemporaryFile(u'.zip')
-    with ZipFile(t, u'w', ZIP_STORED) as zf:
+    with ZipFile(t, 'w', ZIP_STORED) as zf:
         zf.add_dir(path, simple_filter=lambda x:x in {'.git', '.bzr', '.svn', '.hg'})
     t.close()
     plugin = add_plugin(t.name)
     os.remove(t.name)
-    prints(u'Plugin updated:', plugin.name, plugin.version)
+    prints('Plugin updated:', plugin.name, plugin.version)
 
 
 def option_parser():

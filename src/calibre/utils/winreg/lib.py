@@ -1,13 +1,20 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, _winreg as winreg, struct, datetime
+import ctypes, ctypes.wintypes as types, struct, datetime, numbers
 import winerror, win32con
+
+from polyglot.builtins import unicode_type
+
+try:
+    import winreg
+except ImportError:
+    import _winreg as winreg
+
 
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32
@@ -42,6 +49,7 @@ def default_errcheck(result, func, args):
         raise ctypes.WinError(result)
     return args
 
+
 null = object()
 
 
@@ -62,6 +70,7 @@ def cwrap(name, restype, *args, **kw):
     func.errcheck = kw.get('errcheck', default_errcheck)
     return func
 
+
 RegOpenKey = cwrap(
     'RegOpenKeyExW', LONG, a('key', HKEY), a('sub_key', LPCWSTR), a('options', DWORD, 0), a('access', ULONG, KEY_READ), a('result', PHKEY, in_arg=False))
 RegCreateKey = cwrap(
@@ -78,6 +87,8 @@ def enum_value_errcheck(result, func, args):
     if result == winerror.ERROR_NO_MORE_ITEMS:
         raise StopIteration()
     raise ctypes.WinError(result)
+
+
 RegEnumValue = cwrap(
     'RegEnumValueW', LONG, a('key', HKEY), a('index', DWORD), a('value_name', LPWSTR), a('value_name_size', LPDWORD), a('reserved', LPDWORD),
     a('value_type', LPDWORD), a('data', LPBYTE), a('data_size', LPDWORD), errcheck=enum_value_errcheck)
@@ -87,6 +98,8 @@ def last_error_errcheck(result, func, args):
     if result == 0:
         raise ctypes.WinError()
     return args
+
+
 ExpandEnvironmentStrings = cwrap(
     'ExpandEnvironmentStringsW', DWORD, a('src', LPCWSTR), a('dest', LPWSTR), a('size', DWORD), errcheck=last_error_errcheck, lib=ctypes.windll.kernel32)
 
@@ -100,19 +113,22 @@ def expand_environment_strings(src):
 def convert_to_registry_data(value, has_expansions=False):
     if value is None:
         return None, winreg.REG_NONE, 0
-    if isinstance(value, (type(''), bytes)):
+    if isinstance(value, (unicode_type, bytes)):
         buf = ctypes.create_unicode_buffer(value)
         return buf, (winreg.REG_EXPAND_SZ if has_expansions else winreg.REG_SZ), len(buf) * 2
     if isinstance(value, (list, tuple)):
-        buf = ctypes.create_unicode_buffer('\0'.join(map(type(''), value)) + '\0\0')
+        buf = ctypes.create_unicode_buffer('\0'.join(map(unicode_type, value)) + '\0\0')
         return buf, winreg.REG_MULTI_SZ, len(buf) * 2
-    if isinstance(value, (int, long)):
+    if isinstance(value, numbers.Integral):
         try:
-            raw, dtype = struct.pack(str('L'), value), winreg.REG_DWORD
+            raw, dtype = struct.pack('L', value), winreg.REG_DWORD
         except struct.error:
-            raw = struct.pack(str('Q'), value), win32con.REG_QWORD
+            raw = struct.pack('Q', value), win32con.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
+    if isinstance(value, bytes):
+        buf = ctypes.create_string_buffer(value)
+        return buf, winreg.REG_BINARY, len(buf)
     raise ValueError('Unknown data type: %r' % value)
 
 
@@ -138,6 +154,7 @@ def convert_registry_data(raw, size, dtype):
         return ctypes.cast(raw, ctypes.POINTER(ctypes.c_uint64)).contents.value
     raise ValueError('Unsupported data type: %r' % dtype)
 
+
 try:
     RegSetKeyValue = cwrap(
         'RegSetKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None),
@@ -153,6 +170,8 @@ def delete_value_errcheck(result, func, args):
     if result != 0:
         raise ctypes.WinError(result)
     return args
+
+
 RegDeleteKeyValue = cwrap(
     'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None), errcheck=delete_value_errcheck)
 RegDeleteTree = cwrap(
@@ -171,6 +190,8 @@ def get_value_errcheck(result, func, args):
     if result == winerror.ERROR_FILE_NOT_FOUND:
         raise KeyError('No such value found')
     raise ctypes.WinError(result)
+
+
 RegGetValue = cwrap(
     'RegGetValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('value_name', LPCWSTR, None), a('flags', DWORD, RRF_RT_ANY),
     a('data_type', LPDWORD, 0), a('data', ctypes.c_void_p, 0), a('size', LPDWORD, 0), errcheck=get_value_errcheck
@@ -267,7 +288,7 @@ class Key(object):
 
     def set(self, name=None, value=None, sub_key=None, has_expansions=False):
         ''' Set a value for this key (with optional sub-key). If name is None,
-        the Default value is set. value can be an integer, a string or a list
+        the Default value is set. value can be an integer, a string, bytes or a list
         of strings. If you want to use expansions, set has_expansions=True. '''
         value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)
         RegSetKeyValue(self.hkey, sub_key, name, dtype, value, size)
@@ -320,6 +341,7 @@ class Key(object):
         finally:
             if sub_key is not None:
                 RegCloseKey(key)
+    values = itervalues
 
     def __enter__(self):
         return self
@@ -341,16 +363,17 @@ class Key(object):
     def __del__(self):
         self.close()
 
+
 if __name__ == '__main__':
     from pprint import pprint
     k = Key(open_at=r'Software\RegisteredApplications', root=HKLM)
-    pprint(tuple(k.itervalues(get_data=True)))
+    pprint(tuple(k.values(get_data=True)))
     k = Key(r'Software\calibre\winregtest')
     k.set('Moose.Cat.1')
     k.set('unicode test', 'fällen粗楷体简a\U0001f471')
     k.set('none test')
     k.set_default_value(r'other\key', '%PATH%', has_expansions=True)
-    pprint(tuple(k.itervalues(get_data=True)))
+    pprint(tuple(k.values(get_data=True)))
     pprint(k.get('unicode test'))
     k.set_default_value(r'delete\me\please', 'xxx')
     pprint(tuple(k.iterkeynames(get_last_write_times=True)))

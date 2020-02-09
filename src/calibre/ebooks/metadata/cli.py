@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -16,6 +17,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
 from calibre.utils.date import parse_date
+from polyglot.builtins import iteritems, unicode_type, getcwd
 
 USAGE=_('%prog ebook_file [options]\n') + \
 _('''
@@ -65,7 +67,7 @@ def config():
               help=_('Set the ISBN of the book.'))
     c.add_opt('identifiers', ['--identifier'], action='append',
               help=_('Set the identifiers for the book, can be specified multiple times.'
-                     ' For example: --identifier uri:http://acme.com --identifier isbn:12345'
+                     ' For example: --identifier uri:https://acme.com --identifier isbn:12345'
                      ' To remove an identifier, specify no value, --identifier isbn:'
                      ' Note that for EPUB files, an identifier marked as the package identifier cannot be removed.'))
     c.add_opt('tags', ['--tags'],
@@ -94,14 +96,14 @@ def config():
 
 
 def filetypes():
-    readers = set([])
+    readers = set()
     for r in metadata_readers():
         readers = readers.union(set(r.file_types))
     return readers
 
 
 def option_parser():
-    writers = set([])
+    writers = set()
     for w in metadata_writers():
         writers = writers.union(set(w.file_types))
     ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
@@ -149,7 +151,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
         if val:
             orig = mi.get_identifiers()
             orig.update(val)
-            val = {k:v for k, v in orig.iteritems() if k and v}
+            val = {k:v for k, v in iteritems(orig) if k and v}
             mi.set_identifiers(val)
 
     if getattr(opts, 'cover', None) is not None:
@@ -181,7 +183,7 @@ def main(args=sys.argv):
         mi = get_metadata(stream, stream_type, force_read_metadata=True)
     if trying_to_set:
         prints(_('Original metadata')+'::')
-    metadata = unicode(mi)
+    metadata = unicode_type(mi)
     if trying_to_set:
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
     prints(metadata, safe_encode=True)
@@ -198,7 +200,7 @@ def main(args=sys.argv):
                     lrf.book_id = opts.lrf_bookid
             mi = get_metadata(stream, stream_type, force_read_metadata=True)
         prints('\n' + _('Changed metadata') + '::')
-        metadata = unicode(mi)
+        metadata = unicode_type(mi)
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
         prints(metadata, safe_encode=True)
         if lrf is not None:
@@ -206,7 +208,7 @@ def main(args=sys.argv):
 
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
-        opf = OPFCreator(os.getcwdu(), mi)
+        opf = OPFCreator(getcwd(), mi)
         with open(opts.to_opf, 'wb') as f:
             opf.render(f)
         prints(_('OPF created in'), opts.to_opf)

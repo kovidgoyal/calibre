@@ -9,7 +9,7 @@ class FDBPl(BasicNewsRecipe):
     category = 'film'
     language = 'pl'
     extra_css = '.options-left > li {display: inline;} em {display: block;}'
-    cover_url = 'http://fdb.pl/assets/fdb2/logo.png'
+    cover_url = 'https://i1.fdbimg.pl/hygg2xp1/480x300_magq39.jpg'
     use_embedded_content = False
     oldest_article = 7
     max_articles_per_feed = 100
@@ -19,25 +19,25 @@ class FDBPl(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [dict(attrs={'class': 'news-item news-first'})]
+    keep_only_tags = [dict(attrs={'class': ['row justify-content-center', 'figure']})]
     remove_tags = [
-        dict(attrs={'class': ['dig dig-first', 'ads clearfix', 'comments']})]
+        dict(attrs={'class': ['news-footer infinite-scroll-breakepoit', 'list-inline text-muted m-0']})]
     feeds = []
 
     def parse_index(self):
         feeds = []
         feeds.append((u'Wiadomości', self.get_articles(
-            'http://fdb.pl/wiadomosci?page={0}', 2)))
+            'https://fdb.pl/wiadomosci?page={0}', 2)))
         return feeds
 
     def get_articles(self, url, pages=1):
         articles = []
         for nr in range(1, pages + 1):
             soup = self.index_to_soup(url.format(nr))
-            for tag in soup.findAll(attrs={'class': 'news-item clearfix'}):
-                node = tag.find('h2')
+            for tag in soup.findAll(attrs={'class': 'col-xs-6 col-sm-4 col-md-4 col-lg-3'}):
+                node = tag.find('h5')
                 title = node.a.string
-                url = 'http://fdb.pl' + node.a['href']
+                url = node.a['href']
                 date = ''
                 articles.append({'title': title,
                                  'url': url,

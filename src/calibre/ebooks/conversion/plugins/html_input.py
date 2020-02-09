@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, tempfile, os
 from functools import partial
-from itertools import izip
 
 from calibre.constants import islinux, isbsd
 from calibre.customize.conversion import (InputFormatPlugin,
@@ -17,6 +15,7 @@ from calibre.customize.conversion import (InputFormatPlugin,
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
+from polyglot.builtins import unicode_type, zip, getcwd, as_unicode
 
 
 def sanitize_file_name(x):
@@ -64,7 +63,7 @@ class HTMLInput(InputFormatPlugin):
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
-        basedir = os.getcwdu()
+        basedir = getcwd()
         self.opts = opts
 
         fname = None
@@ -109,8 +108,8 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.html.input import get_filelist
         from calibre.ebooks.metadata import string_to_authors
         from calibre.utils.localization import canonicalize_lang
-        import cssutils, logging
-        cssutils.log.setLevel(logging.WARN)
+        import css_parser, logging
+        css_parser.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)
@@ -121,7 +120,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.language:
             l = canonicalize_lang(getattr(opts, 'language', None))
             if not l:
-                oeb.logger.warn(u'Language not specified')
+                oeb.logger.warn('Language not specified')
                 l = get_lang().replace('_', '-')
             metadata.add('language', l)
         if not metadata.creator:
@@ -136,7 +135,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
-        bookid = str(uuid.uuid4())
+        bookid = unicode_type(uuid.uuid4())
         metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
@@ -189,7 +188,7 @@ class HTMLInput(InputFormatPlugin):
                     if href == item.href:
                         dpath = os.path.dirname(path)
                         break
-                cssutils.replaceUrls(item.data,
+                css_parser.replaceUrls(item.data,
                         partial(self.resource_adder, base=dpath))
 
         toc = self.oeb.toc
@@ -215,24 +214,24 @@ class HTMLInput(InputFormatPlugin):
         use = titles
         if len(titles) > len(set(titles)):
             use = headers
-        for title, item in izip(use, self.oeb.spine):
+        for title, item in zip(use, self.oeb.spine):
             if not item.linear:
                 continue
             toc.add(title, item.href)
 
-        oeb.container = DirContainer(os.getcwdu(), oeb.log, ignore_opf=True)
+        oeb.container = DirContainer(getcwd(), oeb.log, ignore_opf=True)
         return oeb
 
     def link_to_local_path(self, link_, base=None):
         from calibre.ebooks.html.input import Link
-        if not isinstance(link_, unicode):
+        if not isinstance(link_, unicode_type):
             try:
                 link_ = link_.decode('utf-8', 'error')
             except:
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
                 return None, None
         try:
-            l = Link(link_, base if base else os.getcwdu())
+            l = Link(link_, base if base else getcwd())
         except:
             self.log.exception('Failed to process link: %r'%link_)
             return None, None
@@ -246,7 +245,7 @@ class HTMLInput(InputFormatPlugin):
         return link, frag
 
     def resource_adder(self, link_, base=None):
-        from urllib import quote
+        from polyglot.urllib import quote
         link, frag = self.link_to_local_path(link_, base=base)
         if link is None:
             return link_
@@ -289,9 +288,9 @@ class HTMLInput(InputFormatPlugin):
             # bhref refers to an already existing file. The read() method of
             # DirContainer will call unquote on it before trying to read the
             # file, therefore we quote it here.
-            if isinstance(bhref, unicode):
+            if isinstance(bhref, unicode_type):
                 bhref = bhref.encode('utf-8')
-            item.html_input_href = quote(bhref).decode('utf-8')
+            item.html_input_href = as_unicode(quote(bhref))
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))
@@ -308,7 +307,8 @@ class HTMLInput(InputFormatPlugin):
         if link is None or not os.access(link, os.R_OK) or os.path.isdir(link):
             return (None, None)
         try:
-            raw = open(link, 'rb').read().decode('utf-8', 'replace')
+            with open(link, 'rb') as f:
+                raw = f.read().decode('utf-8', 'replace')
             raw = self.oeb.css_preprocessor(raw, add_namespace=False)
         except:
             self.log.exception('Failed to read CSS file: %r'%link)

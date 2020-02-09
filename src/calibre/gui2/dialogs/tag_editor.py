@@ -1,13 +1,15 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import Qt, QDialog, QAbstractItemView
+from PyQt5.Qt import Qt, QDialog, QAbstractItemView, QApplication
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, primary_contains
+from polyglot.builtins import unicode_type, range
 
 
 class TagEditor(QDialog, Ui_TagEditor):
@@ -90,7 +92,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
@@ -103,15 +105,15 @@ class TagEditor(QDialog, Ui_TagEditor):
             return
         pos = self.available_tags.verticalScrollBar().value()
         for item in items:
-            used = self.db.is_tag_used(unicode(item.text())) \
+            used = self.db.is_tag_used(unicode_type(item.text())) \
                 if self.key is None else \
-                self.db.is_item_used_in_multiple(unicode(item.text()), label=self.key)
+                self.db.is_item_used_in_multiple(unicode_type(item.text()), label=self.key)
             if used:
                 confirms.append(item)
             else:
                 deletes.append(item)
         if confirms:
-            ct = ', '.join([unicode(item.text()) for item in confirms])
+            ct = ', '.join([unicode_type(item.text()) for item in confirms])
             if question_dialog(self, _('Are your sure?'),
                 '<p>'+_('The following tags are used by one or more books. '
                     'Are you certain you want to delete them?')+'<br>'+ct):
@@ -119,9 +121,9 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         for item in deletes:
             if self.key is None:
-                self.db.delete_tag(unicode(item.text()))
+                self.db.delete_tag(unicode_type(item.text()))
             else:
-                bks = self.db.delete_item_from_multiple(unicode(item.text()),
+                bks = self.db.delete_item_from_multiple(unicode_type(item.text()),
                                                         label=self.key)
                 self.db.refresh_ids(bks)
             self.available_tags.takeItem(self.available_tags.row(item))
@@ -135,7 +137,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         row = max(rows)
         tags = self._get_applied_tags_box_contents()
         for item in items:
-            tag = unicode(item.text())
+            tag = unicode_type(item.text())
             tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
@@ -158,14 +160,14 @@ class TagEditor(QDialog, Ui_TagEditor):
     def _get_applied_tags_box_contents(self):
         tags = []
         for i in range(0, self.applied_tags.count()):
-            tags.append(unicode(self.applied_tags.item(i).text()))
+            tags.append(unicode_type(self.applied_tags.item(i).text()))
         return tags
 
     def unapply_tags(self, item=None):
         tags = self._get_applied_tags_box_contents()
         items = self.applied_tags.selectedItems() if item is None else [item]
         for item in items:
-            tag = unicode(item.text())
+            tag = unicode_type(item.text())
             tags.remove(tag)
             self.available_tags.addItem(tag)
 
@@ -175,7 +177,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         for tag in tags:
             self.applied_tags.addItem(tag)
 
-        items = [unicode(self.available_tags.item(x).text()) for x in
+        items = [unicode_type(self.available_tags.item(x).text()) for x in
                 range(self.available_tags.count())]
         items.sort(key=sort_key)
         self.available_tags.clear()
@@ -187,7 +189,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.filter_tags(self.available_filter_input.text())
 
     def add_tag(self):
-        tags = unicode(self.add_tag_input.text()).split(self.sep)
+        tags = unicode_type(self.add_tag_input.text()).split(self.sep)
         tags_in_box = self._get_applied_tags_box_contents()
         for tag in tags:
             tag = tag.strip()
@@ -211,10 +213,10 @@ class TagEditor(QDialog, Ui_TagEditor):
     # filter tags
     def filter_tags(self, filter_value, which='available_tags'):
         collection = getattr(self, which)
-        q = icu_lower(unicode(filter_value))
-        for i in xrange(collection.count()):  # on every available tag
+        q = icu_lower(unicode_type(filter_value))
+        for i in range(collection.count()):  # on every available tag
             item = collection.item(i)
-            item.setHidden(bool(q and not primary_contains(q, unicode(item.text()))))
+            item.setHidden(bool(q and not primary_contains(q, unicode_type(item.text()))))
 
     def accept(self):
         self.tags = self._get_applied_tags_box_contents()

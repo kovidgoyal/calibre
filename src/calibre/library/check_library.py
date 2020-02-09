@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +11,7 @@ import re, os, traceback, fnmatch
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
+from polyglot.builtins import iteritems, filter
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
@@ -219,14 +221,14 @@ class CheckLibrary(object):
             missing = book_formats_lc - formats_lc
 
             # Check: any books that aren't formats or normally there?
-            for lcfn,ccfn in lc_map(filenames, unknowns).iteritems():
+            for lcfn,ccfn in iteritems(lc_map(filenames, unknowns)):
                 if lcfn in missing:  # An unknown format correctly registered
                     continue
                 self.extra_files.append((title_dir, os.path.join(db_path, ccfn),
                                          book_id))
 
             # Check: any book formats that should be there?
-            for lcfn,ccfn in lc_map(book_formats, missing).iteritems():
+            for lcfn,ccfn in iteritems(lc_map(book_formats, missing)):
                 if lcfn in unknowns:  # An unknown format correctly registered
                     continue
                 self.missing_formats.append((title_dir,

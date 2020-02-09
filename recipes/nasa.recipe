@@ -83,14 +83,15 @@ class NASA(BasicNewsRecipe):
 # Comment out the feeds you don't want retrieved.
 # Or add any new new RSS feed URL's here, sorted alphabetically when converted to LRF
 # If you want one of these at the top, append a space in front of the name.
+# Mars feed may not work, as it is now considered "legacy" by NASA.
 
     feeds = [
-        (' Breaking News', 'http://www.nasa.gov/rss/breaking_news.rss'),
-        ('Image of the Day', 'http://www.nasa.gov/rss/image_of_the_day.rss'),
-        ('Moon and Mars Exploration', 'http://www.nasa.gov/rss/moon_mars.rss'),
-        ('Shuttle and Station News', 'http://www.nasa.gov/rss/shuttle_station.rss'),
-        ('Solar System News', 'http://www.nasa.gov/rss/solar_system.rss'),
-        ('Universe News', 'http://www.nasa.gov/rss/universe.rss'),
-        ('Earth News', 'http://www.nasa.gov/rss/earth.rss'),
-        ('Aeronautics News', 'http://www.nasa.gov/rss/aeronautics.rss'),
+        (' Breaking News', 'https://www.nasa.gov/rss/dyn/breaking_news.rss'),
+        ('Image of the Day', 'https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'),
+        ('Mars Exploration', 'https://marsmobile.jpl.nasa.gov/rss/?feed=news&category=all'),
+        ('Shuttle and Station News', 'https://www.nasa.gov/rss/dyn/shuttle_station.rss'),
+        ('Solar System and Beyond News', 'https://www.nasa.gov/rss/dyn/solar_system.rss'),
+        ('Education News', 'https://www.nasa.gov/rss/dyn/educationnews.rss'),
+        ('Earth News', 'https://www.nasa.gov/rss/dyn/earth.rss'),
+        ('Aeronautics News', 'https://www.nasa.gov/rss/dyn/aeronautics.rss'),
     ]

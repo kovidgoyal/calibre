@@ -10,13 +10,19 @@ from lru_cache import LRUCache
 from session import get_interface_data
 from utils import parse_url_params
 
-load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
+load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
 library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False}
 
 
 def current_library_id():
     q = parse_url_params()
     return q.library_id or get_interface_data().default_library_id
+
+
+def all_libraries():
+    interface_data = get_interface_data()
+    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
+    return [(lid, interface_data.library_map[lid]) for lid in lids]
 
 
 def current_virtual_library():
@@ -72,6 +78,7 @@ def update_library_data(data):
     load_status.loading = False
     load_status.ok = True
     load_status.error_html = None
+    load_status.http_error_code = 0
     library_data.previous_book_ids = v'[]'
     if library_data.for_library is not current_library_id():
         library_data.field_names = {}
@@ -100,14 +107,14 @@ def current_book_ids():
     return library_data.previous_book_ids.concat(library_data.search_result.book_ids)
 
 
-def book_after(book_id):
+def book_after(book_id, delta):
+    if not delta:
+        delta = 1
     ids = current_book_ids()
     idx = ids.indexOf(int(book_id))
     if idx > -1:
-        if idx < ids.length - 1:
-            return ids[idx + 1]
-        if idx > 0:  # wrap around
-            return ids[0]
+        new_idx = (idx + ids.length + delta) % ids.length
+        return ids[new_idx]
 
 
 def on_data_loaded(end_type, xhr, ev):
@@ -116,6 +123,7 @@ def on_data_loaded(end_type, xhr, ev):
         load_status.ok = False
         load_status.loading = False
         load_status.error_html = msg or xhr.error_html
+        load_status.http_error_code = xhr.status
 
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
@@ -139,6 +147,7 @@ def fetch_init_data():
     load_status.loading = True
     load_status.ok = False
     load_status.error_html = None
+    load_status.http_error_code = 0
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
 

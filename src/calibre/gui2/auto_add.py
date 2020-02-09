@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -316,7 +315,7 @@ class AutoAdder(QObject):
         if count > 0:
             m.books_added(count)
             gui.status_bar.show_message(
-                ngettext('Added a book automatically from {src}', 'Added {num} books automatically from {src}', count).format(
+                (_('Added a book automatically from {src}') if count == 1 else _('Added {num} books automatically from {src}')).format(
                     num=count, src=self.worker.path), 2000)
             gui.refresh_cover_browser()
 

@@ -129,7 +129,7 @@ is completed. This can be slow on large libraries.</string>
            <item row="9" column="3">
             <widget class="QCheckBox" name="apply_adddate">
              <property name="text">
-              <string>&amp;Apply date</string>
+              <string>A&amp;pply date</string>
              </property>
             </widget>
            </item>
@@ -391,7 +391,7 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
            <item row="10" column="3">
             <widget class="QCheckBox" name="apply_pubdate">
              <property name="text">
-              <string>&amp;Apply date</string>
+              <string>A&amp;pply date</string>
              </property>
             </widget>
            </item>

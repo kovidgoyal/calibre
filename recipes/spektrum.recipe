@@ -1,7 +1,8 @@
+#!/usr/bin/env python2
 ##
 # Written:      October 2012 (new coding)
 # Version:      9.0
-# Last update:  2018-02-22
+# Last update:  2019-02-02
 ##
 
 __license__ = 'GPL v3'
@@ -21,9 +22,9 @@ def classes(classes):
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+class Spektrum(BasicNewsRecipe):
     title = u'Spektrum der Wissenschaft'
-    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2014-02-25, UDe 2018-02-22
+    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2014-02-25, UDe 2019-02-02
     description = u'German  online portal of Spektrum der Wissenschaft'
     publisher = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category = 'science news, Germany'
@@ -36,7 +37,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     encoding = 'utf8'
     ignore_duplicate_articles = {'title'}
 
-    cover_url = 'https://www.spektrum.de/fm/862/thumbnails/Cover_SdW01-2018.jpg.2786617.jpg'
+    cover_url = 'https://www.spektrum.de/js_css/sde/assets/img/svg/sdw_dark.svg'
     masthead_url = 'http://www.spektrum.de/fm/861/spektrum.de.png'
 
     feeds = [
@@ -60,4 +61,10 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_tags = [
         classes('hide-for-print content__meta content__author content__video'),
         dict(name='div', attrs={'role': 'navigation'}),
+        dict(name='span', attrs={'class': 'sr-only'}),
     ]
+
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup

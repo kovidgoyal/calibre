@@ -48,9 +48,12 @@ def build_list(container, items, subtitle):
             div.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
         if item.action:
             ul.lastChild.addEventListener('click', item.action)
+        if item.data:
+            ul.lastChild.dataset.userData = item.data
 
-def create_item(title, action=None, subtitle=None, icon=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon}
+
+def create_item(title, action=None, subtitle=None, icon=None, data=None):
+    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon, 'data': data}
 
 
 def create_item_list(container, items, subtitle=None):

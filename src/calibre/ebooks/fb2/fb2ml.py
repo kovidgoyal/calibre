@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -9,7 +10,6 @@ Transform OEB content into FB2 markup
 '''
 
 import re, textwrap, uuid
-from base64 import b64encode
 from datetime import datetime
 
 from lxml import etree
@@ -17,14 +17,18 @@ from lxml import etree
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
+from polyglot.builtins import unicode_type, string_or_bytes, range, filter
+from polyglot.binary import as_base64_unicode
+from polyglot.urllib import urlparse
 
 
 class FB2MLizer(object):
     '''
     Todo: * Include more FB2 specific tags in the conversion.
-          * Handle a tags.
+          * Handle notes and anchor links.
     '''
 
     def __init__(self, log):
@@ -57,43 +61,53 @@ class FB2MLizer(object):
         return self.fb2mlize_spine()
 
     def fb2mlize_spine(self):
-        output = [self.fb2_header()]
-        output.append(self.get_text())
-        output.append(self.fb2mlize_images())
-        output.append(self.fb2_footer())
-        output = self.clean_text(u''.join(output))
+        output = (
+            self.fb2_header(),
+            self.get_text(),
+            self.fb2mlize_images(),
+            self.fb2_footer(),
+        )
+        output = self.clean_text('\n'.join(output))
 
         if self.opts.pretty_print:
-            return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
-        else:
-            return u'<?xml version="1.0" encoding="UTF-8"?>' + output
+            output = etree.tostring(safe_xml_fromstring(output), encoding='unicode', pretty_print=True)
+
+        return '<?xml version="1.0" encoding="UTF-8"?>\n' + output
 
     def clean_text(self, text):
+        # Remove pointless tags, but keep their contents.
+        text = re.sub(r'(?mu)<(strong|emphasis|strikethrough|sub|sup)>(\s*)</\1>', r'\2', text)
+
+        # Clean up paragraphs endings.
+        text = re.sub(r'(?mu)\s+</p>', '</p>', text)
         # Condense empty paragraphs into a line break.
-        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line />', text)
+        text = re.sub(r'(?mu)(?:<p></p>\s*){3,}', '<empty-line/>', text)
         # Remove empty paragraphs.
-        text = re.sub(r'(?miu)<p>\s*</p>', '', text)
-        # Clean up pargraph endings.
-        text = re.sub(r'(?miu)\s*</p>', '</p>', text)
-        # Put paragraphs following a paragraph on a separate line.
-        text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
-
-        # Remove empty title elements.
-        text = re.sub(r'(?miu)<title>\s*</title>', '', text)
-        text = re.sub(r'(?miu)\s+</title>', '</title>', text)
-
-        # Remove empty sections.
-        text = re.sub(r'(?miu)<section>\s*</section>', '', text)
-        # Clean up sections start and ends.
-        text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
-        text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
-        text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
-        text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
-        # Put sectnions followed by sections on a separate line.
-        text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n\n<section>', text)
+        text = re.sub(r'(?mu)<p></p>\s*', '', text)
+        # Put the paragraph following a paragraph on a separate line.
+        text = re.sub(r'(?mu)</p>\s*<p>', '</p>\n<p>', text)
 
         if self.opts.insert_blank_line:
-            text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
+            text = re.sub(r'(?mu)</p>', '</p><empty-line/>', text)
+
+        # Clean up title endings.
+        text = re.sub(r'(?mu)\s+</title>', '</title>', text)
+        # Remove empty title elements.
+        text = re.sub(r'(?mu)<title></title>\s*', '', text)
+        # Put the paragraph following a title on a separate line.
+        text = re.sub(r'(?mu)</title>\s*<p>', '</title>\n<p>', text)
+
+        # Put line breaks between paragraphs on a separate line.
+        text = re.sub(r'(?mu)</(p|title)>\s*<empty-line/>', r'</\1>\n<empty-line/>', text)
+        text = re.sub(r'(?mu)<empty-line/>\s*<p>', '<empty-line/>\n<p>', text)
+
+        # Remove empty sections.
+        text = re.sub(r'(?mu)<section>\s*</section>', '', text)
+        # Clean up sections starts and ends.
+        text = re.sub(r'(?mu)\s*<section>', '\n<section>', text)
+        text = re.sub(r'(?mu)<section>\s*', '<section>\n', text)
+        text = re.sub(r'(?mu)\s*</section>', '\n</section>', text)
+        text = re.sub(r'(?mu)</section>\s*', '</section>\n', text)
 
         return text
 
@@ -115,11 +129,11 @@ class FB2MLizer(object):
         metadata['cover'] = self.get_cover()
         metadata['genre'] = self.opts.fb2_genre
 
-        metadata['author'] = u''
+        metadata['author'] = ''
         for auth in self.oeb_book.metadata.creator:
-            author_first = u''
-            author_middle = u''
-            author_last = u''
+            author_first = ''
+            author_middle = ''
+            author_last = ''
             author_parts = auth.value.split(' ')
             if len(author_parts) == 1:
                 author_last = author_parts[0]
@@ -137,30 +151,30 @@ class FB2MLizer(object):
             metadata['author'] += '<last-name>%s</last-name>' % prepare_string_for_xml(author_last)
             metadata['author'] += '</author>'
         if not metadata['author']:
-            metadata['author'] = u'<author><first-name></first-name><last-name></last-name></author>'
+            metadata['author'] = '<author><first-name></first-name><last-name></last-name></author>'
 
-        metadata['keywords'] = u''
-        tags = list(map(unicode, self.oeb_book.metadata.subject))
+        metadata['keywords'] = ''
+        tags = list(map(unicode_type, self.oeb_book.metadata.subject))
         if tags:
             tags = ', '.join(prepare_string_for_xml(x) for x in tags)
             metadata['keywords'] = '<keywords>%s</keywords>'%tags
 
-        metadata['sequence'] = u''
+        metadata['sequence'] = ''
         if self.oeb_book.metadata.series:
             index = '1'
             if self.oeb_book.metadata.series_index:
                 index = self.oeb_book.metadata.series_index[0]
-            metadata['sequence'] = u'<sequence name="%s" number="%s" />' % (prepare_string_for_xml(u'%s' % self.oeb_book.metadata.series[0]), index)
+            metadata['sequence'] = '<sequence name="%s" number="%s"/>' % (prepare_string_for_xml('%s' % self.oeb_book.metadata.series[0]), index)
 
-        year = publisher = isbn = u''
+        year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
-                metadata['id'] = unicode(x).split(':')[-1]
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode_type(x).startswith('urn:uuid:'):
+                metadata['id'] = unicode_type(x).split(':')[-1]
                 break
         if metadata['id'] is None:
             self.log.warn('No UUID identifier found')
-            metadata['id'] = str(uuid.uuid4())
+            metadata['id'] = unicode_type(uuid.uuid4())
 
         try:
             date = self.oeb_book.metadata['date'][0]
@@ -185,34 +199,47 @@ class FB2MLizer(object):
             if key not in ('author', 'cover', 'sequence', 'keywords', 'year', 'publisher', 'isbn'):
                 metadata[key] = prepare_string_for_xml(value)
 
-        return textwrap.dedent(u'''
-            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <description>
-                    <title-info>
-                        <genre>%(genre)s</genre>
-                            %(author)s
-                        <book-title>%(title)s</book-title>
-                        %(cover)s
-                        <lang>%(lang)s</lang>
-                        %(keywords)s
-                        %(sequence)s
-                    </title-info>
-                    <document-info>
-                        %(author)s
-                        <program-used>%(appname)s %(version)s</program-used>
-                        <date>%(date)s</date>
-                        <id>%(id)s</id>
-                        <version>1.0</version>
-                    </document-info>
-                    <publish-info>
-                        %(publisher)s
-                        %(year)s
-                        %(isbn)s
-                    </publish-info>
-                </description>\n''') % metadata
+        try:
+            comments = self.oeb_book.metadata['description'][0]
+        except Exception:
+            metadata['comments'] = ''
+        else:
+            from calibre.utils.html2text import html2text
+            metadata['comments'] = '<annotation><p>{}</p></annotation>'.format(prepare_string_for_xml(html2text(comments.value).strip()))
+
+        # Keep the indentation level of the description the same as the body.
+        header = textwrap.dedent('''\
+            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
+            <description>
+                <title-info>
+                    <genre>%(genre)s</genre>
+                    %(author)s
+                    <book-title>%(title)s</book-title>
+                    %(cover)s
+                    <lang>%(lang)s</lang>
+                    %(keywords)s
+                    %(sequence)s
+                    %(comments)s
+                </title-info>
+                <document-info>
+                    %(author)s
+                    <program-used>%(appname)s %(version)s</program-used>
+                    <date>%(date)s</date>
+                    <id>%(id)s</id>
+                    <version>1.0</version>
+                </document-info>
+                <publish-info>
+                    %(publisher)s
+                    %(year)s
+                    %(isbn)s
+                </publish-info>
+            </description>''') % metadata
+
+        # Remove empty lines.
+        return '\n'.join(filter(unicode_type.strip, header.splitlines()))
 
     def fb2_footer(self):
-        return u'\n</FictionBook>'
+        return '</FictionBook>'
 
     def get_cover(self):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
@@ -220,8 +247,8 @@ class FB2MLizer(object):
         cover_href = None
 
         # Get the raster cover if it's available.
-        if self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
-            id = unicode(self.oeb_book.metadata.cover[0])
+        if self.oeb_book.metadata.cover and unicode_type(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+            id = unicode_type(self.oeb_book.metadata.cover[0])
             cover_item = self.oeb_book.manifest.ids[id]
             if cover_item.media_type in OEB_RASTER_IMAGES:
                 cover_href = cover_item.href
@@ -242,12 +269,11 @@ class FB2MLizer(object):
 
         if cover_href:
             # Only write the image tag if it is in the manifest.
-            if cover_href in self.oeb_book.manifest.hrefs.keys():
-                if cover_href not in self.image_hrefs.keys():
-                    self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
-            return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+            if cover_href in self.oeb_book.manifest.hrefs and cover_href not in self.image_hrefs:
+                self.image_hrefs[cover_href] = 'img_%s' % len(self.image_hrefs)
+            return '<coverpage><image l:href="#%s"/></coverpage>' % self.image_hrefs[cover_href]
 
-        return u''
+        return ''
 
     def get_text(self):
         from calibre.ebooks.oeb.base import XHTML
@@ -281,7 +307,8 @@ class FB2MLizer(object):
             text.append('</section>')
             self.section_level -= 1
 
-        return ''.join(text) + '</body>'
+        text.append('</body>')
+        return ''.join(text)
 
     def fb2mlize_images(self):
         '''
@@ -296,25 +323,21 @@ class FB2MLizer(object):
                 continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    if item.media_type != 'image/jpeg':
+                    if item.media_type not in ('image/jpeg', 'image/png'):
                         imdata = save_cover_data_to(item.data, compression_quality=70)
-                        raw_data = b64encode(imdata)
+                        raw_data = as_base64_unicode(imdata)
+                        content_type = 'image/jpeg'
                     else:
-                        raw_data = b64encode(item.data)
+                        raw_data = as_base64_unicode(item.data)
+                        content_type = item.media_type
                     # Don't put the encoded image on a single line.
-                    data = ''
-                    col = 1
-                    for char in raw_data:
-                        if col == 72:
-                            data += '\n'
-                            col = 1
-                        col += 1
-                        data += char
-                    images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
+                    step = 72
+                    data = '\n'.join(raw_data[i:i+step] for i in range(0, len(raw_data), step))
+                    images.append('<binary id="%s" content-type="%s">%s</binary>' % (self.image_hrefs[item.href], content_type, data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
-        return ''.join(images)
+        return '\n'.join(images)
 
     def create_flat_toc(self, nodes, level):
         for item in nodes:
@@ -386,9 +409,9 @@ class FB2MLizer(object):
         elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
-        if not isinstance(elem_tree.tag, basestring) or namespace(elem_tree.tag) != XHTML_NS:
+        if not isinstance(elem_tree.tag, string_or_bytes) or namespace(elem_tree.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return []
@@ -449,19 +472,18 @@ class FB2MLizer(object):
         # Process the XHTML tag and styles. Converted to an FB2 tag.
         # Use individual if statement not if else. There can be
         # only one XHTML tag but it can have multiple styles.
-        if tag == 'img':
-            if elem_tree.attrib.get('src', None):
-                # Only write the image tag if it is in the manifest.
-                ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
-                if ihref in self.oeb_book.manifest.hrefs:
-                    if ihref not in self.image_hrefs:
-                        self.image_hrefs[ihref] = '_%s.jpg' % len(self.image_hrefs)
-                    p_txt, p_tag = self.ensure_p()
-                    fb2_out += p_txt
-                    tags += p_tag
-                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[ihref])
-                else:
-                    self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
+        if tag == 'img' and elem_tree.attrib.get('src', None):
+            # Only write the image tag if it is in the manifest.
+            ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
+            if ihref in self.oeb_book.manifest.hrefs:
+                if ihref not in self.image_hrefs:
+                    self.image_hrefs[ihref] = 'img_%s' % len(self.image_hrefs)
+                p_txt, p_tag = self.ensure_p()
+                fb2_out += p_txt
+                tags += p_tag
+                fb2_out.append('<image l:href="#%s"/>' % self.image_hrefs[ihref])
+            else:
+                self.log.warn(u'Ignoring image not in manifest: %s' % ihref)
         if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1
@@ -476,17 +498,25 @@ class FB2MLizer(object):
                     closed_tags.append(t)
                     if t == 'p':
                         break
-                fb2_out.append('<empty-line />' * multiplier)
+                fb2_out.append('<empty-line/>' * multiplier)
                 closed_tags.reverse()
                 for t in closed_tags:
                     fb2_out.append('<%s>' % t)
             else:
-                fb2_out.append('<empty-line />' * multiplier)
+                fb2_out.append('<empty-line/>' * multiplier)
         if tag in ('div', 'li', 'p'):
             p_text, added_p = self.close_open_p(tag_stack+tags)
             fb2_out += p_text
             if added_p:
                 tags.append('p')
+        if tag == 'a' and elem_tree.attrib.get('href', None):
+            # Handle only external links for now
+            if urlparse(elem_tree.attrib['href']).netloc:
+                p_txt, p_tag = self.ensure_p()
+                fb2_out += p_txt
+                tags += p_tag
+                fb2_out.append('<a l:href="%s">' % urlnormalize(elem_tree.attrib['href']))
+                tags.append('a')
         if tag == 'b' or style['font-weight'] in ('bold', 'bolder'):
             s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
             fb2_out += s_out

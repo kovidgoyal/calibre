@@ -147,7 +147,7 @@
               <x>0</x>
               <y>0</y>
               <width>373</width>
-              <height>341</height>
+              <height>333</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -164,14 +164,61 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0" colspan="2">
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Max. &amp;number of tags to download:</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_max_tags</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Max. &amp;time to wait after first match is found:</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_wait_after_first_identify_result</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QSpinBox" name="opt_max_tags"/>
+             </item>
+             <item row="9" column="1">
+              <widget class="QSpinBox" name="opt_wait_after_first_identify_result">
+               <property name="suffix">
+                <string> secs</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Max. time to wait after first &amp;cover is found:</string>
+               </property>
+               <property name="buddy">
+                <cstring>opt_wait_after_first_cover_result</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1">
+              <widget class="QSpinBox" name="opt_wait_after_first_cover_result">
+               <property name="suffix">
+                <string> secs</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
               <widget class="QCheckBox" name="opt_swap_author_names">
                <property name="text">
                 <string>Swap &amp;author names from FN LN to LN, FN</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="0" colspan="2">
+             <item row="2" column="0" colspan="2">
               <widget class="QCheckBox" name="opt_append_comments">
                <property name="toolTip">
                 <string>&lt;p&gt;When downloading comments, append the downloaded comments to any existing comment, instead of overwriting them.</string>
@@ -184,14 +231,24 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="0" colspan="2">
+             <item row="3" column="0" colspan="2">
               <widget class="QCheckBox" name="opt_find_first_edition_date">
                <property name="text">
                 <string>Use &amp;published date of &quot;first edition&quot; (from worldcat.org)</string>
                </property>
               </widget>
              </item>
-             <item row="9" column="0" colspan="2">
+             <item row="4" column="0" colspan="2">
+              <widget class="QCheckBox" name="opt_keep_dups">
+               <property name="toolTip">
+                <string>&lt;p&gt;Normally, the metadata download system will keep only a single result per metadata source. This option will cause it to keep all results returned from every metadata source. Useful if you only use one or two sources and want to select individual results from them by hand. Note that result with identical title/author/identifiers are still merged.</string>
+               </property>
+               <property name="text">
+                <string>Keep more than one entry per source</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0" colspan="2">
               <widget class="QCheckBox" name="opt_fewer_tags">
                <property name="toolTip">
                 <string>&lt;p&gt;Different metadata sources have different sets of tags for the same book. If this option is checked, then calibre will use the smaller tag sets. These tend to be more like genres, while the larger tag sets tend to describe the books content.
@@ -205,64 +262,17 @@
                </property>
               </widget>
              </item>
-             <item row="10" column="0" colspan="2">
+             <item row="6" column="0" colspan="2">
               <widget class="QPushButton" name="tag_map_rules_button">
                <property name="text">
                 <string>Create &amp;rules to filter/transform tags</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="0">
+             <item row="7" column="0" colspan="2">
               <widget class="QPushButton" name="author_map_rules_button">
                <property name="text">
                 <string>Create rules to &amp;transform author names</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="1">
-              <widget class="QSpinBox" name="opt_max_tags"/>
-             </item>
-             <item row="13" column="0">
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>Max. &amp;number of tags to download:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_max_tags</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="14" column="0">
-              <widget class="QLabel" name="label_3">
-               <property name="text">
-                <string>Max. &amp;time to wait after first match is found:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_wait_after_first_identify_result</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="14" column="1">
-              <widget class="QSpinBox" name="opt_wait_after_first_identify_result">
-               <property name="suffix">
-                <string> secs</string>
-               </property>
-              </widget>
-             </item>
-             <item row="15" column="0">
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>Max. time to wait after first &amp;cover is found:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_wait_after_first_cover_result</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="15" column="1">
-              <widget class="QSpinBox" name="opt_wait_after_first_cover_result">
-               <property name="suffix">
-                <string> secs</string>
                </property>
               </widget>
              </item>

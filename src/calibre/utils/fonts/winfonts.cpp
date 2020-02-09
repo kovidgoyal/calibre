@@ -57,7 +57,7 @@ static PyObject* logfont_to_dict(const ENUMLOGFONTEX *lf, const TEXTMETRIC *tm, 
     full_name = wchar_to_unicode(lf->elfFullName);
     style = wchar_to_unicode(lf->elfStyle);
     script = wchar_to_unicode(lf->elfScript);
-    
+
     return Py_BuildValue("{s:N, s:N, s:N, s:N, s:O, s:O, s:O, s:O, s:l}",
         "name", name,
         "full_name", full_name,
@@ -165,7 +165,11 @@ static PyObject* add_font(PyObject *self, PyObject *args) {
     Py_ssize_t sz;
     DWORD num = 0;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyArg_ParseTuple(args, "y#", &data, &sz)) return NULL;
+#else
     if (!PyArg_ParseTuple(args, "s#", &data, &sz)) return NULL;
+#endif
 
     AddFontMemResourceEx(data, (DWORD)sz, NULL, &num);
 
@@ -204,8 +208,9 @@ static PyObject* remove_system_font(PyObject *self, PyObject *args) {
     return Py_BuildValue("O", ok);
 }
 
-static 
-PyMethodDef winfonts_methods[] = {
+static char winfonts_doc[] = "Windows font API";
+
+static PyMethodDef winfonts_methods[] = {
     {"enum_font_families", enum_font_families, METH_VARARGS,
     "enum_font_families()\n\n"
         "Enumerate all regular (not italic/bold/etc. variants) font families on the system. Note there will be multiple entries for every family (corresponding to each charset of the font)."
@@ -235,14 +240,32 @@ PyMethodDef winfonts_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initwinfonts(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&winfonts_module)
+static struct PyModuleDef winfonts_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "winfonts",
+    /* m_doc      */ winfonts_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ winfonts_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("winfonts", winfonts_methods, winfonts_doc)
+CALIBRE_MODINIT_FUNC initwinfonts(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3(
-            "winfonts", winfonts_methods,
-            "Windows font API"
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+    if (m == NULL) {
+        INITERROR;
+    }
 
     PyModule_AddIntMacro(m, FW_DONTCARE);
     PyModule_AddIntMacro(m, FW_THIN);
@@ -259,5 +282,8 @@ initwinfonts(void) {
     PyModule_AddIntMacro(m, FW_ULTRABOLD);
     PyModule_AddIntMacro(m, FW_HEAVY);
     PyModule_AddIntMacro(m, FW_BLACK);
-}
 
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
+}

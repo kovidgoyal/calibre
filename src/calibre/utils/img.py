@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
+# License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import errno
@@ -18,11 +17,12 @@ from PyQt5.QtCore import QBuffer, QByteArray, Qt
 from PyQt5.QtGui import QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
 
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows, plugins, ispy3
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
+from polyglot.builtins import string_or_bytes, unicode_type
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']
@@ -53,7 +53,7 @@ def get_exe_path(name):
 
 def load_jxr_data(data):
     with TemporaryDirectory() as tdir:
-        if iswindows and isinstance(tdir, type('')):
+        if iswindows and isinstance(tdir, unicode_type):
             tdir = tdir.encode('mbcs')
         with lopen(os.path.join(tdir, 'input.jxr'), 'wb') as f:
             f.write(data)
@@ -81,9 +81,10 @@ def image_from_data(data):
         return data
     i = QImage()
     if not i.loadFromData(data):
-        if what(None, data) == 'jxr':
+        q = what(None, data)
+        if q == 'jxr':
             return load_jxr_data(data)
-        raise NotImage('Not a valid image')
+        raise NotImage('Not a valid image (detected type: {})'.format(q))
     return i
 
 
@@ -95,7 +96,7 @@ def image_from_path(path):
 
 def image_from_x(x):
     ' Create an image from a bytestring or a path or a file like object. '
-    if isinstance(x, type('')):
+    if isinstance(x, unicode_type):
         return image_from_path(x)
     if hasattr(x, 'read'):
         return image_from_data(x.read())
@@ -173,7 +174,16 @@ def save_image(img, path, **kw):
         f.write(image_to_data(image_from_data(img), **kw))
 
 
-def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, data_fmt='jpeg'):
+def save_cover_data_to(
+    data, path=None,
+    bgcolor='#ffffff',
+    resize_to=None,
+    compression_quality=90,
+    minify_to=None,
+    grayscale=False,
+    eink=False, letterbox=False,
+    data_fmt='jpeg'
+):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -185,12 +195,20 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     :param data_fmt: The fmt to return data in when path is None. Defaults to JPEG
     :param compression_quality: The quality of the image after compression.
         Number between 1 and 100. 1 means highest compression, 100 means no
-        compression (lossless).
+        compression (lossless). When generating PNG this number is divided by 10
+        for the png_compression_level.
     :param bgcolor: The color for transparent pixels. Must be specified in hex.
     :param resize_to: A tuple (width, height) or None for no resizing
     :param minify_to: A tuple (width, height) to specify maximum target size.
         The image will be resized to fit into this target size. If None the
         value from the tweak is used.
+    :param grayscale: If True, the image is converted to grayscale,
+        if that's not already the case.
+    :param eink: If True, the image is dithered down to the 16 specific shades
+        of gray of the eInk palette.
+        Works best with formats that actually support color indexing (i.e., PNG)
+    :param letterbox: If True, in addition to fit resize_to inside minify_to,
+        the image will be letterboxed (i.e., centered on a black background).
     '''
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     if isinstance(data, QImage):
@@ -205,21 +223,32 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         img = img.scaled(resize_to[0], resize_to[1], Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     owidth, oheight = img.width(), img.height()
     nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
-    scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
-    if scaled:
-        changed = True
-        img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    if letterbox:
+        img = blend_on_canvas(img, nwidth, nheight, bgcolor='#000000')
+        # Check if we were minified
+        if oheight != nheight or owidth != nwidth:
+            changed = True
+    else:
+        scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+        if scaled:
+            changed = True
+            img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
-    if grayscale:
+    if grayscale and not eink:
         if not img.allGray():
             changed = True
             img = grayscale_image(img)
+    if eink:
+        # NOTE: Keep in mind that JPG does NOT actually support indexed colors, so the JPG algorithm will then smush everything back into a 256c mess...
+        #       Thankfully, Nickel handles PNG just fine, and we potentially generate smaller files to boot, because they can be properly color indexed ;).
+        img = eink_dither_image(img)
+        changed = True
     if path is None:
-        return image_to_data(img, compression_quality, fmt) if changed else data
+        return image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data
     with lopen(path, 'wb') as f:
-        f.write(image_to_data(img, compression_quality, fmt) if changed else data)
+        f.write(image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data)
 # }}}
 
 # Overlaying images {{{
@@ -436,9 +465,23 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
-    if palette and isinstance(palette, basestring):
+    if palette and isinstance(palette, string_or_bytes):
         palette = palette.split()
     return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
+
+
+def eink_dither_image(img):
+    ''' Dither the source image down to the eInk palette of 16 shades of grey,
+    using ImageMagick's OrderedDither algorithm.
+
+    NOTE: No need to call grayscale_image first, as this will inline a grayscaling pass if need be.
+
+    Returns a QImage in Grayscale8 pixel format.
+    '''
+    img = image_from_data(img)
+    if img.hasAlphaChannel():
+        img = blend_image(img)
+    return imageops.ordered_dither(img)
 
 # }}}
 
@@ -463,12 +506,12 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             cmd[cmd.index(q)] = r
         if not as_filter:
             repl(True, iname), repl(False, oname)
-        if iswindows:
+        if iswindows and not ispy3:
             # subprocess in python 2 cannot handle unicode strings that are not
             # encodeable in mbcs, so we fail here, where it is more explicit,
             # instead.
-            cmd = [x.encode('mbcs') if isinstance(x, type('')) else x for x in cmd]
-            if isinstance(cwd, type('')):
+            cmd = [x.encode('mbcs') if isinstance(x, unicode_type) else x for x in cmd]
+            if isinstance(cwd, unicode_type):
                 cwd = cwd.encode('mbcs')
         stdin = subprocess.PIPE if as_filter else None
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT
@@ -522,9 +565,10 @@ def optimize_jpeg(file_path):
     return run_optimizer(file_path, cmd)
 
 
-def optimize_png(file_path):
+def optimize_png(file_path, level=7):
+    ' level goes from 1 to 7 with 7 being maximum compression '
     exe = get_exe_path('optipng')
-    cmd = [exe] + '-fix -clobber -strip all -o7 -out'.split() + [False, True]
+    cmd = [exe] + '-fix -clobber -strip all -o{} -out'.format(level).split() + [False, True]
     return run_optimizer(file_path, cmd)
 
 
@@ -532,7 +576,7 @@ def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
-    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]
+    cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [unicode_type(quality)]
     img = QImage()
     if not img.load(file_path):
         raise ValueError('%s is not a valid image file' % file_path)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,12 +8,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, weakref
 from collections import OrderedDict, namedtuple
 from functools import partial
-from polyglot.builtins import zip
+from polyglot.builtins import iteritems, itervalues, zip, unicode_type, range, map
 
 from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
-    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
+    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea,
     QKeySequence, QAction, QMenu, QHBoxLayout, QCheckBox)
 
 from calibre import fit_image
@@ -22,6 +21,7 @@ from calibre.ebooks.metadata import title_sort, authors_to_sort_string, fmt_sidx
 from calibre.gui2 import pixmap_to_data, gprefs
 from calibre.gui2.complete2 import LineEdit as EditWithComplete
 from calibre.gui2.comments_editor import Editor
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
@@ -49,29 +49,28 @@ class LineEdit(EditWithComplete):
             self.set_separator(sep)
         self.textChanged.connect(self.changed)
 
-    @dynamic_property
+    @property
     def value(self):
-        def fget(self):
-            val = unicode(self.text()).strip()
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = []
-                else:
-                    val = val.strip(ism['list_to_ui'].strip())
-                    val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
-            return val
+        val = unicode_type(self.text()).strip()
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = []
+            else:
+                val = val.strip(ism['list_to_ui'].strip())
+                val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
+        return val
 
-        def fset(self, val):
-            ism = self.metadata['is_multiple']
-            if ism:
-                if not val:
-                    val = ''
-                else:
-                    val = ism['list_to_ui'].join(val)
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @value.setter
+    def value(self, val):
+        ism = self.metadata['is_multiple']
+        if ism:
+            if not val:
+                val = ''
+            else:
+                val = ism['list_to_ui'].join(val)
+        self.setText(val)
+        self.setCursorPosition(0)
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='') or ''
@@ -85,15 +84,14 @@ class LineEdit(EditWithComplete):
         elif self.field == 'authors':
             mi.set('author_sort', authors_to_sort_string(val))
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return unicode(self.text())
+        return unicode_type(self.text())
 
-        def fset(self, val):
-            self.setText(val)
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.setText(val)
+        self.setCursorPosition(0)
 
     @property
     def is_blank(self):
@@ -119,14 +117,13 @@ class LanguagesEdit(LE):
         if not is_new:
             self.lineEdit().setReadOnly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.lang_codes
+        return self.lang_codes
 
-        def fset(self, val):
-            self.lang_codes = val
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.lang_codes = val
 
     def from_mi(self, mi):
         self.lang_codes = mi.languages
@@ -212,7 +209,7 @@ class SeriesEdit(LineEdit):
         self.setCursorPosition(0)
 
     def to_mi(self, mi):
-        val = unicode(self.text()).strip()
+        val = unicode_type(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
         except:
@@ -241,17 +238,16 @@ class IdentifiersEdit(LineEdit):
     def to_mi(self, mi):
         mi.set_identifiers(self.as_dict)
 
-    @dynamic_property
+    @property
     def as_dict(self):
-        def fget(self):
-            parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-            return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.iteritems() if k and v}
+        parts = (x.strip() for x in self.current_val.split(',') if x.strip())
+        return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
 
-        def fset(self, val):
-            val = ('%s:%s' % (k, v) for k, v in val.iteritems())
-            self.setText(', '.join(val))
-            self.setCursorPosition(0)
-        return property(fget=fget, fset=fset)
+    @as_dict.setter
+    def as_dict(self, val):
+        val = ('%s:%s' % (k, v) for k, v in iteritems(val))
+        self.setText(', '.join(val))
+        self.setCursorPosition(0)
 
 
 class CommentsEdit(Editor):
@@ -269,15 +265,14 @@ class CommentsEdit(Editor):
             self.hide_toolbars()
             self.set_readonly(True)
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.html
+        return self.html
 
-        def fset(self, val):
-            self.html = val or ''
-            self.changed.emit()
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.html = val or ''
+        self.changed.emit()
 
     def from_mi(self, mi):
         val = mi.get(self.field, default='')
@@ -315,16 +310,15 @@ class CoverView(QWidget):
     def is_blank(self):
         return self.pixmap is None
 
-    @dynamic_property
+    @property
     def current_val(self):
-        def fget(self):
-            return self.pixmap
+        return self.pixmap
 
-        def fset(self, val):
-            self.pixmap = val
-            self.changed.emit()
-            self.update()
-        return property(fget=fget, fset=fset)
+    @current_val.setter
+    def current_val(self, val):
+        self.pixmap = val
+        self.changed.emit()
+        self.update()
 
     def from_mi(self, mi):
         p = getattr(mi, 'cover', None)
@@ -378,7 +372,7 @@ class CoverView(QWidget):
             f.setBold(True)
             p.setFont(f)
             sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
-            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+            flags = int(Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine)
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
             p.setPen(QPen(QColor(255,255,255)))
@@ -395,7 +389,7 @@ class CompareSingle(QWidget):
             fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover'), db=None):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
-        l.setContentsMargins(0, 0, 0, 0)
+        # l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         revert_tooltip = revert_tooltip or _('Revert %s')
         self.current_mi = None
@@ -473,12 +467,6 @@ class CompareSingle(QWidget):
                 l.addWidget(w, row, c)
             row += 1
 
-        self.sep = f = QFrame(self)
-        f.setFrameShape(f.VLine)
-        l.addWidget(f, 0, 2, row, 1)
-        self.sep2 = f = QFrame(self)
-        f.setFrameShape(f.VLine)
-        l.addWidget(f, 0, 4, row, 1)
         if 'comments' in self.widgets and not gprefs.get('diff_widget_show_comments_controls', True):
             self.widgets['comments'].new.hide_toolbars()
 
@@ -519,14 +507,14 @@ class CompareSingle(QWidget):
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
         self.initial_vals = {}
-        for field, widgets in self.widgets.iteritems():
+        for field, widgets in iteritems(self.widgets):
             widgets.old.from_mi(oldmi)
             widgets.new.from_mi(newmi)
             self.initial_vals[field] = widgets.new.current_val
 
     def apply_changes(self):
         changed = False
-        for field, widgets in self.widgets.iteritems():
+        for field, widgets in iteritems(self.widgets):
             val = widgets.new.current_val
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)
@@ -547,6 +535,7 @@ class CompareMany(QDialog):
                  **kwargs):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
+        self.next_called = False
         self.setLayout(l)
         self.setWindowIcon(QIcon(I('auto_author_sort.png')))
         self.get_metadata = get_metadata
@@ -619,8 +608,9 @@ class CompareMany(QDialog):
         self.resize(QSize(width, height))
         geom = gprefs.get('diff_dialog_geom', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         b.setFocus(Qt.OtherFocusReason)
+        self.next_called = False
 
     @property
     def mark_rejected(self):
@@ -635,6 +625,10 @@ class CompareMany(QDialog):
         super(CompareMany, self).accept()
 
     def reject(self):
+        if self.next_called and not confirm(_(
+            'All reviewed changes will be lost! Are you sure you want to Cancel?'),
+            'confirm-metadata-diff-dialog-cancel'):
+            return
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
         self.compare_widget.save_comments_controls_state()
         super(CompareMany, self).reject()
@@ -644,6 +638,7 @@ class CompareMany(QDialog):
         return self.compare_widget.current_mi
 
     def next_item(self, accept):
+        self.next_called = True
         if not self.ids:
             return self.accept()
         if self.current_mi is not None:
@@ -698,9 +693,9 @@ if __name__ == '__main__':
     ids = sorted(db.all_ids(), reverse=True)
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
-    get_metadata = lambda x:map(gm, ids[x])
-    d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata, db=db)
+    get_metadata = lambda x:list(map(gm, ids[x]))
+    d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     if d.exec_() == d.Accepted:
-        for changed, mi in d.accepted.itervalues():
+        for changed, mi in itervalues(d.accepted):
             if changed and mi is not None:
                 print(mi)

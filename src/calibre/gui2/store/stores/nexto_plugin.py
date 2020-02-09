@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,8 +8,11 @@ __copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -46,7 +49,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query) + '&scid=1015'
+        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + quote_plus(query) + '&scid=1015'
 
         br = browser()
         offset=0
@@ -54,7 +57,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
         counter = max_results
 
         while counter:
-            with closing(br.open(url + '&_offset=' + str(offset), timeout=timeout)) as f:
+            with closing(br.open(url + '&_offset={}'.format(offset), timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//ul[@class="productslist"]/li'):
                     if counter <= 0:
@@ -73,7 +76,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     title = re.sub(r' – ebook', '', title)
                     author = ', '.join(data.xpath('.//div[@class="col-7"]//h4//a/text()'))
                     formats = ', '.join(data.xpath('.//ul[@class="formats"]/li//b/text()'))
-                    DrmFree = re.search(r'znak', str(data.xpath('.//ul[@class="formats"]/li//b/@title')))
+                    DrmFree = data.xpath('.//ul[@class="formats"]/li//b[contains(@title, "znak")]')
 
                     counter -= 1
 

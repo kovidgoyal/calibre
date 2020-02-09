@@ -2,48 +2,86 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 
-class globaltimes(BasicNewsRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class GlobalTimes(BasicNewsRecipe):
     title = u'Global Times'
-    __author__ = 'malfi'
-    language = 'zh'
+    __author__ = 'Jose Ortiz'  # lui1 at mobileread.com
+    language = 'en_CN'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    cover_url = 'http://enhimg2.huanqiu.com/images/logo.png'
-    language = 'en'
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'id': 'content'}))
-    remove_tags = []
-    remove_tags.append(dict(name='div', attrs={'class': 'location'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'contentpage'}))
-    remove_tags.append(dict(name='li', attrs={'id': 'pl'}))
+    keep_only_tags = [classes('article-title article-source row-content')]
+
+    preprocess_regexps = [(
+        re.compile(
+            r'(?:<(?:br(?:\s*/)?|/br\s*)>(?:\s|'
+            '\xA0'
+            r'|&nbsp;)*){2,9}', re.U | re.I
+        ), lambda match: '<p>'
+    )]
 
     extra_css = '''
-        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        :root {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .article-title {
+            font-weight: bold;
+            font-size: large;
+        }
+
+        .article-source, .row-content {
+            font-size:small;
+        }
         '''
 
     def parse_index(self):
         catnames = {}
-        catnames["http://china.globaltimes.cn/chinanews/"] = "China Politics"
-        catnames["http://china.globaltimes.cn/diplomacy/"] = "China Diplomacy"
-        catnames["http://military.globaltimes.cn/china/"] = "China Military"
-        catnames["http://business.globaltimes.cn/china-economy/"] = "China Economy"
-        catnames["http://world.globaltimes.cn/asia-pacific/"] = "Asia Pacific"
+        catnames["https://www.globaltimes.cn/china/politics/"] = "China Politics"
+        catnames["https://www.globaltimes.cn/china/diplomacy/"] = "China Diplomacy"
+        catnames["https://www.globaltimes.cn/china/military/"] = "China Military"
+        catnames["https://www.globaltimes.cn/world/asia-pacific/"] = "Asia Pacific"
+        catnames["https://www.globaltimes.cn/sci-tech"] = "Sci-Tech"
         feeds = []
 
-        for cat in catnames.keys():
+        for cat in catnames:
             articles = []
+            self.log(cat)
             soup = self.index_to_soup(cat)
-            for a in soup.findAll('a', attrs={'href': re.compile(cat + "201[0-9]-[0-1][0-9]/[0-9][0-9][0-9][0-9][0-9][0-9].html")}):
+            for a in soup.findAll(
+                'a',
+                attrs={
+                    'href':
+                    re.compile(
+                        r'https?://www.globaltimes.cn/content/[0-9]{4,10}[.]shtml'
+                    )
+                }
+            ):
+                # Typical url http://www.globaltimes.cn/content/5555555.shtml
                 url = a['href'].strip()
-                myarticle = ({'title': self.tag_to_string(
-                    a), 'url': url, 'description': '', 'date': ''})
-                self.log("found %s" % url)
+                title = self.tag_to_string(a).strip()
+                if not title:
+                    continue
+                myarticle = ({
+                    'title': title,
+                    'url': url,
+                    'description': '',
+                    'date': ''
+                })
+                self.log("found '%s'" % title)
                 articles.append(myarticle)
                 self.log("Adding URL %s\n" % url)
             if articles:
                 feeds.append((catnames[cat], articles))
         return feeds
+
+    def postprocess_html(self, soup, first_fetch):
+        for p in [p for p in soup('p') if len(p) == 0]:
+            p.extract()
+        return soup

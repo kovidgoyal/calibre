@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -19,6 +18,7 @@ except ImportError:
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
+from polyglot.builtins import itervalues, unicode_type, map, range
 
 
 class RevealBar(QWidget):  # {{{
@@ -224,20 +224,21 @@ class ToolBar(QToolBar):  # {{{
         if ch is None:
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
-        ch.setAutoRaise(True)
         if hasattr(ch, 'setText') and hasattr(ch, 'text'):
             self.all_widgets.append(ch)
-        m = ac.menu()
-        if m is not None:
-            if menu_mode is not None:
-                ch.setPopupMode(menu_mode)
-        return ch
+        if hasattr(ch, 'setAutoRaise'):  # is a QToolButton or similar
+            ch.setAutoRaise(True)
+            m = ac.menu()
+            if m is not None:
+                if menu_mode is not None:
+                    ch.setPopupMode(menu_mode)
+            return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins
     def check_iactions_for_drag(self, event, md, func):
         if self.added_actions:
             pos = event.pos()
-            for iac in self.gui.iactions.itervalues():
+            for iac in itervalues(self.gui.iactions):
                 if iac.accepts_drops:
                     aa = iac.qaction
                     w = self.widgetForAction(aa)
@@ -285,10 +286,10 @@ class ToolBar(QToolBar):  # {{{
             event.ignore()
 
     def dropEvent(self, event):
-        data = event.mimeData()
+        md = event.mimeData()
         mime = 'application/calibre+from_library'
-        if data.hasFormat(mime):
-            ids = list(map(int, str(data.data(mime)).split()))
+        if md.hasFormat(mime):
+            ids = list(map(int, md.data(mime).data().split()))
             tgt = None
             for ac in self.location_manager.available_actions:
                 w = self.widgetForAction(ac)
@@ -302,8 +303,8 @@ class ToolBar(QToolBar):  # {{{
                 return
 
         mime = 'application/calibre+from_device'
-        if data.hasFormat(mime):
-            paths = [unicode(u.toLocalFile()) for u in data.urls()]
+        if md.hasFormat(mime):
+            paths = [unicode_type(u.toLocalFile()) for u in md.urls()]
             if paths:
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
@@ -311,7 +312,7 @@ class ToolBar(QToolBar):  # {{{
                 return
 
         # Give added_actions an opportunity to process the drag&drop event
-        if self.check_iactions_for_drag(event, data, 'drop_event'):
+        if self.check_iactions_for_drag(event, md, 'drop_event'):
             event.accept()
         else:
             event.ignore()
@@ -389,7 +390,11 @@ if isosx:
                 self.clone_menu()
 
         def about_to_show(self):
+            if sip.isdeleted(self.clone):
+                return
             cm = self.clone.menu()
+            if cm is None:
+                return
             before = list(QMenu.actions(cm))
             cm.aboutToShow.emit()
             after = list(QMenu.actions(cm))
@@ -405,7 +410,11 @@ if isosx:
             if what is None:
                 m.addSeparator()
             elif what in iactions:
-                m.addAction(CloneAction(iactions[what].qaction, m))
+                ia = iactions[what]
+                ac = ia.qaction
+                if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ac = ia.shortcut_action_for_context_menu
+                m.addAction(CloneAction(ac, m))
 
     class MenuBar(QObject):
 
@@ -494,7 +503,11 @@ else:
             if what is None:
                 m.addSeparator()
             elif what in iactions:
-                m.addAction(iactions[what].qaction)
+                ia = iactions[what]
+                ac = ia.qaction
+                if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ac = ia.shortcut_action_for_context_menu
+                m.addAction(ac)
 
     from calibre.gui2.dbus_export.widgets import factory
 
@@ -576,8 +589,7 @@ class BarsManager(QObject):
         QObject.__init__(self, parent)
         self.location_manager = location_manager
 
-        bars = [ToolBar(donate_action, location_manager, parent) for i in
-                range(3)]
+        bars = [ToolBar(donate_action, location_manager, parent) for i in range(3)]
         self.main_bars = tuple(bars[:2])
         self.child_bars = tuple(bars[2:])
         self.reveal_bar = RevealBar(parent)

@@ -2,20 +2,42 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import textwrap
+
 from PyQt5.Qt import (
     QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap, QPushButton,
     QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    pyqtSignal, QApplication
 )
-from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, gprefs
-from calibre.gui2.book_details import css, details_context_menu_event, render_html, set_html
+from calibre.gui2.book_details import (
+    create_open_cover_with_menu, css, details_context_menu_event, render_html,
+    set_html
+)
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import Dialog, HTMLDisplay
+from polyglot.builtins import unicode_type
+
+
+class Cover(CoverView):
+
+    open_with_requested = pyqtSignal(object)
+    choose_open_with_requested = pyqtSignal()
+
+    def build_context_menu(self):
+        ans = CoverView.build_context_menu(self)
+        create_open_cover_with_menu(self, ans)
+        return ans
+
+    def open_with(self, entry):
+        self.open_with_requested.emit(entry)
+
+    def choose_open_with(self):
+        self.choose_open_with_requested.emit()
 
 
 class Configure(Dialog):
@@ -55,8 +77,18 @@ class Configure(Dialog):
 
         b = self.bb.addButton(_('Restore &defaults'), self.bb.ActionRole)
         b.clicked.connect(self.restore_defaults)
+        b = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
+        b.clicked.connect(self.select_all)
+        b = self.bb.addButton(_('Select &none'), self.bb.ActionRole)
+        b.clicked.connect(self.select_none)
         self.l.addWidget(self.bb)
         self.setMinimumHeight(500)
+
+    def select_all(self):
+        self.model.toggle_all(True)
+
+    def select_none(self):
+        self.model.toggle_all(False)
 
     def restore_defaults(self):
         self.model.initialize(use_defaults=True)
@@ -66,11 +98,12 @@ class Configure(Dialog):
         return Dialog.accept(self)
 
 
-class Details(QWebView):
+class Details(HTMLDisplay):
 
     def __init__(self, book_info, parent=None):
-        QWebView.__init__(self, parent)
+        HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
+        self.setDefaultStyleSheet(css())
 
     def sizeHint(self):
         return QSize(350, 350)
@@ -82,6 +115,7 @@ class Details(QWebView):
 class BookInfo(QDialog):
 
     closed = pyqtSignal(object)
+    open_cover_with = pyqtSignal(object, object)
 
     def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
@@ -94,39 +128,41 @@ class BookInfo(QDialog):
         self.setLayout(l)
         l.addWidget(self.splitter)
 
-        self.cover = CoverView(self, show_size=gprefs['bd_overlay_cover_size'])
+        self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
+        self.cover.open_with_requested.connect(self.open_with)
+        self.cover.choose_open_with_requested.connect(self.choose_open_with)
         self.cover_pixmap = None
         self.cover.sizeHint = self.details_size_hint
         self.splitter.addWidget(self.cover)
 
         self.details = Details(parent.book_details.book_info, self)
-        self.details.page().setLinkDelegationPolicy(self.details.page().DelegateAllLinks)
-        self.details.linkClicked.connect(self.link_clicked)
-        s = self.details.page().settings()
-        s.setAttribute(s.JavascriptEnabled, False)
-        self.css = css()
+        self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.details.palette()
         self.details.setAcceptDrops(False)
         palette.setBrush(QPalette.Base, Qt.transparent)
-        self.details.page().setPalette(palette)
+        self.details.setPalette(palette)
 
         self.c = QWidget(self)
         self.c.l = l2 = QGridLayout(self.c)
+        l2.setContentsMargins(0, 0, 0, 0)
         self.c.setLayout(l2)
         l2.addWidget(self.details, 0, 0, 1, -1)
         self.splitter.addWidget(self.c)
 
         self.fit_cover = QCheckBox(_('Fit &cover within view'), self)
         self.fit_cover.setChecked(gprefs.get('book_info_dialog_fit_cover', True))
-        l2.addWidget(self.fit_cover, l2.rowCount(), 0, 1, 1)
+        self.hl = hl = QHBoxLayout()
+        hl.setContentsMargins(0, 0, 0, 0)
+        l2.addLayout(hl, l2.rowCount(), 0, 1, -1)
+        hl.addWidget(self.fit_cover), hl.addStretch()
         self.clabel = QLabel('<div style="text-align: right"><a href="calibre:conf" title="{}" style="text-decoration: none">{}</a>'.format(
             _('Configure this view'), _('Configure')))
         self.clabel.linkActivated.connect(self.configure)
-        l2.addWidget(self.clabel, l2.rowCount() - 1, 1, 1, 1)
+        hl.addWidget(self.clabel)
         self.previous_button = QPushButton(QIcon(I('previous.png')), _('&Previous'), self)
         self.previous_button.clicked.connect(self.previous)
         l2.addWidget(self.previous_button, l2.rowCount(), 0)
@@ -135,6 +171,7 @@ class BookInfo(QDialog):
         l2.addWidget(self.next_button, l2.rowCount() - 1, 1)
 
         self.view = view
+        self.path_to_book = None
         self.current_row = None
         self.refresh(row)
         self.view.model().new_bookdisplay_data.connect(self.slave)
@@ -144,9 +181,9 @@ class BookInfo(QDialog):
         self.ps = QShortcut(QKeySequence('Alt+Left'), self)
         self.ps.activated.connect(self.previous)
         self.next_button.setToolTip(_('Next [%s]')%
-                unicode(self.ns.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ns.key().toString(QKeySequence.NativeText)))
         self.previous_button.setToolTip(_('Previous [%s]')%
-                unicode(self.ps.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ps.key().toString(QKeySequence.NativeText)))
 
         geom = QCoreApplication.instance().desktop().availableGeometry(self)
         screen_height = geom.height() - 100
@@ -155,7 +192,7 @@ class BookInfo(QDialog):
         saved_layout = gprefs.get('book_info_dialog_layout', None)
         if saved_layout is not None:
             try:
-                self.restoreGeometry(saved_layout[0])
+                QApplication.instance().safe_restore_geometry(self, saved_layout[0])
                 self.splitter.restoreState(saved_layout[1])
             except Exception:
                 pass
@@ -168,8 +205,8 @@ class BookInfo(QDialog):
                 if mi is not None:
                     self.refresh(self.current_row, mi=mi)
 
-    def link_clicked(self, qurl):
-        link = unicode(qurl.toString(NO_URL_FORMATTING))
+    def on_link_clicked(self, qurl):
+        link = unicode_type(qurl.toString(NO_URL_FORMATTING))
         self.link_delegate(link)
 
     def done(self, r):
@@ -241,9 +278,14 @@ class BookInfo(QDialog):
     def update_cover_tooltip(self):
         tt = ''
         if self.marked:
-            tt = _('This book is marked') if self.marked in {True, 'true'} else _(
+            tt += _('This book is marked') if self.marked in {True, 'true'} else _(
                 'This book is marked as: %s') % self.marked
             tt += '\n\n'
+
+        if self.path_to_book is not None:
+            tt += textwrap.fill(_('Path: {}').format(self.path_to_book))
+            tt += '\n\n'
+
         if self.cover_pixmap is not None:
             sz = self.cover_pixmap.size()
             tt += _('Cover size: %(width)d x %(height)d pixels')%dict(width=sz.width(), height=sz.height())
@@ -266,17 +308,28 @@ class BookInfo(QDialog):
         self.current_row = row
         self.setWindowTitle(mi.title)
         self.cover_pixmap = QPixmap.fromImage(mi.cover_data[1])
+        self.path_to_book = getattr(mi, 'path', None)
         try:
             dpr = self.devicePixelRatioF()
         except AttributeError:
             dpr = self.devicePixelRatio()
         self.cover_pixmap.setDevicePixelRatio(dpr)
         self.resize_cover()
-        html = render_html(mi, self.css, True, self, pref_name='popup_book_display_fields')
+        html = render_html(mi, True, self, pref_name='popup_book_display_fields')
         set_html(mi, html, self.details)
         self.marked = mi.marked
         self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
         self.update_cover_tooltip()
+
+    def open_with(self, entry):
+        id_ = self.view.model().id(self.current_row)
+        self.open_cover_with.emit(id_, entry)
+
+    def choose_open_with(self):
+        from calibre.gui2.open_with import choose_program
+        entry = choose_program('cover_image', self)
+        if entry is not None:
+            self.open_with(entry)
 
 
 if __name__ == '__main__':

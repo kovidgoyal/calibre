@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
-        QAbstractListModel, QListView, QSize
+        QAbstractListModel, QListView, QSize, QApplication
 
 from calibre.gui2 import file_icon_provider
 
@@ -36,8 +35,8 @@ class Formats(QAbstractListModel):
         if role == Qt.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return ngettext('There is one book with the {fmt} format',
-                            'There are {count} books with the {fmt} format', count).format(
+            return _('There is one book with the {} format').format(fmt.upper()) if count == 1 else _(
+                'There are {count} books with the {fmt} format').format(
                                 count=count, fmt=fmt.upper())
         return None
 
@@ -64,9 +63,11 @@ class SelectFormats(QDialog):
         self.fview.doubleClicked.connect(self.double_clicked,
                 type=Qt.QueuedConnection)
         if exclude:
-            self.fview.setStyleSheet('''
-                    QListView { background-color: #FAE7B5}
-                    ''')
+            if QApplication.instance().is_dark_theme:
+                sheet = 'background-color: #DAA520; color: black'
+            else:
+                sheet = 'background-color: #fae7b5'
+            self.fview.setStyleSheet('QListView { %s }' % sheet)
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
         self.fview.setSelectionMode(self.fview.SingleSelection if single else
@@ -81,7 +82,7 @@ class SelectFormats(QDialog):
         self.fview.setSpacing(2)
 
         self.resize(350, 500)
-        self.selected_formats = set([])
+        self.selected_formats = set()
 
     def accept(self, *args):
         for idx in self.fview.selectedIndexes():
@@ -94,8 +95,8 @@ class SelectFormats(QDialog):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
     d.exec_()
     print(d.selected_formats)

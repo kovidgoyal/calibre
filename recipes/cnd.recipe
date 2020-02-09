@@ -54,7 +54,7 @@ class TheCND(BasicNewsRecipe):
             if re.search('cm', date):
                 continue
             if (date is not None) and len(date) > 2:
-                if not articles.has_key(date):  # noqa
+                if date not in articles:
                     articles[date] = []
                 articles[date].append(
                     {'title': title, 'url': url, 'description': '', 'date': ''})

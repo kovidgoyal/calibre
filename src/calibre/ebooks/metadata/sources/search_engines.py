@@ -8,8 +8,11 @@ import json
 import re
 import time
 from collections import defaultdict, namedtuple
-from urllib import quote_plus, urlencode
-from urlparse import parse_qs
+try:
+    from urllib.parse import parse_qs, quote_plus, urlencode
+except ImportError:
+    from urlparse import parse_qs
+    from urllib import quote_plus, urlencode
 
 from lxml import etree
 
@@ -17,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 2)
+current_version = (1, 0, 3)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -26,11 +29,12 @@ Result = namedtuple('Result', 'url title cached_url')
 
 
 def tostring(elem):
-    return etree.tostring(elem, encoding=unicode, method='text', with_tail=False)
+    return etree.tostring(elem, encoding='unicode', method='text', with_tail=False)
 
 
 def browser():
     ua = random_user_agent(allow_ie=False)
+    # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
     br = _browser(user_agent=ua)
     br.set_handle_gzip(True)
     br.addheaders += [
@@ -41,7 +45,7 @@ def browser():
 
 
 def encode_query(**query):
-    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.iteritems()}
+    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.items()}
     return urlencode(q).decode('utf-8')
 
 
@@ -71,7 +75,10 @@ def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60):
 
 
 def quote_term(x):
-    return quote_plus(x.encode('utf-8')).decode('utf-8')
+    ans = quote_plus(x.encode('utf-8'))
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans
 
 
 # DDG + Wayback machine {{{
@@ -121,8 +128,7 @@ def wayback_url_processor(url):
 
 def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
-    terms = map(ddg_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(ddg_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -163,8 +169,7 @@ def bing_url_processor(url):
 
 def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
-    terms = map(bing_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -174,7 +179,8 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     root = query(br, url, 'bing', dump_raw, timeout=timeout)
     ans = []
     for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
-        a = li.xpath('descendant::h2/a[@href]')[0]
+        a = li.xpath('descendant::h2/a[@href]') or li.xpath('descendant::div[@class="b_algoheader"]/a[@href]')
+        a = a[0]
         title = tostring(a)
         try:
             div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
@@ -218,8 +224,7 @@ def google_url_processor(url):
 
 
 def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
-    terms = map(google_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)

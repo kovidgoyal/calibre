@@ -41,10 +41,6 @@ class Pagina12(BasicNewsRecipe):
     }
 
     feeds = [
-
-    (u'China', u'http://www.chinadaily.com.cn/rss/china_rss.xml'),
-    (u'Business', u'http://www.chinadaily.com.cn/rss/bizchina_rss.xml'),
-    (u'World', u'http://www.chinadaily.com.cn/rss/world_rss.xml'),
-    (u'Sports', u'http://www.chinadaily.com.cn/rss/sports_rss.xml'),
-    (u'Opinions', u'http://www.chinadaily.com.cn/rss/opinion_rss.xml')
+    (u'China Daily', u'http://www.chinadaily.com.cn/rss/cndy_rss.xml'),
+    (u'HK Edition', u'http://www.chinadaily.com.cn/rss/hk_rss.xml'),
     ]

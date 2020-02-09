@@ -94,8 +94,8 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
             img = soup.find('img', attrs={'class': 'pic_big'})
             if img:
                 td = img.parent
-                if td.has_key('style'):  # noqa
-                    del td['style']
+                td['style'] = ''
+                del td['style']
                 td.name = 'div'
                 td['id'] = 'comic_full'
                 freshSoup.body.append(td)
@@ -134,11 +134,8 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
                       'June': '06', 'July': '07', 'August': '08', 'September': '09', 'October': '10',
                       'November': '11', 'December': '12'}
 
-        opts = select.findAll('option')
+        opts = select.findAll('option', selected=False)
         for i in range(1, len(opts)):
-            if opts[i].has_key('selected'):  # noqa
-                continue
-
             dateString = self.tag_to_string(opts[i])
             rest, sep, year = dateString.rpartition(', ')
             parts = rest.split(' ')

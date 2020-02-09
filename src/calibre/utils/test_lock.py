@@ -19,6 +19,7 @@ from calibre.utils.tdir_in_cache import (
     clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
     unlock_file
 )
+from polyglot.builtins import iteritems, getcwd, native_string_type
 
 
 def FastFailEF(name):
@@ -52,8 +53,8 @@ def run_worker(mod, func, **kw):
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
-    kw['env'] = {str(k): str(v)
-                 for k, v in env.iteritems()}  # windows needs bytes in env
+    kw['env'] = {native_string_type(k): native_string_type(v)
+                 for k, v in iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 
@@ -176,13 +177,13 @@ def other3():
 
 
 def other4():
-    cache_dir.ans = os.getcwdu()
+    cache_dir.ans = getcwd()
     tdir_in_cache('t')
     time.sleep(30)
 
 
 def other5():
-    cache_dir.ans = os.getcwdu()
+    cache_dir.ans = getcwd()
     if not os.path.isdir(tdir_in_cache('t')):
         raise SystemExit(1)
 

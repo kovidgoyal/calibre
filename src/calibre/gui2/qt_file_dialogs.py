@@ -5,12 +5,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-from urllib import unquote
 
 from PyQt5.Qt import QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
-from calibre.utils.filenames import expanduser
+from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.urllib import unquote
 
 
 def select_initial_dir(q):
@@ -21,7 +21,7 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return expanduser(u'~')
+    return os.path.expanduser(u'~')
 
 
 class FileDialog(QObject):
@@ -58,20 +58,20 @@ class FileDialog(QObject):
         if combine_file_and_saved_dir:
             bn = os.path.basename(default_dir)
             prev = dynamic.get(self.dialog_name,
-                    expanduser(u'~'))
+                    os.path.expanduser(u'~'))
             if os.path.exists(prev):
                 if os.path.isfile(prev):
                     prev = os.path.dirname(prev)
             else:
-                prev = expanduser(u'~')
+                prev = os.path.expanduser(u'~')
             initial_dir = os.path.join(prev, bn)
         elif no_save_dir:
-            initial_dir = expanduser(default_dir)
+            initial_dir = os.path.expanduser(default_dir)
         else:
             initial_dir = dynamic.get(self.dialog_name,
-                    expanduser(default_dir))
-        if not isinstance(initial_dir, basestring):
-            initial_dir = expanduser(default_dir)
+                    os.path.expanduser(default_dir))
+        if not isinstance(initial_dir, string_or_bytes):
+            initial_dir = os.path.expanduser(default_dir)
         if not initial_dir or (not os.path.exists(initial_dir) and not (
                 mode == QFileDialog.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
             initial_dir = select_initial_dir(initial_dir)
@@ -96,7 +96,7 @@ class FileDialog(QObject):
                         ftext, "", opts)
                 if fs and fs[0]:
                     for f in fs[0]:
-                        f = unicode(f)
+                        f = unicode_type(f)
                         if not f:
                             continue
                         if not os.path.exists(f):
@@ -108,11 +108,11 @@ class FileDialog(QObject):
             else:
                 if mode == QFileDialog.Directory:
                     opts |= QFileDialog.ShowDirsOnly
-                f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                f = unicode_type(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
                     self.selected_files.append(f)
         if self.selected_files:
-            self.selected_files = [unicode(q) for q in self.selected_files]
+            self.selected_files = [unicode_type(q) for q in self.selected_files]
             saved_loc = self.selected_files[0]
             if os.path.isfile(saved_loc):
                 saved_loc = os.path.dirname(saved_loc)
@@ -122,7 +122,7 @@ class FileDialog(QObject):
 
     def get_files(self):
         if self.selected_files is None:
-            return tuple(os.path.abspath(unicode(i)) for i in self.fd.selectedFiles())
+            return tuple(os.path.abspath(unicode_type(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)
 
 

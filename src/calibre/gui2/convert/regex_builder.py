@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -6,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox,
+from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox, QApplication,
         QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
@@ -17,6 +18,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
+from polyglot.builtins import unicode_type, range, native_string_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -40,7 +42,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         self.cancelled = False
         self.button_box.accepted.connect(self.accept)
-        self.regex.textChanged[str].connect(self.regex_valid)
+        self.regex.textChanged[native_string_type].connect(self.regex_valid)
         for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
             'goto')):
             getattr(self, src).clicked.connect(getattr(self, '%s_%s'%(slot,
@@ -50,7 +52,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.match_locs = []
         geom = gprefs.get('regex_builder_geometry', None)
         if geom is not None:
-            self.restoreGeometry(QByteArray(geom))
+            QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         self.finished.connect(self.save_state)
 
     def save_state(self, result):
@@ -58,14 +60,14 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         gprefs['regex_builder_geometry'] = geom
 
     def regex_valid(self):
-        regex = unicode(self.regex.text())
+        regex = unicode_type(self.regex.text())
         if regex:
             try:
                 compile_regular_expression(regex)
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
                 return True
             except:
-                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
+                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(255,0,0,20%); }')
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
             self.preview.setExtraSelections([])
@@ -81,8 +83,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         selections = []
         self.match_locs = []
         if self.regex_valid():
-            text = unicode(self.preview.toPlainText())
-            regex = unicode(self.regex.text())
+            text = unicode_type(self.preview.toPlainText())
+            regex = unicode_type(self.regex.text())
             cursor = QTextCursor(self.preview.document())
             extsel = QTextEdit.ExtraSelection()
             extsel.cursor = cursor
@@ -100,13 +102,13 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.match_locs:
             self.next.setEnabled(True)
             self.previous.setEnabled(True)
-        self.occurrences.setText(str(len(self.match_locs)))
+        self.occurrences.setText(unicode_type(len(self.match_locs)))
 
     def goto_previous(self):
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = len(self.match_locs) - 1
-            for i in xrange(len(self.match_locs) - 1, -1, -1):
+            for i in range(len(self.match_locs) - 1, -1, -1):
                 loc = self.match_locs[i][1]
                 if pos > loc:
                     match_loc = i
@@ -117,7 +119,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = 0
-            for i in xrange(len(self.match_locs)):
+            for i in range(len(self.match_locs)):
                 loc = self.match_locs[i][0]
                 if pos < loc:
                     match_loc = i
@@ -196,12 +198,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.open_book(files[0])
 
     def doc(self):
-        return unicode(self.preview.toPlainText())
+        return unicode_type(self.preview.toPlainText())
 
 
 class RegexEdit(QWidget, Ui_Edit):
 
-    doc_update = pyqtSignal(unicode)
+    doc_update = pyqtSignal(unicode_type)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -233,7 +235,7 @@ class RegexEdit(QWidget, Ui_Edit):
     def setObjectName(self, *args):
         QWidget.setObjectName(self, *args)
         if hasattr(self, 'edit'):
-            self.edit.initialize('regex_edit_'+unicode(self.objectName()))
+            self.edit.initialize('regex_edit_'+unicode_type(self.objectName()))
 
     def set_msg(self, msg):
         self.msg.setText(msg)
@@ -255,7 +257,7 @@ class RegexEdit(QWidget, Ui_Edit):
 
     @property
     def text(self):
-        return unicode(self.edit.text())
+        return unicode_type(self.edit.text())
 
     @property
     def regex(self):

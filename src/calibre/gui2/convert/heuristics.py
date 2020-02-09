@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -11,6 +12,7 @@ from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type, range
 
 
 class HeuristicsWidget(Widget, Ui_Form):
@@ -23,8 +25,8 @@ class HeuristicsWidget(Widget, Ui_Form):
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['pipe']['heuristics'])
         self.db, self.book_id = db, book_id
-        self.rssb_defaults = [u'', u'<hr />', u'∗ ∗ ∗', u'• • •', u'♦ ♦ ♦',
-                u'† †', u'‡ ‡ ‡', u'∞ ∞ ∞', u'¤ ¤ ¤', u'§']
+        self.rssb_defaults = ['', '<hr />', '∗ ∗ ∗', '• • •', '♦ ♦ ♦',
+                '† †', '‡ ‡ ‡', '∞ ∞ ∞', '¤ ¤ ¤', '§']
         self.initialize_options(get_option, get_help, db, book_id)
 
         self.load_histories()
@@ -73,7 +75,7 @@ class HeuristicsWidget(Widget, Ui_Form):
             return True
 
     def load_histories(self):
-        val = unicode(self.opt_replace_scene_breaks.currentText())
+        val = unicode_type(self.opt_replace_scene_breaks.currentText())
 
         self.opt_replace_scene_breaks.clear()
         self.opt_replace_scene_breaks.lineEdit().setText('')
@@ -90,8 +92,8 @@ class HeuristicsWidget(Widget, Ui_Form):
 
     def save_histories(self):
         rssb_history = []
-        history_pats = [unicode(self.opt_replace_scene_breaks.lineEdit().text())] + [unicode(self.opt_replace_scene_breaks.itemText(i))
-                                for i in xrange(self.opt_replace_scene_breaks.count())]
+        history_pats = [unicode_type(self.opt_replace_scene_breaks.lineEdit().text())] + [unicode_type(self.opt_replace_scene_breaks.itemText(i))
+                                for i in range(self.opt_replace_scene_breaks.count())]
         for p in history_pats[:10]:
             # Ensure we don't have duplicate items.
             if p not in rssb_history:

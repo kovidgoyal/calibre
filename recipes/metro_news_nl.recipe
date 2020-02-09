@@ -3,7 +3,6 @@ from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 from calibre.utils.magick import Image
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 ''' Version 1.2, updated cover image to match the changed website.
  added info date on title
@@ -133,7 +132,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 class MerryPreProcess():
 
     def optimizePicture(self, soup):
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             try:
                 iurl = tag['src']
                 img = Image()
@@ -163,7 +162,7 @@ class MerryExtract():
         return killingSoup
 
 
-class MerryProcess(BeautifulSoup):
+class MerryProcess(object):
     myKiller = MerryExtract()
     myPrepare = MerryPreProcess()
 

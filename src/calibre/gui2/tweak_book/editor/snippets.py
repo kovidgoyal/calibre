@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,8 +23,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, unicode_type, range
 
-string_length = lambda x: strlen(unicode(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key_J
 MODIFIER = Qt.META if isosx else Qt.CTRL
 
@@ -94,16 +94,16 @@ escape = unescape = None
 def escape_funcs():
     global escape, unescape
     if escape is None:
-        escapem = {('\\' + x):unichr(i+1) for i, x in enumerate('\\${}')}
+        escapem = {('\\' + x):codepoint_to_chr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         escape = lambda x: escape_pat.sub(lambda m: escapem[m.group()], x.replace(r'\\', '\x01'))
-        unescapem = {v:k[1] for k, v in escapem.iteritems()}
+        unescapem = {v:k[1] for k, v in iteritems(escapem)}
         unescape_pat = re.compile('|'.join(unescapem))
         unescape = lambda x:unescape_pat.sub(lambda m:unescapem[m.group()], x)
     return escape, unescape
 
 
-class TabStop(unicode):
+class TabStop(unicode_type):
 
     def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):
         if raw.endswith('}'):
@@ -114,7 +114,7 @@ class TabStop(unicode):
             for c in child_stops:
                 c.parent = self
             tab_stops.extend(child_stops)
-            self = unicode.__new__(self, uraw)
+            self = unicode_type.__new__(self, uraw)
             if num.endswith('*'):
                 self.takes_selection = True
                 num = num[:-1]
@@ -122,7 +122,7 @@ class TabStop(unicode):
                 self.takes_selection = False
             self.num = int(num)
         else:
-            self = unicode.__new__(self, '')
+            self = unicode_type.__new__(self, '')
             self.num = int(raw[1:])
             self.takes_selection = False
         self.start = start_offset
@@ -134,7 +134,7 @@ class TabStop(unicode):
 
     def __repr__(self):
         return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
-            unicode.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
+            unicode_type.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
 
 
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
@@ -173,10 +173,10 @@ def snippets(refresh=False):
     if _snippets is None or refresh:
         _snippets = copy.deepcopy(builtin_snippets)
         for snip in user_snippets.get('snippets', []):
-            if snip['trigger'] and isinstance(snip['trigger'], type('')):
+            if snip['trigger'] and isinstance(snip['trigger'], unicode_type):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(_snippets.iteritems(), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
+        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 # Editor integration {{{
@@ -220,26 +220,25 @@ class EditorTabStop(object):
                 with m:
                     m.text = text
 
-    @dynamic_property
+    @property
     def text(self):
-        def fget(self):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return ''
-            c = editor.textCursor()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            return editor.selected_text_from_cursor(c)
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return ''
+        c = editor.textCursor()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        return editor.selected_text_from_cursor(c)
 
-        def fset(self, text):
-            editor = self.editor()
-            if editor is None or self.is_deleted:
-                return
-            c = editor.textCursor()
-            c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-            c.insertText(text)
-            c.endEditBlock()
-        return property(fget=fget, fset=fset)
+    @text.setter
+    def text(self, text):
+        editor = self.editor()
+        if editor is None or self.is_deleted:
+            return
+        c = editor.textCursor()
+        c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        c.insertText(text)
+        c.endEditBlock()
 
     def set_editor_cursor(self, editor):
         if not self.is_deleted:
@@ -351,7 +350,7 @@ def expand_template(editor, trigger, template):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.itervalues()]
+    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in itervalues(tab_stops)]
 
     tl = Template(editor_tab_stops)
     if tl.has_tab_stops:
@@ -528,7 +527,7 @@ class EditSnippet(QWidget):
         self.template.setPlainText(snip.get('template') or '')
 
         ftypes = snip.get('syntaxes', ())
-        for i in xrange(self.types.count()):
+        for i in range(self.types.count()):
             i = self.types.item(i)
             ftype = i.data(Qt.UserRole)
             i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
@@ -536,20 +535,18 @@ class EditSnippet(QWidget):
             self.types.item(0).setCheckState(Qt.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
 
-    @dynamic_property
+    @property
     def snip(self):
-        def fset(self, snip):
-            self.apply_snip(snip)
+        ftypes = []
+        for i in range(self.types.count()):
+            i = self.types.item(i)
+            if i.checkState() == Qt.Checked:
+                ftypes.append(i.data(Qt.UserRole))
+        return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
 
-        def fget(self):
-            ftypes = []
-            for i in xrange(self.types.count()):
-                i = self.types.item(i)
-                if i.checkState() == Qt.Checked:
-                    ftypes.append(i.data(Qt.UserRole))
-            return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
-
-        return property(fget=fget, fset=fset)
+    @snip.setter
+    def snip(self, snip):
+        self.apply_snip(snip)
 
     def validate(self):
         snip = self.snip
@@ -656,7 +653,7 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in xrange(self.snip_list.count())]
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in range(self.snip_list.count())]
         snippets(refresh=True)
         return Dialog.accept(self)
 
@@ -698,7 +695,7 @@ class UserSnippets(Dialog):
     def change_builtin(self):
         d = QDialog(self)
         lw = QListWidget(d)
-        for (trigger, syntaxes), snip in builtin_snippets.iteritems():
+        for (trigger, syntaxes), snip in iteritems(builtin_snippets):
             snip = copy.deepcopy(snip)
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)

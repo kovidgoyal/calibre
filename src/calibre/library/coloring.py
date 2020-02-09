@@ -1,15 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from polyglot.builtins import map
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import binascii, re, json
+import json
+import re
 from textwrap import dedent
+
+from polyglot.binary import as_hex_unicode, from_hex_bytes
+from polyglot.builtins import map
 
 color_row_key = '*row'
 
@@ -55,7 +54,7 @@ class Rule(object):  # {{{
     def signature(self):
         args = (self.color, self.conditions)
         sig = json.dumps(args, ensure_ascii=False)
-        return self.SIGNATURE + binascii.hexlify(sig.encode('utf-8'))
+        return self.SIGNATURE + as_hex_unicode(sig)
 
     @property
     def template(self):
@@ -213,7 +212,7 @@ def rule_from_template(fm, template):
         if line.startswith(Rule.SIGNATURE):
             raw = line[len(Rule.SIGNATURE):].strip()
             try:
-                color, conditions = json.loads(binascii.unhexlify(raw).decode('utf-8'))
+                color, conditions = json.loads(from_hex_bytes(raw))
             except:
                 continue
             r = Rule(fm)

@@ -7,11 +7,9 @@ Lemonde.fr: Version abonnée
 '''
 
 import os, zipfile, re, time
-from urllib2 import HTTPError
 from calibre.constants import preferred_encoding
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryFile
 
 
@@ -97,7 +95,7 @@ class LeMondeAbonne(BasicNewsRecipe):
             try:
                 response = browser.open(url)
                 continue
-            except HTTPError:
+            except Exception:
                 second -= 24 * 60 * 60
 
         tmp = PersistentTemporaryFile(suffix='.zip')
@@ -129,12 +127,9 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         for i in range(nb_index_files):
             filename = os.path.join(path, "selection_%d.html" % (i + 1))
-            tmp = open(filename, 'r')
-            soup = BeautifulSoup(tmp, convertEntities=BeautifulSoup.HTML_ENTITIES)
-            try:
-                title = soup.find('span').contents[0] or 'Unknown'
-            except IndexError:
-                title = 'Unknown'
+            with open(filename, 'rb') as tmp:
+                soup = self.index_to_soup(tmp.read())
+            title = soup.find('span').contents[0]
             if title == "Une":
                 title = "À la une"
             if title == "Evenement":
@@ -148,18 +143,20 @@ class LeMondeAbonne(BasicNewsRecipe):
             if title == "Enquete":
                 title = "Enquête"
             if title == "Editorial - Analyses":
-                title = "Analyses"
+                title = "Horizons"
             if title == "Le Monde Economie":
                 title = "Économie"
-            if title == "Le Monde Culture et idées":
+            if title == "Lettre et chronique":
                 title = "Idées"
             if title == "Le Monde Géo et politique":
                 title = "Géopolitique"
+            if title == "Météo - Jeux - Ecrans":
+                title = "Économie & Entreprise"
             tmp.close()
 
             filename = os.path.join(path, "frame_gauche_%d.html" % (i + 1))
-            tmp = open(filename, 'r')
-            soup = BeautifulSoup(tmp)
+            with open(filename, 'rb') as tmp:
+                soup = self.index_to_soup(tmp.read())
             articles = []
             for link in soup.findAll("a"):
                 article_file = link['href']
@@ -176,3 +173,8 @@ class LeMondeAbonne(BasicNewsRecipe):
             flux.append((title, articles))
 
         return flux
+
+
+# Local Variables:
+# mode: python
+# End:

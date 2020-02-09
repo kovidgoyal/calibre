@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   fill="#000000"
+   viewBox="0 0 17 17"
+   version="1.1"
+   x="0px"
+   y="0px"
+   id="svg18"
+   sodipodi:docname="generic-library.svg"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+  <metadata
+     id="metadata24">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs22">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient848">
+      <stop
+         style="stop-color:#0b59bd;stop-opacity:1"
+         offset="0"
+         id="stop844" />
+      <stop
+         style="stop-color:#b2cffa;stop-opacity:1"
+         offset="1"
+         id="stop846" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient848"
+       id="linearGradient850"
+       x1="8.8487625"
+       y1="17.227978"
+       x2="8.4970684"
+       y2="-0.060158744"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
+     id="namedview20"
+     showgrid="false"
+     inkscape:zoom="55.529412"
+     inkscape:cx="6.6271186"
+     inkscape:cy="8.5"
+     inkscape:window-x="0"
+     inkscape:window-y="40"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg18" />
+  <g
+     id="g842"
+     style="fill-opacity:1;fill:url(#linearGradient850)">
+    <path
+       id="path2"
+       d="M1.7866,6.5 L15.9196,6.5 C16.8236,6.5 17.1906,5.336 16.4496,4.818 L11.5146,1.363 C9.9166,0.244 7.7896,0.244 6.1916,1.363 L1.2566,4.818 C0.5156,5.336 0.8826,6.5 1.7866,6.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon4"
+       points="1.853 12.5 3.853 12.5 3.853 7.5 1.853 7.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon6"
+       points="4.853 12.5 6.853 12.5 6.853 7.5 4.853 7.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon8"
+       points="7.853 12.5 9.853 12.5 9.853 7.5 7.853 7.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon10"
+       points="10.853 12.5 12.853 12.5 12.853 7.5 10.853 7.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon12"
+       points="13.853 12.5 15.853 12.5 15.853 7.5 13.853 7.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon14"
+       points="0.853 16.5 16.853 16.5 16.853 15.5 0.853 15.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+    <polygon
+       id="polygon16"
+       points="1.853 14.5 15.853 14.5 15.853 13.5 1.853 13.5"
+       style="fill-opacity:1;fill:url(#linearGradient850)" />
+  </g>
+</svg>

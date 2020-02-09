@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
@@ -16,6 +17,7 @@ from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type, range
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
@@ -121,6 +123,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                         show=True)
 
     def sr_save_clicked(self):
+        from calibre.ebooks.conversion.cli import escape_sr_pattern as escape
         filename = choose_save_file(self, 'sr_saved_patterns',
                 _('Save calibre search-replace definitions file'),
                 filters=[
@@ -129,7 +132,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if filename:
             with codecs.open(filename, 'w', 'utf-8') as f:
                 for search, replace in self.get_definitions():
-                    f.write(search + u'\n' + replace + u'\n\n')
+                    f.write(escape(search) + '\n' + escape(replace) + '\n\n')
 
     def sr_up_clicked(self):
         self.cell_rearrange(-1)
@@ -139,7 +142,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def cell_rearrange(self, i):
         row = self.search_replace.currentRow()
-        for col in xrange(0, self.search_replace.columnCount()):
+        for col in range(0, self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
             item2 = self.search_replace.item(row+i, col)
             value = item1.text()
@@ -189,7 +192,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         edit_search = self.sr_search.regex
 
         if edit_search:
-            edit_replace = unicode(self.sr_replace.text())
+            edit_replace = unicode_type(self.sr_replace.text())
             found = False
             for search, replace in definitions:
                 if search == edit_search and replace == edit_replace:
@@ -227,10 +230,10 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def get_definitions(self):
         ans = []
-        for row in xrange(0, self.search_replace.rowCount()):
+        for row in range(0, self.search_replace.rowCount()):
             colItems = []
-            for col in xrange(0, self.search_replace.columnCount()):
-                colItems.append(unicode(self.search_replace.item(row, col).text()))
+            for col in range(0, self.search_replace.columnCount()):
+                colItems.append(unicode_type(self.search_replace.item(row, col).text()))
             ans.append(colItems)
         return ans
 

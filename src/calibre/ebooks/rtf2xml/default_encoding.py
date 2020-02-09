@@ -1,3 +1,4 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 #########################################################################
 #                                                                       #
 #   copyright 2002 Paul Henry Tremblay                                  #
@@ -55,8 +56,8 @@ Codepages as to RTF 1.9.1:
     57010	Gujarati
     57011	Punjabi
 '''
-from __future__ import print_function
 import re
+from . import open_for_read
 
 
 class DefaultEncoding:
@@ -125,7 +126,7 @@ class DefaultEncoding:
         return self.__platform
 
     def _encoding(self):
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             cpfound = False
             if not self.__fetchraw:
                 for line in read_obj:

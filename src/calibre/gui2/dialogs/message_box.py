@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
+from polyglot.builtins import unicode_type
 
 
 class Icon(QWidget):
@@ -162,9 +163,9 @@ class MessageBox(QDialog):  # {{{
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
                 'calibre, version %s\n%s: %s\n\n%s' %
-                (__version__, unicode(self.windowTitle()),
-                    unicode(self.msg.text()),
-                    unicode(self.det_msg.toPlainText())))
+                (__version__, unicode_type(self.windowTitle()),
+                    unicode_type(self.msg.text()),
+                    unicode_type(self.det_msg.toPlainText())))
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
@@ -216,7 +217,7 @@ class ViewLog(QDialog):  # {{{
         self.resize(QSize(700, 500))
         geom = gprefs.get(self.unique_name, None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
         self.setModal(False)
         self.setWindowTitle(title)
@@ -416,15 +417,15 @@ class JobError(QDialog):  # {{{
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         QApplication.clipboard().setText(
-                u'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
+                'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
                 (__version__, sys.platform, isfrozen,
-                    unicode(self.windowTitle()), unicode(d.toPlainText()),
-                    unicode(self.det_msg.toPlainText())))
+                    unicode_type(self.windowTitle()), unicode_type(d.toPlainText()),
+                    unicode_type(self.det_msg.toPlainText())))
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
     def toggle_det_msg(self, *args):
-        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
+        vis = unicode_type(self.det_msg_toggle.text()) == self.hide_det_msg
         self.det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)
@@ -443,7 +444,7 @@ class JobError(QDialog):  # {{{
         self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
         return ret
 
-    def show_error(self, title, msg, det_msg=u'', retry_func=None):
+    def show_error(self, title, msg, det_msg='', retry_func=None):
         self.queue.append((title, msg, det_msg, retry_func))
         self.update_suppress_state()
         self.pop()

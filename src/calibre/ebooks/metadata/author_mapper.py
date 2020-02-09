@@ -1,13 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
 from collections import deque
 
 from calibre.utils.icu import capitalize, lower, upper
+from polyglot.builtins import filter, unicode_type
 
 
 def cap_author_token(token):
@@ -142,7 +142,7 @@ def map_authors(authors, rules=()):
     ans = []
     for a in authors:
         ans.extend(apply_rules(a, rules))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def find_tests():
@@ -161,9 +161,9 @@ def find_tests():
             def run(rules, authors, expected):
                 if isinstance(rules, dict):
                     rules = [rules]
-                if isinstance(authors, type('')):
+                if isinstance(authors, unicode_type):
                     authors = [x.strip() for x in authors.split('&')]
-                if isinstance(expected, type('')):
+                if isinstance(expected, unicode_type):
                     expected = [x.strip() for x in expected.split('&')]
                 ans = map_authors(authors, compile_rules(rules))
                 self.assertEqual(ans, expected)

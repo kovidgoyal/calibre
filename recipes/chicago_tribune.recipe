@@ -6,92 +6,77 @@ __docformat__ = 'restructuredtext en'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def absolutize(x):
+    x = x.lstrip('/')
+    if not x.startswith('https:'):
+        x = 'https://www.chicagotribune.com/' + x
+    return x
+
+
 class ChicagoTribune(BasicNewsRecipe):
 
     title = 'Chicago Tribune'
-    __author__ = 'Kovid Goyal, Sujata Raman and a.peter'
+    __author__ = 'Kovid Goyal'
     description = 'Politics, local and business news from Chicago'
     language = 'en'
-    version = 2
-
     use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
-    recursions = 1
+    compress_news_images = True
+    compress_news_images_auto_size = 5
 
-    keep_only_tags = [dict(name='div', attrs={'class': ["story", "entry-asset asset hentry"]}),
-                      dict(name='div', attrs={
-                           'id': ["pagebody", "story", "maincontentcontainer"]}),
-                      ]
-    remove_tags_after = [{'class': ['photo_article', ]}]
-    remove_empty_feeds = True
-
-    match_regexps = [r'page=[0-9]+']
-
-    remove_tags = [
-        {'id': ["moduleArticleTools", "content-bottom", "rail", "articleRelates module", "toolSet",
-                "relatedrailcontent", "div-wrapper", "beta", "atp-comments", "footer", 'gallery-subcontent', 'subFooter']},
-        {'class': ["clearfix", "relatedTitle", "articleRelates module",
-                   "asset-footer", "tools", "comments", "featurePromo", "featurePromo fp-topjobs brownBackground", 'ndn_embed',
-                   "clearfix fullSpan brownBackground", "curvedContent", 'nextgen-share-tools', 'outbrainTools', 'google-ad-story-bottom']},
-        dict(name='font', attrs={'id': ["cr-other-headlines"]})]
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    .byline {font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                    .date {font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    .copyright {font-family:Arial,Helvetica,sans-serif;font-size:xx-small;text-align:center}
-                    .story{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    .entry-asset asset hentry{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    .pagebody{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    .maincontentcontainer{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    .story-body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-                '''
-    feeds = [
-        ('Latest news', 'http://feeds.chicagotribune.com/chicagotribune/news/'),
-        ('Local news', 'http://feeds.chicagotribune.com/chicagotribune/news/local/'),
-        ('Nation/world', 'http://feeds.chicagotribune.com/chicagotribune/news/nationworld/'),
-        ('Hot topics', 'http://feeds.chicagotribune.com/chicagotribune/hottopics/'),
-        ('Most E-mailed stories', 'http://feeds.chicagotribune.com/chicagotribune/email/'),
-        ('Opinion', 'http://feeds.chicagotribune.com/chicagotribune/opinion/'),
-        ('Off Topic', 'http://feeds.chicagotribune.com/chicagotribune/offtopic/'),
-        ('Politics', 'http://feeds.feedburner.com/chicagotribune/cloutstreet/'),
-        ('Business news', 'http://feeds.chicagotribune.com/chicagotribune/business/'),
-        ('Jobs and Careers', 'http://feeds.chicagotribune.com/chicagotribune/career/'),
-        ('Local scene', 'http://feeds.chicagotribune.com/chicagohomes/localscene/'),
-        ('Phil Rosenthal', 'http://feeds.chicagotribune.com/chicagotribune/rosenthal/'),
-        ('Your Money', 'http://feeds.chicagotribune.com/chicagotribune/yourmoney/'),
-        ('Jon Hilkevitch - Getting around',
-         'http://feeds.chicagotribune.com/chicagotribune/gettingaround/'),
-        ('Jon Yates - What\'s your problem?',
-         'http://feeds.chicagotribune.com/chicagotribune/problem/'),
-        ('Garisson Keillor', 'http://feeds.chicagotribune.com/chicagotribune/keillor/'),
-        ('Marks Jarvis - On Money',
-         'http://feeds.chicagotribune.com/chicagotribune/marksjarvisonmoney/'),
-        ('Sports', 'http://feeds.chicagotribune.com/chicagotribune/sports/'),
-        ('Arts and Architecture',
-         'http://feeds.chicagotribune.com/chicagotribune/arts/'),
-        ('Books', 'http://feeds.chicagotribune.com/chicagotribune/books/'),
-        ('Movies', 'http://feeds.chicagotribune.com/chicagotribune/movies/'),
-        ('Music', 'http://feeds.chicagotribune.com/chicagotribune/music/'),
-        ('TV', 'http://feeds.chicagotribune.com/chicagotribune/tv/'),
-        ('Hypertext', 'http://feeds.chicagotribune.com/chicagotribune/hypertext/'),
-        ('iPhone Blog', 'http://feeds.feedburner.com/redeye/iphoneblog'),
-        ('Julie\'s Health Club',
-         'http://feeds.chicagotribune.com/chicagotribune_julieshealthclub/'),
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('byline-container pb-f-utilities-lead-art pb-f-article-gallery'),
+        dict(attrs={'data-type': 'text'}),
     ]
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        url = url.split('/')[-2]
-        encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
-                    '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://', '0S':
-                    'www.', '0I': '_', '0H': ','}
-        for k, v in encoding.iteritems():
-            url = url.replace(k, v)
-        return url.partition('?')[0]
+    remove_tags = [
+        classes('trb_ar_cont trb_ar_main_ad trb_em_r_cc'),
+    ]
+
+    def ct_articles(self, slug):
+        url = absolutize(slug)
+        soup = self.index_to_soup(url)
+        for div in soup.findAll(**classes('pb-f-homepage-story pb-f-homepage-story-feed')):
+            h = div.find(('h1', 'h2', 'h3', 'h4', 'h5', 'h6'))
+            a = h.find('a', href=True)
+            title = self.tag_to_string(a)
+            url = absolutize(a['href'])
+            self.log('\t', title, url)
+            desc = ''
+            p = div.find(**classes('preview-text'))
+            if p:
+                desc = self.tag_to_string(p)
+            self.log('\t\t', desc)
+            yield {'title': title, 'description': desc, 'url': url}
+
+    def parse_index(self):
+        feed = []
+        for slug, title in (
+                ('news/breaking', 'Breaking News'),
+                ('sports', 'Sports'),
+                ('business', 'Business'),
+                ('entertainment', 'Entertainment'),
+                ('dining', 'Chicago Dining'),
+                ('columns', 'Tribune Voices'),
+        ):
+            self.log('Found section:', title)
+            articles = list(self.ct_articles(slug))
+            if articles:
+                feed.append((title, articles))
+        return feed
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-baseurl': True}):
+            img['src'] = img['data-baseurl']
+        return soup
 
     def skip_ad_pages(self, soup):
         text = soup.find(text='click here to continue to article')
@@ -100,19 +85,3 @@ class ChicagoTribune(BasicNewsRecipe):
             url = a.get('href')
             if url:
                 return self.index_to_soup(url, raw=True)
-
-    def postprocess_html(self, soup, first_fetch):
-        # Remove the navigation bar. It was kept until now to be able to follow
-        # the links to further pages. But now we don't need them anymore.
-        for nav in soup.findAll(attrs={'class': ['toppaginate', 'article-nav clearfix']}):
-            nav.extract()
-
-        for t in soup.findAll(['table', 'tr', 'td']):
-            t.name = 'div'
-
-        for tag in soup.findAll('form', dict(attrs={'name': ["comments_form"]})):
-            tag.extract()
-        for tag in soup.findAll('font', dict(attrs={'id': ["cr-other-headlines"]})):
-            tag.extract()
-
-        return soup

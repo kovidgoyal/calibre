@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -20,6 +19,8 @@ from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
+from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -65,10 +66,10 @@ def get_data(data_conn, data_type, data=None):
     return result
 
 
-class Name(unicode):
+class Name(unicode_type):
 
     def __new__(self, name, mime_type, spine_names):
-        ans = unicode.__new__(self, name)
+        ans = unicode_type.__new__(self, name)
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
         return ans
@@ -78,23 +79,23 @@ class Name(unicode):
 def complete_names(names_data, data_conn):
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
-        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
+        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in iteritems(mime_map))
         names_cache['text_link'] = frozenset(n for n in all_names if n.in_spine)
         names_cache['stylesheet'] = frozenset(n for n in all_names if n.mime_type in OEB_STYLES)
         names_cache['image'] = frozenset(n for n in all_names if n.mime_type.startswith('image/'))
         names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
         names_cache['css_resource'] = names_cache['image'] | names_cache['font']
         names_cache['descriptions'] = d = {}
-        for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.iteritems():
+        for x, desc in iteritems({'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}):
             for n in names_cache[x]:
                 d[n] = desc
     names_type, base, root = names_data
     quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
-    items = frozenset(nmap.itervalues())
+    items = tuple(sorted(frozenset(itervalues(nmap)), key=numeric_sort_key))
     d = names_cache['descriptions'].get
-    descriptions = {href:d(name) for name, href in nmap.iteritems()}
+    descriptions = {href:d(name) for name, href in iteritems(nmap)}
     return items, descriptions, {}
 
 
@@ -111,7 +112,7 @@ def create_anchor_map(root):
 def complete_anchor(name, data_conn):
     if name not in file_cache:
         data = raw = get_data(data_conn, 'file_data', name)
-        if isinstance(raw, type('')):
+        if isinstance(raw, unicode_type):
             try:
                 root = parse(raw, decoder=lambda x:x.decode('utf-8'))
             except Exception:
@@ -121,7 +122,8 @@ def complete_anchor(name, data_conn):
         file_cache[name] = data
     data = file_cache[name]
     if isinstance(data, tuple) and len(data) > 1 and isinstance(data[1], dict):
-        return frozenset(data[1]), data[1], {}
+        return tuple(sorted(frozenset(data[1]), key=numeric_sort_key)), data[1], {}
+
 
 _current_matcher = (None, None, None)
 
@@ -177,7 +179,9 @@ class HandleDataRequest(QObject):
             return self.result, self.tb
         finally:
             del self.result, self.tb
+
+
 handle_data_request = HandleDataRequest()
 
-control_funcs = {name:func for name, func in globals().iteritems() if getattr(func, 'function_type', None) == 'control'}
-data_funcs = {name:func for name, func in globals().iteritems() if getattr(func, 'function_type', None) == 'data'}
+control_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'control'}
+data_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'data'}

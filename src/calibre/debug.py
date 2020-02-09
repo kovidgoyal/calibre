@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,17 +11,27 @@ import sys, os, functools
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
+from polyglot.builtins import exec_path, raw_input, unicode_type, getcwd
 
 
 def get_debug_executable():
+    exe_name = 'calibre-debug' + ('.exe' if iswindows else '')
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
-        if 'calibre-debug.app' not in base:
-            base = os.path.join(base, 'calibre-debug.app', 'Contents')
-        return os.path.join(base, 'MacOS', 'calibre-debug')
+        return [os.path.join(base, 'MacOS', exe_name)]
+    if getattr(sys, 'run_local', None):
+        return [sys.run_local, exe_name]
+    nearby = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), exe_name)
     if getattr(sys, 'frozen', False):
-        return os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-debug' + ('.exe' if iswindows else ''))
-    return 'calibre-debug'
+        return [nearby]
+    exloc = getattr(sys, 'executables_location', None)
+    if exloc:
+        ans = os.path.join(exloc, exe_name)
+        if os.path.exists(ans):
+            return [ans]
+    if os.path.exists(nearby):
+        return [nearby]
+    return [exe_name]
 
 
 def run_calibre_debug(*args, **kw):
@@ -30,8 +40,7 @@ def run_calibre_debug(*args, **kw):
     if iswindows:
         import win32process
         creationflags = win32process.CREATE_NO_WINDOW
-    exe = get_debug_executable()
-    cmd = [exe] + list(args)
+    cmd = get_debug_executable() + list(args)
     kw['creationflags'] = creationflags
     return subprocess.Popen(cmd, **kw)
 
@@ -164,8 +173,8 @@ def reinit_db(dbpath):
 def debug_device_driver():
     from calibre.devices import debug
     debug(ioreg_to_tmp=True, buf=sys.stdout)
-    if iswindows:
-        raw_input('Press Enter to continue...')
+    if iswindows:  # no2to3
+        raw_input('Press Enter to continue...')  # no2to3
 
 
 def add_simple_plugin(path_to_plugin):
@@ -173,7 +182,7 @@ def add_simple_plugin(path_to_plugin):
     tdir = tempfile.mkdtemp()
     open(os.path.join(tdir, 'custom_plugin.py'),
             'wb').write(open(path_to_plugin, 'rb').read())
-    odir = os.getcwdu()
+    odir = getcwd()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')
     zf.write('custom_plugin.py')
@@ -214,7 +223,7 @@ def print_basic_debug_info(out=None):
             out('Linux:', platform.linux_distribution())
     except:
         pass
-    out('Interface language:', type(u'')(set_translators.lang))
+    out('Interface language:', unicode_type(set_translators.lang))
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
         names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins() if getattr(p, 'plugin_path', None) is not None)
@@ -248,7 +257,7 @@ def run_script(path, args):
     g = globals()
     g['__name__'] = '__main__'
     g['__file__'] = ef
-    execfile(ef, g)
+    exec_path(ef, g)
 
 
 def inspect_mobi(path):
@@ -270,7 +279,7 @@ def main(args=sys.argv):
         run_debug_gui(opts.gui_debug)
     elif opts.viewer:
         from calibre.gui_launch import ebook_viewer
-        ebook_viewer(['ebook-viewer', '--debug-javascript'] + args[1:])
+        ebook_viewer(['ebook-viewer'] + args[1:])
     elif opts.command:
         sys.argv = args
         exec(opts.command)
@@ -346,7 +355,7 @@ def main(args=sys.argv):
             elif ext in {'mobi', 'azw', 'azw3'}:
                 inspect_mobi(path)
             else:
-                print ('Cannot dump unknown filetype: %s' % path)
+                print('Cannot dump unknown filetype: %s' % path)
     elif len(args) >= 2 and os.path.exists(os.path.join(args[1], '__main__.py')):
         sys.path.insert(0, args[1])
         run_script(os.path.join(args[1], '__main__.py'), args[2:])

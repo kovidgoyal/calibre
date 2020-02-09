@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
                 '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -23,6 +23,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
+from polyglot.builtins import iteritems, string_or_bytes, map
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -210,8 +211,7 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def can_handle_windows(self, usbdevice, debug=False):
-        from calibre.devices.interface import DevicePlugin
-        if self.can_handle.im_func is DevicePlugin.can_handle.im_func:
+        if hasattr(self.can_handle, 'is_base_class_implementation'):
             # No custom can_handle implementation
             return True
         # Delegate to the unix can_handle function, creating a unix like
@@ -243,9 +243,9 @@ class Device(DeviceConfig, DevicePlugin):
         try:
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
         except Exception:
-            dlmap = []
+            dlmap = {}
 
-        if not dlmap['drive_letters']:
+        if not dlmap.get('drive_letters'):
             time.sleep(7)
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
 
@@ -355,9 +355,9 @@ class Device(DeviceConfig, DevicePlugin):
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
-            return map(int, (g.get('m'), g.get('p')))
+            return list(map(int, (g.get('m'), g.get('p'))))
 
-        def dcmp(x, y):
+        def cmp_key(x):
             '''
             Sorting based on the following scheme:
                 - disks without partitions are first
@@ -366,18 +366,11 @@ class Device(DeviceConfig, DevicePlugin):
                   disk number, then on partition number
             '''
             x = x.rpartition('/')[-1]
-            y = y.rpartition('/')[-1]
-            x, y = nums(x), nums(y)
-            if x[1] == 0 and y[1] > 0:
-                return cmp(1, 2)
-            if x[1] > 0 and y[1] == 0:
-                return cmp(2, 1)
-            ans = cmp(x[0], y[0])
-            if ans == 0:
-                ans = cmp(x[1], y[1])
-            return ans
+            disk_num, part_num = nums(x)
+            has_part = 1 if part_num > 0 else 0
+            return has_part, disk_num, part_num
 
-        matches.sort(cmp=dcmp)
+        matches.sort(key=cmp_key)
         drives = {'main':matches[0]}
         if len(matches) > 1:
             drives['carda'] = matches[1]
@@ -403,7 +396,7 @@ class Device(DeviceConfig, DevicePlugin):
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = usbobserver.get_mounted_filesystems()
-        drives = {k: mount_map.get(v) for k, v in drives.iteritems()}
+        drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
         if DEBUG:
             print()
             from pprint import pprint
@@ -474,7 +467,7 @@ class Device(DeviceConfig, DevicePlugin):
                     if not os.access(j(usb_dir, y), os.R_OK):
                         usb_dir = None
                         continue
-                e = lambda q : raw2num(open(j(usb_dir, q)).read())
+                e = lambda q : raw2num(open(j(usb_dir, q), 'rb').read().decode('utf-8'))
                 ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
                         test(bcd, 'bcdDevice')):
@@ -496,7 +489,7 @@ class Device(DeviceConfig, DevicePlugin):
                     sz = j(x, 'size')
                     node = parts[idx+1]
                     try:
-                        exists = int(open(sz).read()) > 0
+                        exists = int(open(sz, 'rb').read().decode('utf-8')) > 0
                         if exists:
                             node = self.find_largest_partition(x)
                             ok[node] = True
@@ -530,13 +523,13 @@ class Device(DeviceConfig, DevicePlugin):
             if not os.access(sz, os.R_OK):
                 continue
             try:
-                sz = int(open(sz).read())
+                sz = int(open(sz, 'rb').read().decode('utf-8'))
             except:
                 continue
             if sz > 0:
                 nodes.append((x.split('/')[-1], sz))
 
-        nodes.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        nodes.sort(key=lambda x: x[1])
         if not nodes:
             return node
         return nodes[-1][0]
@@ -707,17 +700,10 @@ class Device(DeviceConfig, DevicePlugin):
                         except dbus.exceptions.DBusException as e:
                             print(e)
                             continue
-            except dbus.exceptions.DBusException as e:
+            except dbus.exceptions.DBusException:
                 continue
 
-        def ocmp(x,y):
-            if x['node'] < y['node']:
-                return -1
-            if x['node'] > y['node']:
-                return 1
-            return 0
-
-        vols.sort(cmp=ocmp)
+        vols.sort(key=lambda x: x['node'])
 
         if verbose:
             print("FBSD:	", vols)
@@ -938,7 +924,7 @@ class Device(DeviceConfig, DevicePlugin):
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
-            if isinstance(candidates, basestring):
+            if isinstance(candidates, string_or_bytes):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']

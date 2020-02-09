@@ -11,7 +11,7 @@ class AdvancedUserRecipe1305547242(BasicNewsRecipe):
     __author__ = 'Anonymous'
     language = 'en_GB'
     remove_tags = [
-        dict(name='div', attrs={'class': 'articles_footer', 'class': 'printoptions'})]
+        dict(name='div', attrs={'class': ['articles_footer', 'printoptions']})]
 
     def print_version(self, url):
         return url + '/print/1'

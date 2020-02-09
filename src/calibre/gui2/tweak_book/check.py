@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,9 +13,10 @@ from PyQt5.Qt import (
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
-from calibre.gui2 import NO_URL_FORMATTING
+from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import BusyCursor
+from polyglot.builtins import unicode_type, range
 
 
 def icon_for_level(level):
@@ -99,8 +99,8 @@ class Check(QSplitter):
 
     def copy_to_clipboard(self):
         items = []
-        for item in (self.items.item(i) for i in xrange(self.items.count())):
-            msg = unicode(item.text())
+        for item in (self.items.item(i) for i in range(self.items.count())):
+            msg = unicode_type(item.text())
             msg = prefix_for_level(item.data(Qt.UserRole).level) + msg
             items.append(msg)
         if items:
@@ -116,13 +116,13 @@ class Check(QSplitter):
             msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
-        url = unicode(url.toString(NO_URL_FORMATTING))
+        url = unicode_type(url.toString(NO_URL_FORMATTING))
         if url == 'activate:item':
             self.current_item_activated()
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.UserRole) for i in xrange(self.items.count())]
+            errors = [self.items.item(i).data(Qt.UserRole) for i in range(self.items.count())]
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
@@ -131,6 +131,8 @@ class Check(QSplitter):
         elif url.startswith('activate:item:'):
             index = int(url.rpartition(':')[-1])
             self.location_activated(index)
+        elif url.startswith('https://'):
+            safe_open_url(url)
 
     def next_error(self, delta=1):
         row = self.items.currentRow()

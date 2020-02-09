@@ -4,6 +4,9 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from polyglot.builtins import unicode_type
+from calibre.constants import ispy3
+
 
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
@@ -24,7 +27,7 @@ def create_encoder(for_json=False):
 
     def encoder(obj):
         if isinstance(obj, datetime):
-            return encoded(0, unicode(obj.isoformat()), ExtType)
+            return encoded(0, unicode_type(obj.isoformat()), ExtType)
         if isinstance(obj, (set, frozenset)):
             return encoded(1, tuple(obj), ExtType)
         if getattr(obj, '__calibre_serializable__', False):
@@ -40,6 +43,8 @@ def create_encoder(for_json=False):
                 return encoded(3, fm_as_dict(obj), ExtType)
             elif isinstance(obj, Tag):
                 return encoded(4, obj.as_dict(), ExtType)
+        if for_json and isinstance(obj, bytes):
+            return obj.decode('utf-8')
         raise TypeError('Cannot serialize objects of type {}'.format(type(obj)))
 
     return encoder
@@ -61,13 +66,11 @@ def json_dumps(data, **kw):
 
 
 def decode_metadata(x, for_json):
-    import base64
+    from polyglot.binary import from_base64_bytes
     from calibre.ebooks.metadata.book.serialize import metadata_from_dict
     obj = metadata_from_dict(x)
     if for_json and obj.cover_data and obj.cover_data[1]:
-        obj.cover_data = obj.cover_data[0], base64.standard_b64decode(
-            obj.cover_data[1]
-        )
+        obj.cover_data = obj.cover_data[0], from_base64_bytes(obj.cover_data[1])
     return obj
 
 
@@ -104,11 +107,33 @@ def msgpack_decoder(code, data):
     return decoders[code](msgpack_loads(data), False)
 
 
-def msgpack_loads(dump):
+def msgpack_loads(dump, use_list=True):
+    # use_list controls whether msgpack arrays are unpacked as lists or tuples
     import msgpack
-    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False)
+    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, use_list=use_list)
 
 
 def json_loads(data):
     import json
     return json.loads(data, object_hook=json_decoder)
+
+
+if ispy3:
+
+    def pickle_dumps(data):
+        import pickle
+        return pickle.dumps(data, -1)
+
+    def pickle_loads(dump):
+        import pickle
+        return pickle.loads(dump, encoding='utf-8')
+
+else:
+
+    def pickle_dumps(data):
+        import cPickle as pickle
+        return pickle.dumps(data, -1)
+
+    def pickle_loads(dump):
+        import cPickle as pickle
+        return pickle.loads(dump)

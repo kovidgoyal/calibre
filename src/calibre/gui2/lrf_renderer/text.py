@@ -1,17 +1,19 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, collections, operator, copy, re
+
+import sys, collections, operator, copy, re, numbers
 
 from PyQt5.Qt import (
     Qt, QRectF, QFont, QColor, QPixmap, QGraphicsPixmapItem, QGraphicsItem,
     QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
+from polyglot.builtins import unicode_type, string_or_bytes
 
-WEIGHT_MAP = lambda wt : int((wt/10.)-1)
+WEIGHT_MAP = lambda wt : int((wt/10)-1)
 NULL       = lambda a, b: a
 COLOR      = lambda a, b: QColor(*a)
 WEIGHT     = lambda a, b: WEIGHT_MAP(a)
@@ -41,7 +43,7 @@ class Plot(PixmapItem):
 
     def __init__(self, plot, dpi):
         img = plot.refobj
-        xsize, ysize = dpi*plot.attrs['xsize']/720., dpi*plot.attrs['ysize']/720.
+        xsize, ysize = dpi*plot.attrs['xsize']/720, dpi*plot.attrs['ysize']/720
         x0, y0, x1, y1 = img.x0, img.y0, img.x1, img.y1
         data, encoding = img.data, img.encoding
         PixmapItem.__init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize)
@@ -95,7 +97,7 @@ class Style(object):
     map = collections.defaultdict(lambda : NULL)
 
     def __init__(self, style, dpi):
-        self.fdpi = dpi/720.
+        self.fdpi = dpi/720
         self.update(style.as_dict())
 
     def update(self, *args, **kwds):
@@ -154,7 +156,7 @@ class ParSkip(object):
         self.height = parskip
 
     def __str__(self):
-        return 'Parskip: '+str(self.height)
+        return 'Parskip: '+unicode_type(self.height)
 
 
 class TextBlock(object):
@@ -163,8 +165,13 @@ class TextBlock(object):
         pass
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
-    XML_ENTITIES = dict(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys()))
-    XML_ENTITIES["quot"] = '"'
+    XML_ENTITIES = {
+            "apos" : "'",
+            "quot" : '"',
+            "amp" : "&",
+            "lt" : "<",
+            "gt" : ">"
+    }
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,
                  opts, ruby_tags, link_activated):
@@ -183,7 +190,7 @@ class TextBlock(object):
         self.font_loader, self.logger, self.opts = font_loader, logger, opts
         self.in_link = False
         self.link_activated = link_activated
-        self.max_y = self.bs.blockheight if (respect_max_y or self.bs.blockrule.lower() in ('vert-fixed', 'block-fixed')) else sys.maxint
+        self.max_y = self.bs.blockheight if (respect_max_y or self.bs.blockrule.lower() in ('vert-fixed', 'block-fixed')) else sys.maxsize
         self.height = 0
         self.peek_index = -1
 
@@ -222,7 +229,7 @@ class TextBlock(object):
         open_containers = collections.deque()
         self.in_para = False
         for i in tb.content:
-            if isinstance(i, basestring):
+            if isinstance(i, string_or_bytes):
                 self.process_text(i)
             elif i is None:
                 if len(open_containers) > 0:
@@ -284,7 +291,7 @@ class TextBlock(object):
                                                       self.current_style.linespace,
                                                       self.opts.visual_debug)
             if self.height > self.max_y+10:
-                raise TextBlock.HeightExceeded(str(self.current_line))
+                raise TextBlock.HeightExceeded(unicode_type(self.current_line))
             self.lines.append(self.current_line)
             self.current_line = None
 
@@ -302,7 +309,7 @@ class TextBlock(object):
 
     def process_text(self, raw):
         for ent, rep in TextBlock.XML_ENTITIES.items():
-            raw = raw.replace(u'&%s;'%ent, rep)
+            raw = raw.replace('&%s;'%ent, rep)
         while len(raw) > 0:
             if self.current_line is None:
                 self.create_line()
@@ -310,6 +317,8 @@ class TextBlock(object):
             raw = raw[pos:]
             if line_filled:
                 self.end_line()
+            if not pos:
+                break
 
     def __iter__(self):
         for line in self.lines:
@@ -318,7 +327,7 @@ class TextBlock(object):
     def __str__(self):
         s = ''
         for line in self:
-            s += str(line) + '\n'
+            s += unicode_type(line) + '\n'
         return s
 
 
@@ -368,7 +377,7 @@ class Line(QGraphicsItem):
             self.children = self.childItems
 
     def start_link(self, refobj, slot):
-        self.current_link = [self.current_width, sys.maxint, refobj, slot]
+        self.current_link = [self.current_width, sys.maxsize, refobj, slot]
 
     def end_link(self):
         if self.current_link is not None:
@@ -450,7 +459,7 @@ class Line(QGraphicsItem):
         if self.length_in_space > 0:
             frac = 1 + float(delta)/self.length_in_space
             for i in range(len(self.tokens)):
-                if isinstance(self.tokens[i], (int, float)):
+                if isinstance(self.tokens[i], numbers.Number):
                     self.tokens[i] *= frac
             self.current_width = self.line_length
 
@@ -494,7 +503,7 @@ class Line(QGraphicsItem):
         painter.restore()
         painter.save()
         for tok in self.tokens:
-            if isinstance(tok, (int, float)):
+            if isinstance(tok, numbers.Number):
                 x += tok
             elif isinstance(tok, Word):
                 painter.setFont(tok.font)
@@ -531,14 +540,14 @@ class Line(QGraphicsItem):
         matches = []
         try:
             while True:
-                word = words.next()
+                word = next(words)
                 word.highlight = False
-                if tokens[0] in unicode(word.string).lower():
+                if tokens[0] in unicode_type(word.string).lower():
                     matches.append(word)
                     for c in range(1, len(tokens)):
-                        word = words.next()
+                        word = next(words)
                         print(tokens[c], word.string)
-                        if tokens[c] not in unicode(word.string):
+                        if tokens[c] not in unicode_type(word.string):
                             return None
                         matches.append(word)
                     for w in matches:
@@ -556,16 +565,16 @@ class Line(QGraphicsItem):
             return (textwidth-self.width)/2.
 
     def __unicode__(self):
-        s = u''
+        s = ''
         for tok in self.tokens:
-            if isinstance(tok, (int, float)):
+            if isinstance(tok, numbers.Number):
                 s += ' '
             elif isinstance(tok, Word):
-                s += unicode(tok.string)
+                s += unicode_type(tok.string)
         return s
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return unicode_type(self).encode('utf-8')
 
 
 class Word(object):

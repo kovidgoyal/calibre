@@ -7,6 +7,7 @@ class AdvancedUserRecipe1360354988(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
 
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

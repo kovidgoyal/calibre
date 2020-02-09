@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,7 +22,7 @@ class ShowBookDetailsAction(InterfaceAction):
     name = 'Show Book Details'
     action_spec = (_('Show Book details'), 'dialog_information.png',
                    _('Show the detailed metadata for the current book in a separate window'), _('I'))
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     def genesis(self):
@@ -38,6 +39,7 @@ class ShowBookDetailsAction(InterfaceAction):
         if index.isValid():
             d = BookInfo(self.gui, self.gui.library_view, index,
                     self.gui.book_details.handle_click)
+            d.open_cover_with.connect(self.gui.bd_open_cover_with, type=Qt.QueuedConnection)
             self.memory.append(d)
             d.closed.connect(self.closed, type=Qt.QueuedConnection)
             d.show()

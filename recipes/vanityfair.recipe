@@ -45,7 +45,7 @@ class VanityFair(BasicNewsRecipe):
         self.cover_url = 'http://www.vanityfair.com/magazine/toc/contents-%s/_jcr_content/par/cn_contentwell/par-main/cn_pagination_contai/cn_image.size.cover_vanityfair_300.jpg' % (  # noqa
             date.today().strftime('%Y%m'))
         feeds = []
-        seen_urls = set([])
+        seen_urls = set()
         features = []
 
         for category in self.CATEGORIES:

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import threading
 from functools import wraps
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 from calibre.constants import plugins
 
@@ -52,7 +51,7 @@ class Face(object):
         '''
         Returns True if all the characters in text have glyphs in this font.
         '''
-        if not isinstance(text, unicode):
+        if not isinstance(text, unicode_type):
             raise TypeError('%r is not a unicode object'%text)
         if has_non_printable_chars:
             from calibre.utils.fonts.utils import get_printable_characters
@@ -62,7 +61,7 @@ class Face(object):
 
     @same_thread
     def glyph_ids(self, text):
-        if not isinstance(text, unicode):
+        if not isinstance(text, unicode_type):
             raise TypeError('%r is not a unicode object'%text)
         for char in text:
             yield self.face.glyph_id(ord(char))

@@ -20,8 +20,10 @@
 # * GNU General Public License for more details.
 # *
 # */
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
+from polyglot.builtins import range
 
 
 class K2a (object):
@@ -38,10 +40,9 @@ class K2a (object):
         Hstr = ""
         max_len = -1
         r = min(10, len(text)+1)
-        for x in xrange(r):
+        for x in range(r):
             if text[:x] in self.kanwa.kanadict:
                 if max_len < x:
                     max_len = x
                     Hstr = self.kanwa.kanadict[text[:x]]
         return (Hstr, max_len)
-

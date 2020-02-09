@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="format-justify-right.svg">
   <defs
      id="defs4">
@@ -23,11 +23,11 @@
        inkscape:collect="always"
        id="linearGradient4139">
       <stop
-         style="stop-color:#08397a;stop-opacity:1"
+         style="stop-color:#0b59bd;stop-opacity:1"
          offset="0"
          id="stop4141" />
       <stop
-         style="stop-color:#0d5cc6;stop-opacity:1"
+         style="stop-color:#b2cffa;stop-opacity:1"
          offset="1"
          id="stop4143" />
     </linearGradient>
@@ -48,17 +48,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="-10.424833"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">

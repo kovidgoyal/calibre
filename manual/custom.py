@@ -8,6 +8,7 @@ import os, re, textwrap
 from functools import partial
 
 from sphinx.util.console import bold
+from sphinx.util.logging import getLogger
 
 from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
@@ -16,6 +17,10 @@ from latex import LaTeXHelpBuilder
 
 def substitute(app, doctree):
     pass
+
+
+def info(*a):
+    getLogger(__name__).info(*a)
 
 
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
@@ -174,7 +179,7 @@ def generate_ebook_convert_help(preamble, app):
     raw += '\n\n.. contents::\n  :local:'
 
     raw += '\n\n' + options
-    for pl in sorted(input_format_plugins(), key=lambda x:x.name):
+    for pl in sorted(input_format_plugins(), key=lambda x: x.name):
         parser, plumber = create_option_parser(['ebook-convert',
             'dummyi.'+sorted(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
         groups = [(pl.name+ ' Options', '', g.option_list) for g in
@@ -193,7 +198,7 @@ def generate_ebook_convert_help(preamble, app):
 
 
 def update_cli_doc(name, raw, app):
-    if isinstance(raw, unicode):
+    if isinstance(raw, type(u'')):
         raw = raw.encode('utf-8')
     path = 'generated/%s/%s.rst' % (app.config.language, name)
     old_raw = open(path, 'rb').read() if os.path.exists(path) else ''
@@ -205,7 +210,7 @@ def update_cli_doc(name, raw, app):
                     path, path)
             for line in lines:
                 print(line)
-        app.builder.info('creating '+os.path.splitext(os.path.basename(path))[0])
+        info('creating '+os.path.splitext(os.path.basename(path))[0])
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
@@ -271,11 +276,10 @@ def get_cli_docs():
 
 
 def cli_docs(app):
-    info = app.builder.info
     info(bold('creating CLI documentation...'))
     documented_cmds, undocumented_cmds = get_cli_docs()
 
-    documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
+    documented_cmds.sort(key=lambda x: x[0])
     undocumented_cmds.sort()
 
     documented = [' '*4 + c[0] for c in documented_cmds]
@@ -351,8 +355,24 @@ def setup_man_pages(app):
     app.config['man_pages'] = man_pages
 
 
+def monkey_patch_docutils():
+    # fixes a bug in sphinx https://github.com/sphinx-doc/sphinx/issues/5150
+    from docutils import nodes
+
+    orig_method = nodes.document.set_duplicate_name_id
+
+    def set_duplicate_name_id(*a):
+        try:
+            return orig_method(*a)
+        except KeyError:
+            pass
+
+    nodes.document.set_duplicate_name_id = set_duplicate_name_id
+
+
 def setup(app):
     from docutils.parsers.rst import roles
+    monkey_patch_docutils()
     setup_man_pages(app)
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)

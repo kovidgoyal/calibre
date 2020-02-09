@@ -9,6 +9,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class DeTijd(BasicNewsRecipe):
     title = 'De Tijd'
     __author__ = 'Darko Miletic'
@@ -68,11 +75,11 @@ class DeTijd(BasicNewsRecipe):
             del item['style']
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
-        mlang = Tag(
+        mlang = new_tag(
             soup, 'meta', [("http-equiv", "Content-Language"),
                            ("content", self.lang)]
         )
-        mcharset = Tag(
+        mcharset = new_tag(
             soup, 'meta', [("http-equiv", "Content-Type"),
                            ("content", "text/html; charset=utf-8")]
         )

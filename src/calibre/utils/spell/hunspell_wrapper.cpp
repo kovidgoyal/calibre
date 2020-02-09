@@ -13,7 +13,7 @@
 #include <hunspell.hxx>
 
 typedef struct {
-	PyObject_HEAD 
+	PyObject_HEAD
     Hunspell *handle;
     char *encoding;
 } Dictionary;
@@ -23,15 +23,14 @@ static PyObject *HunspellError = NULL;
 static int
 init_type(Dictionary *self, PyObject *args, PyObject *kwds) {
 	char *dic = NULL, *aff = NULL;
-    Py_ssize_t diclen, afflen;
 
     self->handle = NULL;
     self->encoding = NULL;
 
-	if (!PyArg_ParseTuple(args, "s#s#", &dic, &diclen, &aff, &afflen)) return 1;
+	if (!PyArg_ParseTuple(args, "ss", &dic, &aff)) return 1;
 
     try {
-        self->handle = new (std::nothrow) Hunspell(aff, afflen, dic, diclen);
+        self->handle = new (std::nothrow) Hunspell(aff, dic);
     } catch (const std::exception &ex) {
         PyErr_SetString(HunspellError, ex.what());
         return 1;
@@ -58,35 +57,33 @@ dealloc(Dictionary *self) {
 
 static PyObject *
 recognized(Dictionary *self, PyObject *args) {
-	char *word = NULL;
-	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
+	char *w = NULL;
+	if (!PyArg_ParseTuple(args, "es", self->encoding, &w)) return NULL;
+    std::string word(w);
+    PyMem_Free(w);
 
-    if (self->handle->spell(word) == 0) { PyMem_Free(word); Py_RETURN_FALSE;}
-    PyMem_Free(word);
+    if (!self->handle->spell(word)) { Py_RETURN_FALSE;}
     Py_RETURN_TRUE;
 }
 
 static PyObject *
 suggest(Dictionary *self, PyObject *args) {
-	char *word = NULL, **slist = NULL;
-	int i, num_slist;
+	char *w = NULL;
 	PyObject *ans, *temp;
 
-	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
+	if (!PyArg_ParseTuple(args, "es", self->encoding, &w)) return NULL;
+    const std::string word(w);
+    PyMem_Free(w);
 
-	num_slist = self->handle->suggest(&slist, word);
-	ans = PyTuple_New(num_slist);
+    const std::vector<std::string>& word_list = self->handle->suggest(word);
+	ans = PyTuple_New(word_list.size());
     if (ans == NULL) PyErr_NoMemory();
-    else {
-        for (i = 0; i < num_slist; i++) {
-            temp = PyUnicode_Decode(slist[i], strlen(slist[i]), self->encoding, "strict");
-            if (temp == NULL) { Py_DECREF(ans); ans = NULL; break; }
-            PyTuple_SET_ITEM(ans, i, temp);
-        }
+    Py_ssize_t i = 0;
+    for(auto const& s: word_list) {
+        temp = PyUnicode_Decode(s.c_str(), s.size(), self->encoding, "strict");
+        if (temp == NULL) { Py_DECREF(ans); ans = NULL; break; }
+        PyTuple_SET_ITEM(ans, i++, temp);
     }
-
-    if (slist != NULL) self->handle->free_list(&slist, num_slist);
-    PyMem_Free(word);
 	return ans;
 }
 

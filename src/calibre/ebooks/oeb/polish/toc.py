@@ -1,17 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urlparse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
-from polyglot.builtins import map
 from operator import itemgetter
 
 from lxml import etree
@@ -26,6 +23,8 @@ from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
+from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.urllib import urlparse
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
 ns.prefix = 'calibre'
@@ -72,10 +71,14 @@ class TOC(object):
     def __len__(self):
         return len(self.children)
 
-    def iterdescendants(self):
+    def iterdescendants(self, level=None):
+        gc_level = None if level is None else level + 1
         for child in self:
-            yield child
-            for gc in child.iterdescendants():
+            if level is None:
+                yield child
+            else:
+                yield level, child
+            for gc in child.iterdescendants(level=gc_level):
                 yield gc
 
     def remove_duplicates(self, only_text=True):
@@ -105,13 +108,13 @@ class TOC(object):
 
     def get_lines(self, lvl=0):
         frag = ('#'+self.frag) if self.frag else ''
-        ans = [(u'\t'*lvl) + u'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
+        ans = [('\t'*lvl) + 'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
         for child in self:
             ans.extend(child.get_lines(lvl+1))
         return ans
 
     def __str__(self):
-        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+        return '\n'.join(self.get_lines())
 
     def to_dict(self, node_counter=None):
         ans = {
@@ -143,7 +146,7 @@ def add_from_navpoint(container, navpoint, parent, ncx_name):
         text = ''
         for txt in child_xpath(nl, 'text'):
             text += etree.tostring(txt, method='text',
-                    encoding=unicode, with_tail=False)
+                    encoding='unicode', with_tail=False)
     content = child_xpath(navpoint, 'content')
     if content:
         content = content[0]
@@ -168,13 +171,13 @@ def parse_ncx(container, ncx_name):
     if navmaps:
         process_ncx_node(container, navmaps[0], toc_root, ncx_name)
     toc_root.lang = toc_root.uid = None
-    for attr, val in root.attrib.iteritems():
+    for attr, val in iteritems(root.attrib):
         if attr.endswith('lang'):
-            toc_root.lang = unicode(val)
+            toc_root.lang = unicode_type(val)
             break
     for uid in root.xpath('//*[calibre:lower-case(local-name()) = "meta" and @name="dtb:uid"]/@content'):
         if uid:
-            toc_root.uid = unicode(uid)
+            toc_root.uid = unicode_type(uid)
             break
     for pl in root.xpath('//*[calibre:lower-case(local-name()) = "pagelist"]'):
         for pt in pl.xpath('descendant::*[calibre:lower-case(local-name()) = "pagetarget"]'):
@@ -191,7 +194,7 @@ def parse_ncx(container, ncx_name):
 def add_from_li(container, li, parent, nav_name):
     dest = frag = text = None
     for x in li.iterchildren(XHTML('a'), XHTML('span')):
-        text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+        text = etree.tostring(x, method='text', encoding='unicode', with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
         href = x.get('href')
         if href:
             dest = nav_name if href.startswith('#') else container.href_to_name(href, base=nav_name)
@@ -226,7 +229,7 @@ def parse_nav(container, nav_name):
             if ol is not None:
                 process_nav_node(container, ol, toc_root, nav_name)
                 for h in nav.iterchildren(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
-                    text = etree.tostring(h, method='text', encoding=unicode, with_tail=False) or h.get('title')
+                    text = etree.tostring(h, method='text', encoding='unicode', with_tail=False) or h.get('title')
                     if text:
                         toc_root.toc_title = text
                         break
@@ -324,7 +327,7 @@ def get_nav_landmarks(container):
                     for a in li.iterdescendants(XHTML('a')):
                         href, rtype = a.get('href'), a.get(et)
                         if href:
-                            title = etree.tostring(a, method='text', encoding=unicode, with_tail=False).strip()
+                            title = etree.tostring(a, method='text', encoding='unicode', with_tail=False).strip()
                             href, frag = href.partition('#')[::2]
                             name = container.href_to_name(href, nav)
                             if container.has_name(name):
@@ -415,14 +418,14 @@ def from_xpaths(container, xpaths):
         name = container.abspath_to_name(spinepath)
         root = container.parsed(name)
         level_item_map = maps[name] = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
-        for lvl, elems in level_item_map.iteritems():
+        for lvl, elems in iteritems(level_item_map):
             if elems:
                 empty_levels.discard(lvl)
     # Remove empty levels from all level_maps
     if empty_levels:
-        for name, lmap in tuple(maps.iteritems()):
-            lmap = {lvl:items for lvl, items in lmap.iteritems() if lvl not in empty_levels}
-            lmap = sorted(lmap.iteritems(), key=itemgetter(0))
+        for name, lmap in tuple(iteritems(maps)):
+            lmap = {lvl:items for lvl, items in iteritems(lmap) if lvl not in empty_levels}
+            lmap = sorted(iteritems(lmap), key=itemgetter(0))
             lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
             maps[name] = lmap
 
@@ -440,9 +443,9 @@ def from_xpaths(container, xpaths):
 
         return process_node(tocroot)
 
-    for name, level_item_map in maps.iteritems():
+    for name, level_item_map in iteritems(maps):
         root = container.parsed(name)
-        item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+        item_level_map = {e:i for i, elems in iteritems(level_item_map) for e in elems}
         item_dirtied = False
         all_ids = set(root.xpath('//*/@id'))
 
@@ -474,18 +477,20 @@ def from_links(container):
     toc = TOC()
     link_path = XPath('//h:a[@href]')
     seen_titles, seen_dests = set(), set()
-    for spinepath in container.spine_items:
-        name = container.abspath_to_name(spinepath)
+    for name, is_linear in container.spine_names:
         root = container.parsed(name)
         for a in link_path(root):
             href = a.get('href')
             if not href or not href.strip():
                 continue
+            frag = None
             if href.startswith('#'):
                 dest = name
+                frag = href[1:]
             else:
+                href, _, frag = href.partition('#')
                 dest = container.href_to_name(href, base=name)
-            frag = href.rpartition('#')[-1] or None
+            frag = frag or None
             if (dest, frag) in seen_dests:
                 continue
             seen_dests.add((dest, frag))
@@ -579,9 +584,9 @@ def create_ncx(toc, to_href, btitle, lang, uid):
         nsmap={None: NCX_NS})
     head = etree.SubElement(ncx, NCX('head'))
     etree.SubElement(head, NCX('meta'),
-        name='dtb:uid', content=unicode(uid))
+        name='dtb:uid', content=unicode_type(uid))
     etree.SubElement(head, NCX('meta'),
-        name='dtb:depth', content=str(toc.depth))
+        name='dtb:depth', content=unicode_type(toc.depth))
     generator = ''.join(['calibre (', __version__, ')'])
     etree.SubElement(head, NCX('meta'),
         name='dtb:generator', content=generator)
@@ -599,7 +604,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
         for child in toc_parent:
             play_order['c'] += 1
             point = etree.SubElement(xml_parent, NCX('navPoint'), id='num_%d' % play_order['c'],
-                            playOrder=str(play_order['c']))
+                            playOrder=unicode_type(play_order['c']))
             label = etree.SubElement(point, NCX('navLabel'))
             title = child.title
             if title:
@@ -765,7 +770,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
         for entry in toc.page_list:
             if container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
                 a = create_li(ol, entry)
-                a.text = str(entry['pagenum'])
+                a.text = unicode_type(entry['pagenum'])
         pretty_xml_tree(nav)
         collapse_li(nav)
     container.replace(tocname, root)

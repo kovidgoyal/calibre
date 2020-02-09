@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,9 +11,10 @@ from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
 from calibre import strftime
-from calibre.constants import iswindows, isosx, plugins
+from calibre.constants import iswindows, isosx, plugins, preferred_encoding
 from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
+from polyglot.builtins import unicode_type, native_string_type
 
 _utc_tz = utc_tz
 _local_tz = local_tz
@@ -33,7 +34,7 @@ if iswindows:
 elif isosx:
     try:
         date_fmt = plugins['usbobserver'][0].date_format()
-        parse_date_day_first = date_fmt.index(u'd') < date_fmt.index(u'M')
+        parse_date_day_first = date_fmt.index('d') < date_fmt.index('M')
     except:
         parse_date_day_first = False
 else:
@@ -41,7 +42,7 @@ else:
         def first_index(raw, queries):
             for q in queries:
                 try:
-                    return raw.index(q)
+                    return raw.index(native_string_type(q))
                 except ValueError:
                     pass
             return -1
@@ -100,6 +101,8 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     from dateutil.parser import parse
     if not date_string:
         return UNDEFINED_DATE
+    if isinstance(date_string, bytes):
+        date_string = date_string.decode(preferred_encoding, 'replace')
     if default is None:
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
@@ -186,13 +189,17 @@ def fromordinal(day, as_utc=True):
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     if not hasattr(date_time, 'tzinfo'):
-        return unicode(date_time.isoformat())
+        return unicode_type(date_time.isoformat())
     if date_time.tzinfo is None:
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    # str(sep) because isoformat barfs with unicode sep on python 2.x
-    return unicode(date_time.isoformat(str(sep)))
+    # native_string_type(sep) because isoformat barfs with unicode sep on python 2.x
+    return unicode_type(date_time.isoformat(native_string_type(sep)))
+
+
+def internal_iso_format_string():
+    return 'yyyy-MM-ddThh:mm:ss'
 
 
 def w3cdtf(date_time, assume_utc=False):
@@ -201,7 +208,7 @@ def w3cdtf(date_time, assume_utc=False):
             date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                     _local_tz)
         date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    return unicode(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
+    return unicode_type(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 def as_local_time(date_time, assume_utc=True):
@@ -438,31 +445,31 @@ def clean_date_for_sort(dt, fmt=None):
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date
     frtoen = {
-        u'[jJ]anvier': u'jan',
-        u'[fF].vrier': u'feb',
-        u'[mM]ars': u'mar',
-        u'[aA]vril': u'apr',
-        u'[mM]ai': u'may',
-        u'[jJ]uin': u'jun',
-        u'[jJ]uillet': u'jul',
-        u'[aA]o.t': u'aug',
-        u'[sS]eptembre': u'sep',
-        u'[Oo]ctobre': u'oct',
-        u'[nN]ovembre': u'nov',
-        u'[dD].cembre': u'dec'}
+        '[jJ]anvier': 'jan',
+        '[fF].vrier': 'feb',
+        '[mM]ars': 'mar',
+        '[aA]vril': 'apr',
+        '[mM]ai': 'may',
+        '[jJ]uin': 'jun',
+        '[jJ]uillet': 'jul',
+        '[aA]o.t': 'aug',
+        '[sS]eptembre': 'sep',
+        '[Oo]ctobre': 'oct',
+        '[nN]ovembre': 'nov',
+        '[dD].cembre': 'dec'}
     detoen = {
-        u'[jJ]anuar': u'jan',
-        u'[fF]ebruar': u'feb',
-        u'[mM].rz': u'mar',
-        u'[aA]pril': u'apr',
-        u'[mM]ai': u'may',
-        u'[jJ]uni': u'jun',
-        u'[jJ]uli': u'jul',
-        u'[aA]ugust': u'aug',
-        u'[sS]eptember': u'sep',
-        u'[Oo]ktober': u'oct',
-        u'[nN]ovember': u'nov',
-        u'[dD]ezember': u'dec'}
+        '[jJ]anuar': 'jan',
+        '[fF]ebruar': 'feb',
+        '[mM].rz': 'mar',
+        '[aA]pril': 'apr',
+        '[mM]ai': 'may',
+        '[jJ]uni': 'jun',
+        '[jJ]uli': 'jul',
+        '[aA]ugust': 'aug',
+        '[sS]eptember': 'sep',
+        '[Oo]ktober': 'oct',
+        '[nN]ovember': 'nov',
+        '[dD]ezember': 'dec'}
 
     if clang == 'fr':
         dictoen = frtoen
@@ -471,7 +478,7 @@ def replace_months(datestr, clang):
     else:
         return datestr
 
-    for k in dictoen.iterkeys():
+    for k in dictoen:
         tmp = re.sub(k, dictoen[k], datestr)
         if tmp != datestr:
             break

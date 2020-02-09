@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, textwrap
+import json
 
 from collections import defaultdict
 from threading import Thread
@@ -36,6 +37,8 @@ from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+from calibre.utils.resources import set_data
+from polyglot.builtins import iteritems, unicode_type, map
 
 
 class BusyCursor(object):
@@ -75,6 +78,10 @@ class DefaultAuthorLink(QWidget):  # {{{
             c.addItem(text, data)
         l.addRow(_('Clicking on &author names should:'), c)
         self.custom_url = u = QLineEdit(self)
+        u.setToolTip(_(
+            'Enter the URL to search. It should contain the string {0}'
+            '\nwhich will be replaced by the author name. For example,'
+            '\n{1}').format('{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
         u.textChanged.connect(self.changed_signal)
         u.setPlaceholderText(_('Enter the URL'))
         c.currentIndexChanged.connect(self.current_changed)
@@ -158,7 +165,7 @@ class IdLinksEditor(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
         items = []
-        for k, lx in msprefs['id_link_rules'].iteritems():
+        for k, lx in iteritems(msprefs['id_link_rules']):
             for n, t in lx:
                 items.append((k, n, t))
         items.sort(key=lambda x:sort_key(x[1]))
@@ -255,6 +262,12 @@ class DisplayedFields(QAbstractListModel):  # {{{
         if role == Qt.DecorationRole and field.startswith('#'):
             return QIcon(I('column.png'))
         return None
+
+    def toggle_all(self, show=True):
+        for i in range(self.rowCount()):
+            idx = self.index(i)
+            if idx.isValid():
+                self.setData(idx, show, Qt.CheckStateRole)
 
     def flags(self, index):
         ans = QAbstractListModel.flags(self, index)
@@ -428,12 +441,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
         r('booklist_grid', gprefs)
-        r('book_details_narrow_comments_layout', gprefs, choices=[(_('Float'), 'float'), (_('Columns'), 'columns')])
-        self.opt_book_details_narrow_comments_layout.setToolTip(textwrap.fill(_(
-            'Choose how the text is laid out when using the "Narrow" user interface layout.'
-            ' A value of "Float" means that the comments text will wrap around'
-            ' the other metadata fields, while a value of "Columns" means that'
-            ' the comments will be in a separate fixed width column.')))
+        r('book_details_comments_heading_pos', gprefs, choices=[
+            (_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')])
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
@@ -449,7 +458,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
-        items.sort(cmp=lambda x, y: cmp(x[1].lower(), y[1].lower()))
+        items.sort(key=lambda x: x[1].lower())
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one
         choices = [(get_language(lang), lang)] + choices
@@ -489,7 +498,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices |= {'search'}
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
-          choices=sorted(list(choices), key=sort_key))
+          choices=sorted(choices, key=sort_key))
 
         fm = db.field_metadata
         choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
@@ -535,8 +544,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.setCurrentIndex(0)
         keys = [QKeySequence('F11', QKeySequence.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.PortableText)]
-        keys = [unicode(x.toString(QKeySequence.NativeText)) for x in keys]
-        self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
+        keys = [unicode_type(x.toString(QKeySequence.NativeText)) for x in keys]
+        self.fs_help_msg.setText(unicode_type(self.fs_help_msg.text())%(
             _(' or ').join(keys)))
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.QueuedConnection)
         self.tabWidget.currentChanged.connect(self.tab_changed)
@@ -565,6 +574,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
         self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
         self.opt_cover_grid_height.valueChanged.connect(self.update_aspect_ratio)
+        self.opt_book_details_css.textChanged.connect(self.changed_signal)
+        from calibre.gui2.tweak_book.editor.text import get_highlighter, get_theme
+        self.css_highlighter = get_highlighter('css')()
+        self.css_highlighter.apply_theme(get_theme(None))
+        self.css_highlighter.set_document(self.opt_book_details_css.document())
 
     def choose_icon_theme(self):
         from calibre.gui2.icon_theme import ChooseTheme
@@ -637,6 +651,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_cg_color(gprefs['cover_grid_color'])
         self.set_cg_texture(gprefs['cover_grid_texture'])
         self.update_aspect_ratio()
+        self.opt_book_details_css.blockSignals(True)
+        self.opt_book_details_css.setPlainText(P('templates/book_details.css', data=True).decode('utf-8'))
+        self.opt_book_details_css.blockSignals(False)
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)
@@ -685,6 +702,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
         self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
+        self.opt_book_details_css.setPlainText(P('templates/book_details.css', allow_user_override=False, data=True).decode('utf-8'))
 
     def change_cover_grid_color(self):
         col = QColorDialog.getColor(self.cg_bg_widget.bcol,
@@ -721,7 +739,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def update_font_display(self):
         font = self.build_font_obj()
         fi = QFontInfo(font)
-        name = unicode(fi.family())
+        name = unicode_type(fi.family())
 
         self.font_display.setFont(font)
         self.font_display.setText(name + ' [%dpt]'%fi.pointSize())
@@ -731,7 +749,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if fd.exec_() == fd.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
-            self.current_font = [unicode(fi.family()), fi.pointSize(),
+            self.current_font = [unicode_type(fi.family()), fi.pointSize(),
                     fi.weight(), fi.italic(), font.stretch()]
             self.update_font_display()
             self.changed_signal.emit()
@@ -757,15 +775,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.commit_icon_theme()
                 rr = True
             gprefs['default_author_link'] = self.default_author_link.value
+            bcss = self.opt_book_details_css.toPlainText().encode('utf-8')
+            defcss = P('templates/book_details.css', data=True, allow_user_override=False)
+            if defcss == bcss:
+                bcss = None
+            set_data('templates/book_details.css', bcss)
+
         return rr
 
     def refresh_gui(self, gui):
+        gui.book_details.book_info.refresh_css()
         m = gui.library_view.model()
         m.beginResetModel(), m.endResetModel()
         self.update_font_display()
         gui.tags_view.set_look_and_feel()
         gui.tags_view.reread_collapse_parameters()
-        gui.library_view.refresh_book_details()
+        gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_grid()
         gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])

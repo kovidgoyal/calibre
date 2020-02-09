@@ -1,19 +1,21 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2015-2019, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QLabel, QGridLayout, QLineEdit, QVBoxLayout,
-                      QDialog, QDialogButtonBox, QCheckBox)
+from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
+                      QDialog, QDialogButtonBox, QCheckBox, QPushButton)
 
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
+from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from polyglot.builtins import unicode_type
 
 
 def wrap_msg(msg):
@@ -63,12 +65,9 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         return self._device()
 
     def validate(self):
-        if hasattr(self, 'formats'):
-            if not self.formats.validate():
-                return False
-            if not self.template.validate():
-                return False
-        return True
+        validated = super(KOBOTOUCHConfig, self).validate()
+        validated &= self.tab2.validate()
+        return validated
 
     @property
     def book_uploads_options(self):
@@ -107,18 +106,27 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['upload_covers'] = self.upload_covers
         p['keep_cover_aspect'] = self.keep_cover_aspect
         p['upload_grayscale'] = self.upload_grayscale
+        p['dithered_covers'] = self.dithered_covers
+        p['letterbox_fs_covers'] = self.letterbox_fs_covers
+        p['png_covers'] = self.png_covers
 
         p['show_recommendations'] = self.show_recommendations
         p['show_previews'] = self.show_previews
         p['show_archived_books'] = self.show_archived_books
 
+        p['update_device_metadata'] = self.update_device_metadata
         p['update_series'] = self.update_series
+        p['update_core_metadata'] = self.update_core_metadata
+        p['update_purchased_kepubs'] = self.update_purchased_kepubs
+        p['subtitle_template'] = self.subtitle_template
+        p['update_subtitle'] = self.update_subtitle
+
         p['modify_css'] = self.modify_css
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
-        p['driver_version'] = '.'.join([unicode(i) for i in self.device.version])
+        p['driver_version'] = '.'.join([unicode_type(i) for i in self.device.version])
 
         return p
 
@@ -142,6 +150,8 @@ class Tab1Config(DeviceConfigTab):  # {{{
         self.book_uploads_options = BookUploadsGroupBox(self, device)
         self.l.addWidget(self.book_uploads_options)
         self.addDeviceWidget(self.book_uploads_options)
+
+        self.l.addStretch()
 # }}}
 
 
@@ -164,6 +174,12 @@ class Tab2Config(DeviceConfigTab):  # {{{
         self.advanced_options = AdvancedGroupBox(self, device)
         self.l.addWidget(self.advanced_options)
         self.addDeviceWidget(self.advanced_options)
+
+        self.l.addStretch()
+
+    def validate(self):
+        return self.metadata_options.validate()
+
 # }}}
 
 
@@ -171,7 +187,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super(BookUploadsGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Book uploading"))
+        self.setTitle(_("Uploading of books"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
@@ -199,7 +215,6 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
         self.options_layout.addWidget(self.modify_css_checkbox, 0, 0, 1, 2)
         self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
-        self.options_layout.setRowStretch(2, 1)
 
     @property
     def modify_css(self):
@@ -255,7 +270,6 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0, 1, 2)
         self.options_layout.addWidget(self.ignore_collections_names_label,    4, 0, 1, 1)
         self.options_layout.addWidget(self.ignore_collections_names_edit,     4, 1, 1, 1)
-        self.options_layout.setRowStretch(4, 1)
 
     @property
     def manage_collections(self):
@@ -294,9 +308,24 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
         self.upload_grayscale_checkbox = create_checkbox(
                              _('Upload black and white covers'),
-                             _('Convert covers to black and white when uploading'),
+                             _('Convert covers to grayscale when uploading.'),
                              device.get_pref('upload_grayscale')
                              )
+
+        self.dithered_covers_checkbox = create_checkbox(
+                             _('Upload dithered covers'),
+                             _('Dither cover images to the appropriate 16c grayscale palette for an eInk screen.'
+                               ' This usually ensures greater accuracy and avoids banding, making sleep covers look better.'
+                               ' On FW >= 4.11, Nickel itself may sometimes do a decent job of it.'
+                               ' Has no effect without "Upload black and white covers"!'),
+                             device.get_pref('dithered_covers')
+                             )
+        # Make it visually depend on B&W being enabled!
+        # c.f., https://stackoverflow.com/q/36281103
+        self.dithered_covers_checkbox.setEnabled(device.get_pref('upload_grayscale'))
+        self.upload_grayscale_checkbox.toggled.connect(self.dithered_covers_checkbox.setEnabled)
+        self.upload_grayscale_checkbox.toggled.connect(
+            lambda checked: not checked and self.dithered_covers_checkbox.setChecked(False))
 
         self.keep_cover_aspect_checkbox = create_checkbox(
                              _('Keep cover aspect ratio'),
@@ -304,9 +333,40 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' This is for firmware versions 2.3.1 and later.'),
                              device.get_pref('keep_cover_aspect'))
 
+        self.letterbox_fs_covers_checkbox = create_checkbox(
+                             _('Letterbox full-screen covers'),
+                             _('Do it on our end, instead of letting Nickel handle it.'
+                               ' Provides pixel-perfect results on devices where Nickel does not do extra processing.'
+                               ' Obviously has no effect without "Keep cover aspect ratio".'
+                               ' This is probably undesirable if you disable the "Show book covers full screen"'
+                               ' setting on your device.'),
+                             device.get_pref('letterbox_fs_covers'))
+        # Make it visually depend on AR being enabled!
+        self.letterbox_fs_covers_checkbox.setEnabled(device.get_pref('keep_cover_aspect'))
+        self.keep_cover_aspect_checkbox.toggled.connect(self.letterbox_fs_covers_checkbox.setEnabled)
+        self.keep_cover_aspect_checkbox.toggled.connect(
+            lambda checked: not checked and self.letterbox_fs_covers_checkbox.setChecked(False))
+
+        self.png_covers_checkbox = create_checkbox(
+                             _('Save covers as PNG'),
+                             _('Use the PNG image format instead of JPG.'
+                               ' Higher quality, especially with "Upload dithered covers" enabled,'
+                               ' which will also help generate potentially smaller files.'
+                               ' Behavior completely unknown on old (< 3.x) Kobo firmwares,'
+                               ' known to behave on FW >= 4.8.'
+                               ' Has no effect without "Upload black and white covers"!'),
+                             device.get_pref('png_covers'))
+        # Make it visually depend on B&W being enabled, to avoid storing ridiculously large color PNGs.
+        self.png_covers_checkbox.setEnabled(device.get_pref('upload_grayscale'))
+        self.upload_grayscale_checkbox.toggled.connect(self.png_covers_checkbox.setEnabled)
+        self.upload_grayscale_checkbox.toggled.connect(
+            lambda checked: not checked and self.png_covers_checkbox.setChecked(False))
+
         self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
+        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  0, 1, 1, 1)
         self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
-        self.options_layout.setRowStretch(2, 1)
+        self.options_layout.addWidget(self.dithered_covers_checkbox,      1, 1, 1, 1)
+        self.options_layout.addWidget(self.png_covers_checkbox,           2, 1, 1, 1)
 
     @property
     def upload_covers(self):
@@ -317,8 +377,20 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         return self.upload_grayscale_checkbox.isChecked()
 
     @property
+    def dithered_covers(self):
+        return self.dithered_covers_checkbox.isChecked()
+
+    @property
     def keep_cover_aspect(self):
         return self.keep_cover_aspect_checkbox.isChecked()
+
+    @property
+    def letterbox_fs_covers(self):
+        return self.letterbox_fs_covers_checkbox.isChecked()
+
+    @property
+    def png_covers(self):
+        return self.png_covers_checkbox.isChecked()
 
 
 class DeviceListGroupBox(DeviceOptionsGroupBox):
@@ -357,7 +429,6 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.show_recommendations_checkbox, 0, 0, 1, 1)
         self.options_layout.addWidget(self.show_archived_books_checkbox,  1, 0, 1, 1)
         self.options_layout.addWidget(self.show_previews_checkbox,        2, 0, 1, 1)
-        self.options_layout.setRowStretch(3, 1)
 
     @property
     def show_recommendations(self):
@@ -389,7 +460,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                               'to perform full read-write functionality - Here be Dragons!! '
                               'Enable only if you are comfortable with restoring your kobo '
                               'to factory defaults and testing software. '
-                              'This driver supports firmware V2.x.x and DBVersion up to ') + unicode(
+                              'This driver supports firmware V2.x.x and DBVersion up to ') + unicode_type(
                                   device.supported_dbversion), device.get_pref('support_newer_firmware')
                              )
 
@@ -411,7 +482,6 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.support_newer_firmware_checkbox,   0, 0, 1, 2)
         self.options_layout.addWidget(self.debugging_title_label,             1, 0, 1, 1)
         self.options_layout.addWidget(self.debugging_title_edit,              1, 1, 1, 1)
-        self.options_layout.setRowStretch(2, 2)
 
     @property
     def support_newer_firmware(self):
@@ -445,16 +515,135 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Enable if you wish to set series information.'),
                              device.get_pref('update_series')
                              )
-        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 1)
-        self.options_layout.setRowStretch(1, 1)
+        self.update_core_metadata_checkbox = create_checkbox(
+                             _("Update metadata on Book Details pages"),
+                             _('This will update the metadata in the device database when the device is connected. '
+                               'The metadata updated is displayed on the device in the library and the book details page. '
+                               'This is the Title, Authors, Comments/Synopsis, Series name and number, Publisher and Published Date, ISBN and Language. '
+                               'If a metadata plugboard exists for the device and book format, this will be used to set the metadata.'
+                               ),
+                             device.get_pref('update_core_metadata')
+                             )
+
+        self.update_purchased_kepubs_checkbox = create_checkbox(
+                             _("Update purchased books"),
+                             _('Update books purchased from Kobo and downloaded to the device.'
+                               ),
+                             device.get_pref('update_purchased_kepubs')
+                             )
+        self.update_subtitle_checkbox = create_checkbox(
+                             _("Subtitle"),
+                             _('Update the subtitle on the device using a template.'),
+                             device.get_pref('update_subtitle')
+                             )
+        self.subtitle_template_edit = TemplateConfig(
+                            device.get_pref('subtitle_template'),
+                            tooltip=_("Enter a template to use to set the subtitle. "
+                                      "If the template is empty, the subtitle will be cleared."
+                                      )
+                            )
+
+        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 2)
+        self.options_layout.addWidget(self.update_core_metadata_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.update_subtitle_checkbox, 2, 0, 1, 1)
+        self.options_layout.addWidget(self.subtitle_template_edit, 2, 1, 1, 1)
+        self.options_layout.addWidget(self.update_purchased_kepubs_checkbox, 3, 0, 1, 2)
+
+        self.update_core_metadata_checkbox.clicked.connect(self.update_core_metadata_checkbox_clicked)
+        self.update_subtitle_checkbox.clicked.connect(self.update_subtitle_checkbox_clicked)
+        self.update_core_metadata_checkbox_clicked(device.get_pref('update_core_metadata'))
+        self.update_subtitle_checkbox_clicked(device.get_pref('update_subtitle'))
+
+    def update_core_metadata_checkbox_clicked(self, checked):
+        self.update_series_checkbox.setEnabled(not checked)
+        self.subtitle_template_edit.setEnabled(checked)
+        self.update_subtitle_checkbox.setEnabled(checked)
+        self.update_subtitle_checkbox_clicked(self.update_subtitle)
+        self.update_purchased_kepubs_checkbox.setEnabled(checked)
+
+    def update_subtitle_checkbox_clicked(self, checked):
+        self.subtitle_template_edit.setEnabled(checked and self.update_core_metadata)
+
+    def edit_template(self):
+        t = TemplateDialog(self, self.template)
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.t.setText(t.rule[1])
+
+    def validate(self):
+        if self.update_subtitle and not self.subtitle_template_edit.validate():
+            return False
+        return True
 
     @property
     def update_series(self):
         return self.update_series_checkbox.isChecked()
 
     @property
+    def update_core_metadata(self):
+        return self.update_core_metadata_checkbox.isChecked()
+
+    @property
+    def update_purchased_kepubs(self):
+        return self.update_purchased_kepubs_checkbox.isChecked()
+
+    @property
     def update_device_metadata(self):
         return self.isChecked()
+
+    @property
+    def subtitle_template(self):
+        return self.subtitle_template_edit.template
+
+    @property
+    def update_subtitle(self):
+        return self.update_subtitle_checkbox.isChecked()
+
+
+class TemplateConfig(QWidget):  # {{{
+
+    def __init__(self, val, tooltip=None):
+        QWidget.__init__(self)
+        self.t = t = QLineEdit(self)
+        t.setText(val or '')
+        t.setCursorPosition(0)
+        self.setMinimumWidth(300)
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+        l.addWidget(t, 1, 0, 1, 1)
+        b = self.b = QPushButton(_('&Template editor'))
+        l.addWidget(b, 1, 1, 1, 1)
+        b.clicked.connect(self.edit_template)
+        self.setToolTip(tooltip)
+
+    @property
+    def template(self):
+        return unicode_type(self.t.text()).strip()
+
+    @template.setter
+    def template(self, template):
+        self.t.setText(template)
+
+    def edit_template(self):
+        t = TemplateDialog(self, self.template)
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.t.setText(t.rule[1])
+
+    def validate(self):
+        from calibre.utils.formatter import validation_formatter
+
+        tmpl = self.template
+        try:
+            validation_formatter.validate(tmpl)
+            return True
+        except Exception as err:
+            error_dialog(self, _('Invalid template'),
+                    '<p>'+_('The template "%s" is invalid:')%tmpl +
+                    '<br>'+unicode_type(err), show=True)
+
+            return False
+# }}}
 
 
 if __name__ == '__main__':

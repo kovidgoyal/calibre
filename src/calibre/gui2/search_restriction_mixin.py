@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -18,6 +17,7 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 
 class SelectNames(QDialog):  # {{{
@@ -51,7 +51,7 @@ class SelectNames(QDialog):  # {{{
     @property
     def names(self):
         for item in self._names.selectedItems():
-            yield unicode(item.data(Qt.DisplayRole) or '')
+            yield unicode_type(item.data(Qt.DisplayRole) or '')
 
     @property
     def match_type(self):
@@ -185,7 +185,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
     def search_text_changed(self, txt):
         db = self.gui.current_db
         searches = [_('Saved searches recognized in the expression:')]
-        txt = unicode(txt)
+        txt = unicode_type(txt)
         while txt:
             p = txt.partition('search:')
             if p[1]:  # found 'search:'
@@ -219,7 +219,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.saved_searches_label.setPlainText('')
 
     def name_text_edited(self, new_name):
-        self.new_name = unicode(new_name)
+        self.new_name = unicode_type(new_name)
 
     def name_index_changed(self, dex):
         if self.editing and (self.vl_text.text() != self.original_search or
@@ -235,12 +235,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 return
         self.new_name = self.editing = self.vl_name.currentText()
         self.original_index = dex
-        self.original_search = unicode(self.vl_name.itemData(dex) or '')
+        self.original_search = unicode_type(self.vl_name.itemData(dex) or '')
         self.vl_text.setText(self.original_search)
 
     def link_activated(self, url):
         db = self.gui.current_db
-        f, txt = unicode(url).partition('.')[0::2]
+        f, txt = unicode_type(url).partition('.')[0::2]
         if f == 'search':
             names = db.saved_search_names()
         else:
@@ -254,13 +254,13 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 if not self.editing:
-                    self.vl_name.lineEdit().setText(d.names.next())
+                    self.vl_name.lineEdit().setText(next(d.names))
                     self.vl_name.lineEdit().setCursorPosition(0)
                 self.vl_text.setText(d.match_type.join(search))
                 self.vl_text.setCursorPosition(0)
 
     def accept(self):
-        n = unicode(self.vl_name.currentText()).strip()
+        n = unicode_type(self.vl_name.currentText()).strip()
         if not n:
             error_dialog(self.gui, _('No name'),
                          _('You must provide a name for the new virtual library'),
@@ -280,7 +280,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                             default_yes=False):
                 return
 
-        v = unicode(self.vl_text.text()).strip()
+        v = unicode_type(self.vl_text.text()).strip()
         if not v:
             error_dialog(self.gui, _('No search string'),
                          _('You must provide a search to define the new virtual library'),
@@ -301,7 +301,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 _('The search found no books, so the virtual library '
                 'will be empty. Do you really want to use that search?'),
                 default_yes=False):
-                return
+            return
 
         self.library_name = n
         self.library_search = v
@@ -513,7 +513,7 @@ class SearchRestrictionMixin(object):
         current_restriction_text = None
 
         if self.search_restriction.count() > 1:
-            txt = unicode(self.search_restriction.itemText(2))
+            txt = unicode_type(self.search_restriction.itemText(2))
             if txt.startswith('*'):
                 current_restriction_text = txt
         self.search_restriction.clear()
@@ -561,14 +561,14 @@ class SearchRestrictionMixin(object):
     def apply_text_search_restriction(self, search):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
-        search = unicode(search)
+        search = unicode_type(search)
         if not search:
             self.search_restriction.setCurrentIndex(0)
             self._apply_search_restriction('', '')
         else:
             s = '*' + search
             if self.search_restriction.count() > 1:
-                txt = unicode(self.search_restriction.itemText(2))
+                txt = unicode_type(self.search_restriction.itemText(2))
                 if txt.startswith('*'):
                     self.search_restriction.setItemText(2, s)
                 else:
@@ -582,12 +582,12 @@ class SearchRestrictionMixin(object):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
         if i == 1:
-            self.apply_text_search_restriction(unicode(self.search.currentText()))
-        elif i == 2 and unicode(self.search_restriction.currentText()).startswith('*'):
+            self.apply_text_search_restriction(unicode_type(self.search.currentText()))
+        elif i == 2 and unicode_type(self.search_restriction.currentText()).startswith('*'):
             self.apply_text_search_restriction(
-                                unicode(self.search_restriction.currentText())[1:])
+                                unicode_type(self.search_restriction.currentText())[1:])
         else:
-            r = unicode(self.search_restriction.currentText())
+            r = unicode_type(self.search_restriction.currentText())
             if r is not None and r != '':
                 restriction = 'search:"%s"'%(r)
             else:

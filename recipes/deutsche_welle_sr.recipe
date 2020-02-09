@@ -68,8 +68,8 @@ class DeutscheWelle_sr(BasicNewsRecipe):
                 if limg:
                     item.name = 'div'
                     del item['href']
-                    if item.has_key('target'):  # noqa
-                        del item['target']
+                    item['target'] = ''
+                    del item['target']
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)

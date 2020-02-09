@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label_22">
      <property name="text">
-      <string>calibre can send your books to you (or your reader) by email. Emails will be automatically sent for downloaded news to all email addresses that have Auto-send checked.</string>
+		 <string>&lt;p&gt;calibre can send your books to you (or your reader) by email. Emails will be automatically sent for downloaded news to all email addresses that have &lt;i&gt;Auto send&lt;/i&gt; checked.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

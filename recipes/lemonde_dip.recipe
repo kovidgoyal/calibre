@@ -4,7 +4,10 @@ __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 mondediplo.com
 '''
 
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -43,7 +46,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
+            data = urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
                                      })
             br.open(self.LOGIN, data)
         return br
@@ -61,17 +64,18 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
         cnt = soup.find('div', attrs={'class': 'som_num'})
         for item in cnt.findAll('li'):
             description = ''
-            feed_link = item.find('a')
+            feed_link = item.find('a', href=True)
+            if feed_link is None:
+                continue
             desc = item.find('div', attrs={'class': 'chapo'})
             if desc:
                 description = desc.string
-            if feed_link and feed_link.has_key('href'):  # noqa
-                url = self.PREFIX + feed_link['href'].partition('/../')[2]
-                title = self.tag_to_string(feed_link)
-                date = strftime(self.timefmt)
-                articles.append({
-                    'title': title, 'date': date, 'url': url, 'description': description
-                })
+            url = self.PREFIX + feed_link['href'].partition('/../')[2]
+            title = self.tag_to_string(feed_link)
+            date = strftime(self.timefmt)
+            articles.append({
+                'title': title, 'date': date, 'url': url, 'description': description
+            })
         return [(self.title, articles)]
 
     def get_cover_url(self):

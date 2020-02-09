@@ -1,9 +1,9 @@
 #!/usr/bin/env  python2
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2019, Darko Miletic <darko.miletic at gmail.com>'
 '''
-granma.cubaweb.cu
+granma.cu
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -19,33 +19,10 @@ class Granma(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    encoding = 'cp1252'
-    cover_url = 'http://www.granma.cubaweb.cu/imagenes/granweb229d.jpg'
+    encoding = 'utf8'
+    masthead_url = 'http://www.granma.cu/static/img/granma-logo.png'
     language = 'es_CU'
-
+    auto_cleanup      = True
     remove_javascript = True
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher, '--ignore-tables'
-    ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
-        description + '"\ntags="' + category + '"\nlinearize_tables=True'
-
-    keep_only_tags = [dict(name='table', attrs={'height': '466'})]
-
-    remove_tags = [dict(name=['embed', 'link', 'object'])]
-
-    feeds = [(u'Noticias', u'http://www.granma.cubaweb.cu/noticias.xml')]
-
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="es-CU"/>'
-        soup.head.insert(0, mtag)
-        for item in soup.findAll('table'):
-            if item.has_key('width'):  # noqa
-                del item['width']
-            if item.has_key('height'):  # noqa
-                del item['height']
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+    feeds = [(u'Noticias', u'http://www.granma.cu/feed')]

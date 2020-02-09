@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
 from iframe_comm import IframeWrapper
+from read_book.globals import runtime, ui_operations
 from read_book.resources import load_resources
 
 CLASS_NAME = 'book-content-popup-container'
@@ -41,7 +42,10 @@ class ContentPopupOverlay:
         self.loaded_resources = {}
         c = self.container
         c.classList.add(CLASS_NAME)
-        iframe = E.iframe(seamless=True, sandbox='allow-scripts', style='width: 100%; max-height: 70vh')
+        sandbox = 'allow-scripts'
+        if runtime.is_standalone_viewer:
+            sandbox += ' allow-same-origin'
+        iframe = E.iframe(seamless=True, sandbox=sandbox, style='width: 100%; max-height: 70vh')
 
         c.appendChild(E.div(
             E.div(),
@@ -56,7 +60,10 @@ class ContentPopupOverlay:
             'error': self.view.on_iframe_error,
             'content_loaded': self.on_content_loaded,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'read_book.footnotes', _('Loading data, please wait...'))
+        entry_point = None if runtime.is_standalone_viewer else 'read_book.footnotes'
+        self.iframe_wrapper = IframeWrapper(
+            handlers, iframe, entry_point, _('Loading data, please wait...'),
+            f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__popup__')
         self.pending_load = None
 
     @property
@@ -73,13 +80,14 @@ class ContentPopupOverlay:
 
     def hide(self):
         self.container.style.display = 'none'
+        ui_operations.focus_iframe()
 
     def show(self):
         c = self.container
         c.style.display = TOP_LEVEL_DISPLAY
 
     def on_iframe_ready(self, msg):
-        return self.do_pending_load
+        return self.do_pending_load()
 
     def apply_color_scheme(self, bg, fg):
         c = self.container.firstChild
@@ -106,7 +114,7 @@ class ContentPopupOverlay:
         def cb(resource_data):
             self.loaded_resources = resource_data
             done_callback(resource_data)
-        load_resources(self.view.ui.db, self.view.book, name, self.loaded_resources, cb)
+        load_resources(self.view.book, name, self.loaded_resources, cb)
 
     def show_footnote(self, data):
         self.current_footnote_data = data
@@ -135,7 +143,7 @@ class ContentPopupOverlay:
     def show_footnote_item_stage2(self, resource_data):
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.view.book, name=self.current_footnote_data.name,
-            frag=self.current_footnote_data.frag, settings=self.view.iframe_settings())
+            frag=self.current_footnote_data.frag, settings=self.view.currently_showing.settings)
 
     def on_content_loaded(self, data):
         self.iframe.style.height = f'{data.height}px'

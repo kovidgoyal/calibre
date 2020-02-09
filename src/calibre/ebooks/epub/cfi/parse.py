@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -194,13 +193,50 @@ def cfi_sort_key(cfi, only_path=True):
     except Exception:
         import traceback
         traceback.print_exc()
-        return ()
+        return (), (0, (0, 0), 0)
     if not pcfi:
         import sys
-        print ('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
-        return ()
+        print('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
+        return (), (0, (0, 0), 0)
     steps = get_steps(pcfi)
     step_nums = tuple(s.get('num', 0) for s in steps)
     step = steps[-1] if steps else {}
     offsets = (step.get('temporal_offset', 0), tuple(reversed(step.get('spatial_offset', (0, 0)))), step.get('text_offset', 0), )
-    return (step_nums, offsets)
+    return step_nums, offsets
+
+
+def decode_cfi(root, cfi):
+    from lxml.etree import XPathEvalError
+    p = parser()
+    try:
+        pcfi = p.parse_path(cfi)[0]
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return
+    if not pcfi:
+        import sys
+        print('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
+        return
+    steps = get_steps(pcfi)
+    ans = root
+    for step in steps:
+        num = step.get('num', 0)
+        node_id = step.get('id')
+        try:
+            match = ans.xpath('descendant::*[@id="%s"]' % node_id)
+        except XPathEvalError:
+            match = ()
+        if match:
+            ans = match[0]
+            continue
+        index = 0
+        for child in ans.iterchildren('*'):
+            index |= 1  # increment index by 1 if it is even
+            index += 1
+            if index == num:
+                ans = child
+                break
+        else:
+            return
+    return ans

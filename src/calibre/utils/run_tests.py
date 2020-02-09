@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import unittest, functools, os, importlib, zipfile
 from calibre.utils.monotonic import monotonic
 
@@ -111,6 +110,14 @@ def filter_tests_by_name(suite, *names):
 
     def q(test):
         return test._testMethodName in names
+    return filter_tests(suite, q)
+
+
+def remove_tests_by_name(suite, *names):
+    names = {x if x.startswith('test_') else 'test_' + x for x in names}
+
+    def q(test):
+        return test._testMethodName not in names
     return filter_tests(suite, q)
 
 

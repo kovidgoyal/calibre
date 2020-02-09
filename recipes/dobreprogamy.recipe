@@ -19,7 +19,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_attrs = ['style', 'width', 'height']
     preprocess_regexps = [(re.compile(
-        unicode(r'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>')), lambda match: '')]
+        type(u'')(r'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>')), lambda match: '')]
     keep_only_tags = [dict(name='h1'), dict(
         attrs={'class': ['entry single']}), dict(id='phContent_divArticle')]
     remove_tags = [dict(attrs={'class': ['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master', 'social nested-grid  grid-margin-px15-top clearfix no-mobile', 'page-info text-h4 font-heading grid-margin-px15-top color-annotation clearfix', 'series grid-margin-px30-top']}), dict(id='komentarze'), dict(id='phContent_ctl02_sBreadcrumb'), dict(name='iframe')]  # noqa
@@ -28,8 +28,8 @@ class Dobreprogramy_pl(BasicNewsRecipe):
              ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+        for a in soup('a', href=True):
+            if 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href'] = self.index + a['href']
         for r in soup.findAll('iframe'):
             r.parent.extract()

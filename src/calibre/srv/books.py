@@ -2,23 +2,27 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from hashlib import sha1
-from functools import partial
-from threading import RLock, Lock
-from cPickle import dumps
-from zipfile import ZipFile
-import errno, os, tempfile, shutil, time, json as jsonlib
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from lzma.xz import decompress
+import errno
+import json as jsonlib
+import os
+import tempfile
+import time
+from functools import partial
+from hashlib import sha1
+from threading import Lock, RLock
+
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
-from calibre.srv.errors import HTTPNotFound, BookNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_library_data, get_db
+from calibre.srv.utils import get_db, get_library_data
+from calibre.utils.filenames import rmtree
+from calibre.utils.serialize import json_dumps
+from polyglot.builtins import as_unicode, map
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -51,8 +55,8 @@ def books_cache_dir():
 
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
-    raw = dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
-    return sha1(raw).hexdigest().decode('ascii')
+    raw = json_dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
+    return as_unicode(sha1(raw).hexdigest())
 
 
 staging_cleaned = False
@@ -62,7 +66,7 @@ def safe_remove(x, is_file=None):
     if is_file is None:
         is_file = os.path.isfile(x)
     try:
-        os.remove(x) if is_file else shutil.rmtree(x, ignore_errors=True)
+        os.remove(x) if is_file else rmtree(x, ignore_errors=True)
     except EnvironmentError:
         pass
 
@@ -133,7 +137,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
     with db.safe_read_lock:
-        fm = db.format_metadata(book_id, fmt)
+        fm = db.format_metadata(book_id, fmt, allow_cache=False)
         if not fm:
             raise HTTPNotFound('No %s format for the book (id:%s) in the library: %s' % (fmt, book_id, library_id))
         size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
@@ -227,38 +231,26 @@ mathjax_lock = Lock()
 mathjax_manifest = None
 
 
-def get_mathjax_manifest(tdir=None):
+def manifest_as_json():
+    return P('mathjax/manifest.json', data=True, allow_user_override=False)
+
+
+def get_mathjax_manifest():
     global mathjax_manifest
     with mathjax_lock:
         if mathjax_manifest is None:
-            mathjax_manifest = {}
-            f = decompress(P('content-server/mathjax.zip.xz', data=True, allow_user_override=False))
-            f.seek(0)
-            tdir = os.path.join(tdir, 'mathjax')
-            os.mkdir(tdir)
-            zf = ZipFile(f)
-            zf.extractall(tdir)
-            mathjax_manifest['etag'] = type('')(zf.comment)
-            mathjax_manifest['files'] = {type('')(zi.filename):zi.file_size for zi in zf.infolist()}
-            zf.close(), f.close()
-        return mathjax_manifest
-
-
-def manifest_as_json():
-    ans = jsonlib.dumps(get_mathjax_manifest(), ensure_ascii=False)
-    if not isinstance(ans, bytes):
-        ans = ans.encode('utf-8')
-    return ans
+            mathjax_manifest = jsonlib.loads(manifest_as_json())
+    return mathjax_manifest
 
 
 @endpoint('/mathjax/{+which=""}', auth_required=False)
 def mathjax(ctx, rd, which):
-    manifest = get_mathjax_manifest(rd.tdir)
+    manifest = get_mathjax_manifest()
     if not which:
         return rd.etagged_dynamic_response(manifest['etag'], manifest_as_json, content_type='application/json; charset=UTF-8')
     if which not in manifest['files']:
         raise HTTPNotFound('No MathJax file named: %s' % which)
-    path = os.path.abspath(os.path.join(rd.tdir, 'mathjax', which))
-    if not path.startswith(rd.tdir):
+    path = os.path.abspath(P('mathjax/' + which, allow_user_override=False))
+    if not path.startswith(P('mathjax', allow_user_override=False)):
         raise HTTPNotFound('No MathJax file named: %s' % which)
     return rd.filesystem_file_with_constant_etag(lopen(path, 'rb'), manifest['etag'])

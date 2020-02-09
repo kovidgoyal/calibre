@@ -10,10 +10,15 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
+from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__, ispy3
 isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
+
+
+def init_symbol_name(name):
+    prefix = 'PyInit_' if ispy3 else 'init'
+    return prefix + name
 
 
 def absolutize(paths):
@@ -39,7 +44,7 @@ class Extension(object):
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
         else:
-            return_type = 'PyObject*' if sys.version_info >= (3,) else 'void'
+            return_type = 'PyObject*' if ispy3 else 'void'
             extern_decl = 'extern "C"' if self.needs_cxx else ''
 
             self.cflags.append(
@@ -48,6 +53,8 @@ class Extension(object):
 
             if not self.needs_cxx and kwargs.get('needs_c99'):
                 self.cflags.insert(0, '-std=c99')
+            if self.needs_cxx and kwargs.get('needs_c++11'):
+                self.cflags.insert(0, '-std=c++11')
 
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
@@ -83,7 +90,7 @@ def expand_file_list(items, is_paths=True):
             ans.extend(expand_file_list(item, is_paths=is_paths))
         else:
             if '*' in item:
-                ans.extend(expand_file_list(glob.glob(os.path.join(SRC, item)), is_paths=is_paths))
+                ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths))
             else:
                 item = [item]
                 if is_paths:
@@ -201,7 +208,8 @@ def init_env():
         for p in win_inc:
             cflags.append('-I'+p)
         for p in win_lib:
-            ldflags.append('/LIBPATH:'+p)
+            if p:
+                ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
         linker = msvc.linker
@@ -212,8 +220,12 @@ def init_env():
 class Build(Command):
 
     short_description = 'Build calibre C/C++ extension modules'
-    DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
-    DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
+    if ispy3:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins', '3'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build', '3'))
+    else:
+        DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
+        DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
@@ -263,7 +275,7 @@ class Build(Command):
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
-            if ext.needs_py2 and sys.version_info >= (3,):
+            if ext.needs_py2 and ispy3:
                 continue
             if ext.error:
                 if ext.optional:
@@ -288,7 +300,7 @@ class Build(Command):
 
     def lib_dirs_to_ldflags(self, dirs):
         pref = '/LIBPATH:' if iswindows else '-L'
-        return [pref+x for x in dirs]
+        return [pref+x for x in dirs if x]
 
     def libraries_to_ldflags(self, dirs):
         pref = '' if iswindows else '-l'
@@ -329,8 +341,12 @@ class Build(Command):
             self.info('Linking', ext.name)
             cmd = [linker]
             if iswindows:
-                cmd += self.env.ldflags + ext.ldflags + elib + xlib + \
-                    ['/EXPORT:init'+ext.name] + objects + ext.extra_objs + ['/OUT:'+dest]
+                pre_ld_flags = []
+                if ext.name in ('icu', 'matcher'):
+                    # windows has its own ICU libs that dont work
+                    pre_ld_flags = elib
+                cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
+                    ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
             self.info('\n\n', ' '.join(cmd), '\n\n')
@@ -359,7 +375,7 @@ class Build(Command):
         from setup.parallel_build import cpu_count
         if iswindows or ishaiku:
             return  # Dont have headless operation on these platforms
-        from setup.build_environment import glib_flags, fontconfig_flags, ft_inc_dirs, QMAKE
+        from setup.build_environment import ft_inc_dirs, QMAKE
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = absolutize
         headers = a([
@@ -380,13 +396,6 @@ class Build(Command):
         target = self.dest('headless')
         if not self.newer(target, headers + sources + others):
             return
-        # Arch and possibly other distros (fedora?) monkey patches qmake as a
-        # result of which it fails to add glib-2.0 and freetype2 to the list of
-        # library dependencies. Compiling QPA plugins uses the static
-        # libQt5PlatformSupport.a which needs glib to be specified after it for
-        # linking to succeed, so we add it to QMAKE_LIBS_PRIVATE (we cannot use
-        # LIBS as that would put -lglib-2.0 before libQt5PlatformSupport. See
-        # https://bugs.archlinux.org/task/38819
 
         pro = textwrap.dedent(
         '''\
@@ -394,24 +403,18 @@ class Build(Command):
             PLUGIN_TYPE = platforms
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
             QT += core-private gui-private
-            greaterThan(QT_MAJOR_VERSION, 5)|greaterThan(QT_MINOR_VERSION, 7): {{
-                TEMPLATE = lib
-                CONFIG += plugin
-                QT += theme_support-private fontdatabase_support_private service_support_private eventdispatcher_support_private
-            }} else {{
-                load(qt_plugin)
-                QT += platformsupport-private
-            }}
+            TEMPLATE = lib
+            CONFIG += plugin
+            QT += fontdatabase_support_private service_support_private eventdispatcher_support_private
             HEADERS = {headers}
             SOURCES = {sources}
             OTHER_FILES = {others}
             INCLUDEPATH += {freetype}
             DESTDIR = {destdir}
             CONFIG -= create_cmake  # Prevent qmake from generating a cmake build file which it puts in the calibre src directory
-            QMAKE_LIBS_PRIVATE += {glib} {fontconfig}
             ''').format(
                 headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(
-                    target), glib=glib_flags, fontconfig=fontconfig_flags, freetype=' '.join(ft_inc_dirs))
+                    target), freetype=' '.join(ft_inc_dirs))
         bdir = self.j(self.build_dir, 'headless')
         if not os.path.exists(bdir):
             os.makedirs(bdir)
@@ -440,7 +443,8 @@ class Build(Command):
             self.info(' '.join(cmd))
             self.check_call(cmd)
             self.info('')
-        raw = open(sbf, 'rb').read().decode('utf-8')
+        with open(sbf, 'rb') as f:
+            raw = f.read().decode('utf-8')
 
         def read(x):
             ans = re.search(r'^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
@@ -486,14 +490,14 @@ class Build(Command):
             # Ensure that only the init symbol is exported
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
-                f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+                f.write(('{ global: %s; local: *; };' % init_symbol_name(sip['target'])).encode('utf-8'))
         if ext.qt_private_headers:
             qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
             pro += '\nQT += ' + qph
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]

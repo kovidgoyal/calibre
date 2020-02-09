@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -6,10 +6,10 @@ Provides platform independent temporary files that persist even after
 being closed.
 """
 import tempfile, os, atexit
-from polyglot.builtins import map
+from polyglot.builtins import map, getenv
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
+        iswindows, get_windows_temp_path, isosx, ispy3)
 
 
 def cleanup(path):
@@ -59,20 +59,6 @@ def app_prefix(prefix):
     return '%s_%s_%s'%(__appname__, __version__, prefix)
 
 
-def reset_temp_folder_permissions():
-    # There are some broken windows installs where the permissions for the temp
-    # folder are set to not be executable, which means chdir() into temp
-    # folders fails. Try to fix that by resetting the permissions on the temp
-    # folder.
-    global _base_dir
-    if iswindows and _base_dir:
-        import subprocess
-        from calibre import prints
-        parent = os.path.dirname(_base_dir)
-        retcode = subprocess.Popen(['icacls.exe', parent, '/reset', '/Q', '/T']).wait()
-        prints('Trying to reset permissions of temp folder', parent, 'return code:', retcode)
-
-
 _osx_cache_dir = None
 
 
@@ -88,7 +74,7 @@ def osx_cache_dir():
         l = libc.confstr(65538, ctypes.byref(buf), len(buf))  # _CS_DARWIN_USER_CACHE_DIR = 65538
         if 0 < l < len(buf):
             try:
-                q = buf.value.decode('utf-8').rstrip(u'\0')
+                q = buf.value.decode('utf-8').rstrip('\0')
             except ValueError:
                 pass
             if q and os.path.isdir(q) and os.access(q, os.R_OK | os.W_OK | os.X_OK):
@@ -105,18 +91,19 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
-            import cPickle, binascii
+            from calibre.utils.serialize import msgpack_loads
+            from polyglot.binary import from_hex_bytes
             try:
-                td = cPickle.loads(binascii.unhexlify(td))
-            except:
+                td = msgpack_loads(from_hex_bytes(td))
+            except Exception:
                 td = None
         if td and os.path.exists(td):
             _base_dir = td
         else:
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
             if base is not None and iswindows:
-                base = get_unicode_windows_env_var('CALIBRE_TEMP_DIR')
-            prefix = app_prefix(u'tmp_')
+                base = getenv('CALIBRE_TEMP_DIR')
+            prefix = app_prefix('tmp_')
             if base is None:
                 if iswindows:
                     # On windows, if the TMP env var points to a path that
@@ -161,12 +148,12 @@ def force_unicode(x):
 
 
 def _make_file(suffix, prefix, base):
-    suffix, prefix = map(force_unicode, (suffix, prefix))
+    suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkstemp(suffix, prefix, dir=base)
 
 
 def _make_dir(suffix, prefix, base):
-    suffix, prefix = map(force_unicode, (suffix, prefix))
+    suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkdtemp(suffix, prefix, base)
 
 
@@ -278,9 +265,23 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
             suffix = ''
         if dir is None:
             dir = base_dir()
-        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
-                suffix=suffix, prefix=prefix, dir=dir, mode=mode,
-                bufsize=bufsize)
+        if ispy3:
+            self._name = None
+            tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
+                    suffix=suffix, prefix=prefix, dir=dir, mode=mode)
+        else:
+            tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
+                    suffix=suffix, prefix=prefix, dir=dir, mode=mode,
+                    bufsize=bufsize)
+
+    if ispy3:
+        @property
+        def name(self):
+            return self._name
+
+        @name.setter
+        def name(self, val):
+            self._name = val
 
     def truncate(self, *args):
         # The stdlib SpooledTemporaryFile implementation of truncate() doesn't

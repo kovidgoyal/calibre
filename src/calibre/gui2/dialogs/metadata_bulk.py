@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re
+import re, numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import (
     QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar,
-    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal, QApplication
 )
 
 from calibre import prints
@@ -28,10 +28,13 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
+from polyglot.builtins import (
+    error_message, filter, iteritems, itervalues, native_string_type, unicode_type
+)
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -170,7 +173,7 @@ class MyBlockingBusy(QDialog):  # {{{
         except Exception as err:
             import traceback
             try:
-                err = unicode(err)
+                err = unicode_type(err)
             except:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
@@ -185,7 +188,7 @@ class MyBlockingBusy(QDialog):  # {{{
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
-                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                paths = list(filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts]))
                 if paths:
                     ret = worker(
                         'calibre.ebooks.metadata.worker', 'read_metadata_bulk',
@@ -240,8 +243,8 @@ class MyBlockingBusy(QDialog):  # {{{
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
-            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
-            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            new_title_map = {bid:new_title(authors) for bid, authors in iteritems(authors_map)}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in iteritems(title_map)}
             self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
@@ -251,7 +254,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_title_case and not args.do_swap_ta:
             self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.iteritems()})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in iteritems(title_map)})
             self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
@@ -391,7 +394,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + (i * args.series_increment)
-                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    next_num = _get_next_series_num_for_list(sorted(itervalues(sval)), unwrap=False)
                     sval[bid] = next_num
                     return next_num
 
@@ -442,7 +445,7 @@ class MyBlockingBusy(QDialog):  # {{{
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
                 self.progress_update.emit(0)
-                for field, book_id_val_map in self.sr_calls.iteritems():
+                for field, book_id_val_map in iteritems(self.sr_calls):
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
                 self.progress_finished_cur_step.emit()
@@ -478,7 +481,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
         self.first_title = self.db.title(self.ids[0], index_is_id=True)
-        self.cover_clone.setToolTip(unicode(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
+        self.cover_clone.setToolTip(unicode_type(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
                 len(rows))
@@ -503,6 +506,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.pubdate_cw = CalendarWidget(self.pubdate)
         self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format == 'iso':
+            pubdate_format = internal_iso_format_string()
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
@@ -513,6 +518,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.adddate_cw = CalendarWidget(self.adddate)
         self.adddate.setCalendarWidget(self.adddate_cw)
         adddate_format = tweaks['gui_timestamp_display_format']
+        if adddate_format == 'iso':
+            adddate_format = internal_iso_format_string()
         if adddate_format is not None:
             self.adddate.setDisplayFormat(adddate_format)
         self.adddate.setSpecialValueText(_('Undefined'))
@@ -545,7 +552,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.central_widget.setCurrentIndex(tab)
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         else:
             self.resize(self.sizeHint())
         ct = gprefs.get('bulk_metadata_window_tab', 0)
@@ -577,8 +584,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.comments = d.textbox.html
             b = self.comments_button
             b.setStyleSheet('QPushButton { font-weight: bold }')
-            if unicode(b.text())[-1] != '*':
-                b.setText(unicode(b.text()) + ' *')
+            if unicode_type(b.text())[-1] != '*':
+                b.setText(unicode_type(b.text()) + ' *')
 
     def save_refresh_booklist(self, *args):
         gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
@@ -710,10 +717,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
-        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_func.currentIndexChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
@@ -738,9 +745,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.queries = JSONConfig("search_replace_queries")
         self.saved_search_name = ''
         self.query_field.addItem("")
-        self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+        self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
-        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
+        self.query_field.currentIndexChanged[native_string_type].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
         self.s_r_search_field_changed(0)
@@ -748,18 +755,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_sf_itemdata(self, idx):
         if idx is None:
             idx = self.search_field.currentIndex()
-        return unicode(self.search_field.itemData(idx) or '')
+        return unicode_type(self.search_field.itemData(idx) or '')
 
     def s_r_df_itemdata(self, idx):
         if idx is None:
             idx = self.destination_field.currentIndex()
-        return unicode(self.destination_field.itemData(idx) or '')
+        return unicode_type(self.destination_field.itemData(idx) or '')
 
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
                 v = SafeFormat().safe_format(
-                    unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                    unicode_type(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
@@ -768,15 +775,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 val = mi.format_field(field)[1]
             else:
                 val = mi.get(field, None)
-            if isinstance(val, (int, float, bool)):
-                val = str(val)
+            if isinstance(val, (numbers.Number, bool)):
+                val = unicode_type(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list
-                id_type = unicode(self.s_r_src_ident.currentText())
+                id_type = unicode_type(self.s_r_src_ident.currentText())
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
+                    val = ['%s:%s'%(t[0], t[1]) for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -821,7 +828,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if len(t) > 1:
                 t = t[self.starting_from.value()-1:
                       self.starting_from.value()-1 + self.results_count.value()]
-            w.setText(unicode(self.multiple_separator.text()).join(t))
+            w.setText(unicode_type(self.multiple_separator.text()).join(t))
 
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
@@ -879,18 +886,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
-            col = 'rgb(255, 0, 0, 20%)'
-            self.test_result.setText(self.s_r_error.message)
-        else:
-            col = 'rgb(0, 255, 0, 20%)'
-        self.test_result.setStyleSheet('QLineEdit { color: black; '
-                                       'background-color: %s; }'%col)
+            self.test_result.setText(error_message(self.s_r_error))
+        self.test_result.setStyleSheet(
+                QApplication.instance().stylesheet_for_line_edit(self.s_r_error is not None))
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
     def s_r_func(self, match):
-        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
-        rtext = unicode(self.replace_with.text())
+        rfunc = self.s_r_functions[unicode_type(self.replace_func.currentText())]
+        rtext = unicode_type(self.replace_with.text())
         rtext = match.expand(rtext)
         return rfunc(rtext)
 
@@ -898,7 +902,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         src_field = self.s_r_sf_itemdata(None)
         src = self.s_r_get_field(mi, src_field)
         result = []
-        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
+        rfunc = self.s_r_functions[unicode_type(self.replace_func.currentText())]
         for s in src:
             t = self.s_r_obj.sub(self.s_r_func, s)
             if self.search_mode.currentIndex() == 0:
@@ -932,7 +936,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dest_mode = self.replace_mode.currentIndex()
 
         if self.destination_field_fm['is_csp']:
-            dest_ident = unicode(self.s_r_dst_ident.text())
+            dest_ident = unicode_type(self.s_r_dst_ident.text())
             if not dest_ident or (src == 'identifiers' and dest_ident == '*'):
                 raise Exception(_('You must specify a destination identifier type'))
 
@@ -949,12 +953,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
             if self.db.metadata_for_field(dest)['is_csp']:
-                dst_id_type = unicode(self.s_r_dst_ident.text())
+                dst_id_type = unicode_type(self.s_r_dst_ident.text())
                 if dst_id_type:
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
+                    dest_val = ['%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -985,7 +989,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         flags |= re.UNICODE
 
         try:
-            stext = unicode(self.search_for.text())
+            stext = unicode_type(self.search_for.text())
             if not stext:
                 raise Exception(_('You must specify a search expression in the "Search for" field'))
             if self.search_mode.currentIndex() == 0:
@@ -1000,7 +1004,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         try:
             self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
-                                     unicode(self.test_text.text())))
+                                     unicode_type(self.test_text.text())))
         except Exception as e:
             self.s_r_error = e
             self.s_r_set_colors()
@@ -1015,7 +1019,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if len(t) > 1 and self.destination_field_fm['is_multiple']:
                     t = t[self.starting_from.value()-1:
                           self.starting_from.value()-1 + self.results_count.value()]
-                    t = unicode(self.multiple_separator.text()).join(t)
+                    t = unicode_type(self.multiple_separator.text()).join(t)
                 else:
                     t = self.s_r_replace_mode_separator().join(t)
                 wr.setText(t)
@@ -1039,7 +1043,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if dfm['is_csp']:
                 # convert the colon-separated pair strings back into a dict,
                 # which is what set_identifiers wants
-                dst_id_type = unicode(self.s_r_dst_ident.text())
+                dst_id_type = unicode_type(self.s_r_dst_ident.text())
                 if dst_id_type and dst_id_type != '*':
                     v = ''.join(val)
                     ids = mi.get(dest)
@@ -1150,7 +1154,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
-                    _('Search/replace is invalid: %s')%self.s_r_error.message,
+                    _('Search/replace is invalid: %s')%error_message(self.s_r_error),
                     show=True)
             return False
         self.changed = bool(self.ids)
@@ -1162,19 +1166,19 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         remove_all = self.remove_all_tags.isChecked()
         remove = []
         if not remove_all:
-            remove = unicode(self.remove_tags.text()).strip().split(',')
-        add = unicode(self.tags.text()).strip().split(',')
-        au = unicode(self.authors.text())
-        aus = unicode(self.author_sort.text())
+            remove = unicode_type(self.remove_tags.text()).strip().split(',')
+        add = unicode_type(self.tags.text()).strip().split(',')
+        au = unicode_type(self.authors.text())
+        aus = unicode_type(self.author_sort.text())
         do_aus = self.author_sort.isEnabled()
         rating = self.rating.rating_value
         if not self.apply_rating.isChecked():
             rating = -1
-        pub = unicode(self.publisher.text())
+        pub = unicode_type(self.publisher.text())
         do_series = self.write_series
         clear_series = self.clear_series.isChecked()
         clear_pub = self.clear_pub.isChecked()
-        series = unicode(self.series.currentText()).strip()
+        series = unicode_type(self.series.currentText()).strip()
         do_autonumber = self.autonumber_series.isChecked()
         do_series_restart = self.series_numbering_restarts.isChecked()
         series_start_value = self.series_start_number.value()
@@ -1244,7 +1248,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         return QDialog.accept(self)
 
     def series_changed(self, *args):
-        self.write_series = bool(unicode(self.series.currentText()).strip())
+        self.write_series = bool(unicode_type(self.series.currentText()).strip())
         self.autonumber_series.setEnabled(True)
 
     def s_r_remove_query(self, *args):
@@ -1257,14 +1261,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
 
         item_id = self.query_field.currentIndex()
-        item_name = unicode(self.query_field.currentText())
+        item_name = unicode_type(self.query_field.currentText())
 
         self.query_field.blockSignals(True)
         self.query_field.removeItem(item_id)
         self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(0)
 
-        if item_name in self.queries.keys():
+        if item_name in list(self.queries.keys()):
             del(self.queries[item_name])
             self.queries.commit()
 
@@ -1285,8 +1289,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 error_dialog(self, _("Save search/replace"),
                         _("You must provide a name."), show=True)
         new = True
-        name = unicode(name)
-        if name in self.queries.keys():
+        name = unicode_type(name)
+        if name in list(self.queries.keys()):
             if not question_dialog(self, _("Save search/replace"),
                     _("That saved search/replace already exists and will be overwritten. "
                         "Are you sure?")):
@@ -1295,21 +1299,21 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         query = {}
         query['name'] = name
-        query['search_field'] = unicode(self.search_field.currentText())
-        query['search_mode'] = unicode(self.search_mode.currentText())
-        query['s_r_template'] = unicode(self.s_r_template.text())
-        query['s_r_src_ident'] = unicode(self.s_r_src_ident.currentText())
-        query['search_for'] = unicode(self.search_for.text())
+        query['search_field'] = unicode_type(self.search_field.currentText())
+        query['search_mode'] = unicode_type(self.search_mode.currentText())
+        query['s_r_template'] = unicode_type(self.s_r_template.text())
+        query['s_r_src_ident'] = unicode_type(self.s_r_src_ident.currentText())
+        query['search_for'] = unicode_type(self.search_for.text())
         query['case_sensitive'] = self.case_sensitive.isChecked()
-        query['replace_with'] = unicode(self.replace_with.text())
-        query['replace_func'] = unicode(self.replace_func.currentText())
-        query['destination_field'] = unicode(self.destination_field.currentText())
-        query['s_r_dst_ident'] = unicode(self.s_r_dst_ident.text())
-        query['replace_mode'] = unicode(self.replace_mode.currentText())
+        query['replace_with'] = unicode_type(self.replace_with.text())
+        query['replace_func'] = unicode_type(self.replace_func.currentText())
+        query['destination_field'] = unicode_type(self.destination_field.currentText())
+        query['s_r_dst_ident'] = unicode_type(self.s_r_dst_ident.text())
+        query['replace_mode'] = unicode_type(self.replace_mode.currentText())
         query['comma_separated'] = self.comma_separated.isChecked()
         query['results_count'] = self.results_count.value()
         query['starting_from'] = self.starting_from.value()
-        query['multiple_separator'] = unicode(self.multiple_separator.text())
+        query['multiple_separator'] = unicode_type(self.multiple_separator.text())
 
         self.queries[name] = query
         self.queries.commit()
@@ -1318,7 +1322,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(True)
             self.query_field.clear()
             self.query_field.addItem('')
-            self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+            self.query_field_values = sorted(self.queries, key=sort_key)
             self.query_field.addItems(self.query_field_values)
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))
@@ -1328,7 +1332,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_reset_query_fields()
             self.saved_search_name = ''
             return
-        item = self.queries.get(unicode(item_name), None)
+        item = self.queries.get(unicode_type(item_name), None)
         if item is None:
             self.s_r_reset_query_fields()
             return

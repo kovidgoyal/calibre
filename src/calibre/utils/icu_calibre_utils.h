@@ -31,8 +31,6 @@
 #define IS_HIGH_SURROGATE(x) (0xd800 <= x && x <= 0xdbff)
 #define IS_LOW_SURROGATE(x) (0xdc00 <= x && x <= 0xdfff)
 
-// Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
-
 #ifndef NO_PYTHON_TO_ICU
 static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
     UChar *ans = NULL;
@@ -136,19 +134,18 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
 
 
     switch(PyUnicode_KIND(obj)) {
-    case PyUnicode_1BYTE_KIND:
-        ans = (UChar*) malloc((sz+1) * sizeof(UChar));
-        if (ans == NULL) {
-            PyErr_NoMemory();
-            return NULL;
-        }
-        u_strFromUTF8(
-            ans, sz + 1,
-            (int32_t*) osz,
-            (char*) PyUnicode_1BYTE_DATA(obj),
-            (int32_t) sz,
-            &status);
+    case PyUnicode_1BYTE_KIND: {
+        Py_ssize_t data_sz;
+        const char *utf8_data = PyUnicode_AsUTF8AndSize(obj, &data_sz);
+        if (!utf8_data) return NULL;
+        size_t buf_sz = (sz > data_sz ? sz : data_sz) + 1;
+        ans = (UChar*) malloc(buf_sz * sizeof(UChar));
+        if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+        u_strFromUTF8Lenient(ans, buf_sz, (int32_t*) osz, utf8_data, (int32_t)data_sz, &status);
+        // add null terminator
+        ans[buf_sz-1] = 0;
         break;
+    }
     case PyUnicode_2BYTE_KIND:
         ans = (UChar*) malloc((sz+1) * sizeof(UChar));
         data = PyUnicode_2BYTE_DATA(obj);
@@ -198,14 +195,14 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
 
     if (!PyUnicode_CheckExact(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not a unicode string");
-        goto end;
+        return NULL;
     }
     if(PyUnicode_READY(obj) == -1) {
         return NULL;
     }
     sz = PyUnicode_GET_LENGTH(obj);
     ans = (UChar32*) malloc((sz+1) * sizeof(UChar32));
-    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    if (ans == NULL) { PyErr_NoMemory(); return NULL; }
 	int kind;
 	if ((kind = PyUnicode_KIND(obj)) == PyUnicode_4BYTE_KIND) {
 		memcpy(ans, PyUnicode_4BYTE_DATA(obj), sz * 4);
@@ -226,7 +223,7 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
 
 #ifndef NO_ICU_TO_PYTHON
 static PyObject* icu_to_python(UChar *src, int32_t sz) {
-    return PyUnicode_DecodeUTF16((char*) src, sz, NULL, NULL);
+    return PyUnicode_DecodeUTF16((char*) src, sz * sizeof(UChar), "replace", NULL);
 }
 #endif
 

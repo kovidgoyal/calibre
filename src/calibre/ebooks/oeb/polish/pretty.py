@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, map
 
 # from lxml.etree import Element
 
@@ -92,11 +91,11 @@ def pretty_opf(root):
 
 SVG_TAG = SVG('svg')
 BLOCK_TAGS = frozenset(map(XHTML, (
-    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'dd',
+    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'col', 'colgroup', 'dd',
     'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li',
     'noscript', 'ol', 'output', 'p', 'pre', 'script', 'section', 'style', 'table', 'tbody', 'td',
-    'tfoot', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
+    'tfoot', 'th', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
 
 
 def isblock(x):
@@ -224,7 +223,7 @@ def pretty_xml(container, name, raw):
 
 def fix_all_html(container):
     ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             container.parsed(name)
             container.dirty(name)
@@ -233,7 +232,7 @@ def fix_all_html(container):
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
     xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         prettied = False
         if mt in OEB_DOCS:
             pretty_html_tree(container, container.parsed(name))

@@ -5,40 +5,58 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from gettext import gettext as _
 
+from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
-from read_book.cfi import at_current, scroll_to as scroll_to_cfi
+from read_book.cfi import scroll_to as scroll_to_cfi
+from read_book.extract import get_elements
 from read_book.flow_mode import (
-    anchor_funcs as flow_anchor_funcs, flow_onkeydown, flow_onwheel,
-    flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
-    layout as flow_layout, scroll_by_page as flow_scroll_by_page
+    anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
+    flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
+    handle_shortcut as flow_handle_shortcut, layout as flow_layout,
+    scroll_by_page as flow_scroll_by_page
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
-    current_book, current_layout_mode, current_spine_item, set_boss,
+    current_book, current_layout_mode, current_spine_item, runtime, set_boss,
     set_current_spine_item, set_layout_mode
 )
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
-    anchor_funcs as paged_anchor_funcs, calc_columns_per_screen,
-    handle_gesture as paged_handle_gesture, jump_to_cfi as paged_jump_to_cfi,
-    layout as paged_layout, onkeydown as paged_onkeydown, onwheel as paged_onwheel,
-    progress_frac, reset_paged_mode_globals, scroll_by_page as paged_scroll_by_page,
-    scroll_to_elem, scroll_to_fraction as paged_scroll_to_fraction,
-    snap_to_selection
+    anchor_funcs as paged_anchor_funcs,
+    auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
+    current_cfi, handle_gesture as paged_handle_gesture,
+    handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
+    layout as paged_layout, onwheel as paged_onwheel,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac,
+    reset_paged_mode_globals, resize_done as paged_resize_done,
+    scroll_by_page as paged_scroll_by_page, scroll_to_elem,
+    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
+)
+from read_book.referencing import (
+    elem_for_ref, end_reference_mode, start_reference_mode
 )
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
-    update_settings
+    set_color_scheme_class, update_settings
+)
+from read_book.shortcuts import (
+    create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
 from read_book.toc import update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.viewport import scroll_viewport
-from utils import debounce, html_escape, is_ios
+from utils import (
+    apply_cloned_selection, clone_selection, debounce, html_escape, is_ios
+)
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
 ERS_SUPPORTED_FEATURES = {'dom-manipulation', 'layout-changes', 'touch-events', 'mouse-events', 'keyboard-events', 'spine-scripting'}
+
+
+def layout_style():
+    return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
 
 
 class EPUBReadingSystem:
@@ -53,7 +71,7 @@ class EPUBReadingSystem:
 
     @property
     def layoutStyle(self):
-        return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
+        return layout_style()
 
     def hasFeature(self, feature, version):
         return feature in ERS_SUPPORTED_FEATURES
@@ -70,40 +88,74 @@ class IframeBoss:
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
+        self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
-        self.encrypted_communications = False
         self.blob_url_map = {}
-        self.resource_urls = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
+        self.forward_keypresses = False
         set_boss(self)
         handlers = {
-            'initialize':self.initialize,
-            'display': self.display,
-            'scroll_to_anchor': self.on_scroll_to_anchor,
-            'next_screen': self.on_next_screen,
-            'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
-            'gesture_from_margin': self.gesture_from_margin,
+            'change_font_size': self.change_font_size,
+            'change_scroll_speed': self.change_scroll_speed,
+            'display': self.display,
             'find': self.find,
+            'gesture_from_margin': self.gesture_from_margin,
+            'get_current_cfi': self.get_current_cfi,
+            'initialize':self.initialize,
+            'modify_selection': self.modify_selection,
+            'next_screen': self.on_next_screen,
+            'scroll_to_anchor': self.on_scroll_to_anchor,
+            'scroll_to_frac': self.on_scroll_to_frac,
+            'scroll_to_ref': self.on_scroll_to_ref,
+            'set_reference_mode': self.set_reference_mode,
+            'toggle_autoscroll': self.toggle_autoscroll,
+            'wheel_from_margin': self.wheel_from_margin,
             'window_size': self.received_window_size,
+            'overlay_visibility_changed': self.on_overlay_visibility_changed,
+            'show_search_result': self.show_search_result,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
 
+    def on_overlay_visibility_changed(self, data):
+        if data.visible:
+            self.forward_keypresses = True
+            if self.auto_scroll_action:
+                self.auto_scroll_active_before_overlay = self.auto_scroll_action('is_active')
+                self.auto_scroll_action('stop')
+        else:
+            self.forward_keypresses = False
+            if self.auto_scroll_active_before_overlay:
+                self.auto_scroll_active_before_overlay = undefined
+                self.auto_scroll_action('start')
+
+    def modify_selection(self, data):
+        sel = window.getSelection()
+        sel.modify('extend', data.direction, data.granularity)
+
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
-        window.onerror = self.onerror
+        window.addEventListener('error', self.onerror)
         window.addEventListener('scroll', debounce(self.onscroll, 1000))
+        window.addEventListener('scroll', self.no_latency_onscroll)
         window.addEventListener('resize', debounce(self.onresize, 500))
-        window.addEventListener('wheel', self.onwheel)
-        window.addEventListener('keydown', self.onkeydown)
-        document.documentElement.addEventListener('contextmenu', self.oncontextmenu)
+        window.addEventListener('wheel', self.onwheel, {'passive': False})
+        window.addEventListener('keydown', self.onkeydown, {'passive': False})
+        document.documentElement.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
+        document.addEventListener('selectionchange', self.onselectionchange)
         self.color_scheme = data.color_scheme
         create_touch_handlers()
 
-    def onerror(self, msg, script_url, line_number, column_number, error_object):
+    def onerror(self, evt):
+        msg = evt.message
+        script_url = evt.filename
+        line_number = evt.lineno
+        column_number = evt.colno
+        error_object = evt.error
+        evt.stopPropagation(), evt.preventDefault()
         if error_object is None:
             # This happens for cross-domain errors (probably javascript injected
             # into the browser via extensions/ userscripts and the like). It also
@@ -111,15 +163,16 @@ class IframeBoss:
             # type of error
             console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
             return
-        is_internal_error = not self.resource_urls[script_url]
+        is_internal_error = script_url in ('about:srcdoc', 'userscript:viewer.js')
         if is_internal_error:  # dont report errors from scripts in the book itself
-            console.log(error_object)
+            console.log(f'{script_url}: {error_object}')
             try:
                 fname = script_url.rpartition('/')[-1] or script_url
                 msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
                 details = traceback.format_exception(error_object).join('') if error_object else ''
+                if details:
+                    console.log(details)
                 self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
-                return True
             except:
                 console.log('There was an error in the iframe unhandled exception handler')
         else:
@@ -130,6 +183,8 @@ class IframeBoss:
         self.content_ready = False
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.reference_mode_enabled = data.reference_mode_enabled
+        self.is_titlepage = data.is_titlepage
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
         reset_paged_mode_globals()
@@ -137,27 +192,44 @@ class IframeBoss:
         if current_layout_mode() is 'flow':
             self.do_layout = flow_layout
             self.handle_wheel = flow_onwheel
-            self.handle_keydown = flow_onkeydown
+            self.handle_navigation_shortcut = flow_handle_shortcut
             self._handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
             self.anchor_funcs = flow_anchor_funcs
+            self.auto_scroll_action = flow_auto_scroll_action
+            paged_auto_scroll_action('stop')
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
-            self.handle_keydown = paged_onkeydown
+            self.handle_navigation_shortcut = paged_handle_shortcut
             self.to_scroll_fraction = paged_scroll_to_fraction
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
             self.anchor_funcs = paged_anchor_funcs
+            self.auto_scroll_action = paged_auto_scroll_action
+            flow_auto_scroll_action('stop')
         update_settings(data.settings)
-        set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
+        self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
+        set_current_spine_item({
+            'name':data.name,
+            'is_first':index is 0,
+            'is_last':index is spine.length - 1,
+            'index': index,
+            'initial_position':data.initial_position
+        })
         self.last_cfi = None
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
-        self.resource_urls = unserialize_html(root_data, self.content_loaded)
+        unserialize_html(root_data, self.content_loaded, None, data.name)
+
+    def on_scroll_to_frac(self, data):
+        self.to_scroll_fraction(data.frac, False)
+
+    def toggle_autoscroll(self):
+        self.auto_scroll_action('toggle')
 
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
@@ -170,6 +242,9 @@ class IframeBoss:
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
 
+    def wheel_from_margin(self, data):
+        self.onwheel(data.evt)
+
     def report_human_scroll(self, scrolled_by_frac):
         self.send_message('human_scroll', scrolled_by_frac=scrolled_by_frac or None)
 
@@ -178,19 +253,23 @@ class IframeBoss:
         if frag:
             self.scroll_to_anchor(frag)
         else:
-            self.to_scroll_fraction(0.0)
+            self.to_scroll_fraction(0.0, False)
 
     def on_next_screen(self, data):
         backwards = data.backwards
         if current_layout_mode() is 'flow':
-            flow_scroll_by_page(backwards)
+            flow_scroll_by_page(-1 if backwards else 1)
         else:
-            paged_scroll_by_page(backwards, True)
+            paged_scroll_by_page(backwards, data.all_pages_on_screen)
 
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             apply_font_size()
+
+    def change_scroll_speed(self, data):
+        if data.lines_per_sec_auto?:
+            opts.lines_per_sec_auto = data.lines_per_sec_auto
 
     def change_stylesheet(self, data):
         opts.user_stylesheet = data.sheet or ''
@@ -200,38 +279,51 @@ class IframeBoss:
         if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
             opts.color_scheme = data.color_scheme
             apply_colors()
+            set_color_scheme_class()
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
-        # document.body.appendChild(
-        #     E.style()  # TODO: User style sheet
-        # )
+        if self.is_titlepage and not opts.cover_preserve_aspect_ratio:
+            document.body.classList.add('cover-fill')
+        document.body.classList.add(f'calibre-viewer-{layout_style()}')
+        set_color_scheme_class()
+        if self.reference_mode_enabled:
+            start_reference_mode()
         self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         apply_settings()
-        self.do_layout()
+        fix_fullscreen_svg_images()
+        self.do_layout(self.is_titlepage)
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
+        # window.setTimeout(self.content_loaded_stage2, 1000)
         self.content_loaded_stage2()
 
     def content_loaded_stage2(self):
         self.connect_links()
         self.content_ready = True
+        # this is the loading styles used to suppress scrollbars during load
+        # added in unserialize_html
+        document.head.removeChild(document.head.firstChild)
+
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
             self.replace_history_on_next_cfi_update = ipos.replace_history or False
             if ipos.type is 'frac':
-                self.to_scroll_fraction(ipos.frac)
+                self.to_scroll_fraction(ipos.frac, True)
             elif ipos.type is 'anchor':
                 self.scroll_to_anchor(ipos.anchor)
+            elif ipos.type is 'ref':
+                self.scroll_to_ref(ipos.refnum)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
+            elif ipos.type is 'search_result':
+                self.show_search_result(ipos, True)
             elif ipos.type is 'search':
                 self.find(ipos.search_data, True)
         spine = self.book.manifest.spine
         files = self.book.manifest.files
-        current_name = current_spine_item().name
-        spine_index = spine.indexOf(current_name)
+        spine_index = csi.index
         self.length_before = 0
         if spine_index > -1:
             for i in range(spine_index):
@@ -239,13 +331,14 @@ class IframeBoss:
                 if si:
                     self.length_before += files[si]?.length or 0
         self.onscroll()
-        self.send_message('content_loaded', progress_frac=self.get_progress_frac())
+        self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
+        self.auto_scroll_action('resume')
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
 
-
-    def calculate_progress_frac(self, current_name, spine_index):
+    def calculate_progress_frac(self):
+        current_name = current_spine_item().name
         files = self.book.manifest.files
         file_length = files[current_name]?.length or 0
         if self.length_before is None:
@@ -254,27 +347,38 @@ class IframeBoss:
         ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
         return ans
 
-    def get_progress_frac(self):
-        spine = self.book.manifest.spine
-        current_name = current_spine_item().name
-        index = spine.indexOf(current_name)
-        if index < 0:
-            return 0
-        return self.calculate_progress_frac(current_name, index)
-
-    def update_cfi(self):
-        cfi = at_current()
+    def get_current_cfi(self, data):
+        cfi = current_cfi()
+        selected_text = window.getSelection().toString()
         if cfi:
-            spine = self.book.manifest.spine
-            current_name = current_spine_item().name
-            index = spine.indexOf(current_name)
+            index = current_spine_item().index
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
-                if cfi != self.last_cfi:
+                self.send_message(
+                    'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(),
+                    file_progress_frac=progress_frac(), request_id=data.request_id, selected_text=selected_text)
+                return
+        self.send_message(
+            'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, selected_text=selected_text, request_id=data.request_id)
+
+    def update_cfi(self):
+        cfi = current_cfi()
+        if cfi:
+            index = current_spine_item().index
+            if index > -1:
+                cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                pf = self.calculate_progress_frac()
+                fpf = progress_frac()
+                if cfi is not self.last_cfi:
                     self.last_cfi = cfi
-                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                                      progress_frac=self.calculate_progress_frac(current_name, index), file_progress_frac=progress_frac())
+                    selected_text = window.getSelection().toString()
+                    self.send_message(
+                        'update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
+                        progress_frac=pf, file_progress_frac=fpf, selected_text=selected_text)
                     self.replace_history_on_next_cfi_update = True
+                else:
+                    self.send_message(
+                        'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
 
     def update_toc_position(self):
         visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
@@ -285,6 +389,12 @@ class IframeBoss:
             self.update_cfi()
             self.update_toc_position()
 
+    def no_latency_onscroll(self):
+        pf = self.calculate_progress_frac()
+        fpf = progress_frac()
+        self.send_message(
+            'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
+
     def onresize(self):
         self.send_message('request_size')
         if self.content_ready:
@@ -294,17 +404,24 @@ class IframeBoss:
                 return
             self.onresize_stage2()
 
+    def onselectionchange(self):
+        if self.content_ready:
+            self.send_message('selectionchange', text=document.getSelection().toString())
+
     def onresize_stage2(self):
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
             # Safari at least, generates lots of spurious resize events
             return
-        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if current_layout_mode() is not 'flow':
-            self.do_layout()
+            paged_prepare_for_resize(self.last_window_width, self.last_window_height)
+            self.do_layout(self.is_titlepage)
+        self.last_window_width, self.last_window_height = scroll_viewport.width(), scroll_viewport.height()
         if self.last_cfi:
             cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
             if cfi:
                 paged_jump_to_cfi('/' + cfi)
+        if current_layout_mode() is not 'flow':
+            paged_resize_done()
         self.update_cfi()
         self.update_toc_position()
 
@@ -315,17 +432,33 @@ class IframeBoss:
 
     def onwheel(self, evt):
         if self.content_ready:
-            evt.preventDefault()
-            self.handle_wheel(evt)
+            if evt.preventDefault:
+                evt.preventDefault()
+            if evt.deltaY and evt.ctrlKey and not evt.shiftKey and not evt.altKey and not evt.metaKey:
+                self.send_message('handle_shortcut', name='increase_font_size' if evt.deltaY < 0 else 'decrease_font_size')
+            else:
+                self.handle_wheel(evt)
 
     def onkeydown(self, evt):
+        if current_layout_mode() is not 'flow' and evt.key is 'Tab':
+            # Prevent the TAB key from shifting focus as it causes partial scrolling
+            evt.preventDefault()
+        if self.forward_keypresses:
+            self.send_message('handle_keypress', evt=keyevent_as_shortcut(evt))
+            evt.preventDefault(), evt.stopPropagation()
+            return
         if self.content_ready:
-            self.handle_keydown(evt)
+            sc_name = shortcut_for_key_event(evt, self.keyboard_shortcut_map)
+            if sc_name:
+                if self.handle_navigation_shortcut(sc_name, evt):
+                    evt.preventDefault()
+                else:
+                    self.send_message('handle_shortcut', name=sc_name)
 
     def oncontextmenu(self, evt):
         if self.content_ready:
             evt.preventDefault()
-            self.send_message('show_chrome')
+            self.send_message('show_chrome', elements=get_elements(evt.clientX, evt.clientY))
 
     def send_message(self, action, **data):
         self.comm.send_message(action, data)
@@ -334,6 +467,10 @@ class IframeBoss:
         link_attr = 'data-' + self.book.manifest.link_uid
         for a in document.body.querySelectorAll('a[{}]'.format(link_attr)):
             a.addEventListener('click', self.link_activated)
+        if runtime.is_standalone_viewer:
+            # links with a target get turned into requests to open a new window by Qt
+            for a in document.body.querySelectorAll('a[target]'):
+                a.removeAttribute('target')
 
     def link_activated(self, evt):
         link_attr = 'data-' + self.book.manifest.link_uid
@@ -372,10 +509,21 @@ class IframeBoss:
         else:
             scroll_viewport.scroll_to(0, 0)
 
+    def scroll_to_ref(self, refnum):
+        refnum = int(refnum)
+        elem = elem_for_ref(refnum)
+        if elem:
+            scroll_to_elem(elem)
+
+    def on_scroll_to_ref(self, data):
+        refnum = data.refnum
+        if refnum?:
+            self.scroll_to_ref(refnum)
+
     def find(self, data, from_load):
         if data.searched_in_spine:
             window.getSelection().removeAllRanges()
-        if window.find(data.text, False, data.backwards):
+        if window.find(data.text, False, data.backwards, from_load and data.backwards):
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
         else:
@@ -384,6 +532,51 @@ class IframeBoss:
                     'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
             else:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
+
+    def show_search_result(self, data, from_load):
+        sr = data.search_result
+        idx = -1
+        window.getSelection().removeAllRanges()
+        while idx < sr.index:
+            if not window.find(sr.text, True, False, False, False, False):
+                self.send_message('search_result_not_found', search_result=sr)
+                break
+            if sr.mode is not 'normal':
+                # verify we have the correct match since regexes can have
+                # boundary conditions
+                sel = window.getSelection()
+                ranges = clone_selection(sel)
+                r = ranges[0]
+                if sr.before:
+                    p = r.cloneRange()
+                    p.collapse(True)
+                    sel = apply_cloned_selection(v'[p]')
+                    sel.modify('extend', 'left', 'character')
+                    if sel.toString() is not sr.before[-1]:
+                        apply_cloned_selection(ranges)
+                        continue
+                if sr.after:
+                    p = r.cloneRange()
+                    p.collapse(False)
+                    sel = apply_cloned_selection(v'[p]')
+                    sel.modify('extend', 'right', 'character')
+                    if sel.toString() is not sr.after[0]:
+                        apply_cloned_selection(ranges)
+                        continue
+                apply_cloned_selection(ranges)
+            idx += 1
+        if idx > -1 and current_layout_mode() is not 'flow':
+            snap_to_selection()
+
+    def reference_item_changed(self, ref_num_or_none):
+        self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)
+
+    def set_reference_mode(self, data):
+        self.reference_mode_enabled = data.enabled
+        if data.enabled:
+            start_reference_mode()
+        else:
+            end_reference_mode()
 
 
 def main():

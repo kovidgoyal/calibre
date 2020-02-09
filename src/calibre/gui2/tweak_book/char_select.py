@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -20,8 +19,9 @@ from calibre.constants import plugins
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
-from calibre.utils.icu import safe_chr as chr
+from calibre.utils.icu import safe_chr as codepoint_to_chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
+from polyglot.builtins import unicode_type, range, map
 
 ROOT = QModelIndex()
 
@@ -426,7 +426,7 @@ class CategoryModel(QAbstractItemModel):
                     return (_('Favorites'), list(tprefs['charmap_favorites']))
             else:
                 item = self.categories[pid - 1][1][index.row()]
-                return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
+                return (item[0], list(range(item[1][0], item[1][1] + 1)))
 
     def get_char_info(self, char_code):
         ipos = bisect(self.starts, char_code) - 1
@@ -520,7 +520,7 @@ class CharModel(QAbstractListModel):
         return ['application/calibre_charcode_indices']
 
     def mimeData(self, indexes):
-        data = ','.join(str(i.row()) for i in indexes)
+        data = ','.join(unicode_type(i.row()) for i in indexes)
         md = QMimeData()
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md
@@ -528,7 +528,7 @@ class CharModel(QAbstractListModel):
     def dropMimeData(self, md, action, row, column, parent):
         if action != Qt.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
-        indices = map(int, bytes(md.data('application/calibre_charcode_indices')).split(','))
+        indices = list(map(int, bytes(md.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
         codes = [self.chars[x] for x in indices]
         for x in indices:
             self.chars[x] = None
@@ -570,7 +570,7 @@ class CharDelegate(QStyledItemDelegate):
         f = option.font
         f.setPixelSize(option.rect.height() - 8)
         painter.setFont(f)
-        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, chr(charcode))
+        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, codepoint_to_chr(charcode))
 
     def paint_non_printing(self, painter, option, charcode):
         text = self.np_pat.sub(r'\n\1', non_printing[charcode])
@@ -612,7 +612,7 @@ class CharView(QListView):
         except (TypeError, ValueError):
             pass
         else:
-            self.char_selected.emit(chr(char_code))
+            self.char_selected.emit(codepoint_to_chr(char_code))
 
     def set_allow_drag_and_drop(self, enabled):
         if not enabled:
@@ -663,9 +663,9 @@ class CharView(QListView):
                 pass
             else:
                 m = QMenu(self)
-                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % chr(char_code), partial(self.copy_to_clipboard, char_code))
+                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % codepoint_to_chr(char_code), partial(self.copy_to_clipboard, char_code))
                 m.addAction(QIcon(I('rating.png')),
-                            (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % chr(char_code),
+                            (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % codepoint_to_chr(char_code),
                             partial(self.remove_from_favorites, char_code))
                 if self.showing_favorites:
                     m.addAction(_('Restore favorites to defaults'), self.restore_defaults)
@@ -679,7 +679,7 @@ class CharView(QListView):
 
     def copy_to_clipboard(self, char_code):
         c = QApplication.clipboard()
-        c.setText(chr(char_code))
+        c.setText(codepoint_to_chr(char_code))
 
     def remove_from_favorites(self, char_code):
         existing = tprefs['charmap_favorites']
@@ -766,7 +766,7 @@ class CharSelect(Dialog):
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
-        text = unicode(self.search.text()).strip()
+        text = unicode_type(self.search.text()).strip()
         if not text:
             return self.clear_search()
         with BusyCursor():

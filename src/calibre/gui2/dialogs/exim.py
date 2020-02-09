@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 from functools import partial
 from threading import Thread, Event
 import os, stat
@@ -21,6 +20,7 @@ from calibre.gui2 import choose_dir, error_dialog, question_dialog
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.exim import all_known_libraries, export, Importer, import_data
 from calibre.utils.icu import numeric_sort_key
+from polyglot.builtins import range
 
 
 def disk_usage(path_to_dir, abort=None):
@@ -214,7 +214,7 @@ class EximDialog(Dialog):
             lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(self.lib_list.item(i).data(Qt.UserRole), sz))), type=Qt.QueuedConnection)
 
     def get_lib_sizes(self):
-        for i in xrange(self.lib_list.count()):
+        for i in range(self.lib_list.count()):
             path = self.lib_list.item(i).data(Qt.UserRole)
             try:
                 sz = disk_usage(path, abort=self.abort_disk_usage)

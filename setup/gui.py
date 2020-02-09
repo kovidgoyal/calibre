@@ -58,6 +58,8 @@ class GUI(Command):
                 for s in sources:
                     files.append('<file>%s</file>'%s)
                 manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(sorted(files))
+                if not isinstance(manifest, bytes):
+                    manifest = manifest.encode('utf-8')
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
         finally:

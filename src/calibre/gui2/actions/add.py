@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,9 +10,9 @@ import os
 from functools import partial
 from collections import defaultdict
 
-from PyQt5.Qt import QPixmap, QTimer
+from PyQt5.Qt import QPixmap, QTimer, QApplication
 
-from calibre import as_unicode
+from calibre import as_unicode, guess_type
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
         warning_dialog, info_dialog, gprefs)
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
@@ -25,6 +26,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import iteritems, string_or_bytes, range
 
 
 def get_filters():
@@ -56,21 +58,8 @@ class AddAction(InterfaceAction):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
         ma = partial(self.create_menu_action, self.add_menu)
-        ma('recursive-single', _('Add books from directories, including '
-            'sub-directories (One book per directory, assumes every e-book '
-            'file is the same book in a different format)')).triggered.connect(
-            self.add_recursive_single)
-        ma('recursive-multiple', _('Add books from directories, including '
-            'sub-directories (Multiple books per directory, assumes every '
-            'e-book file is a different book)')).triggered.connect(
-                    self.add_recursive_multiple)
-        arm = self.add_archive_menu = self.add_menu.addMenu(_('Add multiple books from archive (ZIP/RAR)'))
-        connect_lambda(self.create_menu_action(
-            arm, 'recursive-single-archive', _('One book per directory in the archive')).triggered,
-            self, lambda self: self.add_archive(True))
-        connect_lambda(self.create_menu_action(
-            arm, 'recursive-multiple-archive', _('Multiple books per directory in the archive')).triggered,
-            self, lambda self: self.add_archive(False))
+        ma('recursive-add', _('Add from directories and sub-directories')).triggered.connect(self.add_recursive_question)
+        ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR)')).triggered.connect(self.add_from_archive)
         self.add_menu.addSeparator()
         ma('add-empty', _('Add empty book (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
@@ -78,16 +67,13 @@ class AddAction(InterfaceAction):
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut='Shift+A')
-        arm = self.add_archive_menu = self.add_menu.addMenu(_('Add an empty file to selected book records'))
-        from calibre.ebooks.oeb.polish.create import valid_empty_formats
-        for fmt in sorted(valid_empty_formats):
-            ac = self.create_menu_action(arm, 'add-empty-' + fmt, _('Add empty {}').format(fmt.upper()))
-            ac.setObjectName(fmt)
-            connect_lambda(ac.triggered, self, lambda self: self.add_empty_format(self.gui.sender().objectName()))
+        ma('add-formats-clipboard', _('Add files to selected book records from clipboard'),
+                triggered=self.add_formats_from_clipboard, shortcut='Shift+Alt+A')
+        ma('add-empty-format-to-books', _(
+            'Add an empty file to selected book records')).triggered.connect(self.add_empty_format_choose)
         self.add_menu.addSeparator()
         ma('add-config', _('Control the adding of books'),
                 triggered=self.add_config)
-
         self.qaction.triggered.connect(self.add_books)
 
     def location_selected(self, loc):
@@ -100,16 +86,64 @@ class AddAction(InterfaceAction):
             initial_plugin=('Import/Export', 'Adding'),
             close_after_initial=True)
 
-    def add_formats(self, *args):
-        if self.gui.stack.currentIndex() != 0:
-            return
+    def _check_add_formats_ok(self):
+        if self.gui.current_view() is not self.gui.library_view:
+            return []
         view = self.gui.library_view
         rows = view.selectionModel().selectedRows()
         if not rows:
-            return error_dialog(self.gui, _('No books selected'),
+            error_dialog(self.gui, _('No books selected'),
                     _('Cannot add files as no books are selected'), show=True)
         ids = [view.model().id(r) for r in rows]
+        return ids
 
+    def add_formats_from_clipboard(self):
+        ids = self._check_add_formats_ok()
+        if not ids:
+            return
+        md = QApplication.instance().clipboard().mimeData()
+        files_to_add = []
+        images = []
+        if md.hasUrls():
+            for url in md.urls():
+                if url.isLocalFile():
+                    path = url.toLocalFile()
+                    if os.access(path, os.R_OK):
+                        mt = guess_type(path)[0]
+                        if mt and mt.startswith('image/'):
+                            images.append(path)
+                        else:
+                            files_to_add.append(path)
+        if not files_to_add and not images:
+            return error_dialog(self.gui, _('No files in clipboard'),
+                    _('No files have been copied to the clipboard'), show=True)
+        if files_to_add:
+            self._add_formats(files_to_add, ids)
+        if images:
+            if len(ids) > 1 and not question_dialog(
+                    self.gui,
+                    _('Are you sure?'),
+                    _('Are you sure you want to set the same'
+                    ' cover for all %d books?')%len(ids)):
+                return
+            with lopen(images[0], 'rb') as f:
+                cdata = f.read()
+            self.gui.current_db.new_api.set_cover({book_id: cdata for book_id in ids})
+            self.gui.refresh_cover_browser()
+            m = self.gui.library_view.model()
+            current = self.gui.library_view.currentIndex()
+            m.current_changed(current, current)
+
+    def add_formats(self, *args):
+        ids = self._check_add_formats_ok()
+        if not ids:
+            return
+        books = choose_files(self.gui, 'add formats dialog dir',
+                _('Select book files'), filters=get_filters())
+        if books:
+            self._add_formats(books, ids)
+
+    def _add_formats(self, paths, ids):
         if len(ids) > 1 and not question_dialog(
                 self.gui,
                 _('Are you sure?'),
@@ -118,17 +152,12 @@ class AddAction(InterfaceAction):
                   ' already exists for a book, it will be replaced.')%len(ids)):
             return
 
-        books = choose_files(self.gui, 'add formats dialog dir',
-                _('Select book files'), filters=get_filters())
-        if not books:
-            return
-
-        db = view.model().db
+        db = self.gui.current_db
         if len(ids) == 1:
             formats = db.formats(ids[0], index_is_id=True)
             if formats:
                 formats = {x.upper() for x in formats.split(',')}
-                nformats = {f.rpartition('.')[-1].upper() for f in books}
+                nformats = {f.rpartition('.')[-1].upper() for f in paths}
                 override = formats.intersection(nformats)
                 if override:
                     title = db.title(ids[0], index_is_id=True)
@@ -139,18 +168,18 @@ class AddAction(InterfaceAction):
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 
-        fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in books}
+        fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in paths}
 
         for id_ in ids:
-            for fmt, fpath in fmt_map.iteritems():
+            for fmt, fpath in iteritems(fmt_map):
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
-            view.model().current_changed(current_idx, current_idx)
+            self.gui.library_view.model().current_changed(current_idx, current_idx)
 
-    def add_empty_format(self, format_):
+    def is_ok_to_add_empty_formats(self):
         if self.gui.stack.currentIndex() != 0:
             return
         view = self.gui.library_view
@@ -168,7 +197,27 @@ class AddAction(InterfaceAction):
                   ' empty file to all %d books? If the format'
                   ' already exists for a book, it will be replaced.')%len(ids)):
             return
+        return True
 
+    def add_empty_format_choose(self):
+        if not self.is_ok_to_add_empty_formats():
+            return
+        from calibre.ebooks.oeb.polish.create import valid_empty_formats
+        from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+        d = ChooseFormatDialog(self.gui, _('Choose format of empty file'), sorted(valid_empty_formats))
+        if d.exec_() != d.Accepted or not d.format():
+            return
+        self._add_empty_format(d.format())
+
+    def add_empty_format(self, format_):
+        if not self.is_ok_to_add_empty_formats():
+            return
+        self._add_empty_format(format_)
+
+    def _add_empty_format(self, format_):
+        view = self.gui.library_view
+        rows = view.selectionModel().selectedRows()
+        ids = [view.model().id(r) for r in rows]
         db = self.gui.library_view.model().db
         if len(ids) == 1:
             formats = db.formats(ids[0], index_is_id=True)
@@ -205,6 +254,15 @@ class AddAction(InterfaceAction):
         if paths:
             self.do_add_recursive(paths, single, list_of_archives=True)
 
+    def add_from_archive(self):
+        single = question_dialog(self.gui, _('Type of archive'), _(
+            'Will the archive have a single book per internal directory?'))
+        paths = choose_files(
+            self.gui, 'recursive-archive-add', _('Choose archive file'),
+            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
+        if paths:
+            self.do_add_recursive(paths, single, list_of_archives=True)
+
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
                           _('Select root folder'))
@@ -234,6 +292,11 @@ class AddAction(InterfaceAction):
         recursively assuming multiple books per folder.
         '''
         self.add_recursive(False)
+
+    def add_recursive_question(self):
+        single =  question_dialog(self.gui, _('Multi-file books?'), _(
+            'Assume all e-book files in a single directory are the same book in different formats?'))
+        self.add_recursive(single)
 
     def add_empty(self, *args):
         '''
@@ -265,7 +328,7 @@ class AddAction(InterfaceAction):
                     book_id = db.id(index.row())
                     orig_fmts = tuple(db.new_api.format(book_id, fmt, as_path=True) for fmt in db.new_api.formats(book_id))
 
-            for x in xrange(num):
+            for x in range(num):
                 if dlg.duplicate_current_book:
                     mi = origmi
                 else:
@@ -285,7 +348,8 @@ class AddAction(InterfaceAction):
                     create_book(mi, pt.name, fmt=empty_format)
                     fmts = [pt.name]
                 ids.append(db.import_book(mi, fmts))
-            tuple(map(os.remove, orig_fmts))
+            for path in orig_fmts:
+                os.remove(path)
             self.refresh_gui(num)
             if ids:
                 ids.reverse()
@@ -391,7 +455,7 @@ class AddAction(InterfaceAction):
             self.gui.refresh_cover_browser()
 
     def __add_filesystem_book(self, paths, allow_device=True):
-        if isinstance(paths, basestring):
+        if isinstance(paths, string_or_bytes):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path,
             os.R_OK)]
@@ -546,7 +610,7 @@ class AddAction(InterfaceAction):
             self.gui.device_job_exception(job)
             return
         paths = job.result
-        ok_paths = [x for x in paths if isinstance(x, basestring)]
+        ok_paths = [x for x in paths if isinstance(x, string_or_bytes)]
         failed_paths = [x for x in paths if isinstance(x, tuple)]
         if failed_paths:
             if not ok_paths:

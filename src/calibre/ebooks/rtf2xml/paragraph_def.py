@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,8 +12,12 @@
 #                                                                       #
 #########################################################################
 import sys, os
+
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
 
 
 class ParagraphDef:
@@ -608,12 +613,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         # when determining uniqueness for a style, ingorne these values, since
         # they don't tell us if the style is unique
         ignore_values = ['style-num', 'nest-level', 'in-table']
-        keys = self.__att_val_dict.keys()
-        keys.sort()
-        for key in keys:
-            if key in ignore_values:
-                continue
-            my_string += '%s:%s' % (key, self.__att_val_dict[key])
+        for k in sorted(self.__att_val_dict):
+            if k not in ignore_values:
+                my_string += '%s:%s' % (k, self.__att_val_dict[k])
         if my_string in self.__style_num_strings:
             num = self.__style_num_strings.index(my_string)
             num += 1  # since indexing starts at zero, rather than 1
@@ -622,7 +624,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             num = len(self.__style_num_strings)
             new_style = 1
         num = '%04d' % num
-        self.__att_val_dict['style-num'] = 's' + str(num)
+        self.__att_val_dict['style-num'] = 's' + unicode_type(num)
         if new_style:
             self.__write_body_styles()
 
@@ -637,12 +639,10 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]
             style_string += ('<%s>%s' % ('tabs', the_value))
-        keys = self.__att_val_dict.keys()
-        keys.sort()
-        for key in keys:
-            if key != 'name' and key !='style-num' and key != 'in-table'\
-              and key not in tabs_list:
-                style_string += ('<%s>%s' % (key, self.__att_val_dict[key]))
+        exclude = frozenset(['name', 'style-num', 'in-table'] + tabs_list)
+        for k in sorted(self.__att_val_dict):
+            if k not in exclude:
+                style_string += ('<%s>%s' % (k, self.__att_val_dict[k]))
         style_string += '\n'
         self.__body_style_strings.append(style_string)
 
@@ -690,11 +690,10 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]
             self.__write_obj.write('<%s>%s' % ('tabs', the_value))
-        keys = self.__att_val_dict.keys()
-        keys.sort()
+        keys = sorted(self.__att_val_dict)
+        exclude = frozenset(['name', 'style-num', 'in-table'] + tabs_list)
         for key in keys:
-            if key != 'name' and key !='style-num' and key != 'in-table'\
-              and key not in tabs_list:
+            if key not in exclude:
                 self.__write_obj.write('<%s>%s' % (key, self.__att_val_dict[key]))
         self.__write_obj.write('\n')
         self.__write_obj.write(self.__start2_marker)
@@ -742,8 +741,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
             the state.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

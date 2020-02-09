@@ -25,7 +25,7 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
     def generic_parse(self, soup):
         articles = []
         # soup.findAll('li', 'hentry'):
-        for entry in soup.findAll(lambda tag: tag.name == 'li' and tag.has_key('class') and tag['class'].find('hentry') != -1):  # noqa
+        for entry in soup.findAll('li', attrs={'class': lambda x: x and 'hentry' in x}):
             article_url = entry.a['href'] + '?print=yes'
             article_title = entry.find('h3', 'entry-title')
             article_title = self.tag_to_string(article_title)
@@ -41,14 +41,14 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
                              'description': article_desc,
                              'url': article_url})
             # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
+            if ''.join(entry['class']).find('last') != -1:
                 break
 
         return articles
 
     def plumaje_parse(self, soup):
         articles = []
-        blogs_soup = soup.find(lambda tag: tag.name == 'ul' and tag.has_key('class') and tag['class'].find('bloglist-fecha') != -1)  # noqa
+        blogs_soup = soup.find('ul', attrs={'class': lambda x: x and 'bloglist-fecha' in x})
         for entry in blogs_soup.findAll('li'):
             article_title = entry.p
             article_url = article_title.a['href'] + '?print=yes'
@@ -69,7 +69,7 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
     def boca_parse(self, soup):
         articles = []
         # soup.findAll('li', 'hentry'):
-        for entry in soup.findAll(lambda tag: tag.name == 'div' and tag.has_key('class') and tag['class'].find('hentry') != -1):  # noqa
+        for entry in soup.findAll('div', attrs={'class': lambda x: x and 'hentry' in x}):
             article_title = entry.find('h2', 'entry-title')
             article_url = article_title.a['href'] + '?print=yes'
             article_title = self.tag_to_string(article_title)
@@ -86,7 +86,7 @@ class AdvancedUserRecipe1290663986(BasicNewsRecipe):
                              'description': article_desc,
                              'url': article_url})
             # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
+            if ''.join(entry['class']).find('last') != -1:
                 break
 
         return articles

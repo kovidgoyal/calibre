@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +12,7 @@ from collections import namedtuple
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS
 from calibre.customize.conversion import DummyReporter
+from polyglot.builtins import unicode_type
 
 
 class CSV_XML(CatalogPlugin):
@@ -106,10 +108,10 @@ class CSV_XML(CatalogPlugin):
             outfile = codecs.open(path_to_output, 'w', 'utf8')
 
             # Write a UTF-8 BOM
-            outfile.write('\xef\xbb\xbf')
+            outfile.write('\ufeff')
 
             # Output the field headers
-            outfile.write(u'%s\n' % u','.join(fields))
+            outfile.write('%s\n' % ','.join(fields))
 
             # Output the entry fields
             for entry in data:
@@ -143,26 +145,26 @@ class CSV_XML(CatalogPlugin):
                         item = ', '.join(item)
                     elif field == 'isbn':
                         # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
-                        item = u'%s' % re.sub(r'[^\dX-]', '', item)
+                        item = '%s' % re.sub(r'[^\dX-]', '', item)
                     elif fm.get(field, {}).get('datatype') == 'datetime':
                         item = isoformat(item, as_utc=False)
                     elif field == 'comments':
-                        item = item.replace(u'\r\n', u' ')
-                        item = item.replace(u'\n', u' ')
+                        item = item.replace('\r\n', ' ')
+                        item = item.replace('\n', ' ')
                     elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
-                        item = u'%.2g' % (item / 2.0)
+                        item = '%.2g' % (item / 2)
 
                     # Convert HTML to markdown text
-                    if type(item) is unicode:
-                        opening_tag = re.search('<(\\w+)(\x20|>)', item)
+                    if isinstance(item, unicode_type):
+                        opening_tag = re.search(r'<(\w+)( |>)', item)
                         if opening_tag:
-                            closing_tag = re.search('<\\/%s>$' % opening_tag.group(1), item)
+                            closing_tag = re.search(r'<\/%s>$' % opening_tag.group(1), item)
                             if closing_tag:
                                 item = html2text(item)
 
-                    outstr.append(u'"%s"' % unicode(item).replace('"', '""'))
+                    outstr.append('"%s"' % unicode_type(item).replace('"', '""'))
 
-                outfile.write(u','.join(outstr) + u'\n')
+                outfile.write(','.join(outstr) + '\n')
             outfile.close()
 
         elif self.fmt == 'xml':
@@ -176,8 +178,8 @@ class CSV_XML(CatalogPlugin):
                 for field in fields:
                     if field.startswith('#'):
                         val = db.get_field(r['id'], field, index_is_id=True)
-                        if not isinstance(val, (str, unicode)):
-                            val = unicode(val)
+                        if not isinstance(val, unicode_type):
+                            val = unicode_type(val)
                         item = getattr(E, field.replace('#', '_'))(val)
                         record.append(item)
 
@@ -187,11 +189,11 @@ class CSV_XML(CatalogPlugin):
                         val = r[field]
                         if not val:
                             continue
-                        if not isinstance(val, (str, unicode)):
+                        if not isinstance(val, (bytes, unicode_type)):
                             if (fm.get(field, {}).get('datatype', None) ==
                                     'rating' and val):
-                                val = u'%.2g' % (val / 2.0)
-                            val = unicode(val)
+                                val = '%.2g' % (val / 2)
+                            val = unicode_type(val)
                         item = getattr(E, field)(val)
                         record.append(item)
 
@@ -220,7 +222,7 @@ class CSV_XML(CatalogPlugin):
 
                 if 'series' in fields and r['series']:
                     record.append(E.series(r['series'],
-                        index=str(r['series_index'])))
+                        index=unicode_type(r['series_index'])))
 
                 if 'cover' in fields and r['cover']:
                     record.append(E.cover(r['cover'].replace(os.sep, '/')))
@@ -234,6 +236,6 @@ class CSV_XML(CatalogPlugin):
                 if 'library_name' in fields:
                     record.append(E.library_name(current_library))
 
-            with open(path_to_output, 'w') as f:
+            with open(path_to_output, 'wb') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))

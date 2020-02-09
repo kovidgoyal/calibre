@@ -28,7 +28,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         ('Eastern Arsenal', 'https://www.popsci.com/rss-eastern-arsenal.xml'),
     ]
 
-    pane_node_body = re.compile('pane-node-(?:\w+-){0,9}body')
+    pane_node_body = re.compile('pane-node-(?:\\w+-){0,9}body')
 
     keep_only_tags = [
         dict(attrs={'class': lambda x: x and frozenset('pane-node-header'.split()).issubset(frozenset(x.split()))}),

@@ -1,7 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 CSS case-mangling transform.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -11,6 +11,7 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import CSS_MIME
 from calibre.ebooks.oeb.base import namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
+from polyglot.builtins import string_or_bytes
 
 CASE_MANGLER_CSS = """
 .calibre_lowercase {
@@ -95,7 +96,7 @@ class CaseMangler(object):
                 last = child
 
     def mangle_elem(self, elem, stylizer):
-        if not isinstance(elem.tag, basestring) or \
+        if not isinstance(elem.tag, string_or_bytes) or \
            namespace(elem.tag) != XHTML_NS:
             return
         children = list(elem)

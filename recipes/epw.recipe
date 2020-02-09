@@ -78,4 +78,4 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             sections[current_section].append(
                 {'title': title, 'url': url, 'description': desc})
 
-        return [(t, articles) for t, articles in sections.iteritems() if articles]
+        return [(t, articles) for t, articles in sections.items() if articles]

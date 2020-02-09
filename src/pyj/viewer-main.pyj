@@ -1,0 +1,420 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+import traceback
+from elementmaker import E
+from gettext import gettext as _, install
+
+import initialize  # noqa: unused-import
+from ajax import ajax, workaround_qt_bug
+from book_list.globals import get_session_data, set_session_data
+from book_list.library_data import library_data
+from book_list.theme import get_color
+from dom import get_widget_css, set_css
+from modals import create_modal_container
+from qt import from_python, to_python
+from read_book.db import new_book
+from read_book.footnotes import main as footnotes_main
+from read_book.globals import runtime, set_system_colors, ui_operations, default_color_schemes
+from read_book.iframe import main as iframe_main
+from read_book.shortcuts import add_standalone_viewer_shortcuts
+from read_book.view import View
+from session import local_storage, session_defaults
+from utils import debounce, encode_query_with_path, parse_url_params
+from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
+
+runtime.is_standalone_viewer = True
+runtime.FAKE_HOST = FAKE_HOST
+runtime.SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
+runtime.FAKE_PROTOCOL = FAKE_PROTOCOL
+book = None
+view = None
+
+
+def file_received(name, file_data, proceed, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
+    if end_type is 'abort':
+        return
+    if end_type is not 'load':
+        show_error(_('Failed to load file from book'), _(
+            'Could not load the file: {} with error: {}').format(name, xhr.error_html))
+        return
+    if not xhr.responseType or xhr.responseType is 'text':
+        result = xhr.responseText
+    else if xhr.responseType is 'blob':
+        result = xhr.response
+    else:
+        show_error(_('Failed to load file from book'), _(
+            'Could not load the file: {} unknown response type: {}').format(name, xhr.responseType))
+        return
+
+    proceed(result, name, file_data.mimetype, book)
+
+
+def get_file(book, name, proceed):
+    entry = book.manifest.files[name]
+    xhr = ajax('book/' + name, file_received.bind(None, name, entry, proceed), ok_code=0)
+    if entry.is_html or entry.mimetype.startswith('text/') or entry.mimetype is 'application/javascript':
+        xhr.responseType = 'text'
+    else:
+        xhr.responseType = 'blob'
+    xhr.send()
+
+def mathjax_file_received(name, proceed, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
+    if end_type is 'abort':
+        return
+    if end_type is not 'load':
+        show_error(_('Failed to load MathJax file'), _(
+            'Could not load the file: {} with error: {}').format(name, xhr.error_html))
+        return
+    if not xhr.responseType or xhr.responseType is 'text':
+        result = xhr.responseText
+    else if xhr.responseType is 'blob' or xhr.responseType is 'json':
+        result = xhr.response
+    else:
+        show_error(_('Failed to load MathJax file'), _(
+            'Could not load the file: {} unknown response type: {}')
+.format(name, xhr.responseType))
+        return
+    if name is 'manifest.json':
+        get_mathjax_files.manifest = result
+        get_mathjax_files_stage2.files_to_get = list(Object.keys(result))
+        get_mathjax_files_stage2.file_data = {}
+        get_mathjax_files_stage2(proceed)
+        return
+
+    get_mathjax_files_stage2.file_data[name] = result
+    get_mathjax_files_stage2.files_to_get.remove(name)
+    if not get_mathjax_files_stage2.files_to_get.length:
+        proceed(get_mathjax_files_stage2.file_data)
+
+def get_mathjax_manifest(proceed):
+    xhr = ajax('mathjax/manifest.json', mathjax_file_received.bind(None, 'manifest.json', proceed), ok_code=0)
+    xhr.responseType = 'json'
+    xhr.send()
+
+
+def get_mathjax_files_stage2(proceed):
+    if not get_mathjax_files_stage2.files_to_get.length:
+        proceed(get_mathjax_files_stage2.file_data)
+        return
+    for filename in get_mathjax_files_stage2.files_to_get:
+        xhr = ajax(f'mathjax/{filename}', mathjax_file_received.bind(None, filename, proceed), ok_code=0)
+        xhr.responseType = 'blob'
+        xhr.send()
+
+
+
+def get_mathjax_files(proceed):
+    if not get_mathjax_files.manifest:
+        get_mathjax_manifest(proceed)
+    else:
+        get_mathjax_files_stage2(proceed)
+
+
+
+def update_url_state(replace):
+    if view and view.currently_showing:
+        bookpos = view.currently_showing.bookpos
+        if bookpos:
+            query = {'bookpos': bookpos}
+            query = encode_query_with_path(query)
+            if replace:
+                window.history.replaceState(None, '', query)
+            else:
+                window.history.pushState(None, '', query)
+
+
+def on_pop_state():
+    if view and view.currently_showing:
+        data = parse_url_params()
+        if data.bookpos and data.bookpos.startswith('epubcfi(/'):
+            view.goto_cfi(data.bookpos)
+
+
+def show_error(title, msg, details):
+    to_python.show_error(title, msg, details)
+
+
+def manifest_received(key, initial_position, pathtoebook, end_type, xhr, ev):
+    nonlocal book
+    end_type = workaround_qt_bug(xhr, end_type)
+    if end_type is 'load':
+        book = new_book(key, {})
+        data = xhr.response
+        book.manifest = data[0]
+        book.metadata = book.manifest.metadata = data[1]
+        book.manifest.pathtoebook = pathtoebook
+        book.stored_files = {}
+        book.is_complete = True
+        v'delete book.manifest["metadata"]'
+        v'delete book.manifest["last_read_positions"]'
+        view.display_book(book, initial_position)
+    else:
+        show_error(_('Could not open book'), _(
+            'Failed to load book manifest, click "Show details" for more info'),
+        xhr.error_html or None)
+
+
+class SessionData:
+
+    def __init__(self, prefs):
+        defaults = session_defaults()
+        self.data = {k: defaults[k] if prefs[k] is undefined else prefs[k] for k in defaults}
+
+    def get(self, key, defval):
+        ans = self.data[key]
+        if ans is undefined or ans is None:
+            if defval is undefined:
+                defval = None
+            return defval
+        return ans
+
+    def set(self, key, val):
+        if val is None:
+            self.data[key] = session_defaults()[key]
+        else:
+            self.data[key] = val
+        to_python.set_session_data(key, val)
+
+    def clear(self):
+        defaults = session_defaults()
+        self.data = {k: defaults[k] for k in defaults}
+        to_python.set_session_data('*', None)
+
+
+class LocalStorage:
+
+    def __init__(self, data):
+        self.data = data
+
+    def get(self, key, defval):
+        ans = self.data[key]
+        if ans is undefined or ans is None:
+            if defval is undefined:
+                defval = None
+            return defval
+        return ans
+
+    def set(self, key, val):
+        self.data[key] = val
+        to_python.set_local_storage(key, val)
+
+    def clear(self):
+        self.data = {}
+        to_python.set_local_storage('*', None)
+
+
+def create_session_data(prefs, local_storage_data):
+    sd = SessionData(prefs)
+    set_session_data(sd)
+    local_storage.storage = LocalStorage(local_storage_data)
+
+
+@from_python
+def create_view(prefs, local_storage, field_metadata, ui_data):
+    nonlocal view
+    set_system_colors(ui_data.system_colors)
+    runtime.all_font_families = ui_data.all_font_families
+    library_data.field_metadata = field_metadata
+    document.documentElement.style.fontFamily = f'"{ui_data.ui_font_family}", sans-serif'
+    document.documentElement.style.fontSize = ui_data.ui_font_sz
+    if view is None:
+        create_session_data(prefs, local_storage)
+        view = View(document.getElementById('view'))
+        window.addEventListener('resize', debounce(view.on_resize.bind(self), 250))
+        to_python.view_created({'default_color_schemes': default_color_schemes})
+        if ui_data.show_home_page_on_ready:
+            view.overlay.open_book(False)
+
+
+@from_python
+def set_system_palette(system_colors):
+    set_system_colors(system_colors)
+    if view:
+        view.update_color_scheme()
+
+
+@from_python
+def show_home_page():
+    view.overlay.open_book(False)
+
+
+@from_python
+def start_book_load(key, initial_position, pathtoebook):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook), ok_code=0)
+    xhr.responseType = 'json'
+    xhr.send()
+
+
+@from_python
+def goto_toc_node(node_id):
+    view.goto_toc_node(node_id)
+
+
+@from_python
+def goto_cfi(cfi):
+    view.goto_cfi(cfi)
+
+
+@from_python
+def full_screen_state_changed(viewer_in_full_screen):
+    runtime.viewer_in_full_screen = viewer_in_full_screen
+
+
+@from_python
+def get_current_cfi(request_id):
+    view.get_current_cfi(request_id, ui_operations.report_cfi)
+
+
+@from_python
+def goto_frac(frac):
+    if view:
+        view.goto_frac(frac)
+
+
+@from_python
+def background_image_changed(img_id):
+    img = document.getElementById(img_id)
+    if img:
+        img.src = READER_BACKGROUND_URL + '?' + Date().getTime()
+
+
+@from_python
+def trigger_shortcut(which):
+    if view:
+        view.on_handle_shortcut({'name': which})
+
+
+@from_python
+def show_search_result(sr):
+    if view:
+        view.show_search_result(sr)
+
+
+def onerror(msg, script_url, line_number, column_number, error_object):
+    if not error_object:
+        # cross domain error
+        return False
+    fname = script_url.rpartition('/')[-1] or script_url
+    msg += '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+    details = ''
+    console.log(error_object)
+    details = traceback.format_exception(error_object).join('')
+    show_error(_('Unhandled error'), msg, details)
+    return True
+
+
+if window is window.top:
+    # main
+    TRANSLATIONS_DATA = v'__TRANSLATIONS_DATA__'
+    if TRANSLATIONS_DATA:
+        install(TRANSLATIONS_DATA)
+    add_standalone_viewer_shortcuts()
+    ui_operations.get_file = get_file
+    ui_operations.get_mathjax_files = get_mathjax_files
+    ui_operations.update_url_state = update_url_state
+    ui_operations.show_error = show_error
+    ui_operations.redisplay_book = def():
+        view.redisplay_book()
+    ui_operations.reload_book = def():
+        to_python.reload_book()
+    ui_operations.forward_gesture = def(gesture):
+        view.forward_gesture(gesture)
+    ui_operations.update_color_scheme = def():
+        view.update_color_scheme()
+    ui_operations.update_font_size = def():
+        view.update_font_size()
+    ui_operations.focus_iframe = def():
+        view.focus_iframe()
+    ui_operations.goto_cfi = def(cfi):
+        return view.goto_cfi(cfi)
+    ui_operations.goto_frac = def(frac):
+        return view.goto_frac(frac)
+    ui_operations.goto_book_position = def(bpos):
+        return view.goto_book_position(bpos)
+    ui_operations.goto_reference = def(ref):
+        return view.goto_reference(ref)
+    ui_operations.toggle_toc = def():
+        to_python.toggle_toc()
+    ui_operations.toggle_bookmarks = def():
+        to_python.toggle_bookmarks()
+    ui_operations.toggle_inspector = def():
+        to_python.toggle_inspector()
+    ui_operations.content_file_changed = def(name):
+        to_python.content_file_changed(name)
+    ui_operations.show_search = def():
+        to_python.show_search()
+    ui_operations.find_next = def(previous):
+        to_python.find_next(previous)
+    ui_operations.reset_interface = def():
+        sd = get_session_data()
+        defaults = session_defaults()
+        m = sd.get('standalone_misc_settings', {})
+        v'delete m.show_actions_toolbar'
+        sd.set('standalone_misc_settings', m)
+        sd.set('book_scrollbar', False)
+        view.book_scrollbar.apply_visibility()
+        sd.set('header', defaults.header)
+        sd.set('footer', defaults.footer)
+        view.update_header_footer()
+        to_python.reset_interface()
+    ui_operations.toggle_lookup = def():
+        to_python.toggle_lookup()
+    ui_operations.selection_changed = def(selected_text):
+        to_python.selection_changed(selected_text)
+    ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
+        to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
+    ui_operations.toggle_full_screen = def():
+        to_python.toggle_full_screen()
+    ui_operations.report_cfi = def(request_id, data):
+        to_python.report_cfi(request_id, data)
+    ui_operations.ask_for_open = def(path):
+        to_python.ask_for_open(path)
+    ui_operations.copy_selection = def(text):
+        to_python.copy_selection(text or None)
+    ui_operations.view_image = def(name):
+        to_python.view_image(name)
+    ui_operations.copy_image = def(name):
+        to_python.copy_image(name)
+    ui_operations.change_background_image = def(img_id):
+        to_python.change_background_image(img_id)
+    ui_operations.quit = def():
+        to_python.quit()
+    ui_operations.overlay_visibility_changed = def(visible):
+        to_python.overlay_visibility_changed(visible)
+    ui_operations.reference_mode_changed = def(enabled):
+        to_python.reference_mode_changed(enabled)
+    ui_operations.show_loading_message = def(msg):
+        to_python.show_loading_message(msg)
+    ui_operations.export_shortcut_map = def(smap):
+        to_python.export_shortcut_map(smap)
+    ui_operations.print_book = def():
+        to_python.print_book()
+    ui_operations.clear_history = def():
+        to_python.clear_history()
+    ui_operations.customize_toolbar = def():
+        to_python.customize_toolbar()
+    ui_operations.autoscroll_state_changed = def(active):
+        to_python.autoscroll_state_changed(active)
+    ui_operations.search_result_not_found = def(sr):
+        to_python.search_result_not_found(sr)
+
+    document.body.appendChild(E.div(id='view'))
+    window.onerror = onerror
+    create_modal_container()
+    document.head.appendChild(E.style(get_widget_css()))
+    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    setTimeout(def():
+            window.onpopstate = on_pop_state
+        , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+else:
+    # iframe
+    div = document.getElementById('calibre-viewer-footnote-iframe')
+    if div:
+        footnotes_main()
+    else:
+        iframe_main()
+    add_standalone_viewer_shortcuts()

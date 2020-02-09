@@ -2,13 +2,23 @@
 scmp.com
 '''
 
+from mechanize import Request
+import json
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class SCMP(BasicNewsRecipe):
@@ -29,8 +39,7 @@ class SCMP(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        classes('field-name-field-subheading scmp-gallery-swiper pane-node-body field-name-field-authors'),
-        dict(itemprop='dateCreated dateModified'.split()),
+        classes('info__subHeadline article-author main__right'),
     ]
     remove_tags = [
         dict(name='button')
@@ -38,28 +47,59 @@ class SCMP(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        # br.set_debug_http(True)
-        # br.set_debug_responses(True)
-        # br.set_debug_redirects(True)
         if self.username is not None and self.password is not None:
-            br.open('https://www.scmp.com/user/login')
-            br.select_form(nr=0)
-            br['name'] = self.username
-            br['pass'] = self.password
-            br.submit()
+            # br.set_debug_http(True)
+            # br.set_debug_responses(True)
+            # br.set_debug_redirects(True)
+            rq = Request('https://account.scmp.com/login', headers={
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Referer': 'https://account.scmp.com/login',
+                }, data=json.dumps({'username': self.username, 'password': self.password}))
+            self.log('Sending login request...')
+            try:
+                res = br.open(rq)
+            except Exception as err:
+                if hasattr(err, 'read'):
+                    raise Exception('Login request failed with error: {} and body: {}'.format(err, err.read().decode('utf-8', 'replace')))
+                raise
+            if res.code != 200:
+                raise ValueError('Failed to login, check your username and password')
+            nonce = json.loads(res.read())['nonce']
+            rq = Request('https://www.scmp.com/centralize/signin?nonce=' + nonce, headers={
+                'referer': 'https://account.scmp.com/login',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-site': 'same-site',
+                'sec-fetch-user': '?1'})
+            res = br.open(rq)
+            if res.code != 200:
+                raise ValueError('Failed to login, check your username and password')
         return br
 
     feeds = [
-        (u'Business', u'http://www.scmp.com/rss/business.xml'),
-        (u'Hong Kong', u'http://www.scmp.com/rss/hong_kong.xml'),
-        (u'China', u'http://www.scmp.com/rss/china.xml'),
-        (u'Asia & World', u'http://www.scmp.com/rss/news_asia_world.xml'),
-        (u'Opinion', u'http://www.scmp.com/rss/opinion.xml'),
-        (u'LifeSTYLE', u'http://www.scmp.com/rss/lifestyle.xml'),
-        (u'Sport', u'http://www.scmp.com/rss/sport.xml')
+        ('Hong Kong', 'https://www.scmp.com/rss/2/feed'),
+        ('China', 'https://www.scmp.com/rss/4/feed'),
+        ('Asia', 'https://www.scmp.com/rss/3/feed'),
+        ('World', 'https://www.scmp.com/rss/5/feed'),
+        ('Business', 'https://www.scmp.com/rss/92/feed'),
+        ('Tech', 'https://www.scmp.com/rss/36/feed'),
+        ('Life', 'https://www.scmp.com/rss/94/feed'),
+        ('Culture', 'https://www.scmp.com/rss/322296/feed'),
+        ('Sport', 'https://www.scmp.com/rss/95/feed'),
+        ('Post Mag', 'https://www.scmp.com/rss/71/feed'),
+        ('Style', 'https://www.scmp.com/rss/72/feed'),
     ]
 
     def preprocess_html(self, soup):
         for img in soup.findAll("img", attrs={'data-original':True}):
             img['src'] = img['data-original']
+        meta = soup.find('meta', attrs={'name':'twitter:image:src'}, content=True)
+        if meta is not None:
+            wrapper = soup.find(**classes('image-wrapper__placeholder'))
+            if wrapper is not None:
+                p = wrapper.parent
+                img = new_tag(soup, 'img')
+                img['src'] = meta['content']
+                p.append(img)
+                wrapper.extract()
         return soup

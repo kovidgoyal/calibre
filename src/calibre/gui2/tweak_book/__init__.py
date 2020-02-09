@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import string
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, map
 
 from calibre.utils.config import JSONConfig
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
@@ -32,9 +31,9 @@ d['dock_top_left'] = 'horizontal'
 d['dock_top_right'] = 'horizontal'
 d['dock_bottom_left'] = 'horizontal'
 d['dock_bottom_right'] = 'horizontal'
-d['preview_serif_family'] = 'Liberation Serif'
-d['preview_sans_family'] = 'Liberation Sans'
-d['preview_mono_family'] = 'Liberation Mono'
+d['engine_preview_serif_family'] = None
+d['engine_preview_sans_family'] = None
+d['engine_preview_mono_family'] = None
 d['preview_standard_font_family'] = 'serif'
 d['preview_base_font_size'] = 18
 d['preview_mono_font_size'] = 14
@@ -118,7 +117,7 @@ dictionaries = Dictionaries()
 
 
 def editor_name(editor):
-    for n, ed in editors.iteritems():
+    for n, ed in iteritems(editors):
         if ed is editor:
             return n
 

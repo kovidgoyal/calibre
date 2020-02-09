@@ -13,6 +13,13 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class Nzz(BasicNewsRecipe):
     title = 'NZZ Webpaper'
     __author__ = 'Bernd Leinfelder'
@@ -56,7 +63,7 @@ class Nzz(BasicNewsRecipe):
         for span in soup.findAll('span', attrs={'data-src-640': True}):
             imgSrc = span['data-src-640']
             # print "image source: "+ imgSrc
-            imgTag = Tag(soup, "img", [("src", imgSrc)])
+            imgTag = new_tag(soup, "img", [("src", imgSrc)])
             span.replaceWith(imgTag)
 
         # print soup.prettify()

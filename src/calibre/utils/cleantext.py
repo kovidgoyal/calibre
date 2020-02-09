@@ -1,9 +1,11 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, sengian <sengian1@gmail.com>'
-__docformat__ = 'restructuredtext en'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re, htmlentitydefs
-from polyglot.builtins import map
+import re
+from polyglot.builtins import codepoint_to_chr, map, range, filter
+from polyglot.html_entities import name2codepoint
 from calibre.constants import plugins, preferred_encoding
 
 try:
@@ -16,7 +18,19 @@ else:
             x = x.decode(preferred_encoding)
         return _ncxc(x)
 
-_ascii_pat = None
+
+def ascii_pat(for_binary=False):
+    attr = 'binary' if for_binary else 'text'
+    ans = getattr(ascii_pat, attr, None)
+    if ans is None:
+        chars = set(range(32)) - {9, 10, 13}
+        chars.add(127)
+        pat = '|'.join(map(codepoint_to_chr, chars))
+        if for_binary:
+            pat = pat.encode('ascii')
+        ans = re.compile(pat)
+        setattr(ascii_pat, attr, ans)
+    return ans
 
 
 def clean_ascii_chars(txt, charlist=None):
@@ -24,21 +38,18 @@ def clean_ascii_chars(txt, charlist=None):
     Remove ASCII control chars.
     This is all control chars except \t, \n and \r
     '''
+    is_binary = isinstance(txt, bytes)
+    empty = b'' if is_binary else ''
     if not txt:
-        return ''
-    global _ascii_pat
-    if _ascii_pat is None:
-        chars = set(xrange(32))
-        chars.add(127)
-        for x in (9, 10, 13):
-            chars.remove(x)
-        _ascii_pat = re.compile(u'|'.join(map(unichr, chars)))
+        return empty
 
     if charlist is None:
-        pat = _ascii_pat
+        pat = ascii_pat(is_binary)
     else:
-        pat = re.compile(u'|'.join(map(unichr, charlist)))
-    return pat.sub('', txt)
+        pat = '|'.join(map(codepoint_to_chr, charlist))
+        if is_binary:
+            pat = pat.encode('utf-8')
+    return pat.sub(empty, txt)
 
 
 def allowed(x):
@@ -47,15 +58,15 @@ def allowed(x):
 
 
 def py_clean_xml_chars(unicode_string):
-    return u''.join(filter(allowed, unicode_string))
+    return ''.join(filter(allowed, unicode_string))
 
 
 clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
 
 
 def test_clean_xml_chars():
-    raw = u'asd\x02a\U00010437x\ud801b\udffe\ud802'
-    if native_clean_xml_chars(raw) != u'asda\U00010437xb':
+    raw = 'asd\x02a\U00010437x\ud801b\udffe\ud802'
+    if native_clean_xml_chars(raw) != 'asda\U00010437xb':
         raise ValueError('Failed to XML clean: %r' % raw)
 
 
@@ -65,22 +76,22 @@ def test_clean_xml_chars():
 # @param text The HTML (or XML) source text.
 # @return The plain text, as a Unicode string, if necessary.
 
-def unescape(text, rm=False, rchar=u''):
+def unescape(text, rm=False, rchar=''):
     def fixup(m, rm=rm, rchar=rchar):
         text = m.group(0)
         if text[:2] == "&#":
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return codepoint_to_chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return codepoint_to_chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = codepoint_to_chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

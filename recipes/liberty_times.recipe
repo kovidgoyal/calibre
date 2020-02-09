@@ -11,24 +11,20 @@ class AdvancedUserRecipe1277443634(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
 
-    feeds = [(u'頭版', u'http://news.ltn.com.tw/rss/focus.xml'),
-             (u'政治', u'http://news.ltn.com.tw/rss/politics.xml'),
-             (u'社會', u'http://news.ltn.com.tw/rss/society.xml'),
-             (u'生活', u'http://news.ltn.com.tw/rss/life.xml'),
-             (u'言論', u'http://news.ltn.com.tw/rss/opinion.xml'),
-             (u'國際', u'http://news.ltn.com.tw/rss/world.xml'),
-             (u'財經', u'http://news.ltn.com.tw/rss/business.xml'),
-             (u'體育', u'http://news.ltn.com.tw/rss/sports.xml'),
-             (u'影視', u'http://news.ltn.com.tw/rss/entertainment.xml'),
-             (u'消費', u'http://news.ltn.com.tw/rss/consumer.xml'),
-             (u'副刊', u'http://news.ltn.com.tw/rss/supplement.xml'),
-             (u'地方', u'http://news.ltn.com.tw/rss/local.xml'),
-             (u'台北都會', u'http://news.ltn.com.tw/rss/taipei.xml'),
-             (u'北部新聞', u'http://news.ltn.com.tw/rss/northern.xml'),
-             (u'中部新聞', u'http://news.ltn.com.tw/rss/central.xml'),
-             (u'南部新聞', u'http://news.ltn.com.tw/rss/southern.xml')
+    feeds = [(u'即時', u'https://news.ltn.com.tw/rss/all.xml'),
+             (u'政治', u'https://news.ltn.com.tw/rss/politics.xml'),
+             (u'社會', u'https://news.ltn.com.tw/rss/society.xml'),
+             (u'生活', u'https://news.ltn.com.tw/rss/life.xml'),
+             (u'評論', u'https://news.ltn.com.tw/rss/opinion.xml'),
+             (u'國際', u'https://news.ltn.com.tw/rss/world.xml'),
+             (u'財經', u'https://news.ltn.com.tw/rss/business.xml'),
+             (u'體育', u'https://news.ltn.com.tw/rss/sports.xml'),
+             (u'娛樂', u'https://news.ltn.com.tw/rss/entertainment.xml'),
+             (u'地方', u'https://news.ltn.com.tw/rss/local.xml'),
+             (u'人物', u'https://news.ltn.com.tw/rss/people.xml'),
+             (u'蒐奇', u'https://news.ltn.com.tw/rss/novelty.xml')
+    ]
 
-             ]
     __author__ = 'einstuerzende, updated by Eddie Lau'
     __version__ = '1.2'
     language = 'zh'
@@ -40,6 +36,6 @@ class AdvancedUserRecipe1277443634(BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf-8'
     conversion_options = {'linearize_tables': True}
-    masthead_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
-    cover_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
+    masthead_url = 'https://cache.ltn.com.tw/images/rwd_ltnlogo.png',
+    cover_url = 'https://cache.ltn.com.tw/images/rwd_ltnlogo.png'
     auto_cleanup = True

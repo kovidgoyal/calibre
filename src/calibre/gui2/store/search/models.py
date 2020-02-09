@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -19,6 +19,7 @@ from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
+from polyglot.builtins import unicode_type
 
 
 def comparable_price(text):
@@ -290,9 +291,9 @@ class Matches(QAbstractItemModel):
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder
-        self.all_matches.sort(None,
-            lambda x: sort_key(unicode(self.data_as_text(x, col))),
-            descending)
+        self.all_matches.sort(
+            key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
+            reverse=descending)
         self.reorder_matches()
         if reset:
             self.beginResetModel(), self.endResetModel()
@@ -332,7 +333,7 @@ class SearchFilter(SearchQueryParser):
 
     def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
-        self.srs = set([])
+        self.srs = set()
         # remove joiner words surrounded by space or at string boundaries
         self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
         self.punctuation_table = {ord(x):' ' for x in string.punctuation}
@@ -341,7 +342,7 @@ class SearchFilter(SearchQueryParser):
         self.srs.add(search_result)
 
     def clear_search_results(self):
-        self.srs = set([])
+        self.srs = set()
 
     def universal_set(self):
         return self.srs
@@ -390,8 +391,8 @@ class SearchFilter(SearchQueryParser):
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
-            return set([])
-        matches = set([])
+            return set()
+        matches = set()
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {

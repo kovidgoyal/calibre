@@ -198,12 +198,12 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
            for div in soup.findAll(True,
                 attrs={'class':['section-headline', 'story', 'story headline']}):
 
-                if div['class'] == 'section-headline':
+                if ''.join(div['class']) == 'section-headline':
                     key = string.capwords(feed_title(div))
                     articles[key] = []
                     ans.append(key)
 
-                elif div['class'] in ['story', 'story headline']:
+                elif ''.join(div['class']) in ['story', 'story headline']:
                     a = div.find('a', href=True)
                     if not a:
                         continue
@@ -217,7 +217,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                         description = self.tag_to_string(summary, use_alt=False)
 
                     feed = key if key is not None else 'Uncategorized'
-                    if not articles.has_key(feed):
+                    if feed not in articles:
                         articles[feed] = []
                     if not 'podcasts' in url:
                         articles[feed].append(
@@ -225,7 +225,7 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
                                        description=description,
                                        content=''))
            ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
-           ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+           ans = [(key, articles[key]) for key in ans if key in articles]
            return ans
 
        def preprocess_html(self, soup):
@@ -267,9 +267,9 @@ to go to https://www.nytimes.com/pages/todayspaper/index.html and fetch the list
 of articles that appear in *todays* paper. While more complex than simply using
 :term:`RSS`, the recipe creates an e-book that corresponds very closely to the
 days paper. ``parse_index`` makes heavy use of `BeautifulSoup
-<https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_ to parse
+<https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_ to parse
 the daily paper webpage. You can also use other, more modern parsers if you
-dislike BeatifulSoup. calibre comes with `lxml <http://lxml.de/>`_ and
+dislike BeautifulSoup. calibre comes with `lxml <https://lxml.de/>`_ and
 `html5lib <https://github.com/html5lib/html5lib-python>`_, which are the
 recommended parsers. To use them, replace the call to ``index_to_soup()`` with
 the following::
@@ -311,7 +311,7 @@ If you're satisfied with your recipe, and you feel there is enough demand to jus
 .. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
+    are in :file:`/Applications/calibre.app/Contents/MacOS/`.
 
 .. seealso::
 

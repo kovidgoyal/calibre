@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -10,19 +11,18 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-
-_METADATA_PRIORITIES = [
-                       'html', 'htm', 'xhtml', 'xhtm',
-                       'rtf', 'fb2', 'pdf', 'prc', 'odt',
-                       'epub', 'lit', 'lrx', 'lrf', 'mobi',
-                       'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
-                      ]
+from polyglot.builtins import getcwd, unicode_type
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values
 METADATA_PRIORITIES = collections.defaultdict(lambda:0)
-for i, ext in enumerate(_METADATA_PRIORITIES):
-    METADATA_PRIORITIES[ext] = i
+for i, ext in enumerate((
+    'html', 'htm', 'xhtml', 'xhtm',
+    'rtf', 'fb2', 'pdf', 'prc', 'odt',
+    'epub', 'lit', 'lrx', 'lrf', 'mobi',
+    'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
+)):
+    METADATA_PRIORITIES[ext] = i + 1
 
 
 def path_to_ext(path):
@@ -41,8 +41,7 @@ def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
 
 def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     mi = MetaInformation(None, None)
-    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
-                                     METADATA_PRIORITIES[path_to_ext(y)]))
+    formats.sort(key=lambda x: METADATA_PRIORITIES[path_to_ext(x)])
     extensions = list(map(path_to_ext, formats))
     if 'opf' in extensions:
         opf = formats[extensions.index('opf')]
@@ -58,7 +57,7 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
                                      force_read_metadata=force_read_metadata,
                                      pattern=pattern)
                 mi.smart_update(newmi)
-            except:
+            except Exception:
                 continue
             if getattr(mi, 'application_id', None) is not None:
                 return mi
@@ -203,7 +202,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwdu())
+        opfpath = getattr(f, 'name', getcwd())
     else:
         f = open(opfpath, 'rb')
     try:
@@ -214,10 +213,11 @@ def opf_metadata(opfpath):
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
                 if os.access(cpath, os.R_OK):
                     fmt = cpath.rpartition('.')[-1]
-                    data = open(cpath, 'rb').read()
+                    with open(cpath, 'rb') as f:
+                        data = f.read()
                     mi.cover_data = (fmt, data)
             return mi
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         pass
@@ -230,7 +230,7 @@ def forked_read_metadata(path, tdir):
         f.seek(0, 2)
         sz = f.tell()
         with lopen(os.path.join(tdir, 'size.txt'), 'wb') as s:
-            s.write(str(sz).encode('ascii'))
+            s.write(unicode_type(sz).encode('ascii'))
         f.seek(0)
         mi = get_metadata(f, fmt)
     if mi.cover_data and mi.cover_data[1]:
@@ -241,4 +241,3 @@ def forked_read_metadata(path, tdir):
     opf = metadata_to_opf(mi, default_lang='und')
     with lopen(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
         f.write(opf)
-

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,9 +12,10 @@ from PyQt5.Qt import (
 
 from calibre.constants import plugins
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, make_view_use_window_background
 from calibre.gui2.toc.main import TOCView, ItemEdit
 from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
+from polyglot.builtins import unicode_type, range
 
 
 class TOCEditor(QDialog):
@@ -56,7 +56,7 @@ class TOCEditor(QDialog):
         self.resize(950, 630)
         geom = tprefs.get('toc_editor_window_geom', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -128,7 +128,7 @@ class TOCViewer(QWidget):
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
 
-        self.view = QTreeWidget(self)
+        self.view = make_view_use_window_background(QTreeWidget(self))
         self.delegate = Delegate(self.view)
         self.view.setItemDelegate(self.delegate)
         self.view.setHeaderHidden(True)
@@ -180,20 +180,20 @@ class TOCViewer(QWidget):
         menu.addAction(self.refresh_action)
         menu.exec_(self.view.mapToGlobal(pos))
 
-    def iteritems(self, parent=None):
+    def iter_items(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
-        for i in xrange(parent.childCount()):
+        for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
-            for gc in self.iteritems(parent=child):
+            for gc in self.iter_items(parent=child):
                 yield gc
 
     def emit_navigate(self, *args):
         item = self.view.currentItem()
         if item is not None:
-            dest = unicode(item.data(0, DEST_ROLE) or '')
-            frag = unicode(item.data(0, FRAG_ROLE) or '')
+            dest = unicode_type(item.data(0, DEST_ROLE) or '')
+            frag = unicode_type(item.data(0, FRAG_ROLE) or '')
             if not frag:
                 frag = TOP
             self.navigate_requested.emit(dest, frag)

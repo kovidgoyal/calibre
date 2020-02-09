@@ -34,6 +34,7 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
+from polyglot.builtins import iteritems, unicode_type, range, error_message, filter, map
 
 
 # The search panel {{{
@@ -88,9 +89,10 @@ class HistoryBox(HistoryComboBox):
     max_history_items = 100
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
+    min_history_entry_length = 1
 
     def __init__(self, parent, clear_msg):
-        HistoryComboBox.__init__(self, parent)
+        HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.disable_popup = tprefs['disable_completion_popup_for_search']
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
@@ -151,16 +153,15 @@ class WhereBox(QComboBox):
             f.setBold(True), f.setItalic(True)
             self.setFont(f)
 
-    @dynamic_property
+    @property
     def where(self):
         wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+        return wm[self.currentIndex()]
 
-        def fget(self):
-            return wm[self.currentIndex()]
-
-        def fset(self, val):
-            self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+        self.setCurrentIndex({v:k for k, v in iteritems(wm)}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -189,14 +190,13 @@ class DirectionBox(QComboBox):
             <dd>Search for the previous match from your current position</dd>
             </dl>'''))
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return 'down' if self.currentIndex() == 0 else 'up'
+        return 'down' if self.currentIndex() == 0 else 'up'
 
-        def fset(self, val):
-            self.setCurrentIndex(1 if val == 'up' else 0)
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.setCurrentIndex(1 if val == 'up' else 0)
 
 
 class ModeBox(QComboBox):
@@ -215,14 +215,13 @@ class ModeBox(QComboBox):
             <dd>The search expression is interpreted as a regular expression. The replace expression is an arbitrarily powerful Python function.</dd>
             </dl>'''))
 
-    @dynamic_property
+    @property
     def mode(self):
-        def fget(self):
-            return ('normal', 'regex', 'function')[self.currentIndex()]
+        return ('normal', 'regex', 'function')[self.currentIndex()]
 
-        def fset(self, val):
-            self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
-        return property(fget=fget, fset=fset)
+    @mode.setter
+    def mode(self, val):
+        self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
 
 
 class SearchWidget(QWidget):
@@ -352,91 +351,82 @@ class SearchWidget(QWidget):
         self.replace_text.setVisible(not function_mode)
         self.functions_container.setVisible(function_mode)
 
-    @dynamic_property
+    @property
     def mode(self):
-        def fget(self):
-            return self.mode_box.mode
+        return self.mode_box.mode
 
-        def fset(self, val):
-            self.mode_box.mode = val
-            self.da.setVisible(self.mode in ('regex', 'function'))
-        return property(fget=fget, fset=fset)
+    @mode.setter
+    def mode(self, val):
+        self.mode_box.mode = val
+        self.da.setVisible(self.mode in ('regex', 'function'))
 
-    @dynamic_property
+    @property
     def find(self):
-        def fget(self):
-            return unicode(self.find_text.text())
+        return unicode_type(self.find_text.text())
 
-        def fset(self, val):
-            self.find_text.setText(val)
-        return property(fget=fget, fset=fset)
+    @find.setter
+    def find(self, val):
+        self.find_text.setText(val)
 
-    @dynamic_property
+    @property
     def replace(self):
-        def fget(self):
-            if self.mode == 'function':
-                return self.functions.text()
-            return unicode(self.replace_text.text())
+        if self.mode == 'function':
+            return self.functions.text()
+        return unicode_type(self.replace_text.text())
 
-        def fset(self, val):
-            self.replace_text.setText(val)
-        return property(fget=fget, fset=fset)
+    @replace.setter
+    def replace(self, val):
+        self.replace_text.setText(val)
 
-    @dynamic_property
+    @property
     def where(self):
-        def fget(self):
-            return self.where_box.where
+        return self.where_box.where
 
-        def fset(self, val):
-            self.where_box.where = val
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        self.where_box.where = val
 
-    @dynamic_property
+    @property
     def case_sensitive(self):
-        def fget(self):
-            return self.cs.isChecked()
+        return self.cs.isChecked()
 
-        def fset(self, val):
-            self.cs.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @case_sensitive.setter
+    def case_sensitive(self, val):
+        self.cs.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return self.direction_box.direction
+        return self.direction_box.direction
 
-        def fset(self, val):
-            self.direction_box.direction = val
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.direction_box.direction = val
 
-    @dynamic_property
+    @property
     def wrap(self):
-        def fget(self):
-            return self.wr.isChecked()
+        return self.wr.isChecked()
 
-        def fset(self, val):
-            self.wr.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @wrap.setter
+    def wrap(self, val):
+        self.wr.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def dot_all(self):
-        def fget(self):
-            return self.da.isChecked()
+        return self.da.isChecked()
 
-        def fset(self, val):
-            self.da.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @dot_all.setter
+    def dot_all(self, val):
+        self.da.setChecked(bool(val))
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            return {x:getattr(self, x) for x in self.DEFAULT_STATE}
+        return {x:getattr(self, x) for x in self.DEFAULT_STATE}
 
-        def fset(self, val):
-            for x in self.DEFAULT_STATE:
-                if x in val:
-                    setattr(self, x, val[x])
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, val):
+        for x in self.DEFAULT_STATE:
+            if x in val:
+                setattr(self, x, val[x])
 
     def restore_state(self):
         self.state = tprefs.get('find-widget-state', self.DEFAULT_STATE)
@@ -535,7 +525,7 @@ class SearchesModel(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.searches = tprefs['saved_searches']
-        self.filtered_searches = list(xrange(len(self.searches)))
+        self.filtered_searches = list(range(len(self.searches)))
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.filtered_searches)
@@ -568,8 +558,7 @@ class SearchesModel(QAbstractListModel):
     def dropMimeData(self, data, action, row, column, parent):
         if parent.isValid() or action != Qt.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
             return False
-        rows = map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(','))
-        rows.sort()
+        rows = sorted(map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(',')))
         moved_searches = [self.searches[self.filtered_searches[r]] for r in rows]
         moved_searches_q = {id(s) for s in moved_searches}
         insert_at = max(0, min(row, len(self.filtered_searches)))
@@ -614,7 +603,7 @@ class SearchesModel(QAbstractListModel):
         return None
 
     def do_filter(self, text):
-        text = unicode(text)
+        text = unicode_type(text)
         self.beginResetModel()
         self.filtered_searches = []
         for i, search in enumerate(self.searches):
@@ -646,7 +635,7 @@ class SearchesModel(QAbstractListModel):
     def add_searches(self, count=1):
         self.beginResetModel()
         self.searches = tprefs['saved_searches']
-        self.filtered_searches.extend(xrange(len(self.searches) - count, len(self.searches), 1))
+        self.filtered_searches.extend(range(len(self.searches) - count, len(self.searches), 1))
         self.endResetModel()
 
     def remove_searches(self, rows):
@@ -797,7 +786,7 @@ class EditSearch(QFrame):  # {{{
     @property
     def current_search(self):
         search = self.search.copy()
-        f = unicode(self.find.toPlainText())
+        f = unicode_type(self.find.toPlainText())
         search['find'] = f
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
@@ -805,7 +794,7 @@ class EditSearch(QFrame):  # {{{
         if search['mode'] == 'function':
             r = self.function.text()
         else:
-            r = unicode(self.replace.toPlainText())
+            r = unicode_type(self.replace.toPlainText())
         search['replace'] = r
         return search
 
@@ -824,7 +813,7 @@ class EditSearch(QFrame):  # {{{
         search = self.search
         search['name'] = n
 
-        f = unicode(self.find.toPlainText())
+        f = unicode_type(self.find.toPlainText())
         if not f:
             error_dialog(self, _('Must specify find'), _(
                 'You must specify a find expression'), show=True)
@@ -839,7 +828,7 @@ class EditSearch(QFrame):  # {{{
                     'You must specify a function name in Function-Regex mode'), show=True)
                 return False
         else:
-            r = unicode(self.replace.toPlainText())
+            r = unicode_type(self.replace.toPlainText())
         search['replace'] = r
 
         search['dot_all'] = bool(self.dot_all.isChecked())
@@ -1008,14 +997,13 @@ class SavedSearches(QWidget):
 
         self.searches.setFocus(Qt.OtherFocusReason)
 
-    @dynamic_property
+    @property
     def state(self):
-        def fget(self):
-            return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
+        return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
 
-        def fset(self, val):
-            self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
-        return property(fget=fget, fset=fset)
+    @state.setter
+    def state(self, val):
+        self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
 
     def save_state(self):
         tprefs['saved_seaches_state'] = self.state
@@ -1042,32 +1030,29 @@ class SavedSearches(QWidget):
         for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'cft', 'd3', 'ib', 'eb2'):
             getattr(self, x).setVisible(visible)
 
-    @dynamic_property
+    @property
     def where(self):
-        def fget(self):
-            return self.where_box.where
+        return self.where_box.where
 
-        def fset(self, val):
-            self.where_box.where = val
-        return property(fget=fget, fset=fset)
+    @where.setter
+    def where(self, val):
+        self.where_box.where = val
 
-    @dynamic_property
+    @property
     def direction(self):
-        def fget(self):
-            return self.direction_box.direction
+        return self.direction_box.direction
 
-        def fset(self, val):
-            self.direction_box.direction = val
-        return property(fget=fget, fset=fset)
+    @direction.setter
+    def direction(self, val):
+        self.direction_box.direction = val
 
-    @dynamic_property
+    @property
     def wrap(self):
-        def fget(self):
-            return self.wr.isChecked()
+        return self.wr.isChecked()
 
-        def fset(self, val):
-            self.wr.setChecked(bool(val))
-        return property(fget=fget, fset=fset)
+    @wrap.setter
+    def wrap(self, val):
+        self.wr.setChecked(bool(val))
 
     def do_filter(self, text):
         self.model.do_filter(text)
@@ -1220,7 +1205,7 @@ class SavedSearches(QWidget):
                 return err()
             searches = []
             for item in obj['searches']:
-                if not isinstance(item, dict) or not set(item.iterkeys()).issuperset(needed_keys):
+                if not isinstance(item, dict) or not set(item).issuperset(needed_keys):
                     return err
                 searches.append({k:item[k] for k in needed_keys})
 
@@ -1279,7 +1264,7 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
 class InvalidRegex(regex.error):
 
     def __init__(self, raw, e):
-        regex.error.__init__(self, e.message)
+        regex.error.__init__(self, error_message(e))
         self.regex = raw
 
 
@@ -1399,10 +1384,10 @@ def run_search(
     except InvalidRegex as e:
         return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
             'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
-                prepare_string_for_xml(e.regex), e.message), show=True)
+                prepare_string_for_xml(e.regex), error_message(e)), show=True)
     except NoSuchFunction as e:
         return error_dialog(gui_parent, _('No such function'), '<p>' + _(
-            'No replace function with the name: %s exists') % prepare_string_for_xml(e.message), show=True)
+            'No replace function with the name: %s exists') % prepare_string_for_xml(error_message(e)), show=True)
 
     def no_match():
         QApplication.restoreOverrideCursor()
@@ -1421,7 +1406,7 @@ def run_search(
                     return True
                 if wrap and not files and editor.find(p, wrap=True, marked=marked, save_match='gui'):
                     return True
-            for fname, syntax in files.iteritems():
+            for fname, syntax in iteritems(files):
                 ed = editors.get(fname, None)
                 if ed is not None:
                     if not wrap and ed is editor:

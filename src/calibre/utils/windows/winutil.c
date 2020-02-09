@@ -230,19 +230,6 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
-static PyObject *
-winutil_getenv(PyObject *self, PyObject *args) {
-    const Py_UNICODE *q;
-    if (!PyArg_ParseTuple(args, "u", &q)) return NULL;
-    wchar_t *buf = NULL;
-    size_t sz = 0;
-    PyObject *ans = NULL;
-    if (_wdupenv_s(&buf, &sz, q) != 0 || buf == NULL || sz == 0) { ans = Py_None; Py_INCREF(ans); }
-    else ans = PyUnicode_FromWideChar(buf, sz - 1);
-    if (buf) free(buf);
-    return ans;
-}
-
 static PyObject*
 winutil_move_file(PyObject *self, PyObject *args) {
     Py_UNICODE *a, *b;
@@ -387,8 +374,15 @@ winutil_strftime(PyObject *self, PyObject *args)
     return NULL;
 }
 
+static char winutil_doc[] = "Defines utility methods to interface with windows.";
+extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
+extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
+extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
+extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
+extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
+extern PyObject *winutil_manage_shortcut(PyObject *self, PyObject *args);
 
-static PyMethodDef WinutilMethods[] = {
+static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
             "Get paths to common system folders. "
@@ -434,10 +428,6 @@ be a unicode string. Returns unicode strings."
         "setmaxstdio(num)\n\nSet the maximum number of open file handles."
     },
 
-    {"getenv", (PyCFunction)winutil_getenv, METH_VARARGS,
-        "getenv(name)\n\nGet the value of the specified env var as a unicode string."
-    },
-
     {"username", (PyCFunction)winutil_username, METH_NOARGS,
         "username()\n\nGet the current username as a unicode string."
     },
@@ -458,16 +448,60 @@ be a unicode string. Returns unicode strings."
         "move_file()\n\nRename the specified file."
     },
 
+    {"add_to_recent_docs", (PyCFunction)winutil_add_to_recent_docs, METH_VARARGS,
+        "add_to_recent_docs()\n\nAdd a path to the recent documents list"
+    },
+
+    {"file_association", (PyCFunction)winutil_file_association, METH_VARARGS,
+        "file_association()\n\nGet the executable associated with the given file extension"
+    },
+
+    {"friendly_name", (PyCFunction)winutil_friendly_name, METH_VARARGS,
+        "friendly_name()\n\nGet the friendly name for the specified prog_id/exe"
+    },
+
+    {"notify_associations_changed", (PyCFunction)winutil_notify_associations_changed, METH_VARARGS,
+        "notify_associations_changed()\n\nNotify the OS that file associations have changed"
+    },
+
+    {"move_to_trash", (PyCFunction)winutil_move_to_trash, METH_VARARGS,
+        "move_to_trash()\n\nMove the specified path to trash"
+    },
+
+    {"manage_shortcut", (PyCFunction)winutil_manage_shortcut, METH_VARARGS,
+        "manage_shortcut()\n\nManage a shortcut"
+    },
+
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initwinutil(void) {
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+#define INITMODULE PyModule_Create(&winutil_module)
+static struct PyModuleDef winutil_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "winutil",
+    /* m_doc      */ winutil_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ winutil_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+#else
+#define INITERROR return
+#define INITMODULE Py_InitModule3("winutil", winutil_methods, winutil_doc)
+CALIBRE_MODINIT_FUNC initwinutil(void) {
+#endif
+
     PyObject *m;
-    m = Py_InitModule3("winutil", WinutilMethods,
-    "Defines utility methods to interface with windows."
-    );
-    if (m == NULL) return;
+    m = INITMODULE;
+
+    if (m == NULL) {
+        INITERROR;
+    }
 
     PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
     PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
@@ -488,5 +522,10 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_SYSTEM", CSIDL_SYSTEM);
     PyModule_AddIntConstant(m, "CSIDL_WINDOWS", CSIDL_WINDOWS);
     PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
+    PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
+    PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
 
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

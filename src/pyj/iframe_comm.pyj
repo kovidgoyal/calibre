@@ -58,13 +58,14 @@ class Messenger:
 
 class IframeWrapper:
 
-    def __init__(self, handlers, iframe, entry_point, bootstrap_text):
+    def __init__(self, handlers, iframe, entry_point, bootstrap_text, url):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
         self.needs_init = True
         self.ready = False
         self.encrypted_communications = False
         self.srcdoc_created = False
+        self.constructor_url = url
         self.entry_point = entry_point
         self.bootstrap_text = bootstrap_text
         self.handlers = {k: handlers[k] for k in handlers}
@@ -81,13 +82,16 @@ class IframeWrapper:
 
     def create_srcdoc(self):
         r = /__([A-Z][A-Z_0-9]*[A-Z0-9])__/g
-        data = {
-            'BS': self.bootstrap_text,
-            'SCRIPT': iframe_js(),
-            'FONT': get_font_family(),
-            'ENTRY_POINT': self.entry_point,
-        }
-        self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+        if self.entry_point:
+            data = {
+                'BS': self.bootstrap_text,
+                'SCRIPT': iframe_js(),
+                'FONT': get_font_family(),
+                'ENTRY_POINT': self.entry_point,
+            }
+            self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+        else:
+            self.iframe.src = self.constructor_url
         self.srcdoc_created = True
 
     def init(self):
@@ -96,9 +100,13 @@ class IframeWrapper:
         self.needs_init = False
         iframe = self.iframe
         if self.srcdoc_created:
-            sdoc = iframe.srcdoc
-            iframe.srcdoc = '<p>&nbsp;</p>'
-            iframe.srcdoc = sdoc
+            if self.entry_point:
+                sdoc = iframe.srcdoc
+                iframe.srcdoc = '<p>&nbsp;</p>'
+                iframe.srcdoc = sdoc
+            else:
+                iframe.src = 'about:blank'
+                iframe.src = self.constructor_url
         else:
             self.create_srcdoc()
 
@@ -125,17 +133,23 @@ class IframeWrapper:
             return
         data = event.data
         if self.encrypted_communications:
+            if data.tag is undefined:
+                print('Ignoring unencrypted message from iframe:', data)
+                return
             try:
                 data = self.messenger.decrypt(data)
             except Exception as e:
-                print('Could not process message from iframe:')
+                print('Could not decrypt message from iframe:')
                 console.log(e)
+                traceback.print_exc()
                 return
+        if not data.action:
+            return
         func = self.handlers[data.action]
         if func:
             func(data)
         else:
-            print('Unknown action in message from iframe to parent: ' + data.action)
+            print('Unknown action in message from iframe to parent:', data.action)
 
     def on_iframe_ready(self, data):
         self.messenger.reset()
@@ -168,10 +182,10 @@ class IframeClient:
     def initialize(self, data):
         nonlocal print
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
+        self.encrypted_communications = True
         if data.translations:
             install(data.translations)
         print = self.print_to_parent
-        self.encrypted_communications = True
         if self.initialize_handler:
             self.initialize_handler(data)
 
@@ -197,9 +211,11 @@ class IframeClient:
             try:
                 func(data)
             except Exception as e:
-                console.log('Error in iframe message handler:')
+                console.log('Error in iframe message handler {}:'.format(data.action))
                 console.log(e)
-                self.send_message('error', title=_('Error in message handler'), details=traceback.format_exc(), msg=e.toString())
+                details = traceback.format_exc()
+                console.log(details)
+                self.send_message('error', title=_('Error in message handler'), details=details, msg=e.toString())
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 

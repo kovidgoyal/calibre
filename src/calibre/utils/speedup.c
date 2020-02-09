@@ -1,6 +1,7 @@
 #define UNICODE
 #include <Python.h>
 #include <datetime.h>
+#include <errno.h>
 
 #include <stdlib.h>
 #include <fcntl.h>
@@ -42,7 +43,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     year = strtol(raw, &end, 10);
     if ((end - raw) != 4) Py_RETURN_NONE;
     raw += 5;
-    
+
 
     month = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
@@ -51,7 +52,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     day = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
     raw += 3;
-    
+
     hour = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
     raw += 3;
@@ -88,7 +89,7 @@ static PyObject*
 speedup_pdf_float(PyObject *self, PyObject *args) {
     double f = 0.0, a = 0.0;
     char *buf = "0", *dot;
-    void *free_buf = NULL; 
+    void *free_buf = NULL;
     int precision = 6, l = 0;
     PyObject *ret;
 
@@ -138,7 +139,7 @@ speedup_fdopen(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "iss|i", &fd, &name, &mode, &bufsize)) return NULL;
 #if PY_MAJOR_VERSION >= 3
-    ans = PyFile_FromFd(fd, name, mode, bufsize, NULL, NULL, NULL, 1);
+    ans = PyFile_FromFd(fd, NULL, mode, bufsize, NULL, NULL, NULL, 1);
 #else
     fp = fdopen(fd, mode);
     if (fp == NULL) return PyErr_SetFromErrno(PyExc_OSError);
@@ -215,7 +216,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
         }
     }
 
-    // Create the texture in PPM (P6) format 
+    // Create the texture in PPM (P6) format
     memcpy(ppm, header, strlen(header));
     t = ppm + strlen(header);
     for (i = 0, j = 0; j < width * height; i += 3, j += 1) {
@@ -340,7 +341,7 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     for (; i < PyUnicode_GET_SIZE(text); i++) {
         ch = PyUnicode_AS_UNICODE(text)[i];
 #ifdef Py_UNICODE_WIDE
-        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff)) 
+        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff))
             buf[j++] = ch;
 #else
         if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xd000 <= ch && ch <= 0xfffd)) {
@@ -349,7 +350,7 @@ clean_xml_chars(PyObject *self, PyObject *text) {
                 if (ch <= 0xdbff && i + 1 < PyUnicode_GET_SIZE(text) && 0xdc00 <= PyUnicode_AS_UNICODE(text)[i + 1] && PyUnicode_AS_UNICODE(text)[i+1] <= 0xdfff) {
                     buf[j++] = ch; buf[j++] = PyUnicode_AS_UNICODE(text)[++i];
                 }
-            } else 
+            } else
                 buf[j++] = ch;
         }
 #endif
@@ -490,6 +491,117 @@ speedup_iso_8601(PyObject *self, PyObject *args) {
     return Py_BuildValue("NOi", PyDateTime_FromDateAndTime(year, month, day, hour, minute, second, usecond), (tzhour == 1000) ? Py_False : Py_True, tzsign*60*(tzhour*60 + tzminute));
 }
 
+#ifndef _MSC_VER
+#include <pthread.h>
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#define FREEBSD_SET_NAME
+#endif
+#if defined(__APPLE__)
+// I cant figure out how to get pthread.h to include this definition on macOS. MACOSX_DEPLOYMENT_TARGET does not work.
+extern int pthread_setname_np(const char *name);
+#elif defined(FREEBSD_SET_NAME)
+// Function has a different name on FreeBSD
+void pthread_set_name_np(pthread_t tid, const char *name);
+#elif defined(__NetBSD__)
+// pthread.h provides the symbol
+#elif defined(__HAIKU__)
+// Haiku doesn't support pthread_set_name_np yet
+#else
+// Need _GNU_SOURCE for pthread_setname_np on linux and that causes other issues on systems with old glibc
+extern int pthread_setname_np(pthread_t, const char *name);
+#endif
+#endif
+
+
+static PyObject*
+set_thread_name(PyObject *self, PyObject *args) {
+	(void)(self); (void)(args);
+#if defined(_MSC_VER) || defined(__HAIKU__)
+	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on on this platform");
+	return NULL;
+#else
+	char *name;
+	int ret;
+	if (!PyArg_ParseTuple(args, "s", &name)) return NULL;
+	while (1) {
+		errno = 0;
+#if defined(__APPLE__)
+		ret = pthread_setname_np(name);
+#elif defined(FREEBSD_SET_NAME)
+		pthread_set_name_np(pthread_self(), name);
+		ret = 0;
+#elif defined(__NetBSD__)
+		ret = pthread_setname_np(pthread_self(), "%s", name);
+#else
+		ret = pthread_setname_np(pthread_self(), name);
+#endif
+		if (ret != 0 && (errno == EINTR || errno == EAGAIN)) continue;
+		break;
+	}
+    if (ret != 0) { PyErr_SetFromErrno(PyExc_OSError); return NULL; }
+	Py_RETURN_NONE;
+#endif
+}
+
+#define char_is_ignored(ch) (ch <= 32)
+
+#if PY_MAJOR_VERSION > 2
+static size_t
+count_chars_in(PyObject *text) {
+	size_t ans = 0;
+	if (PyUnicode_READY(text) != 0) return 0;
+	int kind = PyUnicode_KIND(text);
+	void *data = PyUnicode_DATA(text);
+	Py_ssize_t len = PyUnicode_GET_LENGTH(text);
+	ans = len;
+	for (Py_ssize_t i = 0; i < len; i++) {
+		if (char_is_ignored(PyUnicode_READ(kind, data, i))) ans--;
+	}
+	return ans;
+}
+#else
+static size_t
+count_chars_in(PyObject *text) {
+	size_t ans = 0;
+#define L(data, sz) { \
+	ans = sz; \
+	for (Py_ssize_t i = 0; i < sz; i++) { if (char_is_ignored((data)[i])) ans--; } \
+}
+	if (PyUnicode_Check(text)) {
+		L(PyUnicode_AS_UNICODE(text), PyUnicode_GET_SIZE(text));
+	} else {
+		L(PyBytes_AS_STRING(text), PyBytes_GET_SIZE(text));
+	}
+	return ans;
+#undef L
+}
+#endif
+
+static PyObject*
+get_element_char_length(PyObject *self, PyObject *args) {
+	(void)(self);
+	const char *tag_name;
+	PyObject *text, *tail;
+	if (!PyArg_ParseTuple(args, "sOO", &tag_name, &text, &tail)) return NULL;
+	const char *b = strrchr(tag_name, '}');
+	if (b) tag_name = b + 1;
+	char ltagname[16];
+	const size_t tag_name_len = strnlen(tag_name, sizeof(ltagname)-1);
+	for (size_t i = 0; i < tag_name_len; i++) {
+		if ('A' <= tag_name[i] && tag_name[i] <= 'Z') ltagname[i] = 32 + tag_name[i];
+		else ltagname[i] = tag_name[i];
+	}
+	int is_ignored_tag = 0;
+	size_t ans = 0;
+#define EQ(x) memcmp(ltagname, #x, sizeof(#x) - 1) == 0
+	if (EQ(script) || EQ(noscript) || EQ(style) || EQ(title)) is_ignored_tag = 1;
+	if (EQ(img) || EQ(svg)) ans += 1000;
+#undef EQ
+	if (tail != Py_None) ans += count_chars_in(tail);
+	if (text != Py_None && !is_ignored_tag) ans += count_chars_in(text);
+	return PyLong_FromSize_t(ans);
+}
+
 
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
@@ -533,6 +645,14 @@ static PyMethodDef speedup_methods[] = {
     {"clean_xml_chars", clean_xml_chars, METH_O,
         "clean_xml_chars(unicode_object)\n\nRemove codepoints in unicode_object that are not allowed in XML"
     },
+
+	{"set_thread_name", set_thread_name, METH_VARARGS,
+		"set_thread_name(name)\n\nWrapper for pthread_setname_np"
+	},
+
+	{"get_element_char_length", get_element_char_length, METH_VARARGS,
+		"get_element_char_length(tag_name, text, tail)\n\nGet the number of chars in specified tag"
+	},
 
     {NULL, NULL, 0, NULL}
 };

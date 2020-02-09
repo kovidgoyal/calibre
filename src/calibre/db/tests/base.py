@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
-from polyglot.builtins import map
+from polyglot.builtins import map, unicode_type
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -83,7 +82,7 @@ class BaseTest(unittest.TestCase):
             atexit.register(rmtree, self.clone_dir)
             self.clone_count = 0
         self.clone_count += 1
-        dest = os.path.join(self.clone_dir, str(self.clone_count))
+        dest = os.path.join(self.clone_dir, unicode_type(self.clone_count))
         shutil.copytree(library_path, dest)
         return dest
 
@@ -114,5 +113,3 @@ class BaseTest(unittest.TestCase):
                 attr1, attr2 = mi1.get_extra(attr), mi2.get_extra(attr)
                 self.assertEqual(attr1, attr2,
                     '%s {#extra} not the same: %r != %r'%(attr, attr1, attr2))
-
-

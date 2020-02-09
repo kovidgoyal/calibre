@@ -2,9 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from polyglot.builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
+from polyglot.builtins import iteritems, map, range
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
@@ -24,7 +23,7 @@ class TagMapAction(InterfaceAction):
         selected = True
         if not rows or len(rows) < 2:
             selected = False
-            rows = xrange(self.gui.library_view.model().rowCount(None))
+            rows = range(self.gui.library_view.model().rowCount(None))
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 
@@ -51,7 +50,7 @@ class TagMapAction(InterfaceAction):
             db = self.gui.current_db.new_api
             tag_map = db.all_field_for('tags', book_ids)
             changed_tag_map = {}
-            for book_id, tags in tag_map.iteritems():
+            for book_id, tags in iteritems(tag_map):
                 tags = list(tags)
                 new_tags = map_tags(tags, rules)
                 if tags != new_tags:

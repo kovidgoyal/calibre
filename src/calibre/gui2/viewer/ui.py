@@ -1,425 +1,557 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import textwrap
+import json
+import os
+import re
+import sys
+from collections import defaultdict, namedtuple
+from hashlib import sha256
+from threading import Thread
 
 from PyQt5.Qt import (
-    QIcon, QWidget, Qt, QGridLayout, QScrollBar, QToolBar, QAction,
-    QToolButton, QMenu, QDoubleSpinBox, pyqtSignal, QLineEdit,
-    QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
-    QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
+    QApplication, QDockWidget, QEvent, QMimeData, QModelIndex, QPixmap, QScrollBar,
+    Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from calibre.gui2 import rating_font, error_dialog, open_url
+from calibre import prints
+from calibre.constants import DEBUG
+from calibre.customize.ui import available_input_formats
+from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.search_box import SearchBox2
-from calibre.gui2.viewer.documentview import DocumentView
-from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
-from calibre.gui2.viewer.toc import TOCView, TOCSearch
-from calibre.gui2.viewer.footnote import FootnotesView
-from calibre.utils.localization import is_rtl
+from calibre.gui2.viewer.annotations import (
+    merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
+)
+from calibre.gui2.viewer.bookmarks import BookmarkManager
+from calibre.gui2.viewer.convert_book import (
+    clean_running_workers, prepare_book, update_book
+)
+from calibre.gui2.viewer.lookup import Lookup
+from calibre.gui2.viewer.overlay import LoadingOverlay
+from calibre.gui2.viewer.search import SearchPanel
+from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
+from calibre.gui2.viewer.toolbars import ActionsToolBar
+from calibre.gui2.viewer.web_view import (
+    WebView, get_path_for_name, get_session_pref, set_book_path, viewer_config_dir,
+    vprefs
+)
+from calibre.utils.date import utcnow
+from calibre.utils.img import image_from_path
+from calibre.utils.ipc.simple_worker import WorkerError
+from calibre.utils.monotonic import monotonic
+from calibre.utils.serialize import json_loads
+from polyglot.builtins import as_bytes, iteritems, itervalues
+
+annotations_dir = os.path.join(viewer_config_dir, 'annots')
 
 
-class DoubleSpinBox(QDoubleSpinBox):  # {{{
-
-    value_changed = pyqtSignal(object, object)
-
-    def __init__(self, *args, **kwargs):
-        QDoubleSpinBox.__init__(self, *args, **kwargs)
-        self.tt = _('Position in book')
-        self.setToolTip(self.tt)
-
-    def set_value(self, val):
-        self.blockSignals(True)
-        self.setValue(val)
-        try:
-            self.setToolTip(self.tt +
-                ' [{0:.0%}]'.format(float(val)/self.maximum()))
-        except ZeroDivisionError:
-            self.setToolTip(self.tt)
-        self.blockSignals(False)
-        self.value_changed.emit(self.value(), self.maximum())
-# }}}
+def is_float(x):
+    try:
+        float(x)
+        return True
+    except Exception:
+        pass
+    return False
 
 
-class Reference(QLineEdit):  # {{{
+def dock_defs():
+    Dock = namedtuple('Dock', 'name title initial_area allowed_areas')
+    ans = {}
 
-    goto = pyqtSignal(object)
+    def d(title, name, area, allowed=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
+        ans[name] = Dock(name + '-dock', title, area, allowed)
 
-    def __init__(self, *args):
-        QLineEdit.__init__(self, *args)
-        self.setValidator(QRegExpValidator(QRegExp(r'\d+\.\d+'), self))
-        self.setToolTip(textwrap.fill('<p>'+_(
-            'Go to a reference. To get reference numbers, use the <i>reference '
-            'mode</i>, by clicking the reference mode button in the toolbar.')))
-        if hasattr(self, 'setPlaceholderText'):
-            self.setPlaceholderText(_('Go to a reference number...'))
-        self.editingFinished.connect(self.editing_finished)
-
-    def editing_finished(self):
-        text = unicode(self.text())
-        self.setText('')
-        self.goto.emit(text)
-# }}}
+    d(_('Table of Contents'), 'toc', Qt.LeftDockWidgetArea),
+    d(_('Lookup'), 'lookup', Qt.RightDockWidgetArea),
+    d(_('Bookmarks'), 'bookmarks', Qt.RightDockWidgetArea)
+    d(_('Search'), 'search', Qt.LeftDockWidgetArea)
+    d(_('Inspector'), 'inspector', Qt.RightDockWidgetArea, Qt.AllDockWidgetAreas)
+    return ans
 
 
-class Metadata(QWebView):  # {{{
+def path_key(path):
+    return sha256(as_bytes(path)).hexdigest()
 
-    def __init__(self, parent):
-        QWebView.__init__(self, parent)
-        s = self.settings()
-        s.setAttribute(s.JavascriptEnabled, False)
-        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
-        self.page().linkClicked.connect(self.link_clicked)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
-        palette = self.palette()
-        palette.setBrush(QPalette.Base, Qt.transparent)
-        self.page().setPalette(palette)
-        self.setVisible(False)
 
-    def link_clicked(self, qurl):
-        if qurl.scheme() in ('http', 'https'):
-            return open_url(qurl)
-
-    def update_layout(self):
-        self.setGeometry(0, 0, self.parent().width(), self.parent().height())
-
-    def show_metadata(self, mi, ext=''):
-        from calibre.gui2 import default_author_link
-        from calibre.gui2.book_details import render_html, css
-        from calibre.ebooks.metadata.book.render import mi_to_html
-
-        def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_display_fields'):
-            return mi_to_html(
-                mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl(),
-                default_author_link=default_author_link()
-            )
-
-        html = render_html(mi, css(), True, self, render_data_func=render_data)
-        self.setHtml(html)
-
-    def setVisible(self, x):
-        if x:
-            self.update_layout()
-        QWebView.setVisible(self, x)
+class ScrollBar(QScrollBar):
 
     def paintEvent(self, ev):
-        p = QPainter(self)
-        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 247), Qt.SolidPattern))
-        p.end()
-        QWebView.paintEvent(self, ev)
-# }}}
+        if self.isEnabled():
+            return QScrollBar.paintEvent(self, ev)
 
 
-class History(list):  # {{{
+class EbookViewer(MainWindow):
 
-    def __init__(self, action_back=None, action_forward=None):
-        self.action_back = action_back
-        self.action_forward = action_forward
-        super(History, self).__init__(self)
-        self.clear()
+    msg_from_anotherinstance = pyqtSignal(object)
+    book_preparation_started = pyqtSignal()
+    book_prepared = pyqtSignal(object, object)
+    MAIN_WINDOW_STATE_VERSION = 1
 
-    def clear(self):
-        del self[:]
-        self.insert_pos = 0
-        self.back_pos = None
-        self.forward_pos = None
-        self.set_actions()
-
-    def set_actions(self):
-        if self.action_back is not None:
-            self.action_back.setDisabled(self.back_pos is None)
-        if self.action_forward is not None:
-            self.action_forward.setDisabled(self.forward_pos is None)
-
-    def back(self, item_when_clicked):
-        # Back clicked
-        if self.back_pos is None:
-            return None
-        item = self[self.back_pos]
-        self.forward_pos = self.back_pos+1
-        if self.forward_pos >= len(self):
-            # We are at the head of the stack, append item to the stack so that
-            # clicking forward again will take us to where we were when we
-            # clicked back
-            self.append(item_when_clicked)
-            self.forward_pos = len(self) - 1
-        self.insert_pos = self.forward_pos
-        self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
-        self.set_actions()
-        return item
-
-    def forward(self, item_when_clicked):
-        # Forward clicked
-        if self.forward_pos is None:
-            return None
-        item = self[self.forward_pos]
-        self.back_pos = self.forward_pos - 1
-        if self.back_pos < 0:
-            self.back_pos = None
-        self.insert_pos = min(len(self) - 1, (self.back_pos or 0) + 1)
-        self.forward_pos = None if self.forward_pos > len(self) - 2 else self.forward_pos + 1
-        self.set_actions()
-        return item
-
-    def add(self, item):
-        # Link clicked
-        self[self.insert_pos:] = []
-        while self.insert_pos > 0 and self[self.insert_pos-1] == item:
-            self.insert_pos -= 1
-            self[self.insert_pos:] = []
-        self.insert(self.insert_pos, item)
-        # The next back must go to item
-        self.back_pos = self.insert_pos
-        self.insert_pos += 1
-        # There can be no forward
-        self.forward_pos = None
-        self.set_actions()
-
-    def __str__(self):
-        return 'History: Items=%s back_pos=%s insert_pos=%s forward_pos=%s' % (tuple(self), self.back_pos, self.insert_pos, self.forward_pos)
-
-
-def test_history():
-    h = History()
-    for i in xrange(4):
-        h.add(i)
-    for i in reversed(h):
-        h.back(i)
-    h.forward(0)
-    h.add(9)
-    assert h == [0, 9]
-# }}}
-
-
-class ToolBar(QToolBar):  # {{{
-
-    def contextMenuEvent(self, ev):
-        ac = self.actionAt(ev.pos())
-        if ac is None:
-            return
-        ch = self.widgetForAction(ac)
-        sm = getattr(ch, 'showMenu', None)
-        if callable(sm):
-            ev.accept()
-            sm()
-# }}}
-
-
-class Main(MainWindow):
-
-    def __init__(self, debug_javascript):
+    def __init__(self, open_at=None, continue_reading=None, force_reload=False):
         MainWindow.__init__(self, None)
-        self.setWindowTitle(_('E-book viewer'))
-        self.base_window_title = unicode(self.windowTitle())
-        self.setObjectName('EbookViewer')
-        self.setWindowIcon(QIcon(I('viewer.png')))
-        self.setDockOptions(self.AnimatedDocks | self.AllowTabbedDocks)
+        self.shutting_down = False
+        self.force_reload = force_reload
+        connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
+            'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
+        self.maximized_at_last_fullscreen = False
+        self.pending_open_at = open_at
+        self.base_window_title = _('E-book viewer')
+        self.setWindowTitle(self.base_window_title)
+        self.in_full_screen_mode = None
+        self.image_popup = ImagePopup(self)
+        self.actions_toolbar = at = ActionsToolBar(self)
+        at.open_book_at_path.connect(self.ask_for_open)
+        self.addToolBar(Qt.LeftToolBarArea, at)
+        try:
+            os.makedirs(annotations_dir)
+        except EnvironmentError:
+            pass
+        self.current_book_data = {}
+        self.book_prepared.connect(self.load_finished, type=Qt.QueuedConnection)
+        self.dock_defs = dock_defs()
 
-        self.centralwidget = c = QWidget(self)
-        c.setObjectName('centralwidget')
-        self.setCentralWidget(c)
-        self.central_layout = cl = QGridLayout(c)
-        cl.setSpacing(0)
-        c.setLayout(cl), cl.setContentsMargins(0, 0, 0, 0)
+        def create_dock(title, name, area, areas=Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea):
+            ans = QDockWidget(title, self)
+            ans.setObjectName(name)
+            self.addDockWidget(area, ans)
+            ans.setVisible(False)
+            ans.visibilityChanged.connect(self.dock_visibility_changed)
+            return ans
 
-        self.view = v = DocumentView(self)
-        v.setMinimumSize(100, 100)
-        self.view.initialize_view(debug_javascript)
-        v.setObjectName('view')
-        cl.addWidget(v)
+        for dock_def in itervalues(self.dock_defs):
+            setattr(self, '{}_dock'.format(dock_def.name.partition('-')[0]), create_dock(
+                dock_def.title, dock_def.name, dock_def.initial_area, dock_def.allowed_areas))
 
-        self.vertical_scrollbar = vs = QScrollBar(c)
-        vs.setOrientation(Qt.Vertical), vs.setObjectName("vertical_scrollbar")
-        cl.addWidget(vs, 0, 1, 2, 1)
-
-        self.horizontal_scrollbar = hs = QScrollBar(c)
-        hs.setOrientation(Qt.Horizontal), hs.setObjectName("horizontal_scrollbar")
-        cl.addWidget(hs, 1, 0, 1, 1)
-
-        self.tool_bar = tb = ToolBar(self)
-        tb.setObjectName('tool_bar'), tb.setIconSize(QSize(32, 32))
-        self.addToolBar(Qt.LeftToolBarArea, tb)
-
-        self.tool_bar2 = tb2 = QToolBar(self)
-        tb2.setObjectName('tool_bar2')
-        self.addToolBar(Qt.TopToolBarArea, tb2)
-        self.tool_bar.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
-
-        self.pos = DoubleSpinBox()
-        self.pos.setDecimals(1)
-        self.pos.setSuffix('/'+_('Unknown')+'     ')
-        self.pos.setMinimum(1.)
-        self.tool_bar2.addWidget(self.pos)
-        self.tool_bar2.addSeparator()
-        self.reference = Reference()
-        self.tool_bar2.addWidget(self.reference)
-        self.tool_bar2.addSeparator()
-        self.search = SearchBox2(self)
-        self.search.setMinimumContentsLength(20)
-        self.search.initialize('viewer_search_history')
-        self.search.setToolTip(_('Search for text in book'))
-        self.search.setMinimumWidth(200)
-        self.tool_bar2.addWidget(self.search)
-
-        self.toc_dock = d = QDockWidget(_('Table of Contents'), self)
-        d.setContextMenuPolicy(Qt.CustomContextMenu)
         self.toc_container = w = QWidget(self)
         w.l = QVBoxLayout(w)
         self.toc = TOCView(w)
+        self.toc.clicked[QModelIndex].connect(self.toc_clicked)
+        self.toc.searched.connect(self.toc_searched)
         self.toc_search = TOCSearch(self.toc, parent=w)
         w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
-        d.setObjectName('toc-dock')
-        d.setWidget(w)
-        d.close()  # starts out hidden
-        self.addDockWidget(Qt.LeftDockWidgetArea, d)
-        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.toc_dock.setWidget(w)
 
-        self.bookmarks_dock = d = QDockWidget(_('Bookmarks'), self)
-        d.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.bookmarks = BookmarkManager(self)
-        d.setObjectName('bookmarks-dock')
-        d.setWidget(self.bookmarks)
-        d.close()  # starts out hidden
-        self.addDockWidget(Qt.RightDockWidgetArea, d)
-        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.search_widget = w = SearchPanel(self)
+        w.search_requested.connect(self.start_search)
+        self.search_dock.setWidget(w)
+        self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
-        self.footnotes_dock = d = QDockWidget(_('Footnotes'), self)
-        d.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.footnotes_view = FootnotesView(self)
-        self.footnotes_view.follow_link.connect(self.view.follow_footnote_link)
-        self.footnotes_view.close_view.connect(d.close)
-        self.view.footnotes.set_footnotes_view(self.footnotes_view)
-        d.setObjectName('footnotes-dock')
-        d.setWidget(self.footnotes_view)
-        d.close()  # starts out hidden
-        self.addDockWidget(Qt.BottomDockWidgetArea, d)
-        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.lookup_widget = w = Lookup(self)
+        self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
+        self.lookup_dock.setWidget(w)
 
-        self.create_actions()
-        self.themes_menu.aboutToShow.connect(self.themes_menu_shown, type=Qt.QueuedConnection)
+        self.bookmarks_widget = w = BookmarkManager(self)
+        connect_lambda(
+            w.create_requested, self,
+            lambda self: self.web_view.get_current_cfi(self.bookmarks_widget.create_new_bookmark))
+        w.edited.connect(self.bookmarks_edited)
+        w.activated.connect(self.bookmark_activated)
+        w.toggle_requested.connect(self.toggle_bookmarks)
+        self.bookmarks_dock.setWidget(w)
 
-        self.metadata = Metadata(self.centralwidget)
-        self.history = History(self.action_back, self.action_forward)
+        self.web_view = WebView(self)
+        self.web_view.cfi_changed.connect(self.cfi_changed)
+        self.web_view.reload_book.connect(self.reload_book)
+        self.web_view.toggle_toc.connect(self.toggle_toc)
+        self.web_view.show_search.connect(self.show_search)
+        self.web_view.find_next.connect(self.search_widget.find_next_requested)
+        self.search_widget.show_search_result.connect(self.web_view.show_search_result)
+        self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
+        self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
+        self.web_view.toggle_inspector.connect(self.toggle_inspector)
+        self.web_view.toggle_lookup.connect(self.toggle_lookup)
+        self.web_view.quit.connect(self.quit)
+        self.web_view.update_current_toc_nodes.connect(self.toc.update_current_toc_nodes)
+        self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
+        self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
+        self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
+        self.web_view.view_image.connect(self.view_image, type=Qt.QueuedConnection)
+        self.web_view.copy_image.connect(self.copy_image, type=Qt.QueuedConnection)
+        self.web_view.show_loading_message.connect(self.show_loading_message)
+        self.web_view.show_error.connect(self.show_error)
+        self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
+        self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
+        self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
+        self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
+        self.setCentralWidget(self.web_view)
+        self.loading_overlay = LoadingOverlay(self)
+        self.restore_state()
+        self.actions_toolbar.update_visibility()
+        self.dock_visibility_changed()
+        if continue_reading:
+            self.continue_reading()
 
-        self.full_screen_label = QLabel('''
-                <center>
-                <h1>%s</h1>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                </center>
-                '''%(_('Full screen mode'),
-                    _('Right click to show controls'),
-                    _('Tap in the left or right page margin to turn pages'),
-                    _('Press Esc to quit')),
-                    self.centralWidget())
-        self.full_screen_label.setVisible(False)
-        self.full_screen_label.final_height = 200
-        self.full_screen_label.setFocusPolicy(Qt.NoFocus)
-        self.full_screen_label.setStyleSheet('''
-        QLabel {
-            text-align: center;
-            background-color: white;
-            color: black;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 20px;
-        }
-        ''')
-        self.clock_label = QLabel('99:99', self.centralWidget())
-        self.clock_label.setVisible(False)
-        self.clock_label.setFocusPolicy(Qt.NoFocus)
-        self.info_label_style = '''
-            QLabel {
-                text-align: center;
-                border-width: 1px;
-                border-style: solid;
-                border-radius: 8px;
-                background-color: %s;
-                color: %s;
-                font-family: monospace;
-                font-size: larger;
-                padding: 5px;
-        }'''
-        self.pos_label = QLabel('2000/4000', self.centralWidget())
-        self.pos_label.setVisible(False)
-        self.pos_label.setFocusPolicy(Qt.NoFocus)
+    def shortcuts_changed(self, smap):
+        rmap = defaultdict(list)
+        for k, v in iteritems(smap):
+            rmap[v].append(k)
+        self.actions_toolbar.set_tooltips(rmap)
 
-        self.resize(653, 746)
+    def toggle_inspector(self):
+        visible = self.inspector_dock.toggleViewAction().isChecked()
+        self.inspector_dock.setVisible(not visible)
 
     def resizeEvent(self, ev):
-        if self.metadata.isVisible():
-            self.metadata.update_layout()
+        self.loading_overlay.resize(self.size())
         return MainWindow.resizeEvent(self, ev)
 
-    def initialize_dock_state(self):
-        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
-        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
-        self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
-        self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
-        self.footnotes_dock.close()
-
-    def themes_menu_shown(self):
-        if len(self.themes_menu.actions()) == 0:
-            self.themes_menu.hide()
-            error_dialog(self, _('No themes'), _(
-                'You must first create some themes in the viewer preferences'), show=True)
-
-    def create_actions(self):
-        def a(name, text, icon, tb=None, sc_name=None, menu_name=None, popup_mode=QToolButton.MenuButtonPopup):
-            name = 'action_' + name
-            if isinstance(text, QDockWidget):
-                ac = text.toggleViewAction()
-                ac.setIcon(QIcon(I(icon)))
+    # IPC {{{
+    def handle_commandline_arg(self, arg):
+        if arg:
+            if os.path.isfile(arg) and os.access(arg, os.R_OK):
+                self.load_ebook(arg)
             else:
-                ac = QAction(QIcon(I(icon)), text, self)
-            setattr(self, name, ac)
-            ac.setObjectName(name)
-            (tb or self.tool_bar).addAction(ac)
-            if sc_name:
-                ac.setToolTip(unicode(ac.text()) + (' [%s]' % _(' or ').join(self.view.shortcuts.get_shortcuts(sc_name))))
-            if menu_name is not None:
-                menu_name += '_menu'
-                m = QMenu()
-                setattr(self, menu_name, m)
-                ac.setMenu(m)
-                w = (tb or self.tool_bar).widgetForAction(ac)
-                w.setPopupMode(popup_mode)
-            return ac
+                prints('Cannot read from:', arg, file=sys.stderr)
 
-        a('back', _('Back'), 'back.png')
-        a('forward', _('Forward'), 'forward.png')
-        self.tool_bar.addSeparator()
+    def another_instance_wants_to_talk(self, msg):
+        try:
+            path, open_at = msg
+        except Exception:
+            return
+        self.load_ebook(path, open_at=open_at)
+        self.raise_()
+    # }}}
 
-        a('open_ebook', _('Open e-book'), 'document_open.png', menu_name='open_history')
-        a('copy', _('Copy to clipboard'), 'edit-copy.png').setDisabled(True)
-        a('font_size_larger', _('Increase font size'), 'font_size_larger.png')
-        a('font_size_smaller', _('Decrease font size'), 'font_size_smaller.png')
-        a('table_of_contents', self.toc_dock, 'toc.png', sc_name='Table of Contents')
-        a('full_screen', _('Toggle full screen'), 'page.png', sc_name='Fullscreen').setCheckable(True)
-        self.tool_bar.addSeparator()
+    # Fullscreen {{{
+    def set_full_screen(self, on):
+        if on:
+            self.maximized_at_last_fullscreen = self.isMaximized()
+            if not self.actions_toolbar.visible_in_fullscreen:
+                self.actions_toolbar.setVisible(False)
+            self.showFullScreen()
+        else:
+            self.actions_toolbar.update_visibility()
+            if self.maximized_at_last_fullscreen:
+                self.showMaximized()
+            else:
+                self.showNormal()
 
-        a('previous_page', _('Previous page'), 'previous.png')
-        a('next_page', _('Next page'), 'next.png')
-        self.tool_bar.addSeparator()
+    def changeEvent(self, ev):
+        if ev.type() == QEvent.WindowStateChange:
+            in_full_screen_mode = self.isFullScreen()
+            if self.in_full_screen_mode is None or self.in_full_screen_mode != in_full_screen_mode:
+                self.in_full_screen_mode = in_full_screen_mode
+                self.web_view.notify_full_screen_state_change(self.in_full_screen_mode)
+        return MainWindow.changeEvent(self, ev)
 
-        a('bookmark', _('Bookmark'), 'bookmarks.png', menu_name='bookmarks', popup_mode=QToolButton.InstantPopup)
-        a('reference_mode', _('Reference mode'), 'lookfeel.png').setCheckable(True)
-        self.tool_bar.addSeparator()
+    def toggle_full_screen(self):
+        self.set_full_screen(not self.isFullScreen())
+    # }}}
 
-        a('preferences', _('Preferences'), 'config.png')
-        a('metadata', _('Show book metadata'), 'metadata.png').setCheckable(True)
-        a('load_theme', _('Load a theme'), 'wizard.png', menu_name='themes', popup_mode=QToolButton.InstantPopup)
-        self.tool_bar.addSeparator()
+    # Docks (ToC, Bookmarks, Lookup, etc.) {{{
 
-        a('print', _('Print to PDF file'), 'print.png')
+    def toggle_toc(self):
+        self.toc_dock.setVisible(not self.toc_dock.isVisible())
 
-        a('find_next', _('Find next occurrence'), 'arrow-down.png', tb=self.tool_bar2)
-        a('find_previous', _('Find previous occurrence'), 'arrow-up.png', tb=self.tool_bar2)
-        a('toggle_paged_mode', _('Toggle paged mode'), 'scroll.png', tb=self.tool_bar2).setCheckable(True)
+    def show_search(self):
+        self.search_dock.setVisible(True)
+        self.search_dock.activateWindow()
+        self.search_dock.raise_()
+        self.search_widget.focus_input()
+
+    def start_search(self, search_query):
+        name = self.web_view.current_content_file
+        if name:
+            self.search_widget.start_search(search_query, name)
+            self.web_view.setFocus(Qt.OtherFocusReason)
+
+    def toggle_bookmarks(self):
+        is_visible = self.bookmarks_dock.isVisible()
+        self.bookmarks_dock.setVisible(not is_visible)
+        if is_visible:
+            self.web_view.setFocus(Qt.OtherFocusReason)
+        else:
+            self.bookmarks_widget.bookmarks_list.setFocus(Qt.OtherFocusReason)
+
+    def toggle_lookup(self):
+        self.lookup_dock.setVisible(not self.lookup_dock.isVisible())
+
+    def toc_clicked(self, index):
+        item = self.toc_model.itemFromIndex(index)
+        self.web_view.goto_toc_node(item.node_id)
+
+    def toc_searched(self, index):
+        item = self.toc_model.itemFromIndex(index)
+        self.web_view.goto_toc_node(item.node_id)
+
+    def bookmarks_edited(self, bookmarks):
+        self.current_book_data['annotations_map']['bookmark'] = bookmarks
+        # annotations will be saved in book file on exit
+        self.save_annotations(in_book_file=False)
+
+    def bookmark_activated(self, cfi):
+        self.web_view.goto_cfi(cfi)
+
+    def view_image(self, name):
+        path = get_path_for_name(name)
+        if path:
+            pmap = QPixmap()
+            if pmap.load(path):
+                self.image_popup.current_img = pmap
+                self.image_popup.current_url = QUrl.fromLocalFile(path)
+                self.image_popup()
+            else:
+                error_dialog(self, _('Invalid image'), _(
+                    "Failed to load the image {}").format(name), show=True)
+        else:
+            error_dialog(self, _('Image not found'), _(
+                    "Failed to find the image {}").format(name), show=True)
+
+    def copy_image(self, name):
+        path = get_path_for_name(name)
+        if not path:
+            return error_dialog(self, _('Image not found'), _(
+                "Failed to find the image {}").format(name), show=True)
+        try:
+            img = image_from_path(path)
+        except Exception:
+            return error_dialog(self, _('Invalid image'), _(
+                "Failed to load the image {}").format(name), show=True)
+        url = QUrl.fromLocalFile(path)
+        md = QMimeData()
+        md.setImageData(img)
+        md.setUrls([url])
+        QApplication.instance().clipboard().setMimeData(md)
+
+    def dock_visibility_changed(self):
+        vmap = {dock.objectName().partition('-')[0]: dock.toggleViewAction().isChecked() for dock in self.dock_widgets}
+        self.actions_toolbar.update_dock_actions(vmap)
+    # }}}
+
+    # Load book {{{
+
+    def show_loading_message(self, msg):
+        if msg:
+            self.loading_overlay(msg)
+        else:
+            self.loading_overlay.hide()
+
+    def show_error(self, title, msg, details):
+        self.loading_overlay.hide()
+        error_dialog(self, title, msg, det_msg=details or None, show=True)
+
+    def print_book(self):
+        from .printing import print_book
+        print_book(set_book_path.pathtoebook, book_title=self.current_book_data['metadata']['title'], parent=self)
+
+    @property
+    def dock_widgets(self):
+        return self.findChildren(QDockWidget, options=Qt.FindDirectChildrenOnly)
+
+    def reset_interface(self):
+        for dock in self.dock_widgets:
+            dock.setFloating(False)
+            area = self.dock_defs[dock.objectName().partition('-')[0]].initial_area
+            self.removeDockWidget(dock)
+            self.addDockWidget(area, dock)
+            dock.setVisible(False)
+
+        for toolbar in self.findChildren(QToolBar):
+            toolbar.setVisible(False)
+            self.removeToolBar(toolbar)
+            self.addToolBar(Qt.LeftToolBarArea, toolbar)
+
+    def ask_for_open(self, path=None):
+        if path is None:
+            files = choose_files(
+                self, 'ebook viewer open dialog',
+                _('Choose e-book'), [(_('E-books'), available_input_formats())],
+                all_files=False, select_only_single_file=True)
+            if not files:
+                return
+            path = files[0]
+        self.load_ebook(path)
+
+    def continue_reading(self):
+        rl = vprefs['session_data'].get('standalone_recently_opened')
+        if rl:
+            entry = rl[0]
+            self.load_ebook(entry['pathtoebook'])
+
+    def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
+        self.web_view.show_home_page_on_ready = False
+        if open_at:
+            self.pending_open_at = open_at
+        self.setWindowTitle(_('Loading book') + '… — {}'.format(self.base_window_title))
+        self.loading_overlay(_('Loading book, please wait'))
+        self.save_annotations()
+        self.current_book_data = {}
+        self.search_widget.clear_searches()
+        t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book or self.force_reload))
+        t.daemon = True
+        t.start()
+
+    def reload_book(self):
+        if self.current_book_data:
+            self.load_ebook(self.current_book_data['pathtoebook'], reload_book=True)
+
+    def _load_ebook_worker(self, pathtoebook, open_at, reload_book):
+        if DEBUG:
+            start_time = monotonic()
+        try:
+            ans = prepare_book(pathtoebook, force=reload_book, prepare_notify=self.prepare_notify)
+        except WorkerError as e:
+            self.book_prepared.emit(False, {'exception': e, 'tb': e.orig_tb, 'pathtoebook': pathtoebook})
+        except Exception as e:
+            import traceback
+            self.book_prepared.emit(False, {'exception': e, 'tb': traceback.format_exc(), 'pathtoebook': pathtoebook})
+        else:
+            if DEBUG:
+                print('Book prepared in {:.2f} seconds'.format(monotonic() - start_time))
+            self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at, 'reloaded': reload_book})
+
+    def prepare_notify(self):
+        self.book_preparation_started.emit()
+
+    def load_finished(self, ok, data):
+        if self.shutting_down:
+            return
+        open_at, self.pending_open_at = self.pending_open_at, None
+        self.web_view.clear_caches()
+        if not ok:
+            self.setWindowTitle(self.base_window_title)
+            tb = data['tb'].strip()
+            tb = re.split(r'^calibre\.gui2\.viewer\.convert_book\.ConversionFailure:\s*', tb, maxsplit=1, flags=re.M)[-1]
+            last_line = tuple(tb.strip().splitlines())[-1]
+            if last_line.startswith('calibre.ebooks.DRMError'):
+                DRMErrorMessage(self).exec_()
+            else:
+                error_dialog(self, _('Loading book failed'), _(
+                    'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
+                    det_msg=tb, show=True)
+            self.loading_overlay.hide()
+            self.web_view.show_home_page()
+            return
+        try:
+            set_book_path(data['base'], data['pathtoebook'])
+        except Exception:
+            if data['reloaded']:
+                raise
+            self.load_ebook(data['pathtoebook'], open_at=data['open_at'], reload_book=True)
+            return
+        self.current_book_data = data
+        self.current_book_data['annotations_map'] = defaultdict(list)
+        self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
+        self.load_book_data()
+        self.update_window_title()
+        initial_cfi = self.initial_cfi_for_current_book()
+        initial_position = {'type': 'cfi', 'data': initial_cfi} if initial_cfi else None
+        if open_at:
+            if open_at.startswith('toc:'):
+                initial_toc_node = self.toc_model.node_id_for_text(open_at[len('toc:'):])
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
+            elif open_at.startswith('toc-href:'):
+                initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href:'):], exact=True)
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
+            elif open_at.startswith('toc-href-contains:'):
+                initial_toc_node = self.toc_model.node_id_for_href(open_at[len('toc-href-contains:'):], exact=False)
+                initial_position = {'type': 'toc', 'data': initial_toc_node}
+            elif open_at.startswith('epubcfi(/'):
+                initial_position = {'type': 'cfi', 'data': open_at}
+            elif open_at.startswith('ref:'):
+                initial_position = {'type': 'ref', 'data': open_at[len('ref:'):]}
+            elif is_float(open_at):
+                initial_position = {'type': 'bookpos', 'data': float(open_at)}
+        self.web_view.start_book_load(initial_position=initial_position)
+
+    def load_book_data(self):
+        self.load_book_annotations()
+        path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
+        with open(path, 'rb') as f:
+            raw = f.read()
+        self.current_book_data['manifest'] = manifest = json.loads(raw)
+        toc = manifest.get('toc')
+        self.toc_model = TOC(toc)
+        self.toc.setModel(self.toc_model)
+        self.bookmarks_widget.set_bookmarks(self.current_book_data['annotations_map']['bookmark'])
+        self.current_book_data['metadata'] = set_book_path.parsed_metadata
+        self.current_book_data['manifest'] = set_book_path.parsed_manifest
+
+    def load_book_annotations(self):
+        amap = self.current_book_data['annotations_map']
+        path = os.path.join(self.current_book_data['base'], 'calibre-book-annotations.json')
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                raw = f.read()
+            merge_annotations(json_loads(raw), amap)
+        path = os.path.join(annotations_dir, self.current_book_data['annotations_path_key'])
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                raw = f.read()
+            merge_annotations(parse_annotations(raw), amap)
+
+    def update_window_title(self):
+        try:
+            title = self.current_book_data['metadata']['title']
+        except Exception:
+            title = _('Unknown')
+        book_format = self.current_book_data['manifest']['book_format']
+        title = '{} [{}] — {}'.format(title, book_format, self.base_window_title)
+        self.setWindowTitle(title)
+    # }}}
+
+    # CFI management {{{
+    def initial_cfi_for_current_book(self):
+        lrp = self.current_book_data['annotations_map']['last-read']
+        if lrp and get_session_pref('remember_last_read', default=True):
+            lrp = lrp[0]
+            if lrp['pos_type'] == 'epubcfi':
+                return lrp['pos']
+
+    def cfi_changed(self, cfi):
+        if not self.current_book_data:
+            return
+        self.current_book_data['annotations_map']['last-read'] = [{
+            'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+    # }}}
+
+    # State serialization {{{
+    def save_annotations(self, in_book_file=True):
+        if not self.current_book_data:
+            return
+        amap = self.current_book_data['annotations_map']
+        annots = as_bytes(serialize_annotations(amap))
+        with open(os.path.join(annotations_dir, self.current_book_data['annotations_path_key']), 'wb') as f:
+            f.write(annots)
+        if in_book_file and self.current_book_data.get('pathtoebook', '').lower().endswith(
+                '.epub') and get_session_pref('save_annotations_in_ebook', default=True):
+            path = self.current_book_data['pathtoebook']
+            if os.access(path, os.W_OK):
+                before_stat = os.stat(path)
+                save_annots_to_epub(path, annots)
+                update_book(path, before_stat, {'calibre-book-annotations.json': annots})
+
+    def save_state(self):
+        with vprefs:
+            vprefs['main_window_state'] = bytearray(self.saveState(self.MAIN_WINDOW_STATE_VERSION))
+            vprefs['main_window_geometry'] = bytearray(self.saveGeometry())
+
+    def restore_state(self):
+        state = vprefs['main_window_state']
+        geom = vprefs['main_window_geometry']
+        if geom and get_session_pref('remember_window_geometry', default=False):
+            QApplication.instance().safe_restore_geometry(self, geom)
+        if state:
+            self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
+            self.inspector_dock.setVisible(False)
+
+    def quit(self):
+        self.close()
+
+    def closeEvent(self, ev):
+        self.shutting_down = True
+        self.search_widget.shutdown()
+        try:
+            self.save_annotations()
+            self.save_state()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        clean_running_workers()
+        return MainWindow.closeEvent(self, ev)
+    # }}}

@@ -9,52 +9,87 @@ from ajax import ajax_send
 
 defaults = {
     # Book list settings
-    'view_mode': 'cover_grid',
-    'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
+    'copy_to_library_dupes': 'add;overwrite',
     'last_sort_order': {},
     'show_all_metadata': False, # show all metadata fields in the book details panel
+    'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
+    'view_mode': 'cover_grid',
 
     # Tag Browser settings
-    'partition_method': 'first letter',  # other choices: 'disable', 'partition'
+    'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
     'collapse_at': 25,  # number of items at which sub-groups are created, 0 to disable
     'dont_collapse': '',  # comma separated list of category names
-    'sort_tags_by': 'name', # other choices: popularity, rating
     'hide_empty_categories': 'no',
-    'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
+    'partition_method': 'first letter',  # other choices: 'disable', 'partition'
+    'sort_tags_by': 'name', # other choices: popularity, rating
 
     # Book reader settings
-    'margin_right': 20,
-    'margin_left': 20,
-    'margin_top': 20,
+    'background_image_fade': 0,
+    'background_image_style': 'scaled',
+    'background_image': None,
+    'base_font_size': 16,
+    'book_scrollbar': False,
+    'columns_per_screen': {'portrait':0, 'landscape':0},
+    'controls_help_shown_count': 0,
+    'cover_preserve_aspect_ratio': True,
+    'current_color_scheme': 'system',
+    'footer': {'right': 'progress'},
+    'header': {},
+    'left-margin': {},
+    'right-margin': {},
+    'hide_tooltips': False,
+    'keyboard_shortcuts': {},
+    'lines_per_sec_auto': 1,
+    'lines_per_sec_smooth': 20,
     'margin_bottom': 20,
-    'read_mode': 'paged',
+    'margin_left': 20,
+    'margin_right': 20,
+    'margin_top': 20,
     'max_text_height': 0,
     'max_text_width': 0,
-    'columns_per_screen': {'portrait':0, 'landscape':0},
-    'user_stylesheet': '',
-    'current_color_scheme': 'white',
+    'override_book_colors': 'never',
+    'paged_margin_clicks_scroll_by_screen': True,
+    'paged_wheel_scrolls_by_screen': False,
+    'read_mode': 'paged',
+    'scroll_auto_boundary_delay': 5,
+    'scroll_stop_boundaries': False,
+    'standalone_font_settings': {},
+    'standalone_misc_settings': {},
+    'standalone_recently_opened': v'[]',
     'user_color_schemes': {},
-    'base_font_size': 16,
-    'controls_help_shown_count': 0,
-    'header': {},
-    'footer': {'right': 'progress'},
+    'user_stylesheet': '',
     'word_actions': v'[]',
 }
 
 is_local_setting = {
-    'margin_right': True,
-    'margin_left': True,
-    'margin_top': True,
+    'background_image_fade': True,
+    'background_image_style': True,
+    'background_image': True,
+    'base_font_size': True,
+    'columns_per_screen': True,
+    'controls_help_shown_count': True,
+    'current_color_scheme': True,
+    'lines_per_sec_auto': True,
+    'lines_per_sec_smooth': True,
     'margin_bottom': True,
-    'read_mode': 'paged',
+    'margin_left': True,
+    'margin_right': True,
+    'margin_top': True,
     'max_text_height': True,
     'max_text_width': True,
-    'columns_per_screen': True,
+    'override_book_colors': True,
+    'read_mode': 'paged',
+    'scroll_auto_boundary_delay': True,
+    'scroll_stop_boundaries': True,
+    'standalone_font_settings': True,
+    'standalone_misc_settings': True,
+    'standalone_recently_opened': True,
     'user_stylesheet': True,
-    'current_color_scheme': True,
-    'base_font_size': True,
-    'controls_help_shown_count': True,
 }
+
+
+def session_defaults():
+    return defaults
 
 
 def storage_available(which):
@@ -167,7 +202,10 @@ default_interface_data = {
     'gui_last_modified_display_format': 'dd MMM yyyy',
     'use_roman_numerals_for_series_number': True,
     'default_library_id': None,
+    'default_book_list_mode': defaults.view_mode,
     'library_map': None,
+    'search_the_net_urls': [],
+    'donate_link': 'https://calibre-ebook.com/donate',
     'icon_map': {},
     'icon_path': '',
     'custom_list_template': None,

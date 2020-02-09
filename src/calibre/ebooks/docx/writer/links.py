@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath, re
 from uuid import uuid4
-from urlparse import urlparse
 
 from calibre.utils.filenames import ascii_text
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urlparse
 
 
 def start_text(tag, prefix_len=0, top_level=True):
@@ -36,13 +36,13 @@ class TOCItem(object):
         p = makeelement(body, 'w:p', append=False)
         ppr = makeelement(p, 'w:pPr')
         makeelement(ppr, 'w:pStyle', w_val="Normal")
-        makeelement(ppr, 'w:ind', w_left='0', w_firstLineChars='0', w_firstLine='0', w_leftChars=str(200 * self.level))
+        makeelement(ppr, 'w:ind', w_left='0', w_firstLineChars='0', w_firstLine='0', w_leftChars=unicode_type(200 * self.level))
         if self.is_first:
             makeelement(ppr, 'w:pageBreakBefore', w_val='off')
             r = makeelement(p, 'w:r')
             makeelement(r, 'w:fldChar', w_fldCharType='begin')
             r = makeelement(p, 'w:r')
-            makeelement(r, 'w:instrText').text = ' TOC \h '
+            makeelement(r, 'w:instrText').text = r' TOC \h '
             r[0].set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
             r = makeelement(p, 'w:r')
             makeelement(r, 'w:fldChar', w_fldCharType='separate')
@@ -70,7 +70,7 @@ class LinksManager(object):
         self.namespace = namespace
         self.log = log
         self.document_relationships = document_relationships
-        self.top_anchor = type('')(uuid4().hex)
+        self.top_anchor = unicode_type(uuid4().hex)
         self.anchor_map = {}
         self.used_bookmark_names = set()
         self.bmark_id = 0

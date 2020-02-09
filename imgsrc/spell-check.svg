@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="spell-check.svg">
   <defs
      id="defs4">
@@ -94,17 +94,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="104.1988"
      inkscape:cy="76.159655"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -156,21 +156,24 @@
      id="layer1"
      transform="translate(0,-924.36216)">
     <g
-       style="font-style:normal;font-weight:normal;font-size:50px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-size:50px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#2271d5;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="text4133"
        transform="matrix(1.1047817,0,0,1.1047817,-4.2747705,-72.186938)">
       <path
          d="m 41.557143,947.63 q -0.85,-2.25 -1.6,-4.4 -0.75,-2.2 -1.55,-4.45 l -15.7,0 -3.15,8.85 -5.05,0 q 2,-5.5 3.75,-10.15 1.75,-4.7 3.4,-8.9 1.7,-4.2 3.35,-8 1.65,-3.85 3.45,-7.6 l 4.45,0 q 1.8,3.75 3.45,7.6 1.65,3.8 3.3,8 1.7,4.2 3.45,8.9 1.75,4.65 3.75,10.15 l -5.3,0 z m -4.55,-12.85 q -1.6,-4.35 -3.2,-8.4 -1.55,-4.1 -3.25,-7.85 -1.75,3.75 -3.35,7.85 -1.55,4.05 -3.1,8.4 l 12.9,0 z"
          id="path4138"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         style="fill:#2271d5;fill-opacity:1" />
       <path
          d="m 60.862612,947.93 q -1.05,0 -2.3,-0.05 -1.2,-0.05 -2.45,-0.15 -1.2,-0.1 -2.4,-0.25 -1.2,-0.15 -2.2,-0.4 l 0,-33.6 q 1,-0.25 2.2,-0.4 1.2,-0.15 2.4,-0.25 1.25,-0.1 2.45,-0.15 1.2,-0.05 2.25,-0.05 3,0 5.6,0.45 2.65,0.45 4.55,1.55 1.95,1.05 3.05,2.8 1.1,1.75 1.1,4.3 0,2.85 -1.35,4.7 -1.35,1.8 -3.6,2.7 3.05,0.9 4.85,2.85 1.8,1.95 1.8,5.5 0,5.2 -3.85,7.85 -3.8,2.6 -12.1,2.6 z m -4.55,-16.45 0,12.2 q 0.55,0.05 1.3,0.1 0.65,0.05 1.5,0.1 0.9,0 2.05,0 2.15,0 4.05,-0.25 1.95,-0.3 3.4,-1 1.45,-0.7 2.3,-1.95 0.9,-1.25 0.9,-3.15 0,-1.7 -0.65,-2.85 -0.65,-1.2 -1.9,-1.9 -1.2,-0.7 -2.9,-1 -1.7,-0.3 -3.8,-0.3 l -6.25,0 z m 0,-3.9 5.1,0 q 1.8,0 3.4,-0.25 1.6,-0.25 2.75,-0.9 1.2,-0.65 1.85,-1.7 0.7,-1.05 0.7,-2.65 0,-1.5 -0.7,-2.5 -0.7,-1.05 -1.95,-1.65 -1.2,-0.65 -2.85,-0.95 -1.65,-0.3 -3.5,-0.3 -1.85,0 -2.9,0.05 -1.05,0.05 -1.9,0.15 l 0,10.7 z"
          id="path4140"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         style="fill:#2271d5;fill-opacity:1" />
       <path
          d="m 98.541518,948.38 q -3.65,0 -6.65,-1.2 -3,-1.2 -5.15,-3.5 -2.15,-2.3 -3.35,-5.65 -1.15,-3.4 -1.15,-7.75 0,-4.35 1.3,-7.7 1.35,-3.4 3.6,-5.7 2.25,-2.3 5.25,-3.5 3,-1.2 6.4,-1.2 2.150002,0 3.850002,0.3 1.75,0.3 3,0.7 1.3,0.4 2.1,0.8 0.8,0.4 1.1,0.6 l -1.4,4 q -0.45,-0.3 -1.3,-0.65 -0.85,-0.35 -1.95,-0.7 -1.05,-0.35 -2.35,-0.55 -1.25,-0.25 -2.550002,-0.25 -2.75,0 -4.95,0.95 -2.2,0.95 -3.75,2.75 -1.55,1.8 -2.4,4.4 -0.8,2.55 -0.8,5.75 0,3.1 0.7,5.65 0.75,2.55 2.2,4.4 1.45,1.8 3.6,2.8 2.2,1 5.1,1 3.350002,0 5.550002,-0.7 2.2,-0.7 3.3,-1.25 l 1.25,4 q -0.35,0.25 -1.25,0.65 -0.9,0.35 -2.25,0.7 -1.35,0.35 -3.15,0.6 -1.8,0.25 -3.900002,0.25 z"
          id="path4142"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         style="fill:#2271d5;fill-opacity:1" />
     </g>
     <g
        transform="matrix(9.5970752,0,0,9.5970752,-8.5970754,928.98186)"

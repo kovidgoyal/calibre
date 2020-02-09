@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
@@ -251,6 +253,7 @@ class DevicePlugin(Plugin):
         '''
 
         return True
+    can_handle.is_base_class_implementation = True
 
     def open(self, connected_device, library_uuid):
         '''
@@ -422,7 +425,7 @@ class DevicePlugin(Plugin):
                           :meth`books(oncard='cardb')`).
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def delete_books(self, paths, end_session=True):
         '''

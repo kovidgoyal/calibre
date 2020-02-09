@@ -14,7 +14,7 @@ class tanuki(BasicNewsRecipe):
     autocleanup = True
     extra_css = 'ul {list-style: none; padding: 0; margin: 0;} .kadr{float: left;} .dwazdania {float: right;}'
     preprocess_regexps = [(re.compile(u'<h3><a class="screen".*?</h3>', re.DOTALL), lambda match: ''), (re.compile(
-        unicode(r'<div><a href="/strony/((manga)|(anime))/[0-9]+?/oceny(\-redakcji){0,1}">Zobacz jak ocenili</a></div>'), re.DOTALL), lambda match: '')]
+        type(u'')(r'<div><a href="/strony/((manga)|(anime))/[0-9]+?/oceny(\-redakcji){0,1}">Zobacz jak ocenili</a></div>'), re.DOTALL), lambda match: '')]
     remove_empty_feeds = True
     no_stylesheets = True
     keep_only_tags = [dict(attrs={'class': ['animename', 'storyname', 'nextarrow', 'sideinfov', 'sidelinfov', 'sideinfo', 'sidelinfo']}), dict(name='table', attrs={ 'summary': 'Technikalia'}), dict(attrs={'class': ['chaptername', 'copycat']}), dict(id='rightcolumn'), dict(attrs={'class': ['headn_tt', 'subtable']})]  # noqa

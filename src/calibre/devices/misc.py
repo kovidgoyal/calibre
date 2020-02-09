@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -525,14 +525,14 @@ class POCKETBOOK626(USBMS):
 
     name  = 'PocketBook Touch Lux 2'
     gui_name = 'PocketBook'
-    description    = _('Communicate with the PocketBook Touch Lux 2 reader')
+    description    = _('Communicate with the PocketBook Touch Lux 2 and Inkpad X readers')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
     VENDOR_ID   = [0xfffe]
     PRODUCT_ID  = [0x0001]
-    BCD         = [0x0230]
+    BCD         = [0x0230, 0x101]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True

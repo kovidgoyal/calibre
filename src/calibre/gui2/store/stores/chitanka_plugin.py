@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,8 +8,12 @@ __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import quote, HTTPError
 
 from lxml import html
 
@@ -43,20 +47,22 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         # check for cyrillic symbols before performing search
-        uquery = unicode(query.strip(), 'utf-8')
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
+        uquery = query.strip()
         reObj = re.search(u'^[а-яА-Я\\d\\s]{3,}$', uquery)
         if not reObj:
             return
 
         base_url = 'http://chitanka.info'
-        url = base_url + '/search?q=' +  urllib2.quote(query)
+        url = base_url + '/search?q=' +  quote(query)
         counter = max_results
 
         # search for book title
         br = browser()
         try:
             with closing(br.open(url, timeout=timeout)) as f:
-                f = unicode(f.read(), 'utf-8')
+                f = f.read().decode('utf-8')
                 doc = html.fromstring(f)
 
                 for data in doc.xpath('//ul[@class="superlist booklist"]/li'):
@@ -80,7 +86,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                     s.downloads['TXT'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href')).strip().replace('.zip', '')
                     s.formats = 'FB2, EPUB, TXT, SFB'
                     yield s
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             if e.code == 404:
                 return
             else:
@@ -98,7 +104,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
                 if counter <= 0:
                     break
-                f = unicode(f.read(), 'utf-8')
+                f = f.read().decode('utf-8')
                 doc2 = html.fromstring(f)
 
                 # search for book title

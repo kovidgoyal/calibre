@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -10,7 +10,7 @@ import re
 from random import shuffle
 
 from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout)
+                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QApplication)
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -23,6 +23,7 @@ from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import unicode_type
 
 
 class SearchDialog(QDialog, Ui_Dialog):
@@ -66,7 +67,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
-        if isinstance(query, (str, unicode)):
+        if isinstance(query, (bytes, unicode_type)):
             self.search_edit.setText(query)
         elif isinstance(query, dict):
             if 'author' in query:
@@ -184,11 +185,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Don't start a search if there is nothing to search for.
         query = []
         if self.search_title.text():
-            query.append(u'title2:"~%s"' % unicode(self.search_title.text()).replace('"', ' '))
+            query.append(u'title2:"~%s"' % unicode_type(self.search_title.text()).replace('"', ' '))
         if self.search_author.text():
-            query.append(u'author2:"%s"' % unicode(self.search_author.text()).replace('"', ' '))
+            query.append(u'author2:"%s"' % unicode_type(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
-            query.append(unicode(self.search_edit.text()))
+            query.append(unicode_type(self.search_edit.text()))
         query = " ".join(query)
         if not query.strip():
             error_dialog(self, _('No query'),
@@ -206,7 +207,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
-        store_names = self.store_checks.keys()
+        store_names = list(self.store_checks)
         if not store_names:
             return
         # Remove all of our internal filtering logic from the query.
@@ -232,7 +233,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('<', '')
         # Remove the prefix.
         for loc in ('all', 'author', 'author2', 'authors', 'title', 'title2'):
-            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, r'\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):
@@ -263,7 +264,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def restore_state(self):
         geometry = self.config.get('geometry', None)
         if geometry:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
 
         splitter_state = self.config.get('store_splitter_state', None)
         if splitter_state:
@@ -332,7 +333,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Restore dialog state.
         geometry = self.config.get('config_dialog_geometry', None)
         if geometry:
-            d.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(d, geometry)
         else:
             d.resize(800, 600)
         tab_index = self.config.get('config_dialog_tab_index', 0)
@@ -410,7 +411,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.searching = False
         else:
             self.searching = True
-            if unicode(self.search.text()) != self.STOP_TEXT:
+            if unicode_type(self.search.text()) != self.STOP_TEXT:
                 self.search.setText(self.STOP_TEXT)
             if not self.pi.isAnimated():
                 self.pi.startAnimation()
@@ -434,7 +435,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.save_state()
 
     def exec_(self):
-        if unicode(self.search_edit.text()).strip() or unicode(self.search_title.text()).strip() or unicode(self.search_author.text()).strip():
+        if unicode_type(self.search_edit.text()).strip() or unicode_type(self.search_title.text()).strip() or unicode_type(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec_(self)
 

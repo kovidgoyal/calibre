@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
+from polyglot.builtins import iteritems, unicode_type, cmp
 
 
 @contextmanager
@@ -65,7 +65,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -99,7 +99,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))
@@ -162,15 +162,16 @@ class TestICU(unittest.TestCase):
 
     def test_break_iterator(self):
         ' Test the break iterator '
-        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
+        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions, count_words
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
-            self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+            self.ae(split(unicode_type(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
         self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
         self.ae(split(u'-one two-'), ['-one', 'two-'])
         self.ae(split(u'-one a-b-c-d e'), ['-one', 'a-b-c-d', 'e'])
         self.ae(split(u'-one -a-b-c-d- e'), ['-one', '-a-b-c-d-', 'e'])
         self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (7 if icu.is_narrow_build else 6, 5)])
+        self.ae(count_words('a b c d e f'), 6)
         for needle, haystack, pos in (
                 ('word', 'a word b', 2),
                 ('word', 'a word', 2),

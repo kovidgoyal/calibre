@@ -5,8 +5,8 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# - version: 3.?.?
-#   date: 2018-??-??
+# - version: 4.?.?
+#   date: 2020-??-??
 #
 #   new features:
 #     - title:
@@ -19,6 +19,1230 @@
 #
 #   new recipes:
 #     - title:
+
+- version: 4.10.0
+  date: 2020-02-07
+
+  new features:
+    - title: "Viewer: When searching have single and double quotes match their curly variants as well."
+      tickets: [1861715]
+
+  bug fixes:
+    - title: "Fix a regression that caused the edit metadata individually and convert individually actions to use the bulk actions when multiple books are selected."
+
+    - title: "Linux: Fix a crash caused by broken/incompatible CUPS Qt system plugin."
+      tickets: [1861741]
+
+    - title: "Viewer: Fix search shortcut button not focusing search input if the search panel is placed in a tab or a floating window"
+
+    - title: "Update Google Images cover download plugin for website markup changes"
+      tickets: [1862034]
+
+    - title: "Catalog generation: Ignore invalid pubdates"
+
+    - title: "Viewer: Stop autoscroll when changing page layout mode."
+      tickets: [1861621]
+
+    - title: "zipfile: Fix regression that broke handling of zipfiles with internal filenames not encoded in UTF-8."
+      tickets: [1860889]
+
+    - title: "Check Book: Turn off unique headings CSS warning"
+
+    - title: "DOCX Output: When a list item contains a nested list but no text, it should be output as an empty list item."
+
+
+  improved recipes:
+    - The New Yorker
+    - Financiele Dagblad
+
+
+- version: 4.9.1
+  date: 2020-01-23
+
+  new features:
+    - title: "Viewer: Much improved search functionality"
+      description: "Now all matches are displayed when searching in a side bar with a few words of context. Also supports searching using regular expressions."
+      type: major
+      tickets: [1834247]
+
+    - title: "Edit book: The Check book function has a new, improved CSS checker with support for CSS 3"
+
+    - title: 'Edit book: Add an "Open with" action to the context menu of the files browser to easily open files with external programs.'
+      tickets: [1860462]
+
+    - title: "Viewer toolbar: Add button to easily change color schemes"
+      tickets: [1859547]
+
+  bug fixes:
+    - title: "version 4.9.1 fixes a couple of regressions in 4.9.0 with Check Book reporting false positives and an error when using the source editing view in the comments editor"
+
+    - title: "Comments editor: Fix inserted blank paragraph being rendered as two lines."
+
+    - title: "PDF Output: Fix conversion of files containing <canvas> elements failing."
+      tickets: [1859040]
+
+    - title: "Viewer: Fix failure to open some books that contain unparseable URLs."
+      tickets: [1858836]
+
+    - title: "Viewer: Fix data displayed in side margins getting moved out of position when mouse hovers over side margin."
+      tickets: [1858263]
+
+    - title: "Book details panel: When right clicking to save the cover, replace invalid characters in the suggested filename"
+
+    - title: "Fix harmless error popup when adding SSL key/certificate in server settings"
+      tickets: [1858198]
+
+    - title: "Dark mode: Fix colors in remove all formats except dialog"
+
+  improved recipes:
+    - Liberty Times
+
+
+- version: 4.8.0
+  date: 2020-01-03
+
+  new features:
+    - title: "Viewer in flow mode: Add auto-scrolling which can be triggered from the viewer controls and also make smooth scrolling by pressing down the arrow keys configurable"
+
+    - title: "Viewer: Allow showing data in left and right margins in addition to headers/footers."
+      tickets: [1855121]
+
+    - title: "Viewer: Allow right clicking in the lookup panel to zoom in/out."
+      tickets: [1857989]
+
+    - title: "Viewer: Allow setting colors for the margins when creating new color schemes in Preferences->Colors"
+
+    - title: "Viewer: Ctrl+, to show preferences"
+
+  bug fixes:
+    - title: "PDF Output: Fix extracting text from generated PDFs not working if more than 100 characters per font are used in the text."
+      tickets: [1857886]
+
+    - title: "macOS: Fix viewer controls not using system UI font"
+
+    - title: "Viewer: Fix images not being rendered at certain sizes when they are the only content on the page in paged mode with single page per screen."
+      tickets: [1857803]
+
+    - title: "Viewer: Fix svg links not working."
+      tickets: [1857812]
+
+    - title: "Viewer: Fix a bug that could allow maliciously crafted EPUB files to read data from files on the computer. Thanks to dozernz for discovering this attack vector."
+      tickets: [1857800]
+
+    - title: "macOS: Fix regression in previous release that caused link color to be light blue even when not using dark color themes"
+
+    - title: "RTF Output: Fix a regression that slowed down conversion of images."
+      tickets: [1857732]
+
+    - title: "Server viewer: Make the Exit full screen action available in viewer controls."
+      tickets: [1857677]
+
+    - title: "Viewer: Fix error when trying to change more than a single keyboard shortcut at once"
+      tickets: [1858117]
+
+    - title: "Fix typo causing a harmless error message when downloading covers and only a single cover is found"
+
+  improved recipes:
+    - London Review of Books
+
+
+- version: 4.7.0
+  date: 2019-12-26
+
+  new features:
+    - title: "macOS: Use transient scrollbars unless they are disabled in system preferences"
+
+    - title: "Viewer toolbar: Add actions for next and previous section. They are not added to the toolbar by default, customize it to add them."
+
+    - title: "Viewer: Add an option to keep the toolbar visible in full screen mode (Viewer Preferences->Miscellaneous)"
+
+    - title: "Viewer: Allow modifying the current selection using Ctrl+Shift+Arrow."
+      tickets: [1855942]
+
+    - title: "Book details: Add an option in Preferences->Look & feel->Book details to show a heading for the comments in the book details panel"
+      tickets: [1855942]
+
+    - title: "Edit book: Spell check: Ignore soft hyphens in words"
+
+    - title: "Viewer: In multiple pages per screen mode, When paging back to a chapter we have just paged forward from return to the exact position we left from in terms of number of blank trailing pages displayed."
+      tickets: [1856472]
+
+    - title: "Viewer: Add a setting under Preferences->Colors to control when the viewer will override all book colors or not."
+
+  bug fixes:
+    - title: "Viewer: Fix flick scrolling in flow mode jumping to next chapter."
+      tickets: [1856398]
+
+    - title: "Windows: Possible fix for some windows appearing off screen on multi-monitor setups"
+      tickets: [1857651]
+
+    - title: "macOS: Fix PDF Output not working when running ebook-convert via symlink on the command line."
+      tickets: [1857377]
+
+    - title: "PDF Output: Ignore upto 8 byte glyph data size mismatches when merging identical glyphs."
+      tickets: [1857268]
+
+    - title: "Edit Book: Spell Check: Fix words surrounded by narrow non-breaking spaces being incorrectly detected as mis-spelled"
+
+    - title: "Get books: Update various Polish language stores"
+
+    - title: "macOS: Fix drag and drop to re-arrange items in the viewer toolbar not working"
+
+    - title: "PDF Output: When an inline image is placed alone inside a block tag, ensure that it is not split over two pages."
+
+    - title: "ToC editor: Fix generate from links not working correctly when links have no fragments."
+      tickets: [1856395]
+
+    - title: "PDF Output: Dont dedup images that cannot be uncompressed"
+      tickets: [1856564]
+
+    - title: "Advanced search dialog: Fix an error when closing dialog if on the second tab and no field is focused"
+
+  improved recipes:
+    - Global Times
+    - London Review of Books
+    - The Telegraph (UK)
+    - The Economist
+
+- version: 4.6.0
+  date: 2019-12-13
+
+  new features:
+    - title: "Windows 10: Add support for dark mode."
+      type: major
+      description: "If you turn on dark mode under the Windows Settings->Personalisation->Colors and restart calibre it will use dark colors. Can also be enabled by setting the CALIBRE_USE_DARK_PALETTE environment variable."
+
+    - title: "Polish books tool: Add a setting to add or remove soft hyphens from the book text"
+
+    - title: "Viewer: Re-enable the old reference mode from calibre 3.x"
+
+    - title: "Kobo driver: Support for new firmware"
+
+  bug fixes:
+    - title: "PDF Output: Fix the option to break long words at the end of lines not working since calibre 4."
+      tickets: [1854349]
+
+    - title: "DOCX Input: Fix incorrect font sizes for footnote references in paragraphs that have text with multiple font sizes."
+      tickets: [1855403]
+
+    - title: "DOCX Input: Avoid nested <sup> tags for footnote references"
+
+    - title: "Viewer: Fix max text width/height settings not being applied correctly on window resize."
+      tickets: [1854211]
+
+    - title: "Viewer: Auto-expand entries in the Table of Contents when viewing the corresponding location in the book."
+
+    - title: "Viewer: When creating a new bookmark, if there is selected text use it as the default bookmark title."
+      tickets: [1854611]
+
+
+- version: 4.5.0
+  date: 2019-11-29
+
+  new features:
+    - title: "Driver for the new PocketBook Inkpad X"
+      tickets: [1854335]
+
+    - title: "Driver for the new Bookeen Diva HD"
+      tickets: [1854063]
+
+    - title: "PDF Output: Add an option to shift text horizontally on odd/even pages."
+      tickets: [1853155]
+
+    - title: "Image viewing popup dialog: Add a checkbox to fit image to window."
+      tickets: [1853671]
+
+    - title: "Edit book: Create @font-face rules when importing multiple font files into book automatically, similar to how it is done when importing a single font file."
+
+  bug fixes:
+    - title: "PDF Output: Fix incorrect rendering if the input document has too many anchors."
+      tickets: [1854345]
+
+    - title: "Fix a regression that could cause window layout settings to sometimes not be saved during shutdown"
+
+  improved recipes:
+    - "L'express"
+    - The Toronto Star
+
+
+- version: 4.4.0
+  date: 2019-11-21
+
+  new features:
+    - title: "Viewer: Allow customizing what actions appear on the toolbar (Preferences->Miscellaneous->Customize toolbar)."
+      tickets: [1852017]
+
+    - title: "Viewer: The --open-at command line argument now allows matching on ToC hrefs as well as titles"
+
+    - title: "Book details window: Show path to book in cover tooltip."
+      tickets: [1853184]
+
+    - title: "Book details popup window: Add Open with actions to context menu when right clicking the cover image."
+      tickets: [1852626]
+
+    - title: "Edit book: Check book: Mark empty id attributes in the OPF as errors."
+      tickets: [1852318]
+
+    - title: "Viewer: Add a shortcut (Ctrl+F11) to toggle the toolbar"
+
+    - title: "Bulk metadata download review dialog: When clicking cancel ask for confirmation if some books have already been reviewed"
+
+  bug fixes:
+    - title: "PDF Output: Fix an error when using fonts with vertical metrics."
+      tickets: [1852036]
+
+    - title: "Viewer: Fix flickering when scrollbar is enabled and the header/footer is too wide for the screen."
+
+    - title: "PDF Output: Improve handling of images that do not fit on a page."
+      tickets: [1852205]
+
+    - title: "Viewer: In paged mode break long text without spaces at arbitrary points instead of overflowing to the next page."
+      tickets: [1852192]
+
+    - title: "Viewer: Fix hang when using --open-at with single instance viewer and the specified location is already open."
+      tickets: [1656573]
+
+    - title: "Viewer: Fix opening .txt files in the standalone viewer leaving behind a temporary index.html file in the directory of the txt file."
+      tickets: [1853232]
+
+    - title: "Linux: Make some cache removal code robust against un-decodeable filenames in the cache directories"
+
+    - title: "Viewer: Fix scrolling of panels in preferences causing artifacts."
+      tickets: [1851933]
+
+    - title: "Viewer: improve appearance of controls on small screens."
+      tickets: [1851921]
+
+    - title: "Move close button in viewer preferences to left to match the rest of the content server UI."
+      tickets: [1851937]
+
+    - title: "Viewer: Fix restoring user stylesheet to default not being applied until a viewer restart"
+
+    - title: "Viewer: Do not wait for loading of <link> tags that are not stylesheets."
+      tickets: [1851814]
+
+    - title: "Viewer: When using the system color theme only override link colors in the book if the theme is dark."
+      tickets: [1852990]
+
+  improved recipes:
+    - The Atlantic
+    - LifeHacker
+
+
+- version: 4.3.0
+  date: 2019-11-08
+
+  new features:
+    - title: "Viewer: Halve the time taken to prepare large EPUB files for first open"
+
+    - title: "Viewer: Add an optional toolbar with common actions turn it on under Preferences->Miscellaneous"
+
+    - title: 'Viewer: Change the default color scheme to "System" which matches the colors used by the rest of calibre/the operating system. Also means the colors change automatically when the system color theme changes.'
+
+    - title: "Viewer: Add a keyboard shortcut ; to go to a book location or position"
+
+    - title: "Viewer: Add a control to easily reset the interface to defaults"
+
+    - title: "Viewer: Allow also using --open-at with book positions"
+
+    - title: "Viewer: Add command line option to force reloading of books"
+
+  bug fixes:
+    - title: "Content server: Fix conversion of comics not working."
+      tickets: [1847017]
+
+    - title: "Book details: Allow right click to copy author links and identifiers"
+
+    - title: "Book details: Fix removal of identifiers via right click not working"
+
+    - title: "Book details: Fix clicking on tags etc not generating exact match searches"
+
+    - title: "Viewer: When resizing and then resizing back to the old size ensure we return to the same page in paged mode."
+      tickets: [1847507]
+
+    - title: "Duplicates dialog: Sort sub-list of matching books already in calibre by author for easier inspection."
+      tickets: [1851386]
+
+    - title: "PDF Output: Fix links that go to destinations in the same file not working."
+      tickets: [1849529]
+
+    - title: "Viewer: Fix changes to keyboard shortcuts not being applied until viewer is restarted."
+      tickets: [1851045]
+
+    - title: "DOCX Input: Fix AlternateContent blocks rendering both choice and fallback sections."
+      tickets: [1847365]
+
+    - title: "macOS: Fix unable to re-arrange entries in the CSV catalog list."
+      tickets: [1850918]
+
+    - title: "Windows: fix UTF-16/truncated output when reporting unhandled exceptions"
+
+    - title: "Viewer: Fix mouse wheel not working when mouse is over page margins."
+      tickets: [1850845]
+
+    - title: "Linux: Install bash completions as individual files for each calibre binary"
+
+    - title: "Content server: Fix download button not working with non-ebook formats."
+      tickets: [1850078]
+
+    - title: "Fix a crash in popup completion lists if the mouse is over the list and list is scrolled with the keyboard"
+
+    - title: "Viewer: Fix rare exception when navigating to a CFI."
+      tickets: [1849775]
+
+    - title: "Viewer: Ignore failures printing console message when the viewer is launched with broken stderr."
+      tickets: [1849612]
+
+    - title: "Amazon metadata: Fix failure to get published date from audible book pages."
+      tickets: [1849400]
+
+    - title: "Viewer: Fix shortcuts preferences not being translated"
+
+    - title: "Tag browser: Fix incorrect text color when using dark theme for hovered item"
+
+    - title: "Fix crash if canceling the icon theme download while covers are downloading"
+
+    - title: "Viewer: Fix non-ASCII content in stylesheets not being interpreted correctly."
+      tickets: [1848858]
+
+    - title: "Viewer/Content server: Fix history for completion popups such as search bars not being stored correctly."
+      tickets: [1847976]
+
+    - title: "PDF Output: When a link with a fragment points to a non-existent anchor link to the top of the file instead of not linking at all"
+
+    - title: "PDF Output: Fix standard svg fullscreen image markup not working"
+
+    - title: "PDF Output: Fix some books with full screen images failing to convert."
+      tickets: [1848701]
+
+  improved recipes:
+    - Clarin
+    - Various Polish news sources
+
+
+- version: 4.2.0
+  date: 2019-10-18
+
+  new features:
+    - title: "macOS: Various improvements to dark mode support"
+      tickets: [1847571]
+
+    - title: "Viewer: Dont generate covers for books that dont have a cover. Note that because of this all previously opened books will again be prepared for first time reading."
+
+    - title: "Viewer: Restore print to PDF functionality"
+
+    - title: "Viewer: Allow also jumping to book positions in Goto->Location"
+
+    - title: "Content server: When adding books and a duplicate is suspected provide more information about what books match the duplicate"
+
+    - title: "FB2 Output: Speed up conversion of images and handle external links"
+
+    - title: "Viewer: If the book has no ToC try to generate one from headings, if any."
+      tickets: [1847277]
+
+    - title: "Viewer: Improve rendering of comics. No blank pages after large images or after every image in multi-page mode."
+
+    - title: "Viewer: Make it easier to use the bookmarks panel with only keyboard."
+      tickets: [1847423]
+
+    - title: "Viewer: Set the classes calibre-viewer-paginated and calibre-viewer-scrolling on the <body> tag in Paged and Flow modes. This allows the User styles to target these modes, if needed."
+      tickets: [1847427]
+
+    - title: "Viewer: Use the same loading spinner as is used by the rest of calibre"
+
+  bug fixes:
+    - title: "Edit book: Fix a crash when editing CSS files caused by a behavior change in Qt 5.13."
+      tickets: [1846760]
+
+    - title: "Fix a regression in 4.0 that broke rendering of PDF covers for PDF files that used JPEG2000 compression."
+      tickets: [1847567]
+
+    - title: "Viewer: Fix a regression in 4.1 that broke creating new color schemes"
+      tickets: [1847407]
+
+    - title: "Viewer: Fix error while viewing books with a comment after a <meta> tag."
+      tickets: [1847977]
+
+    - title: "Viewer: Fix an error when processing a CFI with an invalid text offset."
+      tickets: [1848320]
+
+    - title: "Viewer: Fix scrolling backwards to previous chapter not always scrolling to the end of the chapter, if the chapter loads external resources."
+      tickets: [1847818]
+
+    - title: "Viewer: Fix hang on books with namespaced attributes on <html> that do not belong to a known ebook namespace."
+      tickets: [1846886]
+
+    - title: "Viewer: Fix search history not persisting between viewer restarts."
+      tickets: [1847976]
+
+    - title: "Viewer: Fix scrollbar showing up on initial book open even if disabled in preferences."
+      tickets: [1847323]
+
+    - title: "Viewer: Fix rendering of books with mathematics failing"
+
+    - title: "Viewer: When changing between individual sections/chapters in the book, only render the new chapter after loading is complete"
+
+    - title: "Viewer: Fix scrolling by screenfuls not working correctly in flow mode"
+
+    - title: "EPUB 2 metadata: Fix obfuscated fonts being broken when updating metadata if the file uses Adobe font obfuscation and the identifier with the key has an uppercase UUID scheme name."
+      tickets: [1847890]
+
+    - title: "Viewer: Fix right clicking on margins not showing controls"
+
+    - title: "Viewer: Preselect text in search box when showing it."
+      tickets: [1847677]
+
+    - title: "Viewer: Fix SVG images that use xlink:href to refer to paths not being displayed."
+      tickets: [1847181]
+
+    - title: "Content server: Fix detection of iOS on iPAD with iOS 13 which defaults to desktop mode"
+
+    - title: "Metadata jacket: Fix <br> tags in the comments not being rendered correctly when inserting the comments into the jacket page."
+      tickets: [1848327]
+
+    - title: "Viewer: Show nicer error message for DRMed books"
+      tickets: [1847468]
+
+    - title: "Viewer: Fix preferences under Scrolling behavior not being saved correctly"
+
+    - title: "Viewer: Fix remembered position sometimes off by one page in paged mode."
+      tickets: [1847322]
+
+    - title: "Viewer: restrict max size of margin page turn indicators to 25px rather than 75px"
+
+    - title: "Viewer: Dont flash the home page before loading a book if a book has been specified"
+
+    - title: "Viewer: Fix ctrl+m shortcut not working on windows"
+
+    - title: "Content server: Fix regression that caused series name in book details view not not be blue to indicate it is clickable"
+
+  improved recipes:
+    - Various Polish news sources
+    - Il Sole 24 Ore
+
+
+- version: 4.1.0
+  date: 2019-10-07
+
+  new features:
+    - title: "Viewer: Add an option to have a scrollbar (under Scrolling in the viewer preferences)"
+
+    - title: "Viewer: Allow showing the 'position in book', as was displayed in the top left of the viewer in calibre 3, in the header or footer of the viewer."
+      tickets: [1846700]
+
+    - title: "Viewer: Add options to control scrolling using the mouse in paged mode."
+      tickets: [1846800]
+
+    - title: "Viewer: Allow copying images by right clicking on them."
+      tickets: [1846903]
+
+    - title: "Viewer: Add a preference under Miscellaneous to allow only a single instance of the viewer"
+
+    - title: "Viewer: Add keyboard shortcuts to toggle between paged mode and flow mode and to quit"
+
+    - title: "Content server: Make the book size useable in custom book list templates."
+      tickets: [1846839]
+
+    - title: "Edit metadata: Use a border rather than background color to indicate correct title and author sort values. Works better with dark themes."
+      tickets: [1846967]
+
+    - title: "Kobo driver: Support for new firmware"
+
+  bug fixes:
+    - title: "Viewer: Fix a couple of bugs in flow mode. Scrolling to anchors was not working and remembering last read position was not working"
+
+    - title: "Viewer: Fix text after comments not being rendered. Note that the book has to be reloaded if already viewed for the fix to apply."
+      tickets: [1846875]
+
+    - title: "Viewer: Fix loading progress screen sometimes getting stuck if changing pages rapidly."
+      tickets: [1846751]
+
+    - title: "Viewer: Fix failing to open books if path to cache contains symbolic links."
+      tickets: [1846834]
+
+    - title: "Viewer: When restoring from fullscreen go back to maximized state if window was maximized when entering full screen."
+      tickets: [1846753]
+
+    - title: "Viewer: Fix shortcut changes not being applied after pressing OK if shortcut list is closed by pressing Esc."
+      tickets: [1846765]
+
+    - title: "Fix a regression that broke reading metadata from ODT files that do not have keywords."
+      tickets: [1846828]
+
+    - title: "PDF Output: Fix a bug that prevented the first style property in the header or footer template from being applied"
+
+    - title: "PDF Output: Fix error with a few embedded TTF fonts."
+      tickets: [1846982]
+
+    - title: "Edit book: Font manager: Fix removing embedded font failing if @font-face rule has no src."
+      tickets: [1847052]
+
+    - title: "Viewer: Hide the browser provided scrollbar that flashes momentarily on page load."
+      tickets: [1846922]
+
+    - title: "Viewer: Fix clicking on margins causing keyboard shortcuts to not work until the main text is clicked on again"
+
+    - title: "Comments editor: Workaround for Qt converting ids into anchors"
+
+    - title: "Possible workaround for some windows machines where the viewer is getting access denied errors while renaming a directory"
+
+    - title: "Viewer: When there is empty text for an header footer section render it as blank instead of moving the remaining sections to the left"
+
+  improved recipes:
+    - Fortune Magazine
+
+
+- version: 4.0.0
+  date: 2019-10-04
+
+  new features:
+    - title: "For details on the major changes in calibre between 3.0 and 4.0, see https://calibre-ebook.com/new-in/thirteen"
+      type: major
+
+    - title: "A completely re-written E-book viewer with an emphasis on presenting the book text, distraction free"
+      type: major
+
+    - title: "Note that the system requirements needed for calibre have been increased, details are present on the calibre download pages for each operating system"
+
+
+- version: 3.48.0
+  date: 2019-09-13
+
+  new features:
+    - title: "Driver for Kobo Libra H2O"
+
+  bug fixes:
+    - title: "Kobo driver: Fix some annotations getting missed for kepubs"
+
+  improved recipes:
+    - Boston Globe
+    - Scientific American
+
+
+- version: 3.47.1
+  date: 2019-08-30
+
+  new features:
+    - title: "HTML metadata: Support reading identifiers from HTML files"
+
+    - title: "Preferences->Ignored devices: Add a button to reset the list of devices that calibre is allowed to manage"
+
+  bug fixes:
+    - title: "macOS: Fix a regression that could cause a crash on exit if any books were deleted while calibre was running."
+      tickets: [1839044]
+
+    - title: "Content server OPDS: Handle form encoded search queries."
+      tickets: [1841464]
+
+    - title: "Fix an error when adding files from clipboard and file is of unknown type"
+
+    - title: "Speed up restoring original format by doing a rename rather than a copy and re-add."
+      tickets: [1839733]
+
+    - title: "EPUB 3: Fix setting metadata in EPUB 3 files without a title not working"
+
+    - title: "PML Input: Modernize the generated HTML a bit."
+      tickets: [1839689]
+
+    - title: "HTMLZ Output: Fix svg content from HTML files that contain only SVG being removed."
+      tickets: [1839522]
+
+    - title: "Content server: Fix OPDS feed for category based browsing listing restricted books, even though these books cannot be actually downloaded."
+      tickets: [1839173]
+
+    - title: "Preserve tag order when reading metadata from MOBI files"
+
+    - title: "Add missing 'language' field to ComicBookInfo metadata for .CBR files."
+
+    - title: "LIT Output: Fix regression in 3.41 caused by py3 porting that broke conversion of some files to LIT."
+      tickets: [1837561]
+
+    - title: "Version 3.47.1 fixes an error when using internet lookup from the book details panel and the e-book viewer, and also the tweak to control number of columns in the edit metadata dialog not working"
+      tickets: [1842158,1842183,1842090,1842201]
+
+  improved recipes:
+    - Esquire
+    - Foreign Affairs
+    - derStandaard
+    - Globe and Mail
+    - CNET News
+    - National Geographic
+    - New Yorker
+    - Chicago Tribune
+
+
+- version: 3.46.0
+  date: 2019-07-19
+
+  bug fixes:
+    - title: "Manage tags dialog: When searching for a tag also search the \"Was\" column to see if the original tag name matches."
+      tickets: [1836813]
+
+    - title: "Windows: Fix calibre-server --manage-users not working correctly"
+
+    - title: "MOBI Input: Fix conversion of MOBI files with malformed markup and embedded <guide> tags not working."
+      tickets: [1836548]
+
+    - title: "Edit book: Allow the search expression history to remember very short terms and also preserve leading and trailing whitespace."
+      tickets: [1836559]
+
+    - title: "Fix a regression in 3.45 that broke conversion of SVG images when converting to formats such as MOBI that do not support SVG."
+      tickets: [1836463]
+
+    - title: "Fix a regression in 3.45 that broke parsing of old-style .py config files"
+
+
+- version: 3.45.2
+  date: 2019-07-12
+
+  new features:
+    - title: "Content server: Allow adding or removing formats to a book via the edit metadata page."
+      tickets: [1831304]
+
+    - title: "ToC Editor: Allow user to control whether duplicate headings are included or not when generating ToC from headings"
+
+    - title: "Advanced search dialog: Remember the last focused field in the search by title/authors tab"
+
+    - title: "Conversion: Performance improvement for books that have many HTML files that all include the same CSS stylesheets"
+
+    - title: "Kobo driver: Add options to more precisely control the generation of cover images, to reduce size and enhance quality"
+
+    - title: "Support subtitle in Douban metadata plugin"
+
+  bug fixes:
+    - title: "Fix a Windows-specific regression in 3.45.0 that caused various errors in the viewer and editor"
+      tickets: [1836294]
+
+    - title: "Fix a Windows-specific regression in 3.45.0 that prevented calibre from starting on non UTF-8 locales with non-ASCII usernames"
+      tickets: [1836360]
+
+    - title: "Linux: Workaround for bug in recent Linux kernels that causes the Kindle to eject after calibre connects to it."
+      tickets: [1834641]
+
+    - title: "DOCX Input: When autodetecting the Table of Contents from headings, work even if the headings use numbering."
+      tickets: [1834661]
+
+    - title: "EPUB Output: If there are no guide elements do not output an empty guide tag. Makes epubcheck happy."
+      tickets: [1835560]
+
+    - title: "Workaround for sortByColumn being partially broken in Qt 5.13.0"
+      tickets: [1834989]
+
+    - title: "Fix a regression that broke the per_lang_title_sort_articles tweak."
+      tickets: [1834329]
+
+    - title: "Sending email: Fix an error on some windows machines with non-ASCII hostnames"
+
+    - title: "EPUB Output: When generating EPUB 3 preserve the old style meta tag to identify the cover as Google Play Books does not recognize EPUB 3 cover markup."
+      tickets: [1832660]
+
+    - title: "Create catalog: Fix handling of the tilde character in BiBTeX catalogs."
+      tickets: [1832726]
+
+    - title: "News downloads: Fix incorrect font sizes for some text in the index pages."
+      tickets: [1832628]
+
+    - title: 'Comic Input: Fix incorrect processing of comics with pages that have the same file names in different folders when using the "No process" option.'
+      tickets: [1831487]
+
+    - title: "CHM Input: Fix a regression that broke processing of some CHM files."
+      tickets: [1831511]
+
+    - title: "Edit book: When auto-closing tags on typing </, fix occasionally incorrect tag being closed in large files because syntax highlighting has not completed"
+
+    - title: "Kobo driver: Fix for ContentType not being defined error for extension-less non kepub files on a Kobo"
+
+    - title: "Content server: Book details page: Do not display empty rows for undefined dates"
+
+    - title: "Get books: Update Google books and amazon plugins for markup changes"
+
+    - title: "Edit book: Text search: Fix searching for a single character backwards not working"
+
+
+  improved recipes:
+    - Art and Letters Daily
+    - The Wall Street Journal
+    - Barrons
+    - Newsweek
+
+  new recipes:
+    - title: "Aviation International News"
+      author: Jose Ortiz
+
+- version: 3.44.0
+  date: 2019-05-31
+
+  new features:
+    - title: "Driver for the new NOOK Glowlight Plus"
+
+    - title: "Driver for updated Kobo firmware"
+
+  bug fixes:
+    - title: "Amazon metadata plugin: Fix searching the Amazon servers directly not working because of changed markup"
+
+
+- version: 3.43.0
+  date: 2019-05-28
+
+  new features:
+    - title: "Kobo driver: Support for new Kobo firmware"
+
+    - title: "Edit metadata dialog: Remember relative sizes of the cover and comments editors."
+      tickets: [1828291]
+
+  bug fixes:
+    - title: "PDF Output: Fix hang when converting some documents."
+      ticket: [1829535]
+
+    - title: "Handle newlines when serializing to csr files"
+      tickets: [1827198]
+
+    - title: "Fix searching in manage tags throws away all changes"
+      tickets: [1828986]
+
+    - title: "Fix a regression in the previous release that broke using the wireless device driver with the device_for_template option"
+
+    - title: "Fix metadata download from Amazon stripping accents from comments text in the binary builds"
+
+    - title: "Amazon metadata download: Fix some downloads failing when a mobile user agent is randomnly selected."
+      tickets: [1827027]
+
+    - title: "LRF Input: Fix a regression that broke parsing LRF files."
+      tickets: [1826970]
+
+    - title: "PDF Input: Workaround for pdftohtml not always producing valid UTF-8."
+      tickets: [1830568]
+
+  improved recipes:
+    - The Toronto Star
+    - The Financial Express
+    - London Review of Books
+    - Boston Globe Subscription
+
+  new recipes:
+    - title: The Baffler
+      author: Jose Ortiz
+
+- version: 3.42.0
+  date: 2019-04-30
+
+  bug fixes:
+    - title: "Conversion: Transform styles: When using regular expressions fix substitution groups not working."
+      tickets: [1825764]
+
+    - title: "Fix a regression in the previous release that caused the conversion of HTML to text in comments when output to catalogs or converting downloaded metadata to behave slightly differently."
+      tickets: [1826654]
+
+    - title: "Edit book: Fix beautify not handling <colgroup> and <th> tags correctly."
+      tickets: [1826631]
+
+    - title: "DOCX Input: Fix cross-references using the 'fldSimple' markup not being recognized by calibre."
+
+    - title: "EPUB/MOBI Catalogs: Fix a regression in the previous release that caused ampersands and middle-dots to appear as HTML entities in the output."
+      tickets: [1826127]
+
+    - title: "Prevent a malformed tweaks.json file from stopping calibre startup"
+
+    - title: "Fix a regression that broke completion for ebook-convert"
+
+    - title: "News fetching: Fix a regression that broke removal of attributes/javascript/srcset because of bugs in the new BeautifulSoup"
+
+    - title: "TXT Output: Fix Vietnamese Â character being stripped from output."
+      tickets: [1825770]
+
+    - title: "E-book viewer: Fix specifying a non-existent location via --open-at causing viewer to hang"
+
+  improved recipes:
+    - Global Times
+    - Corriere della Serra
+
+  new recipes:
+    - title: Magyar Nemzet
+      author: pofa
+
+- version: 3.41.3
+  date: 2019-04-19
+
+  new features:
+    - title: "Kobo driver: Support for new firmware"
+
+    - title: "Content server: Add an option to control which book list mode is used by default for new users (Preferences->Sharing over the net->Choose book list mode)"
+
+    - title: "Content server: Allow clicking on book cover in details page to read the book."
+      tickets: [1819058]
+
+    - title: "Amazon metadata plugin: Add a option to use the mobi-asin to find books."
+      tickets: [1823520]
+
+    - title: "E-book viewer: Allow specifying ToC hrefs via the --open-at command line parameter."
+      tickets: [1656573]
+
+    - title: "Tag Mapper: Allow Title-casing of tags."
+      tickets: [1823097]
+
+    - title: "Manage authors dialog: Add an entry to the right click menu to show books by the current author in the main book list."
+      tickets: [1821992]
+
+    - title: "Lots of internal changes to calibre's codebase to prepare it for Python 3 support."
+
+  bug fixes:
+    - title: "Content server: Fix links to external resources in book details and the viewer not working"
+
+    - title: "Content server: Fix using a bookmark to load the book list not working if server is password protected."
+      tickets: [1819025]
+
+    - title: "Content server: Book details page: Fix close button not going back to book list after using Next/previous buttons."
+      tickets: [1819060]
+
+    - title: "Kobo driver: Fix update device metadata setting not being saved. Also fix book language not being set correctly on newer firmware."
+
+    - title: "PDF Output: Fix 'stroke-dasharray' lines in SVG images in the input document not being rendered correctly."
+      tickets: [1821923]
+
+    - title: "Fix searching for authors on amazon not working because of a change in the amazon URL structure."
+      tickets: [1822532]
+
+    - title: "Cover grid: Check for cover size change due to screen scale change on every paint event and invalidate cache if there is a change."
+      tickets: [1723972]
+
+    - title: "Edit book: Fix Option key + ; not working in the editor."
+      tickets: [1823040]
+
+    - title: "Edit book: Fix pasting images into a book with no Images folder not working correctly."
+      tickets: [1817405]
+
+    - title: "Confirm cancel on library restore dialog"
+      tickets: [1823204]
+
+    - title: "EPUB/MOBI Catalogs: Fix presets not being applied for some options."
+      tickets: [1821968]
+
+    - title: "Fix using --insert-metadata with ebook-convert not inserting the title and author metadata from the source document"
+
+    - title: "Adding books: When adding with auto-merge and auto-convert enabled, also run conversions for books into which the added files are merged."
+      tickets: [1822018]
+
+    - title: "Versions 3.41.1, 3.41.2, 3.41.3 fix various regressions in the previous release that affect a few people."
+      tickets: [1825472, 1825494, 1825542]
+
+  improved recipes:
+    - Il Post
+    - Le Monde Edition Abonnes Papier
+    - Le Temps
+    - NASA
+    - "1843"
+    - derStandard
+    - LA Times
+
+  new recipes:
+    - title: The New Criterion
+      author: Darko Miletic
+
+- version: 3.40.1
+  date: 2019-03-08
+
+  new features:
+    - title: "TXT Input: Use markdown 3.0 with support for new extensions such as code highlighting and smarten punctuation."
+
+    - title: "Book details panel: Allow editing the identifiers for the book by right clicking on the existing Ids."
+      tickets: [1815005]
+
+    - title: "Content server: Allow specifying custom URLs for the 'Search the internet' feature via Preferences->Sharing over the net->Search the internet."
+      tickets: [1810923]
+
+    - title: "Tag browser: Category editor: Add a checkbox to restrict the entries shown to only those present in the current Virtual library"
+
+    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected books from clipboard"
+      tickets: [1815419]
+
+    - title: "Tag browser: When right clicking on a saved search add a menu option to search using the raw search expression."
+      tickets: [1816274]
+
+    - title: "Tag browser: Have pressing the Enter key find the next match."
+      tickets: [1816276]
+
+    - title: "Windows: Add a button to Preferences->Sharing over the net to set calibre to run when the computer starts"
+
+  bug fixes:
+    - title: "Fix a regression in the previous release that broke Copy to library and delete after when copying a duplicated book."
+      tickets: [1816224]
+
+    - title: "Edit book: Fix pasting of image from clipboard using (Ctrl-V) not working"
+
+    - title: "Content server: Fix {id} not working in the custom list template"
+      tickets: [1818308]
+
+    - title: "EPUB/MOBI Catalogs: Fix presets not saving title and format information."
+      tickets: [1818838]
+
+    - title: "macOS: Respect the system setting for text insertion cursor blink time"
+
+    - title: "FB2 Output: Fix comments from the input document not present in the output."
+      tickets: [1815357]
+
+    - title: "calibredb: Fix adding books with an OPF file to a remote server not picking up the cover specified in the OPF file"
+
+    - title: "TXT Input: Fix option to remove indents at the start of lines breaking conversion of markdown documents."
+      tickets: [1814989]
+
+    - title: "EPUB/MOBI Catalog generation: Allow matching empty fields in exclusion rules."
+      tickets: [1814458]
+
+    - title: "EPUB/MOBI Catalogs: Fix multiple books with the same title but different authors in a genre not being listed."
+      tickets: [1415990]
+
+    - title: "Update the Get Books and metadata Amazon.com plugins to handle changes to the markup on the Amazon results page"
+
+    - title: "Version 3.40.1 fixes a bug in 3.40 that could prevent calibre starting when using a custom date column"
+
+  improved recipes:
+    - Scientific American
+    - Taipei Times
+    - Harpers Magazine
+    - General Knowledge Today
+    - Granma
+    - South China Morning Post
+    - New York Times (Web)
+    - China Daily
+    - "1843"
+    - Pro Physik
+    - Caravan Magazine
+    - Spektrum der Wissenchaft
+
+  new recipes:
+    - title: Quanta Magazine
+      author: lui1
+
+    - title: El Periodico Mediterraneo
+      author: benages
+
+- version: 3.39.1
+  date: 2019-02-01
+
+  new features:
+    - title: "Content server: Implement the \"Copy to library\" function. To use it click the three dots in the top right corner of a book's page and choose \"Copy to library\""
+      tickets: [1810486]
+
+    - title: "Content server: Add Next/Previous buttons to the book details page"
+
+  bug fixes:
+    - title: "Content server: Fix editing metadata that affects multiple books causing all the metadata for all the books to become the same."
+      tickets: [1812781]
+
+    - title: "Open With: Fix using .bat files as the program not working."
+      tickets: [1811045]
+
+    - title: "ZIP Output: Fix an error when building the ToC on macOS for some books with non-ASCII ToC entries"
+      tickets: [1813905]
+
+    - title: "Edit book: Check book: Follow recent releases of epubcheck in expecting .ttf files to have the mime-type application/vnd.ms-opentype in EPUB 3 books"
+
+    - title: "Fix font mime-types not being auto-corrected when upgrading EPUBs from 2 to 3"
+
+    - title: "Content server: Try to detect if a book file has been edited outside of calibre and serve the updated copy"
+
+    - title: "Fix merging books not updating author if the source book has no title"
+
+    - title: "Content server: Fix heading for custom comments columns being duplicated in the book details page"
+
+    - title: "Fix editing of dates not working if the date format is set to iso."
+      tickets: [1812560]
+
+    - title: "Version 3.39.1 fixes a bug in 3.39.0 that broke copy to library for books that have saved conversion options"
+      tickets: [1814279]
+
+  improved recipes:
+    - Spiegel Online
+    - Il Post
+
+  new recipes:
+    - title: BSI News
+      author: Volker Heggemann
+
+    - title: Science Advances
+      author: Jose Ortiz
+
+- version: 3.38.1
+  date: 2019-01-18
+
+  new features:
+    - title: "Tag browser: When using the Find function have unaccented characters match their accented equivalents, if the setting for it is set in Preferences->Searching"
+
+    - title: "DOCX Input: When converting indices, put each sub-entry on its own line."
+      tickets: [1811611]
+
+    - title: "Edit book: Insert hyperlink: Add history for the template"
+
+    - title: "Edit book: Insert hyperlink: Add a few more variables for the link template: _SOURCE_FILENAME_, _DEST_FILENAME_ and _ANCHOR_"
+
+  bug fixes:
+    - title: "Catalogs: Set the language of created catalogs to the calibre interface language instead of English"
+      tickets: [1810936]
+
+    - title: "DOCX Input: Do not display section breaks that have a numbering style applied to them."
+      tickets: [1811611]
+
+    - title: "Content server: Fix listening on :: not also listening on IPv4 interfaces on Windows"
+
+    - title: "DOCX Output: Fix heading styles that have the same font size as body text getting incorrect font sizes after conversion."
+      tickets: [1811616]
+
+    - title: "EPUB/MOBI Catalogs: Fix prefix rules not working when calibre UI language is something other than English"
+
+    - title: "EPUB/MOBI Catalogs: Fix exclusion by tag not working for tags that have spaces in them"
+
+    - title: "Subset fonts: Fix error when trying to subset unicode characters that require two UTF-16 code points on Windows."
+      tickets: [1811224]
+
+    - title: "Content server: Fix option to restrict displayed user field not working in the /opds view"
+
+    - title: "Tag browser: Fix incorrect icon for user categories."
+      tickets: [1810217]
+
+    - title: "PDF Output: Fix conversion failing when fonts with non-English names are used."
+      tickets: [1812218]
+
+    - title: "3.38.1 fixes a typo in 3.38.0 that caused the Polish books function to not work when polishing small numbers of books"
+
+  improved recipes:
+    - Chicago Tribune
+    - New York Times Book Review
+
+  new recipes:
+    - title: Nature
+      author: Jose Ortiz
+
+- version: 3.37.0
+  date: 2019-01-04
+
+  bug fixes:
+    - title: "Switch from cssutils to css_parser for parsing CSS. Fixes various minor, long standing bugs"
+
+    - title: "calibredb: Fix adding books from directories to a remote server running on Windows not working"
+
+    - title: "Edit Book: Fix style attribute on <html> tags not being preserved when editing AZW3 files."
+      tickets: [1810193]
+
+    - title: "Get Books: Use an external browser for Google Books"
+      tickets: [1810205]
+
+    - title: "Saving to disk: Fix errors on Linux/macOS if the title/authors are long enough to make individual path components larger than 255 characters."
+      tickets: [1807525]
+
+    - title: "PDF Input: Fix non-breaking spaces represented as entities in the output of pdftohtml, which breaks some search/replace expressions"
+
+    - title: "Edit book: Fix a crash when mousing over links in an instance of the editor launched standalone on macOS Mojave"
+      tickets: [1805521]
+
+    - title: "Conversion: When converting with font size rescaling disabled, convert font size names to rem unit rather than pt units."
+      tickets: [1809671]
+
+    - title: "Windows: When registering calibre programs as possible handlers for various file types, dont set the AllowSilentDefaultTakeOver registry key"
+
+    - title: "macOS: PDF Output: Fix bold fonts not working on Mojave."
+      tickets: [1799750]
+
+    - title: "Content server: Fix strings with double quotes not being translated."
+
+  improved recipes:
+    - Il Post
+
+- version: 3.36.0
+  date: 2018-12-21
+
+  new features:
+    - title: "Happy Holidays to everyone!"
+
+    - title: "Kobo driver: Add supported for newly released firmware update"
+
+  bug fixes:
+    - title: "Kobo driver: Fix a regression in the last release that caused book title
+to appear as Unknown if metadata management was set to manual in calibre."
+      tickets: [1807914]
+
+    - title: "PDF Output: Do not fail if one of the fonts from the source document has no name metadata"
+
+  improved recipes:
+    - Wall Street Journal
+    - ESPN
+    - Al Jazeera (English)
+
+
+- version: 3.35.0
+  date: 2018-12-07
+
+  new features:
+    - title: "Edit book: Insert hyperlink: Allow specifying a template to control the markup that is inserted for the hyperlink."
+      tickets: [1804250]
+
+    - title: "Metadata download: Add an option (in Preferences->Metadata download) to keep multiple results from individual metadata sources, useful if you prefer to pick the best result by hand and use only one or two metadata sources."
+      tickets: [1802293]
+
+    - title: "KoboTouch driver: Extend the metadata updated in the Kobo device database to all metadata displayed on the device. The update is only done for books already on the device. Needs to be enabled via Preferences->Plugins->Customize the KoboTouch device plugin."
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression that broke viewing of HTMLZ files"
+      tickets: [1691976]
+
+    - title: "Edit book: Fix suggestions in completion popup not being sorted."
+      tickets: [1803985]
+
+    - title: "Windows: Fix restarting calibre with system tray icon enabled causing duplicate defunct icons in the tray."
+      tickets: [1803034]
+
+  improved recipes:
+    - Wired Magazine
+    - Wall Street Journal
+    - Telepolis
+    - Yahoo News
+    - Associated Press
+    - Mother Jones
+
+  new recipes:
+    - title: Macrobusinness
+      author: 2018robert
+
+    - title: Sports Illustrated
+      author: Kovid Goyal
+
+    - title: Le Peuple Breton
+      author: Lionel Plais
+
+    - title: Mandiner
+      author: pofa
+
+
+- version: 3.34.0
+  date: 2018-11-08
+
+  new features:
+    - title: "Support for the new Kindle Paperwhite 2018"
+      tickets: [1802088]
+
+    - title: "Metadata plugboards: Allow defining plugboards that modify comments metadata as well"
+
+    - title: "E-book viewer: Add a keyboard shortcut (Ctrl+M) for toggling between paged and flow mode"
+
+  bug fixes:
+    - title: "EPUB Input: Handle invalid EPUB files that have their NCX documents in the spine."
+      tickets: [1796497]
+
+    - title: "EPUB3 Input: Handle EPUB 3 files that incorrectly use EPUB 2 markup to identify cover images."
+
+    - title: "Content server: Fix --url-prefix feature not working with book conversion"
+
+  improved recipes:
+    - Business Standard
+    - Washington Post
+    - General Knowledge Today
+    - How To Geek
+
+  new recipes:
+    - title: Arts and Letters Daily
+      author: pjpaulpj
+
+    - title: Magyar Idok
+      author: pofa
 
 - version: 3.33.1
   date: 2018-10-19
@@ -181,7 +1405,7 @@
     - title: "Content server: When defining a color scheme for the in browser viewer allow specifying the link color as well as the foreground and background."
       tickets: [1735904]
 
-    - title: "Edit book: Show a popup after a fix all html/beautify all files so the user can easily see what was changed, if needed."
+    - title: "Edit book: Show a popup after a fix all HTML/Beautify all files so the user can easily see what was changed, if needed."
       tickets: [1785482]
 
     - title: "Kindle driver: Create cover thumbnails on the device when transferring KFX format books"
@@ -603,7 +1827,7 @@
   new features:
     - title: "Content server: Allow editing the metadata of books from the book details page"
       type: major
-      description: "On the book details page, you can now edit any metadata and change covers by clicking the edit metadata icon in the right area of the top bar. Note that only users that have write permissions for the library can edit metadata."
+      description: "On the book details page, you can now edit any metadata and change covers by clicking the Edit metadata icon in the right area of the top bar. Note that only users that have write permissions for the library can edit metadata."
 
     - title: "Kobo driver: Recognize Kobo Aura 2 with new firmware (4.6.10188)"
 

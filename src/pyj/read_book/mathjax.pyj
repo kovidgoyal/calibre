@@ -4,6 +4,9 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
+from read_book.globals import runtime
+
+
 def get_url(mathjax_files, name):
     ans = mathjax_files[name]
     if not ans:
@@ -12,7 +15,20 @@ def get_url(mathjax_files, name):
         ans = mathjax_files[name] = window.URL.createObjectURL(ans)
     return ans
 
+
 def monkeypatch(mathjax_files):
+    StyleString = window.MathJax.Ajax.StyleString.bind(window.MathJax.Ajax)
+
+    def style_string(styles):
+        # replace the URLs in the generated stylesheet
+        return StyleString(styles).replace(/url\('?(.*?)'?\)/g, def (match, url):
+            if not url.endsWith('.woff'):
+                return match
+            url = get_url(mathjax_files, url)
+            ans = f"url('{url}')"
+            return ans
+        )
+
     orig = window.MathJax.Ajax.fileURL.bind(window.MathJax.Ajax)
     def file_url(file):
         ans = orig(file)
@@ -28,6 +44,7 @@ def monkeypatch(mathjax_files):
             print('WARNING: Failed to resolve MathJax file:', name)
         return ans
     window.MathJax.Ajax.fileURL = file_url
+    window.MathJax.Ajax.StyleString = style_string
     window.MathJax.Ajax.fileRev = def(file):
         return ''
 
@@ -45,7 +62,6 @@ def init_mathjax(mathjax_files, link_uid, proceed):
 
 def apply_mathjax(mathjax_files, link_uid, proceed):
     window.MathJax = m = v'{}'
-    m.AuthorInit = init_mathjax.bind(this, mathjax_files, link_uid, proceed)
     m.positionToHash = False
     m.showMathMenu = False
     m.showMathMenuMSIE = False
@@ -54,4 +70,21 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     m.TeX = v'{}'
     m.TeX.extensions = "AMSmath.js AMSsymbols.js noErrors.js noUndefined.js".split(' ')
     m.CommonHTML = v'{ linebreaks: { automatic: true} }'
-    document.head.appendChild(E.script(type='text/javascript', src=get_url(mathjax_files, 'MathJax.js')))
+    script = E.script(type='text/javascript')
+    document.head.appendChild(script)
+    if runtime.is_standalone_viewer:
+        script.onload = def():
+            ev = new CustomEvent("calibre-mathjax-init", {
+                'detail': {
+                    'MathJax': m,
+                    'link_uid': link_uid,
+                    'mathjax_files': mathjax_files,
+                }
+            })
+            document.documentElement.dispatchEvent(ev)
+        document.documentElement.addEventListener("calibre-mathjax-init-done", def(ev):
+            proceed()
+        )
+    else:
+        m.AuthorInit = init_mathjax.bind(this, mathjax_files, link_uid, proceed)
+    script.src = get_url(mathjax_files, 'MathJax.js')

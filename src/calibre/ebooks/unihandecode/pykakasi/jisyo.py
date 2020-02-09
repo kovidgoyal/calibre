@@ -2,7 +2,11 @@
 #  jisyo.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from zlib import decompress
+
+from polyglot.builtins import unicode_type
 
 
 class jisyo (object):
@@ -32,10 +36,9 @@ class jisyo (object):
                 P('localization/pykakasi/kanadict2.calibre_msgpack', data=True))
 
     def load_jisyo(self, char):
-        try:  # python2
-            key = "%04x"%ord(unicode(char))
-        except:  # python3
-            key = "%04x"%ord(char)
+        if not isinstance(char, unicode_type):
+            char = unicode_type(char, 'utf-8')
+        key = "%04x"%ord(char)
 
         try:  # already exist?
             table = self.jisyo_table[key]

@@ -56,7 +56,7 @@ class AdvancedUserRecipe1307556816(BasicNewsRecipe):
     extra_css = 'body, h3, p, div, span{margin:0px; padding:0px} h3.entry-header{font-size: 0.8em} div.entry-body{font-size: 0.7em}'
 
     def postprocess_html(self, soup, first):
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             iurl = tag['src']
             img = Image()
             img.open(iurl)

@@ -1,16 +1,19 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import __builtin__, sys, os
+import sys, os
 
 from calibre import config_dir
+from polyglot.builtins import builtins
+
+
+user_dir = os.path.join(config_dir, 'resources')
 
 
 class PathResolver(object):
@@ -39,11 +42,10 @@ class PathResolver(object):
                 self.default_path = dev_path
                 self.using_develop_from = True
 
-        user_path = os.path.join(config_dir, 'resources')
         self.user_path = None
-        if suitable(user_path):
-            self.locations.insert(0, user_path)
-            self.user_path = user_path
+        if suitable(user_dir):
+            self.locations.insert(0, user_dir)
+            self.user_path = user_dir
 
     def __call__(self, path, allow_user_override=True):
         path = path.replace(os.sep, '/')
@@ -65,6 +67,19 @@ class PathResolver(object):
 
         return ans
 
+    def set_data(self, path, data=None):
+        self.cache.pop((path, True), None)
+        fpath = os.path.join(user_dir, *path.split('/'))
+        if data is None:
+            if os.path.exists(fpath):
+                os.remove(fpath)
+        else:
+            base = os.path.dirname(fpath)
+            if not os.path.exists(base):
+                os.makedirs(base)
+            with open(fpath, 'wb') as f:
+                f.write(data)
+
 
 _resolver = PathResolver()
 
@@ -83,72 +98,9 @@ def get_image_path(path, data=False, allow_user_override=True):
     return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
 
 
-def js_name_to_path(name, ext='.coffee'):
-    path = (u'/'.join(name.split('.'))) + ext
-    d = os.path.dirname
-    base = d(d(os.path.abspath(__file__)))
-    return os.path.join(base, path)
+def set_data(path, data=None):
+    return _resolver.set_data(path, data)
 
 
-def _compile_coffeescript(name):
-    from calibre.utils.serve_coffee import compile_coffeescript
-    src = js_name_to_path(name)
-    with open(src, 'rb') as f:
-        cs, errors = compile_coffeescript(f.read(), src)
-        if errors:
-            for line in errors:
-                print (line)
-            raise Exception('Failed to compile coffeescript'
-                    ': %s'%src)
-        return cs
-
-
-def compiled_coffeescript(name, dynamic=False):
-    import zipfile
-    zipf = get_path('compiled_coffeescript.zip', allow_user_override=False)
-    with zipfile.ZipFile(zipf, 'r') as zf:
-        if dynamic:
-            import json
-            existing_hash = json.loads(zf.comment or '{}').get(name + '.js')
-            if existing_hash is not None:
-                import hashlib
-                with open(js_name_to_path(name), 'rb') as f:
-                    if existing_hash == hashlib.sha1(f.read()).hexdigest():
-                        return zf.read(name + '.js')
-            return _compile_coffeescript(name)
-        else:
-            return zf.read(name+'.js')
-
-
-def load_hyphenator_dicts(hp_cache, lang, default_lang='en'):
-    from calibre.utils.localization import lang_as_iso639_1
-    import zipfile
-    if not lang:
-        lang = default_lang or 'en'
-
-    def lang_name(l):
-        l = l.lower()
-        l = lang_as_iso639_1(l)
-        if not l:
-            l = 'en'
-        l = {'en':'en-us', 'nb':'nb-no', 'el':'el-monoton'}.get(l, l)
-        return l.lower().replace('_', '-')
-
-    if not hp_cache:
-        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
-            allow_user_override=False), 'r') as zf:
-            for pat in zf.namelist():
-                raw = zf.read(pat).decode('utf-8')
-                hp_cache[pat.partition('.')[0]] = raw
-
-    if lang_name(lang) not in hp_cache:
-        lang = lang_name(default_lang)
-
-    lang = lang_name(lang)
-
-    js = '\n\n'.join(hp_cache.itervalues())
-    return js, lang
-
-
-__builtin__.__dict__['P'] = get_path
-__builtin__.__dict__['I'] = get_image_path
+builtins.__dict__['P'] = get_path
+builtins.__dict__['I'] = get_image_path

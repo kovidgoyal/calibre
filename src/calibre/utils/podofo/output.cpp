@@ -31,7 +31,7 @@ class OutputDevice : public PdfOutputDevice {
         }
 
     public:
-        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) { 
+        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) {
 #define GA(f, a) { if((f = PyObject_GetAttrString(file, a)) == NULL) throw pyerr(); }
             GA(tell_func, "tell");
             GA(seek_func, "seek");
@@ -39,7 +39,7 @@ class OutputDevice : public PdfOutputDevice {
             GA(write_func, "write");
             GA(flush_func, "flush");
         }
-        ~OutputDevice() { 
+        ~OutputDevice() {
             NUKE(tell_func); NUKE(seek_func); NUKE(read_func); NUKE(write_func); NUKE(flush_func);
         }
 
@@ -64,7 +64,7 @@ class OutputDevice : public PdfOutputDevice {
 
             buf = new (std::nothrow) char[lBytes+1];
             if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
-            
+
             // Note: PyOS_vsnprintf produces broken output on windows
             res = vsnprintf(buf, lBytes, pszFormat, args);
 
@@ -97,7 +97,11 @@ class OutputDevice : public PdfOutputDevice {
             char *buf = NULL;
             Py_ssize_t len = 0;
 
+#if PY_MAJOR_VERSION >= 3
+            if ((temp = PyLong_FromSize_t(lLen)) == NULL) throw pyerr();
+#else
             if ((temp = PyInt_FromSize_t(lLen)) == NULL) throw pyerr();
+#endif
             ret = PyObject_CallFunctionObjArgs(read_func, temp, NULL);
             NUKE(temp);
             if (ret != NULL) {
@@ -118,7 +122,11 @@ class OutputDevice : public PdfOutputDevice {
 
         void Seek(size_t offset) {
             PyObject *ret, *temp;
+#if PY_MAJOR_VERSION >= 3
+            if ((temp = PyLong_FromSize_t(offset)) == NULL) throw pyerr();
+#else
             if ((temp = PyInt_FromSize_t(offset)) == NULL) throw pyerr();
+#endif
             ret = PyObject_CallFunctionObjArgs(seek_func, temp, NULL);
             NUKE(temp);
             if (ret == NULL) {
@@ -144,7 +152,11 @@ class OutputDevice : public PdfOutputDevice {
                 PyErr_SetString(PyExc_Exception, "tell() method did not return a number");
                 throw pyerr();
             }
+#if PY_MAJOR_VERSION >= 3
+            ans = PyLong_AsUnsignedLongMask(ret);
+#else
             ans = PyInt_AsUnsignedLongMask(ret);
+#endif
             Py_DECREF(ret);
             if (PyErr_Occurred() != NULL) throw pyerr();
 
@@ -184,11 +196,10 @@ PyObject* pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
     } catch(const PdfError & err) {
         podofo_set_exception(err); return NULL;
     } catch (...) {
-        if (PyErr_Occurred() == NULL) 
+        if (PyErr_Occurred() == NULL)
             PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to write the pdf to the file object");
         return NULL;
     }
 
     Py_RETURN_NONE;
 }
-

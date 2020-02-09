@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -20,14 +20,15 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
+from polyglot.builtins import native_string_type, unicode_type, string_or_bytes, map, range
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
-class AsYouType(unicode):
+class AsYouType(unicode_type):
 
     def __new__(cls, text):
-        self = unicode.__new__(cls, text)
+        self = unicode_type.__new__(cls, text)
         self.as_you_type = True
         return self
 
@@ -107,7 +108,6 @@ class SearchBox2(QComboBox):  # {{{
 
     def __init__(self, parent=None, add_clear_action=True):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         if add_clear_action:
@@ -118,11 +118,11 @@ class SearchBox2(QComboBox):  # {{{
 
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
-        c.highlighted[str].connect(self.completer_used)
+        c.highlighted[native_string_type].connect(self.completer_used)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-        self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
+        self.activated[native_string_type].connect(self.history_selected, type=Qt.QueuedConnection)
         self.setEditable(True)
         self.as_you_type = True
         self.timer = QTimer()
@@ -140,8 +140,8 @@ class SearchBox2(QComboBox):  # {{{
             icon = QIcon(I(icon))
         return self.lineEdit().addAction(icon, position)
 
-    def initialize(self, opt_name, colorize=False, help_text=_('Search')):
-        self.as_you_type = config['search_as_you_type']
+    def initialize(self, opt_name, colorize=False, help_text=_('Search'), as_you_type=None):
+        self.as_you_type = config['search_as_you_type'] if as_you_type is None else as_you_type
         self.opt_name = opt_name
         items = []
         for item in config[opt_name]:
@@ -160,8 +160,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
-        self.line_edit.setStyleSheet(
-            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
+        self.line_edit.setStyleSheet('')
 
     def text(self):
         return self.currentText()
@@ -182,17 +181,17 @@ class SearchBox2(QComboBox):  # {{{
         self.setFocus(Qt.OtherFocusReason)
 
     def search_done(self, ok):
-        if isinstance(ok, basestring):
+        if isinstance(ok, string_or_bytes):
             self.setToolTip(ok)
             ok = False
-        if not unicode(self.currentText()).strip():
+        if not unicode_type(self.currentText()).strip():
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
-        if not self.colorize:
-            col = self.normal_background
-        self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
+        if self.colorize:
+            self.line_edit.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not ok))
+        else:
+            self.line_edit.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
@@ -208,7 +207,7 @@ class SearchBox2(QComboBox):  # {{{
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
             self.focus_to_library.emit()
-        elif self.as_you_type and unicode(event.text()):
+        elif self.as_you_type and unicode_type(event.text()):
             self.timer.start(1500)
 
     # Comes from the combobox itself
@@ -240,7 +239,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def _do_search(self, store_in_history=True, as_you_type=False):
         self.hide_completer_popup()
-        text = unicode(self.currentText()).strip()
+        text = unicode_type(self.currentText()).strip()
         if not text:
             return self.clear()
         if as_you_type:
@@ -258,7 +257,7 @@ class SearchBox2(QComboBox):  # {{{
                 self.insertItem(0, t)
             self.setCurrentIndex(0)
             self.block_signals(False)
-            history = [unicode(self.itemText(i)) for i in
+            history = [unicode_type(self.itemText(i)) for i in
                     range(self.count())]
             config[self.opt_name] = history
 
@@ -271,7 +270,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         if not store_in_history:
-            self.activated[str].disconnect()
+            self.activated[native_string_type].disconnect()
         try:
             self.setFocus(Qt.OtherFocusReason)
             if not txt:
@@ -291,7 +290,7 @@ class SearchBox2(QComboBox):  # {{{
         finally:
             if not store_in_history:
                 # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
-                self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
+                self.activated[native_string_type].connect(self.history_selected, type=Qt.QueuedConnection)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -301,7 +300,7 @@ class SearchBox2(QComboBox):  # {{{
 
     @property
     def current_text(self):
-        return unicode(self.lineEdit().text())
+        return unicode_type(self.lineEdit().text())
 
     # }}}
 
@@ -319,12 +318,11 @@ class SavedSearchBox(QComboBox):  # {{{
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
-        self.normal_background = 'rgb(255, 255, 255, 0%)'
 
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
-        self.activated[str].connect(self.saved_search_selected)
+        self.activated[native_string_type].connect(self.saved_search_selected)
 
         # Turn off auto-completion so that it doesn't interfere with typing
         # names of new searches.
@@ -365,7 +363,7 @@ class SavedSearchBox(QComboBox):  # {{{
     def saved_search_selected(self, qname):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
-        qname = unicode(qname)
+        qname = unicode_type(qname)
         if qname is None or not qname.strip():
             self.search_box.clear()
             return
@@ -392,9 +390,9 @@ class SavedSearchBox(QComboBox):  # {{{
     def save_search_button_clicked(self):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
-        name = unicode(self.currentText())
+        name = unicode_type(self.currentText())
         if not name.strip():
-            name = unicode(self.search_box.text()).replace('"', '')
+            name = unicode_type(self.search_box.text()).replace('"', '')
         name = name.replace('\\', '')
         if not name:
             error_dialog(self, _('Create saved search'),
@@ -406,7 +404,7 @@ class SavedSearchBox(QComboBox):  # {{{
                          _('There is no search to save'), show=True)
             return
         db.saved_search_delete(name)
-        db.saved_search_add(name, unicode(self.search_box.text()))
+        db.saved_search_add(name, unicode_type(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
         # references the new search instead of the text in the search.
@@ -427,10 +425,10 @@ class SavedSearchBox(QComboBox):  # {{{
                        '<b>permanently deleted</b>. Are you sure?') +
                        '</p>', 'saved_search_delete', self):
             return
-        ss = db.saved_search_lookup(unicode(self.currentText()))
+        ss = db.saved_search_lookup(unicode_type(self.currentText()))
         if ss is None:
             return
-        db.saved_search_delete(unicode(self.currentText()))
+        db.saved_search_delete(unicode_type(self.currentText()))
         self.clear()
         self.search_box.clear()
         self.changed.emit()
@@ -442,7 +440,7 @@ class SavedSearchBox(QComboBox):  # {{{
         idx = self.currentIndex()
         if idx < 0:
             return
-        self.search_box.set_search_string(db.saved_search_lookup(unicode(self.currentText())))
+        self.search_box.set_search_string(db.saved_search_lookup(unicode_type(self.currentText())))
 
     # }}}
 
@@ -466,7 +464,7 @@ class SearchBoxMixin(object):  # {{{
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
         shortcuts = list(
-                map(lambda x:unicode(x.toString(QKeySequence.PortableText)),
+                map(lambda x:unicode_type(x.toString(QKeySequence.PortableText)),
                 QKeySequence.keyBindings(QKeySequence.Find)))
         shortcuts += ['/', 'Alt+S']
         self.keyboard.register_shortcut('start search', _('Start search'),
@@ -474,7 +472,7 @@ class SearchBoxMixin(object):  # {{{
         self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',
-            unicode(self.search.toolTip())))
+            unicode_type(self.search.toolTip())))
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'
@@ -608,10 +606,10 @@ class SavedSearchBoxMixin(object):  # {{{
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 
-    def get_saved_search_text(self):
+    def get_saved_search_text(self, search_name=None):
         db = self.current_db
         try:
-            current_search = self.search.currentText()
+            current_search = search_name if search_name else self.search.currentText()
             if not current_search.startswith('search:'):
                 raise ValueError()
             # This strange expression accounts for the four ways a search can be written:

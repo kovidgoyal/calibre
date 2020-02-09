@@ -3,6 +3,13 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class RevistaMuyInteresante(BasicNewsRecipe):
 
     title = 'Revista Muy Interesante'
@@ -24,8 +31,8 @@ class RevistaMuyInteresante(BasicNewsRecipe):
 
         for img_tag in soup.findAll('img'):
             imagen = img_tag
-            new_tag = Tag(soup, 'p')
-            img_tag.replaceWith(new_tag)
+            nt = new_tag(soup, 'p')
+            img_tag.replaceWith(nt)
             div = soup.find(attrs={'class': 'article_category'})
             div.insert(0, imagen)
             break

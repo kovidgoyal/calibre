@@ -3,47 +3,87 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from read_book.globals import runtime
+from session import defaults
 
 opts = {}
 
 def update_settings(settings):
-    settings = settings or {}
-    opts.columns_per_screen = settings.columns_per_screen or {'portrait':0, 'landscape':0}
-    opts.margin_left = max(0, settings.margin_left or 0)
-    opts.margin_right = max(0, settings.margin_right or 0)
+    settings = Object.assign({}, defaults, settings)
+    opts.base_font_size = max(8, min(settings.base_font_size, 64))
+    opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.color_scheme = settings.color_scheme
-    opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
-    opts.user_stylesheet = settings.user_stylesheet or ''
+    opts.columns_per_screen = settings.columns_per_screen
+    opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
+    opts.hide_tooltips = settings.hide_tooltips
+    opts.is_dark_theme = v'!!settings.is_dark_theme'
+    opts.lines_per_sec_auto = settings.lines_per_sec_auto
+    opts.lines_per_sec_smooth = settings.lines_per_sec_smooth
+    opts.margin_left = max(0, settings.margin_left)
+    opts.margin_right = max(0, settings.margin_right)
+    opts.override_book_colors = settings.override_book_colors
+    opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.scroll_auto_boundary_delay = settings.scroll_auto_boundary_delay
+    opts.scroll_stop_boundaries = v'!!settings.scroll_stop_boundaries'
+    opts.user_stylesheet = settings.user_stylesheet
 
 update_settings()
 
 
 def apply_font_size():
-    document.documentElement.style.fontSize = document.body.style.fontSize = '{}px'.format(opts.base_font_size)
+    if not runtime.is_standalone_viewer:
+        document.documentElement.style.fontSize = '{}px'.format(opts.base_font_size)
 
 
 def apply_colors():
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
-        elem.style.backgroundColor = opts.color_scheme.background
+        # set background color to transparent so that the users background
+        # color which is set on the iframe is used instead
+        elem.style.backgroundColor = 'transparent'
+    document.documentElement.style.backgroundColor = opts.bg_image_fade
     ss = document.getElementById('calibre-color-scheme-style-overrides')
     if not ss:
         ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')
         document.documentElement.appendChild(ss)
+    text = ''
+    if opts.override_book_colors is not 'never':
+        text = 'body'
+        if opts.override_book_colors is 'dark':
+            text += '.calibre-viewer-dark-colors'
+        text += f'''
+        * {{
+            color: {opts.color_scheme.foreground} !important; /**/
+            background-color: {opts.color_scheme.background} !important; /**/
+            border-color: {opts.color_scheme.foreground} !important; /**/
+        }}'''
     if opts.color_scheme.link:
         c = opts.color_scheme.link
-        ss.textContent = f':link, :link * {{ color: {c} !important }} :visited, :visited * {{ color: {c} !important }}'
+        # we use the html > body form so that these selectors have higher
+        # priority than the override all selectors above
+        text += f'\nhtml > body :link, html > body :link * {{ color: {c} !important }} html > body :visited, html > body :visited * {{ color: {c} !important }}'
+
+    ss.textContent = text
+
+
+def set_color_scheme_class():
+    if opts.is_dark_theme:
+        document.body.classList.add('calibre-viewer-dark-colors')
+        document.body.classList.remove('calibre-viewer-light-colors')
     else:
-        ss.textContent = ''
+        document.body.classList.add('calibre-viewer-light-colors')
+        document.body.classList.remove('calibre-viewer-dark-colors')
 
 
 def apply_stylesheet():
     sid = 'calibre-browser-viewer-user-stylesheet'
     style = document.getElementById(sid)
     if not style:
+        if not opts.user_stylesheet:
+            return
         style = E.style(type='text/css', id=sid)
-        document.body.appendChild(style)
-    style.textContent = opts.user_stylesheet or ''
+        document.documentElement.appendChild(style)
+    style.textContent = opts.user_stylesheet
 
 
 def apply_settings():

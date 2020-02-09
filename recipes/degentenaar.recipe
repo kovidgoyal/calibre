@@ -9,6 +9,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class DeGentenaarOnline(BasicNewsRecipe):
     title = 'De Gentenaar'
     __author__ = 'Darko Miletic'
@@ -64,14 +71,14 @@ class DeGentenaarOnline(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('span'):
             item.name = 'div'
-            if item.has_key('id') and item['id'] == 'lblArticleTitle':  # noqa
+            if item.get('id') == 'lblArticleTitle':
                 item.name = 'h3'
 
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
-        mlang = Tag(soup, 'meta', [
+        mlang = new_tag(soup, 'meta', [
                     ("http-equiv", "Content-Language"), ("content", self.lang)])
-        mcharset = Tag(soup, 'meta', [
+        mcharset = new_tag(soup, 'meta', [
                        ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)

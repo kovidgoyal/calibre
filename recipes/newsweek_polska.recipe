@@ -93,7 +93,7 @@ class Newsweek(BasicNewsRecipe):
                 strs.append("".join(str(content)))
 
         # return contents as a string
-        return unicode("".join(strs))
+        return u"".join(strs)
 
     #
     # Articles can be divided into several pages, this method parses them recursevely
@@ -113,7 +113,7 @@ class Newsweek(BasicNewsRecipe):
 
         if page == 0:
             title = main_section.find('h1')
-            html = html + unicode(title)
+            html = html + type(u'')(title)
 
             authors = ''
             authorBox = main_section.find('div', attrs={'class': 'AuthorBox'})
@@ -121,10 +121,10 @@ class Newsweek(BasicNewsRecipe):
                 authorH4 = authorBox.find('h4')
                 if authorH4 is not None:
                     authors = self.tag_to_string(authorH4)
-            html = html + unicode(authors)
+            html = html + type(u'')(authors)
 
             info = main_section.find('p', attrs={'class': 'lead'})
-            html = html + unicode(info)
+            html = html + type(u'')(info)
 
         html = html + self.get_article_divs(
             '3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac articleStart', main_section)
@@ -201,8 +201,7 @@ class Newsweek(BasicNewsRecipe):
             self.DATE = matches.group(0)
 
         # cover
-        img = main_section.find(lambda tag: tag.name == 'img' and tag.has_key(  # noqa
-            'alt') and tag.has_key('title'))
+        img = main_section.find('img', src=True, alt=True, title=True)
         self.cover_url = img['src']
         feeds = []
         articles = {}
@@ -233,7 +232,7 @@ class Newsweek(BasicNewsRecipe):
                 if article is None:
                     continue
 
-                if articles.has_key(section):  # noqa
+                if section in articles:
                     articles[section].append(article)
                 else:
                     articles[section] = [article]

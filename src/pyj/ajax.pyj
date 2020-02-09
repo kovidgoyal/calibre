@@ -47,6 +47,12 @@ def absolute_path(path):
     return path
 
 
+def workaround_qt_bug(xhr, end_type, ok_code=200):
+    if end_type is 'error' and xhr.status is ok_code and window.navigator.userAgent.indexOf('calibre-viewer') is 0:
+        end_type = 'load'
+    return end_type
+
+
 def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=None, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
@@ -71,14 +77,17 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
 
     def set_error(event, is_network_error):
         if is_network_error:
-            xhr.error_html = str.format(_('Failed to communicate with "{}", network error, is the server running and accessible?'), xhr.request_path)
+            xhr.error_html = str.format(_('Failed to communicate with "{}", network error. Is the server running and accessible?'), xhr.request_path)
         elif event is 'timeout':
             xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout)
         elif event is 'abort':
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
-            rtext = xhr.responseText or ''
-            xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{}] {}<br><br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
+            try:
+                rtext = xhr.responseText or ''
+            except:
+                rtext = ''
+            xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{} ({})] {}<br><br>{}'), xhr.request_path, xhr.status, event, xhr.statusText, rtext[:200])
 
     def progress_callback(ev):
         if ev.lengthComputable:
@@ -99,6 +108,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
         is_network_error = ev if end_type is 'error' else False
         if xhr.status is not ok_code and end_type is 'load':
             end_type = 'error'
+        end_type = workaround_qt_bug(xhr, end_type, ok_code)
         if end_type is not 'load':
             set_error(end_type, is_network_error)
         on_complete(end_type, xhr, ev)

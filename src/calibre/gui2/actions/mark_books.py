@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,7 @@ from PyQt5.Qt import QTimer, QApplication, Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import unicode_type
 
 
 class MarkBooksAction(InterfaceAction):
@@ -39,7 +39,7 @@ class MarkBooksAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -109,7 +109,7 @@ class MarkBooksAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot mark'), _('No books selected'))
             d.exec_()
-            return set([])
+            return set()
         return set(map(self.gui.library_view.model().id, rows))
 
     def toggle_ids(self, book_ids):
@@ -120,7 +120,7 @@ class MarkBooksAction(InterfaceAction):
 
     def clear_all_marked(self):
         self.gui.current_db.data.set_marked_ids(())
-        if unicode(self.gui.search.text()).startswith('marked:'):
+        if unicode_type(self.gui.search.text()).startswith('marked:'):
             self.gui.search.set_search_string('')
 
     def mark_field(self, field, add):

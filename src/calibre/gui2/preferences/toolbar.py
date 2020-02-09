@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,16 +9,27 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
         QItemSelectionModel
 
+from calibre import force_unicode
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
 from calibre.gui2 import gprefs, warning_dialog, error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.utils.icu import primary_sort_key
+from polyglot.builtins import unicode_type
+
+
+def sort_key_for_action(ac):
+    q = getattr(ac, 'action_spec', None)
+    try:
+        q = ac.name if q is None else q[0]
+        return primary_sort_key(force_unicode(q))
+    except Exception:
+        return primary_sort_key('')
 
 
 class FakeAction(object):
 
     def __init__(self, name, gui_name, icon, tooltip=None,
-            dont_add_to=frozenset([]), dont_remove_from=frozenset([])):
+            dont_add_to=frozenset(), dont_remove_from=frozenset()):
         self.name = name
         self.action_spec = (gui_name, icon, tooltip, None)
         self.dont_remove_from = dont_remove_from
@@ -104,12 +116,7 @@ class AllModel(BaseModel):
         all = [self.name_to_action(x, self.gui) for x in all]
         all = [x for x in all if self.key not in x.dont_add_to]
 
-        def sk(ac):
-            try:
-                return primary_sort_key(ac.action_spec[0])
-            except Exception:
-                pass
-        all.sort(key=sk)
+        all.sort(key=sort_key_for_action)
         return all
 
     def add(self, names):
@@ -120,12 +127,12 @@ class AllModel(BaseModel):
             actions.append(self.name_to_action(name, self.gui))
         self.beginResetModel()
         self._data.extend(actions)
-        self._data.sort()
+        self._data.sort(key=sort_key_for_action)
         self.endResetModel()
 
     def remove(self, indices, allowed):
         rows = [i.row() for i in indices]
-        remove = set([])
+        remove = set()
         for row in rows:
             ac = self._data[row]
             if ac.name.startswith('---'):
@@ -175,7 +182,7 @@ class CurrentModel(BaseModel):
 
     def add(self, names):
         actions = []
-        reject = set([])
+        reject = set()
         for name in names:
             ac = self.name_to_action(name, self.gui)
             if self.key in ac.dont_add_to:
@@ -190,7 +197,7 @@ class CurrentModel(BaseModel):
 
     def remove(self, indices):
         rows = [i.row() for i in indices]
-        remove, rejected = set([]), set([])
+        remove, rejected = set(), set()
         for row in rows:
             ac = self._data[row]
             if self.key in ac.dont_remove_from:
@@ -277,7 +284,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.help_text.setText(tt)
 
     def what_changed(self, idx):
-        key = unicode(self.what.itemData(idx) or '')
+        key = unicode_type(self.what.itemData(idx) or '')
         if key == 'blank':
             self.actions_widget.setVisible(False)
             self.spacer_widget.setVisible(True)

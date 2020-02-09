@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,15 +11,16 @@ from collections import OrderedDict
 from operator import itemgetter
 from functools import partial
 
-from calibre.utils.icu import safe_chr
+from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
+from polyglot.builtins import unicode_type, range, iteritems, itervalues, map
 
 # TrueType outlines {{{
 
 
 def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
-    unresolved_glyphs = set(character_map.itervalues()) | extra_glyphs
+    unresolved_glyphs = set(itervalues(character_map)) | extra_glyphs
     unresolved_glyphs.add(0)  # We always want the .notdef glyph
     resolved_glyphs = {}
 
@@ -36,7 +36,7 @@ def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
             if gid not in resolved_glyphs:
                 unresolved_glyphs.add(gid)
 
-    return OrderedDict(sorted(resolved_glyphs.iteritems(), key=itemgetter(0)))
+    return OrderedDict(sorted(iteritems(resolved_glyphs), key=itemgetter(0)))
 
 
 def subset_truetype(sfnt, character_map, extra_glyphs):
@@ -55,7 +55,7 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
                 'set, subsetting it is pointless')
 
     # Keep only character codes that have resolved glyphs
-    for code, glyph_id in tuple(character_map.iteritems()):
+    for code, glyph_id in tuple(iteritems(character_map)):
         if glyph_id not in resolved_glyphs:
             del character_map[code]
 
@@ -64,6 +64,9 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
 
     # Update the loca table
     loca.subset(glyph_offset_map)
+    head.index_to_loc_format = 0 if loca.fmt == 'H' else 1
+    head.update()
+    maxp.num_glyphs = len(loca.offset_map) - 1
 
 # }}}
 
@@ -105,16 +108,20 @@ def pdf_subset(sfnt, glyphs):
                 'or PostScript outlines')
 
 
+def safe_ord(x):
+    return ord_string(unicode_type(x))[0]
+
+
 def subset(raw, individual_chars, ranges=(), warnings=None):
     warn = partial(do_warn, warnings)
 
-    chars = set(map(ord, individual_chars))
+    chars = set(map(safe_ord, individual_chars))
     for r in ranges:
-        chars |= set(xrange(ord(r[0]), ord(r[1])+1))
+        chars |= set(range(safe_ord(r[0]), safe_ord(r[1])+1))
 
     # Always add the space character for ease of use from the command line
-    if ord(' ') not in chars:
-        chars.add(ord(' '))
+    if safe_ord(' ') not in chars:
+        chars.add(safe_ord(' '))
 
     sfnt = Sfnt(raw)
     old_sizes = sfnt.sizes()
@@ -150,10 +157,10 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
         gsub = sfnt[b'GSUB']
         try:
             gsub.decompile()
-            extra_glyphs = gsub.all_substitutions(character_map.itervalues())
+            extra_glyphs = gsub.all_substitutions(itervalues(character_map))
         except UnsupportedFont as e:
             warn('Usupported GSUB table: %s'%e)
-        except Exception as e:
+        except Exception:
             warn('Failed to decompile GSUB table:', traceback.format_exc())
 
     if b'loca' in sfnt and b'glyf' in sfnt:
@@ -171,10 +178,10 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
     if b'kern' in sfnt:
         try:
-            sfnt[b'kern'].restrict_to_glyphs(frozenset(character_map.itervalues()))
+            sfnt[b'kern'].restrict_to_glyphs(frozenset(itervalues(character_map)))
         except UnsupportedFont as e:
             warn('kern table unsupported, ignoring: %s'%e)
-        except Exception as e:
+        except Exception:
             warn('Subsetting of kern table failed, ignoring:',
                     traceback.format_exc())
 
@@ -199,7 +206,7 @@ def option_parser():
     parser.add_option('-c', '--codes', default=False, action='store_true',
             help='If specified, the list of characters is interpreted as '
             'numeric unicode codes instead of characters. So to specify the '
-            'characters a,b you would use 97,98')
+            'characters a,b you would use 97,98 or U+0061,U+0062')
     parser.prog = 'subset-font'
     return parser
 
@@ -210,9 +217,9 @@ def print_stats(old_stats, new_stats):
     prints('Table', ' ', '%10s'%'Size', '  ', 'Percent', '   ', '%10s'%'New Size',
             ' New Percent')
     prints('='*80)
-    old_total = sum(old_stats.itervalues())
-    new_total = sum(new_stats.itervalues())
-    tables = sorted(old_stats.iterkeys(), key=lambda x:old_stats[x],
+    old_total = sum(itervalues(old_stats))
+    new_total = sum(itervalues(new_stats))
+    tables = sorted(old_stats, key=lambda x:old_stats[x],
             reverse=True)
     for table in tables:
         osz = old_stats[table]
@@ -260,7 +267,7 @@ def main(args):
                 raise SystemExit(1)
             if opts.codes:
                 parts = tuple(map(conv_code, parts))
-            map(not_single, parts)
+            tuple(map(not_single, parts))
             ranges.add(tuple(parts))
         else:
             if opts.codes:
@@ -280,6 +287,7 @@ def main(args):
     with open(off, 'wb') as f:
         f.write(sf)
     prints('Subset font written to:', off)
+
 
 if __name__ == '__main__':
     try:
@@ -301,12 +309,12 @@ def test_mem():
     start_mem = memory()
     raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
     calls = 1000
-    for i in xrange(calls):
+    for i in range(calls):
         subset(raw, (), (('a', 'z'),))
     del raw
-    for i in xrange(3):
+    for i in range(3):
         gc.collect()
-    print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
+    print('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
 
 
 def test():
@@ -326,7 +334,7 @@ def all():
     for family in font_scanner.find_font_families():
         for font in font_scanner.fonts_for_family(family):
             raw = font_scanner.get_font_data(font)
-            print ('Subsetting', font['full_name'], end='\t')
+            print('Subsetting', font['full_name'], end='\t')
             total += 1
             try:
                 w = []
@@ -338,37 +346,35 @@ def all():
                 print('No glyphs!')
                 continue
             except UnsupportedFont as e:
-                unsupported.append((font['full_name'], font['path'], unicode(e)))
-                print ('Unsupported!')
+                unsupported.append((font['full_name'], font['path'], unicode_type(e)))
+                print('Unsupported!')
                 continue
             except Exception as e:
-                print ('Failed!')
-                failed.append((font['full_name'], font['path'], unicode(e)))
+                print('Failed!')
+                failed.append((font['full_name'], font['path'], unicode_type(e)))
             else:
-                averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues()) * 100)
-                print ('Reduced to:', '%.1f'%averages[-1] , '%')
+                averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
+                print('Reduced to:', '%.1f'%averages[-1] , '%')
     if unsupported:
-        print ('\n\nUnsupported:')
+        print('\n\nUnsupported:')
         for name, path, err in unsupported:
-            print (name, path, err)
+            print(name, path, err)
             print()
     if warnings:
-        print ('\n\nWarnings:')
-    for name, w in warnings.iteritems():
+        print('\n\nWarnings:')
+    for name, w in iteritems(warnings):
         if w:
-            print (name)
+            print(name)
             print('', '\n\t'.join(w), sep='\t')
     if failed:
-        print ('\n\nFailures:')
+        print('\n\nFailures:')
         for name, path, err in failed:
-            print (name, path, err)
+            print(name, path, err)
             print()
 
-    print ('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
+    print('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
 
 
 # }}}
-
-

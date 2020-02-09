@@ -1,22 +1,21 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
 
-import textwrap, re
+import re
+import textwrap
 
 from PyQt5.Qt import QAbstractTableModel, QFont, Qt
 
-
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-        AbortCommit
+from calibre.gui2 import gprefs
+from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.email_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
-from calibre.gui2 import gprefs
 from calibre.utils.smtp import config as smtp_prefs
+from polyglot.builtins import unicode_type, map, as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
@@ -28,14 +27,14 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.aliases = aliases
         self.tags = tags
         self.sorted_on = (0, True)
-        self.account_order = self.accounts.keys()
+        self.account_order = list(self.accounts)
         self.do_sort()
-        self.headers  = map(unicode, [_('Email'), _('Formats'), _('Subject'),
-            _('Auto send'), _('Alias'), _('Auto send only tags')])
+        self.headers  = [_('Email'), _('Formats'), _('Subject'),
+            _('Auto send'), _('Alias'), _('Auto send only tags')]
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = (self.default_font)
-        self.tooltips =[None] + list(map(unicode, map(textwrap.fill,
+        self.tooltips =[None] + list(map(textwrap.fill,
             [_('Formats to email. The first matching format will be sent.'),
              _('Subject of the email to use when sending. When left blank '
                'the title will be used for the subject. Also, the same '
@@ -49,7 +48,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                ' this email address. All news downloads have their title as a'
                ' tag, so you can use this to easily control which news downloads'
                ' are sent to this email address.')
-             ])))
+             ]))
 
     def do_sort(self):
         col = self.sorted_on[0]
@@ -64,7 +63,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return numeric_sort_key(self.subjects.get(account_key) or '')
         elif col == 3:
             def key(account_key):
-                return numeric_sort_key(type(u'')(self.accounts[account_key][0]) or '')
+                return numeric_sort_key(as_unicode(self.accounts[account_key][0]) or '')
         elif col == 4:
             def key(account_key):
                 return numeric_sort_key(self.aliases.get(account_key) or '')
@@ -136,21 +135,21 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         if col == 3:
             self.accounts[account][1] ^= True
         elif col == 2:
-            self.subjects[account] = unicode(value or '')
+            self.subjects[account] = as_unicode(value or '')
         elif col == 4:
             self.aliases.pop(account, None)
-            aval = unicode(value or '').strip()
+            aval = as_unicode(value or '').strip()
             if aval:
                 self.aliases[account] = aval
         elif col == 5:
             self.tags.pop(account, None)
-            aval = unicode(value or '').strip()
+            aval = as_unicode(value or '').strip()
             if aval:
                 self.tags[account] = aval
         elif col == 1:
-            self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', unicode(value or '').upper()))
+            self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', as_unicode(value or '').upper()))
         elif col == 0:
-            na = unicode(value or '')
+            na = as_unicode(value or '')
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
             if not addr:
@@ -179,12 +178,12 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         c = 0
         while y in self.accounts:
             c += 1
-            y = x + str(c)
+            y = x + unicode_type(c)
         auto_send = len(self.accounts) < 1
         self.beginResetModel()
         self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
-        self.account_order = self.accounts.keys()
+        self.account_order = list(self.accounts)
         self.do_sort()
         self.endResetModel()
         return self.index(self.account_order.index(y), 0)
@@ -194,7 +193,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             row = index.row()
             account = self.account_order[row]
             self.accounts.pop(account)
-            self.account_order = sorted(self.accounts.keys())
+            self.account_order = sorted(self.accounts)
             has_default = False
             for account in self.account_order:
                 if self.accounts[account][2]:

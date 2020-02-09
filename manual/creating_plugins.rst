@@ -37,7 +37,7 @@ the directory in which you created :file:`__init__.py`::
 .. note::
     On macOS, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
+    are in :file:`/Applications/calibre.app/Contents/MacOS/`.
 
 You can download the Hello World plugin from
 `helloworld_plugin.zip  <https://calibre-ebook.com/downloads/helloworld_plugin.zip>`_.
@@ -248,6 +248,33 @@ The container object and various useful utility functions that can be reused in
 your plugin code are documented in :ref:`polish_api`.
 
 
+Running User Interface plugins in a separate process
+-----------------------------------------------------------
+
+If you are writing a user interface plugin that needs to make use
+of Qt WebEngine, it cannot be run in the main calibre process as it
+is not possible to use WebEngine there. Instead you can copy the data
+your plugin needs to a temporary directory and run the plugin with that
+data in a separate process. A simple example plugin follows that shows how
+to do this.
+
+You can download the plugin from
+`webengine_demo_plugin.zip  <https://calibre-ebook.com/downloads/webengine_demo_plugin.zip>`_.
+
+The important part of the plugin is in two functions:
+
+.. literalinclude:: plugin_examples/webengine_demo/ui.py
+    :lines: 47-
+
+.. literalinclude:: plugin_examples/webengine_demo/main.py
+    :lines: 12-
+
+
+The ``show_demo()`` function asks the user for a URL and then runs
+the ``main()`` function passing it that URL. The ``main()`` function
+displays the URL in a ``QWebEngineView``.
+
+
 Adding translations to your plugin
 --------------------------------------
 
@@ -262,10 +289,10 @@ visible strings as translatable, by surrounding them in _(). For example::
 Then use some program to generate .po files from your plugin source code. There
 should be one .po file for every language you want to translate into. For
 example: de.po for German, fr.po for French and so on. You can use the
-`poedit <https://poedit.net/>`_ program for this.
+`Poedit <https://poedit.net/>`_ program for this.
 
 Send these .po files to your translators. Once you get them back, compile them
-into .mo files. You can again use poedit for that, or just do::
+into .mo files. You can again use Poedit for that, or just do::
 
     calibre-debug -c "from calibre.translations.msgfmt import main; main()" filename.po
 
@@ -325,4 +352,3 @@ Sharing your plugins with others
 
 If you would like to share the plugins you have created with other users of calibre, post your plugin in a new thread in the
 `calibre plugins forum <https://www.mobileread.com/forums/forumdisplay.php?f=237>`_.
-

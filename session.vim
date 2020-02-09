@@ -12,11 +12,9 @@ let g:syntastic_cpp_include_dirs = [
             \'/usr/include/fontconfig',
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
-let g:syntastic_python_flake8_exec = 'flake8-python2'
 let g:syntastic_python_flake8_args = '--filename='. shellescape('*.py,*.recipe')
-let g:python_version_2 = 1
 
-set wildignore+=resources/viewer/mathjax/*
+set wildignore+=resources/mathjax/*
 set wildignore+=resources/rapydscript/lib/*
 set wildignore+=build/*
 set wildignore+=dist/*
@@ -40,6 +38,3 @@ fun! CalibreLog()
 endfun
 
 nnoremap \log :call CalibreLog()<CR>
-
-python import init_calibre
-python import calibre

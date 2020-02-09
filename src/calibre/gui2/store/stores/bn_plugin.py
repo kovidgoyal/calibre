@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,8 +8,11 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -37,7 +40,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), urllib.quote_plus(query))
+        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.decode('utf-8').replace(' ', '-'), quote_plus(query))
 
         br = browser()
 

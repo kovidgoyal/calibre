@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,10 +23,11 @@ from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NA
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
-    if isinstance(fill, basestring):
+    if isinstance(fill, string_or_bytes):
         fill = QColor(fill)
     sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:
@@ -40,7 +40,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
         qDrawShadeRect(p, img.rect(), palette, fill=fill, lineWidth=1, midLineWidth=1)
     f = p.font()
     f.setFamily('Liberation Sans'), f.setPixelSize(int(sz // divider)), f.setBold(True)
-    p.setFont(f), p.setPen(Qt.black)
+    p.setFont(f), p.setPen(QColor('#2271d5'))
     p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignCenter, text)
     p.end()
     return QIcon(QPixmap.fromImage(img))
@@ -158,28 +158,26 @@ class Editor(QMainWindow):
         self.editor.link_clicked.connect(self.link_clicked)
         self.editor.smart_highlighting_updated.connect(self.smart_highlighting_updated)
 
-    @dynamic_property
+    @property
     def current_line(self):
-        def fget(self):
-            return self.editor.textCursor().blockNumber()
+        return self.editor.textCursor().blockNumber()
 
-        def fset(self, val):
-            self.editor.go_to_line(val)
-        return property(fget=fget, fset=fset)
+    @current_line.setter
+    def current_line(self, val):
+        self.editor.go_to_line(val)
 
-    @dynamic_property
+    @property
     def current_editing_state(self):
-        def fget(self):
-            c = self.editor.textCursor()
-            return {'cursor':(c.anchor(), c.position())}
+        c = self.editor.textCursor()
+        return {'cursor':(c.anchor(), c.position())}
 
-        def fset(self, val):
-            anchor, position = val.get('cursor', (None, None))
-            if anchor is not None and position is not None:
-                c = self.editor.textCursor()
-                c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
-                self.editor.setTextCursor(c)
-        return property(fget=fget, fset=fset)
+    @current_editing_state.setter
+    def current_editing_state(self, val):
+        anchor, position = val.get('cursor', (None, None))
+        if anchor is not None and position is not None:
+            c = self.editor.textCursor()
+            c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
+            self.editor.setTextCursor(c)
 
     def current_tag(self, for_position_sync=True):
         return self.editor.current_tag(for_position_sync=for_position_sync)
@@ -188,18 +186,17 @@ class Editor(QMainWindow):
     def number_of_lines(self):
         return self.editor.blockCount()
 
-    @dynamic_property
+    @property
     def data(self):
-        def fget(self):
-            ans = self.get_raw_data()
-            ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
-            if changed:
-                self.data = ans
-            return ans.encode('utf-8')
+        ans = self.get_raw_data()
+        ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
+        if changed:
+            self.data = ans
+        return ans.encode('utf-8')
 
-        def fset(self, val):
-            self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
-        return property(fget=fget, fset=fset)
+    @data.setter
+    def data(self, val):
+        self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
 
     def init_from_template(self, template):
         self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
@@ -211,7 +208,7 @@ class Editor(QMainWindow):
     def get_raw_data(self):
         # The EPUB spec requires NFC normalization, see section 1.3.6 of
         # http://www.idpf.org/epub/20/spec/OPS_2.0.1_draft.htm
-        return unicodedata.normalize('NFC', unicode(self.editor.toPlainText()).rstrip('\0'))
+        return unicodedata.normalize('NFC', unicode_type(self.editor.toPlainText()).rstrip('\0'))
 
     def replace_data(self, raw, only_if_different=True):
         if isinstance(raw, bytes):
@@ -234,8 +231,8 @@ class Editor(QMainWindow):
     def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1):
         self.editor.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_aspect_ratio, width=width, height=height)
 
-    def insert_hyperlink(self, href, text):
-        self.editor.insert_hyperlink(href, text)
+    def insert_hyperlink(self, href, text, template=None):
+        self.editor.insert_hyperlink(href, text, template=template)
 
     def _build_insert_tag_button_menu(self):
         m = self.insert_tag_menu
@@ -316,14 +313,13 @@ class Editor(QMainWindow):
     def has_marked_text(self):
         return self.editor.current_search_mark is not None
 
-    @dynamic_property
+    @property
     def is_modified(self):
-        def fget(self):
-            return self.editor.is_modified
+        return self.editor.is_modified
 
-        def fset(self, val):
-            self.editor.is_modified = val
-        return property(fget=fget, fset=fset)
+    @is_modified.setter
+    def is_modified(self, val):
+        self.editor.is_modified = val
 
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
@@ -345,7 +341,7 @@ class Editor(QMainWindow):
     def toolbar_floated(self, floating):
         if not floating:
             self.save_state()
-            for ed in editors.itervalues():
+            for ed in itervalues(editors):
                 if ed is not self:
                     ed.restore_state()
 
@@ -462,7 +458,7 @@ class Editor(QMainWindow):
         if not c.atStart():
             c.clearSelection()
             c.movePosition(c.PreviousCharacter, c.KeepAnchor)
-            char = unicode(c.selectedText()).rstrip('\0')
+            char = unicode_type(c.selectedText()).rstrip('\0')
         return (c.blockNumber() + 1, col, char)
 
     def cut(self):
@@ -486,7 +482,7 @@ class Editor(QMainWindow):
     def fix_html(self):
         if self.syntax == 'html':
             from calibre.ebooks.oeb.polish.pretty import fix_html
-            self.editor.replace_text(fix_html(current_container(), unicode(self.editor.toPlainText())).decode('utf-8'))
+            self.editor.replace_text(fix_html(current_container(), unicode_type(self.editor.toPlainText())).decode('utf-8'))
             return True
         return False
 
@@ -494,7 +490,7 @@ class Editor(QMainWindow):
         from calibre.ebooks.oeb.polish.pretty import pretty_html, pretty_css, pretty_xml
         if self.syntax in {'css', 'html', 'xml'}:
             func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
-            original_text = unicode(self.editor.toPlainText())
+            original_text = unicode_type(self.editor.toPlainText())
             prettied_text = func(current_container(), name, original_text).decode('utf-8')
             if original_text != prettied_text:
                 self.editor.replace_text(prettied_text)

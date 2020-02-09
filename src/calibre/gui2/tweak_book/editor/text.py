@@ -8,7 +8,7 @@ import os
 import re
 import textwrap
 import unicodedata
-from polyglot.builtins import map
+from polyglot.builtins import unicode_type, map, range, as_unicode
 
 from PyQt5.Qt import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 
 import regex
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, css_text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import (
@@ -68,7 +68,7 @@ _dff = None
 def default_font_family():
     global _dff
     if _dff is None:
-        families = set(map(unicode, QFontDatabase().families()))
+        families = set(map(unicode_type, QFontDatabase().families()))
         for x in ('Ubuntu Mono', 'Consolas', 'Liberation Mono'):
             if x in families:
                 _dff = x
@@ -131,7 +131,7 @@ class TextEdit(PlainTextEdit):
             )
 
         if md.hasFormat(CONTAINER_DND_MIMETYPE):
-            for line in bytes(md.data(CONTAINER_DND_MIMETYPE)).decode('utf-8').splitlines():
+            for line in as_unicode(bytes(md.data(CONTAINER_DND_MIMETYPE))).splitlines():
                 mt = current_container().mime_map.get(line, 'application/octet-stream')
                 if is_mt_ok(mt):
                     yield line, mt, True
@@ -155,7 +155,10 @@ class TextEdit(PlainTextEdit):
         base = self.highlighter.doc_name or None
 
         def get_name(name):
-            return get_recommended_folders(current_container(), (name,))[name] + '/' + name
+            folder = get_recommended_folders(current_container(), (name,))[name] or ''
+            if folder:
+                folder += '/'
+            return folder + name
 
         def get_href(name):
             return current_container().name_to_href(name, base)
@@ -191,9 +194,9 @@ class TextEdit(PlainTextEdit):
             return
         if md.hasImage():
             img = md.imageData()
-            if img is not None and img.isValid():
+            if img is not None and not img.isNull():
                 data = image_to_data(img, fmt='PNG')
-                name = add_file(get_name('dropped_image.png', data))
+                name = add_file(get_name('dropped_image.png'), data)
                 self.insert_image(get_href(name))
                 self.ensureCursorVisible()
                 return
@@ -203,17 +206,15 @@ class TextEdit(PlainTextEdit):
             insert_text(md.html())
             return
 
-    @dynamic_property
+    @property
     def is_modified(self):
         ''' True if the document has been modified since it was loaded or since
         the last time is_modified was set to False. '''
+        return self.document().isModified()
 
-        def fget(self):
-            return self.document().isModified()
-
-        def fset(self, val):
-            self.document().setModified(bool(val))
-        return property(fget=fget, fset=fset)
+    @is_modified.setter
+    def is_modified(self, val):
+        self.document().setModified(bool(val))
 
     def sizeHint(self):
         return self.size_hint
@@ -259,7 +260,7 @@ class TextEdit(PlainTextEdit):
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
         self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
@@ -277,7 +278,7 @@ class TextEdit(PlainTextEdit):
             if self.smarts.override_tab_stop_width is not None:
                 self.tw = self.smarts.override_tab_stop_width
                 self.setTabStopWidth(self.tw * self.space_width)
-        self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
+        self.setPlainText(unicodedata.normalize('NFC', unicode_type(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
@@ -311,7 +312,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(c.NextBlock, n=lnum - 1)
         c.movePosition(c.StartOfLine)
         c.movePosition(c.EndOfLine, c.KeepAnchor)
-        text = unicode(c.selectedText()).rstrip('\0')
+        text = unicode_type(c.selectedText()).rstrip('\0')
         if col is None:
             c.movePosition(c.StartOfLine)
             lt = text.lstrip()
@@ -370,7 +371,7 @@ class TextEdit(PlainTextEdit):
         if wrap:
             pos = m_end if reverse else m_start
         c.setPosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -403,7 +404,7 @@ class TextEdit(PlainTextEdit):
         if self.current_search_mark is None:
             return 0
         c = self.current_search_mark.cursor
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         if template is None:
             count = len(pat.findall(raw))
         else:
@@ -417,7 +418,7 @@ class TextEdit(PlainTextEdit):
                 if getattr(template.func, 'append_final_output_to_marked', False):
                     retval = template.end()
                     if retval:
-                        raw += unicode(retval)
+                        raw += unicode_type(retval)
                 else:
                     template.end()
                 show_function_debug_output(template)
@@ -440,9 +441,9 @@ class TextEdit(PlainTextEdit):
             c = self.textCursor()
             c.beginEditBlock()
             c.movePosition(c.Start), c.movePosition(c.End, c.KeepAnchor)
-            text = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+            text = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
-            text = sort_sheet(current_container(), text).cssText
+            text = css_text(sort_sheet(current_container(), text))
             c.insertText(text)
             c.movePosition(c.Start)
             c.endEditBlock()
@@ -461,7 +462,7 @@ class TextEdit(PlainTextEdit):
         if wrap and not complete:
             pos = c.End if reverse else c.Start
         c.movePosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -502,11 +503,11 @@ class TextEdit(PlainTextEdit):
         c.movePosition(pos, c.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
             self.highlighter.join()
-            found, start, end = self.smarts.find_text(pat, c)
+            found, start, end = self.smarts.find_text(pat, c, reverse)
             if not found:
                 return False
         else:
-            raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+            raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             m = pat.search(raw)
             if m is None:
                 return False
@@ -539,7 +540,7 @@ class TextEdit(PlainTextEdit):
             return match_pos, match_word
 
         while True:
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = unicode_type(c.selectedText()).rstrip('\0')
             idx, word = find_first_word(text)
             if idx == -1:
                 return False
@@ -576,7 +577,7 @@ class TextEdit(PlainTextEdit):
 
     def replace(self, pat, template, saved_match='gui'):
         c = self.textCursor()
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+        raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.fullmatch(raw)
         if m is None:
             # This can happen if either the user changed the selected text or
@@ -603,7 +604,7 @@ class TextEdit(PlainTextEdit):
             self.setTextCursor(c)
             return True
         base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
-        raw = unicode(self.toPlainText())
+        raw = unicode_type(self.toPlainText())
         m = regex.search(base % 'id', raw)
         if m is None:
             m = regex.search(base % 'name', raw)
@@ -682,7 +683,7 @@ class TextEdit(PlainTextEdit):
                     painter.setFont(f)
                     self.last_current_lnum = (top, bottom - top)
                 painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignRight, str(num + 1))
+                              Qt.AlignRight, unicode_type(num + 1))
                 if current == num:
                     painter.restore()
             block = block.next()
@@ -693,8 +694,8 @@ class TextEdit(PlainTextEdit):
 
     def override_shortcut(self, ev):
         # Let the global cut/copy/paste/undo/redo shortcuts work, this avoids the nbsp
-        # problem as well, since they use the overridden copy() method
-        # instead of the one from Qt, and allows proper customization
+        # problem as well, since they use the overridden createMimeDataFromSelection() method
+        # instead of the one from Qt (which makes copy() work), and allows proper customization
         # of the shortcuts
         if ev in (QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo):
             ev.ignore()
@@ -710,7 +711,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(block.position() + r.start)
         c.setPosition(c.position() + r.length, c.KeepAnchor)
-        return unicode(c.selectedText())
+        return unicode_type(c.selectedText())
 
     def spellcheck_locale_for_cursor(self, c):
         with store_locale:
@@ -740,14 +741,12 @@ class TextEdit(PlainTextEdit):
             if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
-    def syntax_format_for_cursor(self, cursor):
-        return getattr(self.syntax_range_for_cursor(cursor), 'format', None)
-
     def show_tooltip(self, ev):
         c = self.cursorForPosition(ev.pos())
-        fmt = self.syntax_format_for_cursor(c)
+        fmt_range = self.syntax_range_for_cursor(c)
+        fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
-            tt = unicode(fmt.toolTip())
+            tt = unicode_type(fmt.toolTip())
             if tt:
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
@@ -782,7 +781,7 @@ class TextEdit(PlainTextEdit):
         right = max(c.anchor(), c.position())
         # For speed we use QPlainTextEdit's toPlainText as we dont care about
         # spaces in this context
-        raw = unicode(QPlainTextEdit.toPlainText(self))
+        raw = unicode_type(QPlainTextEdit.toPlainText(self))
         # Make sure the left edge is not within a <>
         gtpos = raw.find('>', left)
         ltpos = raw.find('<', left)
@@ -826,7 +825,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(left)
         c.setPosition(right, c.KeepAnchor)
-        prev_text = unicode(c.selectedText()).rstrip('\0')
+        prev_text = unicode_type(c.selectedText()).rstrip('\0')
         c.insertText(prefix + prev_text + suffix)
         if prev_text:
             right = c.position()
@@ -843,7 +842,7 @@ class TextEdit(PlainTextEdit):
             height = 1600
         c = self.textCursor()
         template, alt = 'url(%s)', ''
-        left = min(c.position(), c.anchor)
+        left = min(c.position(), c.anchor())
         if self.syntax == 'html':
             left, right = self.get_range_inside_tag()
             c.setPosition(left)
@@ -869,9 +868,9 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             c.setPosition(left + len(text), c.KeepAnchor)
         self.setTextCursor(c)
 
-    def insert_hyperlink(self, target, text):
+    def insert_hyperlink(self, target, text, template=None):
         if hasattr(self.smarts, 'insert_hyperlink'):
-            self.smarts.insert_hyperlink(self, target, text)
+            self.smarts.insert_hyperlink(self, target, text, template=template)
 
     def insert_tag(self, tag):
         if hasattr(self.smarts, 'insert_tag'):
@@ -929,10 +928,10 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         c = self.textCursor()
         has_selection = c.hasSelection()
         if has_selection:
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = unicode_type(c.selectedText()).rstrip('\0')
         else:
             c.setPosition(c.position() - min(c.positionInBlock(), 6), c.KeepAnchor)
-            text = unicode(c.selectedText()).rstrip('\0')
+            text = unicode_type(c.selectedText()).rstrip('\0')
         m = re.search(r'[a-fA-F0-9]{2,6}$', text)
         if m is None:
             return False
@@ -974,7 +973,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         from calibre.gui2.tweak_book.editor.smarts.css import find_rule
         block = None
         if self.syntax == 'css':
-            raw = unicode(self.toPlainText())
+            raw = unicode_type(self.toPlainText())
             line, col = find_rule(raw, rule_address)
             if line is not None:
                 block = self.document().findBlockByNumber(line - 1)

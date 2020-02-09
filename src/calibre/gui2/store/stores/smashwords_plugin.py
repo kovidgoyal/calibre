@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -9,8 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -25,7 +28,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'https://www.smashwords.com/books/search?query=' + urllib2.quote(query)
+    url = 'https://www.smashwords.com/books/search?query=' + quote(query)
 
     br = browser()
     try:
@@ -57,7 +60,7 @@ def search(query, max_results=10, timeout=60):
             if 'Price:' in price:
                 try:
                     price = price.partition('Price:')[2]
-                    price = re.sub('\s', ' ', price).strip()
+                    price = re.sub(r'\s', ' ', price).strip()
                     price = price.split(' ')[0].strip()
                 except Exception:
                     price = 'Unknown'

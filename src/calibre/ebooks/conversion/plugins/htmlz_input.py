@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -10,6 +10,7 @@ import os
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
+from polyglot.builtins import getcwd
 
 
 class HTMLZInput(InputFormatPlugin):
@@ -86,22 +87,22 @@ class HTMLZInput(InputFormatPlugin):
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
-        base = os.getcwdu()
-        fname = os.path.join(base, u'index.html')
+        base = getcwd()
+        htmlfile = os.path.join(base, u'index.html')
         c = 0
-        while os.path.exists(fname):
+        while os.path.exists(htmlfile):
             c += 1
-            fname = u'index%d.html'%c
-        htmlfile = open(fname, 'wb')
-        with htmlfile:
-            htmlfile.write(html.encode('utf-8'))
+            htmlfile = u'index%d.html'%c
+        with open(htmlfile, 'wb') as f:
+            f.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # Generate oeb from html conversion.
-        oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
+        with open(htmlfile, 'rb') as f:
+            oeb = html_input.convert(f, options, 'html', log,
                 {})
         options.debug_pipeline = odi
-        os.remove(htmlfile.name)
+        os.remove(htmlfile)
 
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
@@ -117,12 +118,12 @@ class HTMLZInput(InputFormatPlugin):
                 opf = x
                 break
         if opf:
-            opf = OPF(opf, basedir=os.getcwdu())
+            opf = OPF(opf, basedir=getcwd())
             cover_path = opf.raster_cover or opf.cover
         # Set the cover.
         if cover_path:
             cdata = None
-            with open(os.path.join(os.getcwdu(), cover_path), 'rb') as cf:
+            with open(os.path.join(getcwd(), cover_path), 'rb') as cf:
                 cdata = cf.read()
             cover_name = os.path.basename(cover_path)
             id, href = oeb.manifest.generate('cover', cover_name)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -167,7 +166,7 @@ class CompressImages(Dialog):
             x = QListWidgetItem(name, i)
             x.setData(Qt.UserRole, c.filesize(name))
         i.setSelectionMode(i.ExtendedSelection)
-        i.setMinimumHeight(500), i.setMinimumWidth(350)
+        i.setMinimumHeight(350), i.setMinimumWidth(350)
         i.selectAll(), i.setSpacing(5)
         self.delegate = ImageItemDelegate(self)
         i.setItemDelegate(self.delegate)

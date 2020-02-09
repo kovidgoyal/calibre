@@ -1,18 +1,18 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 from functools import partial
 from collections import OrderedDict
-import operator
+import operator, numbers
 
-from cssutils.css import Property, CSSRule
+from css_parser.css import Property, CSSRule
 
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
+from polyglot.builtins import iteritems, unicode_type
 
 
 def compile_pat(pat):
@@ -44,7 +44,7 @@ class StyleDeclaration(object):
                 yield p, None
             else:
                 if p not in self.expanded_properties:
-                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).iteritems()]
+                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in iteritems(n(p.name, p.propertyValue))]
                 for ep in self.expanded_properties[p]:
                     yield ep, p
 
@@ -74,10 +74,13 @@ class StyleDeclaration(object):
         dec._setSeq(seq)
         self.changed = True
 
-    def change_property(self, prop, parent_prop, val):
+    def change_property(self, prop, parent_prop, val, match_pat=None):
         if parent_prop is not None:
             self.expand_property(parent_prop)
-        prop.value = val
+        if match_pat is None:
+            prop.value = val
+        else:
+            prop.value = match_pat.sub(val, prop.value)
         self.changed = True
 
     def append_properties(self, props):
@@ -123,7 +126,7 @@ def unit_convert(value, unit, dpi=96.0, body_font_size=12):
 
 
 def parse_css_length_or_number(raw, default_unit=None):
-    if isinstance(raw, (int, long, float)):
+    if isinstance(raw, numbers.Number):
         return raw, default_unit
     try:
         return float(raw), default_unit
@@ -158,7 +161,7 @@ def transform_number(val, op, raw):
     v = op(v, val)
     if int(v) == v:
         v = int(v)
-    return str(v) + u
+    return unicode_type(v) + u
 
 
 class Rule(object):
@@ -166,6 +169,7 @@ class Rule(object):
     def __init__(self, property='color', match_type='*', query='', action='remove', action_data=''):
         self.property_name = property.lower()
         self.action, self.action_data = action, action_data
+        self.match_pat = None
         if self.action == 'append':
             decl = safe_parser().parseStyle(self.action_data)
             self.appended_properties = list(all_properties(decl))
@@ -178,11 +182,11 @@ class Rule(object):
         elif match_type == '*':
             self.property_matches = lambda x: True
         elif 'matches' in match_type:
-            q = compile_pat(query)
+            self.match_pat = compile_pat(query)
             if match_type.startswith('not_'):
-                self.property_matches = lambda x: q.match(x) is None
+                self.property_matches = lambda x: self.match_pat.match(x) is None
             else:
-                self.property_matches = lambda x: q.match(x) is not None
+                self.property_matches = lambda x: self.match_pat.match(x) is not None
         else:
             value, unit = parse_css_length_or_number(query)
             op = getattr(operator, operator_map[match_type])
@@ -196,7 +200,7 @@ class Rule(object):
                 if self.action == 'remove':
                     declaration.remove_property(prop, parent_prop)
                 elif self.action == 'change':
-                    declaration.change_property(prop, parent_prop, self.action_data)
+                    declaration.change_property(prop, parent_prop, self.action_data, self.match_pat)
                 elif self.action == 'append':
                     declaration.append_properties(self.appended_properties)
                 else:
@@ -338,14 +342,14 @@ def export_rules(serialized_rules):
     lines = []
     for rule in serialized_rules:
         lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
-        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in rule.iteritems() if k in allowed_keys)
+        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in iteritems(rule) if k in allowed_keys)
         lines.append('')
     return '\n'.join(lines).encode('utf-8')
 
 
 def import_rules(raw_data):
     import regex
-    pat = regex.compile('\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
+    pat = regex.compile(r'\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
     current_rule = {}
 
     def sanitize(r):
@@ -375,7 +379,7 @@ def test(return_tests=False):  # {{{
         r = Rule(**rule)
         decl = StyleDeclaration(safe_parser().parseStyle(style))
         r.process_declaration(decl)
-        return str(decl)
+        return unicode_type(decl)
 
     class TestTransforms(unittest.TestCase):
         longMessage = True
@@ -384,8 +388,15 @@ def test(return_tests=False):  # {{{
 
         def test_matching(self):
 
-            def m(match_type='*', query=''):
-                self.ae(apply_rule(css, property=prop, match_type=match_type, query=query), ecss)
+            def m(match_type='*', query='', action_data=''):
+                action = 'change' if action_data else 'remove'
+                self.ae(apply_rule(
+                    css, property=prop, match_type=match_type, query=query, action=action, action_data=action_data
+                ), ecss)
+
+            prop = 'font-size'
+            css, ecss = 'font-size: 1.2rem', 'font-size: 1.2em'
+            m('matches', query='(.+)rem', action_data=r'\1em')
 
             prop = 'color'
             css, ecss = 'color: red; margin: 0', 'margin: 0'
@@ -445,6 +456,7 @@ def test(return_tests=False):  # {{{
             m('line-height: 2', 'line-height: 1', '/', '2')
             prop = 'border-top-width'
             m('border-width: 1', 'border-bottom-width: 1;\nborder-left-width: 1;\nborder-right-width: 1;\nborder-top-width: 3', '*', '3')
+            prop = 'font-size'
 
         def test_export_import(self):
             rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}

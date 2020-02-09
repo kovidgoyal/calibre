@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
@@ -9,6 +10,7 @@ from os.path import dirname, abspath, relpath as _relpath, exists, basename
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
+from polyglot.builtins import unicode_type
 
 
 def relpath(*args):
@@ -46,9 +48,10 @@ class HTMLOutput(OutputFormatPlugin):
         Generate table of contents
         '''
         from lxml import etree
-        from urllib import unquote
+        from polyglot.urllib import unquote
 
         from calibre.ebooks.oeb.base import element
+        from calibre.utils.cleantext import clean_xml_chars
         with CurrentDir(output_dir):
             def build_node(current_node, parent=None):
                 if parent is None:
@@ -58,11 +61,15 @@ class HTMLOutput(OutputFormatPlugin):
                 for node in current_node.nodes:
                     point = element(parent, 'li')
                     href = relpath(abspath(unquote(node.href)), dirname(ref_url))
-                    link = element(point, 'a', href=href)
+                    if isinstance(href, bytes):
+                        href = href.decode('utf-8')
+                    link = element(point, 'a', href=clean_xml_chars(href))
                     title = node.title
+                    if isinstance(title, bytes):
+                        title = title.decode('utf-8')
                     if title:
                         title = re.sub(r'\s+', ' ', title)
-                    link.text=title
+                    link.text = clean_xml_chars(title)
                     build_node(node, point)
                 return parent
             wrap = etree.Element('div')
@@ -73,29 +80,32 @@ class HTMLOutput(OutputFormatPlugin):
         from lxml import etree
 
         root = self.generate_toc(oeb_book, ref_url, output_dir)
-        return etree.tostring(root, pretty_print=True, encoding='utf-8',
+        return etree.tostring(root, pretty_print=True, encoding='unicode',
                 xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree
         from calibre.utils import zipfile
         from templite import Templite
-        from urllib import unquote
+        from polyglot.urllib import unquote
         from calibre.ebooks.html.meta import EasyMeta
 
         # read template files
         if opts.template_html_index is not None:
-            template_html_index_data = open(opts.template_html_index, 'rb').read()
+            with open(opts.template_html_index, 'rb') as f:
+                template_html_index_data = f.read()
         else:
             template_html_index_data = P('templates/html_export_default_index.tmpl', data=True)
 
         if opts.template_html is not None:
-            template_html_data = open(opts.template_html, 'rb').read()
+            with open(opts.template_html, 'rb') as f:
+                template_html_data = f.read()
         else:
             template_html_data = P('templates/html_export_default.tmpl', data=True)
 
         if opts.template_css is not None:
-            template_css_data = open(opts.template_css, 'rb').read()
+            with open(opts.template_css, 'rb') as f:
+                template_css_data = f.read()
         else:
             template_css_data = P('templates/html_export_default.css', data=True)
 
@@ -130,7 +140,7 @@ class HTMLOutput(OutputFormatPlugin):
                     toc=html_toc, meta=meta, nextLink=nextLink,
                     tocUrl=tocUrl, cssLink=cssLink,
                     firstContentPageLink=nextLink)
-            if isinstance(t, unicode):
+            if isinstance(t, unicode_type):
                 t = t.encode('utf-8')
             f.write(t)
 
@@ -145,7 +155,7 @@ class HTMLOutput(OutputFormatPlugin):
                         pass
                 else:
                     with open(path, 'wb') as f:
-                        f.write(str(item))
+                        f.write(item.bytes_representation)
                     item.unload_data_from_memory(memory=path)
 
             for item in oeb_book.spine:
@@ -155,14 +165,14 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # get & clean HTML <HEAD>-data
                 head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
+                head_content = etree.tostring(head, pretty_print=True, encoding='unicode')
                 head_content = re.sub(r'\<\/?head.*\>', '', head_content)
                 head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
                 head_content = re.sub(r'<(title)([^>]*)/>', r'<\1\2></\1>', head_content)
 
                 # get & clean HTML <BODY>-data
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
+                ebook_content = etree.tostring(body, pretty_print=True, encoding='unicode')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
                 ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
@@ -196,7 +206,7 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # write html to file
                 with open(path, 'wb') as f:
-                    f.write(t)
+                    f.write(t.encode('utf-8'))
                 item.unload_data_from_memory(memory=path)
 
         zfile = zipfile.ZipFile(output_path, "w")

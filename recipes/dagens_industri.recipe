@@ -19,7 +19,7 @@ class AdvancedUserRecipe1311450855(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'sv'
 
-    feeds = [(u'DI', u'http://di.se/rss')]
+    feeds = [(u'DI', u'https://di.se/rss')]
 
     keep_only_tags = [dict(name='h1', attrs={'id': 'ctl00_ExtraWideContentRegion_WideContentRegion_MainRegion_MainContentRegion_MainBodyRegion_headlineNormal'}), dict( name='div', attrs={'id': 'articleBody'})]  # noqa
 

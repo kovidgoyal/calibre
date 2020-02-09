@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import etree
 
@@ -20,10 +23,10 @@ from calibre.gui2.store.search_result import SearchResult
 
 class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
 
-    open_search_url = 'http://www.xinxii.com/catalog-search/'
-    web_url = 'http://xinxii.com/'
+    open_search_url = 'https://www.xinxii.com/catalog-search/'
+    web_url = 'https://xinxii.com/'
 
-    # http://www.xinxii.com/catalog/
+    # https://www.xinxii.com/catalog/
 
     def search(self, query, max_results=10, timeout=60):
         '''
@@ -39,12 +42,12 @@ class XinXiiStore(BasicStoreConfig, OpenSearchOPDSStore):
         function so this one is modified to remove parts that are used.
         '''
 
-        url = 'http://www.xinxii.com/catalog-search/query/?keywords=' + urllib.quote_plus(query)
+        url = 'https://www.xinxii.com/catalog-search/query/?keywords=' + quote_plus(query)
 
         counter = max_results
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = etree.fromstring(f.read())
+            doc = etree.fromstring(f.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
             for data in doc.xpath('//*[local-name() = "entry"]'):
                 if counter <= 0:
                     break

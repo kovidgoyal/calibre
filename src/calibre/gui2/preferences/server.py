@@ -2,9 +2,13 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import errno
 import json
+import numbers
 import os
+import sys
 import textwrap
 import time
 
@@ -14,25 +18,80 @@ from PyQt5.Qt import (
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
     QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
 
 from calibre import as_unicode
+from calibre.constants import isportable, iswindows, plugins
 from calibre.gui2 import (
     choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog,
     open_url, warning_dialog
 )
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
+from calibre.gui2.widgets import HistoryLineEdit
 from calibre.srv.code import custom_list_template as default_custom_list_template
-from calibre.srv.embedded import custom_list_template
+from calibre.srv.embedded import custom_list_template, search_the_net_urls
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import (
     UserManager, create_user_data, validate_password, validate_username
 )
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.shared_file import share_open
+from polyglot.builtins import as_bytes, unicode_type
+
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
+
+
+if iswindows and not isportable:
+    def get_exe():
+        exe_base = os.path.abspath(os.path.dirname(sys.executable))
+        exe = os.path.join(exe_base, 'calibre.exe')
+        if isinstance(exe, bytes):
+            exe = exe.decode('mbcs')
+        return exe
+
+    def startup_shortcut_path():
+        winutil = plugins['winutil'][0]
+        startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
+        return os.path.join(startup_path, "calibre.lnk")
+
+    def create_shortcut(shortcut_path, target, description, *args):
+        quoted_args = None
+        if args:
+            quoted_args = []
+            for arg in args:
+                quoted_args.append('"{}"'.format(arg))
+            quoted_args = ' '.join(quoted_args)
+        plugins['winutil'][0].manage_shortcut(shortcut_path, target, description, quoted_args)
+
+    def shortcut_exists_at(shortcut_path, target):
+        if not os.access(shortcut_path, os.R_OK):
+            return False
+        name = plugins['winutil'][0].manage_shortcut(shortcut_path, None, None, None)
+        if name is None:
+            return False
+        return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(target))
+
+    def set_run_at_startup(run_at_startup=True):
+        if run_at_startup:
+            create_shortcut(startup_shortcut_path(), get_exe(), 'calibre - E-book management', '--start-in-tray')
+        else:
+            shortcut_path = startup_shortcut_path()
+            if os.path.exists(shortcut_path):
+                os.remove(shortcut_path)
+
+    def is_set_to_run_at_startup():
+        try:
+            return shortcut_exists_at(startup_shortcut_path(), get_exe())
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+else:
+    set_run_at_startup = is_set_to_run_at_startup = None
+
 
 # Advanced {{{
 
@@ -69,7 +128,7 @@ class Int(QSpinBox):
 
     def __init__(self, name, layout):
         QSpinBox.__init__(self)
-        self.setRange(0, 10000)
+        self.setRange(0, 20000)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
@@ -87,7 +146,7 @@ class Float(QDoubleSpinBox):
 
     def __init__(self, name, layout):
         QDoubleSpinBox.__init__(self)
-        self.setRange(0, 10000)
+        self.setRange(0, 20000)
         self.setDecimals(1)
         opt = options[name]
         self.valueChanged.connect(self.changed_signal.emit)
@@ -115,7 +174,7 @@ class Text(QLineEdit):
         return self.text().strip() or None
 
     def set(self, val):
-        self.setText(type(u'')(val or ''))
+        self.setText(unicode_type(val or ''))
 
 
 class Path(QWidget):
@@ -128,9 +187,10 @@ class Path(QWidget):
         opt = options[name]
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        self.text = t = QLineEdit(self)
+        self.text = t = HistoryLineEdit(self)
+        t.initialize('server-opts-{}'.format(name))
         t.setClearButtonEnabled(True)
-        t.textChanged.connect(self.changed_signal.emit)
+        t.currentTextChanged.connect(self.changed_signal.emit)
         l.addWidget(t)
 
         self.b = b = QToolButton(self)
@@ -144,12 +204,13 @@ class Path(QWidget):
         return self.text.text().strip() or None
 
     def set(self, val):
-        self.text.setText(type(u'')(val or ''))
+        self.text.setText(unicode_type(val or ''))
 
     def choose(self):
         ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)
         if ans:
             self.set(ans[0])
+            self.text.save_history()
 
 
 class Choices(QComboBox):
@@ -194,9 +255,9 @@ class AdvancedTab(QWidget):
                 w = Choices
             elif isinstance(opt.default, bool):
                 w = Bool
-            elif isinstance(opt.default, (int, long)):
+            elif isinstance(opt.default, numbers.Integral):
                 w = Int
-            elif isinstance(opt.default, float):
+            elif isinstance(opt.default, numbers.Real):
                 w = Float
             else:
                 w = Text
@@ -291,16 +352,43 @@ class MainTab(QWidget):  # {{{
         self.ip_info = QLabel(self)
         self.update_ip_info()
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
+        gui = get_gui()
+        if gui is not None:
+            gui.iactions['Connect Share'].share_conn_menu.server_state_changed_signal.connect(self.update_ip_info)
         l.addSpacing(10)
         l.addWidget(self.ip_info)
+        if set_run_at_startup is not None:
+            self.run_at_start_button = b = QPushButton('', self)
+            self.set_run_at_start_text()
+            b.clicked.connect(self.toggle_run_at_startup)
+            l.addSpacing(10)
+            l.addWidget(b)
+        l.addSpacing(10)
+
         l.addStretch(10)
+
+    def set_run_at_start_text(self):
+        is_autostarted = is_set_to_run_at_startup()
+        self.run_at_start_button.setText(
+            _('Do not start calibre automatically when computer is started') if is_autostarted else
+            _('Start calibre when the computer is started')
+        )
+        self.run_at_start_button.setToolTip('<p>' + (
+            _('''Currently calibre is set to run automatically when the
+            computer starts.  Use this button to disable that.''') if is_autostarted else
+            _('''Start calibre in the system tray automatically when the computer starts''')))
+
+    def toggle_run_at_startup(self):
+        set_run_at_startup(not is_set_to_run_at_startup())
+        self.set_run_at_start_text()
 
     def update_ip_info(self):
         from calibre.gui2.ui import get_gui
-        t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
-        t = t.strip().strip('[]')
-        self.ip_info.setText(_('Content server listening at: %s') % t)
+        gui = get_gui()
+        if gui is not None:
+            t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
+            t = t.strip().strip('[]')
+            self.ip_info.setText(_('Content server listening at: %s') % t)
 
     def genesis(self):
         opts = server_config()
@@ -332,12 +420,13 @@ class MainTab(QWidget):  # {{{
     def update_button_state(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        is_running = gui.content_server is not None and gui.content_server.is_running
-        self.ip_info.setVisible(is_running)
-        self.update_ip_info()
-        self.start_server_button.setEnabled(not is_running)
-        self.stop_server_button.setEnabled(is_running)
-        self.test_server_button.setEnabled(is_running)
+        if gui is not None:
+            is_running = gui.content_server is not None and gui.content_server.is_running
+            self.ip_info.setVisible(is_running)
+            self.update_ip_info()
+            self.start_server_button.setEnabled(not is_running)
+            self.stop_server_button.setEnabled(is_running)
+            self.test_server_button.setEnabled(is_running)
 
     @property
     def settings(self):
@@ -633,10 +722,7 @@ class User(QWidget):
         l.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.username_label = la = QLabel('')
         l.addWidget(la)
-        self.cpb = b = QPushButton(_('Change &password'))
-        l.addWidget(b)
-        b.clicked.connect(self.change_password)
-        self.ro_text = _('Allow {} to make &changes (i.e. grant write access)?')
+        self.ro_text = _('Allow {} to make &changes (i.e. grant write access)')
         self.rw = rw = QCheckBox(self)
         rw.setToolTip(
             _(
@@ -648,6 +734,9 @@ class User(QWidget):
         l.addWidget(rw)
         self.access_label = la = QLabel(self)
         l.addWidget(la), la.setWordWrap(True)
+        self.cpb = b = QPushButton(_('Change &password'))
+        l.addWidget(b)
+        b.clicked.connect(self.change_password)
         self.restrict_button = b = QPushButton(self)
         b.clicked.connect(self.change_restriction)
         l.addWidget(b)
@@ -834,7 +923,8 @@ class CustomList(QWidget):  # {{{
 
         self.la1 = la = QLabel('<p>' + _(
             'The template below will be interpreted as HTML and all {{fields}} will be replaced'
-            ' by the actual metadata, if available. You can use {0} as a separator'
+            ' by the actual metadata, if available. For custom columns use the column lookup'
+            ' name, for example: #mytags. You can use {0} as a separator'
             ' to split a line into multiple columns.').format('|||'))
         la.setWordWrap(True)
         l.addRow(la)
@@ -863,7 +953,7 @@ class CustomList(QWidget):  # {{{
         if path:
             raw = self.serialize(self.current_template)
             with lopen(path, 'wb') as f:
-                f.write(raw)
+                f.write(as_bytes(raw))
 
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
@@ -916,8 +1006,193 @@ class CustomList(QWidget):  # {{{
         else:
             raw = self.serialize(template)
             with lopen(custom_list_template.path, 'wb') as f:
-                f.write(raw)
+                f.write(as_bytes(raw))
         return True
+
+# }}}
+
+
+# Search the internet {{{
+
+class URLItem(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, as_dict, parent=None):
+        QWidget.__init__(self, parent)
+        self.changed_signal.connect(parent.changed_signal)
+        self.l = l = QFormLayout(self)
+        self.type_widget = t = QComboBox(self)
+        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        t.addItems([_('Book'), _('Author')])
+        l.addRow(_('URL type:'), t)
+        self.name_widget = n = QLineEdit(self)
+        n.setClearButtonEnabled(True)
+        l.addRow(_('Name:'), n)
+        self.url_widget = w = QLineEdit(self)
+        w.setClearButtonEnabled(True)
+        l.addRow(_('URL:'), w)
+        if as_dict:
+            self.name = as_dict['name']
+            self.url = as_dict['url']
+            self.url_type = as_dict['type']
+        self.type_widget.currentIndexChanged.connect(self.changed_signal)
+        self.name_widget.textChanged.connect(self.changed_signal)
+        self.url_widget.textChanged.connect(self.changed_signal)
+
+    @property
+    def is_empty(self):
+        return not self.name or not self.url
+
+    @property
+    def url_type(self):
+        return 'book' if self.type_widget.currentIndex() == 0 else 'author'
+
+    @url_type.setter
+    def url_type(self, val):
+        self.type_widget.setCurrentIndex(1 if val == 'author' else 0)
+
+    @property
+    def name(self):
+        return self.name_widget.text().strip()
+
+    @name.setter
+    def name(self, val):
+        self.name_widget.setText((val or '').strip())
+
+    @property
+    def url(self):
+        return self.url_widget.text().strip()
+
+    @url.setter
+    def url(self, val):
+        self.url_widget.setText((val or '').strip())
+
+    @property
+    def as_dict(self):
+        return {'name': self.name, 'url': self.url, 'type': self.url_type}
+
+    def validate(self):
+        if self.is_empty:
+            return True
+        if '{author}' not in self.url:
+            error_dialog(self.parent(), _('Missing author placeholder'), _(
+                'The URL {0} does not contain the {1} placeholder').format(self.url, '{author}'), show=True)
+            return False
+        if self.url_type == 'book' and '{title}' not in self.url:
+            error_dialog(self.parent(), _('Missing title placeholder'), _(
+                'The URL {0} does not contain the {1} placeholder').format(self.url, '{title}'), show=True)
+            return False
+        return True
+
+
+class SearchTheInternet(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.sa = QScrollArea(self)
+        self.lw = QWidget(self)
+        self.l = QVBoxLayout(self.lw)
+        self.sa.setWidget(self.lw), self.sa.setWidgetResizable(True)
+        self.gl = gl = QVBoxLayout(self)
+        self.la = QLabel(_(
+            'Add new locations to search for books or authors using the "Search the internet" feature'
+            ' of the Content server. The URLs should contain {author} which will be'
+            ' replaced by the author name and, for book URLs, {title} which will'
+            ' be replaced by the book title.'))
+        self.la.setWordWrap(True)
+        gl.addWidget(self.la)
+
+        self.h = QHBoxLayout()
+        gl.addLayout(self.h)
+        self.add_url_button = b = QPushButton(QIcon(I('plus.png')), _('&Add URL'))
+        b.clicked.connect(self.add_url)
+        self.h.addWidget(b)
+        self.export_button = b = QPushButton(_('Export URLs'))
+        b.clicked.connect(self.export_urls)
+        self.h.addWidget(b)
+        self.import_button = b = QPushButton(_('Import URLs'))
+        b.clicked.connect(self.import_urls)
+        self.h.addWidget(b)
+        self.clear_button = b = QPushButton(_('Clear'))
+        b.clicked.connect(self.clear)
+        self.h.addWidget(b)
+
+        self.h.addStretch(10)
+        gl.addWidget(self.sa, stretch=10)
+        self.items = []
+
+    def genesis(self):
+        self.current_urls = search_the_net_urls() or []
+
+    @property
+    def current_urls(self):
+        return [item.as_dict for item in self.items if not item.is_empty]
+
+    def append_item(self, item_as_dict):
+        self.items.append(URLItem(item_as_dict, self))
+        self.l.addWidget(self.items[-1])
+
+    def clear(self):
+        [(self.l.removeWidget(w), w.setParent(None), w.deleteLater()) for w in self.items]
+        self.items = []
+        self.changed_signal.emit()
+
+    @current_urls.setter
+    def current_urls(self, val):
+        self.clear()
+        for entry in val:
+            self.append_item(entry)
+
+    def add_url(self):
+        self.items.append(URLItem(None, self))
+        self.l.addWidget(self.items[-1])
+        QTimer.singleShot(100, self.scroll_to_bottom)
+
+    def scroll_to_bottom(self):
+        sb = self.sa.verticalScrollBar()
+        if sb:
+            sb.setValue(sb.maximum())
+        self.items[-1].name_widget.setFocus(Qt.OtherFocusReason)
+
+    @property
+    def serialized_urls(self):
+        return json.dumps(self.current_urls, indent=2)
+
+    def commit(self):
+        for item in self.items:
+            if not item.validate():
+                return False
+        cu = self.current_urls
+        if cu:
+            with lopen(search_the_net_urls.path, 'wb') as f:
+                f.write(self.serialized_urls)
+        else:
+            try:
+                os.remove(search_the_net_urls.path)
+            except EnvironmentError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+        return True
+
+    def export_urls(self):
+        path = choose_save_file(
+            self, 'search-net-urls', _('Choose URLs file'),
+            filters=[(_('URL files'), ['json'])], initial_filename='search-urls.json')
+        if path:
+            with lopen(path, 'wb') as f:
+                f.write(self.serialized_urls)
+
+    def import_urls(self):
+        paths = choose_files(self, 'search-net-urls', _('Choose URLs file'),
+            filters=[(_('URL files'), ['json'])], all_files=False, select_only_single_file=True)
+        if paths:
+            with lopen(paths[0], 'rb') as f:
+                items = json.loads(f.read())
+                [self.append_item(x) for x in items]
+                self.changed_signal.emit()
 
 # }}}
 
@@ -947,6 +1222,9 @@ class ConfigWidget(ConfigWidgetBase):
         sa = QScrollArea(self)
         sa.setWidget(clt), sa.setWidgetResizable(True)
         t.addTab(sa, _('Book &list template'))
+        self.search_net_tab = SearchTheInternet(self)
+        t.addTab(self.search_net_tab, _('&Search the internet'))
+
         for tab in self.tabs:
             if hasattr(tab, 'changed_signal'):
                 tab.changed_signal.connect(self.changed_signal.emit)
@@ -992,7 +1270,7 @@ class ConfigWidget(ConfigWidgetBase):
             if self.server.exception is not None:
                 error_dialog(
                     self,
-                    _('Failed to start content server'),
+                    _('Failed to start Content server'),
                     as_unicode(self.gui.content_server.exception)
                 ).exec_()
                 self.gui.content_server = None
@@ -1043,7 +1321,7 @@ class ConfigWidget(ConfigWidgetBase):
         layout.addWidget(el)
         try:
             el.setPlainText(
-                lopen(log_error_file, 'rb').read().decode('utf8', 'replace')
+                share_open(log_error_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
             el.setPlainText(_('No error log found'))
@@ -1052,7 +1330,7 @@ class ConfigWidget(ConfigWidgetBase):
         layout.addWidget(al)
         try:
             al.setPlainText(
-                lopen(log_access_file, 'rb').read().decode('utf8', 'replace')
+                share_open(log_access_file, 'rb').read().decode('utf8', 'replace')
             )
         except EnvironmentError:
             al.setPlainText(_('No access log found'))
@@ -1104,6 +1382,8 @@ class ConfigWidget(ConfigWidgetBase):
                 return False
         if not self.custom_list_tab.commit():
             return False
+        if not self.search_net_tab.commit():
+            return False
         ConfigWidgetBase.commit(self)
         change_settings(**settings)
         UserManager().user_data = users
@@ -1125,6 +1405,7 @@ class ConfigWidget(ConfigWidgetBase):
         if self.server:
             self.server.user_manager.refresh()
             self.server.ctx.custom_list_template = custom_list_template()
+            self.server.ctx.search_the_net_urls = search_the_net_urls()
 
 
 if __name__ == '__main__':

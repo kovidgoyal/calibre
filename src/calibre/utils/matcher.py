@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import, print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,17 +9,15 @@ import atexit, os, sys
 from math import ceil
 from unicodedata import normalize
 from threading import Thread, Lock
-from Queue import Queue
 from operator import itemgetter
 from collections import OrderedDict
 from itertools import islice
 
-from itertools import izip
-from polyglot.builtins import map
-
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip, raw_input, filter, getcwd
+from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
@@ -97,7 +95,7 @@ class Matcher(object):
                 w = [Worker(requests, results) for i in range(max(1, cpu_count()))]
                 [x.start() for x in w]
                 workers.extend(w)
-        items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
+        items = map(lambda x: normalize('NFC', unicode_type(x)), filter(None, items))
         self.items = items = tuple(items)
         tasks = split(items, len(workers))
         self.task_maps = [{j: i for j, (i, _) in enumerate(task)} for task in tasks]
@@ -108,7 +106,7 @@ class Matcher(object):
         self.sort_keys = None
 
     def __call__(self, query, limit=None):
-        query = normalize('NFC', unicode(query))
+        query = normalize('NFC', unicode_type(query))
         with wlock:
             for i, scorer in enumerate(self.scorers):
                 workers[0].requests.put((i, scorer, query))
@@ -194,7 +192,7 @@ def process_item(ctx, haystack, needle):
         key = (hidx, nidx, last_idx)
         mem = ctx.memory.get(key, None)
         if mem is None:
-            for i in xrange(nidx, len(needle)):
+            for i in range(nidx, len(needle)):
                 n = needle[i]
                 if (len(haystack) - hidx < len(needle) - i):
                     score = 0
@@ -265,12 +263,12 @@ class CScorer(object):
         self.m = speedup.Matcher(
             items,
             primary_collator().capsule,
-            unicode(level1), unicode(level2), unicode(level3)
+            unicode_type(level1), unicode_type(level2), unicode_type(level3)
         )
 
     def __call__(self, query):
         scores, positions = self.m.calculate_scores(query)
-        for score, pos in izip(scores, positions):
+        for score, pos in zip(scores, positions):
             yield score, pos
 
 
@@ -295,13 +293,13 @@ def test(return_tests=False):
                 m('one')
 
             start = memory()
-            for i in xrange(10):
-                doit(str(i))
+            for i in range(10):
+                doit(unicode_type(i))
             gc.collect()
             used10 = memory() - start
             start = memory()
-            for i in xrange(100):
-                doit(str(i))
+            for i in range(100):
+                doit(unicode_type(i))
             gc.collect()
             used100 = memory() - start
             if used100 > 0 and used10 > 0:
@@ -310,7 +308,7 @@ def test(return_tests=False):
         def test_non_bmp(self):
             raw = '_\U0001f431-'
             m = Matcher([raw], scorer=CScorer)
-            positions = next(m(raw).itervalues())
+            positions = next(itervalues(m(raw)))
             self.assertEqual(
                 positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3))
             )
@@ -337,13 +335,20 @@ else:
         return string[pos:pos + chs]
 
 
+def input_unicode(prompt):
+    ans = raw_input(prompt)
+    if isinstance(ans, bytes):
+        ans = ans.decode(sys.stdin.encoding)
+    return ans
+
+
 def main(basedir=None, query=None):
     from calibre import prints
     from calibre.utils.terminal import ColoredStream
     if basedir is None:
         try:
-            basedir = raw_input('Enter directory to scan [%s]: ' % os.getcwdu()
-                                ).decode(sys.stdin.encoding).strip() or os.getcwdu()
+            basedir = input_unicode('Enter directory to scan [%s]: ' % getcwd()
+                                ).strip() or getcwd()
         except (EOFError, KeyboardInterrupt):
             return
     m = FilesystemMatcher(basedir)
@@ -351,12 +356,12 @@ def main(basedir=None, query=None):
     while True:
         if query is None:
             try:
-                query = raw_input('Enter query: ').decode(sys.stdin.encoding)
+                query = input_unicode('Enter query: ')
             except (EOFError, KeyboardInterrupt):
                 break
             if not query:
                 break
-        for path, positions in islice(m(query).iteritems(), 0, 10):
+        for path, positions in islice(iteritems(m(query)), 0, 10):
             positions = list(positions)
             p = 0
             while positions:

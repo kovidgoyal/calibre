@@ -45,11 +45,11 @@ class SCPrintMagazine(BasicNewsRecipe):
                         if arttitlet is not None:
                             mylink = arttitlet.find('a')
                             if mylink is not None:
-                                if mylink.has_key('title'):  # noqa
+                                if mylink.get('title'):
                                     arttitle = mylink['title']
                                 else:
                                     arttitle = 'unknown'
-                                if mylink.has_key('href'):  # noqa
+                                if mylink.get('href'):
                                     artlink = mylink['href']
                                     artlink = artlink.replace(
                                         "/article", "/printarticle")

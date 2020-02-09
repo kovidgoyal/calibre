@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib
-from polyglot.builtins import map
+import hashlib, numbers
+from polyglot.builtins import map, iteritems
 
 from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
@@ -19,6 +18,7 @@ from calibre.ebooks.pdf.render.common import (
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
+from polyglot.builtins import as_unicode
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
@@ -56,7 +56,7 @@ class IndirectObjects(object):
 
     def __getitem__(self, o):
         try:
-            return self._map[id(self._list[o] if isinstance(o, int) else o)]
+            return self._map[id(self._list[o] if isinstance(o, numbers.Integral) else o)]
         except (KeyError, IndexError):
             raise KeyError('The object %r was not found'%o)
 
@@ -119,24 +119,24 @@ class Page(Stream):
         r = Dictionary()
         if self.opacities:
             extgs = Dictionary()
-            for opref, name in self.opacities.iteritems():
+            for opref, name in iteritems(self.opacities):
                 extgs[name] = opref
             r['ExtGState'] = extgs
         if self.fonts:
             fonts = Dictionary()
-            for ref, name in self.fonts.iteritems():
+            for ref, name in iteritems(self.fonts):
                 fonts[name] = ref
             r['Font'] = fonts
         if self.xobjects:
             xobjects = Dictionary()
-            for ref, name in self.xobjects.iteritems():
+            for ref, name in iteritems(self.xobjects):
                 xobjects[name] = ref
             r['XObject'] = xobjects
         if self.patterns:
             r['ColorSpace'] = Dictionary({'PCSp':Array(
                 [Name('Pattern'), Name('DeviceRGB')])})
             patterns = Dictionary()
-            for ref, name in self.patterns.iteritems():
+            for ref, name in iteritems(self.patterns):
                 patterns[name] = ref
             r['Pattern'] = patterns
         if r:
@@ -296,6 +296,7 @@ class PDFStream(object):
         self.image_cache = {}
         self.pattern_cache, self.shader_cache = {}, {}
         self.debug = debug
+        self.page_size = page_size
         self.links = Links(self, mark_links, page_size)
         i = QImage(1, 1, QImage.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
@@ -355,7 +356,7 @@ class PDFStream(object):
                 self.current_page.write_line()
             for x in op:
                 self.current_page.write(
-                (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
+                (fmtnum(x) if isinstance(x, numbers.Number) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
         if not path.ops:
@@ -415,6 +416,9 @@ class PDFStream(object):
         self.objects.commit(r, self.stream)
         return r
 
+    def add_jpeg_image(self, img_data, w, h, cache_key=None):
+        return self.write_image(img_data, w, h, 32, dct=True)
+
     def add_image(self, img, cache_key):
         ref = self.get_image(cache_key)
         if ref is not None:
@@ -464,7 +468,7 @@ class PDFStream(object):
         ba = QByteArray()
         buf = QBuffer(ba)
         image.save(buf, 'jpeg', 94)
-        data = bytes(ba.data())
+        data = ba.data()
 
         if has_alpha:
             soft_mask = self.write_image(tmask, w, h, 8)
@@ -483,9 +487,11 @@ class PDFStream(object):
         return self.shader_cache[shader.cache_key]
 
     def draw_image(self, x, y, width, height, imgref):
+        self.draw_image_with_transform(imgref, scaling=(width, -height), translation=(x, y + height))
+
+    def draw_image_with_transform(self, imgref, translation=(0, 0), scaling=(1, 1)):
         name = self.current_page.add_image(imgref)
-        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(width),
-                            fmtnum(-height), fmtnum(x), fmtnum(y+height)))
+        self.current_page.write('q {} 0 0 {} {} {} cm '.format(*(tuple(scaling) + tuple(translation))))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
 
@@ -520,7 +526,7 @@ class PDFStream(object):
         self.objects.pdf_serialize(self.stream)
         self.write_line()
         startxref = self.objects.write_xref(self.stream)
-        file_id = String(self.stream.hashobj.hexdigest().decode('ascii'))
+        file_id = String(as_unicode(self.stream.hashobj.hexdigest()))
         self.write_line('trailer')
         trailer = Dictionary({'Root':self.catalog, 'Size':len(self.objects)+1,
                               'ID':Array([file_id, file_id]), 'Info':inforef})

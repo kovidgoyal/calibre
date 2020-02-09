@@ -26,7 +26,7 @@ class TheAtlantic(BasicNewsRecipe):
     else:
         title = 'The Atlantic'
         description = 'Current affairs and politics focussed on the US'
-        INDEX = 'http://www.theatlantic.com/magazine/'
+        INDEX = 'https://www.theatlantic.com/magazine/'
 
     __author__ = 'Kovid Goyal'
     language = 'en'
@@ -97,24 +97,24 @@ class TheAtlantic(BasicNewsRecipe):
         use_embedded_content = False
 
         feeds = [
-            ('The Atlantic', 'http://www.theatlantic.com/feed/all/'),
-            ('Best of The Atlantic', 'http://www.theatlantic.com/feed/best-of/'),
-            ('Politics | The Atlantic', 'http://www.theatlantic.com/feed/channel/politics/'),
-            ('Business | The Atlantic', 'http://www.theatlantic.com/feed/channel/business/'),
-            ('Culture | The Atlantic', 'http://www.theatlantic.com/feed/channel/entertainment/'),
-            ('Global | The Atlantic', 'http://www.theatlantic.com/feed/channel/international/'),
-            ('Technology | The Atlantic', 'http://www.theatlantic.com/feed/channel/technology/'),
-            ('U.S. | The Atlantic', 'http://www.theatlantic.com/feed/channel/national/'),
-            ('Health | The Atlantic', 'http://www.theatlantic.com/feed/channel/health/'),
-            ('Video | The Atlantic', 'http://www.theatlantic.com/feed/channel/video/'),
-            ('Sexes | The Atlantic', 'http://www.theatlantic.com/feed/channel/sexes/'),
-            ('Education | The Atlantic', 'http://www.theatlantic.com/feed/channel/education/'),
-            ('Science | The Atlantic', 'http://www.theatlantic.com/feed/channel/science/'),
-            ('News | The Atlantic', 'http://www.theatlantic.com/feed/channel/news/'),
-            ('Press Releases | The Atlantic', 'http://www.theatlantic.com/feed/channel/press-releases/'),
-            ('Newsletters | The Atlantic', 'http://www.theatlantic.com/feed/channel/newsletters/'),
-            ('The Atlantic Photo', 'http://feeds.feedburner.com/theatlantic/infocus'),
-            ('Notes | The Atlantic', 'http://feeds.feedburner.com/TheAtlanticNotes'),
+            ('The Atlantic', 'https://www.theatlantic.com/feed/all/'),
+            ('Best of The Atlantic', 'https://www.theatlantic.com/feed/best-of/'),
+            ('Politics | The Atlantic', 'https://www.theatlantic.com/feed/channel/politics/'),
+            ('Business | The Atlantic', 'https://www.theatlantic.com/feed/channel/business/'),
+            ('Culture | The Atlantic', 'https://www.theatlantic.com/feed/channel/entertainment/'),
+            ('Global | The Atlantic', 'https://www.theatlantic.com/feed/channel/international/'),
+            ('Technology | The Atlantic', 'https://www.theatlantic.com/feed/channel/technology/'),
+            ('U.S. | The Atlantic', 'https://www.theatlantic.com/feed/channel/national/'),
+            ('Health | The Atlantic', 'https://www.theatlantic.com/feed/channel/health/'),
+            ('Video | The Atlantic', 'https://www.theatlantic.com/feed/channel/video/'),
+            ('Sexes | The Atlantic', 'https://www.theatlantic.com/feed/channel/sexes/'),
+            ('Education | The Atlantic', 'https://www.theatlantic.com/feed/channel/education/'),
+            ('Science | The Atlantic', 'https://www.theatlantic.com/feed/channel/science/'),
+            ('News | The Atlantic', 'https://www.theatlantic.com/feed/channel/news/'),
+            ('Press Releases | The Atlantic', 'https://www.theatlantic.com/feed/channel/press-releases/'),
+            ('Newsletters | The Atlantic', 'https://www.theatlantic.com/feed/channel/newsletters/'),
+            ('The Atlantic Photo', 'https://feeds.feedburner.com/theatlantic/infocus'),
+            ('Notes | The Atlantic', 'https://feeds.feedburner.com/TheAtlanticNotes'),
         ]
     else:
         def parse_index(self):
@@ -128,18 +128,23 @@ class TheAtlantic(BasicNewsRecipe):
             feeds = []
             for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
                 for h2 in div.findAll('h2', attrs={'class': True}):
-                    if 'section-name' in h2['class'].split():
+                    cls = h2['class']
+                    if hasattr(cls, 'split'):
+                        cls = cls.split()
+                    if 'section-name' in cls:
                         if current_articles:
                             feeds.append((current_section, current_articles))
                         current_articles = []
                         current_section = self.tag_to_string(h2)
                         self.log('\nFound section:', current_section)
-                    elif 'hed' in h2['class'].split():
+                    elif 'hed' in cls:
                         title = self.tag_to_string(h2)
                         a = h2.findParent('a', href=True)
+                        if a is None:
+                            continue
                         url = a['href']
                         if url.startswith('/'):
-                            url = 'http://www.theatlantic.com' + url
+                            url = 'https://www.theatlantic.com' + url
                         li = a.findParent(
                             'li',
                             attrs={'class': lambda x: x and 'article' in x.split()}

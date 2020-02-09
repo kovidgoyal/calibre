@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Device driver for the Paladin devices
 '''
@@ -350,7 +349,7 @@ class PALADIN(USBMS):
                 values (?,?,?,?,?,?,?,?)
                 '''
                 t = (title, author, book.get('comments', None), int(time.time() * 1000),
-                        book.get('series', None), book.get('series_index', sys.maxint), lpath,
+                        book.get('series', None), book.get('series_index', sys.maxsize), lpath,
                         book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = connection.last_insert_rowid()

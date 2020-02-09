@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -18,8 +20,9 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
+from polyglot.builtins import unicode_type, string_or_bytes, map
 
-DEBUG_README=u'''
+DEBUG_README=b'''
 This debug directory contains snapshots of the e-book as it passes through the
 various stages of conversion. The stages are:
 
@@ -263,8 +266,8 @@ OptionRecommendation(name='level2_toc',
 OptionRecommendation(name='level3_toc',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('XPath expression that specifies all tags that should be '
-                'added to the Table of Contents at level three. Each entry '
-                'is added under the previous level two entry.'
+            'added to the Table of Contents at level three. Each entry '
+            'is added under the previous level two entry.'
             ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
@@ -294,8 +297,8 @@ OptionRecommendation(name='toc_threshold',
 OptionRecommendation(name='max_toc_links',
             recommended_value=50, level=OptionRecommendation.LOW,
             help=_('Maximum number of links to insert into the TOC. Set to 0 '
-               'to disable. Default is: %default. Links are only added to the '
-            'TOC if less than the threshold number of chapters were detected.'
+                'to disable. Default is: %default. Links are only added to the '
+                'TOC if less than the threshold number of chapters were detected.'
                 )
         ),
 
@@ -534,8 +537,8 @@ OptionRecommendation(name='asciiize',
             '(characters shared by Chinese and Japanese for instance) the '
             'representation based on the current calibre interface language will be '
             'used.')%
-            u'\u041c\u0438\u0445\u0430\u0438\u043b '
-            u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
+            '\u041c\u0438\u0445\u0430\u0438\u043b '
+            '\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
         ),
 
@@ -794,7 +797,7 @@ OptionRecommendation(name='search_replace',
     def unarchive(self, path, tdir):
         extract(path, tdir)
         files = list(walk(tdir))
-        files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
+        files = [f if isinstance(f, unicode_type) else f.decode(filesystem_encoding)
                 for f in files]
         from calibre.customize.ui import available_input_formats
         fmts = set(available_input_formats())
@@ -820,7 +823,7 @@ OptionRecommendation(name='search_replace',
         if not html_files:
             raise ValueError(_('Could not find an e-book inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
-        html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        html_files.sort(key=lambda x: x[1])
         html_files = [f[0] for f in html_files]
         for q in ('toc', 'index'):
             for f in html_files:
@@ -847,7 +850,7 @@ OptionRecommendation(name='search_replace',
         rec = self.get_option_by_name(name)
         help = getattr(rec, 'help', None)
         if help is not None:
-            return help.replace('%default', str(rec.recommended_value))
+            return help.replace('%default', unicode_type(rec.recommended_value))
 
     def get_all_help(self):
         ans = {}
@@ -915,19 +918,19 @@ OptionRecommendation(name='search_replace',
                     try:
                         val = parse_date(val, assume_utc=x=='timestamp')
                     except:
-                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode(val))
+                        self.log.exception(_('Failed to parse date/time') + ' ' + unicode_type(val))
                         continue
                 setattr(mi, x, val)
 
     def download_cover(self, url):
         from calibre import browser
         from PIL import Image
-        from cStringIO import StringIO
+        import io
         from calibre.ptempfile import PersistentTemporaryFile
         self.log('Downloading cover from %r'%url)
         br = browser()
         raw = br.open_novisit(url).read()
-        buf = StringIO(raw)
+        buf = io.BytesIO(raw)
         pt = PersistentTemporaryFile('.jpg')
         pt.close()
         img = Image.open(buf)
@@ -945,8 +948,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.read_metadata_from_opf is not None:
             self.opts.read_metadata_from_opf = os.path.abspath(
                                             self.opts.read_metadata_from_opf)
-            opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
-                      os.path.dirname(self.opts.read_metadata_from_opf))
+            with lopen(self.opts.read_metadata_from_opf, 'rb') as stream:
+                opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
         if mi.cover:
@@ -955,7 +958,8 @@ OptionRecommendation(name='search_replace',
             ext = mi.cover.rpartition('.')[-1].lower().strip()
             if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
-            mi.cover_data = (ext, open(mi.cover, 'rb').read())
+            with lopen(mi.cover, 'rb') as stream:
+                mi.cover_data = (ext, stream.read())
             mi.cover = None
         self.user_metadata = mi
 
@@ -1011,7 +1015,7 @@ OptionRecommendation(name='search_replace',
         try:
             sys.stdout.flush()
             sys.stderr.flush()
-        except:
+        except Exception:
             pass
 
     def dump_oeb(self, oeb, out_dir):
@@ -1021,7 +1025,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, basestring):
+        if isinstance(ret, string_or_bytes):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1051,8 +1055,8 @@ OptionRecommendation(name='search_replace',
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
             from calibre.utils.fonts.scanner import font_scanner  # noqa
-        import cssutils, logging
-        cssutils.log.setLevel(logging.WARN)
+        import css_parser, logging
+        css_parser.log.setLevel(logging.WARN)
         get_types_map()  # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
@@ -1060,8 +1064,8 @@ OptionRecommendation(name='search_replace',
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
             if not os.path.exists(self.opts.debug_pipeline):
                 os.makedirs(self.opts.debug_pipeline)
-            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
-                    'w').write(DEBUG_README.encode('utf-8'))
+            with lopen(os.path.join(self.opts.debug_pipeline, 'README.txt'), 'wb') as f:
+                f.write(DEBUG_README)
             for x in ('input', 'parsed', 'structure', 'processed'):
                 x = os.path.join(self.opts.debug_pipeline, x)
                 if os.path.exists(x):
@@ -1078,7 +1082,7 @@ OptionRecommendation(name='search_replace',
 
         tdir = PersistentTemporaryDirectory('_plumber')
         stream = self.input if self.input_fmt == 'recipe' else \
-                open(self.input, 'rb')
+                lopen(self.input, 'rb')
         if self.input_fmt == 'recipe':
             self.opts.original_recipe_input_arg = self.original_input_arg
 
@@ -1171,8 +1175,8 @@ OptionRecommendation(name='search_replace',
             fkey = self.opts.dest.fkey
         else:
             try:
-                fkey = map(float, fkey.split(','))
-            except:
+                fkey = list(map(float, fkey.split(',')))
+            except Exception:
                 self.log.error('Invalid font size key: %r ignoring'%fkey)
                 fkey = self.opts.dest.fkey
 
@@ -1187,7 +1191,8 @@ OptionRecommendation(name='search_replace',
             self.log('Structured HTML written to:', out_dir)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
-            self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
+            with open(self.opts.extra_css, 'rb') as f:
+                self.opts.extra_css = f.read()
 
         oibl = self.opts.insert_blank_line
         orps  = self.opts.remove_paragraph_spacing
@@ -1213,7 +1218,7 @@ OptionRecommendation(name='search_replace',
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, basestring):
+            if isinstance(transform_css_rules, string_or_bytes):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

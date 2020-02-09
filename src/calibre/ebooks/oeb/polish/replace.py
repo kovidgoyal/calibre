@@ -1,22 +1,22 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import codecs, shutil, os, posixpath
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, itervalues, map
 from functools import partial
-from urlparse import urlparse, urlunparse
 from collections import Counter, defaultdict
 
-from calibre import sanitize_file_name_unicode
+from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
+from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
+from polyglot.urllib import urlparse, urlunparse
 
 
 class LinkReplacer(object):
@@ -118,7 +118,7 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
     :param replace_in_opf: If False, links are not replaced in the OPF file.
 
     '''
-    for name, media_type in container.mime_map.iteritems():
+    for name, media_type in iteritems(container.mime_map):
         if name == container.opf_name and not replace_in_opf:
             continue
         repl = LinkReplacer(name, container, link_map, frag_map)
@@ -134,7 +134,7 @@ def replace_ids(container, id_map):
 
     '''
     changed = False
-    for name, media_type in container.mime_map.iteritems():
+    for name, media_type in iteritems(container.mime_map):
         repl = IdReplacer(name, container, id_map)
         container.replace_links(name, repl)
         if name == container.opf_name:
@@ -186,19 +186,19 @@ def rename_files(container, file_map):
     :param file_map: A mapping of old canonical name to new canonical name, for
         example: :code:`{'text/chapter1.html': 'chapter1.html'}`.
     '''
-    overlap = set(file_map).intersection(set(file_map.itervalues()))
+    overlap = set(file_map).intersection(set(itervalues(file_map)))
     if overlap:
         raise ValueError('Circular rename detected. The files %s are both rename targets and destinations' % ', '.join(overlap))
-    for name, dest in file_map.iteritems():
+    for name, dest in iteritems(file_map):
         if container.exists(dest):
             if name != dest and name.lower() == dest.lower():
                 # A case change on an OS with a case insensitive file-system.
                 continue
             raise ValueError('Cannot rename {0} to {1} as {1} already exists'.format(name, dest))
-    if len(tuple(file_map.itervalues())) != len(set(file_map.itervalues())):
+    if len(tuple(itervalues(file_map))) != len(set(itervalues(file_map))):
         raise ValueError('Cannot rename, the set of destination files contains duplicates')
     link_map = {}
-    for current_name, new_name in file_map.iteritems():
+    for current_name, new_name in iteritems(file_map):
         container.rename(current_name, new_name)
         if new_name != container.opf_name:  # OPF is handled by the container
             link_map[current_name] = new_name
@@ -207,7 +207,7 @@ def rename_files(container, file_map):
 
 def replace_file(container, name, path, basename, force_mt=None):
     dirname, base = name.rpartition('/')[0::2]
-    nname = sanitize_file_name_unicode(basename)
+    nname = sanitize_file_name(basename)
     if dirname:
         nname = dirname + '/' + nname
     with open(path, 'rb') as src:
@@ -220,7 +220,7 @@ def replace_file(container, name, path, basename, force_mt=None):
             rename_files(container, {name:nname})
             mt = force_mt or container.guess_type(nname)
             container.mime_map[nname] = mt
-            for itemid, q in container.manifest_id_map.iteritems():
+            for itemid, q in iteritems(container.manifest_id_map):
                 if q == nname:
                     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
                         item.set('media-type', mt)
@@ -255,7 +255,7 @@ def get_recommended_folders(container, names):
     recommended folder is assumed to be the folder containing the OPF file. '''
     from calibre.ebooks.oeb.polish.utils import guess_type
     counts = defaultdict(Counter)
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         folder = name.rpartition('/')[0] if '/' in name else ''
         counts[mt_to_category(container, mt)][folder] += 1
 
@@ -264,7 +264,7 @@ def get_recommended_folders(container, names):
     except KeyError:
         opf_folder = ''
 
-    recommendations = {category:counter.most_common(1)[0][0] for category, counter in counts.iteritems()}
+    recommendations = {category:counter.most_common(1)[0][0] for category, counter in iteritems(counts)}
     return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), opf_folder) for n in names}
 
 
@@ -351,7 +351,7 @@ def remove_links_to(container, predicate):
     stylepath = XPath('//h:style')
     styleattrpath = XPath('//*[@style]')
     changed = set()
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         removed = False
         if mt in OEB_DOCS:
             root = container.parsed(name)
@@ -371,7 +371,7 @@ def remove_links_to(container, predicate):
                 if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':
                     sheet = container.parse_css(tag.text)
                     if remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate):
-                        tag.text = sheet.cssText
+                        tag.text = css_text(sheet)
                         removed = True
             for tag in styleattrpath(root):
                 style = tag.get('style')
@@ -379,7 +379,7 @@ def remove_links_to(container, predicate):
                     style = container.parse_css(style, is_declaration=True)
                     if remove_links_in_declaration(partial(container.href_to_name, base=name), style, predicate):
                         removed = True
-                        tag.set('style', style.cssText)
+                        tag.set('style', css_text(style))
         elif mt in OEB_STYLES:
             removed = remove_links_in_sheet(partial(container.href_to_name, base=name), container.parsed(name), predicate)
         if removed:

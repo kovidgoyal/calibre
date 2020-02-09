@@ -1,0 +1,44 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+# author:  <lionel.plais@ilp-web.net>
+
+
+class LePeupleBreton(BasicNewsRecipe):
+    title = 'Le Peuple Breton'
+    __author__ = 'Lionel Plais'
+    description = u'Aujourd\'hui, être libre c\'est être informé'
+    oldest_article = 90
+    language = 'fr'
+    cover_img_url = 'http://lepeuplebreton.bzh/wp-content/uploads/2017/11/le-peuple-breton-logo.jpg'
+    masthead_url = cover_img_url
+    remove_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+        dict(name='article'),
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class': ['share-post', 'juiz_sps_links', 'counters_both', 'juiz_sps_displayed_bottom']}),
+    ]
+
+    feeds = [
+        (u'À la Une', u'http://lepeuplebreton.bzh/category/a-la-une/feed/'),
+        (u'Bretagne', u'http://lepeuplebreton.bzh/category/themes/bretagne/feed/'),
+        (u'France', u'http://lepeuplebreton.bzh/category/lieu/france/feed/'),
+        (u'International', u'http://lepeuplebreton.bzh/category/lieu/international-fr/feed/'),
+        (u'Point de vue', u'http://lepeuplebreton.bzh/category/themes/point-de-vue/feed/'),
+        (u'Économie', u'https://lepeuplebreton.bzh/category/themes/economie/feed/'),
+        (u'Écologie', u'http://lepeuplebreton.bzh/category/themes/ecologie/feed/'),
+        (u'Santé', u'http://lepeuplebreton.bzh/category/themes/sante/feed/'),
+        (u'Culture & Sport', u'http://lepeuplebreton.bzh/category/themes/culture/feed/'),
+    ]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup

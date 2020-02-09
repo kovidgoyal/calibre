@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
@@ -9,7 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from contextlib import closing
 from lxml import etree
@@ -37,7 +40,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         if detail_item:
             # http://www.litres.ru/pages/biblio_book/?art=157074
             detail_url = self.shop_url + u'/pages/biblio_book/' + aff_id +\
-                u'&art=' + urllib2.quote(detail_item)
+                u'&art=' + quote(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
@@ -50,7 +53,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
         'search=%s&limit=0,%s'
-        search_url = search_url % (urllib2.quote(query), max_results)
+        search_url = search_url % (quote(query), max_results)
 
         counter = max_results
         br = browser()
@@ -60,8 +63,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             ungzipResponse(r,br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
-            parser = etree.XMLParser(recover=True, no_network=True)
-            doc = etree.fromstring(raw, parser=parser)
+            doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
             for data in doc.xpath('//*[local-name() = "fb2-book"]'):
                 if counter <= 0:
                     break
@@ -88,7 +90,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         authors = data.xpath('.//title-info/author/first-name/text()|'
         './/title-info/author/middle-name/text()|'
         './/title-info/author/last-name/text()')
-        sRes.author = u' '.join(map(unicode, authors))
+        sRes.author = u' '.join(map(type(u''), authors))
         sRes.price = data.xpath(xp_template.format('price'))
         # cover vs cover_preview
         sRes.cover_url = data.xpath(xp_template.format('cover_preview'))
@@ -107,9 +109,9 @@ def format_price_in_RUR(price):
     @return: formatted price if possible otherwise original value
     @rtype: unicode
     '''
-    if price and re.match("^\d*?\.\d*?$", price):
+    if price and re.match(r"^\d*?\.\d*?$", price):
         try:
-            price = u'{:,.2F} руб.'.format(float(price))
+            price = u'{:,.2F} \u20BD'.format(float(price))  # \u20BD => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except:
             pass
@@ -118,7 +120,7 @@ def format_price_in_RUR(price):
 
 def ungzipResponse(r,b):
     headers = r.info()
-    if headers['Content-Encoding']=='gzip':
+    if headers.get('Content-Encoding', '')=='gzip':
         import gzip
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()

@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 from PyQt5.Qt import QUrl
@@ -33,7 +36,7 @@ def parse_html(raw):
 
 
 def search_google(query, max_results=10, timeout=60, write_html_to=None):
-    url = 'https://www.google.com/search?tbm=bks&q=' + urllib.quote_plus(query)
+    url = 'https://www.google.com/search?tbm=bks&q=' + quote_plus(query)
 
     br = browser()
 
@@ -47,12 +50,16 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
         for data in doc.xpath('//div[@id="rso"]//div[@class="g"]'):
             if counter <= 0:
                 break
-
-            id = ''.join(data.xpath('.//h3/a/@href'))
+            h3 = data.xpath('descendant::h3')
+            if not h3:
+                continue
+            h3 = h3[0]
+            a = h3.getparent()
+            id = a.get('href')
             if not id:
                 continue
 
-            title = ''.join(data.xpath('.//h3/a//text()'))
+            title = ''.join(data.xpath('.//h3//text()'))
             authors = data.xpath('descendant::div[@class="s"]//a[@class="fl" and @href]//text()')
             while authors and authors[-1].strip().lower() in ('preview', 'read', 'more editions'):
                 authors = authors[:-1]
@@ -75,7 +82,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'https://books.google.com/books'
-        if external or self.config.get('open_external', False):
+        if True or external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
@@ -114,4 +121,4 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_google(' '.join(sys.argv[1:]), write_html_to='/t/google.html'):
-        print (result)
+        print(result)

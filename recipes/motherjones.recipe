@@ -1,111 +1,16 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
-from calibre.ptempfile import PersistentTemporaryFile
 
 
-class MotherJonesRecipe(BasicNewsRecipe):
-    __license__ = 'GPL v3'
-    __author__ = 'kwetal'
+class AdvancedUserRecipe1541791799(BasicNewsRecipe):
+    title          = 'Mother Jones'
     language = 'en'
-    version = 1
-
-    title = u'Mother Jones'
-    publisher = u'Mother Jones'
-    category = u'News, Investigative journalism'
-    description = u'Independent investigative, political, and social justice reporting. Takes no prisoners, cleaves to no dogma, and tells it like it is.'
-
+    __author__ = 'Daniel Bonnery'
     oldest_article = 14
-    max_articles_per_feed = 100
-    use_embedded_content = False
-
-    remove_empty_feeds = True
-    no_stylesheets = True
-    remove_javascript = True
-    simultaneous_downloads = 3
-
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='h1'))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'dek'}))
-    keep_only_tags.append(dict(name='p', attrs={'class': 'submitted'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'print-content'}))
-    # keep_only_tags.append(dict(name = '', attrs = {'': ''}))
-
-    remove_tags = []
-    remove_tags.append(dict(name='base'))
-    # remove_tags.append(dict(name = '', attrs = {'': ''}))
-
-    remove_attributes = ['style']
-
-    # feeds from http://motherjones.com/about/rss
-    feeds = []
-    feeds.append(
-        (u'Latest News', u'http://feeds.feedburner.com/motherjones/main?format=xml'))
-    feeds.append((u'Politics & Current Affairs',
-                  u'http://motherjones.com/rss/sections/Politics/feed&format=xml'))
-    feeds.append((u'Environment & Health',
-                  u'http://motherjones.com/rss/sections/Environment/feed'))
-    feeds.append(
-        (u'Media & Culture', u'http://motherjones.com/rss/sections/Media/feed'))
-    feeds.append(
-        (u'Blog: Kevin Drum', u'http://motherjones.com/rss/blogs/Kevin+Drum/feed'))
-    feeds.append(
-        (u'Blog: MoJo Blog', u'http://motherjones.com/rss/blogs/mojo/feed'))
-    feeds.append(
-        (u'Blog: Blue Marble', u'http://motherjones.com/rss/blogs/Blue+Marble/feed'))
-    feeds.append(
-        (u'Blog: The Riff', u'http://motherjones.com/rss/blogs/Riff/feed'))
-
-    extra_css = '''
-                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
-                img {float: left; margin-right: 0.5em;}
-                div.dek {font-style: italic;}
-                p.submitted {font-size: x-small; color: #696969;}
-                div.mj_support {font-size: x-small; color: #0666666; border: 1px solid black; padding: 0.5em}
-                a, a[href] {text-decoration: none; color: blue;}
-                '''
-
-    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
-                          'publisher': publisher}
-
-    temp_files = []
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        '''
-        The print version is sort of hard to get. I think they look at the referer header, and if
-        it is not right they serve the original. This method works around that.
-        '''
-        br = self.get_browser()
-        br.open(url)
-
-        response = br.follow_link(url_regex=r'/print/[0-9]+', nr=0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_motherjones.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-
-        return self.temp_files[-1].name
-
-    def get_article_url(self, article):
-        '''
-        Some of the feeds are served by feedburner (grr). Then the workaround to get their
-        print version doesn't work anymore. This method provides a workaround.
-        '''
-        if hasattr(article, 'feedburner_origlink'):
-            return article.feedburner_origlink
-        else:
-            return article.link
-
-    def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src': True}):
-            if not img['src'].startswith('http://'):
-                img['src'] = 'http://motherjones.com' + img['src']
-
-        div = Tag(soup, 'div', [('class', 'mj_support')])
-        div.append('''Your tax-deductible gifts help keep Mother Jones independent and uncompromised.
-                      To make a contribution, visit MotherJones.com or call 877-GIV-MOJO.
-                   ''')
-        soup.body.append(div)
-
-        return soup
+    max_articles_per_feed = 200
+    auto_cleanup   = True
+    feeds          = [
+        ('Mother Jones', 'http://feeds.feedburner.com/motherjones/feed'),
+    ]

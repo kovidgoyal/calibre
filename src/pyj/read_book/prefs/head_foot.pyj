@@ -7,7 +7,8 @@ from gettext import gettext as _, ngettext
 
 from book_list.globals import get_session_data
 from dom import unique_id
-from session import get_interface_data
+from read_book.prefs.utils import create_button_box
+from session import defaults, get_interface_data
 from utils import fmt_sidx
 
 CONTAINER = unique_id('reader-hf-prefs')
@@ -37,18 +38,28 @@ def create_item(region, label):
             opt(_('Time to read book'), 'time-book'),
             opt(_('Time to read chapter'), 'time-chapter'),
             opt(_('Time to read chapter and book'), 'time-chapter-book'),
+            opt(_('Position in book'), 'pos-book'),
+            opt(_('Position in chapter'), 'pos-chapter'),
             opt(_('Clock'), 'clock'),
         ))
     )
 
 
 def create_items(which):
-    ans = E.table(
-        data_which=which,
-        create_item('left', _('Left')),
-        create_item('middle', _('Middle')),
-        create_item('right', _('Right'))
-    )
+    if which is 'header' or which is 'footer':
+        ans = E.table(
+            data_which=which,
+            create_item('left', _('Left')),
+            create_item('middle', _('Middle')),
+            create_item('right', _('Right'))
+        )
+    else:
+        ans = E.table(
+            data_which=which,
+            create_item('left', _('Top')),
+            create_item('middle', _('Middle')),
+            create_item('right', _('Bottom'))
+        )
     return ans
 
 
@@ -74,7 +85,14 @@ def get_setting(table):
     return ans
 
 
-def create_head_foot_panel(container):
+def restore_defaults():
+    container = document.getElementById(CONTAINER)
+    for which in 'header footer left-margin right-margin'.split(' '):
+        table = container.querySelector(f'table[data-which={which}]')
+        apply_setting(table, defaults[which] or {})
+
+
+def create_head_foot_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
     container.appendChild(E.h4(_('Header'), style="margin: 1rem"))
@@ -82,17 +100,24 @@ def create_head_foot_panel(container):
     container.appendChild(E.hr())
     container.appendChild(E.h4(_('Footer'), style="margin: 1rem; margin-top: 0"))
     container.appendChild(create_items('footer'))
+    container.appendChild(E.hr())
+    container.appendChild(E.h4(_('Left margin'), style="margin: 1rem; margin-top: 0"))
+    container.appendChild(create_items('left-margin'))
+    container.appendChild(E.hr())
+    container.appendChild(E.h4(_('Right margin'), style="margin: 1rem; margin-top: 0"))
+    container.appendChild(create_items('right-margin'))
 
     sd = get_session_data()
-    for which in 'header footer'.split(' '):
+    for which in 'header footer left-margin right-margin'.split(' '):
         table = container.querySelector(f'table[data-which={which}]')
         apply_setting(table, sd.get(which) or {})
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
 
 
 def commit_head_foot(onchange, container):
     sd = get_session_data()
     changed = False
-    for which in 'header footer'.split(' '):
+    for which in 'header footer left-margin right-margin'.split(' '):
         prev = sd.get(which) or {}
         table = container.querySelector(f'table[data-which={which}]')
         current = get_setting(table)
@@ -125,14 +150,22 @@ def format_time_left(seconds):
     return _('{} h {} mins').format(hours, minutes)
 
 
-def render_head_foot(div, which, region, progress_frac, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time):
+def format_pos(progress_frac, length):
+    if length < 1:
+        return ''
+    pages = Math.ceil(length / 1000)
+    pos = progress_frac * pages
+    return f'{pos:.1f} / {pages}'
+
+
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
     text = ''
     has_clock = False
     if field is 'progress':
-        percent = min(100, max(Math.round(progress_frac * 100), 0))
+        percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
     elif field is 'title':
         text = metadata.title or _('Untitled')
@@ -140,7 +173,7 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
         text = ' & '.join(metadata.authors or v'[]')
     elif field is 'series':
         if metadata.series:
-            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            ival = fmt_sidx(metadata.series_index, use_roman=interface_data.use_roman_numerals_for_series_number)
             text = _('{0} of {1}').format(ival, metadata.series)
     elif field is 'clock':
         text = time_formatter.format(Date())
@@ -161,7 +194,13 @@ def render_head_foot(div, which, region, progress_frac, metadata, current_toc_no
                 text = format_time_left(chapter_time)
             else:
                 text = '{} ({})'.format(format_time_left(chapter_time), format_time_left(book_time))
+    elif field.startswith('pos-'):
+        if field is 'pos-book':
+            text = format_pos(pos.progress_frac, pos.book_length)
+        else:
+            text = format_pos(pos.file_progress_frac, pos.chapter_length)
+    if not text:
+        text = '\xa0'
     if text is not div.textContent:
         div.textContent = text
-    div.style.display = 'block' if text else 'none'
-    return text, has_clock
+    return has_clock

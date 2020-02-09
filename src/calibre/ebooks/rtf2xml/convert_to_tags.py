@@ -1,8 +1,10 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 import os, sys
 from codecs import EncodedFile
 
 from calibre.ebooks.rtf2xml import copy, check_encoding
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 public_dtd = 'rtf2xml1.0.dtd'
 
@@ -260,9 +262,9 @@ class ConvertToTags:
             an empty tag function.
             """
         self.__initiate_values()
-        with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_write(self.__write_to) as self.__write_obj:
             self.__write_dec()
-            with open(self.__file, 'r') as read_obj:
+            with open_for_read(self.__file) as read_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__token_info)
@@ -275,8 +277,8 @@ class ConvertToTags:
             file_encoding = "utf-8"
             if self.__bad_encoding:
                 file_encoding = "us-ascii"
-            with open(self.__file, 'r') as read_obj:
-                with open(self.__write_to, 'w') as write_obj:
+            with open_for_read(self.__file) as read_obj:
+                with open_for_write(self.__write_to) as write_obj:
                     write_objenc = EncodedFile(write_obj, self.__encoding,
                                     file_encoding, 'replace')
                     for line in read_obj:

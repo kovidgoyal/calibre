@@ -36,7 +36,7 @@ from utils import (
 from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
-IGNORED_FIELDS = {'formats', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
+IGNORED_FIELDS = {'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
 def identity(x):
     return x
 value_to_json = identity
@@ -67,6 +67,22 @@ def resolved_metadata(mi, field):
     if Object.prototype.hasOwnProperty.call(changes, field):
         return changes[field]
     return mi[field]
+
+
+def resolved_formats(val):
+    val = list(val or v'[]')
+    if changes.added_formats:
+        for data in changes.added_formats:
+            ext = data.ext.toUpperCase()
+            if ext and ext not in val:
+                val.push(ext)
+    if changes.removed_formats:
+        for fmt in changes.removed_formats:
+            fmt = fmt.toUpperCase()
+            if fmt in val:
+                val.remove(fmt)
+    val.sort()
+    return val
 
 
 def truncated_html(val):
@@ -317,7 +333,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     form = create_form(le, line_edit_get_value, container_id, book_id, field)
     if list_to_ui:
         div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
-            'Edit the "{0}" below. Multiple items can be separated by {1}.').format(name, list_to_ui.strip())))
+            'Edit the "{0}" below. Multiple items can be separated by "{1}".').format(name, list_to_ui.strip())))
     else:
         div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
             'Edit the "{0}" below.').format(name)))
@@ -574,6 +590,54 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
 
 # }}}
 
+# Formats edit {{{
+
+def format_added(top_container_id, book_id, container_id, files):
+    nonlocal has_changes
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    if not files[0]:
+        return
+    added = changes.added_formats or v'[]'
+    for file in files:
+        ext = file.name.rpartition('.')[-1]
+        data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None, 'ext': ext}
+        added.push(data)
+        r = FileReader()
+        r.onload = def(evt):
+            data.data_url = evt.target.result
+        r.readAsDataURL(file)
+    changes.added_formats = added
+    has_changes = True
+    on_close(top_container_id)
+
+
+def remove_format(top_container_id, book_id, fmt):
+    nonlocal has_changes
+    has_changes = True
+    removed_formats = changes.removed_formats or v'[]'
+    removed_formats.push(fmt.toUpperCase())
+    changes.removed_formats = removed_formats
+    on_close(top_container_id)
+
+
+def formats_edit(container_id, book_id, field, fm, div, mi):
+    upload_files_widget(div, format_added.bind(None, container_id, book_id), _(
+        'Add a format by <a>selecting the book file</a> or drag and drop of the book file here.'),
+    single_file=True)
+    remove_buttons = E.div(style='padding: 1rem; display: flex; flex-wrap: wrap; align-content: flex-start')
+    formats = resolved_formats(mi.formats)
+    for i, fmt in enumerate(formats):
+        remove_buttons.appendChild(create_button(
+            _('Remove {}').format(fmt.upper()), action=remove_format.bind(None, container_id, book_id, fmt.upper())))
+        remove_buttons.lastChild.style.marginBottom = '1ex'
+        remove_buttons.lastChild.style.marginRight = '1rem'
+
+    div.appendChild(remove_buttons)
+
+# }}}
+
 def edit_field(container_id, book_id, field):
     nonlocal value_to_json
     fm = library_data.field_metadata[field]
@@ -593,6 +657,8 @@ def edit_field(container_id, book_id, field):
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
     elif field is 'cover':
         cover_edit(container_id, book_id, field, fm, d, mi)
+    elif field is 'formats':
+        formats_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'series':
         series_edit(container_id, book_id, field, fm, d, mi)
     elif fm.datatype is 'datetime':
@@ -765,6 +831,14 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
         else:
             add_row(name, None)
 
+    def process_formats(field, fm, name, val):
+        val = resolved_formats(val)
+        if val.length:
+            join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+            add_row(name, val, join=join)
+        else:
+            add_row(name, None)
+
     def process_field(field, fm):
         name = fm.name or field
         datatype = fm.datatype
@@ -785,6 +859,8 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             func = process_publisher
         elif field is 'languages':
             func = process_languages
+        elif field is 'formats':
+            func = process_formats
         elif datatype is 'datetime':
             func = process_datetime
         elif datatype is 'series':
@@ -964,10 +1040,18 @@ def check_for_books_loaded():
     create_edit_metadata(container)
 
 
+def handle_keypress(container_id, ev):
+    if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+        if ev.key is 'Escape':
+            ev.preventDefault(), ev.stopPropagation()
+            on_close(container_id)
+
+
 def init(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
-    container.appendChild(E.div(class_=CLASS_NAME))
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
+    container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -23,6 +22,7 @@ from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.logging import DevNull
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
+from polyglot.builtins import as_bytes
 
 valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
 
@@ -43,7 +43,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     if fmt == 'txt':
         with open(path, 'wb') as f:
             if not mi.is_null('title'):
-                f.write(mi.title)
+                f.write(as_bytes(mi.title))
         return
     if fmt == 'docx':
         from calibre.ebooks.conversion.plumber import Plumber

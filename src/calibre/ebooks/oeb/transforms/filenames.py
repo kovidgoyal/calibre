@@ -1,16 +1,17 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath
-from urlparse import urldefrag, urlparse
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
+from polyglot.urllib import urldefrag, urlparse
 
 
 class RenameFiles(object):  # {{{
@@ -25,7 +26,7 @@ class RenameFiles(object):  # {{{
         self.renamed_items_map = renamed_items_map
 
     def __call__(self, oeb, opts):
-        import cssutils
+        import css_parser
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb
@@ -35,7 +36,7 @@ class RenameFiles(object):  # {{{
             if etree.iselement(item.data):
                 rewrite_links(self.current_item.data, self.url_replacer)
             elif hasattr(item.data, 'cssText'):
-                cssutils.replaceUrls(item.data, self.url_replacer)
+                css_parser.replaceUrls(item.data, self.url_replacer)
 
         if self.oeb.guide:
             for ref in self.oeb.guide.values():
@@ -96,7 +97,7 @@ class UniqueFilenames(object):  # {{{
         self.opts = opts
         self.oeb = oeb
 
-        self.seen_filenames = set([])
+        self.seen_filenames = set()
         self.rename_map = {}
 
         for item in list(oeb.manifest.items):
@@ -184,4 +185,3 @@ class FlatFilenames(object):  # {{{
             renamer = RenameFiles(self.rename_map, self.renamed_items_map)
             renamer(oeb, opts)
 # }}}
-

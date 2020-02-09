@@ -1,13 +1,15 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from dom import unique_id, set_css, add_extra_css, rule, element
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button
-from book_list.globals import get_session_data, get_read_ui
+
+from book_list.globals import get_session_data
 from book_list.theme import get_color
+from dom import add_extra_css, element, rule, set_css, unique_id
+from read_book.globals import ui_operations
+from widgets import create_button
 
 CONTAINER = unique_id('font-size-prefs')
 QUICK = unique_id('quick')
@@ -23,7 +25,7 @@ def change_font_size(sz):
     sd = get_session_data()
     if sd.get('base_font_size') is not sz:
         sd.set('base_font_size', sz)
-        get_read_ui().update_font_size()
+        ui_operations.update_font_size()
 
 def set_quick_size(ev):
     li = ev.currentTarget
@@ -46,6 +48,7 @@ def show_custom_size(ev):
     for child in c.childNodes:
         child.style.display = 'none'
     c.lastChild.style.display = 'block'
+    c.lastChild.querySelector('input').focus()
 
 def create_font_size_panel(container, close):
     container.appendChild(E.div(id=CONTAINER,
@@ -63,12 +66,19 @@ def create_font_size_panel(container, close):
             display='inline-block', font_size=sz + 'px', padding='5px', cursor='pointer', border_radius='2px'))
 
     container.appendChild(E.div(
-        E.a(_('Custom size'), href='javascript:void', onclick=show_custom_size, style='cursor:pointer'),
-        style='text-align: right; color: blue; font-size: smaller; margin-top: 2ex'
+        E.a(_('Custom size'), class_='blue-link', href='javascript:void', onclick=show_custom_size, style='cursor:pointer'),
+        style='text-align: right; font-size: smaller; margin-top: 2ex'
     ))
 
     container.appendChild(E.div(style='display:none',
-        E.div(E.label(_('Font size (pixels):'), '\xa0', E.input(type='number', min=8, max=60, step=1, value=str(sd.get('base_font_size'))))),
+        E.div(E.label(_('Font size (pixels):'), '\xa0', E.input(
+            type='number', min=8, max=60, step=1,
+            value=sd.get('base_font_size') + '',
+            onkeydown=def(evt):
+                if evt.key is 'Enter':
+                    evt.preventDefault()
+                    set_custom_size(), close()
+        ))),
     E.div(style='text-align:right; margin-top:1ex; display:flex; justify-content: flex-end',
             create_button(_('OK'), 'check', def(): set_custom_size(), close();), E.span('\xa0'),
             create_button(_('Cancel'), action=close)

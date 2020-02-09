@@ -11,6 +11,7 @@
 # General Public License for more details.
 
 # $Id: __init__.py,v 1.8 2006/06/18 10:50:43 rubensr Exp $
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
    chm - A package to manipulate CHM files
@@ -23,7 +24,7 @@
    the chm module provides some higher level classes to simplify
    access to the CHM files information.
 '''
+
 __all__ = ["chm", "chmlib", "_chmlib", "extra"]
 __version__ = "0.8.4"
 __revision__ = "$Id: __init__.py,v 1.8 2006/06/18 10:50:43 rubensr Exp $"
-

@@ -1,6 +1,7 @@
 #!/usr/bin/env  python2
 # encoding: utf-8
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -22,6 +23,7 @@ import weakref, re
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 
 '''
@@ -55,7 +57,7 @@ class SavedSearchQueries(object):
             db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x):
-        if not isinstance(x, unicode):
+        if not isinstance(x, unicode_type):
             x = x.decode(preferred_encoding, 'replace')
         return x
 
@@ -143,15 +145,15 @@ class Parser(object):
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple((u'\\' + x, unichr(i + 1)) for i, x in enumerate(u'\\"()'))
+    REPLACEMENTS = tuple(('\\' + x, codepoint_to_chr(i + 1)) for i, x in enumerate('\\"()'))
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (unicode(r'[()]'), lambda x,t: (Parser.OPCODE, t)),
-            (unicode(r'@.+?:[^")\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
-            (unicode(r'[^"()\s]+'), lambda x,t: (Parser.WORD, unicode(t))),
-            (unicode(r'".*?((?<!\\)")'), lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (unicode(r'\s+'),              None)
+            (r'[()]', lambda x,t: (Parser.OPCODE, t)),
+            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, unicode_type(t))),
+            (r'[^"()\s]+', lambda x,t: (Parser.WORD, unicode_type(t))),
+            (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+            (r'\s+',              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):
@@ -335,7 +337,7 @@ class SearchQueryParser(object):
     def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
-        self.searches_seen = set([])
+        self.searches_seen = set()
         candidates = self.universal_set()
         return self._parse(query, candidates=candidates)
 
@@ -431,10 +433,10 @@ class SearchQueryParser(object):
         :param:`query` is a string literal.
         :return: None or a subset of the set returned by :meth:`universal_set`.
         '''
-        return set([])
+        return set()
 
     def universal_set(self):
         '''
         Should return the set of all matches.
         '''
-        return set([])
+        return set()

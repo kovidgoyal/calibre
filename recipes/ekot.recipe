@@ -28,10 +28,10 @@ class Ekot_SE(BasicNewsRecipe):
             name='span', attrs={'class': 'relLink'})
     ]
 
-    feeds = [(u'Ekot', u'http://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=83'),
-             (u'Utrikes', u'http://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=3304'),
-             (u'Radiosporten', u'http://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=179')]
+    feeds = [(u'Ekot', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=83'),
+             (u'Utrikes', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=3304'),
+             (u'Radiosporten', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=179')]
 
     def print_version(self, url):
-        return url.replace('http://sverigesradio.se/cgi-bin/ekot/artikel.asp',
-                           'http://sverigesradio.se/cgi-bin/isidorpub/PrinterFriendlyArticle.asp') + '&ProgramID=83'
+        return url.replace('https://sverigesradio.se/cgi-bin/ekot/artikel.asp',
+                           'https://sverigesradio.se/cgi-bin/isidorpub/PrinterFriendlyArticle.asp') + '&ProgramID=83'

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,6 +13,7 @@ from calibre.utils.lock import ExclusiveFile
 from calibre import sanitize_file_name
 from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import available_output_formats
+from polyglot.builtins import unicode_type
 
 
 config_dir = os.path.join(config_dir, 'conversion')
@@ -85,7 +86,7 @@ class GuiRecommendations(dict):
 
     def serialize(self):
         ans = json.dumps(self, indent=2, ensure_ascii=False)
-        if isinstance(ans, unicode):
+        if isinstance(ans, unicode_type):
             ans = ans.encode('utf-8')
         return b'json:' + ans
 
@@ -303,7 +304,7 @@ OPTIONS = {
             'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
             'toc_title', 'pdf_page_margin_left', 'pdf_page_margin_top',
             'pdf_page_margin_right', 'pdf_page_margin_bottom',
-            'pdf_use_document_margins', 'pdf_page_number_map',),
+            'pdf_use_document_margins', 'pdf_page_number_map', 'pdf_odd_even_offset'),
 
         'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),
 

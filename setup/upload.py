@@ -107,7 +107,7 @@ class ReUpload(Command):  # {{{
 
 # Data {{{
 def get_github_data():
-    with open(os.environ['PENV'] + '/github', 'rb') as f:
+    with open(os.environ['PENV'] + '/github-token', 'rb') as f:
         un, pw = f.read().strip().split(':')
     return {'username': un, 'password': pw}
 
@@ -379,6 +379,7 @@ class UploadToServer(Command):  # {{{
 
     def run(self, opts):
         check_call('scp translations/website/locales.zip main:/srv/main/'.split())
+        check_call('scp translations/changelog/locales.zip main:/srv/main/changelog-locales.zip'.split())
         check_call('ssh main /apps/static/generate.py'.split())
         src_file = glob.glob('dist/calibre-*.tar.xz')[0]
         upload_signatures()

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 """Easy to use object-oriented thread pool framework.
 
 A thread pool is an object that maintains a pool of worker threads to perform
@@ -29,7 +31,6 @@ See the end of the module code for a brief, annotated usage example.
 
 Website : http://chrisarndt.de/en/software/python/threadpool/
 """
-from __future__ import print_function
 
 __all__ = [
   'makeRequests',
@@ -48,7 +49,7 @@ __license__ = 'Python license'
 
 # standard library modules
 import threading
-import Queue
+from polyglot import queue
 
 # exceptions
 
@@ -75,7 +76,7 @@ class WorkerThread(threading.Thread):
     def __init__(self, requestsQueue, resultsQueue, **kwds):
         """Set up thread in daemonic mode and start it immediatedly.
 
-        requestsQueue and resultQueue are instances of Queue.Queue passed
+        requestsQueue and resultQueue are instances of queue.Queue passed
         by the ThreadPool class when it creates a new worker thread.
         """
 
@@ -174,8 +175,8 @@ class ThreadPool:
         more work requests in it (see putRequest method).
         """
 
-        self.requestsQueue = Queue.Queue(q_size)
-        self.resultsQueue = Queue.Queue()
+        self.requestsQueue = queue.Queue(q_size)
+        self.resultsQueue = queue.Queue()
         self.workers = []
         self.workRequests = {}
         self.createWorkers(num_workers)
@@ -223,7 +224,7 @@ class ThreadPool:
                   (request.exception and request.exc_callback):
                     request.callback(request, result)
                 del self.workRequests[request.requestID]
-            except Queue.Empty:
+            except queue.Empty:
                 break
 
     def wait(self, sleep=0):

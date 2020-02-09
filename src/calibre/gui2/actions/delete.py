@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -106,7 +107,7 @@ class DeleteAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -127,6 +128,7 @@ class DeleteAction(InterfaceAction):
         m('delete-except',
                 _('Remove all formats from selected books, except...'),
                 triggered=self.delete_all_but_selected_formats)
+        self.delete_menu.addSeparator()
         m('delete-all',
                 _('Remove all formats from selected books'),
                 triggered=self.delete_all_formats)
@@ -165,7 +167,7 @@ class DeleteAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, err_title, _('No book selected'))
             d.exec_()
-            return set([])
+            return set()
         return set(map(self.gui.library_view.model().id, rows))
 
     def remove_format_by_id(self, book_id, fmt):
@@ -273,8 +275,8 @@ class DeleteAction(InterfaceAction):
         to_delete = {}
         some_to_delete = False
         for model,name in ((self.gui.memory_view.model(), _('Main memory')),
-                           (self.gui.card_a_view.model(), _('Storage Card A')),
-                           (self.gui.card_b_view.model(), _('Storage Card B'))):
+                           (self.gui.card_a_view.model(), _('Storage card A')),
+                           (self.gui.card_b_view.model(), _('Storage card B'))):
             to_delete[name] = (model, model.paths_for_db_ids(ids))
             if len(to_delete[name][1]) > 0:
                 some_to_delete = True

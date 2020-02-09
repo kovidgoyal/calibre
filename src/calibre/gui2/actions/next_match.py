@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,7 +13,7 @@ class NextMatchAction(InterfaceAction):
     name = 'Move to next highlighted book'
     action_spec = (_('Move to next match'), 'arrow-down.png',
             _('Move to next highlighted match'), [_('N'), _('F3')])
-    dont_add_to = frozenset(['context-menu-device'])
+    dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     def genesis(self):

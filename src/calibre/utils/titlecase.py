@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
 Original Perl version by: John Gruber https://daringfireball.net/ 10 May 2008
@@ -11,6 +12,7 @@ License: http://www.opensource.org/licenses/mit-license.php
 import re
 
 from calibre.utils.icu import capitalize, upper
+from polyglot.builtins import unicode_type
 
 __all__ = ['titlecase']
 __version__ = '0.5'
@@ -21,7 +23,7 @@ PUNCT = r"""!"#$%&'‘’()*+,\-‒–—―./:;?@[\\\]_`{|}~"""
 SMALL_WORDS = re.compile(r'^(%s)$' % SMALL, re.I)
 INLINE_PERIOD = re.compile(r'[a-z][.][a-z]', re.I)
 UC_ELSEWHERE = re.compile(r'[%s]*?[a-zA-Z]+[A-Z]+?' % PUNCT)
-CAPFIRST = re.compile(unicode(r"^[%s]*?(\w)" % PUNCT), flags=re.UNICODE)
+CAPFIRST = re.compile(unicode_type(r"^[%s]*?(\w)" % PUNCT), flags=re.UNICODE)
 SMALL_FIRST = re.compile(r'^([%s]*)(%s)\b' % (PUNCT, SMALL), re.I|re.U)
 SMALL_LAST = re.compile(r'\b(%s)[%s]?$' % (SMALL, PUNCT), re.I|re.U)
 SMALL_AFTER_NUM = re.compile(r'(\d+\s+)(a|an|the)\b', re.I|re.U)
@@ -54,9 +56,14 @@ def titlecase(text):
 
     all_caps = upper(text) == text
 
-    words = re.split('\\s+', text)
+    pat = re.compile(r'(\s+)')
     line = []
-    for word in words:
+    for word in pat.split(text):
+        if not word:
+            continue
+        if pat.match(word) is not None:
+            line.append(word)
+            continue
         if all_caps:
             if UC_INITIALS.match(word):
                 line.append(word)
@@ -81,7 +88,7 @@ def titlecase(text):
             hyphenated.append(CAPFIRST.sub(lambda m: icu_upper(m.group(0)), item))
         line.append("-".join(hyphenated))
 
-    result = " ".join(line)
+    result = "".join(line)
 
     result = SMALL_FIRST.sub(lambda m: '%s%s' % (
         m.group(1),

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +16,7 @@ from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
 from calibre.utils.icu import ord_string
+from polyglot.builtins import iteritems, unicode_type, filter
 
 _patterns = None
 
@@ -82,10 +82,10 @@ def filter_words(word):
 
 def get_words(text, lang):
     try:
-        ans = split_into_words(unicode(text), lang)
+        ans = split_into_words(unicode_type(text), lang)
     except (TypeError, ValueError):
         return ()
-    return filter(filter_words, ans)
+    return list(filter(filter_words, ans))
 
 
 def add_words(text, node, words, file_name, locale, node_item):
@@ -94,7 +94,7 @@ def add_words(text, node, words, file_name, locale, node_item):
         p = patterns()
         is_fr = locale.langcode == 'fra'
         for word in candidates:
-            sword = p.sanitize_invisible_pat.sub('', word)
+            sword = p.sanitize_invisible_pat.sub('', word).strip()
             elided_prefix = ''
             if is_fr:
                 m = p.fr_elision_pat.match(sword)
@@ -143,7 +143,7 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     ewords[None] = 0
     read_words_from_html(root, ewords, file_name, locale)
     words[None] += ewords.pop(None)
-    for k, locs in ewords.iteritems():
+    for k, locs in iteritems(ewords):
         for loc in locs:
             loc.location_node, loc.node_item = node, (False, attr)
         words[k].extend(locs)
@@ -286,7 +286,7 @@ def get_all_words(container, book_locale, get_word_count=False):
         elif hasattr(root, 'xpath'):
             read_words_from_html(root, words, file_name, book_locale)
     count = words.pop(None)
-    ans = {k:group_sort(v) for k, v in words.iteritems()}
+    ans = {k:group_sort(v) for k, v in iteritems(words)}
     if get_word_count:
         return count, ans
     return ans
@@ -314,7 +314,7 @@ def merge_locations(locs1, locs2):
 
 def replace(text, original_word, new_word, lang):
     indices = []
-    original_word, new_word, text = unicode(original_word), unicode(new_word), unicode(text)
+    original_word, new_word, text = unicode_type(original_word), unicode_type(new_word), unicode_type(text)
     q = text
     offset = 0
     while True:
@@ -354,7 +354,7 @@ def replace_word(container, new_word, locations, locale, undo_cache=None):
 
 def undo_replace_word(container, undo_cache):
     changed = set()
-    for (file_name, node, is_attr, attr), text in undo_cache.iteritems():
+    for (file_name, node, is_attr, attr), text in iteritems(undo_cache):
         node.set(attr, text) if is_attr else setattr(node, attr, text)
         container.replace(file_name, node.getroottree().getroot())
         changed.add(file_name)

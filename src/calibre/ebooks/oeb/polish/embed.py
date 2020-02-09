@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,13 +14,14 @@ from lxml import etree
 from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
 
 def matching_rule(font, rules):
     ff = font['font-family']
-    if not isinstance(ff, basestring):
+    if not isinstance(ff, string_or_bytes):
         ff = tuple(ff)[0]
     family = icu_lower(ff)
     wt = font['font-weight']
@@ -31,7 +31,7 @@ def matching_rule(font, rules):
     for rule in rules:
         if rule['font-style'] == style and rule['font-stretch'] == stretch and rule['font-weight'] == wt:
             ff = rule['font-family']
-            if not isinstance(ff, basestring):
+            if not isinstance(ff, string_or_bytes):
                 ff = tuple(ff)[0]
             if icu_lower(ff) == family:
                 return rule
@@ -78,7 +78,7 @@ def filter_by_stretch(fonts, val):
     else:
         candidates = expanded or condensed
     distance_map = {i:abs(stretch_map[i] - val) for i in candidates}
-    min_dist = min(distance_map.itervalues())
+    min_dist = min(itervalues(distance_map))
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -126,7 +126,7 @@ def filter_by_weight(fonts, val):
             return [fonts[rmap[400]]]
         candidates = below or above
     distance_map = {i:abs(weight_map[i] - val) for i in candidates}
-    min_dist = min(distance_map.itervalues())
+    min_dist = min(itervalues(distance_map))
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -153,7 +153,7 @@ def do_embed(container, font, report):
     with container.open(name, 'wb') as out:
         out.write(data)
     href = container.name_to_href(name)
-    rule = {k:font.get(k, v) for k, v in props.iteritems()}
+    rule = {k:font.get(k, v) for k, v in iteritems(props)}
     rule['src'] = 'url(%s)' % href
     rule['name'] = name
     return rule
@@ -162,7 +162,7 @@ def do_embed(container, font, report):
 def embed_font(container, font, all_font_rules, report, warned):
     rule = matching_rule(font, all_font_rules)
     ff = font['font-family']
-    if not isinstance(ff, basestring):
+    if not isinstance(ff, string_or_bytes):
         ff = ff[0]
     if rule is None:
         from calibre.utils.fonts.scanner import font_scanner, NoFonts
@@ -187,7 +187,7 @@ def embed_font(container, font, all_font_rules, report, warned):
     else:
         name = rule['src']
         href = container.name_to_href(name)
-        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in props.iteritems()}
+        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in iteritems(props)}
         rule['src'] = 'url(%s)' % href
         rule['name'] = name
         return rule
@@ -198,7 +198,7 @@ def font_key(font):
 
 
 def embed_all_fonts(container, stats, report):
-    all_font_rules = tuple(stats.all_font_rules.itervalues())
+    all_font_rules = tuple(itervalues(stats.all_font_rules))
     warned = set()
     rules, nrules = [], {}
     modified = set()
@@ -211,7 +211,7 @@ def embed_all_fonts(container, stats, report):
         if None in (fs, fu, fr):
             continue
         fs = {icu_lower(x) for x in fs}
-        for font in fu.itervalues():
+        for font in itervalues(fu):
             if icu_lower(font['font-family']) not in fs:
                 continue
             rule = matching_rule(font, fr)
@@ -238,7 +238,7 @@ def embed_all_fonts(container, stats, report):
 
     # Write out CSS
     rules = [';\n\t'.join('%s: %s' % (
-        k, '"%s"' % v if k == 'font-family' else v) for k, v in rulel.iteritems() if (k in props and props[k] != v and v != '400') or k == 'src')
+        k, '"%s"' % v if k == 'font-family' else v) for k, v in iteritems(rulel) if (k in props and props[k] != v and v != '400') or k == 'src')
         for rulel in rules]
     css = '\n\n'.join(['@font-face {\n\t%s\n}' % r for r in rules])
     item = container.generate_item('fonts.css', id_prefix='font_embed')

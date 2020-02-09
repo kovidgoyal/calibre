@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, sys
 from calibre.constants import iswindows, cache_dir, get_version
+from polyglot.builtins import exec_path
 
 ipydir = os.path.join(cache_dir(), 'ipython')
 
@@ -214,7 +214,7 @@ def ipython(user_ns=None):
     c = Config()
     user_conf = os.path.expanduser('~/.ipython/profile_default/ipython_config.py')
     if os.path.exists(user_conf):
-        execfile(user_conf, {'get_config': lambda: c})
+        exec_path(user_conf, {'get_config': lambda: c})
     c.TerminalInteractiveShell.prompts_class = CustomPrompt
     c.InteractiveShellApp.exec_lines = [
         'from __future__ import division, absolute_import, unicode_literals, print_function',

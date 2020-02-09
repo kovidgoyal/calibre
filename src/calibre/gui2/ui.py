@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import collections, os, sys, textwrap, time, gc, errno, re
-from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 from io import BytesIO
@@ -54,6 +52,8 @@ from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker
+from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.queue import Queue, Empty
 
 
 class Listener(Thread):  # {{{
@@ -399,6 +399,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        if show_gui:
+            self.show()
         self.read_settings()
 
         self.finalize_layout()
@@ -418,10 +420,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
-        if show_gui:
-            # Note this has to come after restoreGeometry() because of
-            # https://bugreports.qt.io/browse/QTBUG-56831
-            self.show()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
@@ -535,7 +533,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def create_spare_pool(self, *args):
         if self._spare_pool is None:
-            num = min(detect_ncpus(), int(config['worker_limit']/2.0))
+            num = min(detect_ncpus(), config['worker_limit']//2)
             self._spare_pool = Pool(max_workers=num, name='GUIPool')
 
     def spare_pool(self):
@@ -600,7 +598,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.content_server is not None and \
                 self.content_server.exception is not None:
             error_dialog(self, _('Failed to start Content server'),
-                         unicode(self.content_server.exception)).exec_()
+                         unicode_type(self.content_server.exception)).exec_()
 
     @property
     def current_db(self):
@@ -615,7 +613,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
-        if isinstance(args, basestring):
+        if isinstance(args, string_or_bytes):
             args = [args]
         files = [os.path.abspath(p) for p in args if not os.path.isdir(p) and os.access(p, os.R_OK)]
         if files:
@@ -626,6 +624,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             msg = self.listener.queue.get_nowait()
         except Empty:
             return
+        if isinstance(msg, bytes):
+            msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
             import json
             try:
@@ -664,8 +664,25 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except Exception:
                 import traceback
                 traceback.print_exc()
+        elif msg.startswith('web-store:'):
+            import json
+            try:
+                data = json.loads(msg[len('web-store:'):])
+            except ValueError:
+                prints('Failed to decode message from other instance: %r' % msg)
+            path = data['path']
+            if data['tags']:
+                before = self.current_db.new_api.all_book_ids()
+            self.iactions['Add Books'].add_filesystem_book([path], allow_device=False)
+            if data['tags']:
+                db = self.current_db.new_api
+                after = self.current_db.new_api.all_book_ids()
+                for book_id in after - before:
+                    tags = list(db.field_for('tags', book_id))
+                    tags += list(data['tags'])
+                    self.current_db.new_api.set_field('tags', {book_id: tags})
         else:
-            print(msg)
+            prints('Ignoring unknown message from other instance: %r' % msg[:20])
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
@@ -765,7 +782,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             font.setBold(True)
             font.setItalic(True)
         self.virtual_library.setFont(font)
-        title = u'{0} - || {1}{2} ||'.format(
+        title = '{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
 
@@ -888,13 +905,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             pass
         if not minz:
             self.job_error_dialog.show_error(dialog_title,
-                    _('<b>Failed</b>')+': '+unicode(job.description),
+                    _('<b>Failed</b>')+': '+unicode_type(job.description),
                     det_msg=job.details, retry_func=retry_func)
 
     def read_settings(self):
         geometry = config['main_window_geometry']
         if geometry is not None:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
         self.read_layout_settings()
 
     def write_settings(self):
@@ -913,13 +930,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         try:
             self.shutdown()
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
+        if self.system_tray_icon is not None and self.restart_after_quit:
+            # Needed on windows to prevent multiple systray icons
+            self.system_tray_icon.setVisible(False)
         QApplication.instance().quit()
 
     def donate(self, *args):
-        open_url(QUrl('https://calibre-ebook.com/donate'))
+        from calibre.utils.localization import localize_website_link
+        open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():
@@ -973,8 +995,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             db.commit_dirty_cache()
             db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
-            if not action.shutting_down():
-                return
+            action.shutting_down()
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()

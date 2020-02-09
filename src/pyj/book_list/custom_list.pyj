@@ -58,6 +58,8 @@ def default_template():
 
 
 def render_field(field, mi, book_id):  # {{{
+    if field is 'id':
+        return book_id + ''
     field_metadata = library_data.field_metadata
     fm = field_metadata[field]
     if not fm:
@@ -133,6 +135,20 @@ def render_field(field, mi, book_id):  # {{{
                 val = 1
             return fmt_sidx(val, use_roman=interface_data.use_roman_numerals_for_series_number)
 
+    def process_size(field, fm, name, val):
+        val = val or 0
+        mb = 1024 * 1024
+
+        def fmt(val, suffix):
+            ans = f'{val:.1f}'
+            if ans.endsWith('.0'):
+                ans = ans[:-2]
+            return ans + suffix
+
+        if val < mb:
+            return fmt(val / 1024, 'KB')
+        return fmt(val / mb, 'MB')
+
     name = fm.name or field
     datatype = fm.datatype
     if field is 'comments' or datatype is 'comments':
@@ -158,6 +174,8 @@ def render_field(field, mi, book_id):  # {{{
         func = process_series
     elif field.endswith('_index'):
         func = process_series_index
+    elif field is 'size':
+        func = process_size
     ans = None
     if func:
         ans = func(field, fm, name, val)

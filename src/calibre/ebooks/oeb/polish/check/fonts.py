@@ -1,12 +1,11 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from cssutils.css import CSSRule
+from css_parser.css import CSSRule
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
@@ -16,6 +15,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.utils.fonts.utils import get_all_font_names, is_font_embeddable, UnsupportedFont
 from tinycss.fonts3 import parse_font_family
+from polyglot.builtins import iteritems
 
 
 class InvalidFont(BaseError):
@@ -58,7 +58,7 @@ class FontAliasing(BaseError):
 
     def __call__(self, container):
         changed = False
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if fix_sheet(sheet, self.css_name, self.font_name):
@@ -85,7 +85,7 @@ class FontAliasing(BaseError):
 def check_fonts(container):
     font_map = {}
     errors = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_FONTS:
             raw = container.raw_data(name)
             try:
@@ -102,7 +102,7 @@ def check_fonts(container):
                 errors.append(NotEmbeddable(name, fs_type))
 
     sheets = []
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_STYLES:
             try:
                 sheets.append((name, container.parsed(name), None))

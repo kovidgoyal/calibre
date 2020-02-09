@@ -1,16 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, re
-from itertools import izip
 
-from calibre.constants import iswindows
+from calibre.constants import iswindows, ispy3
+from polyglot.builtins import iteritems, range, zip, native_string_type
 
 if iswindows:
     import ctypes.wintypes
@@ -26,11 +25,11 @@ if iswindows:
 
 
 def fmt(code):
-    return ('\033[%dm'%code).encode('ascii')
+    return '\033[%dm' % code
 
 
 RATTRIBUTES = dict(
-        izip(xrange(1, 9), (
+        zip(range(1, 9), (
             'bold',
             'dark',
             '',
@@ -41,11 +40,11 @@ RATTRIBUTES = dict(
             'concealed'
             )
         ))
-ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.iteritems()}
+ATTRIBUTES = {v:fmt(k) for k, v in iteritems(RATTRIBUTES)}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
-        izip(xrange(41, 48), (
+        zip(range(41, 48), (
             'red',
             'green',
             'yellow',
@@ -55,10 +54,10 @@ RBACKGROUNDS = dict(
             'white'
             ),
     ))
-BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.iteritems()}
+BACKGROUNDS = {v:fmt(k) for k, v in iteritems(RBACKGROUNDS)}
 
 RCOLORS = dict(
-        izip(xrange(31, 38), (
+        zip(range(31, 38), (
             'red',
             'green',
             'yellow',
@@ -68,7 +67,7 @@ RCOLORS = dict(
             'white',
             ),
         ))
-COLORS = {v:fmt(k) for k, v in RCOLORS.iteritems()}
+COLORS = {v:fmt(k) for k, v in iteritems(RCOLORS)}
 
 RESET = fmt(0)
 
@@ -96,11 +95,11 @@ def colored(text, fg=None, bg=None, bold=False):
         prefix.append(BACKGROUNDS[bg])
     if bold:
         prefix.append(ATTRIBUTES['bold'])
-    prefix = b''.join(prefix)
+    prefix = ''.join(prefix)
     suffix = RESET
-    if isinstance(text, type(u'')):
-        prefix = prefix.decode('ascii')
-        suffix = suffix.decode('ascii')
+    if isinstance(text, bytes):
+        prefix = prefix.encode('ascii')
+        suffix = suffix.encode('ascii')
     return prefix + text + suffix
 
 
@@ -128,7 +127,7 @@ class Detect(object):
                     # Stream is a console
                     self.set_console = windll.kernel32.SetConsoleTextAttribute
                     self.default_console_text_attributes = WCOLORS['white']
-                    kernel32 = WinDLL(b'kernel32', use_last_error=True)
+                    kernel32 = WinDLL(native_string_type('kernel32'), use_last_error=True)
                     self.write_console = kernel32.WriteConsoleW
                     self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
                     self.write_console.restype = wintypes.BOOL
@@ -151,9 +150,13 @@ class Detect(object):
             while text:
                 t, text = text[:chunk], text[chunk:]
                 wt = c_wchar_p(t)
-                # Use the fact that len(t) == wcslen(wt) in python 2.7 on
-                # windows where the python unicode type uses UTF-16
-                if not self.write_console(self.file_handle, wt, len(t), byref(written), None):
+                if ispy3:
+                    text_len = len(t.encode('utf-16'))
+                else:
+                    # Use the fact that len(t) == wcslen(wt) in python 2.7 on
+                    # windows where the python unicode type uses UTF-16
+                    text_len = len(t)
+                if not self.write_console(self.file_handle, wt, text_len, byref(written), None):
                     # Older versions of windows can fail to write large strings
                     # to console with WriteConsoleW (seen it happen on Win XP)
                     import winerror
@@ -169,10 +172,10 @@ class Detect(object):
                         # to use raster fonts (the default). In this case
                         # rather than failing, write an informative error
                         # message and the asciized version of the text.
-                        print ('Non-ASCII text detected. You must set your Console\'s font to'
+                        print('Non-ASCII text detected. You must set your Console\'s font to'
                                ' Lucida Console or Consolas or some other TrueType font to see this text', file=self.stream, end=' -- ')
                         from calibre.utils.filenames import ascii_text
-                        print (ascii_text(t + text), file=self.stream, end='')
+                        print(ascii_text(t + text), file=self.stream, end='')
                         continue
                     if not ignore_errors:
                         raise ctypes.WinError(err)
@@ -181,6 +184,7 @@ class Detect(object):
 class ColoredStream(Detect):
 
     def __init__(self, stream=None, fg=None, bg=None, bold=False):
+        stream = getattr(stream, 'buffer', stream)
         Detect.__init__(self, stream)
         self.fg, self.bg, self.bold = fg, bg, bold
         if self.set_console is not None:
@@ -188,16 +192,21 @@ class ColoredStream(Detect):
             if not self.bg:
                 self.wval |= self.default_console_text_attributes & 0xF0
 
+    def cwrite(self, what):
+        if not isinstance(what, bytes):
+            what = what.encode('ascii')
+        self.stream.write(what)
+
     def __enter__(self):
         if not self.isatty:
             return self
         if self.isansi:
             if self.bold:
-                self.stream.write(ATTRIBUTES['bold'])
+                self.cwrite(ATTRIBUTES['bold'])
             if self.bg is not None:
-                self.stream.write(BACKGROUNDS[self.bg])
+                self.cwrite(BACKGROUNDS[self.bg])
             if self.fg is not None:
-                self.stream.write(COLORS[self.fg])
+                self.cwrite(COLORS[self.fg])
         elif self.set_console is not None:
             if self.wval != 0:
                 self.set_console(self.file_handle, self.wval)
@@ -209,7 +218,7 @@ class ColoredStream(Detect):
         if not self.fg and not self.bg and not self.bold:
             return
         if self.isansi:
-            self.stream.write(RESET)
+            self.cwrite(RESET)
             self.stream.flush()
         elif self.set_console is not None:
             self.set_console(self.file_handle, self.default_console_text_attributes)
@@ -217,17 +226,27 @@ class ColoredStream(Detect):
 
 class ANSIStream(Detect):
 
-    ANSI_RE = re.compile(br'\033\[((?:\d|;)*)([a-zA-Z])')
+    ANSI_RE = r'\033\[((?:\d|;)*)([a-zA-Z])'
 
     def __init__(self, stream=None):
         super(ANSIStream, self).__init__(stream)
         self.encoding = getattr(self.stream, 'encoding', 'utf-8') or 'utf-8'
+        self.stream_takes_unicode = hasattr(self.stream, 'buffer')
         self.last_state = (None, None, False)
+        self._ansi_re_bin = self._ansi_re_unicode = None
+
+    def ansi_re(self, binary=False):
+        attr = '_ansi_re_bin' if binary else '_ansi_re_unicode'
+        ans = getattr(self, attr)
+        if ans is None:
+            expr = self.ANSI_RE
+            if binary:
+                expr = expr.encode('ascii')
+            ans = re.compile(expr)
+            setattr(self, attr, ans)
+        return ans
 
     def write(self, text):
-        if isinstance(text, type(u'')):
-            text = text.encode(self.encoding, 'replace')
-
         if not self.isatty:
             return self.strip_and_write(text)
 
@@ -239,8 +258,22 @@ class ANSIStream(Detect):
 
         self.write_and_convert(text)
 
+    def polyglot_write(self, text):
+        binary = isinstance(text, bytes)
+        stream = self.stream
+        if self.stream_takes_unicode:
+            if binary:
+                stream = self.stream.buffer
+        else:
+            if not binary:
+                text = text.encode(self.encoding, 'replace')
+        stream.write(text)
+
     def strip_and_write(self, text):
-        self.stream.write(self.ANSI_RE.sub(b'', text))
+        binary = isinstance(text, bytes)
+        pat = self.ansi_re(binary)
+        repl = b'' if binary else ''
+        self.polyglot_write(pat.sub(repl, text))
 
     def write_and_convert(self, text):
         '''
@@ -249,7 +282,8 @@ class ANSIStream(Detect):
         calls.
         '''
         cursor = 0
-        for match in self.ANSI_RE.finditer(text):
+        binary = isinstance(text, bytes)
+        for match in self.ansi_re(binary).finditer(text):
             start, end = match.span()
             self.write_plain_text(text, cursor, start)
             self.convert_ansi(*match.groups())
@@ -268,21 +302,25 @@ class ANSIStream(Detect):
                     pass
                 else:
                     return self.write_unicode_text(utext)
-            self.stream.write(text)
+            self.polyglot_write(text)
 
     def convert_ansi(self, paramstring, command):
+        if isinstance(paramstring, bytes):
+            paramstring = paramstring.decode('ascii', 'replace')
+        if isinstance(command, bytes):
+            command = command.decode('ascii', 'replace')
         params = self.extract_params(paramstring)
         self.call_win32(command, params)
 
     def extract_params(self, paramstring):
         def split(paramstring):
-            for p in paramstring.split(b';'):
+            for p in paramstring.split(';'):
                 if p:
                     yield int(p)
         return tuple(split(paramstring))
 
     def call_win32(self, command, params):
-        if command != b'm':
+        if command != 'm':
             return
         fg, bg, bold = self.last_state
 

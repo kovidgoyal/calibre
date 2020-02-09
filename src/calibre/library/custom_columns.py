@@ -1,19 +1,20 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, re
+import json, re, numbers
 from functools import partial
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class CustomColumns(object):
@@ -70,11 +71,11 @@ class CustomColumns(object):
                     'label':record[0],
                     'name':record[1],
                     'datatype':record[2],
-                    'editable':record[3],
+                    'editable':bool(record[3]),
                     'display':json.loads(record[4]),
-                    'normalized':record[5],
+                    'normalized':bool(record[5]),
                     'num':record[6],
-                    'is_multiple':record[7],
+                    'is_multiple':bool(record[7]),
                     }
             if data['display'] is None:
                 data['display'] = {}
@@ -130,23 +131,25 @@ class CustomColumns(object):
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, unicode, bytes)):
+                if isinstance(x, (unicode_type, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    unicode) else y for y in x]
-                return [u' '.join(y.split()) for y in x]
+                    unicode_type) else y for y in x]
+                return [' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, unicode) else \
+                return x if x is None or isinstance(x, unicode_type) else \
                         x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
         def adapt_bool(x, d):
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 x = x.lower()
                 if x == 'true':
                     x = True
@@ -167,7 +170,9 @@ class CustomColumns(object):
         def adapt_number(x, d):
             if x is None:
                 return None
-            if isinstance(x, (str, unicode, bytes)):
+            if isinstance(x, (unicode_type, bytes)):
+                if isinstance(x, bytes):
+                    x = force_unicode(x)
                 if x.lower() == 'none':
                     return None
             if d['datatype'] == 'int':
@@ -211,7 +216,12 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x:x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -238,7 +248,12 @@ class CustomColumns(object):
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+                ans.sort(key=lambda x: x.lower())
+        if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
+            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            ans = c_parse(ans)
+            if ans is UNDEFINED_DATE:
+                ans = None
         if data['datatype'] != 'series':
             return (ans, None)
         ign,lt = self.custom_table_names(data['num'])
@@ -341,7 +356,7 @@ class CustomColumns(object):
         series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
                                                         (series,), all=False)
         if series_id is None:
-            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
         series_indices = self.conn.get('''
@@ -521,7 +536,7 @@ class CustomColumns(object):
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] == 'composite':
-            return set([])
+            return set()
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -534,7 +549,7 @@ class CustomColumns(object):
             if extra is None:
                 extra = 1.0
 
-        books_to_refresh = set([])
+        books_to_refresh = set()
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
@@ -548,7 +563,7 @@ class CustomColumns(object):
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
             if not existing:
-                existing = set([])
+                existing = set()
             else:
                 existing = set(existing)
             # preserve the order in set_val

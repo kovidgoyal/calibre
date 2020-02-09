@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,6 +10,7 @@ import pdb, socket, inspect, sys, select, os, atexit, time
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 from calibre.constants import cache_dir
+from polyglot.builtins import range, raw_input as rinput
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -96,7 +96,7 @@ def set_trace(port=4444, skip=None):
 def cli(port=4444):
     prints('Connecting to remote debugger on port %d...' % port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    for i in xrange(20):
+    for i in range(20):
         try:
             sock.connect(('127.0.0.1', port))
             break
@@ -120,6 +120,8 @@ def cli(port=4444):
     p = pdb.Pdb()
     readline.set_completer(p.complete)
     readline.parse_and_bind("tab: complete")
+    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
     try:
         while True:
@@ -132,20 +134,25 @@ def cli(port=4444):
             recvd = recvd[:-len(PROMPT)]
             if recvd.startswith(QUESTION):
                 recvd = recvd[len(QUESTION):]
-                sys.stdout.write(recvd)
-                raw = sys.stdin.readline() or b'n'
+                stdout.write(recvd)
+                raw = stdin.readline() or b'n'
             else:
-                sys.stdout.write(recvd)
+                stdout.write(recvd)
                 raw = b''
                 try:
-                    raw = raw_input(PROMPT) + b'\n'
+                    raw = rinput(PROMPT.decode('utf-8'))
                 except (EOFError, KeyboardInterrupt):
                     pass
+                else:
+                    if not isinstance(raw, bytes):
+                        raw = raw.encode('utf-8')
+                    raw += b'\n'
                 if not raw:
                     raw = b'quit\n'
             eintr_retry_call(sock.send, raw)
     except KeyboardInterrupt:
         pass
+
 
 if __name__ == '__main__':
     cli()

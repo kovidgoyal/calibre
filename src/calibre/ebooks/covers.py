@@ -1,16 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, random, unicodedata
+import re, random, unicodedata, numbers
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
-from polyglot.builtins import map, zip
+from polyglot.builtins import iteritems, itervalues, map, zip, string_or_bytes
 from itertools import chain
 
 from PyQt5.Qt import (
@@ -167,26 +166,25 @@ class Block(object):
 
     @property
     def height(self):
-        return int(ceil(sum(l if isinstance(l, (int, float)) else l.boundingRect().height() for l in self.layouts)))
+        return int(ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts)))
 
-    @dynamic_property
+    @property
     def position(self):
-        def fget(self):
-            return self._position
+        return self._position
 
-        def fset(self, new_pos):
-            (x, y) = new_pos
-            self._position = Point(x, y)
-            if self.layouts:
-                self.layouts[0].setPosition(QPointF(x, y))
-                y += self.layouts[0].boundingRect().height()
-                for l in self.layouts[1:]:
-                    if isinstance(l, (int, float)):
-                        y += l
-                    else:
-                        l.setPosition(QPointF(x, y))
-                        y += l.boundingRect().height()
-        return property(fget=fget, fset=fset)
+    @position.setter
+    def position(self, new_pos):
+        (x, y) = new_pos
+        self._position = Point(x, y)
+        if self.layouts:
+            self.layouts[0].setPosition(QPointF(x, y))
+            y += self.layouts[0].boundingRect().height()
+            for l in self.layouts[1:]:
+                if isinstance(l, numbers.Number):
+                    y += l
+                else:
+                    l.setPosition(QPointF(x, y))
+                    y += l.boundingRect().height()
 
     def draw(self, painter):
         for l in self.layouts:
@@ -275,14 +273,14 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, basestring):
+    if isinstance(fields, string_or_bytes):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}
     try:
         yield
     finally:
-        for f, val in mem.iteritems():
+        for f, val in iteritems(mem):
             if val is null:
                 delattr(obj, f)
             else:
@@ -324,10 +322,10 @@ def load_color_themes(prefs):
     t = default_color_themes.copy()
     t.update(prefs.color_themes)
     disabled = frozenset(prefs.disabled_color_themes)
-    ans = [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
+    ans = [theme_to_colors(v) for k, v in iteritems(t) if k not in disabled]
     if not ans:
         # Ignore disabled and return only the builtin color themes
-        ans = [theme_to_colors(v) for k, v in default_color_themes.iteritems()]
+        ans = [theme_to_colors(v) for k, v in iteritems(default_color_themes)]
     return ans
 
 
@@ -495,7 +493,11 @@ class Ornamental(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         if not self.PATH_CACHE:
             from calibre.utils.speedups import svg_path_to_painter_path
-            self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            try:
+                self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         p = painter
         painter.setRenderHint(QPainter.Antialiasing)
         g = QRadialGradient(QPointF(rect.center()), rect.width())
@@ -503,7 +505,10 @@ class Ornamental(Style):
         painter.fillRect(rect, QBrush(g))
         painter.save()
         painter.setWindow(0, 0, *self.VIEWPORT)
-        path = self.PATH_CACHE['corner']
+        try:
+            path = self.PATH_CACHE['corner']
+        except KeyError:
+            path = QPainterPath()
         pen = p.pen()
         pen.setColor(self.ccolor1)
         p.setPen(pen)
@@ -557,14 +562,14 @@ class Blocks(Style):
 
 def all_styles():
     return set(
-        x.NAME for x in globals().itervalues() if
+        x.NAME for x in itervalues(globals()) if
         isinstance(x, type) and issubclass(x, Style) and x is not Style
     )
 
 
 def load_styles(prefs, respect_disabled=True):
     disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
-    ans = tuple(x for x in globals().itervalues() if
+    ans = tuple(x for x in itervalues(globals()) if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
     if not ans and disabled:
         # If all styles have been disabled, ignore the disabling and return all

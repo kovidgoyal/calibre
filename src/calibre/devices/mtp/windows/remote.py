@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import subprocess, sys, os, pprint, signal, time, glob, io
 pprint, io
+from polyglot.builtins import environ_item
 
 
 def build(mod='wpd'):
@@ -42,9 +42,9 @@ def build(mod='wpd'):
 
 def main():
     fp, d = os.path.abspath(__file__), os.path.dirname
-    if b'CALIBRE_DEVELOP_FROM' not in os.environ:
+    if 'CALIBRE_DEVELOP_FROM' not in os.environ:
         env = os.environ.copy()
-        env[b'CALIBRE_DEVELOP_FROM'] = bytes(d(d(d(d(d(fp))))))
+        env['CALIBRE_DEVELOP_FROM'] = environ_item(d(d(d(d(d(fp))))))
         subprocess.call(['calibre-debug', '-e', fp], env=env)
         return
 

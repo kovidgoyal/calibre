@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import re
@@ -20,7 +20,7 @@ from calibre.constants import (
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, set_app_uid, setup_gui_option_parser
+    question_dialog, setup_gui_option_parser
 )
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
@@ -28,6 +28,7 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
 from calibre.utils.lock import singleinstance
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -70,9 +71,9 @@ def find_portable_library():
         return
     import glob
     candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
-        os.path.join(base, u'*%smetadata.db'%os.sep))]
+        os.path.join(base, '*%smetadata.db'%os.sep))]
     if not candidates:
-        candidates = [u'Calibre Library']
+        candidates = ['Calibre Library']
     lp = prefs['library_path']
     if not lp:
         lib = os.path.join(base, candidates[0])
@@ -110,7 +111,8 @@ def init_qt(args):
             prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
     override = 'calibre-gui' if islinux else None
-    app = Application(args, override_program_name=override)
+    app = Application(args, override_program_name=override, windows_app_uid=MAIN_APP_UID)
+
     app.file_event_hook = EventAccumulator()
     try:
         is_x11 = app.platformName() == 'xcb'
@@ -129,16 +131,16 @@ def get_default_library_path():
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
-    if isinstance(fname, unicode):
+    if isinstance(fname, unicode_type):
         try:
-            fname = fname.encode(filesystem_encoding)
-        except:
+            fname.encode(filesystem_encoding)
+        except Exception:
             fname = 'Calibre Library'
-    x = os.path.expanduser('~'+os.sep+fname)
+    x = os.path.expanduser(os.path.join('~', fname))
     if not os.path.exists(x):
         try:
             os.makedirs(x)
-        except:
+        except Exception:
             x = os.path.expanduser('~')
     return x
 
@@ -149,7 +151,7 @@ def get_library_path(gui_runner):
         base = os.path.expanduser('~')
         if not base or not os.path.exists(base):
             from PyQt5.Qt import QDir
-            base = unicode(QDir.homePath()).replace('/', os.sep)
+            base = unicode_type(QDir.homePath()).replace('/', os.sep)
         candidate = gui_runner.choose_dir(base)
         if not candidate:
             candidate = os.path.join(base, 'Calibre Library')
@@ -172,18 +174,19 @@ def repair_library(library_path):
 
 
 def windows_repair(library_path=None):
-    from binascii import hexlify, unhexlify
-    import cPickle, subprocess
+    import subprocess
+    from calibre.utils.serialize import json_dumps, json_loads
+    from polyglot.binary import as_hex_unicode, from_hex_bytes
     if library_path:
-        library_path = hexlify(cPickle.dumps(library_path, -1))
+        library_path = as_hex_unicode(json_dumps(library_path))
         winutil.prepare_for_restart()
-        os.environ['CALIBRE_REPAIR_CORRUPTED_DB'] = library_path
+        os.environ['CALIBRE_REPAIR_CORRUPTED_DB'] = environ_item(library_path)
         subprocess.Popen([sys.executable])
     else:
         try:
             app = Application([])
             from calibre.gui2.dialogs.restore_library import repair_library_at
-            library_path = cPickle.loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
+            library_path = json_loads(from_hex_bytes(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
             done = repair_library_at(library_path, wait_time=4)
         except Exception:
             done = False
@@ -355,14 +358,10 @@ def run_in_debug_mode():
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
-    os.environ[b'CALIBRE_RESTARTING_FROM_GUI'] = b'1'
+    os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
     run_calibre_debug(
-        '--gui-debug', logpath, stdout=lopen(logpath, 'w'),
-        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'r'))
-
-
-def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
+        '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
+        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
 
 
 def run_gui(opts, args, listener, app, gui_debug=None):
@@ -397,18 +396,27 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         if getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None:
             run_in_debug_mode()
         else:
-            import subprocess
             if hasattr(sys, 'frameworks_dir'):
                 app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
+                from calibre.debug import run_calibre_debug
                 prints('Restarting with:', app)
-                subprocess.Popen('sleep 3s; open ' + shellquote(app), shell=True)
+                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
             else:
-                os.environ[b'CALIBRE_RESTARTING_FROM_GUI'] = b'1'
+                import subprocess
+                os.environ['CALIBRE_RESTARTING_FROM_GUI'] = environ_item('1')
                 if iswindows and hasattr(winutil, 'prepare_for_restart'):
                     winutil.prepare_for_restart()
-                args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
-                prints('Restarting with:', ' '.join([e] + args))
-                subprocess.Popen([e] + args)
+                if hasattr(sys, 'run_local'):
+                    cmd = [sys.run_local]
+                    if DEBUG:
+                        cmd += ['calibre-debug', '-g']
+                    else:
+                        cmd.append('calibre')
+                else:
+                    args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
+                    cmd = [e] + args
+                prints('Restarting with:', ' '.join(cmd))
+                subprocess.Popen(cmd)
     else:
         if iswindows:
             try:
@@ -453,7 +461,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         what = _('try deleting the file: "%s"') % path
 
     info = base%(where, msg, what)
-    error_dialog(None, _('Cannot Start ')+__appname__,
+    error_dialog(None, _('Cannot start ')+__appname__,
         '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, det_msg=det_msg, show=True)
 
     raise SystemExit(1)
@@ -475,9 +483,9 @@ def shutdown_other(rc=None):
         if rc.conn is None:
             prints(_('No running calibre found'))
             return  # No running instance found
-    rc.conn.send('shutdown:')
+    rc.conn.send(b'shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
-    for i in xrange(50):
+    for i in range(50):
         if singleinstance(singleinstance_name):
             return
         time.sleep(0.1)
@@ -493,7 +501,7 @@ def communicate(opts, args):
         if len(args) > 1:
             args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
         import json
-        t.conn.send('launched:'+json.dumps(args))
+        t.conn.send(b'launched:'+as_bytes(json.dumps(args)))
     t.conn.close()
     raise SystemExit(0)
 
@@ -507,7 +515,7 @@ def create_listener():
 
 
 def main(args=sys.argv):
-    if os.environ.pop(b'CALIBRE_RESTARTING_FROM_GUI', None) == b'1':
+    if os.environ.pop('CALIBRE_RESTARTING_FROM_GUI', None) == environ_item('1'):
         time.sleep(2)  # give the parent process time to cleanup and close
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
@@ -516,12 +524,6 @@ def main(args=sys.argv):
     if args[0] == '__CALIBRE_GUI_DEBUG__':
         gui_debug = args[1]
         args = ['calibre']
-
-    if iswindows:
-        # Ensure that all ebook editor instances are grouped together in the task
-        # bar. This prevents them from being grouped with viewer process when
-        # launched from within calibre, as both use calibre-parallel.exe
-        set_app_uid(MAIN_APP_UID)
 
     try:
         app, opts, args = init_qt(args)
@@ -580,9 +582,10 @@ if __name__ == '__main__':
         from PyQt5.Qt import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
-            log = open(logfile).read().decode('utf-8', 'ignore')
+            with open(logfile) as f:
+                log = f.read().decode('utf-8', 'ignore')
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(unicode(err),
-                    unicode(tb).replace('\n', '<br>'),
+                '%s<b>Log:</b><br>%s')%(unicode_type(err),
+                    unicode_type(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))

@@ -47,12 +47,12 @@ class Polter(BasicNewsRecipe):
         for s in soup.findAll(style=True):
             if 'bold;' in s['style']:
                 if s.get('class', ''):
-                    s['class'] = s['class'] + ' p_title'
+                    s['class'] = ''.join(s['class']) + ' p_title'
                 else:
                     s['class'] = 'p_title'
             if 'italic;' in s['style']:
                 if s.get('class', ''):
-                    s['class'] = s['class'] + ' italic'
+                    s['class'] = ''.join(s['class']) + ' italic'
                 else:
                     s['class'] = 'italic'
             del s['style']

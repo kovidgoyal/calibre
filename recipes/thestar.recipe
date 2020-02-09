@@ -9,6 +9,7 @@ def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -27,21 +28,25 @@ class TheTorontoStar(BasicNewsRecipe):
     masthead_url = 'http://www.thestar.com/etc/designs/thestar/images/general/logoLrg.png'
 
     keep_only_tags = [
-        classes('article__headline article__subheadline article__body'),
+        classes('o-main-content')
     ]
     remove_tags = [
-        dict(name=['button', 'style']),
-        classes('share-toolbar__primary newsletter-box'),
+        classes(
+            'article-continue-basic-container label-modal-bottom print-header'
+            ' cta-container share-toolbar-container c-related-articles c-partner-articles c-more-articles c-top-articles'),
+        dict(name='button')
+    ]
+    remove_tags_after = [
+        classes('article-content-container')
     ]
 
     feeds = [
-
-    (u'News', u'http://www.thestar.com/feeds.articles.news.rss'),
-    (u'Opinion', u'http://www.thestar.com/feeds.articles.opinion.rss'),
-    (u'Business', u'http://www.thestar.com/feeds.articles.business.rss'),
-    (u'Sports', u'http://www.thestar.com/feeds.articles.sports.rss'),
-    (u'Entertainment', u'http://www.thestar.com/feeds.articles.entertainment.rss'),
-    (u'Living', u'http://www.thestar.com/feeds.articles.life.rss'),
-    (u'Travel', u'http://www.thestar.com/feeds.articles.life.travel.rss'),
-    (u'Technology', u'http://www.thestar.com/feeds.articles.life.technology.rss')
+        (u'News', u'http://www.thestar.com/feeds.articles.news.rss'),
+        (u'Opinion', u'http://www.thestar.com/feeds.articles.opinion.rss'),
+        (u'Business', u'http://www.thestar.com/feeds.articles.business.rss'),
+        (u'Sports', u'http://www.thestar.com/feeds.articles.sports.rss'),
+        (u'Entertainment', u'http://www.thestar.com/feeds.articles.entertainment.rss'),
+        (u'Living', u'http://www.thestar.com/feeds.articles.life.rss'),
+        (u'Travel', u'http://www.thestar.com/feeds.articles.life.travel.rss'),
+        (u'Technology', u'http://www.thestar.com/feeds.articles.life.technology.rss')
     ]

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,7 +9,7 @@ import os, sys
 
 from polyglot.builtins import reraise
 
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows, plugins, ispy3
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -178,9 +177,13 @@ if iswindows:
         return speedup.fdopen(os_open(path, flags), path, mode, buffering)
 
 else:
-    def share_open(path, mode='r', buffering=-1):
-        flags = flags_from_mode(mode) | speedup.O_CLOEXEC
-        return speedup.fdopen(os.open(path, flags), path, mode, buffering)
+    if ispy3:
+        # See PEP 446
+        share_open = open
+    else:
+        def share_open(path, mode='r', buffering=-1):
+            flags = flags_from_mode(mode) | speedup.O_CLOEXEC
+            return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
     def raise_winerror(x):
         reraise(NotImplementedError, None, sys.exc_info()[2])

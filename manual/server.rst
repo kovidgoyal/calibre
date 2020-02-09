@@ -25,7 +25,7 @@ This will open a page in the browser showing you your calibre libraries, click
 on any one and browse the books in it. Click on a book, and it will show you
 all the metadata about the book, along with buttons to :guilabel:`Read book`
 and :guilabel:`Download book`. Click the :guilabel:`Read book` button to
-start reading the book. 
+start reading the book.
 
 .. note:: The address used above ``http://127.0.0.1:8080`` will only work on
     the computer that is running calibre. To access the server from other
@@ -40,7 +40,7 @@ There are two types of remote device access that you will typically need. The
 first, simpler kind is from within your home network. If you are running
 calibre on a computer on your home network and you have also connected your
 other devices to the same home network, then you should be easily able to
-access the server on those devices. 
+access the server on those devices.
 
 Accessing the server from devices on your home network
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -63,7 +63,7 @@ The first part of the address is always ``http://`` the next part is the IP
 address, which is the numbers before the comma and finally we have the port
 number which must be added to the IP address with a colon (``:``). If you are
 lucky, that should be all you need and you will be looking at the
-calibre libraries on your device. If not, read on. 
+calibre libraries on your device. If not, read on.
 
 
 Trouble-shooting the home network connection
@@ -89,7 +89,7 @@ steps:
 
   #. If you have non-standard networking setup, it might be that the IP
      address shown on the :guilabel:`Connect/share` menu is incorrect.
-     In such a case you will have to figure out what the correct IP address 
+     In such a case you will have to figure out what the correct IP address
      to use is, yourself. Unfortunately, given the infinite diversity of
      network configurations possible, it is not possible to give you a
      roadmap for doing so.
@@ -106,7 +106,7 @@ steps:
 Accessing the server from anywhere on the internet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning:: 
+.. warning::
 
     Before doing this you should turn on username/password protection in the
     server, otherwise anyone in the world will be able to access your books.
@@ -124,7 +124,7 @@ is as follows.
 
   #. If the computer is behind a router, enable port forwarding on the router
      to forward the port ``8080`` (or whatever port you choose to run the
-     calibre Content server on) to the computer. 
+     calibre Content server on) to the computer.
 
   #. Make sure the calibre server is allowed through any firewalls/anti-virus
      programs on your computer.
@@ -139,7 +139,7 @@ is as follows.
      setup an easy to remember address to use instead of the IP address you
      found in the first step.
 
-.. note:: 
+.. note::
     For maximum security, you should also enable HTTPS on the content server.
     You can either do so directly in the server by providing the path to
     the HTTPS certificate to use in the advanced configuration options for
@@ -153,8 +153,8 @@ The server interface
 The server interface is a simplified version of the main calibre interface,
 optimised for use with touch screens. The home screen shows you books
 you are currently reading as well as allowing to choose a calibre library you
-want to browse. The server in calibre 3 gives you access to all your libraries,
-not just a single one, as before. 
+want to browse. The server in calibre gives you access to all your libraries,
+not just a single one, as before.
 
 The book list
 ^^^^^^^^^^^^^^
@@ -189,7 +189,7 @@ you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
 .. note:: On initial release, the book reader is fully functional but is
-    missing some more advanced features from the main calibre viewer, such as 
+    missing some more advanced features from the main calibre viewer, such as
     popup footnotes, bookmarks and annotations in general.
     These will be added in due course. In fact, the browser reader is designed
     to eventually replace the main viewer, once it matures.
@@ -202,22 +202,32 @@ As such it requires an up-to-date browser to use. It has been tested on Android
 Chrome and iOS Safari as well as Chrome and Firefox on the desktop. It is known
 not to work with Internet Explorer and Microsoft Edge (hopefully Edge will
 start working when Microsoft gets around to implementing a few missing
-standards). 
+standards).
 
 The server is careful to use functionality that has either been already
 standardised or is on the standards track. As such if it does not currently
 work with your favorite browser, it probably will once that browser has caught
-up. 
+up.
 
 If you are using a particularly old or limited browser or you don't like to run
 JavaScript, you can use the *mobile* view, by simply adding ``/mobile`` to the
 the server address.
 
-.. note:: 
+.. note::
     On iOS, Apple allows only a single browser engine, so Firefox, Chrome and
     Safari are all actually the same browser under the hood. The new server
-    interface requires iOS 10.3.2 or newer. On Android, the server has been 
+    interface requires iOS 10.3.2 or newer. On Android, the server has been
     tested with Chrome version 58 and newer.
+
+Enabling offline support
+---------------------------
+
+Browser makers have been trying to force people to use SSL by disabling
+advanced features in their browsers for plain HTTP connections. One such
+casualty is offline support. So you may need to enable HTTPS on the server to
+get offline support working. In addition, in Firefox on Android, you will need
+to type ``about:config`` and search for ``browser.tabs.useCache`` and toggle it
+to ``true``.
 
 Managing user accounts from the command-line only
 -----------------------------------------------------
@@ -237,7 +247,7 @@ by running::
 Just follow the prompts to create user accounts, set their permission, etc.
 Once you are done, you can run the server as::
 
-    calibre-server --userdb /srv/calibre/users.sqlite --enable-auth 
+    calibre-server --userdb /srv/calibre/users.sqlite --enable-auth
 
 It will use the user accounts you created in the previous step.
 
@@ -254,7 +264,7 @@ A reverse proxy is when your normal server accepts incoming requests and passes
 them onto the calibre server. It then reads the response from the calibre
 server and forwards it to the client. This means that you can simply run the
 calibre server as normal without trying to integrate it closely with your main
-server. 
+server.
 
 Using a full virtual host
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,7 +272,7 @@ Using a full virtual host
 The simplest configuration is to dedicate a full virtual host to the calibre
 server. In this case, run the calibre server as::
 
-    calibre-server 
+    calibre-server
 
 Now setup the virtual host in your main server, for example, for nginx::
 
@@ -295,7 +305,7 @@ Using a URL prefix
 If you do not want to dedicate a full virtual host to calibre, you can have it
 use a URL prefix. Start the calibre server as::
 
-    calibre-server --url-prefix /calibre --port 8080 
+    calibre-server --url-prefix /calibre --port 8080
 
 The key parameter here is ``--url-prefix /calibre``. This causes the Content server to serve all URLs prefixed by ``/calibre``. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal Content server website, but now it will run under ``/calibre``.
 
@@ -334,7 +344,7 @@ That's all, you will now be able to access the calibre Content server under the 
     the server will only listen for connections coming from the same computer,
     i.e. from the reverse proxy.
 
-.. note:: 
+.. note::
 
     If you have setup SSL for your main server, you should tell the calibre
     server to use basic authentication instead of digest authentication, as it
@@ -347,14 +357,14 @@ That's all, you will now be able to access the calibre Content server under the 
 Creating a service for the calibre server on a modern Linux system
 --------------------------------------------------------------------
 
-You can easily create a service to run calibre at boot on a modern 
+You can easily create a service to run calibre at boot on a modern
 (`systemd <https://www.freedesktop.org/wiki/Software/systemd/>`_)
 based Linux system. Just create the file
 ``/etc/systemd/system/calibre-server.service`` with the contents shown below::
 
     [Unit]
     Description=calibre content server
-    After=network.target 
+    After=network.target
 
     [Service]
     Type=simple
@@ -390,7 +400,7 @@ To make it start at boot, run::
     The calibre server *does not* need a running X server, but it does need
     the X libraries installed as some components it uses link against them.
 
-.. note:: 
-    
+.. note::
+
     The calibre server also supports systemd socket activation, so you can use
     that, if needed, as well.

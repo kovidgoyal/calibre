@@ -32,8 +32,8 @@ create_button.style = build_rule('a.calibre-push-button',
     padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
     box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)', white_space='nowrap'
 )
-create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
-create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
+create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.05)')
+create_button.style += build_rule('a.calibre-push-button:active', transform='scale(1.1)')
 # }}}
 
 # Spinner {{{
@@ -206,6 +206,8 @@ def scroll_tree_item_into_view(item):
 add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
+    ans += '.blue-link { cursor: pointer; color: COL } .blue-link:visited { color: COL} .blue-link:hover { color: HC } .blue-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground')).replace(/COL/g, get_color('link-foreground'))
+    ans += create_button.style + '\n'
     ans += create_button.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -46,7 +46,7 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
     with closing(br.open(url, timeout=timeout)) as f:
         raw_data = f.read()
         raw_data = raw_data.decode('utf-8', 'replace')
-        doc = etree.fromstring(raw_data)
+        doc = etree.fromstring(raw_data, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         for data in doc.xpath('//*[local-name() = "entry"]'):
             if counter <= 0:
                 break
@@ -71,7 +71,7 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
 
             # Follow the detail link to get the rest of the info.
             with closing(br.open(detail_href, timeout=timeout/4)) as df:
-                ddoc = etree.fromstring(df.read())
+                ddoc = etree.fromstring(df.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
                 ddata = ddoc.xpath('//*[local-name() = "entry"][1]')
                 if ddata:
                     ddata = ddata[0]
@@ -116,4 +116,4 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
 if __name__ == '__main__':
     import sys
     for result in search_manybooks(' '.join(sys.argv[1:])):
-        print (result)
+        print(result)

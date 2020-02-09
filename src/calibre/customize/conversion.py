@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 '''
 Defines the plugin system for conversions.
 '''
-import re, os, shutil
+import re, os, shutil, numbers
 
 from calibre import CurrentDir
 from calibre.customize import Plugin
+from polyglot.builtins import unicode_type
 
 
 class ConversionOption(object):
@@ -40,7 +42,7 @@ class ConversionOption(object):
         return hash(self.name)
 
     def __eq__(self, other):
-        return hash(self) == hash(other)
+        return self.name == getattr(other, 'name', other)
 
     def clone(self):
         return ConversionOption(name=self.name, help=self.help,
@@ -79,7 +81,7 @@ class OptionRecommendation(object):
                                                     self.option.choices:
             raise ValueError('OpRec: %s: Recommended value not in choices'%
                              self.option.name)
-        if not (isinstance(self.recommended_value, (int, float, str, unicode)) or self.recommended_value is None):
+        if not (isinstance(self.recommended_value, (numbers.Number, bytes, unicode_type)) or self.recommended_value is None):
             raise ValueError('OpRec: %s:'%self.option.name + repr(
                 self.recommended_value) + ' is not a string or a number')
 
@@ -141,7 +143,7 @@ class InputFormatPlugin(Plugin):
 
     #: Set of file types for which this plugin should be run
     #: For example: ``set(['azw', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     #: If True, this input plugin generates a collection of images,
     #: one per HTML file. This can be set dynamically, in the convert method
@@ -178,11 +180,11 @@ class InputFormatPlugin(Plugin):
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.
-    options = set([])
+    options = set()
 
     #: A set of 3-tuples of the form
     #: (option_name, recommended_value, recommendation_level)
-    recommendations = set([])
+    recommendations = set()
 
     def __init__(self, *args):
         Plugin.__init__(self, *args)
@@ -224,7 +226,7 @@ class InputFormatPlugin(Plugin):
                              subsequent stages of the conversion.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def __call__(self, stream, options, file_ext, log,
                  accelerators, output_dir):
@@ -236,7 +238,7 @@ class InputFormatPlugin(Plugin):
             # In case stdout is broken
             pass
 
-        with CurrentDir(output_dir, workaround_temp_folder_permissions=True):
+        with CurrentDir(output_dir):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
@@ -335,12 +337,12 @@ class OutputFormatPlugin(Plugin):
         :param log: The logger. Print debug/info messages etc. using this.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     def is_periodical(self):
         return self.oeb.metadata.publication_type and \
-            unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:')
+            unicode_type(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
     def specialize_options(self, log, opts, input_fmt):
         '''

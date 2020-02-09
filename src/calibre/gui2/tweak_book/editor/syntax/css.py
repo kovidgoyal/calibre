@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import QTextBlockUserData
 from calibre.gui2.tweak_book import verify_link
 from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from polyglot.builtins import iteritems
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')
@@ -268,6 +268,7 @@ def in_string(state, text, i, formats, user_data):
     state.parse = (NORMAL if state.blocks < 1 else IN_CONTENT)
     return [(pos - i + len(q), formats['string'])]
 
+
 state_map = {
     NORMAL:normal,
     IN_COMMENT_NORMAL: comment,
@@ -294,10 +295,10 @@ def create_formats(highlighter):
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
     }
-    for name, msg in {
+    for name, msg in iteritems({
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
-    }.iteritems():
+    }):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     formats['link'] = syntax_text_char_format(theme['Link'])
@@ -340,4 +341,3 @@ li[rel="mewl"], p.mewl {
 }
 
 ''', path_is_raw=True, syntax='css')
-

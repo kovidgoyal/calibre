@@ -1,29 +1,24 @@
+from __future__ import unicode_literals, print_function
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, time, random, __builtin__, warnings
-__builtin__.__dict__['dynamic_property'] = lambda func: func(None)
+import sys, os, re, time, random, warnings
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, hasenv, native_string_type
 from math import floor
 from functools import partial
 
-if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
+if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
-    os.getcwdu()
-except AttributeError:
-    os.getcwdu = os.getcwd
-    try:
-        os.getcwd()
-    except EnvironmentError:
-        os.chdir(os.path.expanduser('~'))
+    os.getcwd()
 except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
-        win32event, win32api, winerror, fcntl,
+        win32event, win32api, winerror, fcntl, ispy3,
         filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
 from calibre.utils.icu import safe_chr
@@ -76,7 +71,7 @@ def get_types_map():
 
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
-    if isinstance(raw, unicode):
+    if isinstance(raw, unicode_type):
         return raw
     return raw.decode(encoding, errors)
 
@@ -110,53 +105,24 @@ def confirm_config_name(name):
     return name + '_again'
 
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
-_filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
-    u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))
+_filename_sanitize_unicode = frozenset(('\\', '|', '?', '*', '<',        # no2to3
+    '"', ':', '>', '+', '/') + tuple(map(codepoint_to_chr, range(32))))  # no2to3
 
 
-def sanitize_file_name(name, substitute='_', as_unicode=False):
+def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux. Also removes leading and trailing whitespace.
-    **WARNING:** This function also replaces path separators, so only pass file names
-    and not full paths to it.
-    *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
-    are encoded in the filesystem encoding of the platform, or UTF-8.
-    '''
-    if isinstance(name, unicode):
-        name = name.encode(filesystem_encoding, 'ignore')
-    one = _filename_sanitize.sub(substitute, name)
-    one = re.sub(r'\s', ' ', one).strip()
-    bname, ext = os.path.splitext(one)
-    one = re.sub(r'^\.+$', '_', bname)
-    if as_unicode:
-        one = one.decode(filesystem_encoding)
-    one = one.replace('..', substitute)
-    one += ext
-    # Windows doesn't like path components that end with a period
-    if one and one[-1] in ('.', ' '):
-        one = one[:-1]+'_'
-    # Names starting with a period are hidden on Unix
-    if one.startswith('.'):
-        one = '_' + one[1:]
-    return one
-
-
-def sanitize_file_name_unicode(name, substitute='_'):
-    '''
-    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
-    The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux. Also removes leading and trailing whitespace.
+    macOS and Linux. Also removes leading and trailing whitespace.
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     '''
     if isbytestring(name):
-        return sanitize_file_name(name, substitute=substitute, as_unicode=True)
-    chars = [substitute if c in _filename_sanitize_unicode else c for c in
-            name]
-    one = u''.join(chars)
+        name = name.decode(filesystem_encoding, 'replace')
+    if isbytestring(substitute):
+        substitute = substitute.decode(filesystem_encoding, 'replace')
+    chars = (substitute if c in _filename_sanitize_unicode else c for c in name)
+    one = ''.join(chars)
     one = re.sub(r'\s', ' ', one).strip()
     bname, ext = os.path.splitext(one)
     one = re.sub(r'^\.+$', '_', bname)
@@ -171,14 +137,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
     return one
 
 
-def sanitize_file_name2(name, substitute='_'):
-    '''
-    Sanitize filenames removing invalid chars. Keeps unicode names as unicode
-    and bytestrings as bytestrings
-    '''
-    if isbytestring(name):
-        return sanitize_file_name(name, substitute=substitute)
-    return sanitize_file_name_unicode(name, substitute=substitute)
+sanitize_file_name2 = sanitize_file_name_unicode = sanitize_file_name
 
 
 def prints(*args, **kwargs):
@@ -191,13 +150,18 @@ def prints(*args, **kwargs):
     Returns the number of bytes written.
     '''
     file = kwargs.get('file', sys.stdout)
-    sep  = bytes(kwargs.get('sep', ' '))
-    end  = bytes(kwargs.get('end', '\n'))
-    enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding
+    file = getattr(file, 'buffer', file)
+    enc = 'utf-8' if hasenv('CALIBRE_WORKER') else preferred_encoding
+    sep  = kwargs.get('sep', ' ')
+    if not isinstance(sep, bytes):
+        sep = sep.encode(enc)
+    end  = kwargs.get('end', '\n')
+    if not isinstance(end, bytes):
+        end = end.encode(enc)
     safe_encode = kwargs.get('safe_encode', False)
     count = 0
     for i, arg in enumerate(args):
-        if isinstance(arg, unicode):
+        if isinstance(arg, unicode_type):
             if iswindows:
                 from calibre.utils.terminal import Detect
                 cs = Detect(file)
@@ -217,12 +181,12 @@ def prints(*args, **kwargs):
                     if not safe_encode:
                         raise
                     arg = repr(arg)
-        if not isinstance(arg, str):
+        if not isinstance(arg, bytes):
             try:
-                arg = str(arg)
+                arg = native_string_type(arg)
             except ValueError:
-                arg = unicode(arg)
-            if isinstance(arg, unicode):
+                arg = unicode_type(arg)
+            if isinstance(arg, unicode_type):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:
@@ -237,7 +201,7 @@ def prints(*args, **kwargs):
             file.write(arg)
             count += len(arg)
         except:
-            import repr as reprlib
+            from polyglot import reprlib
             arg = reprlib.repr(arg)
             file.write(arg)
             count += len(arg)
@@ -245,7 +209,7 @@ def prints(*args, **kwargs):
             file.write(sep)
             count += len(sep)
     file.write(end)
-    count += len(sep)
+    count += len(end)
     return count
 
 
@@ -255,7 +219,7 @@ class CommandLineError(Exception):
 
 def setup_cli_handlers(logger, level):
     import logging
-    if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
+    if hasenv('CALIBRE_WORKER') and logger.handlers:
         return
     logger.setLevel(level)
     if level == logging.WARNING:
@@ -285,14 +249,6 @@ def load_library(name, cdll):
     return cdll.LoadLibrary(name+'.so')
 
 
-def filename_to_utf8(name):
-    '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''
-    if isinstance(name, unicode):
-        return name.encode('utf8')
-    codec = 'cp1252' if iswindows else 'utf8'
-    return name.decode(codec, 'replace').encode('utf8')
-
-
 def extract(path, dir):
     extractor = None
     # First use the file header to identify its type
@@ -319,7 +275,7 @@ def extract(path, dir):
 
 
 def get_proxies(debug=True):
-    from urllib import getproxies
+    from polyglot.urllib import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy or key == 'auto':
@@ -370,7 +326,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     traceback.print_exc()
             else:
                 if debug:
-                    prints('Using http proxy', str(ans))
+                    prints('Using http proxy', unicode_type(ans))
                 return ans
 
 
@@ -381,18 +337,18 @@ def get_proxy_info(proxy_scheme, proxy_string):
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
     '''
-    import urlparse
+    from polyglot.urllib import urlparse
     try:
-        proxy_url = u'%s://%s'%(proxy_scheme, proxy_string)
-        urlinfo = urlparse.urlparse(proxy_url)
+        proxy_url = '%s://%s'%(proxy_scheme, proxy_string)
+        urlinfo = urlparse(proxy_url)
         ans = {
-            u'scheme': urlinfo.scheme,
-            u'hostname': urlinfo.hostname,
-            u'port': urlinfo.port,
-            u'username': urlinfo.username,
-            u'password': urlinfo.password,
+            'scheme': urlinfo.scheme,
+            'hostname': urlinfo.hostname,
+            'port': urlinfo.port,
+            'username': urlinfo.username,
+            'password': urlinfo.password,
         }
-    except:
+    except Exception:
         return None
     return ans
 
@@ -402,12 +358,16 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
 
+def is_mobile_ua(ua):
+    return 'Mobile/' in ua or 'Mobile ' in ua
+
+
 def random_user_agent(choose=None, allow_ie=True):
     from calibre.utils.random_ua import common_user_agents
     ua_list = common_user_agents()
-    ua_list = filter(lambda x: 'Mobile/' not in x, ua_list)
+    ua_list = [x for x in ua_list if not is_mobile_ua(x)]
     if not allow_ie:
-        ua_list = filter(lambda x: 'Trident/' not in x and 'Edge/' not in x, ua_list)
+        ua_list = [x for x in ua_list if 'Trident/' not in x and 'Edge/' not in x]
     return random.choice(ua_list) if choose is None else ua_list[choose]
 
 
@@ -452,13 +412,13 @@ def fit_image(width, height, pwidth, pheight):
     '''
     scaled = height > pheight or width > pwidth
     if height > pheight:
-        corrf = pheight/float(height)
+        corrf = pheight / float(height)
         width, height = floor(corrf*width), pheight
     if width > pwidth:
-        corrf = pwidth/float(width)
+        corrf = pwidth / float(width)
         width, height = pwidth, floor(corrf*height)
     if height > pheight:
-        corrf = pheight/float(height)
+        corrf = pheight / float(height)
         width, height = floor(corrf*width), pheight
 
     return scaled, int(width), int(height)
@@ -466,27 +426,19 @@ def fit_image(width, height, pwidth, pheight):
 
 class CurrentDir(object):
 
-    def __init__(self, path, workaround_temp_folder_permissions=False):
+    def __init__(self, path):
         self.path = path
         self.cwd = None
-        self.workaround_temp_folder_permissions = workaround_temp_folder_permissions
 
     def __enter__(self, *args):
-        self.cwd = os.getcwdu()
-        try:
-            os.chdir(self.path)
-        except OSError:
-            if not self.workaround_temp_folder_permissions:
-                raise
-            from calibre.ptempfile import reset_temp_folder_permissions
-            reset_temp_folder_permissions()
-            os.chdir(self.path)
+        self.cwd = os.getcwd()
+        os.chdir(self.path)
         return self.cwd
 
     def __exit__(self, *args):
         try:
             os.chdir(self.cwd)
-        except:
+        except EnvironmentError:
             # The previous CWD no longer exists
             pass
 
@@ -494,34 +446,33 @@ class CurrentDir(object):
 _ncpus = None
 
 
-def detect_ncpus():
-    """Detects the number of effective CPUs in the system"""
-    global _ncpus
-    if _ncpus is None:
-        if iswindows:
-            import win32api
-            ans = win32api.GetSystemInfo()[5]
-        else:
-            import multiprocessing
-            ans = -1
-            try:
-                ans = multiprocessing.cpu_count()
-            except Exception:
-                from PyQt5.Qt import QThread
-                ans = QThread.idealThreadCount()
-        _ncpus = max(1, ans)
-    return _ncpus
+if ispy3:
+    def detect_ncpus():
+        global _ncpus
+        if _ncpus is None:
+            _ncpus = max(1, os.cpu_count() or 1)
+        return _ncpus
+else:
+    def detect_ncpus():
+        """Detects the number of effective CPUs in the system"""
+        global _ncpus
+        if _ncpus is None:
+            if iswindows:
+                import win32api
+                ans = win32api.GetSystemInfo()[5]
+            else:
+                import multiprocessing
+                ans = -1
+                try:
+                    ans = multiprocessing.cpu_count()
+                except Exception:
+                    from PyQt5.Qt import QThread
+                    ans = QThread.idealThreadCount()
+            _ncpus = max(1, ans)
+        return _ncpus
 
 
 relpath = os.path.relpath
-_spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
-
-
-def english_sort(x, y):
-    '''
-    Comapare two english phrases ignoring starting prepositions.
-    '''
-    return cmp(_spat.sub('', x), _spat.sub('', y))
 
 
 def walk(dir):
@@ -535,7 +486,7 @@ def strftime(fmt, t=None):
     ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
     if not fmt:
-        return u''
+        return ''
     if t is None:
         t = time.localtime()
     if hasattr(t, 'timetuple'):
@@ -547,16 +498,19 @@ def strftime(fmt, t=None):
         t = list(t)
         orig_year = t[0]
         t[0] = replacement
+        t = time.struct_time(t)
     ans = None
     if iswindows:
         if isinstance(fmt, bytes):
             fmt = fmt.decode('mbcs', 'replace')
-        fmt = fmt.replace(u'%e', u'%#d')
+        fmt = fmt.replace('%e', '%#d')
         ans = plugins['winutil'][0].strftime(fmt, t)
     else:
-        ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+        ans = time.strftime(fmt, t)
+        if isinstance(ans, bytes):
+            ans = ans.decode(preferred_encoding, 'replace')
     if early_year:
-        ans = ans.replace(u'_early year hack##', unicode(orig_year))
+        ans = ans.replace('_early year hack##', unicode_type(orig_year))
     return ans
 
 
@@ -564,7 +518,7 @@ def my_unichr(num):
     try:
         return safe_chr(num)
     except (ValueError, OverflowError):
-        return u'?'
+        return '?'
 
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',
@@ -603,7 +557,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         if encoding is None or num > 255:
             return check(my_unichr(num))
         try:
-            return check(chr(num).decode(encoding))
+            return check(bytes(bytearray((num,))).decode(encoding))
         except UnicodeDecodeError:
             return check(my_unichr(num))
     from calibre.ebooks.html_entities import html5_entities
@@ -611,7 +565,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         return check(html5_entities[ent])
     except KeyError:
         pass
-    from htmlentitydefs import name2codepoint
+    from polyglot.html_entities import name2codepoint
     try:
         return check(my_unichr(name2codepoint[ent]))
     except KeyError:
@@ -668,11 +622,11 @@ def force_unicode(obj, enc=preferred_encoding):
 def as_unicode(obj, enc=preferred_encoding):
     if not isbytestring(obj):
         try:
-            obj = unicode(obj)
-        except:
+            obj = unicode_type(obj)
+        except Exception:
             try:
-                obj = str(obj)
-            except:
+                obj = native_string_type(obj)
+            except Exception:
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)
 
@@ -691,31 +645,12 @@ def human_readable(size, sep=' '):
         if size < (1 << ((i + 1) * 10)):
             divisor, suffix = (1 << (i * 10)), candidate
             break
-    size = str(float(size)/divisor)
+    size = unicode_type(float(size)/divisor)
     if size.find(".") > -1:
         size = size[:size.find(".")+2]
     if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix
-
-
-def remove_bracketed_text(src,
-        brackets={u'(':u')', u'[':u']', u'{':u'}'}):
-    from collections import Counter
-    counts = Counter()
-    buf = []
-    src = force_unicode(src)
-    rmap = dict([(v, k) for k, v in brackets.iteritems()])
-    for char in src:
-        if char in brackets:
-            counts[char] += 1
-        elif char in rmap:
-            idx = rmap[char]
-            if counts[idx] > 0:
-                counts[idx] -= 1
-        elif sum(counts.itervalues()) < 1:
-            buf.append(char)
-    return u''.join(buf)
 
 
 def ipython(user_ns=None):
@@ -726,3 +661,21 @@ def ipython(user_ns=None):
 def fsync(fileobj):
     fileobj.flush()
     os.fsync(fileobj.fileno())
+    if islinux and getattr(fileobj, 'name', None):
+        # On Linux kernels after 5.1.9 and 4.19.50 using fsync without any
+        # following activity causes Kindles to eject. Instead of fixing this in
+        # the obvious way, which is to have the kernel send some harmless
+        # filesystem activity after the FSYNC, the kernel developers seem to
+        # think the correct solution is to disable FSYNC using a mount flag
+        # which users will have to turn on manually. So instead we create some
+        # harmless filesystem activity, and who cares about performance.
+        # See https://bugs.launchpad.net/calibre/+bug/1834641
+        # and https://bugzilla.kernel.org/show_bug.cgi?id=203973
+        # To check for the existence of the bug, simply run:
+        # python -c "p = '/run/media/kovid/Kindle/driveinfo.calibre'; f = open(p, 'r+b'); os.fsync(f.fileno());"
+        # this will cause the Kindle to disconnect.
+        try:
+            os.utime(fileobj.name, None)
+        except Exception:
+            import traceback
+            traceback.print_exc()

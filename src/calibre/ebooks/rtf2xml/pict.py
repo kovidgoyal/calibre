@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,9 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from polyglot.builtins import unicode_type
+
+from . import open_for_read, open_for_write
 
 
 class Pict:
@@ -74,7 +78,7 @@ class Pict:
             try:
                 os.mkdir(self.__dir_name)
             except OSError as msg:
-                msg = "%sCouldn't make directory '%s':\n" % (str(msg), self.__dir_name)
+                msg = "%sCouldn't make directory '%s':\n" % (unicode_type(msg), self.__dir_name)
                 raise self.__bug_handler
         else:
             if self.__run_level > 1:
@@ -93,7 +97,7 @@ class Pict:
         """Create a file for all the pict data to be written to.
         """
         self.__pict_file = os.path.join(self.__dir_name, 'picts.rtf')
-        self.__write_pic_obj = open(self.__pict_file, 'a')
+        self.__write_pic_obj = open_for_write(self.__pict_file, append=True)
 
     def __in_pict_func(self, line):
         if self.__cb_count == self.__pict_br_count:
@@ -143,8 +147,8 @@ class Pict:
 
     def process_pict(self):
         self.__make_dir()
-        with open(self.__file) as read_obj:
-            with open(self.__write_to, 'w') as write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':

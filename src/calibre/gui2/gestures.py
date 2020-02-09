@@ -12,6 +12,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import iswindows
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import itervalues
 
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
@@ -91,14 +92,14 @@ class State(QObject):
         else:
             self.check_for_holds()
             if Flick in self.possible_gestures:
-                tp = next(self.touch_points.itervalues())
+                tp = next(itervalues(self.touch_points))
                 self.flicking.emit(tp, False)
 
     def check_for_holds(self):
         if not {TapAndHold} & self.possible_gestures:
             return
         now = monotonic()
-        tp = next(self.touch_points.itervalues())
+        tp = next(itervalues(self.touch_points))
         if now - tp.time_of_last_move < HOLD_THRESHOLD:
             return
         if self.hold_started:
@@ -116,20 +117,20 @@ class State(QObject):
 
     def finalize(self):
         if Tap in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             if tp.total_movement <= TAP_THRESHOLD:
                 self.tapped.emit(tp)
                 return
 
         if Flick in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             self.flicking.emit(tp, True)
 
         if not self.hold_started:
             return
 
         if TapAndHold in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             self.tap_hold_finished.emit(tp)
             return
 

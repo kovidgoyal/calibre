@@ -24,6 +24,7 @@ from calibre.srv.utils import RotatingLog
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
+from polyglot.builtins import error_message, unicode_type
 
 
 def daemonize():  # {{{
@@ -67,11 +68,14 @@ class Server(object):
             access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
         if opts.custom_list_template:
-            with lopen(opts.custom_list_template, 'rb') as f:
+            with lopen(os.path.expanduser(opts.custom_list_template), 'rb') as f:
                 self.handler.router.ctx.custom_list_template = json.load(f)
+        if opts.search_the_net_urls:
+            with lopen(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
+                self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
-            plugins.append(BonJour())
+            plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
         self.loop = ServerLoop(
             create_http_handler(self.handler.dispatch),
             opts=opts,
@@ -117,6 +121,14 @@ libraries that the main calibre program knows about will be used.
             ' Sharing over the net-> Book list template in calibre, create the'
             ' template and export it.'
     ))
+    parser.add_option(
+        '--search-the-net-urls', help=_(
+            'Path to a JSON file containing URLs for the "Search the internet" feature.'
+            ' The easiest way to create such a file is to go to Preferences->'
+            ' Sharing over the net->Search the internet in calibre, create the'
+            ' URLs and export them.'
+    ))
+
     if not iswindows and not isosx:
         # Does not work on macOS because if we fork() we cannot connect to Core
         # Serives which is needed by the QApplication() constructor, which in
@@ -160,7 +172,7 @@ option_parser = create_option_parser
 
 
 def ensure_single_instance():
-    if b'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
+    if 'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
         raise SystemExit(
             _(
@@ -172,6 +184,17 @@ def ensure_single_instance():
 
 def main(args=sys.argv):
     opts, args = create_option_parser().parse_args(args)
+    if opts.auto_reload and not opts.manage_users:
+        if getattr(opts, 'daemonize', False):
+            raise SystemExit(
+                'Cannot specify --auto-reload and --daemonize at the same time')
+        from calibre.srv.auto_reload import auto_reload, NoAutoReload
+        try:
+            from calibre.utils.logging import default_log
+            return auto_reload(default_log, listen_on=opts.listen_on)
+        except NoAutoReload as e:
+            raise SystemExit(error_message(e))
+
     ensure_single_instance()
     if opts.userdb:
         opts.userdb = os.path.abspath(os.path.expandvars(os.path.expanduser(opts.userdb)))
@@ -193,16 +216,6 @@ def main(args=sys.argv):
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries = [prefs['library_path']]
 
-    if opts.auto_reload:
-        if getattr(opts, 'daemonize', False):
-            raise SystemExit(
-                'Cannot specify --auto-reload and --daemonize at the same time')
-        from calibre.srv.auto_reload import auto_reload, NoAutoReload
-        try:
-            from calibre.utils.logging import default_log
-            return auto_reload(default_log, listen_on=opts.listen_on)
-        except NoAutoReload as e:
-            raise SystemExit(e.message)
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     if opts.log and os.path.isdir(opts.log):
@@ -218,7 +231,7 @@ def main(args=sys.argv):
         daemonize()
     if opts.pidfile:
         with lopen(opts.pidfile, 'wb') as f:
-            f.write(str(os.getpid()))
+            f.write(unicode_type(os.getpid()).encode('ascii'))
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:
         signal.signal(signal.SIGHUP, lambda s, f: server.stop())

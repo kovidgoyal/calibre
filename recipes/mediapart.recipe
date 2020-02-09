@@ -60,19 +60,19 @@ class Mediapart(BasicNewsRecipe):
             try:
                 title = article.find('h3', recursive=False)
 
-                if title is None or title['class'] == 'title-specific':
+                if title is None or ''.join(title['class']) == 'title-specific':
                     continue
 
                 # print "found fil ",title
                 article_type = article.find('a', {'href': re.compile(
-                    r'.*\/type-darticles\/.*')}).renderContents()
+                    r'.*\/type-darticles\/.*')}).renderContents().decode('utf-8')
                 # print "kind: ",article_type
 
                 for s in title('span'):
-                    s.replaceWith(s.renderContents() + "\n")
+                    s.replaceWith(s.renderContents().decode('utf-8') + "\n")
                 url = title.find('a', href=True)['href']
 
-                # article_date = self.parse_french_date(article.find("span", "article-date").renderContents())
+                # article_date = self.parse_french_date(article.find("span", "article-date").renderContents().decode('utf-8'))
                 # print("################################# 9")
                 # print(article_date)
 

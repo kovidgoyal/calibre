@@ -7,6 +7,12 @@ financialexpress.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class FE_India(BasicNewsRecipe):
     title = 'The Financial Express'
     __author__ = 'Darko Miletic'
@@ -16,29 +22,35 @@ class FE_India(BasicNewsRecipe):
     oldest_article = 30
     max_articles_per_feed = 200
     no_stylesheets = True
-    encoding = 'cp1252'
+    encoding = 'utf-8'
     use_embedded_content = False
     language = 'en_IN'
     remove_empty_feeds = True
-    masthead_url = 'http://static.expressindia.com/frontend/fe/images/fe_logo.jpg'
     publication_type = 'magazine'
-    extra_css = ' body{font-family: Arial,Helvetica,sans-serif } '
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(attrs={'class': 'txt'})]
+    keep_only_tags = [classes('post-title place-line leftstory')]
     remove_attributes = ['width', 'height']
 
-    feeds = [(u'Articles', u'http://www.expressindia.com/syndications/fe.xml')]
+    feeds = [
+        ('Latest news', 'https://www.financialexpress.com/feed/'),
+        ('Economy', 'https://www.financialexpress.com/economy/feed/'),
+        ('Industry', 'https://www.financialexpress.com/industry/feed/'),
+        ('Banking & finance', 'https://www.financialexpress.com/industry/banking-finance/feed/'),
+        ('Companies', 'https://www.financialexpress.com/industry/companies/feed/'),
+        ('Jobs', 'https://www.financialexpress.com/industry/jobs/feed/'),
+        ('Tech', 'https://www.financialexpress.com/industry/tech/feed/'),
+        ('Lifestyle', 'https://www.financialexpress.com/industry/lifestyle/feed/'),
+        ('Health', 'https://www.financialexpress.com/industry/health/feed/'),
+        ('Science', 'https://www.financialexpress.com/industry/science/feed/'),
+        ('Sports', 'https://www.financialexpress.com/industry/sports/feed/'),
+        ('Fe Columnist', 'https://www.financialexpress.com/industry/fe-columnist/feed/'),
+    ]
 
-    def print_version(self, url):
-        article_raw = url.rpartition('/')[0]
-        article_id = article_raw.rpartition('/')[2]
-        return 'http://www.financialexpress.com/printer/news/' + article_id + '/'
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll(attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup

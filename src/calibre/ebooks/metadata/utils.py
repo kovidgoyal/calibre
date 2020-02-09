@@ -2,20 +2,18 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from collections import namedtuple
-from polyglot.builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from lxml import etree
+from collections import namedtuple
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.spell import parse_lang_code
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import lang_as_iso639_1
-
-PARSER = etree.XMLParser(recover=True, no_network=True)
+from calibre.utils.xml_parse import safe_xml_fromstring
+from polyglot.builtins import filter, map
 
 OPFVersion = namedtuple('OPFVersion', 'major minor patch')
 
@@ -45,7 +43,7 @@ def parse_opf(stream_or_path):
         raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
     raw, encoding = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)
     raw = raw[raw.find('<'):]
-    root = etree.fromstring(raw, PARSER)
+    root = safe_xml_fromstring(clean_xml_chars(raw))
     if root is None:
         raise ValueError('Not an OPF file')
     return root

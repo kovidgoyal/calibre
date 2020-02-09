@@ -48,9 +48,11 @@ import re
 import email.utils
 import base64
 import hmac
-from email.base64mime import encode as encode_base64
+from email.base64mime import body_encode as encode_base64
 from sys import stderr
 from functools import partial
+
+from polyglot.builtins import unicode_type, string_or_bytes
 
 __all__ = ["SMTPException", "SMTPServerDisconnected", "SMTPResponseException",
            "SMTPSenderRefused", "SMTPRecipientsRefused", "SMTPDataError",
@@ -280,7 +282,7 @@ class SMTP:
             # if that can't be calculated, that we should use a domain literal
             # instead (essentially an encoded IP address like [A.B.C.D]).
             fqdn = socket.getfqdn()
-            if '.' in fqdn and fqdn != '.':  # Changed by Kovid
+            if '.' in fqdn:
                 self.local_hostname = fqdn
             else:
                 # We can't find an fqdn hostname, so use a domain literal
@@ -343,11 +345,6 @@ class SMTP:
         """Send `str' to the server."""
         if self.debuglevel > 0:
             raw = repr(str)
-            if self.debuglevel < 2:
-                if len(raw) > 100:
-                    raw = raw[:100] + '...'
-                if 'AUTH' in raw:
-                    raw = 'AUTH <censored>'
             self.debug('send:', raw)
         if hasattr(self, 'sock') and self.sock:
             try:
@@ -593,7 +590,7 @@ class SMTP:
 
         def encode_cram_md5(challenge, user, password):
             challenge = base64.decodestring(challenge)
-            if isinstance(password, unicode):  # Added by Kovid, see http://bugs.python.org/issue5285
+            if isinstance(password, unicode_type):  # Added by Kovid, see http://bugs.python.org/issue5285
                 password = password.encode('utf-8')
             response = user + " " + hmac.HMAC(password, challenge).hexdigest()
             return encode_base64(response, eol="")
@@ -764,7 +761,7 @@ class SMTP:
             self.rset()
             raise SMTPSenderRefused(code, resp, from_addr)
         senderrs = {}
-        if isinstance(to_addrs, basestring):
+        if isinstance(to_addrs, string_or_bytes):
             to_addrs = [to_addrs]
         for each in to_addrs:
             (code, resp) = self.rcpt(each, rcpt_options)
@@ -895,14 +892,14 @@ if __name__ == '__main__':
 
     fromaddr = prompt("From")
     toaddrs = prompt("To").split(',')
-    print ("Enter message, end with ^D:")
+    print("Enter message, end with ^D:")
     msg = ''
     while 1:
         line = sys.stdin.readline()
         if not line:
             break
         msg = msg + line
-    print ("Message length is %d" % len(msg))
+    print("Message length is %d" % len(msg))
 
     server = SMTP('localhost')
     server.set_debuglevel(1)

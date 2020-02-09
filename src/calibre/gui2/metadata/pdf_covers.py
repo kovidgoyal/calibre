@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -25,6 +24,7 @@ from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.progress_indicator import WaitLayout
+from polyglot.builtins import unicode_type
 
 
 class CoverDelegate(QStyledItemDelegate):
@@ -88,9 +88,9 @@ class PDFCovers(QDialog):
     @property
     def cover_path(self):
         for item in self.covers.selectedItems():
-            return unicode(item.data(Qt.UserRole) or '')
+            return unicode_type(item.data(Qt.UserRole) or '')
         if self.covers.count() > 0:
-            return unicode(self.covers.item(0).data(Qt.UserRole) or '')
+            return unicode_type(self.covers.item(0).data(Qt.UserRole) or '')
 
     def cleanup(self):
         try:
@@ -99,7 +99,7 @@ class PDFCovers(QDialog):
             pass
 
     def render(self):
-        self.current_tdir = os.path.join(self.tdir, str(self.first))
+        self.current_tdir = os.path.join(self.tdir, unicode_type(self.first))
         self.error = None
         try:
             os.mkdir(self.current_tdir)
@@ -152,5 +152,5 @@ if __name__ == '__main__':
     app = Application([])
     d = PDFCovers(sys.argv[-1])
     d.exec_()
-    print (d.cover_path)
+    print(d.cover_path)
     del app

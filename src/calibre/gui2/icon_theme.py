@@ -1,20 +1,15 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, httplib, bz2, shutil, sys
+import os, errno, json, importlib, math, bz2, shutil, sys
 from itertools import count
 from io import BytesIO
-from polyglot.builtins import map
-from Queue import Queue, Empty
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
-
-from polyglot.builtins import reraise
 
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
@@ -23,6 +18,10 @@ from PyQt5.Qt import (
     QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
     QStyle, QPen, QProgressDialog
 )
+try:
+    from PyQt5 import sip
+except ImportError:
+    import sip
 
 from calibre import walk, fit_image, human_readable, detect_ncpus as cpu_count
 from calibre.constants import cache_dir, config_dir
@@ -38,7 +37,10 @@ from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jpeg
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
-from lzma.xz import compress, decompress
+from calibre_lzma.xz import compress, decompress
+from polyglot.builtins import iteritems, map, range, reraise, filter, as_bytes, unicode_type
+from polyglot import http_client
+from polyglot.queue import Queue, Empty
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
@@ -191,7 +193,7 @@ def create_cover(report, icons=(), cols=5, size=120, padding=16):
 def verify_theme(report):
     must_use_qt()
     report.bad = bad = {}
-    for name, path in report.name_map.iteritems():
+    for name, path in iteritems(report.name_map):
         reader = QImageReader(os.path.join(report.path, path))
         img = reader.read()
         if img.isNull():
@@ -261,8 +263,11 @@ class ThemeCreateDialog(Dialog):
         }
 
     def save_metadata(self):
+        data = json.dumps(self.metadata, indent=2)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with open(os.path.join(self.report.path, THEME_METADATA), 'wb') as f:
-            json.dump(self.metadata, f, indent=2)
+            f.write(data)
 
     def refresh(self):
         self.save_metadata()
@@ -364,7 +369,7 @@ def create_themeball(report, progress=None, abort=None):
         except Exception:
             return sys.exc_info()
 
-    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map.iterkeys()))))
+    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map))))
     pool.close(), pool.join()
     if abort is not None and abort.is_set():
         return
@@ -441,7 +446,7 @@ def download_cover(cover_url, etag=None, cached=b''):
         etag = response.getheader('ETag', None) or None
         return cached, etag
     except HTTPError as e:
-        if etag and e.code == httplib.NOT_MODIFIED:
+        if etag and e.code == http_client.NOT_MODIFIED:
             return cached, etag
         raise
 
@@ -467,19 +472,26 @@ def get_cover(metadata):
                 raise
         return b''
     etag, cached = safe_read(etag_file), safe_read(cover_file)
+    etag = etag.decode('utf-8')
     cached, etag = download_cover(metadata['cover-url'], etag, cached)
     if cached:
-        with open(cover_file, 'wb') as f:
+        aname = cover_file + '.atomic'
+        with open(aname, 'wb') as f:
             f.write(cached)
+        atomic_rename(aname, cover_file)
     if etag:
         with open(etag_file, 'wb') as f:
-            f.write(etag)
+            f.write(as_bytes(etag))
     return cached or b''
 
 
-def get_covers(themes, callback, num_of_workers=8):
+def get_covers(themes, dialog, num_of_workers=8):
     items = Queue()
     tuple(map(items.put, themes))
+
+    def callback(metadata, x):
+        if not sip.isdeleted(dialog) and not dialog.dialog_closed:
+            dialog.cover_downloaded.emit(metadata, x)
 
     def run():
         while True:
@@ -496,7 +508,7 @@ def get_covers(themes, callback, num_of_workers=8):
             else:
                 callback(metadata, cdata)
 
-    for w in xrange(num_of_workers):
+    for w in range(num_of_workers):
         t = Thread(name='IconThemeCover', target=run)
         t.daemon = True
         t.start()
@@ -573,11 +585,16 @@ class ChooseTheme(Dialog):
         except Exception:
             self.current_theme = None
         Dialog.__init__(self, _('Choose an icon theme'), 'choose-icon-theme-dialog', parent)
+        self.finished.connect(self.on_finish)
+        self.dialog_closed = False
         self.themes_downloaded.connect(self.show_themes, type=Qt.QueuedConnection)
         self.cover_downloaded.connect(self.set_cover, type=Qt.QueuedConnection)
         self.keep_downloading = True
         self.commit_changes = None
         self.new_theme_title = None
+
+    def on_finish(self):
+        self.dialog_closed = True
 
     def sizeHint(self):
         desktop  = QApplication.instance().desktop()
@@ -607,7 +624,7 @@ class ChooseTheme(Dialog):
         w.l = l = QGridLayout(w)
 
         def add_row(x, y=None):
-            if isinstance(x, type('')):
+            if isinstance(x, unicode_type):
                 x = QLabel(x)
             row = l.rowCount()
             if y is None:
@@ -687,7 +704,8 @@ class ChooseTheme(Dialog):
             import traceback
             self.themes = traceback.format_exc()
         t.join()
-        self.themes_downloaded.emit()
+        if not sip.isdeleted(self):
+            self.themes_downloaded.emit()
 
     def show_themes(self):
         self.end_spinner()
@@ -700,10 +718,10 @@ class ChooseTheme(Dialog):
         for theme in self.themes:
             theme['usage'] = self.usage.get(theme['name'], 0)
         self.re_sort()
-        get_covers(self.themes, self.cover_downloaded.emit)
+        get_covers(self.themes, self)
 
     def __iter__(self):
-        for i in xrange(self.theme_list.count()):
+        for i in range(self.theme_list.count()):
             yield self.theme_list.item(i)
 
     def item_from_name(self, name):
@@ -734,7 +752,7 @@ class ChooseTheme(Dialog):
         Dialog.accept(self)
 
     def accept(self):
-        if self.theme_list.currentIndex() < 0:
+        if self.theme_list.currentRow() < 0:
             return error_dialog(self, _('No theme selected'), _(
                 'You must first select an icon theme'), show=True)
         theme = self.theme_list.currentItem().data(Qt.UserRole)
@@ -837,8 +855,7 @@ def install_icon_theme(theme, f):
             theme['files'].add(name)
 
     theme['files'] = tuple(theme['files'])
-    buf = BytesIO()
-    json.dump(theme, buf, indent=2)
+    buf = BytesIO(as_bytes(json.dumps(theme, indent=2)))
     buf.seek(0)
     safe_copy(buf, metadata_file)
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,10 +21,10 @@ if islinux:
     import ctypes
 
     class SOCKADDR_NL(ctypes.Structure):
-            _fields_ = [("nl_family", ctypes.c_ushort),
-                        ("nl_pad",    ctypes.c_ushort),
-                        ("nl_pid",    ctypes.c_int),
-                        ("nl_groups", ctypes.c_int)]
+        _fields_ = [("nl_family", ctypes.c_ushort),
+                    ("nl_pad",    ctypes.c_ushort),
+                    ("nl_pid",    ctypes.c_int),
+                    ("nl_groups", ctypes.c_int)]
 
     def getsockfamily(fd):
         addr = SOCKADDR_NL(0, 0, 0, 0)

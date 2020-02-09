@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +11,7 @@ from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
-from polyglot.builtins import zip
+from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
 
 import regex
 from PyQt5.Qt import (
@@ -29,6 +28,7 @@ from calibre.gui2.tweak_book.editor.text import PlainTextEdit, default_font_fami
 from calibre.gui2.tweak_book.editor.themes import theme_color, get_theme
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
 from calibre.gui2.tweak_book.diff.highlight import get_highlighter
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -48,14 +48,14 @@ def beautify_text(raw, syntax):
     from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
     from calibre.ebooks.chardet import strip_encoding_declarations
     if syntax == 'xml':
-        root = etree.fromstring(strip_encoding_declarations(raw))
+        root = safe_xml_fromstring(strip_encoding_declarations(raw))
         pretty_xml_tree(root)
     elif syntax == 'css':
         import logging
         from calibre.ebooks.oeb.base import serialize, _css_logger
-        from calibre.ebooks.oeb.polish.utils import setup_cssutils_serialization
-        from cssutils import CSSParser, log
-        setup_cssutils_serialization(tprefs['editor_tab_stop_width'])
+        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
+        from css_parser import CSSParser, log
+        setup_css_parser_serialization(tprefs['editor_tab_stop_width'])
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
         parser = CSSParser(loglevel=logging.WARNING,
@@ -66,7 +66,7 @@ def beautify_text(raw, syntax):
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
-    return etree.tostring(root, encoding=unicode)
+    return etree.tostring(root, encoding='unicode')
 
 
 class LineNumberMap(dict):  # {{{
@@ -79,7 +79,7 @@ class LineNumberMap(dict):  # {{{
         return self
 
     def __setitem__(self, k, v):
-        v = unicode(v)
+        v = unicode_type(v)
         dict.__setitem__(self, k, v)
         self.max_width = max(self.max_width, len(v))
 
@@ -160,13 +160,13 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.number_width = max(map(lambda x:w.width(unicode_type(x)), range(10)))
         self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction
-        i = unicode(self.textCursor().selectedText()).rstrip('\0')
+        i = unicode_type(self.textCursor().selectedText()).rstrip('\0')
         if i:
             a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.Copy)
 
@@ -215,7 +215,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         headers = dict(self.headers)
         if lnum in headers:
             cpos = self.search_header_pos
-        lines = unicode(self.toPlainText()).splitlines()
+        lines = unicode_type(self.toPlainText()).splitlines()
         for hn, text in self.headers:
             lines[hn] = text
         prefix, postfix = lines[lnum][:cpos], lines[lnum][cpos:]
@@ -306,7 +306,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         while block.isValid() and top <= ev.rect().bottom():
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
-                text = unicode(self.line_number_map.get(num, ''))
+                text = unicode_type(self.line_number_map.get(num, ''))
                 is_start = text != '-' and num in change_starts
                 if is_start:
                     painter.save()
@@ -529,7 +529,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False):
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
-        is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
+        is_text = isinstance(left_text, unicode_type) and isinstance(right_text, unicode_type)
         left_name = left_name or '[%s]'%_('This file was added')
         right_name = right_name or '[%s]'%_('This file was removed')
         self.left.headers.append((self.left.blockCount() - 1, left_name))
@@ -589,7 +589,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_image_diff(self, left_data, right_data):
         def load(data):
             p = QPixmap()
-            p.loadFromData(bytes(data))
+            p.loadFromData(as_bytes(data))
             try:
                 dpr = self.devicePixelRatioF()
             except AttributeError:
@@ -612,7 +612,7 @@ class DiffSplit(QSplitter):  # {{{
             if size > 0:
                 c.beginEditBlock()
                 c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
-                for i in xrange(lines + 1):
+                for i in range(lines + 1):
                     c.insertBlock()
             change.extend((start, c.block().blockNumber()))
             c.insertBlock()
@@ -640,7 +640,7 @@ class DiffSplit(QSplitter):  # {{{
                 c.beginEditBlock()
                 c.movePosition(c.StartOfBlock)
                 if delta > 0:
-                    for _ in xrange(delta):
+                    for _ in range(delta):
                         c.insertBlock()
                 else:
                     c.movePosition(c.NextBlock, c.KeepAnchor, -delta)
@@ -652,12 +652,12 @@ class DiffSplit(QSplitter):  # {{{
                     return x if x <= top else x + delta
                 lnm = LineNumberMap()
                 lnm.max_width = v.line_number_map.max_width
-                for x, val in v.line_number_map.iteritems():
+                for x, val in iteritems(v.line_number_map):
                     dict.__setitem__(lnm, mapnum(x), val)
                 v.line_number_map = lnm
                 v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
-                v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
+                v.images = OrderedDict((mapnum(x), v) for x, v in iteritems(v.images))
             v.viewport().update()
 
     def get_lines_for_image(self, img, view):
@@ -747,7 +747,7 @@ class DiffSplit(QSplitter):  # {{{
     def do_insert(self, cursor, highlighter, line_number_map, lo, hi):
         start_block = cursor.block()
         highlighter.copy_lines(lo, hi, cursor)
-        for num, i in enumerate(xrange(start_block.blockNumber(), cursor.blockNumber())):
+        for num, i in enumerate(range(start_block.blockNumber(), cursor.blockNumber())):
             line_number_map[i] = lo + num + 1
         return start_block.blockNumber(), cursor.block().blockNumber()
 
@@ -806,10 +806,10 @@ class DiffSplit(QSplitter):  # {{{
         # search for the pair that matches best without being identical
         # (identical lines must be junk lines, & we don't want to synch up
         # on junk -- unless we have to)
-        for j in xrange(blo, bhi):
+        for j in range(blo, bhi):
             bj = b[j]
             cruncher.set_seq2(bj)
-            for i in xrange(alo, ahi):
+            for i in range(alo, ahi):
                 ai = a[i]
                 if ai == bj:
                     if eqi is None:

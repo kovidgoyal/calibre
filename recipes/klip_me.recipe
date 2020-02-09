@@ -47,7 +47,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('table', attrs={'class': ['item', 'item new']}):
                 atag = item.a
-                if atag and atag.has_key('href'):  # noqa
+                if atag and atag.get('href') is not None:
                     url = atag['href']
                     articles.append({
                         'url': url

@@ -1,38 +1,53 @@
 #!/usr/bin/env  python2
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, functools
-from urlparse import urlparse
-from urllib import unquote
 from collections import Counter
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.cleantext import clean_xml_chars
+from polyglot.builtins import unicode_type, getcwd
+from polyglot.urllib import unquote, urlparse
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
 CALIBRE_NS = "http://calibre.kovidgoyal.net/2009/metadata"
-NSMAP = {
-            None: NCX_NS,
-            'calibre':CALIBRE_NS
-            }
-
-
+NSMAP = {None: NCX_NS, 'calibre':CALIBRE_NS}
 E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
-
 C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
+
+
+def parse_html_toc(data):
+    from html5_parser import parse
+    from calibre.utils.cleantext import clean_xml_chars
+    from lxml import etree
+    if isinstance(data, bytes):
+        data = xml_to_unicode(data, strip_encoding_pats=True, resolve_entities=True)[0]
+    root = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
+    for a in root.xpath('//*[@href and local-name()="a"]'):
+        purl = urlparse(unquote(a.get('href')))
+        href, fragment = purl[2], purl[5]
+        if not fragment:
+            fragment = None
+        else:
+            fragment = fragment.strip()
+        href = href.strip()
+
+        txt = etree.tostring(a, method='text', encoding='unicode')
+        yield href, fragment, txt
 
 
 class TOC(list):
 
     def __init__(self, href=None, fragment=None, text=None, parent=None,
-            play_order=0, base_path=os.getcwdu(), type='unknown', author=None,
+            play_order=0, base_path=getcwd(), type='unknown', author=None,
             description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment
@@ -50,7 +65,7 @@ class TOC(list):
     def __str__(self):
         lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
         for child in self:
-            c = str(child).splitlines()
+            c = unicode_type(child).splitlines()
             for l in c:
                 lines.append('\t'+l)
         return '\n'.join(lines)
@@ -103,19 +118,16 @@ class TOC(list):
             for i in obj.flat():
                 yield i
 
-    @dynamic_property
+    @property
     def abspath(self):
-        doc='Return the file this toc entry points to as a absolute path to a file on the system.'
+        'Return the file this toc entry points to as a absolute path to a file on the system.'
 
-        def fget(self):
-            if self.href is None:
-                return None
-            path = self.href.replace('/', os.sep)
-            if not os.path.isabs(path):
-                path = os.path.join(self.base_path, path)
-            return path
-
-        return property(fget=fget, doc=doc)
+        if self.href is None:
+            return None
+        path = self.href.replace('/', os.sep)
+        if not os.path.isabs(path):
+            path = os.path.join(self.base_path, path)
+        return path
 
     def read_from_opf(self, opfreader):
         toc = opfreader.soup.find('spine', toc=True)
@@ -163,10 +175,10 @@ class TOC(list):
     def read_ncx_toc(self, toc, root=None):
         self.base_path = os.path.dirname(toc)
         if root is None:
-            raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
-                    strip_encoding_pats=True)[0]
-            root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
-                no_network=True))
+            with open(toc, 'rb') as f:
+                raw  = xml_to_unicode(f.read(), assume_utf8=True,
+                        strip_encoding_pats=True)[0]
+            root = safe_xml_fromstring(raw)
         xpn = {'re': 'http://exslt.org/regular-expressions'}
         XPath = functools.partial(etree.XPath, namespaces=xpn)
 
@@ -191,10 +203,10 @@ class TOC(list):
             nl = nl_path(np)
             if nl:
                 nl = nl[0]
-                text = u''
+                text = ''
                 for txt in txt_path(nl):
                     text += etree.tostring(txt, method='text',
-                            encoding=unicode, with_tail=False)
+                            encoding='unicode', with_tail=False)
                 content = content_path(np)
                 if content and text:
                     content = content[0]
@@ -217,19 +229,9 @@ class TOC(list):
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        for a in soup.findAll('a'):
-            if not a.has_key('href'):  # noqa
-                continue
-            purl = urlparse(unquote(a['href']))
-            href, fragment = purl[2], purl[5]
-            if not fragment:
-                fragment = None
-            else:
-                fragment = fragment.strip()
-            href = href.strip()
-
-            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+        with lopen(toc, 'rb') as f:
+            parsed_toc = parse_html_toc(f.read())
+        for href, fragment, txt in parsed_toc:
             add = True
             for i in self.flat():
                 if i.href == href and i.fragment == fragment:
@@ -241,8 +243,8 @@ class TOC(list):
     def render(self, stream, uid):
         root = E.ncx(
                 E.head(
-                    E.meta(name='dtb:uid', content=str(uid)),
-                    E.meta(name='dtb:depth', content=str(self.depth())),
+                    E.meta(name='dtb:uid', content=unicode_type(uid)),
+                    E.meta(name='dtb:depth', content=unicode_type(self.depth())),
                     E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
                         __version__)),
                     E.meta(name='dtb:totalPageCount', content='0'),
@@ -264,10 +266,10 @@ class TOC(list):
             text = clean_xml_chars(text)
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
-                    E.content(src=unicode(np.href)+(('#' + unicode(np.fragment))
+                    E.content(src=unicode_type(np.href)+(('#' + unicode_type(np.fragment))
                         if np.fragment else '')),
                     id=item_id,
-                    playOrder=str(np.play_order)
+                    playOrder=unicode_type(np.play_order)
             )
             au = getattr(np, 'author', None)
             if au:

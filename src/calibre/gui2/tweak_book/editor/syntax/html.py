@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,7 +11,7 @@ from collections import namedtuple
 
 from PyQt5.Qt import QFont, QTextBlockUserData, QTextCharFormat
 
-from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
+from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags, patterns
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
@@ -22,6 +21,7 @@ from calibre.gui2.tweak_book.editor import (
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
+from polyglot.builtins import iteritems
 
 cdata_tags = frozenset(['title', 'textarea', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'noscript'])
 normal_pat = re.compile(r'[^<>&]+')
@@ -64,111 +64,32 @@ def refresh_spell_check_status():
 
 from calibre.constants import plugins
 
-_speedup = plugins['html'][0]
-if _speedup is not None:
-    Tag = _speedup.Tag
-    bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
-    State = _speedup.State
-
-    def spell_property(sfmt, locale):
-        s = QTextCharFormat(sfmt)
-        s.setProperty(SPELL_LOCALE_PROPERTY, locale)
-        return s
-    _speedup.init(spell_property, dictionaries.recognized, split_into_words_and_positions)
-    del spell_property
-    check_spelling = _speedup.check_spelling
-else:
-    bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
-    italic_tags = {'i', 'em'}
-
-    class Tag(object):
-
-        __slots__ = ('name', 'bold', 'italic', 'lang')
-
-        def __init__(self, name, bold=None, italic=None, lang=None):
-            self.name = name
-            self.bold = name in bold_tags if bold is None else bold
-            self.italic = name in italic_tags if italic is None else italic
-            self.lang = lang
-
-        def __eq__(self, other):
-            try:
-                return self.name == other.name and self.lang == other.lang
-            except AttributeError:
-                return False
-
-        def copy(self):
-            ans = Tag(self.name, self.bold, self.italic, self.lang)
-            return ans
-
-    class State(object):
-
-        __slots__ = (
-            'tag_being_defined', 'tags', 'is_bold', 'is_italic', 'current_lang',
-            'parse', 'css_formats', 'sub_parser_state', 'default_lang', 'attribute_name',)
-
-        def __init__(self, tags=None):
-            self.tags = []
-            self.is_bold = self.is_italic = False
-            self.tag_being_defined = self.current_lang =  self.css_formats = \
-                self.sub_parser_state = self.default_lang = self.attribute_name = None
-            self.parse = NORMAL
-
-        def copy(self):
-            ans = State()
-            for x in self.__slots__:
-                setattr(ans, x, getattr(self, x))
-            self.tags = [x.copy() for x in self.tags]
-            if self.tag_being_defined is not None:
-                self.tag_being_defined = self.tag_being_defined.copy()
-            if self.sub_parser_state is not None:
-                ans.sub_parser_state = self.sub_parser_state.copy()
-            return ans
-
-        def __eq__(self, other):
-            try:
-                return (
-                    self.parse == other.parse and
-                    self.sub_parser_state == other.sub_parser_state and
-                    self.tag_being_defined == other.tag_being_defined and
-                    self.attribute_name == other.attribute_name and
-                    self.tags == other.tags
-                )
-            except AttributeError:
-                return False
-
-        def __ne__(self, other):
-            return not self.__eq__(other)
-
-        def __repr__(self):
-            return '<State %s is_bold=%s is_italic=%s current_lang=%s>' % (
-                '->'.join(x.name for x in self.tags), self.is_bold, self.is_italic, self.current_lang)
-        __str__ = __repr__
-
-    def check_spelling(text, tlen, fmt, locale, sfmt, store_locale):
-        split_ans = []
-        ppos = 0
-        r, a = dictionaries.recognized, split_ans.append
-        for start, length in split_into_words_and_positions(text, lang=locale.langcode):
-            if start > ppos:
-                a((start - ppos, fmt))
-            ppos = start + length
-            recognized = r(text[start:ppos], locale)
-            if recognized:
-                a((length, fmt))
-            else:
-                if store_locale:
-                    s = QTextCharFormat(sfmt)
-                    s.setProperty(SPELL_LOCALE_PROPERTY, locale)
-                    a((length, s))
-                else:
-                    a((length, sfmt))
-        if ppos < tlen:
-            a((tlen - ppos, fmt))
-        return split_ans
+_speedup = plugins['html_syntax_highlighter'][0]
+Tag = _speedup.Tag
+bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
+State = _speedup.State
 
 
-del _speedup
+def spell_property(sfmt, locale):
+    s = QTextCharFormat(sfmt)
+    s.setProperty(SPELL_LOCALE_PROPERTY, locale)
+    return s
+
+
+def sanitizing_recognizer():
+    sanitize = patterns().sanitize_invisible_pat.sub
+    r = dictionaries.recognized
+
+    def recognized(word, locale=None):
+        word = sanitize('', word).strip()
+        return r(word, locale)
+
+    return recognized
+
+
+_speedup.init(spell_property, sanitizing_recognizer(), split_into_words_and_positions)
+del spell_property
+check_spelling = _speedup.check_spelling
 
 
 def finish_opening_tag(state, cdata_tags):
@@ -544,7 +465,7 @@ def create_formats(highlighter, add_css=True):
         'nbsp': t['SpecialCharacter'],
         'spell': t['SpellError'],
     }
-    for name, msg in {
+    for name, msg in iteritems({
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
             '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
             '>': _('An unescaped > is not allowed. Replace it with &gt;'),
@@ -553,7 +474,7 @@ def create_formats(highlighter, add_css=True):
             'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
             'no-attr-value': _('Expecting an attribute value'),
             'only-prefix': _('A tag name cannot end with a colon'),
-    }.iteritems():
+    }):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     f = formats['title'] = syntax_text_char_format()
@@ -606,7 +527,8 @@ def profile():
     from calibre.gui2.tweak_book.editor.themes import get_theme
     app = Application([])
     set_book_locale('en')
-    raw = open(sys.argv[-2], 'rb').read().decode('utf-8')
+    with open(sys.argv[-2], 'rb') as f:
+        raw = f.read().decode('utf-8')
     doc = QTextDocument()
     doc.setPlainText(raw)
     h = Highlighter()

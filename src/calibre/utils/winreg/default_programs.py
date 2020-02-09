@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,8 +12,9 @@ from threading import Thread
 import winerror
 
 from calibre import guess_type, prints
-from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
+from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG, plugins
 from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
+from polyglot.builtins import iteritems, itervalues
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
@@ -73,7 +73,7 @@ def check_allowed():
         raise NotAllowed('Not allowed to create associations for portable installs')
     if sys.getwindowsversion()[:2] < (6, 2):
         raise NotAllowed('Not allowed to create associations for windows versions older than Windows 8')
-    if b'CALIBRE_NO_DEFAULT_PROGRAMS' in os.environ:
+    if 'CALIBRE_NO_DEFAULT_PROGRAMS' in os.environ:
         raise NotAllowed('Disabled by the CALIBRE_NO_DEFAULT_PROGRAMS environment variable')
 
 
@@ -85,7 +85,10 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set('PerceivedType', 'Document')
         key.set(sub_key='DefaultIcon', value=exe+',0')
         key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
-        key.set('AllowSilentDefaultTakeOver')
+        # contrary to the msdn docs, this key prevents calibre programs
+        # from appearing in the initial open with list, see
+        # https://www.mobileread.com/forums/showthread.php?t=313668
+        # key.set('AllowSilentDefaultTakeOver')
 
     with Key(r'Software\Classes\.%s\OpenWithProgIDs' % ext) as key:
         key.set(prog_id)
@@ -102,48 +105,48 @@ def cap_path(data):
 def register():
     base = os.path.dirname(sys.executable)
 
-    for program, data in default_programs().iteritems():
+    for program, data in iteritems(default_programs()):
         data = data.copy()
         exe = os.path.join(base, program)
         capabilities_path = cap_path(data)
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in ext_map.iteritems() if mt}
+        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
 
         with Key(capabilities_path) as key:
-            for k, v in {'ApplicationDescription':'description', 'ApplicationName':'name'}.iteritems():
+            for k, v in iteritems({'ApplicationDescription':'description', 'ApplicationName':'name'}):
                 key.set(k, data[v])
             key.set('ApplicationIcon', '%s,0' % exe)
             key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
 
             with Key('FileAssociations', root=key) as fak, Key('MimeAssociations', root=key) as mak:
-                # previous_associations = set(fak.itervalues())
-                for ext, prog_id in prog_id_map.iteritems():
+                # previous_associations = set(fak.values())
+                for ext, prog_id in iteritems(prog_id_map):
                     mt = ext_map[ext]
                     fak.set('.' + ext, prog_id)
                     mak.set(mt, prog_id)
-        for ext, prog_id in prog_id_map.iteritems():
+        for ext, prog_id in iteritems(prog_id_map):
             create_prog_id(ext, prog_id, ext_map, exe)
 
         with Key(r'Software\RegisteredApplications') as key:
             key.set(data['name'], capabilities_path)
 
-    from win32com.shell import shell, shellcon
-    shell.SHChangeNotify(shellcon.SHCNE_ASSOCCHANGED, shellcon.SHCNF_DWORD | shellcon.SHCNF_FLUSH, 0, 0)
+    winutil = plugins['winutil'][0]
+    winutil.notify_associations_changed()
 
 
 def unregister():
-    for program, data in default_programs().iteritems():
+    for program, data in iteritems(default_programs()):
         capabilities_path = cap_path(data).rpartition('\\')[0]
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in ext_map.iteritems() if mt}
+        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
         with Key(r'Software\RegisteredApplications') as key:
             key.delete_value(data['name'])
         parent, sk = capabilities_path.rpartition('\\')[0::2]
         with Key(parent) as key:
             key.delete_tree(sk)
-        for ext, prog_id in prog_id_map.iteritems():
+        for ext, prog_id in iteritems(prog_id_map):
             with Key(r'Software\Classes\.%s\OpenWithProgIDs' % ext) as key:
                 key.delete_value(prog_id)
             with Key(r'Software\Classes') as key:
@@ -203,7 +206,7 @@ def get_prog_id_map(base, key_path):
         desc = k.get_mui_string('ApplicationDescription')
         if desc is None:
             return desc, ans
-        for ext, prog_id in k.itervalues(sub_key='FileAssociations', get_data=True):
+        for ext, prog_id in k.values(sub_key='FileAssociations', get_data=True):
             ans[ext[1:].lower()] = prog_id
     return desc, ans
 
@@ -247,10 +250,7 @@ def split_commandline(commandline):
 
 def friendly_app_name(prog_id=None, exe=None):
     try:
-        from win32com.shell import shell, shellcon
-        a = shell.AssocCreate()
-        a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or prog_id)
-        return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
+        return plugins['winutil'][0].friendly_name(prog_id, exe)
     except Exception:
         import traceback
         traceback.print_exc()
@@ -271,7 +271,7 @@ def find_programs(extensions):
                 continue
             raise
         with k:
-            for name, key_path in k.itervalues(get_data=True):
+            for name, key_path in k.values(get_data=True):
                 try:
                     app_desc, prog_id_map = get_prog_id_map(base, key_path)
                 except Exception:
@@ -295,7 +295,7 @@ def find_programs(extensions):
         except WindowsError as err:
             if err.errno == winerror.ERROR_FILE_NOT_FOUND:
                 continue
-        for prog_id in k.itervalues():
+        for prog_id in itervalues(k):
             if prog_id and prog_id not in seen_prog_ids:
                 seen_prog_ids.add(prog_id)
                 cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)

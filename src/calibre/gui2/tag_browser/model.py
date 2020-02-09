@@ -1,14 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-from polyglot.builtins import map
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy, os
+import traceback, copy, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
@@ -18,11 +16,14 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
-from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, lower, strcmp, collation_order
+from calibre.utils.config import tweaks, prefs
+from calibre.utils.icu import sort_key, lower, strcmp, collation_order, primary_strcmp, primary_contains, contains
 from calibre.library.field_metadata import category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.serialize import json_dumps, json_loads
+from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
+
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -191,7 +192,7 @@ class TagTreeItem(object):  # {{{
             else:
                 name = tag.name
         if role == Qt.DisplayRole:
-            return unicode(name)
+            return unicode_type(name)
         if role == Qt.EditRole:
             return (tag.original_name)
         if role == Qt.DecorationRole:
@@ -304,7 +305,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.node_map = {}
         self.category_nodes = []
         self.category_custom_icons = {}
-        for k, v in self.prefs['tags_browser_category_icons'].iteritems():
+        for k, v in iteritems(self.prefs['tags_browser_category_icons']):
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
@@ -372,7 +373,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def rebuild_node_tree(self, state_map={}):
         if self._build_in_progress:
-            print ('Tag browser build already in progress')
+            print('Tag browser build already in progress')
             traceback.print_stack()
             return
         # traceback.print_stack()
@@ -384,7 +385,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
-        for node in self.node_map.itervalues():
+        for node in itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
@@ -423,8 +424,8 @@ class TagsModel(QAbstractItemModel):  # {{{
 
             if self.category_custom_icons.get(key, None) is None:
                 self.category_custom_icons[key] = QIcon(I(
-                    category_icon_map['gst'] if is_gst else
-                    category_icon_map.get(key, category_icon_map['custom:'])))
+                    category_icon_map['gst'] if is_gst else category_icon_map.get(
+                        key, (category_icon_map['user:'] if key.startswith('@') else category_icon_map['custom:']))))
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]
@@ -472,7 +473,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         intermediate_nodes = {}
 
         if data is None:
-            print ('_create_node_tree: no data!')
+            print('_create_node_tree: no data!')
             traceback.print_stack()
             return
 
@@ -739,13 +740,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                 data.append(d)
             else:
                 data.append(None)
-        raw = bytearray(cPickle.dumps(data, -1))
+        raw = bytearray(json_dumps(data))
         ans = QMimeData()
         ans.setData('application/calibre+from_tag_browser', raw)
         return ans
 
     def dropMimeData(self, md, action, row, column, parent):
-        fmts = {unicode(x) for x in md.formats()}
+        fmts = {unicode_type(x) for x in md.formats()}
         if not fmts.intersection(set(self.mimeTypes())):
             return False
         if "application/calibre+from_library" in fmts:
@@ -763,8 +764,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             return False
         if not md.hasFormat('application/calibre+from_tag_browser'):
             return False
-        data = str(md.data('application/calibre+from_tag_browser'))
-        src = cPickle.loads(data)
+        data = bytes(md.data('application/calibre+from_tag_browser'))
+        src = json_loads(data)
         for s in src:
             if s[0] != TagTreeItem.TAG:
                 return False
@@ -856,7 +857,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                                    fm['datatype'] == 'composite' and
                                                    fm['display'].get('make_category', False)))):
                     mime = 'application/calibre+from_library'
-                    ids = list(map(int, str(md.data(mime)).split()))
+                    ids = list(map(int, md.data(mime).data().split()))
                     self.handle_drop(node, ids)
                     return True
             elif node.type == TagTreeItem.CATEGORY:
@@ -870,7 +871,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                              (fm_src['datatype'] == 'composite' and
                               fm_src['display'].get('make_category', False))):
                         mime = 'application/calibre+from_library'
-                        ids = list(map(int, str(md.data(mime)).split()))
+                        ids = list(map(int, md.data(mime).data().split()))
                         self.handle_user_category_drop(node, ids, md.column_name)
                         return True
         return False
@@ -1009,7 +1010,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if not isinstance(order, dict):
                 raise TypeError()
         except:
-            print ('Tweak tag_browser_category_order is not valid. Ignored')
+            print('Tweak tag_browser_category_order is not valid. Ignored')
             order = {'*': 100}
         defvalue = order.get('*', 100)
         self.row_map = sorted(self.categories, key=lambda x: order.get(x, defvalue))
@@ -1029,7 +1030,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         Here to trap usages of refresh in the old architecture. Can eventually
         be removed.
         '''
-        print ('TagsModel: refresh called!')
+        print('TagsModel: refresh called!')
         traceback.print_stack()
         return False
 
@@ -1071,7 +1072,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         # set up to reposition at the same item. We can do this except if
         # working with the last item and that item is deleted, in which case
         # we position at the parent label
-        val = unicode(value or '').strip()
+        val = unicode_type(value or '').strip()
         if not val:
             error_dialog(self.gui_parent, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
@@ -1099,7 +1100,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.use_position_based_index_on_next_recount = True
                 return True
 
-            for c in sorted(user_cats.keys(), key=sort_key):
+            for c in sorted(list(user_cats.keys()), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
@@ -1138,7 +1139,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             self.use_position_based_index_on_next_recount = True
-            self.db.saved_search_rename(unicode(item.data(role) or ''), val)
+            self.db.saved_search_rename(unicode_type(item.data(role) or ''), val)
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
@@ -1460,6 +1461,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.path_found = None
         if start_path is None:
             start_path = []
+        if prefs['use_primary_find_in_search']:
+            final_strcmp = primary_strcmp
+            final_contains = primary_contains
+        else:
+            final_strcmp = strcmp
+            final_contains = contains
 
         def process_tag(depth, tag_index, tag_item, start_path):
             path = self.path_for_index(tag_index)
@@ -1469,8 +1476,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             if tag is None:
                 return False
             name = tag.original_name
-            if (equals_match and strcmp(name, txt) == 0) or \
-                    (not equals_match and lower(name).find(txt) >= 0):
+            if (equals_match and final_strcmp(name, txt) == 0) or \
+                    (not equals_match and final_contains(txt, name)):
                 self.path_found = path
                 return True
             for i,c in enumerate(tag_item.children):
@@ -1486,7 +1493,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if path[depth] > start_path[depth]:
                     start_path = path
             my_key = self.get_node(category_index).category_key
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.type == TagTreeItem.CATEGORY:
@@ -1497,7 +1504,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         return True
             return False
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             if process_level(0, self.index(i, 0, QModelIndex()), start_path):
                 break
         return self.path_found
@@ -1511,7 +1518,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not key:
             return None
 
-        for i in xrange(self.rowCount(parent)):
+        for i in range(self.rowCount(parent)):
             idx = self.index(i, 0, parent)
             node = self.get_node(idx)
             if node.type == TagTreeItem.CATEGORY:
@@ -1541,7 +1548,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 process_tag(self.index(i, 0, tag_index), c)
 
         def process_level(category_index):
-            for j in xrange(self.rowCount(category_index)):
+            for j in range(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = self.get_node(tag_index)
                 if tag_item.boxed:
@@ -1552,7 +1559,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 else:
                     process_tag(tag_index, tag_item)
 
-        for i in xrange(self.rowCount(QModelIndex())):
+        for i in range(self.rowCount(QModelIndex())):
             process_level(self.index(i, 0, QModelIndex()))
 
     # }}}

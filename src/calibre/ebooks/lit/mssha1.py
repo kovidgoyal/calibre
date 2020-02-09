@@ -1,14 +1,15 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 """
 Modified version of SHA-1 used in Microsoft LIT files.
 
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
-from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import struct, copy
+from polyglot.builtins import range, long_type
 
 # ======================================================================
 # Bit-Manipulation helpers
@@ -27,44 +28,36 @@ def _long2bytesBigEndian(n, blocksize=0):
     """
 
     # After much testing, this algorithm was deemed to be the fastest.
-    s = ''
+    s = b''
     pack = struct.pack
     while n > 0:
         s = pack('>I', n & 0xffffffff) + s
         n = n >> 32
 
     # Strip off leading zeros.
-    for i in range(len(s)):
-        if s[i] != '\000':
-            break
-    else:
-        # Only happens when n == 0.
-        s = '\000'
-        i = 0
-
-    s = s[i:]
+    s = s.lstrip(b'\0')
 
     # Add back some pad bytes. This could be done more efficiently
     # w.r.t. the de-padding being done above, but sigh...
     if blocksize > 0 and len(s) % blocksize:
-        s = (blocksize - len(s) % blocksize) * '\000' + s
+        s = (blocksize - len(s) % blocksize) * b'\000' + s
 
     return s
 
 
-def _bytelist2longBigEndian(list):
+def _bytelist2longBigEndian(blist):
     "Transform a list of characters into a list of longs."
 
-    imax = len(list)/4
+    imax = len(blist)//4
     hl = [0] * imax
 
     j = 0
     i = 0
     while i < imax:
-        b0 = long(ord(list[j])) << 24
-        b1 = long(ord(list[j+1])) << 16
-        b2 = long(ord(list[j+2])) << 8
-        b3 = long(ord(list[j+3]))
+        b0 = long_type(blist[j]) << 24
+        b1 = long_type(blist[j+1]) << 16
+        b2 = long_type(blist[j+2]) << 8
+        b3 = long_type(blist[j+3])
         hl[i] = b0 | b1 | b2 | b3
         i = i+1
         j = j+4
@@ -139,7 +132,7 @@ class mssha1(object):
         self.count = [0, 0]
 
         # Initial empty message as a sequence of bytes (8 bit characters).
-        self.input = []
+        self.input = bytearray()
 
         # Call a separate init function, that can be used repeatedly
         # to start from scratch on the same object.
@@ -170,8 +163,8 @@ class mssha1(object):
         D = self.H3
         E = self.H4
 
-        for t in xrange(0, 80):
-            TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t/20]
+        for t in range(0, 80):
+            TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t//20]
             E = D
             D = C
             C = _rotateLeft(B, 30) & 0xffffffff
@@ -203,7 +196,8 @@ class mssha1(object):
         to the hashed string.
         """
 
-        leninBuf = long(len(inBuf))
+        inBuf = bytearray(inBuf)
+        leninBuf = long_type(len(inBuf))
 
         # Compute number of bytes mod 64.
         index = (self.count[1] >> 3) & 0x3F
@@ -217,17 +211,17 @@ class mssha1(object):
         partLen = 64 - index
 
         if leninBuf >= partLen:
-            self.input[index:] = list(inBuf[:partLen])
+            self.input[index:] = inBuf[:partLen]
             self._transform(_bytelist2longBigEndian(self.input))
             i = partLen
             while i + 63 < leninBuf:
-                self._transform(_bytelist2longBigEndian(list(inBuf[i:i+64])))
+                self._transform(_bytelist2longBigEndian(inBuf[i:i+64]))
                 i = i + 64
             else:
-                self.input = list(inBuf[i:leninBuf])
+                self.input = inBuf[i:leninBuf]
         else:
             i = 0
-            self.input = self.input + list(inBuf)
+            self.input = self.input + inBuf
 
     def digest(self):
         """Terminate the message-digest computation and return digest.
@@ -242,7 +236,7 @@ class mssha1(object):
         H2 = self.H2
         H3 = self.H3
         H4 = self.H4
-        input = [] + self.input
+        inp = bytearray(self.input)
         count = [] + self.count
 
         index = (self.count[1] >> 3) & 0x3f
@@ -252,7 +246,7 @@ class mssha1(object):
         else:
             padLen = 120 - index
 
-        padding = ['\200'] + ['\000'] * 63
+        padding = b'\200' + (b'\000' * 63)
         self.update(padding[:padLen])
 
         # Append length (before padding).
@@ -272,7 +266,7 @@ class mssha1(object):
         self.H2 = H2
         self.H3 = H3
         self.H4 = H4
-        self.input = input
+        self.input = inp
         self.count = count
 
         return digest
@@ -285,7 +279,7 @@ class mssha1(object):
         used to exchange the value safely in email or other non-
         binary environments.
         """
-        return ''.join(['%02x' % ord(c) for c in self.digest()])
+        return ''.join(['%02x' % c for c in bytearray(self.digest())])
 
     def copy(self):
         """Return a clone object.
@@ -341,7 +335,7 @@ if __name__ == '__main__':
             data = file.read(16384)
         file.close()
         digest = context.hexdigest().upper()
-        for i in xrange(0, 40, 8):
+        for i in range(0, 40, 8):
             print(digest[i:i+8], end=' ')
         print()
     main()

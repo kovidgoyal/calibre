@@ -1,100 +1,95 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-from base64 import b64encode
 
-from PyQt5.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
-                      pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
-                      QLineEdit, QTimer, QPushButton, QIcon, QSplitter)
-from PyQt5.QtWebKitWidgets import QWebView, QWebPage
-from PyQt5.QtWebKit import QWebElement
+from PyQt5.Qt import (
+    QFrame, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QPushButton, QSize,
+    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView
 
-from calibre.ebooks.oeb.display.webview import load_html
-from calibre.gui2 import error_dialog, question_dialog, gprefs, secure_web_page
+from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
+from calibre.utils.short_uuid import uuid4
+from polyglot.builtins import range, unicode_type
 
 
-class Page(QWebPage):  # {{{
+class Page(QWebEnginePage):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object, object)
+    frag_shown = pyqtSignal(object)
 
     def __init__(self):
         self.log = default_log
-        QWebPage.__init__(self)
-        secure_web_page(self.settings())
-        self.js = None
-        self.evaljs = self.mainFrame().evaluateJavaScript
-        nam = self.networkAccessManager()
-        nam.setNetworkAccessible(nam.NotAccessible)
-        self.setLinkDelegationPolicy(self.DelegateAllLinks)
+        self.current_frag = None
+        self.com_id = unicode_type(uuid4())
+        QWebEnginePage.__init__(self)
+        secure_webengine(self.settings(), for_viewer=True)
+        self.titleChanged.connect(self.title_changed)
+        self.loadFinished.connect(self.show_frag)
+        s = QWebEngineScript()
+        s.setName('toc.js')
+        s.setInjectionPoint(QWebEngineScript.DocumentReady)
+        s.setRunsOnSubFrames(True)
+        s.setWorldId(QWebEngineScript.ApplicationWorld)
+        s.setSourceCode(P('toc.js', allow_user_override=False, data=True).decode('utf-8').replace('COM_ID', self.com_id))
+        self.scripts().insert(s)
 
-    def javaScriptConsoleMessage(self, msg, lineno, msgid):
-        self.log(u'JS:', unicode(msg))
+    def javaScriptConsoleMessage(self, level, msg, lineno, msgid):
+        self.log('JS:', unicode_type(msg))
 
-    def javaScriptAlert(self, frame, msg):
-        self.log(unicode(msg))
+    def javaScriptAlert(self, origin, msg):
+        self.log(unicode_type(msg))
 
-    @pyqtSlot(result=bool)
-    def shouldInterruptJavaScript(self):
-        return True
+    def title_changed(self, title):
+        parts = title.split('-', 1)
+        if len(parts) == 2 and parts[0] == self.com_id:
+            self.runJavaScript(
+                'JSON.stringify(window.calibre_toc_data)',
+                QWebEngineScript.ApplicationWorld, self.onclick)
 
-    @pyqtSlot(QWebElement, str, str, float)
-    def onclick(self, elem, loc, totals, frac):
-        elem_id = unicode(elem.attribute('id')) or None
-        tag = unicode(elem.tagName()).lower()
-        self.elem_clicked.emit(tag, frac, elem_id, json.loads(str(loc)), json.loads(str(totals)))
+    def onclick(self, data):
+        try:
+            tag, elem_id, loc, totals, frac = json.loads(data)
+        except Exception:
+            return
+        elem_id = elem_id or None
+        self.elem_clicked.emit(tag, frac, elem_id, loc, totals)
 
-    def load_js(self):
-        if self.js is None:
-            from calibre.utils.resources import compiled_coffeescript
-            self.js = compiled_coffeescript('ebooks.oeb.display.utils')
-            self.js += compiled_coffeescript('ebooks.oeb.polish.choose')
-        self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
-        self.evaljs(self.js)
+    def show_frag(self, ok):
+        if ok and self.current_frag:
+            self.runJavaScript('''
+                document.location = '#non-existent-anchor';
+                document.location = '#' + {0};
+            '''.format(json.dumps(self.current_frag)))
+            self.current_frag = None
+            self.runJavaScript('window.pageYOffset/document.body.scrollHeight', QWebEngineScript.ApplicationWorld, self.frag_shown.emit)
+
 # }}}
 
 
-class WebView(QWebView):  # {{{
+class WebView(QWebEngineView):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object, object)
+    frag_shown = pyqtSignal(object)
 
     def __init__(self, parent):
-        QWebView.__init__(self, parent)
+        QWebEngineView.__init__(self, parent)
         self._page = Page()
         self._page.elem_clicked.connect(self.elem_clicked)
+        self._page.frag_shown.connect(self.frag_shown)
         self.setPage(self._page)
-        raw = '''
-        body { background-color: white  }
-        .calibre_toc_hover:hover { cursor: pointer !important; border-top: solid 5px green !important }
-        '''
-        raw = '::selection {background:#ffff00; color:#000;}\n'+raw
-        data = 'data:text/css;charset=utf-8;base64,'
-        data += b64encode(raw.encode('utf-8'))
-        self.settings().setUserStyleSheetUrl(QUrl(data))
 
-    def load_js(self):
-        self.page().load_js()
+    def load_path(self, path, frag=None):
+        self._page.current_frag = frag
+        self.setUrl(QUrl.fromLocalFile(path))
 
     def sizeHint(self):
         return QSize(1500, 300)
-
-    def show_frag(self, frag):
-        self.page().mainFrame().scrollToAnchor(frag)
-
-    @property
-    def scroll_frac(self):
-        try:
-            val = float(self.page().evaljs('window.pageYOffset/document.body.scrollHeight'))
-        except (TypeError, ValueError):
-            val = 0
-        return val
 # }}}
 
 
@@ -103,6 +98,8 @@ class ItemEdit(QWidget):
     def __init__(self, parent, prefs=None):
         QWidget.__init__(self, parent)
         self.prefs = prefs or gprefs
+        self.pending_search = None
+        self.current_frag = None
         self.setLayout(QVBoxLayout())
 
         self.la = la = QLabel('<b>'+_(
@@ -124,6 +121,8 @@ class ItemEdit(QWidget):
         w.setLayout(l)
         self.view = WebView(self)
         self.view.elem_clicked.connect(self.elem_clicked)
+        self.view.frag_shown.connect(self.update_dest_label, type=Qt.QueuedConnection)
+        self.view.loadFinished.connect(self.load_finished, type=Qt.QueuedConnection)
         l.addWidget(self.view, 0, 0, 1, 3)
         sp.addWidget(w)
 
@@ -176,6 +175,11 @@ class ItemEdit(QWidget):
         if state is not None:
             sp.restoreState(state)
 
+    def load_finished(self, ok):
+        if self.pending_search:
+            self.pending_search()
+        self.pending_search = None
+
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Return, Qt.Key_Enter) and self.search_text.hasFocus():
             # Prevent pressing enter in the search box from triggering the dialog's accept() method
@@ -184,20 +188,23 @@ class ItemEdit(QWidget):
         return super(ItemEdit, self).keyPressEvent(ev)
 
     def find(self, forwards=True):
-        text = unicode(self.search_text.text()).strip()
-        flags = QWebPage.FindFlags(0) if forwards else QWebPage.FindBackward
+        text = unicode_type(self.search_text.text()).strip()
+        flags = QWebEnginePage.FindFlags(0) if forwards else QWebEnginePage.FindBackward
+        self.find_data = text, flags, forwards
+        self.view.findText(text, flags, self.find_callback)
+
+    def find_callback(self, found):
         d = self.dest_list
-        if d.count() == 1:
-            flags |= QWebPage.FindWrapsAroundDocument
-        if not self.view.findText(text, flags) and text:
+        text, flags, forwards = self.find_data
+        if not found and text:
             if d.count() == 1:
                 return error_dialog(self, _('No match found'),
                     _('No match found for: %s')%text, show=True)
 
             delta = 1 if forwards else -1
-            current = unicode(d.currentItem().data(Qt.DisplayRole) or '')
+            current = unicode_type(d.currentItem().data(Qt.DisplayRole) or '')
             next_index = (d.currentRow() + delta)%d.count()
-            next = unicode(d.item(next_index).data(Qt.DisplayRole) or '')
+            next = unicode_type(d.item(next_index).data(Qt.DisplayRole) or '')
             msg = '<p>'+_('No matches for %(text)s found in the current file [%(current)s].'
                           ' Do you want to search in the %(which)s file [%(next)s]?')
             msg = msg%dict(text=text, current=current, next=next,
@@ -220,8 +227,7 @@ class ItemEdit(QWidget):
         self.dest_list.addItems(spine_names)
 
     def current_changed(self, item):
-        name = self.current_name = unicode(item.data(Qt.DisplayRole) or '')
-        self.current_frag = None
+        name = self.current_name = unicode_type(item.data(Qt.DisplayRole) or '')
         path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
         root = self.container.parsed(name)
@@ -234,17 +240,10 @@ class ItemEdit(QWidget):
             for x in reversed(nasty):
                 body[0].insert(0, x)
             self.container.commit_item(name, keep_parsed=True)
-        encoding = self.container.encoding_map.get(name, None) or 'utf-8'
-
-        load_html(path, self.view, codec=encoding,
-                  mime_type=self.container.mime_map[name])
-        self.view.load_js()
+        self.view.load_path(path, self.current_frag)
+        self.current_frag = None
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' +
                                 name + '<br>' + _('Top of the file'))
-        if hasattr(self, 'pending_search'):
-            f = self.pending_search
-            del self.pending_search
-            f()
 
     def __call__(self, item, where):
         self.current_item, self.current_where = item, where
@@ -258,9 +257,9 @@ class ItemEdit(QWidget):
                 self.name.setCursorPosition(0)
             toc = item.data(0, Qt.UserRole)
             if toc.dest:
-                for i in xrange(self.dest_list.count()):
+                for i in range(self.dest_list.count()):
                     litem = self.dest_list.item(i)
-                    if unicode(litem.data(Qt.DisplayRole) or '') == toc.dest:
+                    if unicode_type(litem.data(Qt.DisplayRole) or '') == toc.dest:
                         dest_index = i
                         frag = toc.frag
                         break
@@ -269,20 +268,9 @@ class ItemEdit(QWidget):
         self.dest_list.setCurrentRow(dest_index)
         self.dest_list.blockSignals(False)
         item = self.dest_list.item(dest_index)
-        self.current_changed(item)
         if frag:
             self.current_frag = frag
-            QTimer.singleShot(1, self.show_frag)
-
-    def show_frag(self):
-        self.view.show_frag(self.current_frag)
-        QTimer.singleShot(1, self.check_frag)
-
-    def check_frag(self):
-        pos = self.view.scroll_frac
-        if pos == 0:
-            self.current_frag = None
-        self.update_dest_label()
+        self.current_changed(item)
 
     def get_loctext(self, frac):
         frac = int(round(frac * 100))
@@ -299,8 +287,7 @@ class ItemEdit(QWidget):
         self.dest_label.setText(self.base_msg + '<br>' +
                     _('File:') + ' ' + self.current_name + '<br>' + loctext)
 
-    def update_dest_label(self):
-        val = self.view.scroll_frac
+    def update_dest_label(self, val):
         self.dest_label.setText(self.base_msg + '<br>' +
                     _('File:') + ' ' + self.current_name + '<br>' +
                                 self.get_loctext(val))
@@ -308,4 +295,4 @@ class ItemEdit(QWidget):
     @property
     def result(self):
         return (self.current_item, self.current_where, self.current_name,
-                self.current_frag, unicode(self.name.text()))
+                self.current_frag, unicode_type(self.name.text()))

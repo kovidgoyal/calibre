@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -19,6 +19,7 @@ from calibre.ebooks.conversion.config import (
 from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
 from calibre.gui2.font_family_chooser import FontFamilyChooser
+from polyglot.builtins import unicode_type
 
 
 def config_widget_for_input_plugin(plugin):
@@ -100,7 +101,7 @@ class Widget(QWidget):
                     buddy = g.buddy()
                     if buddy is not None and hasattr(buddy, '_help'):
                         g._help = buddy._help
-                        htext = unicode(buddy.toolTip()).strip()
+                        htext = unicode_type(buddy.toolTip()).strip()
                         g.setToolTip(htext)
                         g.setWhatsThis(htext)
                         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
@@ -145,22 +146,24 @@ class Widget(QWidget):
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
+        if hasattr(g, 'get_value_for_config'):
+            return g.get_value_for_config
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode(func)
+            ans = unicode_type(func)
             if self.STRIP_TEXT_FIELDS:
                 ans = ans.strip()
             if not ans:
                 ans = None
             return ans
         elif isinstance(g, QFontComboBox):
-            return unicode(QFontInfo(g.currentFont()).family())
+            return unicode_type(QFontInfo(g.currentFont()).family())
         elif isinstance(g, FontFamilyChooser):
             return g.font_family
         elif isinstance(g, EncodingComboBox):
-            ans = unicode(g.currentText()).strip()
+            ans = unicode_type(g.currentText()).strip()
             try:
                 codecs.lookup(ans)
             except:
@@ -169,7 +172,7 @@ class Widget(QWidget):
                 ans = None
             return ans
         elif isinstance(g, QComboBox):
-            return unicode(g.currentText())
+            return unicode_type(g.currentText())
         elif isinstance(g, QCheckBox):
             return bool(g.isChecked())
         elif isinstance(g, XPathEdit):
@@ -217,6 +220,9 @@ class Widget(QWidget):
         from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
             return
+        if hasattr(g, 'set_value_for_config'):
+            g.set_value_for_config = val
+            return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.setValue(val)
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
@@ -245,7 +251,7 @@ class Widget(QWidget):
             g.edit.setText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
-                unicode(g.objectName())))
+                unicode_type(g.objectName())))
         self.post_set_value(g, val)
 
     def set_help(self, msg):
@@ -270,7 +276,7 @@ class Widget(QWidget):
 
     def setup_widget_help(self, g):
         w = textwrap.TextWrapper(80)
-        htext = u'<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
+        htext = '<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
         g.setToolTip(htext)
         g.setWhatsThis(htext)
         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))

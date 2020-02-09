@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -9,17 +10,18 @@ Just create an L{LRFMetaFile} object and use its properties
 to get and set meta information. For example:
 
 >>> lrf = LRFMetaFile("mybook.lrf")
->>> print lrf.title, lrf.author
+>>> print(lrf.title, lrf.author)
 >>> lrf.category = "History"
 """
 
-import struct, zlib, sys, os
+import io, struct, zlib, sys, os
 from shutil import copyfileobj
-from cStringIO import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
 
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from polyglot.builtins import unicode_type, string_or_bytes
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
@@ -47,14 +49,10 @@ class field(object):
         obj.pack(val, start=self._start, fmt=self._fmt)
 
     def __repr__(self):
-        typ = ""
-        if self._fmt == DWORD:
-            typ  = "unsigned int"
-        if self._fmt == QWORD:
-            typ = "unsigned long long"
+        typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
         return "An " + typ + " stored in " + \
-        str(struct.calcsize(self._fmt)) + \
-        " bytes starting at byte " + str(self._start)
+        unicode_type(struct.calcsize(self._fmt)) + \
+        " bytes starting at byte " + unicode_type(self._start)
 
 
 class versioned_field(field):
@@ -63,17 +61,17 @@ class versioned_field(field):
         field.__init__(self, start=start, fmt=fmt)
         self.vfield, self.version = vfield, version
 
-    def enabled(self):
-        return self.vfield > self.version
+    def enabled(self, obj):
+        return self.vfield.__get__(obj) > self.version
 
     def __get__(self, obj, typ=None):
-        if self.enabled():
+        if self.enabled(obj):
             return field.__get__(self, obj, typ=typ)
         else:
             return None
 
     def __set__(self, obj, val):
-        if not self.enabled():
+        if not self.enabled(obj):
             raise LRFException("Trying to set disabled field")
         else:
             field.__set__(self, obj, val)
@@ -95,20 +93,22 @@ class fixed_stringfield(object):
         self._start = start
 
     def __get__(self, obj, typ=None):
-        length = str(self._length)
+        length = unicode_type(self._length)
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
 
     def __set__(self, obj, val):
-        if val.__class__.__name__ != 'str':
-            val = str(val)
+        if not isinstance(val, string_or_bytes):
+            val = unicode_type(val)
+        if isinstance(val, unicode_type):
+            val = val.encode('utf-8')
         if len(val) != self._length:
             raise LRFException("Trying to set fixed_stringfield with a " +
                                "string of  incorrect length")
-        obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
+        obj.pack(val, start=self._start, fmt="<"+unicode_type(len(val))+"s")
 
     def __repr__(self):
-        return "A string of length " + str(self._length) + \
-                " starting at byte " + str(self._start)
+        return "A string of length " + unicode_type(self._length) + \
+                " starting at byte " + unicode_type(self._start)
 
 
 class xml_attr_field(object):
@@ -194,9 +194,9 @@ class xml_field(object):
             return elem
 
         if not val:
-            val = u''
-        if type(val).__name__ != 'unicode':
-            val = unicode(val, 'utf-8')
+            val = ''
+        if not isinstance(val, unicode_type):
+            val = val.decode('utf-8')
 
         elems = document.getElementsByTagName(self.tag_name)
         elem = None
@@ -237,7 +237,7 @@ def insert_into_file(fileobj, data, start, end):
     @param end:     The position in fileobj of data that must not be overwritten
     @return:        C{start + len(data) - end}
     """
-    buffer = StringIO()
+    buffer = io.BytesIO()
     fileobj.seek(end)
     copyfileobj(fileobj, buffer, -1)
     buffer.flush()
@@ -374,9 +374,9 @@ class LRFMetaFile(object):
                 return res
             return restore_pos
         locals_ = func()
-        if locals_.has_key("fget"):  # noqa
+        if 'fget' in locals_:
             locals_["fget"] = decorator(locals_["fget"])
-        if locals_.has_key("fset"):  # noqa
+        if 'fset' in locals_:
             locals_["fset"] = decorator(locals_["fset"])
         return property(**locals_)
 
@@ -398,14 +398,9 @@ class LRFMetaFile(object):
                 if len(src) != self.uncompressed_info_size:
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")
-                try:
-                    return dom.parseString(src)
-                except:
-                    try:
-                        return dom.parseString(src.replace('\x00', '').strip())
-                    except:
-                        src = src.replace('\x00', '').strip().decode('latin1')
-                        return dom.parseString(src.encode('utf-8'))
+
+                src = xml_to_unicode(src, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
+                return dom.parseString(src)
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
 
@@ -711,28 +706,27 @@ def main(args=sys.argv):
         lrf.producer = options.producer
     if options.thumbnail:
         path = os.path.expanduser(os.path.expandvars(options.thumbnail))
-        f = open(path, "rb")
-        lrf.thumbnail = f.read()
-        f.close()
+        with open(path, "rb") as f:
+            lrf.thumbnail = f.read()
     if options.book_id is not None:
         lrf.book_id = options.book_id
     if options.comment:
         path = os.path.expanduser(os.path.expandvars(options.comment))
-        lrf.free_text = open(path).read()
+        with open(path, 'rb') as f:
+            lrf.free_text = f.read().decode('utf-8', 'replace')
     if options.get_thumbnail:
         t = lrf.thumbnail
         td = "None"
         if t and len(t) > 0:
             td = os.path.basename(args[1])+"_thumbnail."+lrf.thumbail_extension()
-            f = open(td, "w")
-            f.write(t)
-            f.close()
+            with open(td, "wb") as f:
+                f.write(t)
 
     fields = LRFMetaFile.__dict__.items()
     fields.sort()
     for f in fields:
-        if "XML" in str(f):
-            print(str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
+        if "XML" in unicode_type(f):
+            print(unicode_type(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8'))
     if options.get_thumbnail:
         print("Thumbnail:", td)
     if options.get_cover:
@@ -742,7 +736,8 @@ def main(args=sys.argv):
             ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
-            open(cover, 'wb').write(data)
+            with open(cover, 'wb') as f:
+                f.write(data)
             print('Cover:', cover)
         else:
             print('Could not find cover in the LRF file')

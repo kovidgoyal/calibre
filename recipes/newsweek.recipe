@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from collections import defaultdict
 
-BASE = 'http://www.newsweek.com'
+BASE = 'https://www.newsweek.com'
 
 
 def href_to_url(a, add_piano=False):
@@ -23,15 +23,18 @@ class Newsweek(BasicNewsRecipe):
     no_stylesheets = True
     requires_version = (1, 40, 0)
 
-    keep_only_tags = class_sels(
-        'article-header', 'article-body', 'header-image')
+    keep_only_tags = [
+        dict(id='block-nw-magazine-article-header'),
+        class_sels('article-header', 'article-body')
+    ]
     remove_tags = [
-        dict(name='meta'),
+        dict(name=['aside', 'meta', 'source']),
         class_sels(
             'block-openadstream', 'block-ibtmedia-social', 'issue-next',
             'most-popular', 'ibt-media-stories', 'user-btn-group',
             'trial-link', 'trc_related_container',
             'block-ibtmedia-top-stories', 'videocontent', 'newsletter-signup',
+            'in-text-slideshows', 'content-correction', 'article-navigation'
         ),
         dict(id=['taboola-below-main-column', 'piano-root',
                  'block-nw-magazine-magazine-more-from-issue']),
@@ -46,17 +49,16 @@ class Newsweek(BasicNewsRecipe):
         a = li.xpath('descendant::a[@href]')[0]
         url = href_to_url(a, add_piano=True)
         self.timefmt = self.tag_to_string(a)
-        img = li.xpath('descendant::a[@href]/img[@src]')[0]
-        self.cover_url = img.get('src')
+        img = li.xpath('descendant::a[@href]//img[@data-src]')[0]
+        self.cover_url = img.get('data-src').partition('?')[0]
         root = self.index_to_soup(url, as_tree=True)
         features = []
-        href_xpath = 'descendant::*[local-name()="h1" or local-name()="h2" or local-name()="h3" or local-name()="h4"]/a[@href]'
         try:
-            div = root.xpath('//div[@id="block-nw-magazine-magazine-features"]')[0]
+            div = root.xpath('//div[@class="magazine-features"]')[0]
         except IndexError:
             pass
         else:
-            for a in div.xpath(href_xpath):
+            for a in div.xpath('descendant::div[@class="h1"]//a[@href]'):
                 title = self.tag_to_string(a)
                 article = a.xpath('ancestor::article')[0]
                 desc = ''
@@ -70,30 +72,34 @@ class Newsweek(BasicNewsRecipe):
         if features:
             index.append(('Features', features))
         sections = defaultdict(list)
-        for block in ('magazine-magazine-issue-story-list', 'editors-pick'):
-            div = root.xpath(
-                '//div[@id="block-nw-{}"]'.format(block))[0]
-            for a in div.xpath(href_xpath):
-                title = self.tag_to_string(a)
-                article = a.xpath('ancestor::article')[0]
-                desc = ''
-                s = article.xpath('descendant::div[@class="summary"]')
-                if s:
-                    desc = self.tag_to_string(s[0])
-                sec = article.xpath('descendant::div[@class="category"]')
-                if sec:
-                    sec = self.tag_to_string(sec[0])
-                else:
-                    sec = 'Articles'
-                sections[sec].append(
-                    {'title': title, 'url': href_to_url(a), 'description': desc})
-                self.log(title, href_to_url(a))
-                if desc:
-                    self.log('\t' + desc)
-                self.log('')
+        for widget in ('editor-pick',):
+            self.parse_widget(widget, sections)
         for k in sorted(sections):
             index.append((k, sections[k]))
         return index
+
+    def parse_widget(self, widget, sections):
+        root = self.index_to_soup('https://d.newsweek.com/widget/' + widget, as_tree=True)
+        div = root.xpath('//div')[0]
+        href_xpath = 'descendant::*[local-name()="h1" or local-name()="h2" or local-name()="h3" or local-name()="h4"]/a[@href]'
+        for a in div.xpath(href_xpath):
+            title = self.tag_to_string(a)
+            article = a.xpath('ancestor::article')[0]
+            desc = ''
+            s = article.xpath('descendant::div[@class="summary"]')
+            if s:
+                desc = self.tag_to_string(s[0])
+            sec = article.xpath('descendant::div[@class="category"]')
+            if sec:
+                sec = self.tag_to_string(sec[0])
+            else:
+                sec = 'Articles'
+            sections[sec].append(
+                {'title': title, 'url': href_to_url(a), 'description': desc})
+            self.log(title, href_to_url(a))
+            if desc:
+                self.log('\t' + desc)
+            self.log('')
 
     def print_version(self, url):
         return url + '?piano_d=1'
@@ -108,4 +114,6 @@ class Newsweek(BasicNewsRecipe):
                 s['style'] = 'display: block'
                 s.name = 'img'
                 s['src'] = url
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup

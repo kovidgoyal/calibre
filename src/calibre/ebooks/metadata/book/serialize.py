@@ -4,23 +4,24 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import base64
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.imghdr import what
+from polyglot.builtins import iteritems, unicode_type
+from polyglot.binary import as_base64_unicode
 
 
 def ensure_unicode(obj, enc=preferred_encoding):
-    if isinstance(obj, unicode):
+    if isinstance(obj, unicode_type):
         return obj
     if isinstance(obj, bytes):
         return obj.decode(enc, 'replace')
     if isinstance(obj, (list, tuple)):
         return [ensure_unicode(x) for x in obj]
     if isinstance(obj, dict):
-        return {ensure_unicode(k): ensure_unicode(v) for k, v in obj.iteritems()}
+        return {ensure_unicode(k): ensure_unicode(v) for k, v in iteritems(obj)}
     return obj
 
 
@@ -51,7 +52,7 @@ def metadata_as_dict(mi, encode_cover_data=False):
             ans[field] = ensure_unicode(val)
     if mi.cover_data and mi.cover_data[1]:
         if encode_cover_data:
-            ans['cover_data'] = [mi.cover_data[0], base64.standard_b64encode(bytes(mi.cover_data[1]))]
+            ans['cover_data'] = [mi.cover_data[0], as_base64_unicode(mi.cover_data[1])]
         else:
             ans['cover_data'] = mi.cover_data
     um = mi.get_all_user_metadata(False)
@@ -62,7 +63,7 @@ def metadata_as_dict(mi, encode_cover_data=False):
 
 def metadata_from_dict(src):
     ans = Metadata('Unknown')
-    for key, value in src.iteritems():
+    for key, value in iteritems(src):
         if key == 'user_metadata':
             ans.set_all_user_metadata(value)
         else:

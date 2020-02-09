@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +10,7 @@ import os
 
 from calibre import prints
 from calibre.utils.date import isoformat, DEFAULT_DATE
+from polyglot.builtins import itervalues, unicode_type
 
 
 class SchemaUpgrade(object):
@@ -23,7 +23,7 @@ class SchemaUpgrade(object):
         # Upgrade database
         try:
             while True:
-                uv = self.db.execute('pragma user_version').next()[0]
+                uv = next(self.db.execute('pragma user_version'))[0]
                 meth = getattr(self, 'upgrade_version_%d'%uv, None)
                 if meth is None:
                     break
@@ -298,7 +298,7 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -374,7 +374,7 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -595,13 +595,13 @@ class SchemaUpgrade(object):
                     custom_recipe_filename)
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                existing = frozenset(map(int, custom_recipes))
                 if id_ in existing:
                     id_ = max(existing) + 1000
-                id_ = str(id_)
+                id_ = unicode_type(id_)
                 fname = custom_recipe_filename(id_, title)
                 custom_recipes[id_] = (title, fname)
-                if isinstance(script, unicode):
+                if isinstance(script, unicode_type):
                     script = script.encode('utf-8')
                 with open(os.path.join(bdir, fname), 'wb') as f:
                     f.write(script)

@@ -1,13 +1,12 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import zip
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, map
 from itertools import cycle
 
 from calibre import force_unicode
@@ -77,13 +76,13 @@ def book_to_json(ctx, rd, db, book_id,
 
     if not device_compatible:
         mi.format_metadata = {k.lower():dict(v) for k, v in
-                mi.format_metadata.iteritems()}
-        for v in mi.format_metadata.itervalues():
+                iteritems(mi.format_metadata)}
+        for v in itervalues(mi.format_metadata):
             mtime = v.get('mtime', None)
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
+        fmts = set(x.lower() for x in mi.format_metadata)
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:
@@ -107,7 +106,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, basestring):
+                    if isinstance(categories, string_or_bytes):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:
@@ -116,7 +115,7 @@ def book_to_json(ctx, rd, db, book_id,
                                 dbtags[category] = ctx.url_for(
                                     books_in,
                                     encoded_category=encode_name(tag.category if tag.category else key),
-                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode(tag.id)),
+                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode_type(tag.id)),
                                     library_id=db.server_library_id
                                 )
                                 break
@@ -135,7 +134,7 @@ def book_to_json(ctx, rd, db, book_id,
             for device_class in device_plugins():
                 if device_class.__class__.__name__ == device_for_template:
                     template = device_class.save_template()
-                    data['_filename_'] = create_upload_path(mi, book_id,
+                    data['_filename_'] = create_upload_path(mi, unicode_type(book_id),
                             template, sanitize, path_type=posixpath)
                     break
 
@@ -280,7 +279,7 @@ def categories(ctx, rd, library_id):
             ans[url] = (display_name, icon)
 
         ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
-                for k, v in ans.iteritems()]
+                for k, v in iteritems(ans)]
         ans.sort(key=lambda x: sort_key(x['name']))
         for name, url, icon in [
                 (_('All books'), 'allbooks', 'book.png'),
@@ -446,7 +445,7 @@ def category(ctx, rd, encoded_name, library_id):
             'average_rating': x.avg_rating,
             'count': x.count,
             'url': ctx.url_for(books_in, encoded_category=encode_name(x.category if x.category else toplevel),
-                               encoded_item=encode_name(x.original_name if x.id is None else unicode(x.id)),
+                               encoded_item=encode_name(x.original_name if x.id is None else unicode_type(x.id)),
                                library_id=db.server_library_id
                                ),
             'has_children': x.original_name in children,
@@ -550,7 +549,7 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
         'vl': vl,
     }
     if parse_error is not None:
-        ans['bad_restriction'] = unicode(parse_error)
+        ans['bad_restriction'] = unicode_type(parse_error)
     return ans
 
 

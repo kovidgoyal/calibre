@@ -1,5 +1,4 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -9,7 +8,7 @@ class CzasGentlemanow(BasicNewsRecipe):
     description = u'Historia mężczyzn z dala od wielkiej polityki'
     category = 'blog'
     language = 'pl'
-    cover_url = 'http://czasgentlemanow.pl/wp-content/uploads/2012/10/logo-Czas-Gentlemanow1.jpg'
+    cover_url = 'https://czasgentlemanow.pl/wp-content/uploads/2012/10/logo-Czas-Gentlemanow1.jpg'
     ignore_duplicate_articles = {'title', 'url'}
     oldest_article = 7
     max_articles_per_feed = 100
@@ -17,18 +16,10 @@ class CzasGentlemanow(BasicNewsRecipe):
     .wp-caption-text {text-align: left;} img.aligncenter {display: block; margin-left: auto; margin-right: auto;} .alignleft {float: left; margin-right:5px;}'
     no_stylesheets = True
     remove_empty_feeds = True
-    preprocess_regexps = [
-        (re.compile(u'<h3>Może Cię też zainteresować:</h3>'), lambda m: '')]
     use_embedded_content = False
-    keep_only_tags = [dict(name='div', attrs={'class': 'content'})]
-    remove_tags = [dict(attrs={'class': 'meta_comments'}), dict(
-        id=['comments', 'related_posts_thumbnails', 'respond'])]
-    remove_tags_after = dict(id='comments')
+    keep_only_tags = [dict(name='div', attrs={'class': 'post-wrapper'})]
+    remove_tags = [dict(attrs={'class': ['awac-wrapper', 'post-bottom', 'comment', 'seperate']})]
     feeds = [
-    (u'M\u0119ski \u015awiat', u'http://czasgentlemanow.pl/category/meski-swiat/feed/'),
-    (u'Styl', u'http://czasgentlemanow.pl/category/styl/feed/'),
-    (u'Vademecum Gentlemana', u'http://czasgentlemanow.pl/category/vademecum/feed/'),
-
-    (u'Dom i rodzina', u'http://czasgentlemanow.pl/category/dom-i-rodzina/feed/'),
-    (u'Honor', u'http://czasgentlemanow.pl/category/honor/feed/'),
-    (u'Gad\u017cety Gentlemana', u'http://czasgentlemanow.pl/category/gadzety-gentlemana/feed/')]
+    (u'Charakter', u'https://czasgentlemanow.pl/category/charakter/feed/'),
+    (u'Wizerunek', u'https://czasgentlemanow.pl/category/wizerunek/feed/'),
+    (u'Relacje międzyludzkie', u'https://czasgentlemanow.pl/category/relacje-miedzyludzkie/feed/')]

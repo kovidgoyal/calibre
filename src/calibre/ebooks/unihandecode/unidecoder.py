@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL 3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
@@ -62,6 +63,7 @@ it under the same terms as Perl itself.
 import re
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
+from polyglot.builtins import unicode_type
 
 
 class Unidecoder(object):
@@ -94,18 +96,15 @@ class Unidecoder(object):
         Find what group character is a part of.
         '''
         # Code groups withing CODEPOINTS take the form 'xAB'
-        try:  # python2
-            return 'x%02x' % (ord(unicode(character)) >> 8)
-        except:
-            return 'x%02x' % (ord(character) >> 8)
+        if not isinstance(character, unicode_type):
+            character = unicode_type(character, "utf-8")
+        return 'x%02x' % (ord(character) >> 8)
 
     def grouped_point(self, character):
         '''
         Return the location the replacement character is in the list for a
         the group character is a part of.
         '''
-        try:  # python2
-            return ord(unicode(character)) & 255
-        except:
-            return ord(character) & 255
-
+        if not isinstance(character, unicode_type):
+            character = unicode_type(character, "utf-8")
+        return ord(character) & 255

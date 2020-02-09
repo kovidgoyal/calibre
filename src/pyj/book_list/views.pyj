@@ -9,17 +9,18 @@ from gettext import gettext as _
 from ajax import ajax_send
 from book_list.add import add_books_panel
 from book_list.cover_grid import (
-    description as COVER_GRID_DESCRIPTION, append_item as cover_grid_append_item,
-    cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid
+    append_item as cover_grid_append_item, cover_grid_css,
+    create_item as create_cover_grid_item, description as COVER_GRID_DESCRIPTION,
+    init as init_cover_grid
 )
 from book_list.custom_list import (
-    description as CUSTOM_LIST_DESCRIPTION, append_item as custom_list_append_item,
-    create_item as create_custom_list_item, custom_list_css,
+    append_item as custom_list_append_item, create_item as create_custom_list_item,
+    custom_list_css, description as CUSTOM_LIST_DESCRIPTION,
     init as init_custom_list
 )
 from book_list.details_list import (
-    description as DETAILS_LIST_DESCRIPTION, append_item as details_list_append_item,
-    create_item as create_details_list_item, details_list_css,
+    append_item as details_list_append_item, create_item as create_details_list_item,
+    description as DETAILS_LIST_DESCRIPTION, details_list_css,
     init as init_details_list
 )
 from book_list.globals import get_session_data
@@ -130,6 +131,14 @@ def render_ids(book_ids):
                 book_list_data.append_item(div, child)
 
 
+def get_view_mode():
+    idata = get_interface_data()
+    mode = get_session_data().get('view_mode', idata.default_book_list_mode)
+    if mode not in ('cover_grid', 'details_list', 'custom_list'):
+        mode = DEFAULT_MODE
+    return mode
+
+
 def setup_view_mode(mode, book_list_data):
     if mode not in ALLOWED_MODES:
         mode = DEFAULT_MODE
@@ -216,7 +225,7 @@ def create_more_button(more):
         _('Show more books'), 'cloud-download', get_more_books
     ))
     more.lastChild.setAttribute('rel', 'next')
-    set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
+    set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto', margin_top='1rem')
     set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', text_align='center', display='flex')
     more.appendChild(E.div(
         create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
@@ -258,7 +267,7 @@ def create_books_list(container):
     container.appendChild(E.div(data_component='book_list'))
     container.appendChild(E.div(data_component='more_button'))
     show_top_message()
-    apply_view_mode(get_session_data().get('view_mode'))
+    apply_view_mode(get_view_mode())
     create_more_button(container.lastChild)
     add_button(container.parentNode, icon='plus', action=show_subsequent_panel.bind(None, 'book_list^add'), tooltip=_('Add books'))
     add_button(container.parentNode, icon='sort-amount-desc', action=show_subsequent_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
@@ -283,12 +292,20 @@ def create_books_list(container):
 
 def check_for_books_loaded():
     container = this
+    container_id = container.id
     if load_status.loading:
-        conditional_timeout(container.id, 5, check_for_books_loaded)
+        conditional_timeout(container_id, 5, check_for_books_loaded)
         return
     container = container.lastChild
     clear(container)
     if not load_status.ok:
+        if load_status.http_error_code is 401:
+            # Unauthorized, keep retrying until the user provides a
+            # username/password
+            container.appendChild(E.div(_('Username/password required, retrying...')))
+            ensure_current_library_data()
+            conditional_timeout(container_id, 100, check_for_books_loaded)
+            return
         err = E.div()
         safe_set_inner_html(err, load_status.error_html)
         container.appendChild(E.div(
@@ -297,7 +314,7 @@ def check_for_books_loaded():
             err,
             E.div(
                 style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-                E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+                E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', class_='blue-link', _('Go back to the home page')))
             ),
         )
         return
@@ -410,7 +427,7 @@ def create_mode_panel(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Choose book list mode…'), action=back, icon='close')
     items = []
-    current_mode = get_session_data().get('view_mode')
+    current_mode = get_view_mode()
 
     def ci(title, desc, name):
         ic = 'check' if name is current_mode else None

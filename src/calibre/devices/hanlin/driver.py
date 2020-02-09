@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
@@ -45,11 +46,11 @@ class HANLINV3(USBMS):
         card = names.get('carda', None)
 
         try:
-            main_num = int(re.findall('\d+', main)[0]) if main else None
+            main_num = int(re.findall(r'\d+', main)[0]) if main else None
         except:
             main_num = None
         try:
-            card_num = int(re.findall('\d+', card)[0]) if card else None
+            card_num = int(re.findall(r'\d+', card)[0]) if card else None
         except:
             card_num = None
 

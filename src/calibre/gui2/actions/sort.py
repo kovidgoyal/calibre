@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from polyglot.builtins import iteritems
 
 
 class SortAction(QAction):
@@ -61,7 +61,7 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
+        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:

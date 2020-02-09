@@ -50,8 +50,8 @@ class BenchmarkPl(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
-        for a in soup('a'):
-            if a.has_key('href') and not a['href'].startswith('http'):  # noqa
+        for a in soup.findAll('a', href=True):
+            if not a['href'].startswith('http'):
                 a['href'] = self.INDEX + a['href']
         for r in soup.findAll(attrs={'class': ['comments', 'body']}):
             r.extract()

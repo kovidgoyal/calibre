@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,8 +12,8 @@ from collections import defaultdict, namedtuple
 from io import BytesIO
 from struct import pack
 
-import cssutils
-from cssutils.css import CSSRule
+import css_parser
+from css_parser.css import CSSRule
 from lxml import etree
 
 from calibre import isbytestring, force_unicode
@@ -31,6 +30,7 @@ from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
+from polyglot.builtins import iteritems, unicode_type
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -77,9 +77,9 @@ class KF8Writer(object):
         ''' Duplicate data so that any changes we make to markup/CSS only
         affect KF8 output and not MOBI 6 output '''
         self._data_cache = {}
-        # Suppress cssutils logging output as it is duplicated anyway earlier
+        # Suppress css_parser logging output as it is duplicated anyway earlier
         # in the pipeline
-        cssutils.log.setLevel(logging.CRITICAL)
+        css_parser.log.setLevel(logging.CRITICAL)
         for item in self.oeb.manifest:
             if item.media_type in XML_DOCS:
                 self._data_cache[item.href] = copy.deepcopy(item.data)
@@ -87,7 +87,7 @@ class KF8Writer(object):
                 # I can't figure out how to make an efficient copy of the
                 # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
                 # exception)
-                self._data_cache[item.href] = cssutils.parseString(
+                self._data_cache[item.href] = css_parser.parseString(
                         item.data.cssText, validate=False)
 
     def data(self, item):
@@ -132,15 +132,15 @@ class KF8Writer(object):
             if item.media_type in XML_DOCS:
                 root = self.data(item)
                 for tag in XPath('//h:img|//svg:image')(root):
-                    for attr, ref in tag.attrib.iteritems():
+                    for attr, ref in iteritems(tag.attrib):
                         if attr.split('}')[-1].lower() in {'src', 'href'}:
                             tag.attrib[attr] = pointer(item, ref)
 
                 for tag in XPath('//h:style')(root):
                     if tag.text:
-                        sheet = cssutils.parseString(tag.text, validate=False)
+                        sheet = css_parser.parseString(tag.text, validate=False)
                         replacer = partial(pointer, item)
-                        cssutils.replaceUrls(sheet, replacer,
+                        css_parser.replaceUrls(sheet, replacer,
                                 ignoreImportRules=True)
                         repl = sheet.cssText
                         if isbytestring(repl):
@@ -150,7 +150,7 @@ class KF8Writer(object):
             elif item.media_type in OEB_STYLES:
                 sheet = self.data(item)
                 replacer = partial(pointer, item)
-                cssutils.replaceUrls(sheet, replacer, ignoreImportRules=True)
+                css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
 
     def extract_css_into_flows(self):
         inlines = defaultdict(list)  # Ensure identical <style>s not repeated
@@ -194,7 +194,7 @@ class KF8Writer(object):
                 if not raw or not raw.strip():
                     extract(tag)
                     continue
-                sheet = cssutils.parseString(raw, validate=False)
+                sheet = css_parser.parseString(raw, validate=False)
                 if fix_import_rules(sheet):
                     raw = force_unicode(sheet.cssText, 'utf-8')
 
@@ -205,7 +205,7 @@ class KF8Writer(object):
                 extract(tag)
                 inlines[raw].append(repl)
 
-        for raw, elems in inlines.iteritems():
+        for raw, elems in iteritems(inlines):
             idx = to_ref(len(self.flows))
             self.flows.append(raw)
             for link in elems:
@@ -235,7 +235,7 @@ class KF8Writer(object):
             root = self.data(item)
 
             for svg in XPath('//svg:svg')(root):
-                raw = etree.tostring(svg, encoding=unicode, with_tail=False)
+                raw = etree.tostring(svg, encoding='unicode', with_tail=False)
                 idx = len(self.flows)
                 self.flows.append(raw)
                 p = svg.getparent()
@@ -319,7 +319,7 @@ class KF8Writer(object):
 
     def chunk_it_up(self):
         placeholder_map = {}
-        for placeholder, x in self.link_map.iteritems():
+        for placeholder, x in iteritems(self.link_map):
             href, frag = x
             aid = self.id_map.get(x, None)
             if aid is None:
@@ -333,7 +333,7 @@ class KF8Writer(object):
         self.flows[0] = chunker.text
 
     def create_text_records(self):
-        self.flows = [x.encode('utf-8') if isinstance(x, unicode) else x for x
+        self.flows = [x.encode('utf-8') if isinstance(x, unicode_type) else x for x
                 in self.flows]
         text = b''.join(self.flows)
         self.text_length = len(text)

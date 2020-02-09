@@ -1,5 +1,6 @@
-__license__   = 'GPL v3'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+__license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
@@ -10,6 +11,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import error_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
+from polyglot.builtins import iteritems, unicode_type
 
 
 class Item(object):
@@ -43,6 +45,12 @@ class TagCategories(QDialog, Ui_TagCategories):
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
 
+        # I can't figure out how to get these into the .ui file
+        self.gridLayout_2.setColumnMinimumWidth(0, 50)
+        self.gridLayout_2.setColumnStretch(0, 1)
+        self.gridLayout_2.setColumnMinimumWidth(2, 50)
+        self.gridLayout_2.setColumnStretch(2, 1)
+
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -68,7 +76,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                           ]
         category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
-        for key,cc in self.db.custom_field_metadata().iteritems():
+        for key,cc in iteritems(self.db.custom_field_metadata()):
             if cc['datatype'] in ['text', 'series', 'enumeration']:
                 self.category_labels.append(key)
                 self.category_icons.append(cc_icon)
@@ -197,7 +205,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def add_category(self):
         self.save_category()
-        cat_name = unicode(self.input_box.text()).strip()
+        cat_name = unicode_type(self.input_box.text()).strip()
         if cat_name == '':
             return False
         comps = [c.strip() for c in cat_name.split('.') if c.strip()]
@@ -226,7 +234,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def rename_category(self):
         self.save_category()
-        cat_name = unicode(self.input_box.text()).strip()
+        cat_name = unicode_type(self.input_box.text()).strip()
         if cat_name == '':
             return False
         if not self.current_cat_name:
@@ -267,7 +275,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.save_category()
         s = self.category_box.itemText(idx)
         if s:
-            self.current_cat_name = unicode(s)
+            self.current_cat_name = unicode_type(s)
         else:
             self.current_cat_name  = None
         self.fill_applied_items()

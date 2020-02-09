@@ -2,14 +2,14 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.date import now
 from css_selectors import Select
 
 
 def absurl(url):
     if url.startswith('/'):
-        url = 'http://www.scientificamerican.com' + url
+        url = 'https://www.scientificamerican.com' + url
     return url
+
 
 keep_classes = {'article-header', 'article-content',
                 'article-media', 'article-author', 'article-text'}
@@ -53,20 +53,11 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_index(self):
         # Get the cover, date and issue URL
         root = self.index_to_soup(
-            'http://www.scientificamerican.com/sciammag/', as_tree=True)
+            'https://www.scientificamerican.com/sciammag/', as_tree=True)
         select = Select(root)
-        for a in select('#sa_body .store-listing__img a[href]'):
-            url = absurl(a.get('href'))
-            month = int(filter(None, url.split('/'))[-1].partition('-')[0])
-            if month > now().month:
-                continue
-            for source in a.xpath('descendant::source'):
-                self.cover_url = absurl(source.get('srcset').split()[0])
-                break
-            break
-        else:
-            raise ValueError(
-                'The Scientific American website has changed, this recipe needs to be updated')
+        url = [x.get('href', '') for x in select('main .store-listing__img a')][0]
+        url = absurl(url)
+        self.cover_url = [x.get('src', '') for x in select('main .store-listing__img img')][0]
 
         # Now parse the actual issue to get the list of articles
         select = Select(self.index_to_soup(url, as_tree=True))
@@ -83,12 +74,13 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_sciam_features(self, select, section):
         for article in select('article[data-article-title]', section):
             title = article.get('data-article-title')
-            for a in select('a[href]', article):
-                url = absurl(a.get('href'))
-                break
+            url = 'https://www.scientificamerican.com/{}/'.format(article.get('id').replace('-', '/', 1))
             desc = ''
             for p in select('p.t_body', article):
-                desc = self.tag_to_string(p)
+                desc += self.tag_to_string(p)
+                break
+            for p in select('.t_meta', article):
+                desc += ' ' + self.tag_to_string(p)
                 break
             self.log('Found feature article: %s at %s' % (title, url))
             self.log('\t' + desc)
@@ -103,11 +95,14 @@ class ScientificAmerican(BasicNewsRecipe):
                 section_title, articles = self.tag_to_string(span), []
                 self.log('\nFound section: %s' % section_title)
                 break
-            for a in select('h2 a[href]', li):
-                title = self.tag_to_string(a)
-                url = absurl(a.get('href'))
-                articles.append(
+            url = 'https://www.scientificamerican.com/{}/'.format(li.get('id').replace('-', '/', 1))
+            for h2 in select('h2.t_listing-title', li):
+                title = self.tag_to_string(h2)
+                break
+            else:
+                continue
+            articles.append(
                     {'title': title, 'url': url, 'description': ''})
-                self.log('\tFound article: %s at %s' % (title, url))
+            self.log('\tFound article: %s at %s' % (title, url))
         if articles:
             yield section_title, articles

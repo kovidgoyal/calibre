@@ -2,8 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 import subprocess, re
 from calibre.constants import iswindows, isosx
 
@@ -25,6 +24,7 @@ def get_addresses_for_interface(name, family='AF_INET'):
                 if isinstance(addr, bytes):
                     addr = addr.decode('ascii')
                 yield addr
+
 
 if iswindows:
 
@@ -70,7 +70,8 @@ else:
 
     def get_default_route_src_address():
         # Use /proc/net/ipv6_route for IPv6 addresses
-        raw = open('/proc/net/route', 'rb').read().decode('utf-8')
+        with open('/proc/net/route', 'rb') as f:
+            raw = f.read().decode('utf-8')
         for line in raw.splitlines():
             parts = line.split()
             if len(parts) > 1 and parts[1] == '00000000':

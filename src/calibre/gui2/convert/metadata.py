@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,6 +21,7 @@ from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
 from calibre.ebooks.conversion.config import OPTIONS
+from polyglot.builtins import unicode_type
 
 
 def create_opf_file(db, book_id, opf_file=None):
@@ -67,29 +68,35 @@ class MetadataWidget(Widget, Ui_Form):
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
         self.series.currentTextChanged.connect(self.series_changed)
+        self.cover.draw_border = False
 
     def change_cover(self, data):
         self.cover_changed = True
         self.cover_data = data
 
     def deduce_author_sort(self, *args):
-        au = unicode(self.author.currentText())
+        au = unicode_type(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
+        self.author_sort.home(False)
 
     def initialize_metadata_options(self):
         self.initialize_combos()
         self.author.editTextChanged.connect(self.deduce_author_sort)
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
-        self.title.setText(mi.title)
+        self.title.setText(mi.title), self.title.home(False)
         self.publisher.show_initial_value(mi.publisher if mi.publisher else '')
+        self.publisher.home(False)
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
+        self.author_sort.home(False)
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
         self.tags.update_items_cache(self.db.all_tags())
+        self.tags.home(False)
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
         self.series.show_initial_value(mi.series if mi.series else '')
+        self.series.home(False)
         if mi.series_index is not None:
             try:
                 self.series_index.setValue(mi.series_index)
@@ -141,6 +148,7 @@ class MetadataWidget(Widget, Ui_Form):
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
         self.author.show_initial_value(au)
+        self.author.home(False)
 
     def initialize_series(self):
         all_series = self.db.all_series()
@@ -155,30 +163,30 @@ class MetadataWidget(Widget, Ui_Form):
         self.publisher.update_items_cache([x[1] for x in all_publishers])
 
     def get_title_and_authors(self):
-        title = unicode(self.title.text()).strip()
+        title = unicode_type(self.title.text()).strip()
         if not title:
             title = _('Unknown')
-        authors = unicode(self.author.text()).strip()
+        authors = unicode_type(self.author.text()).strip()
         authors = string_to_authors(authors) if authors else [_('Unknown')]
         return title, authors
 
     def get_metadata(self):
         title, authors = self.get_title_and_authors()
         mi = MetaInformation(title, authors)
-        publisher = unicode(self.publisher.text()).strip()
+        publisher = unicode_type(self.publisher.text()).strip()
         if publisher:
             mi.publisher = publisher
-        author_sort = unicode(self.author_sort.text()).strip()
+        author_sort = unicode_type(self.author_sort.text()).strip()
         if author_sort:
             mi.author_sort = author_sort
         comments = self.comment.html
         if comments:
             mi.comments = comments
         mi.series_index = float(self.series_index.value())
-        series = unicode(self.series.currentText()).strip()
+        series = unicode_type(self.series.currentText()).strip()
         if series:
             mi.series = series
-        tags = [t.strip() for t in unicode(self.tags.text()).strip().split(',')]
+        tags = [t.strip() for t in unicode_type(self.tags.text()).strip().split(',')]
         if tags:
             mi.tags = tags
 
@@ -186,7 +194,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def select_cover(self):
         files = choose_images(self, 'change cover dialog',
-                             _('Choose cover for ') + unicode(self.title.text()))
+                             _('Choose cover for ') + unicode_type(self.title.text()))
         if not files:
             return
         _file = files[0]
@@ -197,13 +205,13 @@ class MetadataWidget(Widget, Ui_Form):
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
-            cf, cover = None, None
+            cover = None
             try:
-                cf = open(_file, "rb")
-                cover = cf.read()
+                with open(_file, "rb") as f:
+                    cover = f.read()
             except IOError as e:
                 d = error_dialog(self.parent(), _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+unicode_type(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()

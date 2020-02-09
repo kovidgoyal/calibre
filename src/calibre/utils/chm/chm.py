@@ -14,6 +14,7 @@
 # General Public License for more details.
 
 # $Id: chm.py,v 1.12 2006/08/07 12:31:51 rubensr Exp $
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
    chm - A high-level front end for the chmlib python module.
@@ -26,16 +27,16 @@
 '''
 
 import array
-import string
-import sys
 import codecs
+import struct
+import sys
 
-import calibre.utils.chm.chmlib as chmlib
-from calibre.constants import plugins
+from calibre.constants import plugins, filesystem_encoding
+from polyglot.builtins import long_type
 
-extra, extra_err = plugins['chm_extra']
-if extra_err:
-    raise RuntimeError('Failed to load chm.extra: '+extra_err)
+chmlib, chmlib_err = plugins['chmlib']
+if chmlib_err:
+    raise RuntimeError('Failed to load chmlib: ' + chmlib_err)
 
 charset_table = {
     0   : 'iso8859_1',  # ANSI_CHARSET
@@ -189,12 +190,25 @@ locale_table = {
 }
 
 
+def get_lcid(chm_file_obj):
+    for lang, offset in (
+            (b"/$FIftiMain",               0x7E),
+            (b"$WWKeywordLinks/BTree",     0x34),
+            (b"$WWAssociativeLinks/BTree", 0x34),
+            ):
+        result, ui = chmlib.chm_resolve_object(chm_file_obj, lang)
+        if result == chmlib.CHM_RESOLVE_SUCCESS:
+            size, text = chmlib.chm_retrieve_object(chm_file_obj, ui, offset, 4)
+            if size == 4:
+                return struct.unpack("I", text)[0]
+
+
 class CHMFile:
     "A class to manage access to CHM files."
     filename = ""
     file = None
-    title = ""
-    home = "/"
+    title = b""
+    home = b"/"
     index = None
     topics = None
     encoding = None
@@ -210,11 +224,14 @@ class CHMFile:
         such as the index file name and the topics file. It returns 1 on
         success, and 0 if it fails.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             self.CloseCHM()
 
-        self.file = chmlib.chm_open(archiveName)
-        if (self.file is None):
+        path = archiveName
+        if not isinstance(path, bytes):
+            path = path.encode(filesystem_encoding)
+        self.file = chmlib.chm_open(path)
+        if self.file is None:
             return 0
 
         self.filename = archiveName
@@ -227,12 +244,12 @@ class CHMFile:
         This function will close the CHM file, if it is open. All variables
         are also reset.
         '''
-        if (self.filename is not None):
+        if self.filename is not None:
             chmlib.chm_close(self.file)
             self.file = None
             self.filename = ''
-            self.title = ""
-            self.home = "/"
+            self.title = b""
+            self.home = b"/"
             self.index = None
             self.topics = None
             self.encoding = None
@@ -243,13 +260,10 @@ class CHMFile:
         obtain the index, home page, topics, encoding and title. It is called
         from LoadCHM.
         '''
-
-        # extra.is_searchable crashed...
-        # self.searchable = extra.is_searchable (self.file)
         self.searchable = False
         self.lcid = None
 
-        result, ui = chmlib.chm_resolve_object(self.file, '/#SYSTEM')
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#SYSTEM')
         if (result != chmlib.CHM_RESOLVE_SUCCESS):
             sys.stderr.write('GetArchiveInfo: #SYSTEM does not exist\n')
             return 0
@@ -265,48 +279,48 @@ class CHMFile:
         while (index < size):
             cursor = buff[index] + (buff[index+1] * 256)
 
-            if (cursor == 0):
+            if cursor == 0:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.topics = '/' + text[index:index+cursor-1]
-            elif (cursor == 1):
+                self.topics = b'/' + text[index:index+cursor-1]
+            elif cursor == 1:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.index = '/' + text[index:index+cursor-1]
-            elif (cursor == 2):
+                self.index = b'/' + text[index:index+cursor-1]
+            elif cursor == 2:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
-                self.home = '/' + text[index:index+cursor-1]
-            elif (cursor == 3):
+                self.home = b'/' + text[index:index+cursor-1]
+            elif cursor == 3:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.title = text[index:index+cursor-1]
-            elif (cursor == 4):
+            elif cursor == 4:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 self.lcid = buff[index] + (buff[index+1] * 256)
-            elif (cursor == 6):
+            elif cursor == 6:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
                 tmp = text[index:index+cursor-1]
                 if not self.topics:
-                    tmp1 = '/' + tmp + '.hhc'
-                    tmp2 = '/' + tmp + '.hhk'
+                    tmp1 = b'/' + tmp + b'.hhc'
+                    tmp2 = b'/' + tmp + b'.hhk'
                     res1, ui1 = chmlib.chm_resolve_object(self.file, tmp1)
                     res2, ui2 = chmlib.chm_resolve_object(self.file, tmp2)
-                    if (not self.topics) and \
-                           (res1 == chmlib.CHM_RESOLVE_SUCCESS):
-                        self.topics = '/' + tmp + '.hhc'
-                    if (not self.index) and \
-                           (res2 == chmlib.CHM_RESOLVE_SUCCESS):
-                        self.index = '/' + tmp + '.hhk'
-            elif (cursor == 16):
+                    if not self.topics and \
+                           res1 == chmlib.CHM_RESOLVE_SUCCESS:
+                        self.topics = b'/' + tmp + b'.hhc'
+                    if not self.index and \
+                           res2 == chmlib.CHM_RESOLVE_SUCCESS:
+                        self.index = b'/' + tmp + b'.hhk'
+            elif cursor == 16:
                 index += 2
                 cursor = buff[index] + (buff[index+1] * 256)
                 index += 2
@@ -320,7 +334,9 @@ class CHMFile:
         self.GetWindowsInfo()
 
         if not self.lcid:
-            self.lcid = extra.get_lcid(self.file)
+            lcid = get_lcid(self.file)
+            if lcid is not None:
+                self.lcid = lcid
 
         return 1
 
@@ -329,7 +345,7 @@ class CHMFile:
         This auxiliary function reads and returns the topics tree file
         contents for the CHM archive.
         '''
-        if (self.topics is None):
+        if self.topics is None:
             return None
 
         if self.topics:
@@ -338,7 +354,7 @@ class CHMFile:
                 return None
 
         size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
-        if (size == 0):
+        if size == 0:
             sys.stderr.write('GetTopicsTree: file size = 0\n')
             return None
         return text
@@ -370,11 +386,8 @@ class CHMFile:
         The UnitInfo is used to retrieve the document contents
         '''
         if self.file:
-            # path = os.path.abspath(document)
-            path = document
-            return chmlib.chm_resolve_object(self.file, path)
-        else:
-            return (1, None)
+            return chmlib.chm_resolve_object(self.file, document)
+        return 1, None
 
     def RetrieveObject(self, ui, start=-1, length=-1):
         '''Retrieves the contents of a document.
@@ -390,25 +403,10 @@ class CHMFile:
             if start == -1:
                 st = 0
             else:
-                st = long(start)
+                st = long_type(start)
             return chmlib.chm_retrieve_object(self.file, ui, st, len)
         else:
-            return (0, '')
-
-    def Search(self, text, wholewords=0, titleonly=0):
-        '''Performs full-text search on the archive.
-        The first parameter is the word to look for, the second
-        indicates if the search should be for whole words only, and
-        the third parameter indicates if the search should be
-        restricted to page titles.
-        This method will return a tuple, the first item
-        indicating if the search results were partial, and the second
-        item being a dictionary containing the results.'''
-        if text and text != '' and self.file:
-            return extra.search(self.file, text, wholewords,
-                                 titleonly)
-        else:
-            return None
+            return 0, b''
 
     def IsSearchable(self):
         '''Indicates if the full-text search is available for this
@@ -421,7 +419,7 @@ class CHMFile:
         found, or if it is not possible to find the encoding, None is
         returned.'''
         if self.encoding:
-            vals = string.split(self.encoding, ',')
+            vals = self.encoding.split(b',')
             if len(vals) > 2:
                 try:
                     return charset_table[int(vals[2])]
@@ -445,7 +443,7 @@ class CHMFile:
         if ans:
             try:
                 codecs.lookup(ans)
-            except:
+            except Exception:
                 ans = None
         return ans
 
@@ -453,8 +451,8 @@ class CHMFile:
         '''Internal method.
         Reads a double word (4 bytes) from a buffer.
         '''
-        result = buff[idx] + (buff[idx+1]<<8) + (buff[idx+2]<<16) + \
-                 (buff[idx+3]<<24)
+        result = buff[idx] + (buff[idx+1] << 8) + (buff[idx+2] << 16) + \
+                 (buff[idx+3] << 24)
 
         if result == 0xFFFFFFFF:
             result = 0
@@ -465,7 +463,7 @@ class CHMFile:
         '''Internal method.
         Retrieves a string from the #STRINGS buffer.
         '''
-        next = string.find(text, '\x00', idx)
+        next = text.find(b'\x00', idx)
         chunk = text[idx:next]
         return chunk
 
@@ -474,12 +472,12 @@ class CHMFile:
         Checks the #WINDOWS file to see if it has any info that was
         not found in #SYSTEM (topics, index or default page.
         '''
-        result, ui = chmlib.chm_resolve_object(self.file, '/#WINDOWS')
-        if (result != chmlib.CHM_RESOLVE_SUCCESS):
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#WINDOWS')
+        if result != chmlib.CHM_RESOLVE_SUCCESS:
             return -1
 
         size, text = chmlib.chm_retrieve_object(self.file, ui, 0, 8)
-        if (size < 8):
+        if size < 8:
             return -2
 
         buff = array.array('B', text)
@@ -490,7 +488,7 @@ class CHMFile:
             return -3
 
         size, text = chmlib.chm_retrieve_object(self.file, ui, 8, entry_size)
-        if (size < entry_size):
+        if size < entry_size:
             return -4
 
         buff = array.array('B', text)
@@ -498,25 +496,25 @@ class CHMFile:
         idx_index = self.GetDWORD(buff, 0x64)
         dft_index = self.GetDWORD(buff, 0x68)
 
-        result, ui = chmlib.chm_resolve_object(self.file, '/#STRINGS')
-        if (result != chmlib.CHM_RESOLVE_SUCCESS):
+        result, ui = chmlib.chm_resolve_object(self.file, b'/#STRINGS')
+        if result != chmlib.CHM_RESOLVE_SUCCESS:
             return -5
 
         size, text = chmlib.chm_retrieve_object(self.file, ui, 0, ui.length)
-        if (size == 0):
+        if size == 0:
             return -6
 
-        if (not self.topics):
+        if not self.topics:
             self.topics = self.GetString(text, toc_index)
-            if not self.topics.startswith("/"):
-                self.topics = "/" + self.topics
+            if not self.topics.startswith(b"/"):
+                self.topics = b"/" + self.topics
 
-        if (not self.index):
+        if not self.index:
             self.index = self.GetString(text, idx_index)
-            if not self.index.startswith("/"):
-                self.index = "/" + self.index
+            if not self.index.startswith(b"/"):
+                self.index = b"/" + self.index
 
-        if (dft_index != 0):
+        if dft_index != 0:
             self.home = self.GetString(text, dft_index)
-            if not self.home.startswith("/"):
-                self.home = "/" + self.home
+            if not self.home.startswith(b"/"):
+                self.home = b"/" + self.home

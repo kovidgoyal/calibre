@@ -1,14 +1,13 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from cssutils import parseStyle
+from css_parser import parseStyle
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
@@ -19,6 +18,7 @@ from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
+from polyglot.builtins import iteritems, unicode_type
 
 
 class VirtualContainer(ContainerBase):
@@ -83,7 +83,7 @@ class CascadeTest(BaseTest):
             elem = next(select(selector))
             ans = resolve_property(elem, name)
             if val is None:
-                val = type('')(DEFAULTS[name])
+                val = unicode_type(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
         def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False):
@@ -94,7 +94,7 @@ class CascadeTest(BaseTest):
                     self.assertTrue(ans is None)
                     return
             if val is None:
-                val = type('')(DEFAULTS[name])
+                val = unicode_type(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
         def get_maps(html, styles=None, pseudo=False):
@@ -155,7 +155,7 @@ class CascadeTest(BaseTest):
             files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
-                for k, v in font.iteritems():
+                for k, v in iteritems(font):
                     if k == 'src':
                         files[v] = b'xxx'
                         v = 'url(%s)' % v
@@ -186,7 +186,7 @@ class CascadeTest(BaseTest):
         def fkey(*args, **kw):
             f = font(*args, **kw)
             f['font-family'] = icu_lower(f['font-family'][0])
-            return frozenset((k, v) for k, v in f.iteritems() if k in font_keys)
+            return frozenset((k, v) for k, v in iteritems(f) if k in font_keys)
 
         def fu(text, *args, **kw):
             key = fkey(*args, **kw)

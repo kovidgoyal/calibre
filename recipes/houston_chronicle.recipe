@@ -8,8 +8,6 @@ chron.com
 '''
 import re
 import time
-import urllib2
-from StringIO import StringIO
 from datetime import datetime
 import traceback
 import sys
@@ -19,8 +17,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.BeautifulSoup import NavigableString
 from calibre.utils.date import dt_factory, local_tz
-from lxml import html
-from lxml import etree
 
 regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|
@@ -62,12 +58,8 @@ def validate_link(page, link, title):
     return link, title
 
 
-def get_article_parsed(this_url):
-    page = urllib2.urlopen(this_url)
-    content = page.read()
-    parser = etree.HTMLParser()
-    parsed = html.parse(StringIO(content), parser)
-    return parsed
+def get_article_parsed(index_to_soup, this_url):
+    return index_to_soup(this_url, as_tree=True)
 
 
 def sort_subject(element_list):
@@ -91,8 +83,8 @@ def sort_subject(element_list):
     return combined_list
 
 
-def get_links_from_section_page(page):
-    page_doc = get_article_parsed(base_url + page[1][0])
+def get_links_from_section_page(index_to_soup, page):
+    page_doc = get_article_parsed(index_to_soup, base_url + page[1][0])
     els = page_doc.xpath(xpath_general)
     element_list = []
     for el in els:
@@ -110,13 +102,13 @@ def get_links_from_section_page(page):
     return [page[0], sorted_element_list]
 
 
-def get_all_links_from_sections():
+def get_all_links_from_sections(index_to_soup):
     all_sections = []
     article_set = set()
     final_dict = OrderedDict()
     for item in pages.items():
         print("getting links from {0}".format(item[0]))
-        all_sections.append(get_links_from_section_page(item))
+        all_sections.append(get_links_from_section_page(index_to_soup, item))
     for section in all_sections:
         section_id = section[0]
         article_list = section[1]
@@ -168,7 +160,7 @@ class HoustonChronicle(BasicNewsRecipe):
                         result = []
                         for descendant in el.contents:
                             if isinstance(descendant, NavigableString):
-                                result.append(unicode(descendant).strip())
+                                result.append(type(u'')(descendant).strip())
                         all_text = u' '.join(result).encode('utf-8')
                         if len(all_text) > 1:
                             sentences = re.findall(sentence_regex, all_text)
@@ -232,7 +224,7 @@ class HoustonChronicle(BasicNewsRecipe):
         self.timefmt = ' [%a, %d %b, %Y]'
         self.log('starting parse_index: ', time.strftime(self.timestampfmt))
         feeds = []
-        sections = get_all_links_from_sections()
+        sections = get_all_links_from_sections(self.index_to_soup)
         for section_id, article_list in sections.items():
             self.log("Getting {0} section, {1:d} articles".format(section_id, len(article_list)))
             articles = []

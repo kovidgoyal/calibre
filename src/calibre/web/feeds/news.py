@@ -1,4 +1,4 @@
-from __future__ import with_statement
+from __future__ import with_statement, unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -7,17 +7,15 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys, cStringIO
+import os, time, traceback, re, sys, io
 from collections import defaultdict
-from functools import partial
-from contextlib import nested, closing
+from contextlib import closing
 
 
 from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode, random_user_agent)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre import entity_to_unicode
 from calibre.web import Recipe
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -31,6 +29,8 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to_data
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
+from polyglot.builtins import unicode_type, string_or_bytes, getcwd
+from polyglot.urllib import urlparse, urlsplit
 
 
 class LoginFailed(ValueError):
@@ -54,7 +54,7 @@ class BasicNewsRecipe(Recipe):
 
     #: A couple of lines that describe the content this recipe downloads.
     #: This will be used primarily in a GUI that presents a list of recipes.
-    description = u''
+    description = ''
 
     #: The author of this recipe
     __author__             = __appname__
@@ -210,8 +210,6 @@ class BasicNewsRecipe(Recipe):
     #:
     #:   conversion_options = {
     #:     'base_font_size'   : 16,
-    #:     'tags'             : 'mytag1,mytag2',
-    #:     'title'            : 'My Title',
     #:     'linearize_tables' : True,
     #:   }
     #:
@@ -222,14 +220,14 @@ class BasicNewsRecipe(Recipe):
     #:
     #:    {
     #:     name      : 'tag name',   #e.g. 'div'
-    #:     attrs     : a dictionary, #e.g. {class: 'advertisment'}
+    #:     attrs     : a dictionary, #e.g. {'class': 'advertisment'}
     #:    }
     #:
     #: All keys are optional. For a full explanation of the search criteria, see
-    #: `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html#Searching%20the%20Parse%20Tree>`_
+    #: `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree>`__
     #: A common example::
     #:
-    #:   remove_tags = [dict(name='div', attrs={'class':'advert'})]
+    #:   remove_tags = [dict(name='div', class_='advert')]
     #:
     #: This will remove all `<div class="advert">` tags and all
     #: their children from the downloaded :term:`HTML`.
@@ -288,7 +286,7 @@ class BasicNewsRecipe(Recipe):
     #: The CSS that is used to style the templates, i.e., the navigation bars and
     #: the Tables of Contents. Rather than overriding this variable, you should
     #: use `extra_css` in your recipe to customize look and feel.
-    template_css = u'''
+    template_css = '''
             .article_date {
                 color: gray; font-family: monospace;
             }
@@ -407,7 +405,7 @@ class BasicNewsRecipe(Recipe):
         :param url: The URL to be followed
         :param tag: The tag from which the URL was derived
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_extra_css(self):
         '''
@@ -446,7 +444,7 @@ class BasicNewsRecipe(Recipe):
         so, override in your subclass.
         '''
         if not self.feeds:
-            raise NotImplementedError
+            raise NotImplementedError()
         if self.test:
             return self.feeds[:self.test[0]]
         return self.feeds
@@ -462,7 +460,7 @@ class BasicNewsRecipe(Recipe):
                 return url + '?&pagewanted=print'
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @classmethod
     def image_url_processor(cls, baseurl, url):
@@ -504,7 +502,9 @@ class BasicNewsRecipe(Recipe):
         '''
         if 'user_agent' not in kwargs:
             # More and more news sites are serving JPEG XR images to IE
-            kwargs['user_agent'] = random_user_agent(allow_ie=False)
+            kwargs['user_agent'] = self.last_used_user_agent = getattr(
+                    self, 'last_used_user_agent', None) or random_user_agent(allow_ie=False)
+        self.log('Using user agent:', kwargs['user_agent'])
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:
@@ -530,7 +530,7 @@ class BasicNewsRecipe(Recipe):
 
     @property
     def cloned_browser(self):
-        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+        if hasattr(self.get_browser, 'is_base_class_implementation'):
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
@@ -571,7 +571,7 @@ class BasicNewsRecipe(Recipe):
         an ad page, return the HTML of the real page. Otherwise return
         None.
 
-        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
         instance containing the downloaded :term:`HTML`.
         '''
         return None
@@ -613,7 +613,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
         instance containing the downloaded :term:`HTML`.
         '''
         return soup
@@ -625,7 +625,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_  instance containing the downloaded :term:`HTML`.
+        :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
 
         '''
@@ -651,21 +651,21 @@ class BasicNewsRecipe(Recipe):
                         download an article.
         '''
         try:
-            parts = urlparse.urlparse(url)
+            parts = urlparse(url)
         except Exception:
             self.log.error('Failed to parse url: %r, ignoring' % url)
             return frozenset()
         return frozenset([(parts.netloc, (parts.path or '').rstrip('/'))])
 
-    def index_to_soup(self, url_or_raw, raw=False, as_tree=False):
+    def index_to_soup(self, url_or_raw, raw=False, as_tree=False, save_raw=None):
         '''
         Convenience method that takes an URL to the index page and returns
-        a `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        a `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc>`__
         of it.
 
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
-        if re.match(r'\w+://', url_or_raw):
+        if re.match((br'\w+://' if isinstance(url_or_raw, bytes) else r'\w+://'), url_or_raw):
             # We may be called in a thread (in the skip_ad_pages method), so
             # clone the browser to be safe. We cannot use self.cloned_browser
             # as it may or may not actually clone the browser, depending on if
@@ -680,25 +680,25 @@ class BasicNewsRecipe(Recipe):
             _raw = url_or_raw
         if raw:
             return _raw
-        if not isinstance(_raw, unicode) and self.encoding:
+        if not isinstance(_raw, unicode_type) and self.encoding:
             if callable(self.encoding):
                 _raw = self.encoding(_raw)
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
         from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
         from calibre.utils.cleantext import clean_xml_chars
-        if isinstance(_raw, unicode):
+        if isinstance(_raw, unicode_type):
             _raw = strip_encoding_declarations(_raw)
         else:
             _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
         _raw = clean_xml_chars(_raw)
+        if save_raw:
+            with lopen(save_raw, 'wb') as f:
+                f.write(_raw.encode('utf-8'))
         if as_tree:
             from html5_parser import parse
             return parse(_raw)
-        else:
-            from html5_parser.soup import set_soup_module, parse
-            set_soup_module(sys.modules[BeautifulSoup.__module__])
-            return parse(_raw, return_root=False)
+        return BeautifulSoup(_raw)
 
     def extract_readable_article(self, html, url):
         '''
@@ -723,12 +723,12 @@ class BasicNewsRecipe(Recipe):
             root = frag
         elif frag.tag == 'body':
             root = document_fromstring(
-                u'<html><head><title>%s</title></head></html>' %
+                '<html><head><title>%s</title></head></html>' %
                 extracted_title)
             root.append(frag)
         else:
             root = document_fromstring(
-                u'<html><head><title>%s</title></head><body/></html>' %
+                '<html><head><title>%s</title></head><body/></html>' %
                 extracted_title)
             root.xpath('//body')[0].append(frag)
 
@@ -743,7 +743,7 @@ class BasicNewsRecipe(Recipe):
             heading.text = extracted_title
             body.insert(0, heading)
 
-        raw_html = tostring(root, encoding=unicode)
+        raw_html = tostring(root, encoding='unicode')
 
         return raw_html
 
@@ -758,7 +758,7 @@ class BasicNewsRecipe(Recipe):
         in index are not in weights, they are assumed to have a weight of 0.
         '''
         weights = defaultdict(lambda: 0, weights)
-        index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
+        index.sort(key=lambda x: weights[x])
         return index
 
     def parse_index(self):
@@ -792,7 +792,7 @@ class BasicNewsRecipe(Recipe):
         calibre show the user a simple message instead of an error, call
         :meth:`abort_recipe_processing`.
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def abort_recipe_processing(self, msg):
         '''
@@ -813,7 +813,7 @@ class BasicNewsRecipe(Recipe):
         This method is typically useful for sites that try to make it difficult to
         access article content automatically.
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def add_toc_thumbnail(self, article, src):
         '''
@@ -864,11 +864,11 @@ class BasicNewsRecipe(Recipe):
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         self.log = ThreadSafeWrapper(log)
-        if not isinstance(self.title, unicode):
-            self.title = unicode(self.title, 'utf-8', 'replace')
+        if not isinstance(self.title, unicode_type):
+            self.title = unicode_type(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(os.getcwdu())
+        self.output_dir = os.path.abspath(getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -900,9 +900,9 @@ class BasicNewsRecipe(Recipe):
         self.css_map = {}
 
         web2disk_cmdline = ['web2disk',
-            '--timeout', str(self.timeout),
-            '--max-recursions', str(self.recursions),
-            '--delay', str(self.delay),
+            '--timeout', unicode_type(self.timeout),
+            '--max-recursions', unicode_type(self.recursions),
+            '--delay', unicode_type(self.delay),
             ]
 
         if self.verbose:
@@ -946,7 +946,7 @@ class BasicNewsRecipe(Recipe):
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
             for link in soup.findAll('link'):
-                if (link.get('type') or 'text/css').lower() == 'text/css' and (link.get('rel') or 'stylesheet').lower() == 'stylesheet':
+                if (link.get('type') or 'text/css').lower() == 'text/css' and 'stylesheet' in (link.get('rel') or ('stylesheet',)):
                     link.extract()
             for style in soup.findAll('style'):
                 style.extract()
@@ -955,9 +955,10 @@ class BasicNewsRecipe(Recipe):
             head = soup.find('body')
         if not head:
             head = soup.find(True)
-        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(
-            self.template_css +'\n\n'+(self.get_extra_css() or ''))).find('style')
-        head.insert(len(head.contents), style)
+        css = self.template_css + '\n\n' + (self.get_extra_css() or '')
+        style = soup.new_tag('style', type='text/css', title='override_css')
+        style.append(css)
+        head.append(style)
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
@@ -969,6 +970,9 @@ class BasicNewsRecipe(Recipe):
                                              extra_css=self.get_extra_css() or '')
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
+                # This is needed because otherwise inserting elements into
+                # the soup breaks find()
+                soup = BeautifulSoup(soup.decode_contents())
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
@@ -1062,10 +1066,10 @@ class BasicNewsRecipe(Recipe):
         src = force_unicode(src, 'utf-8')
         pos = cls.summary_length
         fuzz = 50
-        si = src.find(u';', pos)
+        si = src.find(';', pos)
         if si > 0 and si-pos > fuzz:
             si = -1
-        gi = src.find(u'>', pos)
+        gi = src.find('>', pos)
         if gi > 0 and gi-pos > fuzz:
             gi = -1
         npos = max(si, gi)
@@ -1075,7 +1079,7 @@ class BasicNewsRecipe(Recipe):
         if len(ans) < len(src):
             from calibre.utils.cleantext import clean_xml_chars
             # Truncating the string could cause a dangling UTF-16 half-surrogate, which will cause lxml to barf, clean it
-            ans = clean_xml_chars(ans) + u'\u2026'
+            ans = clean_xml_chars(ans) + '\u2026'
         return ans
 
     def feed2index(self, f, feeds):
@@ -1088,20 +1092,20 @@ class BasicNewsRecipe(Recipe):
             if feed.image_url in self.image_map:
                 feed.image_url = self.image_map[feed.image_url]
             else:
-                bn = urlparse.urlsplit(feed.image_url).path
+                bn = urlsplit(feed.image_url).path
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            with nested(open(img, 'wb'), closing(self.browser.open(feed.image_url))) as (fi, r):
+                            with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url)) as r:
                                 fi.write(r.read())
                             self.image_counter += 1
                             feed.image_url = img
                             self.image_map[feed.image_url] = img
                         except:
                             pass
-            if isinstance(feed.image_url, str):
+            if isinstance(feed.image_url, bytes):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
 
         templ = (templates.TouchscreenFeedTemplate if self.touchscreen else
@@ -1114,7 +1118,7 @@ class BasicNewsRecipe(Recipe):
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds):
         br = self.browser
-        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+        if hasattr(self.get_browser, 'is_base_class_implementation'):
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
@@ -1181,12 +1185,16 @@ class BasicNewsRecipe(Recipe):
 
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
+        feeds = None
         try:
             feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
                                      max_articles_per_feed=self.max_articles_per_feed,
                                      log=self.log)
             self.report_progress(0, _('Got feeds from index page'))
         except NotImplementedError:
+            pass
+
+        if feeds is None:
             feeds = self.parse_feeds()
 
         if not feeds:
@@ -1291,7 +1299,8 @@ class BasicNewsRecipe(Recipe):
                 cdata = cu.read()
                 cu = getattr(cu, 'name', 'cover.jpg')
             elif os.access(cu, os.R_OK):
-                cdata = open(cu, 'rb').read()
+                with open(cu, 'rb') as f:
+                    cdata = f.read()
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
                 with closing(self.browser.open(cu)) as r:
@@ -1301,7 +1310,7 @@ class BasicNewsRecipe(Recipe):
             ext = cu.split('/')[-1].rpartition('.')[-1].lower().strip()
             if ext == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
-                stream = cStringIO.StringIO(cdata)
+                stream = io.BytesIO(cdata)
                 cdata = None
                 mi = get_metadata(stream)
                 if mi.cover_data and mi.cover_data[1]:
@@ -1343,7 +1352,7 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
         else:
-            with nested(open(mpath, 'wb'), closing(self.browser.open(mu))) as (mfile, r):
+            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu)) as r:
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
         self.prepare_masthead_image(mpath, outfile)
@@ -1384,7 +1393,7 @@ class BasicNewsRecipe(Recipe):
         '''
         try:
             from calibre.ebooks.covers import create_cover
-            title = self.title if isinstance(self.title, unicode) else \
+            title = self.title if isinstance(self.title, unicode_type) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt).replace('[', '').replace(']', '')
             img_data = create_cover(title, [date])
@@ -1430,7 +1439,7 @@ class BasicNewsRecipe(Recipe):
                     article_titles.append(force_unicode(a.title, 'utf-8'))
 
         desc = self.description
-        if not isinstance(desc, unicode):
+        if not isinstance(desc, unicode_type):
             desc = desc.decode('utf-8', 'replace')
         mi.comments = (_('Articles in this issue:'
             ) + '\n\n' + '\n\n'.join(article_titles)) + '\n\n' + desc
@@ -1447,7 +1456,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -1532,7 +1541,7 @@ class BasicNewsRecipe(Recipe):
                             elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
+                                fi.write(unicode_type(soup).encode('utf-8'))
         if len(feeds) == 0:
             raise Exception('All feeds are empty, aborting.')
 
@@ -1561,7 +1570,7 @@ class BasicNewsRecipe(Recipe):
         opf.create_spine(entries)
         opf.set_toc(toc)
 
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
             opf.render(opf_file, ncx_file)
 
     def article_downloaded(self, request, result):
@@ -1580,7 +1589,7 @@ class BasicNewsRecipe(Recipe):
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-            _(u'Article downloaded: %s')%force_unicode(article.title))
+            _('Article downloaded: %s')%force_unicode(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 
@@ -1608,7 +1617,7 @@ class BasicNewsRecipe(Recipe):
         feeds = self.get_feeds()
         parsed_feeds = []
         for obj in feeds:
-            if isinstance(obj, basestring):
+            if isinstance(obj, string_or_bytes):
                 title, url = None, obj
             else:
                 title, url = obj
@@ -1643,23 +1652,23 @@ class BasicNewsRecipe(Recipe):
     def tag_to_string(self, tag, use_alt=True, normalize_whitespace=True):
         '''
         Convenience method to take a
-        `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         `Tag` and extract the text from it recursively, including any CDATA sections
         and alt tag attributes. Return a possibly empty unicode string.
 
         `use_alt`: If `True` try to use the alt attribute for tags that don't
         have any textual content
 
-        `tag`: `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `tag`: `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         `Tag`
         '''
         if tag is None:
             return ''
-        if isinstance(tag, basestring):
+        if isinstance(tag, string_or_bytes):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring
-            ans = tostring(tag, method='text', encoding=unicode, with_tail=False)
+            ans = tostring(tag, method='text', encoding='unicode', with_tail=False)
         else:
             strings = []
             for item in tag.contents:
@@ -1674,18 +1683,14 @@ class BasicNewsRecipe(Recipe):
                             strings.append(item['alt'])
                         except KeyError:
                             pass
-            ans = u''.join(strings)
+            ans = ''.join(strings)
         if normalize_whitespace:
             ans = re.sub(r'\s+', ' ', ans)
         return ans
 
     @classmethod
     def soup(cls, raw):
-        entity_replace = [(re.compile(u'&(\\S+?);'), partial(entity_to_unicode,
-                                                           exceptions=[]))]
-        nmassage = list(BeautifulSoup.MARKUP_MASSAGE)
-        nmassage.extend(entity_replace)
-        return BeautifulSoup(raw, markupMassage=nmassage)
+        return BeautifulSoup(raw)
 
     @classmethod
     def adeify_images(cls, soup):
@@ -1703,8 +1708,8 @@ class BasicNewsRecipe(Recipe):
             oldParent = item.parent
             myIndex = oldParent.contents.index(item)
             item.extract()
-            divtag = Tag(soup,'div')
-            brtag  = Tag(soup,'br')
+            divtag = soup.new_tag('div')
+            brtag  = soup.new_tag('br')
             oldParent.insert(myIndex,divtag)
             divtag.append(item)
             divtag.append(brtag)
@@ -1788,6 +1793,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                     ' the calibre Periodicals service.'))
 
         return br
+    get_browser.is_base_class_implementation = True
 
     def download(self):
         self.log('Fetching downloaded recipe')
@@ -1803,7 +1809,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                         ' Either your subscription has expired or you have'
                         ' exceeded the maximum allowed downloads for today.'))
             raise
-        f = cStringIO.StringIO(raw)
+        f = io.BytesIO(raw)
         from calibre.utils.zipfile import ZipFile
         zf = ZipFile(f)
         zf.extractall()

@@ -1,4 +1,6 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
 import os, sys
+from . import open_for_read
 
 
 class Configure:
@@ -31,7 +33,7 @@ class Configure:
         if self.__show_config_file and not self.__configuration_file:
             sys.stderr.write('No configuraiton file found; using default values\n')
         if self.__configuration_file:
-            read_obj = open(self.__configuration_file, 'r')
+            read_obj = open_for_read(self.__configuration_file)
             line_to_read = 1
             line_num = 0
             while line_to_read:

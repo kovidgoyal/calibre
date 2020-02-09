@@ -129,7 +129,7 @@ class Handelsblatt(BasicNewsRecipe):
     def postprocess_html(self, soup, first_fetch):
         # convert lists of author(s) and date(s) into simple text
         for cap in soup.findAll('div', {'class': re.compile('vhb-article-caption')}):
-            cap.replaceWith(cap.renderContents().strip() + ' ')
+            cap.replaceWith(cap.renderContents().decode('utf-8').strip() + ' ')
         for row in soup.findAll('div', {'class': 'vhb-article-author-row'}):
             for ul in row.findAll('ul'):
                 entry = ''
@@ -141,7 +141,7 @@ class Handelsblatt(BasicNewsRecipe):
         # remove all local hyperlinks
         for a in soup.findAll('a', {'href': True}):
             if a['href'] and a['href'][0] in ['/', '#']:
-                a.replaceWith(a.renderContents())
+                a.replaceWith(a.renderContents().decode('utf-8'))
         # make sure that all figure captions (including the source) are shown
         # without linebreaks by using the alternative text given within <img/>
         # instead of the original text (which is oddly formatted)

@@ -164,7 +164,7 @@ static void convert_positions(int32_t *positions, int32_t *final_positions, UCha
     for (i = 0; i < byte_len && final_positions < end; i++) {
         if (positions[i] == -1) continue;
 #if PY_VERSION_HEX >= 0x03030000
-        *final_positions = positions[i];
+        *final_positions = u_countChar32(string, positions[i]);
 #else
 #ifdef Py_UNICODE_WIDE
         *final_positions = u_countChar32(string, positions[i]);
@@ -193,7 +193,7 @@ static double process_item(MatchInfo *m, Stack *stack, int32_t *final_positions,
             // No memoized result, calculate the score
             for (i = nidx; i < m->needle_len;) {
                 nidx = i;
-                U16_FWD_1(m->needle, i, m->needle_len);// i now points to next char in needle 
+                U16_FWD_1(m->needle, i, m->needle_len);// i now points to next char in needle
                 search = searches[nidx];
                 if (search == NULL || m->haystack_len - hidx < m->needle_len - nidx) { score = 0.0; break; }
                 status = U_ZERO_ERROR; // We ignore any errors as we already know that hidx is correct
@@ -201,20 +201,20 @@ static double process_item(MatchInfo *m, Stack *stack, int32_t *final_positions,
                 status = U_ZERO_ERROR;
                 pos = usearch_next(search, &status);
                 if (pos == USEARCH_DONE) { score = 0.0; break; } // No matches found
-                distance = u_countChar32(m->haystack + last_idx, pos - last_idx);  
+                distance = u_countChar32(m->haystack + last_idx, pos - last_idx);
                 if (distance <= 1) score_for_char = m->max_score_per_char;
                 else {
-                    U16_GET(m->haystack, 0, pos, m->haystack_len, hc); 
+                    U16_GET(m->haystack, 0, pos, m->haystack_len, hc);
                     j = pos;
                     U16_PREV(m->haystack, 0, j, lc); // lc is the prev character
                     score_for_char = calc_score_for_char(m, lc, hc, distance);
                 }
                 j = pos;
-                U16_NEXT(m->haystack, j, m->haystack_len, hc); 
+                U16_NEXT(m->haystack, j, m->haystack_len, hc);
                 hidx = j;
                 if (m->haystack_len - hidx >= m->needle_len - nidx) stack_push(stack, hidx, nidx, last_idx, score, positions);
-                last_idx = pos; 
-                positions[nidx] = pos; 
+                last_idx = pos;
+                positions[nidx] = pos;
                 score += score_for_char;
             } // for(i) iterate over needle
             mem.score = score; memcpy(mem.positions, positions, sizeof(*positions) * m->needle_len);
@@ -256,7 +256,7 @@ static void free_searches(UStringSearch **searches, int32_t count) {
 
 static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UChar *needle, Match *match_results, int32_t *final_positions, int32_t needle_char_len, UCollator *collator, UChar *level1, UChar *level2, UChar *level3) {
     Stack stack = {0};
-    int32_t i = 0, maxhl = 0; 
+    int32_t i = 0, maxhl = 0;
     int32_t r = 0, *positions = NULL;
     MatchInfo *matches = NULL;
     bool ok = FALSE;
@@ -340,7 +340,7 @@ static void free_matcher(Matcher *self) {
     if (self->items != NULL) {
         for (i = 0; i < self->item_count; i++) { nullfree(self->items[i]); }
     }
-    nullfree(self->items); nullfree(self->item_lengths); 
+    nullfree(self->items); nullfree(self->item_lengths);
     nullfree(self->level1); nullfree(self->level2); nullfree(self->level3);
     if (self->collator != NULL) ucol_close(self->collator); self->collator = NULL;
 }
@@ -361,7 +361,7 @@ Matcher_init(Matcher *self, PyObject *args, PyObject *kwds)
     UCollator *col = NULL;
 
     if (!PyArg_ParseTuple(args, "OOOOO", &items, &collator, &level1, &level2, &level3)) return -1;
-    
+
     // Clone the passed in collator (cloning is needed as collators are not thread safe)
     if (!PyCapsule_CheckExact(collator)) { PyErr_SetString(PyExc_TypeError, "Collator must be a capsule"); return -1; }
     col = (UCollator*)PyCapsule_GetPointer(collator, NULL);
@@ -395,7 +395,7 @@ end:
     return (PyErr_Occurred()) ? -1 : 0;
 }
 // Matcher.__init__() }}}
- 
+
 // Matcher.calculate_scores {{{
 static PyObject *
 Matcher_calculate_scores(Matcher *self, PyObject *args) {

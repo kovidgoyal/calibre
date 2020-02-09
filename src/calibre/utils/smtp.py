@@ -1,5 +1,5 @@
-from __future__ import with_statement
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -11,20 +11,36 @@ This module implements a simple commandline SMTP client that supports:
 '''
 
 import sys, traceback, os, socket, encodings.idna as idna
-from calibre import isbytestring, force_unicode
+from calibre import isbytestring
+from calibre.constants import ispy3, iswindows
+from polyglot.builtins import unicode_type, as_unicode, native_string_type
+
+
+def decode_fqdn(fqdn):
+    if isinstance(fqdn, bytes):
+        enc = 'mbcs' if iswindows else 'utf-8'
+        try:
+            fqdn = fqdn.decode(enc)
+        except Exception:
+            fqdn = ''
+    return fqdn
+
+
+def sanitize_hostname(hostname):
+    return hostname.replace('..', '_')
 
 
 def safe_localhost():
     # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
     # if that can't be calculated, that we should use a domain literal
     # instead (essentially an encoded IP address like [A.B.C.D]).
-    fqdn = socket.getfqdn()
+    fqdn = decode_fqdn(socket.getfqdn())
     if '.' in fqdn and fqdn != '.':
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
         try:
-            local_hostname = idna.ToASCII(force_unicode(fqdn))
-        except:
+            local_hostname = as_unicode(idna.ToASCII(fqdn))
+        except Exception:
             local_hostname = 'localhost.localdomain'
     else:
         # We can't find an fqdn hostname, so use a domain literal
@@ -98,17 +114,16 @@ def get_mx(host, verbose=0):
     if verbose:
         print('Find mail exchanger for', host)
     answers = list(dns.resolver.query(host, 'MX'))
-    answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
-                                      int(getattr(y, 'preference', sys.maxint))))
-    return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
+    answers.sort(key=lambda x: int(getattr(x, 'preference', sys.maxsize)))
+    return [unicode_type(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
-    import calibre.utils.smtplib as smtplib
+    import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work
-    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
+    kwargs = dict(timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
     if debug_output is not None:
         kwargs['debug_to'] = debug_output
     s = smtplib.SMTP(**kwargs)
@@ -128,24 +143,32 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         raise IOError('Failed to send mail: '+repr(last_error))
 
 
+def get_smtp_class(use_ssl=False, debuglevel=0):
+    # We need this as in python 3.7 we have to pass the hostname
+    # in the constructor, because of https://bugs.python.org/issue36094
+    # which means the constructor calls connect(),
+    # but there is no way to set debuglevel before connect() is called
+    import polyglot.smtplib as smtplib
+    cls = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
+    bases = (cls,) if ispy3 else (cls, object)
+    return type(native_string_type('SMTP'), bases, {native_string_type('debuglevel'): debuglevel})
+
+
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
              port=-1, debug_output=None, verify_server_cert=False, cafile=None):
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
-    import calibre.utils.smtplib as smtplib
-    cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
     timeout = None  # Non-blocking sockets sometimes don't work
     port = int(port)
-    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
-    if debug_output is not None:
-        kwargs['debug_to'] = debug_output
-    s = cls(**kwargs)
-    s.set_debuglevel(verbose)
     if port < 0:
         port = 25 if encryption != 'SSL' else 465
-    s.connect(relay, port)
+    kwargs = dict(host=relay, port=port, timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    cls = get_smtp_class(use_ssl=encryption == 'SSL', debuglevel=verbose)
+    s = cls(**kwargs)
     if encryption == 'TLS':
         context = None
         if verify_server_cert:
@@ -154,7 +177,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         s.starttls(context=context)
         s.ehlo()
     if username is not None and password is not None:
-        if encryption == 'SSL':
+        if encryption == 'SSL' and not ispy3:
             s.sock = s.file.sslobj
         s.login(username, password)
     ret = None
@@ -262,7 +285,7 @@ def main(args=sys.argv):
 
     if len(args) > 1:
         if len(args) < 4:
-            print ('You must specify the from address, to address and body text'
+            print('You must specify the from address, to address and body text'
                     ' on the command line')
             return 1
         msg = compose_mail(args[1], args[2], args[3], subject=opts.subject,

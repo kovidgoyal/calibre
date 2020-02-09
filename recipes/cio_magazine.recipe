@@ -102,13 +102,13 @@ class CIO_Magazine(BasicNewsRecipe):
         for div in soup.findAll(True,
                                 attrs={'class': ['heading', 'issue_item']}):
 
-            if div['class'] == 'heading':
+            if ''.join(div['class']) == 'heading':
                 key = string.capwords(self.tag_to_string(div.span))
                 print("Key: ", key)  # Esto es para depurar
                 articles[key] = []
                 feeds.append(key)
 
-            elif div['class'] == 'issue_item':
+            elif ''.join(div['class']) == 'issue_item':
                 a = div.find('a', href=True)
                 if not a:
                     continue
@@ -131,12 +131,12 @@ class CIO_Magazine(BasicNewsRecipe):
 
                 # Esto esta copiado del NY times
                 feed = key if key is not None else 'Uncategorized'
-                if not articles.has_key(feed):  # noqa
+                if feed not in articles:
                     articles[feed] = []
                 if 'podcasts' not in url:
                     articles[feed].append(
                         dict(title=title, url=url, date=pubdate,
                              description=description,
                              content=''))
-        feeds = [(k, articles[k]) for k in feeds if articles.has_key(k)]  # noqa
+        feeds = [(k, articles[k]) for k in feeds if k in articles]
         return feeds

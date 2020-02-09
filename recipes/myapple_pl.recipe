@@ -6,7 +6,6 @@ class MyAppleRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    version = 1
 
     title = u'MyApple.pl'
     category = u'News'
@@ -22,16 +21,10 @@ class MyAppleRecipe(BasicNewsRecipe):
     remove_javascript = True
     simultaneous_downloads = 3
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'id': 'article_content'}))
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = []
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'article_author_date_comment_container'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'fullwidth'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'cmslinks'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'googleads-468'}))
-    remove_tags.append(dict(name='div', attrs={'id': 'comments'}))
+    remove_tags = [dict(name='a', attrs={'class': 'twitter-follow-button'}),
+                   dict(name='ul', attrs={'class': 'list-inline text-muted small mb-0 mt-1'})]
 
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
@@ -39,7 +32,7 @@ class MyAppleRecipe(BasicNewsRecipe):
                     '''
 
     feeds = [
-        ('News', 'feed://myapple.pl/external.php?do=rss&type=newcontent&sectionid=1&days=120&count=10'),
+        ('Wpisy', 'https://myapple.pl/posts.atom'),
     ]
 
     def preprocess_html(self, soup):

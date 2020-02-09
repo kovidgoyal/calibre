@@ -3,7 +3,6 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 import time
 import json
-import urllib
 from pprint import pprint
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -87,9 +86,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
         return cleanedHTML
 
     def loadURL(self, url):
-        socket = urllib.urlopen(url)
-        rawHTML = socket.read()
-        return rawHTML
+        return self.index_to_soup(url, raw=True)
 
     def htmlToAttribsDict(self, rawHTML):
         tokenStart = 'dataLayer.push({'

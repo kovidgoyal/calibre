@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,8 +8,11 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html
 
@@ -44,7 +47,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + urllib.quote_plus(query)
+        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + quote_plus(query)
 
         br = browser()
 
@@ -56,7 +59,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     break
 
                 id = ''.join(data.xpath('.//a[1]/@href'))
-                mo = re.search('\d+', id)
+                mo = re.search(r'\d+', id)
                 if not mo:
                     continue
                 id = mo.group()

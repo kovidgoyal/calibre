@@ -1,9 +1,15 @@
 from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime, timedelta
-from calibre.ebooks.BeautifulSoup import Tag, BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.magick import Image, PixelWand
-from urllib2 import Request, urlopen, URLError
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class Estadao(BasicNewsRecipe):
@@ -76,11 +82,11 @@ class Estadao(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         if not soup.find(attrs={'http-equiv': 'Content-Language'}):
-            meta0 = Tag(soup, 'meta', [
+            meta0 = new_tag(soup, 'meta', [
                         ("http-equiv", "Content-Language"), ("content", self.LANGHTM)])
             soup.head.insert(0, meta0)
         if not soup.find(attrs={'http-equiv': 'Content-Type'}):
-            meta1 = Tag(soup, 'meta', [
+            meta1 = new_tag(soup, 'meta', [
                         ("http-equiv", "Content-Type"), ("content", "text/html; charset=" + self.ENCHTM)])
             soup.head.insert(0, meta1)
         return soup
@@ -88,7 +94,7 @@ class Estadao(BasicNewsRecipe):
     def postprocess_html(self, soup, first):
         # process all the images. assumes that the new html has the correct
         # path
-        for tag in soup.findAll(lambda tag: tag.name.lower() == 'img' and tag.has_key('src')):  # noqa
+        for tag in soup.findAll('img', src=True):
             iurl = tag['src']
             img = Image()
             img.open(iurl)
@@ -106,20 +112,14 @@ class Estadao(BasicNewsRecipe):
     def get_cover_url(self):
         if self.THUMBALIZR_API:
             cover_url = self.CAPA
-            pedido = Request(self.CAPA)
-            pedido.add_header('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ' +
-                              self.LANGHTM + '; userid=' + self.THUMBALIZR_API + ') Calibre/0.8.47 (like Gecko)')
-            pedido.add_header('Accept-Charset', self.ENCHTM)
-            pedido.add_header('Referer', self.SCREENSHOT)
             try:
-                resposta = urlopen(pedido)
-                soup = BeautifulSoup(resposta)
+                soup = self.index_to_soup(cover_url)
                 cover_item = soup.find('body')
                 if cover_item:
                     cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
                         '&url=' + self.SCREENSHOT + '&width=600&quality=90'
                 return cover_url
-            except URLError:
+            except Exception:
                 cover_url = 'http://api.thumbalizr.com/?api_key=' + self.THUMBALIZR_API + \
                     '&url=' + self.SCREENSHOT + '&width=600&quality=90'
                 return cover_url

@@ -1,16 +1,14 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import shutil, os, errno
 from threading import Thread
-from Queue import LifoQueue, Empty
 
-from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
+from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt, QSize)
 
 from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
@@ -18,6 +16,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.ipc import RC
+from polyglot.queue import LifoQueue, Empty
 
 
 def save_dir_container(container, path):
@@ -111,7 +110,7 @@ class SaveWidget(QWidget):
         self.stop()
 
     def start(self):
-        self.pi.setDisplaySize(self.label.height())
+        self.pi.setDisplaySize(QSize(self.label.height(), self.label.height()))
         self.pi.setVisible(True)
         self.pi.startAnimation()
         self.label.setText(_('Saving...'))

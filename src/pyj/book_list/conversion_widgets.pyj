@@ -664,6 +664,7 @@ def pdf_output(container):
     g.appendChild(float_spin('pdf_page_margin_top', indent + _('Top page margin'), unit='pt', min=-100, max=500))
     g.appendChild(float_spin('pdf_page_margin_right', indent + _('Right page margin'), unit='pt', min=-100, max=500))
     g.appendChild(float_spin('pdf_page_margin_bottom', indent + _('Bottom page margin'), unit='pt', min=-100, max=500))
+    g.appendChild(float_spin('pdf_odd_even_offset', indent + _('Odd/even offset'), unit='pt', min=-500, max=500))
     g.appendChild(lineedit('pdf_header_template', _('&Header template:')))
     g.appendChild(lineedit('pdf_footer_template', _('&Footer template:')))
 # }}}

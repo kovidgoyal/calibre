@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ import time, random
 from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
+from polyglot.builtins import range
 
 
 class TestLock(BaseTest):
@@ -155,7 +155,7 @@ class TestLock(BaseTest):
         done = []
 
         def lots_of_acquires():
-            for _ in xrange(1000):
+            for _ in range(1000):
                 shared = random.choice([True,False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
@@ -167,7 +167,7 @@ class TestLock(BaseTest):
                 lock.release()
                 lock.release()
             done.append(True)
-        threads = [Thread(target=lots_of_acquires) for _ in xrange(10)]
+        threads = [Thread(target=lots_of_acquires) for _ in range(10)]
         for t in threads:
             t.daemon = True
             t.start()

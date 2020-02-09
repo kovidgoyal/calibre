@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,9 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
-from Queue import Empty
 from io import BytesIO
-from polyglot.builtins import map
+from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
@@ -30,10 +28,11 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
 from calibre.utils.ipc.pool import Pool, Failure
+from polyglot.queue import Empty
 
 
 def validate_source(source, parent=None):  # {{{
-    if isinstance(source, basestring):
+    if isinstance(source, string_or_bytes):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
@@ -89,6 +88,7 @@ class Adder(QObject):
         self.report = []
         self.items = []
         self.added_book_ids = set()
+        self.merged_formats_added_to = set()
         self.merged_books = set()
         self.added_duplicate_info = set()
         self.pd.show()
@@ -143,7 +143,7 @@ class Adder(QObject):
                         self.file_groups[len(self.file_groups)] = files
         else:
             def find_files(root):
-                if isinstance(root, type(u'')):
+                if isinstance(root, unicode_type):
                     root = root.encode(filesystem_encoding)
                 for dirpath, dirnames, filenames in os.walk(root):
                     try:
@@ -173,7 +173,7 @@ class Adder(QObject):
             return tdir
 
         try:
-            if isinstance(self.source, basestring):
+            if isinstance(self.source, string_or_bytes):
                 find_files(self.source)
                 self.ignore_opf = True
             else:
@@ -271,7 +271,7 @@ class Adder(QObject):
             except Failure as err:
                 error_dialog(self.pd, _('Cannot add books'), _(
                 'Failed to add some books, click "Show details" for more information.'),
-                det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+                det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
                 self.pd.canceled = True
             else:
                 # All tasks completed
@@ -383,6 +383,7 @@ class Adder(QObject):
             ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
             self.add_formats(identical_book_id, paths, mi, replace=replace)
+            self.merged_formats_added_to.add(identical_book_id)
         if gprefs['automerge'] == 'new record':
             incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
             if incoming_fmts.intersection(seen_fmts):
@@ -435,7 +436,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in fmap.iteritems():
+        for fmt, path in iteritems(fmap):
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':
@@ -488,9 +489,9 @@ class Adder(QObject):
                 'Failed to add any books, click "Show details" for more information')
             d(self.pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
 
-        if gprefs['manual_add_auto_convert'] and self.added_book_ids and self.parent() is not None:
-            self.parent().iactions['Convert Books'].auto_convert_auto_add(
-                self.added_book_ids)
+        potentially_convertible = self.added_book_ids | self.merged_formats_added_to
+        if gprefs['manual_add_auto_convert'] and potentially_convertible and self.parent() is not None:
+            self.parent().iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
 
         try:
             if callable(self.callback):

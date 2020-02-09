@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess, time, errno
+import sys, re, os, platform, subprocess, time, errno, tempfile, shutil
+from contextlib import contextmanager
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -24,8 +25,6 @@ sys.path.insert(0, SRC)
 sys.resources_location = os.path.join(os.path.dirname(SRC), 'resources')
 sys.extensions_location = os.path.abspath(os.environ.get('CALIBRE_SETUP_EXTENSIONS_PATH', os.path.join(SRC, 'calibre', 'plugins')))
 sys.running_from_setup = True
-if not hasattr(os, 'getcwdu'):
-    os.getcwdu = os.getcwd
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
 
@@ -44,6 +43,15 @@ def newer(targets, sources):
     stimes = map(lambda x: os.stat(x).st_mtime, sources)
     newest_source, oldest_target = max(stimes), min(ttimes)
     return newest_source > oldest_target
+
+
+def dump_json(obj, path, indent=4):
+    import json
+    with open(path, 'wb') as f:
+        data = json.dumps(obj, indent=indent)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        f.write(data)
 
 
 def download_securely(url):
@@ -88,7 +96,8 @@ def require_clean_git():
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
-    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read().decode('utf-8')
+    with open(os.path.join(SRC, 'calibre/constants.py'), 'rb') as f:
+        src = f.read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
     __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
@@ -139,7 +148,7 @@ else:
         enc = preferred_encoding
         safe_encode = kwargs.get('safe_encode', False)
         for i, arg in enumerate(args):
-            if isinstance(arg, unicode):
+            if isinstance(arg, type(u'')):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:
@@ -150,8 +159,8 @@ else:
                 try:
                     arg = str(arg)
                 except ValueError:
-                    arg = unicode(arg)
-                if isinstance(arg, unicode):
+                    arg = type(u'')(arg)
+                if isinstance(arg, type(u'')):
                     try:
                         arg = arg.encode(enc)
                     except UnicodeEncodeError:
@@ -280,6 +289,14 @@ class Command(object):
         print('_'*50)
         warnings.append((args, kwargs))
         sys.stdout.flush()
+
+    @contextmanager
+    def temp_dir(self, **kw):
+        ans = tempfile.mkdtemp(**kw)
+        try:
+            yield ans
+        finally:
+            shutil.rmtree(ans)
 
 
 def installer_name(ext, is64bit=False):
