@@ -5,7 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from polyglot.builtins import iteritems
-from polyglot.urllib import quote_plus
+from polyglot.urllib import quote
 
 AUTHOR_SEARCHES = {
     'goodreads':
@@ -51,7 +51,7 @@ all_author_searches = AUTHOR_SEARCHES.__iter__
 def qquote(val):
     if not isinstance(val, bytes):
         val = val.encode('utf-8')
-    ans = quote_plus(val)
+    ans = quote(val)
     if isinstance(ans, bytes):
         ans = ans.decode('utf-8')
     return ans
