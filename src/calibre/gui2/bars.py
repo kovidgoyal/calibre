@@ -413,6 +413,7 @@ if isosx:
                 ia = iactions[what]
                 ac = ia.qaction
                 if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ia.shortcut_action_for_context_menu.setIcon(ac.icon())
                     ac = ia.shortcut_action_for_context_menu
                 m.addAction(CloneAction(ac, m))
 
@@ -506,6 +507,7 @@ else:
                 ia = iactions[what]
                 ac = ia.qaction
                 if not ac.menu() and hasattr(ia, 'shortcut_action_for_context_menu'):
+                    ia.shortcut_action_for_context_menu.setIcon(ac.icon())
                     ac = ia.shortcut_action_for_context_menu
                 m.addAction(ac)
 
