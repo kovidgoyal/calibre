@@ -2083,7 +2083,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Content server: Open links in the comments section from the book details page in new windows."
       tickets: [1737644]
 
-    - title: "Choose English as the User interface language when a locale related environment variable is set to the C locale"
+    - title: "Choose English as the user interface language when a locale related environment variable is set to the C locale"
 
     - title: "Linux installer: A nicer error message if the user tries to run the installer on an ARM machine"
 
