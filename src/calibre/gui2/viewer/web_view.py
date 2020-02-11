@@ -270,6 +270,7 @@ class ViewerBridge(Bridge):
     print_book = from_js()
     clear_history = from_js()
     reset_interface = from_js()
+    quit = from_js()
     customize_toolbar = from_js()
 
     create_view = to_js()
@@ -440,6 +441,7 @@ class WebView(RestartingWebEngineView):
     show_error = pyqtSignal(object, object, object)
     print_book = pyqtSignal()
     reset_interface = pyqtSignal()
+    quit = pyqtSignal()
     customize_toolbar = pyqtSignal()
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
@@ -487,6 +489,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.print_book.connect(self.print_book)
         self.bridge.clear_history.connect(self.clear_history)
         self.bridge.reset_interface.connect(self.reset_interface)
+        self.bridge.quit.connect(self.quit)
         self.bridge.customize_toolbar.connect(self.customize_toolbar)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}

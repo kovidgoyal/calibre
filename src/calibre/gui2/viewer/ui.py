@@ -176,6 +176,7 @@ class EbookViewer(MainWindow):
         self.web_view.show_error.connect(self.show_error)
         self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
         self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
+        self.web_view.quit.connect(self.quit, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
