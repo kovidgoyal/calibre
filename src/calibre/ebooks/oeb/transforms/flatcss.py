@@ -660,9 +660,8 @@ class CSSFlattener(object):
             stylizer = self.stylizers[item]
             if self.specializer is not None:
                 self.specializer(item, stylizer)
-            body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
-            self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
+            self.flatten_node(html, stylizer, names, styles, pseudo_styles, fsize, item.id)
         items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x:numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles, key=lambda x :
