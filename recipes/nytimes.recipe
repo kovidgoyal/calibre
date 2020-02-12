@@ -266,7 +266,15 @@ class NewYorkTimes(BasicNewsRecipe):
             if article.get('description'):
                 self.log('\t\t', article['description'])
 
-        container = soup.find(id='collection-{}'.format(slug)).find('section')
+        cid = slug.split('/')[-1]
+        if cid == 'dining':
+            cid = 'food'
+        try:
+            container = soup.find(id='collection-{}'.format(cid)).find('section')
+        except AttributeError:
+            container = None
+        if container is None:
+            raise ValueError('Failed to find articles container for slug: {}'.format(slug))
         for ol in container.findAll('ol'):
             for article in self.parse_article_group(ol):
                 log(article)
