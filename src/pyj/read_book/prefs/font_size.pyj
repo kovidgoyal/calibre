@@ -18,6 +18,7 @@ add_extra_css(def():
     style = rule(QUICK, 'li.current', background_color=get_color('window-background2'))
     style += rule(QUICK, 'li:hover', background_color=get_color('window-background2'))
     style += rule(CONTAINER, 'a:hover', color=get_color('window-hover-foreground'))
+    style += rule(CONTAINER, 'a.calibre-push-button:hover', color=get_color('button-text'))
     return style
 )
 
