@@ -143,7 +143,7 @@ Non re-flowable content
 Some books have very wide content that content be broken up at page boundaries.
 For example tables or :code:`<pre>` tags. In such cases, you should switch the
 viewer to *flow mode* by pressing :kbd:`Ctrl+m` to read this content.
-Alternately, you can also add the following CSS to the Styling section of the
+Alternately, you can also add the following CSS to the :guilabel:`Styles` section of the
 viewer preferences to force the viewer to break up lines of text in
 :code:`<pre>` tags::
 

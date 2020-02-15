@@ -136,7 +136,7 @@ for inclusion into the main calibre repository:
         git clone git@github.com:<username>/calibre.git
         git remote add upstream https://github.com/kovidgoyal/calibre.git
 
-    Replace <username> above with your github username. That will get your fork checked out locally.
+    Replace <username> above with your GitHub username. That will get your fork checked out locally.
   * You can make changes and commit them whenever you like. When you are ready to have your work merged, do a::
 
         git push
