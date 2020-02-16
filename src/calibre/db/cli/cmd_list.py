@@ -203,6 +203,7 @@ def do_list(
     )
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
 
     wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
 
@@ -214,10 +215,10 @@ def do_list(
         for l in range(lines):
             for i, field in enumerate(text):
                 ft = text[i][l] if l < len(text[i]) else u''
-                sys.stdout.write(ft.encode('utf-8'))
+                stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
                     filler = (u'%*s' % (widths[i] - str_width(ft) - 1, u''))
-                    sys.stdout.write((filler + separator).encode('utf-8'))
+                    stdout.write((filler + separator).encode('utf-8'))
             print()
 
 
