@@ -222,7 +222,12 @@ class Pool(object):
             self.working = False
 
     def shutdown(self):
-        tuple(map(sip.delete, self.workers))
+
+        def safe_delete(x):
+            if not sip.isdeleted(x):
+                sip.delete(x)
+
+        tuple(map(safe_delete, self.workers))
         self.workers = []
 
 
