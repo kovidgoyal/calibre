@@ -394,8 +394,11 @@ clean_xml_chars(PyObject *self, PyObject *text) {
         // based on https://en.wikipedia.org/wiki/Valid_characters_in_XML#Non-restricted_characters
         // python 3.3+ unicode strings never contain surrogate pairs, since if
         // they did, they would be represented as UTF-32
-        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) ||
-                ch == 9 || ch == 10 || ch == 13 ||
+        if ((0x20 <= ch && ch <= 0x7e) ||
+                ch == 0x9 || ch == 0xa || ch == 0xd || ch == 0x85 ||
+				(0x00A0 <= ch && ch <= 0xD7FF) ||
+				(0xE000 <= ch && ch <= 0xFDCF) ||
+				(0xFDF0 <= ch && ch <= 0xFFFD) ||
                 (0xffff < ch && ch <= 0x10ffff)) {
             PyUnicode_WRITE(text_kind, result_text, target_i, ch);
             target_i += 1;
