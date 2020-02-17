@@ -93,9 +93,6 @@ icu_Collator_get_strength(icu_Collator *self, void *closure) {
 static int
 icu_Collator_set_strength(icu_Collator *self, PyObject *val, void *closure) {
     if (PyLong_Check(val)) ucol_setStrength(self->collator, (int)PyLong_AsLong(val));
-#if PY_MAJOR_VERSION < 3
-    else if (PyInt_Check(val)) ucol_setStrength(self->collator, (int)PyInt_AS_LONG(val));
-#endif
     else {
         PyErr_SetString(PyExc_TypeError, "Strength must be an integer.");
         return -1;
@@ -665,11 +662,7 @@ add_split_pos_callback(void *data, int32_t pos, int32_t sz) {
 	PyObject *t, *temp;
 	if (pos < 0) {
 		if (PyList_GET_SIZE(ans) > 0) {
-#if PY_MAJOR_VERSION < 3
-			t = PyInt_FromLong((long)sz);
-#else
 			t = PyLong_FromLong((long)sz);
-#endif
 			if (t == NULL) return 0;
 			temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
 			Py_DECREF(PyTuple_GET_ITEM(temp, 1));
@@ -894,13 +887,6 @@ end:
 // set_default_encoding {{{
 static PyObject *
 icu_set_default_encoding(PyObject *self, PyObject *args) {
-#if PY_MAJOR_VERSION < 3
-    char *encoding;
-    if (!PyArg_ParseTuple(args, "s:setdefaultencoding", &encoding))
-        return NULL;
-    if (PyUnicode_SetDefaultEncoding(encoding))
-        return NULL;
-#endif
     Py_INCREF(Py_None);
     return Py_None;
 
@@ -1029,11 +1015,7 @@ icu_ord_string(PyObject *self, PyObject *input) {
     ans = PyTuple_New(sz);
     if (ans == NULL) goto end;
     for (i = 0; i < sz; i++) {
-#if PY_MAJOR_VERSION < 3
-        temp = PyInt_FromLong((long)input_buf[i]);
-#else
         temp = PyLong_FromLong((long)input_buf[i]);
-#endif
         if (temp == NULL) { Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); goto end; }
         PyTuple_SET_ITEM(ans, i, temp);
     }
@@ -1240,9 +1222,6 @@ static PyMethodDef icu_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&icu_module)
 static struct PyModuleDef icu_module = {
         /* m_base     */ PyModuleDef_HEAD_INIT,
         /* m_name     */ "icu",
@@ -1256,12 +1235,6 @@ static struct PyModuleDef icu_module = {
 };
 
 CALIBRE_MODINIT_FUNC PyInit_icu(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("icu", icu_methods, "Wrapper for the ICU internationalization library")
-CALIBRE_MODINIT_FUNC initicu(void) {
-#endif
-
     UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
     char version[U_MAX_VERSION_STRING_LENGTH+1] = {0}, uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
@@ -1269,7 +1242,7 @@ CALIBRE_MODINIT_FUNC initicu(void) {
     u_init(&status);
     if (U_FAILURE(status)) {
         PyErr_Format(PyExc_RuntimeError, "u_init() failed with error: %s", u_errorName(status));
-        INITERROR;
+        return NULL;
     }
     u_getVersion(ver);
     u_versionToString(ver, version);
@@ -1277,13 +1250,13 @@ CALIBRE_MODINIT_FUNC initicu(void) {
     u_versionToString(uver, uversion);
 
     if (PyType_Ready(&icu_CollatorType) < 0)
-        INITERROR;
+        return NULL;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
-        INITERROR;
+        return NULL;
 
-    PyObject *mod = INITMODULE;
+    PyObject *mod = PyModule_Create(&icu_module);
 
-    if (mod == NULL) INITERROR;
+    if (mod == NULL) return NULL;
 
     Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType);
     PyModule_AddObject(mod, "Collator", (PyObject *)&icu_CollatorType);
@@ -1325,8 +1298,6 @@ CALIBRE_MODINIT_FUNC initicu(void) {
     ADDUCONST(UBRK_LINE);
     ADDUCONST(UBRK_SENTENCE);
 
-#if PY_MAJOR_VERSION >= 3
     return mod;
-#endif
 }
 // }}}

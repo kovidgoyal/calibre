@@ -299,42 +299,6 @@ error:
 	return Py_BuildValue("NII", ans, state, codep);
 }
 
-// This digs into python internals and can't be implemented easily in python3
-#if PY_MAJOR_VERSION == 2
-static PyObject*
-clean_xml_chars(PyObject *self, PyObject *text) {
-    Py_UNICODE *buf = NULL, ch;
-    PyUnicodeObject *ans = NULL;
-    Py_ssize_t i = 0, j = 0;
-    if (!PyUnicode_Check(text)) {
-        PyErr_SetString(PyExc_TypeError, "A unicode string is required");
-        return NULL;
-    }
-    ans = (PyUnicodeObject*) PyUnicode_FromUnicode(NULL, PyUnicode_GET_SIZE(text));
-    if (ans == NULL) return PyErr_NoMemory();
-    buf = ans->str;
-
-    for (; i < PyUnicode_GET_SIZE(text); i++) {
-        ch = PyUnicode_AS_UNICODE(text)[i];
-#ifdef Py_UNICODE_WIDE
-        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff))
-            buf[j++] = ch;
-#else
-        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xd000 <= ch && ch <= 0xfffd)) {
-            if (0xd800 <= ch && ch <= 0xdfff) {
-                // Test for valid surrogate pair
-                if (ch <= 0xdbff && i + 1 < PyUnicode_GET_SIZE(text) && 0xdc00 <= PyUnicode_AS_UNICODE(text)[i + 1] && PyUnicode_AS_UNICODE(text)[i+1] <= 0xdfff) {
-                    buf[j++] = ch; buf[j++] = PyUnicode_AS_UNICODE(text)[++i];
-                }
-            } else
-                buf[j++] = ch;
-        }
-#endif
-    }
-    ans->length = j;
-    return (PyObject*)ans;
-}
-#else
 static PyObject*
 clean_xml_chars(PyObject *self, PyObject *text) {
     PyObject *result = NULL;
@@ -387,7 +351,6 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     free(result_text);
     return result;
 }
-#endif
 
 static PyObject *
 speedup_iso_8601(PyObject *self, PyObject *args) {
@@ -524,7 +487,6 @@ set_thread_name(PyObject *self, PyObject *args) {
 
 #define char_is_ignored(ch) (ch <= 32)
 
-#if PY_MAJOR_VERSION > 2
 static size_t
 count_chars_in(PyObject *text) {
 	size_t ans = 0;
@@ -538,23 +500,6 @@ count_chars_in(PyObject *text) {
 	}
 	return ans;
 }
-#else
-static size_t
-count_chars_in(PyObject *text) {
-	size_t ans = 0;
-#define L(data, sz) { \
-	ans = sz; \
-	for (Py_ssize_t i = 0; i < sz; i++) { if (char_is_ignored((data)[i])) ans--; } \
-}
-	if (PyUnicode_Check(text)) {
-		L(PyUnicode_AS_UNICODE(text), PyUnicode_GET_SIZE(text));
-	} else {
-		L(PyBytes_AS_STRING(text), PyBytes_GET_SIZE(text));
-	}
-	return ans;
-#undef L
-}
-#endif
 
 static PyObject*
 get_element_char_length(PyObject *self, PyObject *args) {
@@ -633,8 +578,6 @@ static PyMethodDef speedup_methods[] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
 static struct PyModuleDef speedup_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "speedup",
@@ -649,20 +592,10 @@ static struct PyModuleDef speedup_module = {
 
 CALIBRE_MODINIT_FUNC PyInit_speedup(void) {
     PyObject *mod = PyModule_Create(&speedup_module);
-#else
-#define INITERROR return
-CALIBRE_MODINIT_FUNC initspeedup(void) {
-    PyObject *mod = Py_InitModule3("speedup", speedup_methods,
-        "Implementation of methods in C for speed.");
-#endif
-
-    if (mod == NULL) INITERROR;
+    if (mod == NULL) return NULL;
     PyDateTime_IMPORT;
 #ifdef O_CLOEXEC
     PyModule_AddIntConstant(mod, "O_CLOEXEC", O_CLOEXEC);
 #endif
-
-#if PY_MAJOR_VERSION >= 3
     return mod;
-#endif
 }

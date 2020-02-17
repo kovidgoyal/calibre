@@ -554,11 +554,7 @@ PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObj
             PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break;
         } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
-#if PY_MAJOR_VERSION >= 3
                 res = PyObject_CallMethod(dest, "write", "y#", buf, bytes_read);
-#else
-                res = PyObject_CallMethod(dest, "write", "s#", buf, bytes_read);
-#endif
                 if (res == NULL) break;
                 Py_DECREF(res); res = NULL;
                 if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_read, filesize));
