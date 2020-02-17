@@ -102,23 +102,17 @@ namespaces_are_equal(const char *a, const char *b, size_t len) {
 }
 
 class StringOrNone {
-	PyObject *temp, *orig;
+	PyObject *orig;
 	const char *data;
 public:
-	StringOrNone(PyObject *x) : temp(0), orig(x), data(0) {
+	StringOrNone(PyObject *x) : orig(x), data(0) {
 		if (x && x != Py_None) {
 			if (PyUnicode_Check(x)) {
-#if PY_MAJOR_VERSION > 2
 				this->data = PyUnicode_AsUTF8(x);
-#else
-				this->temp = PyUnicode_AsUTF8String(x);
-				if (this->temp) this->data = PyBytes_AS_STRING(this->temp);
-#endif
 			} else if (PyBytes_Check(x)) { this->data = PyBytes_AS_STRING(x); }
 		}
 	}
 	~StringOrNone() {
-		Py_CLEAR(this->temp);
 		Py_CLEAR(this->orig);
 	}
 	void incref() { Py_XINCREF(this->orig); }
@@ -437,10 +431,7 @@ static PyMethodDef methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&module)
-static struct PyModuleDef module = {
+static struct PyModuleDef hmod = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "html_as_json",
     /* m_doc      */ doc,
@@ -452,21 +443,10 @@ static struct PyModuleDef module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_html_as_json(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("html_as_json", methods, doc)
-CALIBRE_MODINIT_FUNC inithtml_as_json(void) {
-#endif
-
-    PyObject* m;
-
-    m = INITMODULE;
+    PyObject* m = PyModule_Create(&hmod);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
-
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }
 // }}}

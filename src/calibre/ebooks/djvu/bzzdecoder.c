@@ -632,12 +632,7 @@ bzz_decompress(PyObject *self, PyObject *args) {
     size_t buflen = 0, blocksize = MAXBLOCK * 1024;
     PyObject *ans = NULL;
 
-#if PY_MAJOR_VERSION >= 3
-#define BYTES_FMT "y#"
-#else
-#define BYTES_FMT "s#"
-#endif
-    if (!PyArg_ParseTuple(args, BYTES_FMT, &(state.raw), &input_len))
+    if (!PyArg_ParseTuple(args, "y#", &(state.raw), &input_len))
 		return NULL;
     state.end = state.raw + input_len - 1;
 
@@ -681,7 +676,7 @@ end:
         for (i = 0; i < 3; i++) {
             buflen <<= 8; buflen += (uint8_t)buf[i];
         }
-        ans = Py_BuildValue(BYTES_FMT, buf + 3, MIN(buflen, pos - buf));
+        ans = Py_BuildValue("y#", buf + 3, MIN(buflen, pos - buf));
     }
     if (buf != NULL) free(buf);
     if (PyErr_Occurred()) return NULL;
@@ -699,9 +694,7 @@ static PyMethodDef bzzdec_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&bzzdec_module)
+#define INITMODULE
 static struct PyModuleDef bzzdec_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "bzzdec",
@@ -714,17 +707,9 @@ static struct PyModuleDef bzzdec_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_bzzdec(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("bzzdec", bzzdec_methods, bzzdec_doc)
-CALIBRE_MODINIT_FUNC initbzzdec(void) {
-#endif
-
-    PyObject *m = INITMODULE;
+    PyObject *m = PyModule_Create(&bzzdec_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }
