@@ -273,9 +273,6 @@ static PyMethodDef sqlite_custom_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&sqlite_custom_module)
 static struct PyModuleDef sqlite_custom_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "sqlite_custom",
@@ -288,18 +285,10 @@ static struct PyModuleDef sqlite_custom_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_sqlite_custom(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("sqlite_custom", sqlite_custom_methods, sqlite_custom_doc)
-CALIBRE_MODINIT_FUNC initsqlite_custom(void) {
-#endif
-
     PyObject *m;
-    m = INITMODULE;
+    m = PyModule_Create(&sqlite_custom_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

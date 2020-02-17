@@ -157,11 +157,7 @@ decompress(PyObject *self, PyObject *args)
     memory_file dest;
     PyObject *retval = NULL;
 
-#if PY_MAJOR_VERSION >= 3
     if (!PyArg_ParseTuple(args, "y#I", &inbuf, &inlen, &outlen)) {
-#else
-    if (!PyArg_ParseTuple(args, "s#I", &inbuf, &inlen, &outlen)) {
-#endif
         return NULL;
     }
 
@@ -206,9 +202,6 @@ static PyMethodDef lzx_methods[] = {
     { NULL }
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&lzx_module)
 static struct PyModuleDef lzx_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "lzx",
@@ -222,19 +215,13 @@ static struct PyModuleDef lzx_module = {
 };
 
 CALIBRE_MODINIT_FUNC PyInit_lzx(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("lzx", lzx_methods, lzx_doc);
-CALIBRE_MODINIT_FUNC initlzx(void) {
-#endif
-
     if (PyType_Ready(&CompressorType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
-    PyObject *m = INITMODULE;
+    PyObject *m = PyModule_Create(&lzx_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     LZXError = PyErr_NewException("lzx.LZXError", NULL, NULL);
@@ -244,7 +231,5 @@ CALIBRE_MODINIT_FUNC initlzx(void) {
     Py_INCREF(&CompressorType);
     PyModule_AddObject(m, "Compressor", (PyObject *)&CompressorType);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

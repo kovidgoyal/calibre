@@ -501,8 +501,6 @@ static PyTypeObject MatcherType = { // {{{
     /* tp_new            */ PyType_GenericNew,
 }; // }}}
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
 static struct PyModuleDef matcher_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "matcher",
@@ -517,25 +515,17 @@ static struct PyModuleDef matcher_module = {
 
 CALIBRE_MODINIT_FUNC PyInit_matcher(void) {
     PyObject *mod = PyModule_Create(&matcher_module);
-#else
-#define INITERROR return
-CALIBRE_MODINIT_FUNC initmatcher(void) {
-    PyObject *mod = Py_InitModule3("matcher", NULL, "Find subsequence matches");
-#endif
-
-    if (mod == NULL) INITERROR;
+    if (mod == NULL) return NULL;
 
     if (PyType_Ready(&MatcherType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
     Py_INCREF(&MatcherType);
     if(PyModule_AddObject(mod, "Matcher", (PyObject *)&MatcherType) < 0) {
         Py_DECREF(&MatcherType);
-        INITERROR;
+        return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     return mod;
-#endif
 }

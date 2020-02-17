@@ -30,11 +30,5 @@ pdf::podofo_convert_pdfstring(const PdfString &s) {
 
 const PdfString
 pdf::podofo_convert_pystring(PyObject *val) {
-#if PY_MAJOR_VERSION > 2
     return PdfString(reinterpret_cast<const pdf_utf8*>(PyUnicode_AsUTF8(val)));
-#else
-    pyunique_ptr temp(PyUnicode_AsUTF8String(val));
-    if (!temp) throw std::bad_alloc();
-    return PdfString(reinterpret_cast<const pdf_utf8*>(PyBytes_AS_STRING(temp.get())));
-#endif
 }

@@ -40,9 +40,6 @@ static PyMethodDef podofo_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&podofo_module)
 static struct PyModuleDef podofo_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "podofo",
@@ -55,34 +52,28 @@ static struct PyModuleDef podofo_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_podofo(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("podofo", podofo_methods, podofo_doc)
-CALIBRE_MODINIT_FUNC initpodofo(void) {
-#endif
-
     PyObject* m;
 
     if (PyType_Ready(&pdf::PDFDocType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
     if (PyType_Ready(&pdf::PDFOutlineItemType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
     pdf::Error = PyErr_NewException((char*)"podofo.Error", NULL, NULL);
     if (pdf::Error == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     PdfError::SetLogMessageCallback((PdfError::LogMessageCallback*)&log_message);
 
     PdfError::EnableDebug(false);
 
-    m = INITMODULE;
+    m = PyModule_Create(&podofo_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     Py_INCREF(&pdf::PDFDocType);
@@ -90,7 +81,5 @@ CALIBRE_MODINIT_FUNC initpodofo(void) {
 
     PyModule_AddObject(m, "Error", pdf::Error);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

@@ -93,9 +93,6 @@ static PyMethodDef methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&module)
 static struct PyModuleDef module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "hyphen",
@@ -108,21 +105,12 @@ static struct PyModuleDef module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_hyphen(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("hyphen", methods, doc)
-CALIBRE_MODINIT_FUNC inithyphen(void) {
-#endif
 
-    PyObject* m;
-
-    m = INITMODULE;
+    PyObject* m = PyModule_Create(&module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }
 // }}}
