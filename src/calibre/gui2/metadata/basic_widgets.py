@@ -30,6 +30,7 @@ from calibre.utils.date import (
     local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined,
     utcfromtimestamp, parse_only_date, internal_iso_format_string)
 from calibre import strftime
+from calibre.constants import ispy3
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.gui2.comments_editor import Editor
@@ -52,7 +53,7 @@ def save_dialog(parent, title, msg, det_msg=''):
 
 
 def clean_text(x):
-    return re.sub(r'\s', ' ', x.strip())
+    return re.sub(r'\s', ' ', x.strip(), flags=re.ASCII if ispy3 else 0)
 
 
 '''
@@ -221,7 +222,6 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
 
     @property
     def current_val(self):
-
         title = clean_text(unicode_type(self.text()))
         if not title:
             title = self.get_default()
