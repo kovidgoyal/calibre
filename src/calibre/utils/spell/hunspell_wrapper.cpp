@@ -166,8 +166,6 @@ static PyTypeObject DictionaryType = {
     /* tp_new            */ 0,
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
 static struct PyModuleDef hunspell_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "hunspell",
@@ -182,26 +180,18 @@ static struct PyModuleDef hunspell_module = {
 
 CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
     PyObject *mod = PyModule_Create(&hunspell_module);
-#else
-#define INITERROR return
-CALIBRE_MODINIT_FUNC inithunspell(void) {
-    PyObject *mod = Py_InitModule3("hunspell", NULL,
-        "A wrapper for the hunspell spell checking library");
-#endif
-    if (mod == NULL) INITERROR;
+    if (mod == NULL) return NULL;
 
     HunspellError = PyErr_NewException((char*)"hunspell.HunspellError", NULL, NULL);
-    if (HunspellError == NULL) INITERROR;
+    if (HunspellError == NULL) return NULL;
     PyModule_AddObject(mod, "HunspellError", HunspellError);
 
     // Fill in some slots in the type, and make it ready
     DictionaryType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&DictionaryType) < 0) INITERROR;
+    if (PyType_Ready(&DictionaryType) < 0) return NULL;
     // Add the type to the module.
     Py_INCREF(&DictionaryType);
     PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType);
 
-#if PY_MAJOR_VERSION >= 3
     return mod;
-#endif
 }
