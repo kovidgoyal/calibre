@@ -81,8 +81,6 @@ static PyMethodDef unicode_names_methods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
 static struct PyModuleDef unicode_names_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "unicode_names",
@@ -96,15 +94,6 @@ static struct PyModuleDef unicode_names_module = {
 };
 
 CALIBRE_MODINIT_FUNC PyInit_unicode_names(void) {
-#else
-#define INITERROR return
-CALIBRE_MODINIT_FUNC initunicode_names(void) {
-#endif
     // Create the module
-#if PY_MAJOR_VERSION >= 3
-    PyObject *mod = PyModule_Create(&unicode_names_module);
-    return mod;
-#else
-    Py_InitModule3("unicode_names", unicode_names_methods, "");
-#endif
+    return PyModule_Create(&unicode_names_module);
 }
