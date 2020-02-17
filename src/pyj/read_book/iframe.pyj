@@ -44,7 +44,8 @@ from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
 from read_book.toc import update_visible_toc_anchors
-from read_book.touch import create_handlers as create_touch_handlers
+from read_book.touch import (create_handlers as create_touch_handlers,
+                             reset_handlers as reset_touch_handlers)
 from read_book.viewport import scroll_viewport
 from utils import (
     apply_cloned_selection, clone_selection, debounce, html_escape, is_ios
@@ -334,6 +335,8 @@ class IframeBoss:
         self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
         self.auto_scroll_action('resume')
+        reset_touch_handlers() # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
+
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
 
