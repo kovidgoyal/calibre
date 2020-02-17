@@ -125,9 +125,6 @@ static PyMethodDef libusb_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&libusb_module)
 static struct PyModuleDef libusb_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "libusb",
@@ -140,40 +137,32 @@ static struct PyModuleDef libusb_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_libusb(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("libusb", libusb_methods, libusb_doc)
-CALIBRE_MODINIT_FUNC initlibusb(void) {
-#endif
-
     PyObject *m;
 
     // We deliberately use the default context. This is the context used by
     // libmtp and we want to ensure that the busnum/devnum numbers are the same
     // here and for libmtp.
     if(libusb_init(NULL) != 0) {
-        INITERROR;
+        return NULL;
     }
 
     Error = PyErr_NewException("libusb.Error", NULL, NULL);
     if (Error == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     cache = PyDict_New();
     if (cache == NULL) {
-        INITERROR;
+        return NULL;
     }
 
-    m = INITMODULE;
+    m = PyModule_Create(&libusb_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     PyModule_AddObject(m, "Error", Error);
     PyModule_AddObject(m, "cache", cache);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

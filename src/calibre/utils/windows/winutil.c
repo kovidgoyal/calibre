@@ -474,9 +474,6 @@ be a unicode string. Returns unicode strings."
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&winutil_module)
 static struct PyModuleDef winutil_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "winutil",
@@ -489,17 +486,10 @@ static struct PyModuleDef winutil_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("winutil", winutil_methods, winutil_doc)
-CALIBRE_MODINIT_FUNC initwinutil(void) {
-#endif
-
-    PyObject *m;
-    m = INITMODULE;
+    PyObject *m = PyModule_Create(&winutil_module);
 
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
@@ -524,7 +514,5 @@ CALIBRE_MODINIT_FUNC initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
     PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

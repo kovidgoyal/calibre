@@ -165,11 +165,7 @@ static PyObject* add_font(PyObject *self, PyObject *args) {
     Py_ssize_t sz;
     DWORD num = 0;
 
-#if PY_MAJOR_VERSION >= 3
     if (!PyArg_ParseTuple(args, "y#", &data, &sz)) return NULL;
-#else
-    if (!PyArg_ParseTuple(args, "s#", &data, &sz)) return NULL;
-#endif
 
     AddFontMemResourceEx(data, (DWORD)sz, NULL, &num);
 
@@ -240,9 +236,6 @@ static PyMethodDef winfonts_methods[] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&winfonts_module)
 static struct PyModuleDef winfonts_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "winfonts",
@@ -254,17 +247,12 @@ static struct PyModuleDef winfonts_module = {
     /* m_clear    */ 0,
     /* m_free     */ 0,
 };
-CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("winfonts", winfonts_methods, winfonts_doc)
-CALIBRE_MODINIT_FUNC initwinfonts(void) {
-#endif
 
+CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
     PyObject *m;
-    m = INITMODULE;
+    m = PyModule_Create(&winfonts_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     PyModule_AddIntMacro(m, FW_DONTCARE);
@@ -283,7 +271,5 @@ CALIBRE_MODINIT_FUNC initwinfonts(void) {
     PyModule_AddIntMacro(m, FW_HEAVY);
     PyModule_AddIntMacro(m, FW_BLACK);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

@@ -100,18 +100,6 @@ class scoped_com_initializer {  // {{{
 		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
 }; // }}}
 
-#if PY_MAJOR_VERSION < 3
-static wchar_t*
-PyUnicode_AsWideCharString(PyObject *obj, Py_ssize_t *size) {
-    Py_ssize_t sz = PyUnicode_GET_SIZE(obj) * 4 + 4;
-    wchar_t *ans = (wchar_t*)PyMem_Malloc(sz);
-    memset(ans, 0, sz);
-    Py_ssize_t res = PyUnicode_AsWideChar(reinterpret_cast<PyUnicodeObject*>(obj), ans, (sz / sizeof(wchar_t)) - 1);
-    if (size) *size = res;
-    return ans;
-}
-#endif
-
 static inline int
 py_to_wchar(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {

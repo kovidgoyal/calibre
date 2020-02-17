@@ -102,9 +102,6 @@ static PyMethodDef module_methods[] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&cocoa_module)
 static struct PyModuleDef cocoa_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "cocoa",
@@ -117,17 +114,9 @@ static struct PyModuleDef cocoa_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_cocoa(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("cocoa", module_methods, "")
-CALIBRE_MODINIT_FUNC initcocoa(void) {
-#endif
-
-    PyObject *m = INITMODULE;
+    PyObject *m = PyModule_Create(&cocoa_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

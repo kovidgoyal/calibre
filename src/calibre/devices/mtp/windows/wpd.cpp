@@ -183,9 +183,6 @@ static PyMethodDef wpd_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&wpd_module)
 static struct PyModuleDef wpd_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "wpd",
@@ -197,46 +194,39 @@ static struct PyModuleDef wpd_module = {
     /* m_clear    */ 0,
     /* m_free     */ 0,
 };
-CALIBRE_MODINIT_FUNC PyInit_wpd(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("wpd", wpd_methods, wpd_doc)
-CALIBRE_MODINIT_FUNC initwpd(void) {
-#endif
 
+CALIBRE_MODINIT_FUNC PyInit_wpd(void) {
     PyObject *m;
 
     wpd::DeviceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&wpd::DeviceType) < 0)
-        INITERROR;
+        return NULL;
 
-    m = INITMODULE;
+    m = PyModule_Create(&wpd_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     WPDError = PyErr_NewException("wpd.WPDError", NULL, NULL);
     if (WPDError == NULL) {
-        INITERROR;
+        return NULL;
     }
     PyModule_AddObject(m, "WPDError", WPDError);
 
     NoWPD = PyErr_NewException("wpd.NoWPD", NULL, NULL);
     if (NoWPD == NULL) {
-        INITERROR;
+        return NULL;
     }
     PyModule_AddObject(m, "NoWPD", NoWPD);
 
     WPDFileBusy = PyErr_NewException("wpd.WPDFileBusy", NULL, NULL);
     if (WPDFileBusy == NULL) {
-        INITERROR;
+        return NULL;
     }
     PyModule_AddObject(m, "WPDFileBusy", WPDFileBusy);
 
     Py_INCREF(&DeviceType);
     PyModule_AddObject(m, "Device", (PyObject *)&DeviceType);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

@@ -135,16 +135,6 @@ convert_w_array(const PdfArray &w) {
     return ans.release();
 }
 
-#if PY_MAJOR_VERSION > 2
-#define py_as_long_long PyLong_AsLongLong
-#else
-static inline long long
-py_as_long_long(PyObject *x) {
-    if (PyInt_Check(x)) return PyInt_AS_LONG(x);
-    return PyLong_AsLongLong(x);
-}
-#endif
-
 static void
 convert_w_array(PyObject *src, PdfArray &dest) {
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(src); i++) {
@@ -156,7 +146,7 @@ convert_w_array(PyObject *src, PdfArray &dest) {
             convert_w_array(item, sub);
             dest.push_back(sub);
         } else {
-            pdf_int64 val = py_as_long_long(item);
+            pdf_int64 val = PyLong_AsLongLong(item);
             if (val == -1 && PyErr_Occurred()) { PyErr_Print(); continue; }
             dest.push_back(PdfObject(val));
         }
