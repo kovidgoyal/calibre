@@ -58,11 +58,7 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     Py_ssize_t sz;
     PyObject *ft;
 
-#if PY_MAJOR_VERSION >= 3
     if (!PyArg_ParseTuple(args, "Oy#", &ft, &data, &sz)) return -1;
-#else
-    if (!PyArg_ParseTuple(args, "Os#", &ft, &data, &sz)) return -1;
-#endif
 
     Py_BEGIN_ALLOW_THREADS;
     error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
@@ -296,9 +292,6 @@ static PyMethodDef freetype_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&freetype_module)
 static struct PyModuleDef freetype_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "freetype",
@@ -311,39 +304,31 @@ static struct PyModuleDef freetype_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("freetype", freetype_methods, freetype_doc)
-CALIBRE_MODINIT_FUNC initfreetype(void) {
-#endif
-
     PyObject *m;
 
     FreeTypeType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&FreeTypeType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
     FaceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&FaceType) < 0) {
-        INITERROR;
+        return NULL;
     }
 
-    m = INITMODULE;
+    m = PyModule_Create(&freetype_module);
     if (m == NULL) {
-        INITERROR;
+        return NULL;
     }
 
     FreeTypeError = PyErr_NewException((char*)"freetype.FreeTypeError", NULL, NULL);
     if (FreeTypeError == NULL) {
-        INITERROR;
+        return NULL;
     }
     PyModule_AddObject(m, "FreeTypeError", FreeTypeError);
 
     Py_INCREF(&FreeTypeType);
     PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
     PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
- #if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

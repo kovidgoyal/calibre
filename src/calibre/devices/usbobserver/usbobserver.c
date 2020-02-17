@@ -461,9 +461,6 @@ static PyMethodDef usbobserver_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
-#define INITMODULE PyModule_Create(&usbobserver_module)
 static struct PyModuleDef usbobserver_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
     /* m_name     */ "usbobserver",
@@ -476,16 +473,8 @@ static struct PyModuleDef usbobserver_module = {
     /* m_free     */ 0,
 };
 CALIBRE_MODINIT_FUNC PyInit_usbobserver(void) {
-#else
-#define INITERROR return
-#define INITMODULE Py_InitModule3("usbobserver", usbobserver_methods, usbobserver_doc)
-CALIBRE_MODINIT_FUNC initusbobserver(void) {
-#endif
-
     PyObject *m = NULL;
-    m = INITMODULE;
+    m = PyModule_Create(&usbobserver_module);
 
-#if PY_MAJOR_VERSION >= 3
     return m;
-#endif
 }

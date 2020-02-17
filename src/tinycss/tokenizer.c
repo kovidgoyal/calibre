@@ -55,24 +55,18 @@ tokenizer_Token_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-#if PY_MAJOR_VERSION >= 3
-#define PyObject_Unicode_Compat(arg) PyObject_Str(arg)
-#else
-#define PyObject_Unicode_Compat(arg) PyObject_Unicode(arg)
-#endif
-
 static PyObject *
 tokenizer_Token_repr(tokenizer_Token *self) {
     PyObject *type = NULL, *line = NULL, *column = NULL, *value = NULL, *ans = NULL, *unit = NULL;
     if (!self->type || !self->line || !self->column || !self->value)
         return PyBytes_FromString("<Token NULL fields>");
-    type = PyObject_Unicode_Compat(self->type);
-    line = PyObject_Unicode_Compat(self->line);
-    column = PyObject_Unicode_Compat(self->column);
-    value = PyObject_Unicode_Compat(self->value);
+    type = PyObject_Str(self->type);
+    line = PyObject_Str(self->line);
+    column = PyObject_Str(self->column);
+    value = PyObject_Str(self->value);
     if (type && line && column && value) {
         if (self->unit != NULL && PyObject_IsTrue(self->unit)) {
-            unit = PyObject_Unicode_Compat(self->unit);
+            unit = PyObject_Str(self->unit);
             if (unit != NULL)
                 ans = PyUnicode_FromFormat("<Token %U at %U:%U %U%U>", type, line, column, value, unit);
             else
@@ -205,20 +199,12 @@ tokenize_init(PyObject *self, PyObject *args) {
 #define END_ITER_CODE_PTS }}
 
 static PyObject *unicode_to_number(PyObject *src) {
-#if PY_MAJOR_VERSION >= 3
     PyObject* ans = PyFloat_FromString(src);
-#else
-    PyObject* ans = PyFloat_FromString(src, NULL);
-#endif
     double val = PyFloat_AsDouble(ans);
     long lval = (long)val;
     if (val - lval != 0) return ans;
     Py_DECREF(ans);
-#if PY_MAJOR_VERSION >= 3
     return PyLong_FromLong(lval);
-#else
-    return PyInt_FromLong(lval);
-#endif
 }
 
 
@@ -465,8 +451,6 @@ static PyMethodDef tokenizer_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
-#define INITERROR return NULL
 static struct PyModuleDef tokenizer_module = {
         /* m_base     */ PyModuleDef_HEAD_INIT,
         /* m_name     */ "tokenizer",
@@ -480,25 +464,11 @@ static struct PyModuleDef tokenizer_module = {
 };
 
 CALIBRE_MODINIT_FUNC PyInit_tokenizer(void) {
-    if (PyType_Ready(&tokenizer_TokenType) < 0)
-        INITERROR;
+    if (PyType_Ready(&tokenizer_TokenType) < 0) return NULL;
 
     PyObject *mod = PyModule_Create(&tokenizer_module);
-#else
-#define INITERROR return
-CALIBRE_MODINIT_FUNC inittokenizer(void) {
-    if (PyType_Ready(&tokenizer_TokenType) < 0)
-        INITERROR;
-
-    PyObject *mod = Py_InitModule3("tokenizer", tokenizer_methods,
-        "Implementation of tokenizer in C for speed.");
-#endif
-
-    if (mod == NULL) INITERROR;
+    if (mod == NULL) return NULL;
     Py_INCREF(&tokenizer_TokenType);
     PyModule_AddObject(mod, "Token", (PyObject *) &tokenizer_TokenType);
-
-#if PY_MAJOR_VERSION >= 3
     return mod;
-#endif
 }

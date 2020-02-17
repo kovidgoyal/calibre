@@ -33,18 +33,12 @@ PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 // }}}
 
-#if PY_MAJOR_VERSION >= 3
-    #define BYTES_FMT "y#"
-#else
-    #define BYTES_FMT "s#"
-#endif
-
 // Loading/Opening of PDF files {{{
 static PyObject *
 PDFDoc_load(PDFDoc *self, PyObject *args) {
     char *buffer; Py_ssize_t size;
 
-    if (!PyArg_ParseTuple(args, BYTES_FMT, &buffer, &size)) return NULL;
+    if (!PyArg_ParseTuple(args, "y#", &buffer, &size)) return NULL;
 
 	try {
 #if PODOFO_VERSION <= 0x000905
@@ -360,7 +354,7 @@ PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
             if ((str = metadata->GetStream()) != NULL) {
                 str->GetFilteredCopy(&buf, &len);
                 if (buf != NULL) {
-                    ans = Py_BuildValue(BYTES_FMT, buf, len);
+                    ans = Py_BuildValue("y#", buf, len);
                     free(buf); buf = NULL;
                     if (ans == NULL) goto error;
                 }
@@ -388,7 +382,7 @@ PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     TVecFilters compressed(1);
     compressed[0] = ePdfFilter_FlateDecode;
 
-    if (!PyArg_ParseTuple(args, BYTES_FMT, &raw, &len)) return NULL;
+    if (!PyArg_ParseTuple(args, "y#", &raw, &len)) return NULL;
     try {
         if ((metadata = self->doc->GetMetadata()) != NULL) {
             if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
@@ -550,11 +544,7 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
     int pages = self->doc->GetPageCount();
-#if PY_MAJOR_VERSION >= 3
     PyObject *ans = PyLong_FromLong(static_cast<long>(pages));
-#else
-    PyObject *ans = PyInt_FromLong(static_cast<long>(pages));
-#endif
     if (ans != NULL) Py_INCREF(ans);
     return ans;
 }
