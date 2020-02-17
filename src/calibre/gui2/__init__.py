@@ -978,6 +978,7 @@ class Application(QApplication):
         if not geom:
             return
         restored = widget.restoreGeometry(geom)
+        self.ensure_window_on_screen(widget)
         return restored
 
     def ensure_window_on_screen(self, widget):
