@@ -67,7 +67,9 @@ def init_ui():
     install(translations)
     remove_initial_progress_bar()
     document.head.appendChild(E.style(get_widget_css()))
-    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    # See https://github.com/kovidgoyal/calibre/pull/1101
+    # for why we need touch-action: none
+    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'), touch_action='none')
     document.body.appendChild(E.div())
     document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
     document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
