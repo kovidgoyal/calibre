@@ -3,10 +3,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-# TODO:
-# live css
-# check that clicking on both internal and external links works
-
 import textwrap
 import time
 from collections import defaultdict
@@ -30,6 +26,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
+from calibre.gui2.tweak_book.file_list import OpenWithHandler
 from calibre.gui2.viewer.web_view import send_reply
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
@@ -337,7 +334,7 @@ class Inspector(QWidget):
         return QSize(1280, 600)
 
 
-class WebView(RestartingWebEngineView):
+class WebView(RestartingWebEngineView, OpenWithHandler):
 
     def __init__(self, parent=None):
         RestartingWebEngineView.__init__(self, parent)
@@ -398,7 +395,27 @@ class WebView(RestartingWebEngineView):
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
             menu.addAction(_('Open link'), partial(open_url, data.linkUrl()))
+        if data.MediaTypeImage <= data.mediaType() <= data.MediaTypeFile:
+            url = data.mediaUrl()
+            if url.scheme() == FAKE_PROTOCOL:
+                href = url.path().lstrip('/')
+                c = current_container()
+                current_name = self.parent().current_name
+                if current_name:
+                    resource_name = c.href_to_name(href, current_name)
+                    if resource_name and c.exists(resource_name) and resource_name not in c.names_that_must_not_be_changed:
+                        self.add_open_with_actions(menu, resource_name)
+                        if data.mediaType() == data.MediaTypeImage:
+                            mime = c.mime_map[resource_name]
+                            if mime.startswith('image/'):
+                                menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
         menu.exec_(ev.globalPos())
+
+    def open_with(self, file_name, fmt, entry):
+        self.parent().open_file_with.emit(file_name, fmt, entry)
+
+    def edit_image(self, resource_name):
+        self.parent().edit_file.emit(resource_name)
 
 
 class Preview(QWidget):
@@ -411,6 +428,8 @@ class Preview(QWidget):
     refreshed = pyqtSignal()
     live_css_data = pyqtSignal(object)
     render_process_restarted = pyqtSignal()
+    open_file_with = pyqtSignal(object, object, object)
+    edit_file = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
