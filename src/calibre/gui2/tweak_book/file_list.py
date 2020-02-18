@@ -188,7 +188,40 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 
-class FileList(QTreeWidget):
+class OpenWithHandler(object):  # {{{
+
+    def add_open_with_actions(self, menu, file_name):
+        from calibre.gui2.open_with import populate_menu, edit_programs
+        fmt = file_name.rpartition('.')[-1].lower()
+        if not fmt:
+            return
+        m = QMenu(_('Open %s with...') % file_name)
+
+        def connect_action(ac, entry):
+            connect_lambda(ac.triggered, self, lambda self: self.open_with(file_name, fmt, entry))
+
+        populate_menu(m, connect_action, fmt)
+        if len(m.actions()) == 0:
+            menu.addAction(_('Open %s with...') % file_name, partial(self.choose_open_with, file_name, fmt))
+        else:
+            m.addSeparator()
+            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_name, fmt))
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, file_name))
+            menu.addMenu(m)
+            menu.ow = m
+
+    def choose_open_with(self, file_name, fmt):
+        from calibre.gui2.open_with import choose_program
+        entry = choose_program(fmt, self)
+        if entry is not None:
+            self.open_with(file_name, fmt, entry)
+
+    def open_with(self, file_name, fmt, entry):
+        raise NotImplementedError()
+# }}}
+
+
+class FileList(QTreeWidget, OpenWithHandler):
 
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
@@ -585,26 +618,6 @@ class FileList(QTreeWidget):
 
         if len(list(m.actions())) > 0:
             m.popup(self.mapToGlobal(point))
-
-    def add_open_with_actions(self, menu, file_name):
-        from calibre.gui2.open_with import populate_menu, edit_programs
-        fmt = file_name.rpartition('.')[-1].lower()
-        if not fmt:
-            return
-        m = QMenu(_('Open %s with...') % file_name)
-
-        def connect_action(ac, entry):
-            connect_lambda(ac.triggered, self, lambda self: self.open_with(file_name, fmt, entry))
-
-        populate_menu(m, connect_action, fmt)
-        if len(m.actions()) == 0:
-            menu.addAction(_('Open %s with...') % file_name, partial(self.choose_open_with, file_name, fmt))
-        else:
-            m.addSeparator()
-            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_name, fmt))
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, file_name))
-            menu.addMenu(m)
-            menu.ow = m
 
     def choose_open_with(self, file_name, fmt):
         from calibre.gui2.open_with import choose_program
