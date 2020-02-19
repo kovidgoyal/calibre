@@ -172,7 +172,7 @@ class View:
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.report_cfi_callbacks = {}
-        self.show_chrome_counter = 0
+        self.get_cfi_counter = 0
         self.show_loading_callback_timer = None
         self.timer_ids = {'clock': 0}
         self.book_scrollbar = BookScrollbar(self)
@@ -521,12 +521,11 @@ class View:
         self.iframe.contentWindow.focus()
 
     def show_chrome(self, data):
-        self.show_chrome_counter += 1
         elements = {}
         if data and data.elements:
             elements = data.elements
         initial_panel = data?.initial_panel or None
-        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements, initial_panel))
+        self.get_current_cfi('show-chrome', self.do_show_chrome.bind(None, elements, initial_panel))
 
     def do_show_chrome(self, elements, initial_panel, request_id, cfi_data):
         self.hide_overlays()
@@ -535,6 +534,13 @@ class View:
             getattr(self.overlay, initial_panel)()
         else:
             self.overlay.show(elements)
+
+    def prepare_for_close(self):
+
+        def close_prepared(request_id, cfi_data):
+            ui_operations.close_prep_finished(cfi_data.cfi)
+
+        self.get_current_cfi('prepare-close', close_prepared)
 
     def show_search(self):
         self.hide_overlays()
@@ -903,6 +909,8 @@ class View:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
     def get_current_cfi(self, request_id, callback):
+        self.get_cfi_counter += 1
+        request_id += ':' + self.get_cfi_counter
         self.report_cfi_callbacks[request_id] = callback
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
@@ -923,7 +931,7 @@ class View:
     def on_report_cfi(self, data):
         cb = self.report_cfi_callbacks[data.request_id]
         if cb:
-            cb(data.request_id, {
+            cb(data.request_id.rpartition(':')[0], {
                 'cfi': data.cfi,
                 'progress_frac': data.progress_frac,
                 'file_progress_frac': data.file_progress_frac,

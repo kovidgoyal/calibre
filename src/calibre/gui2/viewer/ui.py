@@ -14,7 +14,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QApplication, QCursor, QDockWidget, QEvent, QMenu, QMimeData, QModelIndex,
-    QPixmap, Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prints
@@ -87,7 +87,7 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None, force_reload=False):
         MainWindow.__init__(self, None)
-        self.shutting_down = False
+        self.shutting_down = self.close_forced = False
         self.force_reload = force_reload
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
@@ -172,6 +172,7 @@ class EbookViewer(MainWindow):
         self.web_view.quit.connect(self.quit, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
         self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
+        self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
@@ -568,7 +569,24 @@ class EbookViewer(MainWindow):
     def quit(self):
         self.close()
 
+    def force_close(self):
+        if not self.close_forced:
+            self.close_forced = True
+            self.quit()
+
+    def close_prep_finished(self, cfi):
+        if cfi:
+            self.cfi_changed(cfi)
+        self.force_close()
+
     def closeEvent(self, ev):
+        if self.current_book_data and self.web_view.view_is_ready and not self.close_forced:
+            ev.ignore()
+            if not self.shutting_down:
+                self.shutting_down = True
+                QTimer.singleShot(2000, self.force_close)
+                self.web_view.prepare_for_close()
+            return
         self.shutting_down = True
         self.search_widget.shutdown()
         try:

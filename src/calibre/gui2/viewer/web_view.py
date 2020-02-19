@@ -273,6 +273,7 @@ class ViewerBridge(Bridge):
     quit = from_js()
     customize_toolbar = from_js()
     scrollbar_context_menu = from_js(object, object, object)
+    close_prep_finished = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -286,6 +287,7 @@ class ViewerBridge(Bridge):
     trigger_shortcut = to_js()
     set_system_palette = to_js()
     show_search_result = to_js()
+    prepare_for_close = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -445,6 +447,7 @@ class WebView(RestartingWebEngineView):
     quit = pyqtSignal()
     customize_toolbar = pyqtSignal()
     scrollbar_context_menu = pyqtSignal(object, object, object)
+    close_prep_finished = pyqtSignal(object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
@@ -463,6 +466,7 @@ class WebView(RestartingWebEngineView):
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
+        self.view_is_ready = False
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.view_created.connect(self.on_view_created)
         self.bridge.content_file_changed.connect(self.on_content_file_changed)
@@ -494,6 +498,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.quit.connect(self.quit)
         self.bridge.customize_toolbar.connect(self.customize_toolbar)
         self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
+        self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -578,6 +583,7 @@ class WebView(RestartingWebEngineView):
 
     def on_view_created(self, data):
         self.view_created.emit(data)
+        self.view_is_ready = True
 
     def on_content_file_changed(self, data):
         self.current_content_file = data
@@ -669,3 +675,6 @@ class WebView(RestartingWebEngineView):
 
     def palette_changed(self):
         self.execute_when_ready('set_system_palette', system_colors())
+
+    def prepare_for_close(self):
+        self.execute_when_ready('prepare_for_close')
