@@ -236,6 +236,7 @@ class ScrollAnimator:
     def __init__(self):
         self.animation_id = None
         self.auto = False
+        self.auto_timer = None
 
     def is_running(self):
         return self.animation_id is not None
@@ -246,7 +247,7 @@ class ScrollAnimator:
 
         now = window.performance.now()
         self.end_time = now + self.DURATION
-        clearTimeout(self.auto_timer)
+        self.stop_auto_timer()
 
         if not self.is_running() or direction is not self.direction or auto is not self.auto:
             if self.auto and not auto:
@@ -299,6 +300,7 @@ class ScrollAnimator:
             self.pause()
             if opts.scroll_auto_boundary_delay >= 0:
                 self.auto_timer = setTimeout(def():
+                        self.auto_timer = None
                         get_boss().send_message('next_spine_item', previous=self.direction is DIRECTION.Up)
                     , opts.scroll_auto_boundary_delay * 1000)
         else:
@@ -324,6 +326,12 @@ class ScrollAnimator:
             window.cancelAnimationFrame(self.animation_id)
             self.animation_id = None
             self.report()
+        self.stop_auto_timer()
+
+    def stop_auto_timer(self):
+        if self.auto_timer is not None:
+            clearTimeout(self.auto_timer)
+            self.auto_timer = None
 
     def pause(self):
         if self.auto:
@@ -448,6 +456,7 @@ def auto_scroll_action(action):
     elif action is 'stop':
         if is_auto_scroll_active():
             toggle_autoscroll()
+        scroll_animator.stop_auto_timer()
     elif action is 'resume':
         auto_scroll_resume()
     return is_auto_scroll_active()
