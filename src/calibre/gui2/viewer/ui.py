@@ -13,8 +13,8 @@ from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QDockWidget, QEvent, QMimeData, QModelIndex, QPixmap, QScrollBar,
-    Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCursor, QDockWidget, QEvent, QMenu, QMimeData, QModelIndex,
+    QPixmap, Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prints
@@ -76,13 +76,6 @@ def dock_defs():
 
 def path_key(path):
     return sha256(as_bytes(path)).hexdigest()
-
-
-class ScrollBar(QScrollBar):
-
-    def paintEvent(self, ev):
-        if self.isEnabled():
-            return QScrollBar.paintEvent(self, ev)
 
 
 class EbookViewer(MainWindow):
@@ -178,6 +171,7 @@ class EbookViewer(MainWindow):
         self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
         self.web_view.quit.connect(self.quit, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
+        self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
@@ -193,13 +187,37 @@ class EbookViewer(MainWindow):
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
 
-    def toggle_inspector(self):
-        visible = self.inspector_dock.toggleViewAction().isChecked()
-        self.inspector_dock.setVisible(not visible)
-
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
         return MainWindow.resizeEvent(self, ev)
+
+    def scrollbar_context_menu(self, x, y, frac):
+        m = QMenu(self)
+        amap = {}
+
+        def a(text, name):
+            m.addAction(text)
+            amap[text] = name
+
+        a(_('Scroll here'), 'here')
+        m.addSeparator()
+        a(_('Start of book'), 'start_of_book')
+        a(_('End of book'), 'end_of_book')
+        m.addSeparator()
+        a(_('Previous section'), 'previous_section')
+        a(_('Next section'), 'next_section')
+        m.addSeparator()
+        a(_('Start of current file'), 'start_of_file')
+        a(_('End of current file'), 'end_of_file')
+
+        q = m.exec_(QCursor.pos())
+        if not q:
+            return
+        q = amap[q.text()]
+        if q == 'here':
+            self.web_view.goto_frac(frac)
+        else:
+            self.web_view.trigger_shortcut(q)
 
     # IPC {{{
     def handle_commandline_arg(self, arg):
@@ -245,6 +263,10 @@ class EbookViewer(MainWindow):
     # }}}
 
     # Docks (ToC, Bookmarks, Lookup, etc.) {{{
+
+    def toggle_inspector(self):
+        visible = self.inspector_dock.toggleViewAction().isChecked()
+        self.inspector_dock.setVisible(not visible)
 
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())

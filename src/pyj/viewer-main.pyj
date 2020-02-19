@@ -403,6 +403,8 @@ if window is window.top:
         to_python.autoscroll_state_changed(active)
     ui_operations.search_result_not_found = def(sr):
         to_python.search_result_not_found(sr)
+    ui_operations.scrollbar_context_menu = def(x, y, frac):
+        to_python.scrollbar_context_menu(x, y, frac)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

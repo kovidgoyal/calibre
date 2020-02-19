@@ -116,6 +116,7 @@ class IframeBoss:
             'window_size': self.received_window_size,
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
             'show_search_result': self.show_search_result,
+            'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -457,6 +458,10 @@ class IframeBoss:
                     evt.preventDefault()
                 else:
                     self.send_message('handle_shortcut', name=sc_name)
+
+    def on_handle_navigation_shortcut(self, data):
+        self.handle_navigation_shortcut(data.name, data.key or {
+            'key': '', 'altKey': False, 'ctrlKey': False, 'shiftKey': False, 'metaKey': False})
 
     def oncontextmenu(self, evt):
         if self.content_ready:

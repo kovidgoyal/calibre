@@ -442,6 +442,8 @@ class View:
             self.toggle_autoscroll()
         elif data.name.startsWith('switch_color_scheme:'):
             self.switch_color_scheme(data.name.partition(':')[-1])
+        else:
+            self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text

@@ -272,6 +272,7 @@ class ViewerBridge(Bridge):
     reset_interface = from_js()
     quit = from_js()
     customize_toolbar = from_js()
+    scrollbar_context_menu = from_js(object, object, object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -443,6 +444,7 @@ class WebView(RestartingWebEngineView):
     reset_interface = pyqtSignal()
     quit = pyqtSignal()
     customize_toolbar = pyqtSignal()
+    scrollbar_context_menu = pyqtSignal(object, object, object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
@@ -491,6 +493,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.reset_interface.connect(self.reset_interface)
         self.bridge.quit.connect(self.quit)
         self.bridge.customize_toolbar.connect(self.customize_toolbar)
+        self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
