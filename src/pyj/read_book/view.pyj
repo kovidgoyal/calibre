@@ -425,7 +425,7 @@ class View:
         elif data.name is 'print':
             ui_operations.print_book()
         elif data.name is 'preferences':
-            self.overlay.show_prefs()
+            self.show_chrome({'initial_panel': 'show_prefs'})
         elif data.name is 'metadata':
             self.overlay.show_metadata()
         elif data.name is 'goto_location':
@@ -525,12 +525,16 @@ class View:
         elements = {}
         if data and data.elements:
             elements = data.elements
-        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements))
+        initial_panel = data?.initial_panel or None
+        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements, initial_panel))
 
-    def do_show_chrome(self, elements, request_id, cfi_data):
+    def do_show_chrome(self, elements, initial_panel, request_id, cfi_data):
         self.hide_overlays()
         self.update_cfi_data(cfi_data)
-        self.overlay.show(elements)
+        if initial_panel:
+            getattr(self.overlay, initial_panel)()
+        else:
+            self.overlay.show(elements)
 
     def show_search(self):
         self.hide_overlays()
