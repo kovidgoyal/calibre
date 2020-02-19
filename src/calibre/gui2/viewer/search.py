@@ -20,6 +20,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
+from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, unicode_type
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
@@ -74,6 +75,8 @@ class Search(object):
         self._regex = None
 
     def __eq__(self, other):
+        if not isinstance(other, Search):
+            return False
         return self.text == other.text and self.mode == other.mode and self.case_sensitive == other.case_sensitive
 
     @property
@@ -386,9 +389,6 @@ class Results(QListWidget):  # {{{
                 self.item_activated()
             for i in reversed(remove):
                 self.takeItem(i)
-            if self.count():
-                warning_dialog(self, _('Hidden text'), _(
-                    'Some search results were for hidden text, they have been removed.'), show=True)
 
 # }}}
 
@@ -401,6 +401,7 @@ class SearchPanel(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.last_hidden_text_warning = None
         self.current_search = None
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -431,6 +432,7 @@ class SearchPanel(QWidget):  # {{{
         self.results.clear()
         self.spinner.start()
         self.current_search = search_query
+        self.last_hidden_text_warning = None
         self.search_tasks.put((search_query, current_name))
 
     def run_searches(self):
@@ -483,6 +485,7 @@ class SearchPanel(QWidget):  # {{{
 
     def clear_searches(self):
         self.current_search = None
+        self.last_hidden_text_warning = None
         searchable_text_for_name.cache_clear()
         self.spinner.stop()
         self.results.clear()
@@ -491,6 +494,7 @@ class SearchPanel(QWidget):  # {{{
         self.search_tasks.put(None)
         self.spinner.stop()
         self.current_search = None
+        self.last_hidden_text_warning = None
         self.searcher = None
 
     def find_next_requested(self, previous):
@@ -501,11 +505,24 @@ class SearchPanel(QWidget):  # {{{
 
     def search_result_not_found(self, sr):
         self.results.search_result_not_found(sr)
+        if self.results.count():
+            now = monotonic()
+            if self.last_hidden_text_warning is None or self.current_search != self.last_hidden_text_warning[1] or now - self.last_hidden_text_warning[0] > 5:
+                self.last_hidden_text_warning = now, self.current_search
+                warning_dialog(self, _('Hidden text'), _(
+                    'Some search results were for hidden or non-reflowable text, they will be removed.'), show=True)
+            elif self.last_hidden_text_warning is not None:
+                self.last_hidden_text_warning = now, self.last_hidden_text_warning[1]
+
         if not self.results.count() and not self.spinner.is_running:
             self.show_no_results_found()
 
     def show_no_results_found(self):
+        has_hidden_text = self.last_hidden_text_warning is not None and self.last_hidden_text_warning[1] == self.current_search
         if self.current_search:
-            warning_dialog(self, _('No matches found'), _(
-                'No matches were found for: <b>{}</b>').format(self.current_search.text), show=True)
+            if has_hidden_text:
+                msg = _('No displayable matches were found for:')
+            else:
+                msg = _('No matches were found for:')
+            warning_dialog(self, _('No matches found'), msg + '  <b>{}</b>'.format(self.current_search.text), show=True)
 # }}}
