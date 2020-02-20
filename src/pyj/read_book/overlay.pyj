@@ -281,7 +281,7 @@ class MainOverlay:  # {{{
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
-                ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
+                ac(_('Preferences'), _('Configure the book viewer'), self.overlay.show_prefs, 'cogs'),
             ),
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS

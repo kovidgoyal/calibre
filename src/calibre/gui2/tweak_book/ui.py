@@ -512,7 +512,7 @@ class Main(MainWindow):
             'window-close.png', _('&Close current tab'), self.central.close_current_editor, 'close-current-tab', 'Ctrl+W', _(
                 'Close the currently open tab'))
         self.action_close_all_but_current_tab = reg(
-            'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
+            'edit-clear.png', _('C&lose other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
         self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
