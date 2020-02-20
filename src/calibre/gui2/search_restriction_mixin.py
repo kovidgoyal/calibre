@@ -380,6 +380,8 @@ class SearchRestrictionMixin(object):
         self.build_virtual_library_list(a, self.remove_vl_triggered)
         m.addMenu(a)
 
+        m.addAction(_('Quick select Virtual library'), self.choose_vl_triggerred)
+
         if add_tabs_action:
             if gprefs['show_vl_tabs']:
                 m.addAction(_('Hide virtual library tabs'), self.vl_tabs.disable_bar)
@@ -491,6 +493,29 @@ class SearchRestrictionMixin(object):
             'confirm_vl_removal', parent=self):
             return
         self._remove_vl(name, reapply=True)
+
+    def choose_vl_triggerred(self):
+        from calibre.gui2.tweak_book.widgets import QuickOpen, Results
+        db = self.library_view.model().db
+        virt_libs = db.prefs.get('virtual_libraries', {})
+        if not virt_libs:
+            return error_dialog(self, _('No virtual libraries'), _(
+                'No Virtual libraries present, create some first'), show=True)
+        example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
+            '<span style="%s">' % Results.EMPH, '</span>')
+        chars = '<pre style="%s">sbc</pre>' % Results.EMPH
+        help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the file name into the field above.
+        For example, if want to choose the VL:
+        {example}
+        Simply type in the characters:
+        {chars}
+        and press Enter.''').format(example=example, chars=chars)
+
+        d = QuickOpen(
+                sorted(virt_libs.keys(), key=sort_key), parent=self, title=_('Choose Virtual library'),
+                name='vl-open', level1=' ', help_text=help_text)
+        if d.exec_() == d.Accepted and d.selected_result:
+            self.apply_virtual_library(library=d.selected_result)
 
     def _remove_vl(self, name, reapply=True):
         db = self.library_view.model().db

@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dial
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox, to_plain_text, PARAGRAPH_SEPARATOR
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
-from calibre.utils.matcher import get_char, Matcher
+from calibre.utils.matcher import get_char, Matcher, DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3
 from calibre.gui2.complete2 import EditWithComplete
 from polyglot.builtins import iteritems, unicode_type, zip, getcwd, filter as ignore_me
 
@@ -408,17 +408,30 @@ class Results(QWidget):
 
 class QuickOpen(Dialog):
 
-    def __init__(self, items, parent=None):
-        self.matcher = Matcher(items)
+    def __init__(self, items, parent=None, title=None, name='quick-open', level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3, help_text=None):
+        self.matcher = Matcher(items, level1=level1, level2=level2, level3=level3)
         self.matches = ()
         self.selected_result = None
-        Dialog.__init__(self, _('Choose file to edit'), 'quick-open', parent=parent)
+        self.help_text = help_text or self.default_help_text()
+        Dialog.__init__(self, title or _('Choose file to edit'), name, parent=parent)
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
         ans.setWidth(800)
         ans.setHeight(max(600, ans.height()))
         return ans
+
+    def default_help_text(self):
+        example = '<pre>{0}i{1}mages/{0}c{1}hapter1/{0}s{1}cene{0}3{1}.jpg</pre>'.format(
+            '<span style="%s">' % Results.EMPH, '</span>')
+        chars = '<pre style="%s">ics3</pre>' % Results.EMPH
+
+        return _('''<p>Quickly choose a file by typing in just a few characters from the file name into the field above.
+        For example, if want to choose the file:
+        {example}
+        Simply type in the characters:
+        {chars}
+        and press Enter.''').format(example=example, chars=chars)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -428,17 +441,7 @@ class QuickOpen(Dialog):
         t.textEdited.connect(self.update_matches)
         l.addWidget(t, alignment=Qt.AlignTop)
 
-        example = '<pre>{0}i{1}mages/{0}c{1}hapter1/{0}s{1}cene{0}3{1}.jpg</pre>'.format(
-            '<span style="%s">' % Results.EMPH, '</span>')
-        chars = '<pre style="%s">ics3</pre>' % Results.EMPH
-
-        self.help_label = hl = QLabel(_(
-            '''<p>Quickly choose a file by typing in just a few characters from the file name into the field above.
-        For example, if want to choose the file:
-        {example}
-        Simply type in the characters:
-        {chars}
-        and press Enter.''').format(example=example, chars=chars))
+        self.help_label = hl = QLabel(self.help_text)
         hl.setContentsMargins(50, 50, 50, 50), hl.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         l.addWidget(hl)
         self.results = Results(self)
