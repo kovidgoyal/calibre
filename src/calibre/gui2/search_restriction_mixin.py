@@ -504,7 +504,7 @@ class SearchRestrictionMixin(object):
         example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
             '<span style="%s">' % emphasis_style(), '</span>')
         chars = '<pre style="%s">sbc</pre>' % emphasis_style()
-        help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the file name into the field above.
+        help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the library name into the field above.
         For example, if want to choose the VL:
         {example}
         Simply type in the characters:
