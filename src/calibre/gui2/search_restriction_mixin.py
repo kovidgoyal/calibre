@@ -99,9 +99,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.existing_names = existing_names
 
         if editing:
-            self.setWindowTitle(_('Edit virtual library'))
+            self.setWindowTitle(_('Edit Virtual library'))
         else:
-            self.setWindowTitle(_('Create virtual library'))
+            self.setWindowTitle(_('Create Virtual library'))
         self.setWindowIcon(QIcon(I('lt.png')))
 
         gl = QGridLayout()
@@ -127,7 +127,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(self.vl_text, 1, 1)
         self.vl_text.setText(_build_full_search_string(self.gui))
 
-        self.sl = sl = QLabel('<p>'+_('Create a virtual library based on: ')+
+        self.sl = sl = QLabel('<p>'+_('Create a Virtual library based on: ')+
             ('<a href="author.{0}">{0}</a>, '
             '<a href="tag.{1}">{1}</a>, '
             '<a href="publisher.{2}">{2}</a>, '
@@ -143,11 +143,11 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.hl = hl = QLabel(_('''
             <h2>Virtual libraries</h2>
 
-            <p>With <i>virtual libraries</i>, you can restrict calibre to only show
-            you books that match a search. When a virtual library is in effect, calibre
+            <p>With <i>Virtual libraries</i>, you can restrict calibre to only show
+            you books that match a search. When a Virtual library is in effect, calibre
             behaves as though the library contains only the matched books. The Tag browser
             display only the tags/authors/series/etc. that belong to the matched books and any searches
-            you do will only search within the books in the virtual library. This
+            you do will only search within the books in the Virtual library. This
             is a good way to partition your large library into smaller and easier to work with subsets.</p>
 
             <p>For example you can use a Virtual library to only show you books with the Tag <i>"Unread"</i>
@@ -225,7 +225,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         if self.editing and (self.vl_text.text() != self.original_search or
                              self.new_name != self.editing):
             if not question_dialog(self.gui, _('Search text changed'),
-                         _('The virtual library name or the search text has changed. '
+                         _('The Virtual library name or the search text has changed. '
                            'Do you want to discard these changes?'),
                          default_yes=False):
                 self.vl_name.blockSignals(True)
@@ -263,13 +263,13 @@ class CreateVirtualLibrary(QDialog):  # {{{
         n = unicode_type(self.vl_name.currentText()).strip()
         if not n:
             error_dialog(self.gui, _('No name'),
-                         _('You must provide a name for the new virtual library'),
+                         _('You must provide a name for the new Virtual library'),
                          show=True)
             return
 
         if n.startswith('*'):
             error_dialog(self.gui, _('Invalid name'),
-                         _('A virtual library name cannot begin with "*"'),
+                         _('A Virtual library name cannot begin with "*"'),
                          show=True)
             return
 
@@ -283,7 +283,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         v = unicode_type(self.vl_text.text()).strip()
         if not v:
             error_dialog(self.gui, _('No search string'),
-                         _('You must provide a search to define the new virtual library'),
+                         _('You must provide a search to define the new Virtual library'),
                          show=True)
             return
 
@@ -298,7 +298,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
         if not recs and not question_dialog(
                 self.gui, _('Search found no books'),
-                _('The search found no books, so the virtual library '
+                _('The search found no books, so the Virtual library '
                 'will be empty. Do you really want to use that search?'),
                 default_yes=False):
             return

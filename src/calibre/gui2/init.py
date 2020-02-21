@@ -531,7 +531,7 @@ class VLTabs(QTabBar):  # {{{
             s = m._s = m.addMenu(_('Restore hidden tabs'))
             for x in hidden:
                 s.addAction(x, partial(self.restore, x))
-        m.addAction(_('Hide virtual library tabs'), self.disable_bar)
+        m.addAction(_('Hide Virtual library tabs'), self.disable_bar)
         if gprefs['vl_tabs_closable']:
             m.addAction(_('Lock virtual library tabs'), self.lock_tab)
         else:
