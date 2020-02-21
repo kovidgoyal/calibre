@@ -34,7 +34,7 @@ from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 
 try:
     from PyQt5 import sip
@@ -633,7 +633,7 @@ class WebView(RestartingWebEngineView):
             vprefs['local_storage'] = sd
 
     def do_callback(self, func_name, callback):
-        cid = next(self.callback_id_counter)
+        cid = unicode_type(next(self.callback_id_counter))
         self.callback_map[cid] = callback
         self.execute_when_ready('get_current_cfi', cid)
 
