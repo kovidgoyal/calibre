@@ -1376,7 +1376,7 @@ class Boss(QObject):
         from calibre.gui2.open_with import run_program
         run_program(entry, dest.name, self)
         if question_dialog(self.gui, _('File opened'), _(
-            'When you are done editing {0} click "Update" to update'
+            'When you are done editing {0} click "Import" to update'
             ' the file in the book or "Discard" to lose any changes.').format(file_name),
             yes_text=_('Import'), no_text=_('Discard')
         ):
