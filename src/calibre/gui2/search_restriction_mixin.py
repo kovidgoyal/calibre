@@ -495,15 +495,15 @@ class SearchRestrictionMixin(object):
         self._remove_vl(name, reapply=True)
 
     def choose_vl_triggerred(self):
-        from calibre.gui2.tweak_book.widgets import QuickOpen, Results
+        from calibre.gui2.tweak_book.widgets import QuickOpen, emphasis_style
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         if not virt_libs:
             return error_dialog(self, _('No virtual libraries'), _(
                 'No Virtual libraries present, create some first'), show=True)
         example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
-            '<span style="%s">' % Results.EMPH, '</span>')
-        chars = '<pre style="%s">sbc</pre>' % Results.EMPH
+            '<span style="%s">' % emphasis_style(), '</span>')
+        chars = '<pre style="%s">sbc</pre>' % emphasis_style()
         help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the file name into the field above.
         For example, if want to choose the VL:
         {example}

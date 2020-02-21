@@ -275,9 +275,13 @@ def make_highlighted_text(emph, text, positions):
     return text
 
 
+def emphasis_style():
+    pal = QApplication.instance().palette()
+    return 'color: {}; font-weight: bold'.format(pal.color(pal.Link).name())
+
+
 class Results(QWidget):
 
-    EMPH = "color:magenta; font-weight:bold"
     MARGIN = 4
 
     item_selected = pyqtSignal()
@@ -355,7 +359,7 @@ class Results(QWidget):
         self.update()
 
     def make_text(self, text, positions):
-        text = QStaticText(make_highlighted_text(self.EMPH, text, positions))
+        text = QStaticText(make_highlighted_text(emphasis_style(), text, positions))
         text.setTextOption(self.text_option)
         text.setTextFormat(Qt.RichText)
         return text
@@ -423,8 +427,8 @@ class QuickOpen(Dialog):
 
     def default_help_text(self):
         example = '<pre>{0}i{1}mages/{0}c{1}hapter1/{0}s{1}cene{0}3{1}.jpg</pre>'.format(
-            '<span style="%s">' % Results.EMPH, '</span>')
-        chars = '<pre style="%s">ics3</pre>' % Results.EMPH
+            '<span style="%s">' % emphasis_style(), '</span>')
+        chars = '<pre style="%s">ics3</pre>' % emphasis_style()
 
         return _('''<p>Quickly choose a file by typing in just a few characters from the file name into the field above.
         For example, if want to choose the file:
@@ -439,6 +443,8 @@ class QuickOpen(Dialog):
 
         self.text = t = QLineEdit(self)
         t.textEdited.connect(self.update_matches)
+        t.setClearButtonEnabled(True)
+        t.setPlaceholderText(_('Search'))
         l.addWidget(t, alignment=Qt.AlignTop)
 
         self.help_label = hl = QLabel(self.help_text)
@@ -509,7 +515,7 @@ class NamesDelegate(QStyledItemDelegate):
             to.setWrapMode(to.NoWrap)
             to.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             positions = sorted(set(positions) - {-1}, reverse=True)
-            text = '<body>%s</body>' % make_highlighted_text(Results.EMPH, text, positions)
+            text = '<body>%s</body>' % make_highlighted_text(emphasis_style(), text, positions)
             doc = QTextDocument()
             c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
             doc.setDefaultStyleSheet(' body { color: %s }'%c)
