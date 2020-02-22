@@ -400,15 +400,13 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
             if url.scheme() == FAKE_PROTOCOL:
                 href = url.path().lstrip('/')
                 c = current_container()
-                current_name = self.parent().current_name
-                if current_name:
-                    resource_name = c.href_to_name(href, current_name)
-                    if resource_name and c.exists(resource_name) and resource_name not in c.names_that_must_not_be_changed:
-                        self.add_open_with_actions(menu, resource_name)
-                        if data.mediaType() == data.MediaTypeImage:
-                            mime = c.mime_map[resource_name]
-                            if mime.startswith('image/'):
-                                menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
+                resource_name = c.href_to_name(href)
+                if resource_name and c.exists(resource_name) and resource_name not in c.names_that_must_not_be_changed:
+                    self.add_open_with_actions(menu, resource_name)
+                    if data.mediaType() == data.MediaTypeImage:
+                        mime = c.mime_map[resource_name]
+                        if mime.startswith('image/'):
+                            menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
         menu.exec_(ev.globalPos())
 
     def open_with(self, file_name, fmt, entry):
