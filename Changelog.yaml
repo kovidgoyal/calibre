@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title:
 
-- version: 4.11.1
+- version: 4.11.2
   date: 2020-02-21
 
   new features:
@@ -39,6 +39,8 @@
       tickets: [1862432]
 
   bug fixes:
+    - title: "4.11.2 fixes a couple of regressions that broke the New bookmark button in the viewer and scrolling in the content server library view. Also fixes calculation of default column widths in viewer not changing when font size is changed."
+
     - title: "Viewer: Fix a regression that broke detection of pop-up footnotes using EPUB 3 markup"
 
     - title: "Viewer: Fix current reading position not preserved when changing preferences and auto scroll is active."
