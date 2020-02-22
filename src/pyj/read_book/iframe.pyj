@@ -24,11 +24,11 @@ from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    current_cfi, handle_gesture as paged_handle_gesture,
-    handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
-    layout as paged_layout, onwheel as paged_onwheel,
-    prepare_for_resize as paged_prepare_for_resize, progress_frac,
-    reset_paged_mode_globals, resize_done as paged_resize_done,
+    will_columns_per_screen_change, current_cfi,
+    handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
+    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
+    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
+    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
 )
@@ -44,8 +44,9 @@ from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
 from read_book.toc import update_visible_toc_anchors
-from read_book.touch import (create_handlers as create_touch_handlers,
-                             reset_handlers as reset_touch_handlers)
+from read_book.touch import (
+    create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
+)
 from read_book.viewport import scroll_viewport
 from utils import (
     apply_cloned_selection, clone_selection, debounce, html_escape, is_ios
@@ -99,6 +100,7 @@ class IframeBoss:
         handlers = {
             'change_color_scheme': self.change_color_scheme,
             'change_font_size': self.change_font_size,
+            'viewer_font_size_changed': self.viewer_font_size_changed,
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'find': self.find,
@@ -264,10 +266,29 @@ class IframeBoss:
         else:
             paged_scroll_by_page(backwards, data.all_pages_on_screen)
 
+
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             apply_font_size()
+            if not runtime.is_standalone_viewer:
+                # in the standalone viewer this is a separate event as
+                # apply_font_size() is a no-op
+                self.relayout_on_font_size_change()
+
+    def viewer_font_size_changed(self, data):
+        opts.base_font_size = data.base_font_size
+        self.relayout_on_font_size_change()
+
+    def relayout_on_font_size_change(self):
+        if current_layout_mode() is not 'flow' and will_columns_per_screen_change():
+            self.do_layout(self.is_titlepage)
+            if self.last_cfi:
+                cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+                if cfi:
+                    paged_jump_to_cfi('/' + cfi)
+            self.update_cfi()
+            self.update_toc_position()
 
     def change_scroll_speed(self, data):
         if data.lines_per_sec_auto?:

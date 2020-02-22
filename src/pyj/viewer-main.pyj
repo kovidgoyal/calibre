@@ -300,6 +300,13 @@ def prepare_for_close():
     else:
         ui_operations.close_prep_finished(None)
 
+
+@from_python
+def viewer_font_size_changed():
+    if view:
+        view.viewer_font_size_changed()
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
         # cross domain error

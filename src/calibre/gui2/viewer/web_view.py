@@ -288,6 +288,7 @@ class ViewerBridge(Bridge):
     set_system_palette = to_js()
     show_search_result = to_js()
     prepare_for_close = to_js()
+    viewer_font_size_changed = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -309,6 +310,8 @@ def apply_font_settings(page_or_view):
     sf = fs.get('standard_font') or 'serif'
     sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
     s.setFontFamily(s.StandardFont, s.fontFamily(sf))
+    old_minimum = s.fontSize(s.MinimumFontSize)
+    old_base = s.fontSize(s.DefaultFontSize)
     mfs = fs.get('minimum_font_size')
     if mfs is None:
         s.resetFontSize(s.MinimumFontSize)
@@ -317,6 +320,10 @@ def apply_font_settings(page_or_view):
     bfs = sd.get('base_font_size')
     if bfs is not None:
         s.setFontSize(s.DefaultFontSize, bfs)
+
+    font_size_changed = old_minimum != s.fontSize(s.MinimumFontSize) or old_base != s.fontSize(s.DefaultFontSize)
+    if font_size_changed and hasattr(page_or_view, 'execute_when_ready'):
+        page_or_view.execute_when_ready('viewer_font_size_changed')
 
     return s
 
@@ -610,7 +617,7 @@ class WebView(RestartingWebEngineView):
     def set_session_data(self, key, val):
         if key == '*' and val is None:
             vprefs['session_data'] = {}
-            apply_font_settings(self._page)
+            apply_font_settings(self)
             self.paged_mode_changed.emit()
             self.standalone_misc_settings_changed.emit()
         elif key != '*':
@@ -618,7 +625,7 @@ class WebView(RestartingWebEngineView):
             sd[key] = val
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
-                apply_font_settings(self._page)
+                apply_font_settings(self)
             elif key == 'read_mode':
                 self.paged_mode_changed.emit()
             elif key == 'standalone_misc_settings':
