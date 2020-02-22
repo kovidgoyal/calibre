@@ -425,9 +425,7 @@ if window is window.top:
     window.onerror = onerror
     create_modal_container()
     document.head.appendChild(E.style(get_widget_css()))
-    # See https://github.com/kovidgoyal/calibre/pull/1101
-    # for why we need touch-action: none
-    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'), touch_action='none')
+    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     setTimeout(def():
             window.onpopstate = on_pop_state
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
