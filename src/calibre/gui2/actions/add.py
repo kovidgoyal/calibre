@@ -232,20 +232,24 @@ class AddAction(InterfaceAction):
                         return
 
         for id_ in ids:
-            from calibre.ebooks.oeb.polish.create import create_book
-            pt = PersistentTemporaryFile(suffix='.' + format_)
-            pt.close()
-            try:
-                mi = db.new_api.get_metadata(id_, get_cover=False,
-                                    get_user_categories=False, cover_as_data=False)
-                create_book(mi, pt.name, fmt=format_)
-                db.add_format_with_hooks(id_, format_, pt.name, index_is_id=True, notify=True)
-            finally:
-                os.remove(pt.name)
+            self.add_empty_format_to_book(id_, format_)
 
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
             view.model().current_changed(current_idx, current_idx)
+
+    def add_empty_format_to_book(self, book_id, fmt):
+        from calibre.ebooks.oeb.polish.create import create_book
+        db = self.gui.current_db
+        pt = PersistentTemporaryFile(suffix='.' + fmt.lower())
+        pt.close()
+        try:
+            mi = db.new_api.get_metadata(book_id, get_cover=False,
+                                get_user_categories=False, cover_as_data=False)
+            create_book(mi, pt.name, fmt=fmt.lower())
+            db.add_format_with_hooks(book_id, fmt, pt.name, index_is_id=True, notify=True)
+        finally:
+            os.remove(pt.name)
 
     def add_archive(self, single):
         paths = choose_files(
