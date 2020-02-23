@@ -272,7 +272,8 @@ def main(args):
                 raise SystemExit(1)
             if opts.codes:
                 parts = tuple(map(conv_code, parts))
-            tuple(map(not_single, parts))
+            for i in parts:
+                not_single(i)
             ranges.add(tuple(parts))
         else:
             if opts.codes:

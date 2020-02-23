@@ -384,7 +384,8 @@ def remove_links_to(container, predicate):
             removed = remove_links_in_sheet(partial(container.href_to_name, base=name), container.parsed(name), predicate)
         if removed:
             changed.add(name)
-    tuple(map(container.dirty, changed))
+    for i in changed:
+        container.dirty(i)
     return changed
 
 

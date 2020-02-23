@@ -217,7 +217,7 @@ class Choices(QComboBox):
         self.setEditable(False)
         opt = options[name]
         self.choices = opt.choices
-        tuple(map(self.addItem, opt.choices))
+        self.addItems(opt.choices)
         self.currentIndexChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
 

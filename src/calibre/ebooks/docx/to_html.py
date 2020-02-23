@@ -182,7 +182,8 @@ class Convert:
                         indent = float(style.text_indent[:-2]) + indent
                     style.text_indent = '%.3gpt' % indent
                     parent.text = tabs[-1].tail or ''
-                    list(map(parent.remove, tabs))
+                    for i in tabs:
+                        parent.remove(i)
 
         self.images.rid_map = orig_rid_map
 

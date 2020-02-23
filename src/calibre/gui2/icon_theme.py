@@ -490,7 +490,8 @@ def get_cover(metadata):
 
 def get_covers(themes, dialog, num_of_workers=8):
     items = Queue()
-    tuple(map(items.put, themes))
+    for i in themes:
+        items.put(i)
 
     def callback(metadata, x):
         if not sip.isdeleted(dialog) and not dialog.dialog_closed:
