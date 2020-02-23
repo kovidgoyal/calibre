@@ -214,12 +214,12 @@ def do_list(
         lines = max(map(len, text))
         for l in range(lines):
             for i, field in enumerate(text):
-                ft = text[i][l] if l < len(text[i]) else u''
+                ft = text[i][l] if l < len(text[i]) else ''
                 stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = (u'%*s' % (widths[i] - str_width(ft) - 1, u''))
+                    filler = ('%*s' % (widths[i] - str_width(ft) - 1, ''))
                     stdout.write((filler + separator).encode('utf-8'))
-            print()
+            stdout.write(b'\n')
 
 
 def option_parser(get_parser, args):
