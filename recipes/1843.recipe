@@ -15,7 +15,8 @@ def classes(classes):
 class E1843(BasicNewsRecipe):
     title = '1843'
     __author__ = 'Kovid Goyal'
-    language = 'en'
+    description = 'The ideas, culture and lifestyle magazine from The Economist'
+    language = 'en_GB'
     no_stylesheets = True
     remove_javascript = True
     oldest_article = 365
