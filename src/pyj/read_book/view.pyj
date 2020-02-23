@@ -269,6 +269,15 @@ class View:
     def reference_mode_overlay(self):
         return document.getElementById('reference-mode-overlay')
 
+    def set_scrollbar_visibility(self, visible):
+        sd = get_session_data()
+        sd.set('book_scrollbar', bool(visible))
+        self.book_scrollbar.apply_visibility()
+
+    def toggle_scrollbar(self):
+        sd = get_session_data()
+        self.set_scrollbar_visibility(not sd.get('book_scrollbar'))
+
     def on_lookup_word(self, data):
         if runtime.is_standalone_viewer:
             ui_operations.selection_changed(data.word)
@@ -388,6 +397,8 @@ class View:
             self.toggle_paged_mode()
         elif data.name is 'toggle_toolbar':
             self.toggle_toolbar()
+        elif data.name is 'toggle_scrollbar':
+            self.toggle_scrollbar()
         elif data.name is 'quit':
             ui_operations.quit()
         elif data.name is 'start_search':

@@ -210,6 +210,8 @@ class EbookViewer(MainWindow):
         m.addSeparator()
         a(_('Start of current file'), 'start_of_file')
         a(_('End of current file'), 'end_of_file')
+        m.addSeparator()
+        a(_('Hide this scrollbar'), 'toggle_scrollbar')
 
         q = m.exec_(QCursor.pos())
         if not q:
