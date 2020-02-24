@@ -6,6 +6,7 @@ abc.net.au/news
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class ABCNews(BasicNewsRecipe):
     title = 'ABC News'
     __author__ = 'Pat Stapleton, Dean Cording, James Cridland'
@@ -25,7 +26,7 @@ class ABCNews(BasicNewsRecipe):
     publication_type = 'newspaper'
     extra_css = '.byline{font-size:smaller;margin-bottom:10px;}.inline-caption{display:block;font-size:smaller;text-decoration: none;}'
     preprocess_regexps = [(re.compile(
-        r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')] # Remove map links
+        r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')]  # Remove map links
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': False
     }
@@ -36,9 +37,9 @@ class ABCNews(BasicNewsRecipe):
                                          'inline-content story left', 'inline-content map left contracted',
                                          'inline-content full embedYouTube embedded', 'published',
                                          'story-map', 'statepromo', 'topics', ]})]
-    #inner = key points
-    #attached-content = related stories
-    #authorpromo = "Contact NameOfJournalist"
+    # inner = key points
+    # attached-content = related stories
+    # authorpromo = "Contact NameOfJournalist"
 
     remove_attributes = ['width', 'height']
 

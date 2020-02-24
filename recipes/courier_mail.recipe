@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
 
+
 class Politics(BasicNewsRecipe):
     title = u'The Courier-Mail'
     description = 'Breaking news headlines for Brisbane and Queensland, Australia. The Courier-Mail is owned by News Corp Australia.'
