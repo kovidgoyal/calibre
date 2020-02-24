@@ -6,50 +6,55 @@ abc.net.au/news
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-
 class ABCNews(BasicNewsRecipe):
     title = 'ABC News'
-    __author__ = 'Pat Stapleton, Dean Cording'
-    description = 'News from Australia'
-    masthead_url = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
-    cover_url = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
-
+    __author__ = 'Pat Stapleton, Dean Cording, James Cridland'
+    description = 'From the Australian Broadcasting Corporation. The ABC is owned and funded by the Australian Government, but is editorially independent.'
+    masthead_url = 'https://www.abc.net.au/cm/lb/8212706/data/news-logo-2017---desktop-print-data.png'
+    cover_url = 'https://www.abc.net.au/news/linkableblob/8413676/data/abc-news-og-data.jpg'
+    cover_margins = (0,20,'#000000')
     oldest_article = 2
-    max_articles_per_feed = 100
-    no_stylesheets = False
+    handle_gzip = True
+    no_stylesheets = True
     use_embedded_content = False
+    scale_news_images_to_device = True
     encoding = 'utf8'
     publisher = 'ABC News'
-    category = 'News, Australia, World'
+    category = 'Australia,News'
     language = 'en_AU'
-    publication_type = 'newsportal'
-#    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-# Remove annoying map links (inline-caption class is also used for some
-# image captions! hence regex to match maps.google)
+    publication_type = 'newspaper'
+    extra_css = '.byline{font-size:smaller;margin-bottom:10px;}.inline-caption{display:block;font-size:smaller;text-decoration: none;}'
     preprocess_regexps = [(re.compile(
-        r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')]
+        r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')] # Remove map links
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': False
     }
 
     keep_only_tags = [dict(attrs={'class': ['article section']})]
 
-    remove_tags = [dict(attrs={'class': ['related', 'tags', 'tools', 'attached-content ready',
-                                         'inline-content story left', 'inline-content map left contracted', 'published',
+    remove_tags = [dict(attrs={'class': ['inner', 'attached-content', 'authorpromo', 'related', 'tags', 'tools', 'attached-content ready',
+                                         'inline-content story left', 'inline-content map left contracted',
+                                         'inline-content full embedYouTube embedded', 'published',
                                          'story-map', 'statepromo', 'topics', ]})]
+    #inner = key points
+    #attached-content = related stories
+    #authorpromo = "Contact NameOfJournalist"
 
     remove_attributes = ['width', 'height']
 
     feeds = [
-        ('Top Stories', 'http://www.abc.net.au/news/feed/45910/rss.xml'),
-        ('Canberra', 'http://www.abc.net.au/news/feed/6910/rss.xml'),
-        ('Sydney', 'http://www.abc.net.au/news/feed/10232/rss.xml'),
-        ('Melbourne', 'http://www.abc.net.au/news/feed/21708/rss.xml'),
-        ('Brisbane', 'http://www.abc.net.au/news/feed/12858/rss.xml'),
-        ('Perth', 'feed://www.abc.net.au/news/feed/24886/rss.xml'),
-        ('Australia', 'http://www.abc.net.au/news/feed/46182/rss.xml'),
-        ('World', 'http://www.abc.net.au/news/feed/52278/rss.xml'),
-        ('Business', 'http://www.abc.net.au/news/feed/51892/rss.xml'),
-        ('Science and Technology',
-         'http://www.abc.net.au/news/feed/2298/rss.xml'),
-    ]
+        ('Top Stories', 'https://www.abc.net.au/news/feed/45910/rss.xml'),
+        ('Politics', 'https://www.abc.net.au/news/feed/51120/rss.xml'),
+        ('World', 'https://www.abc.net.au/news/feed/6497190/rss.xml'),
+        ('Business', 'https://www.abc.net.au/news/feed/51892/rss.xml'),
+        ('Analysis', 'https://www.abc.net.au/news/feed/7571224/rss.xml'),
+        ('Sport', 'https://www.abc.net.au/news/feed/2942460/rss.xml'),
+        ('Adelaide', 'https://www.abc.net.au/news/feed/8057540/rss.xml'),
+        ('Brisbane', 'https://www.abc.net.au/news/feed/12858/rss.xml'),
+        ('Canberra', 'https://www.abc.net.au/news/feed/6910/rss.xml'),
+        ('Darwin', 'https://www.abc.net.au/news/feed/8057648/rss.xml'),
+        ('Hobart', 'https://www.abc.net.au/news/feed/8054562/rss.xml'),
+        ('Melbourne', 'https://www.abc.net.au/news/feed/21708/rss.xml'),
+        ('Sydney', 'https://www.abc.net.au/news/feed/10232/rss.xml'),
+        ('Perth', 'https://www.abc.net.au/news/feed/24886/rss.xml'),
+        ]
