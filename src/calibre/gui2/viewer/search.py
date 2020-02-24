@@ -97,6 +97,11 @@ class Search(object):
             self._regex = regex.compile(expr, flags)
         return self._regex
 
+    def __str__(self):
+        from collections import namedtuple
+        s = ('text', 'mode', 'case_sensitive', 'backwards')
+        return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))
+
 
 class SearchFinished(object):
 
@@ -142,6 +147,11 @@ class SearchResult(object):
 
     def is_or_is_after(self, result_from_js):
         return result_from_js['spine_idx'] == self.spine_idx and self.index >= result_from_js['index'] and result_from_js['text'] == self.text
+
+    def __str__(self):
+        from collections import namedtuple
+        s = self.__slots__[:-1]
+        return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))
 
 
 @lru_cache(maxsize=None)
