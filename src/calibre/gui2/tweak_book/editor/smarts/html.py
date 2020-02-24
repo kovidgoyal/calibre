@@ -352,6 +352,18 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         return True
 
+    def select_tag_contents(self, editor):
+        editor.highlighter.join()
+        start = self.last_matched_tag
+        end = self.last_matched_closing_tag
+        if start is None or end is None:
+            return False
+        c = editor.textCursor()
+        c.setPosition(start.start_block.position() + start.end_offset + 1)
+        c.setPosition(end.start_block.position() + end.start_offset, c.KeepAnchor)
+        editor.setTextCursor(c)
+        return True
+
     def remove_tag(self, editor):
         editor.highlighter.join()
         if not self.last_matched_closing_tag and not self.last_matched_tag:
@@ -662,6 +674,8 @@ class Smarts(NullSmarts):
             if int(mods & Qt.ControlModifier):
                 if self.jump_to_enclosing_tag(editor, key == Qt.Key_BraceLeft):
                     return True
+        if key == Qt.Key_T and int(ev.modifiers() & (Qt.ControlModifier | Qt.AltModifier)):
+            return self.select_tag_contents(editor)
 
         return False
 
