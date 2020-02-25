@@ -12,12 +12,12 @@ class AListApart (BasicNewsRecipe):
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
     title = u'A List Apart'
     description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'  # noqa
-    language = 'en'
+    language = 'en_US'
     tags = 'web development, software'
     oldest_article = 120
     remove_empty_feeds = True
     encoding = 'utf8'
-    cover_url = u'http://alistapart.com/pix/alalogo.gif'
+    cover_url = u'https://alistapart.com/wp-content/uploads/2019/03/cropped-icon_navigation-laurel-512.jpg'
 
     def get_extra_css(self):
         if not self.extra_css:
