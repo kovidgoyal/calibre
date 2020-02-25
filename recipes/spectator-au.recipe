@@ -3,8 +3,8 @@ __copyright__ = '2011, Pat Stapleton <pat.stapleton at gmail.com>'
 '''
 https://www.spectator.com.au/
 '''
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
 
 class SpectatorAU(BasicNewsRecipe):
     title = 'Spectator Australia'
@@ -24,13 +24,28 @@ class SpectatorAU(BasicNewsRecipe):
     publication_type = 'newspaper'
     extra_css = '.article-header__author{margin-bottom:20px;}'
     conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': False
+        'comments': description,
+        'tags': category,
+        'language': language,
+        'publisher': publisher,
+        'linearize_tables': False
     }
 
     keep_only_tags = [dict(attrs={'class': ['article']})]
-    remove_tags = [dict(attrs={'class': ['big-author','article-header__category','margin-menu','related-stories','disqus_thread','middle-promo','show-comments','article-tags']}), dict(name=['h4','hr'])]
+    remove_tags = [
+        dict(
+            attrs={
+                'class': [
+                    'big-author', 'article-header__category', 'margin-menu',
+                    'related-stories', 'disqus_thread', 'middle-promo',
+                    'show-comments', 'article-tags'
+                ]
+            }
+        ),
+        dict(name=['h4', 'hr'])
+    ]
     remove_attributes = ['width', 'height']
 
     feeds = [
         ('Spectator Australia', 'https://www.spectator.com.au/feed/'),
-        ]
+    ]
