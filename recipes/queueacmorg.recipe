@@ -23,7 +23,7 @@ class QueueAcmOrg(BasicNewsRecipe):
     oldest_article        = 45
     max_articles_per_feed = 10
     auto_cleanup          = True
-    language              = 'en'
+    language              = 'en_US'
 
     # Feed are found here: http://queue.acm.org/rssfeeds.cfm
     feeds = [
