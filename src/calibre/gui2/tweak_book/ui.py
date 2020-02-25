@@ -474,7 +474,7 @@ class Main(MainWindow):
                                          'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
         self.action_replace = sreg('replace', _('&Replace'),
                                    'replace', keys=('Ctrl+R'), description=_('Replace current match'))
-        self.action_replace_next = sreg('replace-next', _('&Replace and find next'),
+        self.action_replace_next = sreg('replace-next', _('Replace and find ne&xt'),
                                         'replace-find', {'direction':'down'}, ('Ctrl+]'), _('Replace current match and find next'))
         self.action_replace_previous = sreg('replace-previous', _('R&eplace and find previous'),
                                         'replace-find', {'direction':'up'}, ('Ctrl+['), _('Replace current match and find previous'))
