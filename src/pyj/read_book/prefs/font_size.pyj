@@ -41,7 +41,7 @@ def change_font_size_by(amt):
     sd = get_session_data()
     sz = sd.get('base_font_size')
     nsz = sz + amt
-    nsz = max(8, min(nsz, 40))
+    nsz = max(8, min(nsz, 80))
     change_font_size(nsz)
 
 def show_custom_size(ev):
