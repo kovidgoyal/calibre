@@ -841,10 +841,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     json_metadata = defaultdict(dict)
                     json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
                     json_metadata[key]['last_used'] = book['last_used']
-                    result = json.dumps(json_metadata, indent=2, default=to_json)
-                    fd.write("%0.7d\n"%(len(result)+1))
+                    result = as_bytes(json.dumps(json_metadata, indent=2, default=to_json))
+                    fd.write(("%0.7d\n"%(len(result)+1)).encode('ascii'))
                     fd.write(result)
-                    fd.write('\n')
+                    fd.write(b'\n')
                     count += 1
             self._debug('wrote', count, 'entries, purged', purged, 'entries')
 
