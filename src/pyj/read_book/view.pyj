@@ -237,6 +237,7 @@ class View:
             'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'selectionchange': self.on_selection_change,
+            'columns_per_screen_changed': self.on_columns_per_screen_changed,
             'show_chrome': self.show_chrome,
             'show_footnote': self.on_show_footnote,
             'update_cfi': self.on_update_cfi,
@@ -453,6 +454,12 @@ class View:
             self.toggle_autoscroll()
         elif data.name.startsWith('switch_color_scheme:'):
             self.switch_color_scheme(data.name.partition(':')[-1])
+        elif data.name is 'increase_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=1)
+        elif data.name is 'decrease_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=-1)
+        elif data.name is 'reset_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=0)
         else:
             self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
 
@@ -460,6 +467,12 @@ class View:
         self.currently_showing.selected_text = data.text
         if ui_operations.selection_changed:
             ui_operations.selection_changed(data.text)
+
+    def on_columns_per_screen_changed(self, data):
+        sd = get_session_data()
+        cps = sd.get('columns_per_screen') or {}
+        cps[data.which] = int(data.cps)
+        sd.set('columns_per_screen', cps)
 
     def switch_color_scheme(self, name):
         get_session_data().set('current_color_scheme', name)

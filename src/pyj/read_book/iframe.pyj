@@ -24,13 +24,14 @@ from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    will_columns_per_screen_change, current_cfi,
-    handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
-    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
-    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
-    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
+    current_cfi, get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
+    handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
+    layout as paged_layout, onwheel as paged_onwheel,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac,
+    reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
-    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
+    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection,
+    will_columns_per_screen_change
 )
 from read_book.referencing import (
     elem_for_ref, end_reference_mode, start_reference_mode
@@ -100,7 +101,8 @@ class IframeBoss:
         handlers = {
             'change_color_scheme': self.change_color_scheme,
             'change_font_size': self.change_font_size,
-            'viewer_font_size_changed': self.viewer_font_size_changed,
+            'change_number_of_columns': self.change_number_of_columns,
+            'number_of_columns_changed': self.number_of_columns_changed,
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'find': self.find,
@@ -276,9 +278,18 @@ class IframeBoss:
                 # apply_font_size() is a no-op
                 self.relayout_on_font_size_change()
 
-    def viewer_font_size_changed(self, data):
-        opts.base_font_size = data.base_font_size
+    def change_number_of_columns(self, data):
+        if current_layout_mode() is 'flow':
+            return
+        cdata = get_columns_per_screen_data()
+        delta = int(data.delta)
+        if delta is 0:
+            new_val = 0
+        else:
+            new_val = max(1, cdata.cps + delta)
+        opts.columns_per_screen[cdata.which] = new_val
         self.relayout_on_font_size_change()
+        self.send_message('columns_per_screen_changed', which=cdata.which, cps=new_val)
 
     def relayout_on_font_size_change(self):
         if current_layout_mode() is not 'flow' and will_columns_per_screen_change():
@@ -289,6 +300,10 @@ class IframeBoss:
                     paged_jump_to_cfi('/' + cfi)
             self.update_cfi()
             self.update_toc_position()
+
+    def number_of_columns_changed(self, data):
+        opts.columns_per_screen = data.columns_per_screen
+        self.relayout_on_font_size_change()
 
     def change_scroll_speed(self, data):
         if data.lines_per_sec_auto?:

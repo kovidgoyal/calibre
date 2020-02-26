@@ -152,6 +152,11 @@ def calc_columns_per_screen():
     return cps
 
 
+def get_columns_per_screen_data():
+    which = 'landscape' if scroll_viewport.width() > scroll_viewport.height() else 'portrait'
+    return {'which': which, 'cps': calc_columns_per_screen()}
+
+
 def will_columns_per_screen_change():
     return calc_columns_per_screen() != cols_per_screen
 

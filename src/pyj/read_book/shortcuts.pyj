@@ -216,6 +216,24 @@ def shortcuts_definition():
         _('Decrease font size'),
     ),
 
+    'increase_number_of_columns': desc(
+        v"['Ctrl+]']",
+        'ui',
+        _('Increase number of columns'),
+    ),
+
+    'decrease_number_of_columns': desc(
+        v"['Ctrl+[']",
+        'ui',
+        _('Decrease number of columns'),
+    ),
+
+    'reset_number_of_columns': desc(
+        v"['Ctrl+Alt+c']",
+        'ui',
+        _('Make number of columns automatic'),
+    ),
+
     'toggle_full_screen': desc(
         v"['F11', 'Ctrl+Shift+F']",
         'ui',
