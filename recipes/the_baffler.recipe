@@ -15,7 +15,7 @@ class TheBaffler(BasicNewsRecipe):
     __author__ = 'Jose Ortiz'
     description = ('This magazine contains left-wing criticism, cultural analysis, shorts'
                    ' stories, poems and art.  They publish six print issues annually.')
-    language = 'en_US'
+    language = 'en'
     encoding = 'UTF-8'
     no_javascript = True
     no_stylesheets = True
