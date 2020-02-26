@@ -524,7 +524,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         if ev.type() == ev.ShortcutOverride and (
-                ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
+                hasattr(ev, 'key') and ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
             ev.accept()
         return QLineEdit.event(self, ev)
 
