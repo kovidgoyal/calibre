@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, absolute_import, print_function, division
 import os, sys
-from codecs import EncodedFile
 
 from calibre.ebooks.rtf2xml import copy, check_encoding
 from calibre.ptempfile import better_mktemp
@@ -274,15 +273,10 @@ class ConvertToTags:
         if self.__convert_utf or self.__bad_encoding:
             copy_obj = copy.Copy(bug_handler=self.__bug_handler)
             copy_obj.rename(self.__write_to, self.__file)
-            file_encoding = "utf-8"
-            if self.__bad_encoding:
-                file_encoding = "us-ascii"
             with open_for_read(self.__file) as read_obj:
                 with open_for_write(self.__write_to) as write_obj:
-                    write_objenc = EncodedFile(write_obj, self.__encoding,
-                                    file_encoding, 'replace')
                     for line in read_obj:
-                        write_objenc.write(line)
+                        write_obj.write(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "convert_to_tags.data")
