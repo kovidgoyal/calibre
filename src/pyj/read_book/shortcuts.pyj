@@ -219,19 +219,19 @@ def shortcuts_definition():
     'increase_number_of_columns': desc(
         v"['Ctrl+]']",
         'ui',
-        _('Increase number of columns'),
+        _('Increase number of pages per screen'),
     ),
 
     'decrease_number_of_columns': desc(
         v"['Ctrl+[']",
         'ui',
-        _('Decrease number of columns'),
+        _('Decrease number of pages per screen'),
     ),
 
     'reset_number_of_columns': desc(
         v"['Ctrl+Alt+c']",
         'ui',
-        _('Make number of columns automatic'),
+        _('Make number of pages per screen automatic'),
     ),
 
     'toggle_full_screen': desc(

@@ -280,6 +280,8 @@ class IframeBoss:
 
     def change_number_of_columns(self, data):
         if current_layout_mode() is 'flow':
+            self.send_message('error', title=_('In flow mode'), msg=_(
+                'Cannot change number of pages per screen in flow mode, switch to paged mode first.'))
             return
         cdata = get_columns_per_screen_data()
         delta = int(data.delta)
