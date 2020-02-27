@@ -359,7 +359,6 @@ class Main(MainWindow):
         self.action_edit_previous_file = treg('arrow-up.png', _('Edit &previous file'), partial(self.boss.edit_next_file, backwards=True),
                 'edit-previous-file', 'Ctrl+Alt+Up', _('Edit the previous file in the spine'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
-        # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
         self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
