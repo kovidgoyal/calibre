@@ -542,7 +542,6 @@ class EbookViewer(MainWindow):
 
     # State serialization {{{
     def save_annotations(self, in_book_file=True):
-        print(11111111111)
         if not self.current_book_data:
             return
         amap = self.current_book_data['annotations_map']
