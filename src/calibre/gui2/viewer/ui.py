@@ -92,6 +92,9 @@ class EbookViewer(MainWindow):
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
         self.maximized_at_last_fullscreen = False
+        self.save_pos_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(3000), t.setTimerType(Qt.VeryCoarseTimer)
+        connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
         self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
@@ -534,10 +537,12 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{
             'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+        self.save_pos_timer.start()
     # }}}
 
     # State serialization {{{
     def save_annotations(self, in_book_file=True):
+        print(11111111111)
         if not self.current_book_data:
             return
         amap = self.current_book_data['annotations_map']
