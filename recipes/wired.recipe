@@ -4,6 +4,7 @@ __copyright__ = '2014, Darko Miletic <darko.miletic at gmail.com>'
 www.wired.com
 '''
 
+from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -80,3 +81,17 @@ class WiredDailyNews(BasicNewsRecipe):
             articles.extend(self.parse_wired_index_page(baseurl.format(pagenum), seen))
 
         return [('Magazine Articles', articles)]
+
+    # Wired changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
