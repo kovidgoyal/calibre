@@ -583,6 +583,8 @@ class IframeBoss:
         if select_search_result(data.search_result):
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
+        else:
+            self.send_message('search_result_not_found', search_result=data.search_result)
 
     def reference_item_changed(self, ref_num_or_none):
         self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)

@@ -401,8 +401,8 @@ class Results(QListWidget):  # {{{
                     break
                 r.index -= 1
             self.takeItem(remove)
-            if remove < self.count():
-                self.setCurrentRow(remove)
+            if self.count():
+                self.setCurrentRow(min(remove, self.count()-1))
                 self.item_activated()
 # }}}
 
