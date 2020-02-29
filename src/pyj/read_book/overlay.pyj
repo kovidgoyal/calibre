@@ -481,20 +481,30 @@ class OpenBook: # {{{
     def __init__(self, overlay, closeable):
         self.overlay = overlay
         self.closeable = closeable
-        self.is_not_escapable = not closeable  # prevent Esc key from closing
+
+    def handle_escape(self):
+        if self.closeable:
+            self.overlay.hide_current_panel()
+        else:
+            ui_operations.quit()
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
-        close_button_style = '' if self.closeable else 'display: none'
         container.appendChild(E.div(
             style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
                 E.h2(_('Open a new book')),
                 E.div(
-                    svgicon('close'), style=f'cursor:pointer; {close_button_style}',
-                    onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);,
+                    svgicon('close'), style=f'cursor:pointer',
+                    onclick=def(event):
+                        event.preventDefault(), event.stopPropagation()
+                        if self.closeable:
+                            self.overlay.hide_current_panel(event)
+                        else:
+                            ui_operations.quit()
+                    ,
                     class_='simple-link'),
             ))
         create_open_book(container, self.overlay.view?.book)
