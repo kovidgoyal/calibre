@@ -232,8 +232,10 @@ def prefs_panel_handler(title, get_prefs_data, on_close=None, icon='close'):
             on_close()
         back()
 
-    return def init_prefs_panel(container_id):  # noqa:unused-local
+    def init_prefs_panel(container_id):
         container = document.getElementById(container_id)
-        create_top_bar(container, title, action=close_action, icon=icon)
+        create_top_bar(container, title=title, action=close_action, icon=icon)
         container.appendChild(E.div())
         create_prefs_widget(container.lastChild, get_prefs_data())
+
+    return init_prefs_panel
