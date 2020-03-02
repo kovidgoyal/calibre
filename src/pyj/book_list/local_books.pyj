@@ -7,12 +7,12 @@ from gettext import gettext as _
 
 from book_list.globals import get_db
 from book_list.router import home, open_book
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_panel_handler
-from book_list.views import DEFAULT_MODE, setup_view_mode, get_view_mode
+from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
-from utils import conditional_timeout
+from utils import conditional_timeout, safe_set_inner_html
 from widgets import create_button
 
 CLASS_NAME = 'local-books-list'
@@ -47,6 +47,56 @@ def delete_book(book, book_idx):
         books = [book_list_data.book_data[i] for i in book_list_data.books if i is not book_idx]
         show_recent_stage2.call(book_list_data.container_id, books)
     )
+
+
+def confirm_delete_all():
+    num_of_books = book_list_data.books.length
+    create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
+
+        def action(doit):
+            if doit:
+                clear(parent)
+                delete_all(parent, close_modal)
+            else:
+                close_modal()
+
+        msg = _('This will remove all {} downloaded books from local storage. Are you sure?').format(num_of_books)
+        m = E.div()
+        safe_set_inner_html(m, msg)
+        parent.appendChild(E.div(
+            m,
+            E.div(class_='button-box',
+                create_button(_('OK'), None, action.bind(None, True)),
+                '\xa0',
+                create_button(_('Cancel'), None, action.bind(None, False), highlight=True),
+            )
+        ))
+    )
+
+
+
+def delete_all(msg_parent, close_modal):
+    db = get_db()
+    books = list(book_list_data.books)
+
+    def delete_one():
+        if not books.length:
+            close_modal()
+            show_recent_stage2.call(book_list_data.container_id, books)
+            return
+        clear(msg_parent)
+        safe_set_inner_html(msg_parent, _('Deleting {} books, please wait...').format(books.length))
+        book_to_delete = books.pop()
+        db.delete_book(book_list_data.book_data[book_to_delete], def(book, err_string):
+            if err_string:
+                close_modal()
+                show_recent_stage2.call(book_list_data.container_id, books)
+                error_dialog(_('Failed to delete book'), err_string)
+            else:
+                delete_one()
+    )
+    delete_one()
+
 
 
 def on_select(book, book_idx):
@@ -158,6 +208,7 @@ def show_recent():
 def init(container_id):
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Downloaded books'), action=home, icon='home')
+    add_button(container, 'trash', confirm_delete_all, _('Delete all downloaded books'))
     # book list
     recent = E.div(class_=CLASS_NAME)
     recent_container_id = ensure_id(recent)
