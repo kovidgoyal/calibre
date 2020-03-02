@@ -50,7 +50,9 @@ def delete_book(book, book_idx):
 
 
 def confirm_delete_all():
-    num_of_books = book_list_data.books.length
+    num_of_books = book_list_data.books?.length
+    if not num_of_books:
+        return
     create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
 
         def action(doit):
@@ -79,10 +81,13 @@ def delete_all(msg_parent, close_modal):
     db = get_db()
     books = list(book_list_data.books)
 
+    def refresh():
+        show_recent_stage2.call(book_list_data.container_id, [book_list_data.book_data[i] for i in books])
+
     def delete_one():
         if not books.length:
             close_modal()
-            show_recent_stage2.call(book_list_data.container_id, books)
+            refresh()
             return
         clear(msg_parent)
         safe_set_inner_html(msg_parent, _('Deleting {} books, please wait...').format(books.length))
@@ -90,7 +95,7 @@ def delete_all(msg_parent, close_modal):
         db.delete_book(book_list_data.book_data[book_to_delete], def(book, err_string):
             if err_string:
                 close_modal()
-                show_recent_stage2.call(book_list_data.container_id, books)
+                refresh()
                 error_dialog(_('Failed to delete book'), err_string)
             else:
                 delete_one()
@@ -171,26 +176,28 @@ def apply_view_mode(mode):
 
 
 def create_books_list(container, books):
+    clear(container)
     book_list_data.container_id = ensure_id(container)
     book_list_data.book_data = {i:book for i, book in enumerate(books)}
     book_list_data.books = list(range(books.length))
     book_list_data.mode = None
     book_list_data.thumbnail_cache = {}
-    container.appendChild(E.div(data_component='book_list'))
-    apply_view_mode(get_view_mode())
-
-def show_recent_stage2(books):
-    container = document.getElementById(this)
-    if not container:
-        return
-    clear(container)
     if not books.length:
         container.appendChild(E.div(
             style='margin: 1rem 1rem',
             _('No downloaded books present')
         ))
+    else:
+        container.appendChild(E.div(data_component='book_list'))
+        apply_view_mode(get_view_mode())
+
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container:
         return
     create_books_list(container, books)
+
 
 def show_recent():
     container = this
