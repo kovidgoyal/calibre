@@ -9,7 +9,7 @@ from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract, get_comic_metadata
+from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
 plugins = []
@@ -124,7 +124,7 @@ class TXT2TXTZ(FileTypePlugin):
             return path_to_ebook
 
 
-plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract,]
+plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 # }}}
 
 # Metadata reader plugins {{{

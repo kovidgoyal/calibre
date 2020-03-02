@@ -40,6 +40,29 @@ def archive_type(stream):
     return ans
 
 
+class KPFExtract(FileTypePlugin):
+
+    name = 'KPF Extract'
+    author = 'Kovid Goyal'
+    description = _('Extract the source DOCX file from Amazon Kindle Create KPF files.'
+            ' Note this will not contain any edits made in the Kindle Create program itself.')
+    file_types = {'kpf'}
+    supported_platforms = ['windows', 'osx', 'linux']
+    on_import = True
+
+    def run(self, archive):
+        from calibre.utils.zipfile import ZipFile
+        with ZipFile(archive, 'r') as zf:
+            fnames = zf.namelist()
+            candidates = [x for x in fnames if x.lower().endswith('.docx')]
+            if not candidates:
+                return archive
+            of = self.temporary_file('_kpf_extract.docx')
+            with closing(of):
+                of.write(zf.read(candidates[0]))
+        return of.name
+
+
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
     author = 'Kovid Goyal'
