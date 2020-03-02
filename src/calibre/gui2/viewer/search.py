@@ -399,9 +399,15 @@ class Results(QListWidget):  # {{{
             r = item.data(Qt.UserRole)
             if r.is_result(sr):
                 r.is_hidden = True
-                item.setToolTip(_('This text is hidden in the book, so cannot be displayed'))
                 item.setIcon(QIcon(I('dialog_warning.png')))
                 break
+
+    @property
+    def current_result_is_hidden(self):
+        item = self.currentItem()
+        if item and item.data(Qt.UserRole) and item.data(Qt.UserRole).is_hidden:
+            return True
+        return False
 # }}}
 
 
@@ -425,10 +431,19 @@ class SearchPanel(QWidget):  # {{{
         l.addWidget(si)
         self.results = r = Results(self)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
+        r.currentRowChanged.connect(self.update_hidden_message)
         l.addWidget(r, 100)
         self.spinner = s = BusySpinner(self)
         s.setVisible(False)
         l.addWidget(s)
+        self.hidden_message = la = QLabel(_('This text is hidden in the book and cannot be displayed'))
+        la.setStyleSheet('QLabel { margin-left: 1ex }')
+        la.setWordWrap(True)
+        la.setVisible(False)
+        l.addWidget(la)
+
+    def update_hidden_message(self):
+        self.hidden_message.setVisible(self.results.current_result_is_hidden)
 
     def focus_input(self):
         self.search_input.focus_input()
@@ -442,6 +457,7 @@ class SearchPanel(QWidget):  # {{{
             self.searcher.daemon = True
             self.searcher.start()
         self.results.clear()
+        self.hidden_message.setVisible(False)
         self.spinner.start()
         self.current_search = search_query
         self.last_hidden_text_warning = None
@@ -491,6 +507,7 @@ class SearchPanel(QWidget):  # {{{
             # first result
             self.results.setCurrentRow(0)
             self.results.item_activated()
+        self.update_hidden_message()
 
     def visibility_changed(self, visible):
         if visible:
@@ -518,6 +535,7 @@ class SearchPanel(QWidget):  # {{{
 
     def search_result_not_found(self, sr):
         self.results.search_result_not_found(sr)
+        self.update_hidden_message()
 
     def show_no_results_found(self):
         msg = _('No matches were found for:')
