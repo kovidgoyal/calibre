@@ -51,10 +51,13 @@ def get_key_text(evt):
         cc = key.charCodeAt(0)
         # on windows in webengine pressing ctrl+ascii char gives us an ascii
         # control code
-        if (0 < cc < 32 or key is 'Enter') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
+        if (0 < cc < 32 or key is 'Enter' or key is 'Tab') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
             if key is 'Enter':
                 if evt.code and evt.code is not 'Enter':
                     key = 'm'
+            elif key is 'Tab':
+                if evt.code and evt.code is not 'Tab':
+                    key = 'i'
             else:
                 key = chr(96 + cc)
     return key
