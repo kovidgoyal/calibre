@@ -10,9 +10,9 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
-    QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget,
+    QListWidgetItem, QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
@@ -20,7 +20,6 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
-from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, unicode_type
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
@@ -116,7 +115,7 @@ class SearchFinished(object):
 
 class SearchResult(object):
 
-    __slots__ = ('search_query', 'before', 'text', 'after', 'q', 'spine_idx', 'index', 'file_name', '_static_text')
+    __slots__ = ('search_query', 'before', 'text', 'after', 'q', 'spine_idx', 'index', 'file_name', '_static_text', 'is_hidden')
 
     def __init__(self, search_query, before, text, after, q, name, spine_idx, index):
         self.search_query = search_query
@@ -125,6 +124,7 @@ class SearchResult(object):
         self.spine_idx, self.index = spine_idx, index
         self.file_name = name
         self._static_text = None
+        self.is_hidden = False
 
     @property
     def static_text(self):
@@ -148,11 +148,11 @@ class SearchResult(object):
     def for_js(self):
         return {
             'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text,
-            'before': self.before, 'after': self.after, 'mode': self.search_query.mode
+            'before': self.before, 'after': self.after, 'mode': self.search_query.mode, 'q': self.q
         }
 
     def is_result(self, result_from_js):
-        return result_from_js['spine_idx'] == self.spine_idx and self.index == result_from_js['index'] and result_from_js['text'] == self.text
+        return result_from_js['spine_idx'] == self.spine_idx and self.index == result_from_js['index'] and result_from_js['q'] == self.q
 
     def __str__(self):
         from collections import namedtuple
@@ -344,8 +344,14 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
         c = p.color(group, c)
         painter.setClipRect(option.rect)
         painter.setPen(c)
+        height = result.static_text.size().height()
+        tl = option.rect.topLeft()
+        x, y = tl.x(), tl.y()
+        y += (option.rect.height() - height) // 2
+        if result.is_hidden:
+            x += option.decorationSize.width() + 4
         try:
-            painter.drawStaticText(option.rect.topLeft(), result.static_text)
+            painter.drawStaticText(x, y, result.static_text)
         except Exception:
             import traceback
             traceback.print_exc()
@@ -360,21 +366,23 @@ class Results(QListWidget):  # {{{
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
-        self.setStyleSheet('QListWidget::item { padding: 3px; }')
         self.delegate = ResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.itemClicked.connect(self.item_activated)
+        self.blank_icon = QIcon(I('blank.png'))
 
     def add_result(self, result):
         i = QListWidgetItem(' ', self)
         i.setData(Qt.UserRole, result)
+        i.setIcon(self.blank_icon)
         return self.count()
 
     def item_activated(self):
         i = self.currentItem()
         if i:
             sr = i.data(Qt.UserRole)
-            self.show_search_result.emit(sr)
+            if not sr.is_hidden:
+                self.show_search_result.emit(sr)
 
     def find_next(self, previous):
         if self.count() < 1:
@@ -386,24 +394,14 @@ class Results(QListWidget):  # {{{
         self.item_activated()
 
     def search_result_not_found(self, sr):
-        remove = None
         for i in range(self.count()):
             item = self.item(i)
             r = item.data(Qt.UserRole)
             if r.is_result(sr):
-                remove = i
-        if remove is not None:
-            q = sr['spine_idx']
-            for i in range(remove + 1, self.count()):
-                item = self.item(i)
-                r = item.data(Qt.UserRole)
-                if r.spine_index != q:
-                    break
-                r.index -= 1
-            self.takeItem(remove)
-            if self.count():
-                self.setCurrentRow(min(remove, self.count()-1))
-                self.item_activated()
+                r.is_hidden = True
+                item.setToolTip(_('This text is hidden in the book, so cannot be displayed'))
+                item.setIcon(QIcon(I('dialog_warning.png')))
+                break
 # }}}
 
 
@@ -520,24 +518,8 @@ class SearchPanel(QWidget):  # {{{
 
     def search_result_not_found(self, sr):
         self.results.search_result_not_found(sr)
-        if self.results.count():
-            now = monotonic()
-            if self.last_hidden_text_warning is None or self.current_search != self.last_hidden_text_warning[1] or now - self.last_hidden_text_warning[0] > 5:
-                self.last_hidden_text_warning = now, self.current_search
-                warning_dialog(self, _('Hidden text'), _(
-                    'Some search results were for hidden or non-reflowable text, they will be removed.'), show=True)
-            elif self.last_hidden_text_warning is not None:
-                self.last_hidden_text_warning = now, self.last_hidden_text_warning[1]
-
-        if not self.results.count() and not self.spinner.is_running:
-            self.show_no_results_found()
 
     def show_no_results_found(self):
-        has_hidden_text = self.last_hidden_text_warning is not None and self.last_hidden_text_warning[1] == self.current_search
-        if self.current_search:
-            if has_hidden_text:
-                msg = _('No displayable matches were found for:')
-            else:
-                msg = _('No matches were found for:')
-            warning_dialog(self, _('No matches found'), msg + '  <b>{}</b>'.format(self.current_search.text), show=True)
+        msg = _('No matches were found for:')
+        warning_dialog(self, _('No matches found'), msg + '  <b>{}</b>'.format(self.current_search.text), show=True)
 # }}}
