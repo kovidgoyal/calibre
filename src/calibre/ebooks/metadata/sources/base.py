@@ -384,7 +384,7 @@ class Source(Plugin):
                 # Remove hyphens only if they have whitespace before them
                 (r'(\s-)', ' '),
                 # Replace other special chars with a space
-                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]''', ' '),
+                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]《》''', ' '),
             ]]
 
             for pat, repl in title_patterns:
