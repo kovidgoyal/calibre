@@ -85,7 +85,7 @@ class Douban(Source):
         description = entry_.get('summary')
         # subtitle = entry_.get('subtitle')  # TODO: std metada doesn't have this field
         publisher = entry_.get('publisher')
-        isbns = entry_.get('isbn13')  # ISBN11 is obsolute, use ISBN13
+        isbn = entry_.get('isbn13')  # ISBN11 is obsolute, use ISBN13
         pubdate = entry_.get('pubdate')
         authors = entry_.get('author')
         book_tags = entry_.get('tags')
@@ -106,9 +106,14 @@ class Douban(Source):
         # mi.subtitle = subtitle
 
         # ISBN
-        for x in isbns:
-            if check_isbn(x):
-                isbns.append(x)
+        isbns = []
+        if isinstance(isbn, basestring):
+            if check_isbn(isbn):
+                isbns.append(isbn)
+        else:
+            for x in isbn:
+                if check_isbn(x):
+                    isbns.append(x)
         if isbns:
             mi.isbn = sorted(isbns, key=len)[-1]
         mi.all_isbns = isbns
@@ -335,10 +340,15 @@ class Douban(Source):
             log.exception('Failed to make identify query: %r' % query)
             return as_unicode(e)
         try:
-            entries = json.loads(raw)['books']
+            j = json.loads(raw)
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
+        if j.has_key('books'):
+            entries = j['books']
+        else:
+            entries = []
+            entries.append(j)
         if not entries and identifiers and title and authors and \
                 not abort.is_set():
             return self.identify(
