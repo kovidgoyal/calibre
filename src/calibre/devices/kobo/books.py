@@ -70,6 +70,7 @@ class Book(Book_):
         self.can_put_on_shelves = True
         self.kobo_series        = None
         self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
+        self.kobo_series_id     = None
         self.kobo_subtitle      = None
 
         if thumbnail_name is not None:
@@ -83,6 +84,10 @@ class Book(Book_):
     def is_sideloaded(self):
         # If we don't have a content Id, we don't know what type it is.
         return self.contentID and self.contentID.startswith("file")
+
+    @property
+    def has_kobo_series(self):
+        return self.kobo_series is not None
 
     @property
     def is_purchased_kepub(self):
@@ -102,6 +107,8 @@ class Book(Book_):
             fmt('Content ID', self.contentID)
         if self.kobo_series:
             fmt('Kobo Series', self.kobo_series + ' #%s'%self.kobo_series_number)
+        if self.kobo_series_id:
+            fmt('Kobo Series ID', self.kobo_series_id)
         if self.kobo_subtitle:
             fmt('Subtitle', self.kobo_subtitle)
         if self.mime:
