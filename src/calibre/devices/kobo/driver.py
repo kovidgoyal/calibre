@@ -3166,7 +3166,7 @@ class KOBOTOUCH(KOBO):
             set_clause += ', SeriesNumber = ? '
         if self.supports_series_list and book.is_sideloaded:
             series_id = self.kobo_series_dict.get(new_series, new_series)
-            if not book.kobo_series_id == series_id or series_changed or series_number_changed: 
+            if not book.kobo_series_id == series_id or series_changed or series_number_changed:
                 update_values.append(series_id)
                 set_clause += ', SeriesID = ? '
                 update_values.append(new_series_number)
