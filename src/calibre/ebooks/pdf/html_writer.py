@@ -18,7 +18,7 @@ from operator import attrgetter, itemgetter
 
 from html5_parser import parse
 from PyQt5.Qt import (
-    QApplication, QMarginsF, QObject, QPageLayout, QTimer, QUrl, pyqtSignal
+    QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
@@ -39,6 +39,7 @@ from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.logging import default_log
+from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
@@ -172,10 +173,26 @@ class Renderer(QWebEnginePage):
 
         self.titleChanged.connect(self.title_changed)
         self.loadStarted.connect(self.load_started)
+        self.loadProgress.connect(self.load_progress)
         self.loadFinished.connect(self.load_finished)
+        self.load_hang_check_timer = t = QTimer(self)
+        self.load_started_at = 0
+        t.setTimerType(Qt.VeryCoarseTimer)
+        t.setInterval(60 * 1000)
+        t.setSingleShot(True)
+        t.timeout.connect(self.on_load_hang)
 
     def load_started(self):
+        self.load_started_at = monotonic()
         self.load_complete = False
+        self.load_hang_check_timer.start()
+
+    def load_progress(self, amt):
+        self.load_hang_check_timer.start()
+
+    def on_load_hang(self):
+        self.log(self.log_prefix, 'Loading not complete after {} seconds, aborting.'.format(int(monotonic() - self.load_started_at)))
+        self.load_finished(False)
 
     def title_changed(self, title):
         if self.wait_for_title and title == self.wait_for_title and self.load_complete:
@@ -187,6 +204,7 @@ class Renderer(QWebEnginePage):
 
     def load_finished(self, ok):
         self.load_complete = True
+        self.load_hang_check_timer.stop()
         if not ok:
             self.working = False
             self.work_done.emit(self, 'Load of {} failed'.format(self.url().toString()))
