@@ -50,6 +50,7 @@ from polyglot.builtins import (
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
+HANG_TIME = 60  # seconds
 # }}}
 
 
@@ -178,7 +179,7 @@ class Renderer(QWebEnginePage):
         self.load_hang_check_timer = t = QTimer(self)
         self.load_started_at = 0
         t.setTimerType(Qt.VeryCoarseTimer)
-        t.setInterval(60 * 1000)
+        t.setInterval(HANG_TIME * 1000)
         t.setSingleShot(True)
         t.timeout.connect(self.on_load_hang)
 
