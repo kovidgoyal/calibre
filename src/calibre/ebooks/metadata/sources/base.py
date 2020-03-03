@@ -343,8 +343,8 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            remove_pat = re.compile(r'[!@#$%^&*(){}`~"\s\[\]/]')
-            replace_pat = re.compile(r'[-+.:;,]')
+            remove_pat = re.compile(r'[!@#$%^&*()（）「」{}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;,，。；：]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
@@ -384,7 +384,7 @@ class Source(Plugin):
                 # Remove hyphens only if they have whitespace before them
                 (r'(\s-)', ' '),
                 # Replace other special chars with a space
-                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]《》''', ' '),
+                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]《》「」“”''', ' '),
             ]]
 
             for pat, repl in title_patterns:
