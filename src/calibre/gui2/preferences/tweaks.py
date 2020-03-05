@@ -372,6 +372,7 @@ class TweaksView(QListView):
         self.setAlternatingRowColors(True)
         self.setSpacing(5)
         self.setVerticalScrollMode(self.ScrollPerPixel)
+        self.setMinimumWidth(300)
 
     def currentChanged(self, cur, prev):
         QListView.currentChanged(self, cur, prev)
