@@ -6,27 +6,51 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QIcon, QModelIndex, QSize)
 
-from calibre.customize.ui import is_disabled, disable_plugin, enable_plugin
-from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from PyQt5.Qt import (
+    QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
+)
+
+from calibre import fit_image
+from calibre.customize.ui import disable_plugin, enable_plugin, is_disabled
+from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import range, unicode_type
+
+
+class Delegate(QStyledItemDelegate):
+
+    def paint(self, painter, option, index):
+        icon = index.data(Qt.DecorationRole)
+        if icon and not icon.isNull():
+            QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+            pw, ph = option.rect.width(), option.rect.height()
+            scaled, w, h = fit_image(option.decorationSize.width(), option.decorationSize.height(), pw, ph)
+            r = option.rect
+            if pw > w:
+                x = (pw - w) // 2
+                r = r.adjusted(x, 0, -x, 0)
+            if ph > h:
+                y = (ph - h) // 2
+                r = r.adjusted(0, y, 0, -y)
+            painter.drawPixmap(r, icon.pixmap(w, h))
+        else:
+            QStyledItemDelegate.paint(self, painter, option, index)
 
 
 class Matches(QAbstractItemModel):
 
     HEADERS = [_('Enabled'), _('Name'), _('No DRM'), _('Headquarters'), _('Affiliate'), _('Formats')]
-    HTML_COLS = [1]
+    HTML_COLS = (1,)
+    CENTERED_COLUMNS = (2, 3, 4)
 
     def __init__(self, plugins):
         QAbstractItemModel.__init__(self)
 
         self.NO_DRM_ICON = QIcon(I('ok.png'))
-        self.DONATE_ICON = QIcon()
-        self.DONATE_ICON.addFile(I('donate.png'), QSize(16, 16))
+        self.DONATE_ICON = QIcon(I('donate.png'))
 
         self.all_matches = plugins
         self.matches = plugins
@@ -123,6 +147,10 @@ class Matches(QAbstractItemModel):
                 if is_disabled(result):
                     return Qt.Unchecked
                 return Qt.Checked
+        elif role == Qt.TextAlignmentRole:
+            if col in self.CENTERED_COLUMNS:
+                return Qt.AlignHCenter
+            return Qt.AlignLeft
         elif role == Qt.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
@@ -182,9 +210,7 @@ class Matches(QAbstractItemModel):
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder
-        self.matches.sort(None,
-            lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
-            descending)
+        self.matches.sort(key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 
