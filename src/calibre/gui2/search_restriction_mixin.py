@@ -424,7 +424,7 @@ class SearchRestrictionMixin(object):
             is_current = vl == current_lib
             a = m.addAction(self.checked if is_current else self.empty, vl.replace('&', '&&'))
             if is_current:
-                a.triggered.connect(self.clear_vl.click)
+                a.triggered.connect(self.apply_virtual_library)
             else:
                 a.triggered.connect(partial(self.apply_virtual_library, library=vl))
 
