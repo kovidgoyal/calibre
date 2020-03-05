@@ -421,8 +421,12 @@ class SearchRestrictionMixin(object):
 
         virt_libs = db.prefs.get('virtual_libraries', {})
         for vl in sorted(virt_libs.keys(), key=sort_key):
-            a = m.addAction(self.checked if vl == current_lib else self.empty, vl.replace('&', '&&'))
-            a.triggered.connect(partial(self.apply_virtual_library, library=vl))
+            is_current = vl == current_lib
+            a = m.addAction(self.checked if is_current else self.empty, vl.replace('&', '&&'))
+            if is_current:
+                a.triggered.connect(self.clear_vl.click)
+            else:
+                a.triggered.connect(partial(self.apply_virtual_library, library=vl))
 
     def virtual_library_menu_about_to_show(self):
         self.build_virtual_library_menu(self.virtual_library_menu)
