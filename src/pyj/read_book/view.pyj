@@ -757,6 +757,10 @@ class View:
             show_controls_help()
             sd.set('controls_help_shown_count', c + 1)
 
+    def preferences_changed(self):
+        ui_operations.update_url_state(True)
+        ui_operations.redisplay_book()
+
     def redisplay_book(self):
         # redisplay_book() is called when settings are changed
         sd = get_session_data()

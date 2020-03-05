@@ -463,7 +463,7 @@ class PrefsOverlay: # {{{
     def on_hide(self):
         if self.changes_occurred:
             self.changes_occurred = False
-            ui_operations.redisplay_book()
+            self.overlay.view.preferences_changed()
 
 # }}}
 
