@@ -90,6 +90,7 @@ class NewYorkTimes(BasicNewsRecipe):
     compress_news_images = True
     compress_news_images_auto_size = 5
     remove_attributes = ['style']
+    conversion_options = {'flow_size': 0}
 
     remove_tags = [
         dict(attrs={'aria-label':'tools'.split()}),
