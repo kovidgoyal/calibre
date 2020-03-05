@@ -107,7 +107,7 @@ class Douban(Source):
 
         # ISBN
         isbns = []
-        if isinstance(isbn, basestring):
+        if isinstance(isbn, (type(''), bytes)):
             if check_isbn(isbn):
                 isbns.append(isbn)
         else:
@@ -344,7 +344,7 @@ class Douban(Source):
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
-        if j.has_key('books'):
+        if 'books' in j:
             entries = j['books']
         else:
             entries = []
