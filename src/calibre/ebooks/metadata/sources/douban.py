@@ -48,8 +48,8 @@ def get_details(browser, url, timeout):  # {{{
 class Douban(Source):
 
     name = 'Douban Books'
-    author = 'Li Fanxi, xcffl'
-    version = (3, 0, 0)
+    author = 'Li Fanxi, xcffl, jnozsc'
+    version = (3, 1, 0)
     minimum_calibre_version = (2, 80, 0)
 
     description = _(
@@ -90,7 +90,7 @@ class Douban(Source):
         authors = entry_.get('author')
         book_tags = entry_.get('tags')
         rating = entry_.get('rating')
-        cover_url = entry_.get('image')
+        cover_url = entry_.get('images', {}).get('large')
         series = entry_.get('series')
 
         if not authors:
