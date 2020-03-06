@@ -20,6 +20,52 @@
 #   new recipes:
 #     - title:
 
+- version: 4.12.0
+  date: 2020-03-06
+
+  new features:
+    - title: "Kobo driver: Add support for new firmware with the series list on the device"
+
+    - title: "Automatically extract the source DOCX file from Kindle Create KPF files when adding them to calibre. If you prefer to preserve the KPF file you can disable the KPF Extract plugin in Preferences->Plugins"
+
+    - title: "Content server: Add a button to delete all locally cached books."
+      tickets: [1864305]
+
+    - title: "Edit Book: Allow selecting the contents of a tag with Ctrl+Alt+t"
+
+    - title: "Viewer: Save current position after 3 seconds of last position change. Useful if the viewer crashes on resume from sleep."
+
+    - title: "Viewer: Add a keyboard shortcut (Ctrl+w) to toggle the scrollbar."
+      tickets: [1864356]
+
+    - title: "Viewer: Keyboard shortcuts to change number of columns (Ctrl+[ and Ctrl+])"
+
+  bug fixes:
+    - title: "Fix the Douban metadata download plugin"
+      tickets: [1853091]
+
+    - title: "Viewer: Fix searching in Regex and Whole words mode not working well."
+
+    - title: "Viewer: Fix searching for multiple words in fixed layout books not working."
+      tickets: [1863464]
+
+    - title: "RTF Input: Fix handling of RTF files with invalid encoded text."
+      tickets: [1864719]
+
+    - title: "PDF Output: Add a hangcheck for loading HTML if there is no progress for sixty seconds abort"
+      tickets: [1865380]
+
+    - title: 'Viewer: When starting without a book allowing quitting the viewer by clicking the close button on the "Open book" page'
+      tickets: [1864343]
+
+  improved recipes:
+    - Wired
+    - ABC News Australia
+
+  new recipes:
+    - title: Spectator Australia
+      author: James Cridland
+
 - version: 4.11.2
   date: 2020-02-21
 
