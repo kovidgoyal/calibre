@@ -214,7 +214,7 @@ def create_prefs_widget(container, prefs_data):
     if state.widgets.length:
         container.appendChild(
             E.div(
-                style='margin:1ex 1em; padding: 1em; text-align:center',
+                style='margin:1rem;',
                 create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
             )
         )
