@@ -33,7 +33,7 @@
           <cstring>category_box</cstring>
          </property>
         </widget>
-     </item>
+       </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="category_box">
          <property name="toolTip">
@@ -61,6 +61,26 @@
         <widget class="QComboBox" name="category_filter_box">
          <property name="toolTip">
           <string>Select the content kind of the new category</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_filt">
+         <property name="text">
+          <string>Item &amp;filter: </string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>item_filter_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="item_filter_box">
+         <property name="toolTip">
+          <string>Enter text to filter the available items. Case and accents are ignored.</string>
          </property>
         </widget>
        </item>
@@ -136,6 +156,13 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="blank">
+         <property name="text">
+          <string> </string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
@@ -152,7 +179,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QListWidget" name="available_items_box">
        <property name="alternatingRowColors">
         <bool>true</bool>
@@ -165,7 +192,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QToolButton" name="apply_button">
        <property name="toolTip">
         <string>Apply tags to current tag category</string>
@@ -189,7 +216,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="3" column="2">
       <widget class="QListWidget" name="applied_items_box">
        <property name="alternatingRowColors">
         <bool>true</bool>
@@ -199,7 +226,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
+     <item row="3" column="3">
       <widget class="QToolButton" name="unapply_button">
        <property name="toolTip">
         <string>Unapply (remove) tag from current tag category</string>
@@ -213,7 +240,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="4">
+     <item row="4" column="0" colspan="4">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
