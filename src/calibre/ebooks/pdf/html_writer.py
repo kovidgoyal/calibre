@@ -919,7 +919,7 @@ def fonts_are_identical(fonts):
     return True
 
 
-def merge_font(fonts):
+def merge_font(fonts, log):
     # choose the largest font as the base font
     fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
     base_font = fonts[0]
@@ -932,7 +932,7 @@ def merge_font(fonts):
     cmaps = list(filter(None, (f['ToUnicode'] for f in t0_fonts)))
     if cmaps:
         t0_font['ToUnicode'] = as_bytes(merge_cmaps(cmaps))
-    base_font['sfnt'], width_for_glyph_id, height_for_glyph_id = merge_truetype_fonts_for_pdf(*(f['sfnt'] for f in descendant_fonts))
+    base_font['sfnt'], width_for_glyph_id, height_for_glyph_id = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
     widths = []
     arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
     if arrays:
@@ -947,7 +947,7 @@ def merge_font(fonts):
     return t0_font, base_font, references_to_drop
 
 
-def merge_fonts(pdf_doc):
+def merge_fonts(pdf_doc, log):
     all_fonts = pdf_doc.list_fonts(True)
     base_font_map = {}
 
@@ -976,7 +976,7 @@ def merge_fonts(pdf_doc):
     items = []
     for name, fonts in iteritems(base_font_map):
         if mergeable(fonts):
-            t0_font, base_font, references_to_drop = merge_font(fonts)
+            t0_font, base_font, references_to_drop = merge_font(fonts, log)
             for ref in references_to_drop:
                 replacements[ref] = t0_font['Reference']
             data = base_font['sfnt']()[0]
@@ -1246,7 +1246,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         page_number_display_map, page_layout, page_margins_map,
         pdf_metadata, report_progress, toc if has_toc else None)
 
-    merge_fonts(pdf_doc)
+    merge_fonts(pdf_doc, log)
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')

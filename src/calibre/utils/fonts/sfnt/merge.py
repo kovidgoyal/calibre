@@ -12,7 +12,7 @@ class GlyphSizeMismatch(ValueError):
     pass
 
 
-def merge_truetype_fonts_for_pdf(*fonts):
+def merge_truetype_fonts_for_pdf(fonts, log=None):
     # only merges the glyf and loca tables, ignoring all other tables
     all_glyphs = {}
     ans = fonts[0]
@@ -28,7 +28,8 @@ def merge_truetype_fonts_for_pdf(*fonts):
                     all_glyphs[glyph_id] = glyf.glyph_data(offset, sz, as_raw=True)
                 else:
                     if abs(sz - len(prev_glyph_data)) > 8:
-                        raise GlyphSizeMismatch('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
+                        if log is not None:
+                            log('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
 
     glyf = ans[b'glyf']
     head = ans[b'head']
