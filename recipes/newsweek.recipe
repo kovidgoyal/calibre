@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+import json
 from calibre.web.feeds.news import BasicNewsRecipe
 from collections import defaultdict
 
@@ -49,28 +54,23 @@ class Newsweek(BasicNewsRecipe):
         a = li.xpath('descendant::a[@href]')[0]
         url = href_to_url(a, add_piano=True)
         self.timefmt = self.tag_to_string(a)
-        img = li.xpath('descendant::a[@href]//img[@data-src]')[0]
-        self.cover_url = img.get('data-src').partition('?')[0]
+        img = li.xpath('descendant::a[@href]//source[@type="image/jpeg"]/@srcset')[0]
+        self.cover_url = img.partition('?')[0]
+        self.log('Found cover url:', self.cover_url)
         root = self.index_to_soup(url, as_tree=True)
         features = []
-        try:
-            div = root.xpath('//div[@class="magazine-features"]')[0]
-        except IndexError:
-            pass
-        else:
-            for a in div.xpath('descendant::div[@class="h1"]//a[@href]'):
-                title = self.tag_to_string(a)
-                article = a.xpath('ancestor::article')[0]
-                desc = ''
-                s = article.xpath('descendant::div[@class="summary"]')
-                if s:
-                    desc = self.tag_to_string(s[0])
-                features.append({'title': title, 'url': href_to_url(a), 'description': desc})
-                self.log(title, href_to_url(a))
+        for article in root.xpath('//div[@class="magazine-features"]//article'):
+            a = article.xpath('descendant::a[@class="article-link"]')[0]
+            title = self.tag_to_string(a)
+            url = href_to_url(a)
+            desc = ''
+            s = article.xpath('descendant::div[@class="summary"]')
+            if s:
+                desc = self.tag_to_string(s[0])
+            features.append({'title': title, 'url': href_to_url(a), 'description': desc})
+            self.log(title, url)
 
-        index = []
-        if features:
-            index.append(('Features', features))
+        index = [('Features', features)]
         sections = defaultdict(list)
         for widget in ('editor-pick',):
             self.parse_widget(widget, sections)
@@ -79,30 +79,18 @@ class Newsweek(BasicNewsRecipe):
         return index
 
     def parse_widget(self, widget, sections):
-        root = self.index_to_soup('https://d.newsweek.com/widget/' + widget, as_tree=True)
-        div = root.xpath('//div')[0]
-        href_xpath = 'descendant::*[local-name()="h1" or local-name()="h2" or local-name()="h3" or local-name()="h4"]/a[@href]'
-        for a in div.xpath(href_xpath):
-            title = self.tag_to_string(a)
-            article = a.xpath('ancestor::article')[0]
-            desc = ''
-            s = article.xpath('descendant::div[@class="summary"]')
-            if s:
-                desc = self.tag_to_string(s[0])
-            sec = article.xpath('descendant::div[@class="category"]')
-            if sec:
-                sec = self.tag_to_string(sec[0])
-            else:
-                sec = 'Articles'
-            sections[sec].append(
-                {'title': title, 'url': href_to_url(a), 'description': desc})
-            self.log(title, href_to_url(a))
-            if desc:
-                self.log('\t' + desc)
-            self.log('')
-
-    def print_version(self, url):
-        return url + '?piano_d=1'
+        raw = self.index_to_soup('https://d.newsweek.com/json/' + widget, raw=True)
+        data = json.loads(raw)['items']
+        for item in data:
+            title = item['title']
+            url = BASE + item['link']
+            self.log(title, url)
+            sections[item['label']].append(
+                {
+                    'title': title,
+                    'url': url,
+                    'description': item['description'],
+                })
 
     def preprocess_html(self, soup):
         # Parallax images in the articles are loaded as background images
