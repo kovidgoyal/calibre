@@ -127,9 +127,23 @@ def show_controls_help():
 
 # }}}
 
+
+def maximum_font_size():
+    ans = maximum_font_size.ans
+    if not ans:
+        q = window.getComputedStyle(document.body).fontSize
+        if q and q.endsWith('px'):
+            q = parseInt(q)
+            if q and not isNaN(q):
+                ans = maximum_font_size.ans = q
+                return ans
+        ans = maximum_font_size.ans = 12
+    return ans
+
+
 def margin_elem(sd, which, id, onclick, oncontextmenu):
     sz = sd.get(which, 20)
-    fsz = min(max(0, sz - 6), 12)
+    fsz = min(max(0, sz - 6), maximum_font_size())
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
         style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center',
