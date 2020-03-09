@@ -16,7 +16,7 @@ from calibre.ebooks import escape_xpath_attr
 from calibre.constants import __appname__, __version__, filesystem_encoding, ispy3
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
-from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
+from calibre.ebooks.metadata import author_to_author_sort, string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang, canonicalize_lang
@@ -1630,7 +1630,8 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
     factory(DC('title'), mi.title)
     for au in mi.authors:
-        factory(DC('creator'), au, mi.author_sort, 'aut')
+        factory(DC('creator'), au,
+            author_to_author_sort(au) if mi.is_null('author_sort') else mi.author_sort, 'aut')
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
         factory(DC('date'), isoformat(mi.pubdate))
