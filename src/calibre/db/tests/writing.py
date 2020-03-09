@@ -421,13 +421,13 @@ class WritingTest(BaseTest):
         cache.set_metadata(2, mi)
         nmi = cache.get_metadata(2, get_cover=True, cover_as_data=True)
         ae(oldmi.cover_data, nmi.cover_data)
-        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata'})
+        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata', 'formats'})
         cache.set_metadata(1, mi2, force_changes=True)
         nmi2 = cache.get_metadata(1, get_cover=True, cover_as_data=True)
         # The new code does not allow setting of #series_index to None, instead
         # it is reset to 1.0
         ae(nmi2.get_extra('#series'), 1.0)
-        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
+        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index', 'formats'})
 
         cache = self.init_cache(self.cloned_library)
         mi = cache.get_metadata(1)
