@@ -26,7 +26,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values, uniq
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -1297,6 +1297,7 @@ class Cache(object):
         if set_title and mi.title:
             path_changed = True
             set_field('title', mi.title)
+        authors_changed = False
         if set_authors:
             path_changed = True
             if not mi.authors:
@@ -1305,6 +1306,7 @@ class Cache(object):
             for a in mi.authors:
                 authors += string_to_authors(a)
             set_field('authors', authors)
+            authors_changed = True
 
         if path_changed:
             self._update_path({book_id})
@@ -1339,7 +1341,13 @@ class Cache(object):
                     if val is not None:
                         protected_set_field(field, val)
 
-                for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
+                val = mi.get('author_sort', None)
+                if authors_changed and (not val or mi.is_null('author_sort')):
+                    val = authors_to_sort_string(mi.authors)
+                if authors_changed or (force_changes and val is not None) or not mi.is_null('author_sort'):
+                    protected_set_field('author_sort', val)
+
+                for field in ('publisher', 'series', 'tags', 'comments',
                     'languages', 'pubdate'):
                     val = mi.get(field, None)
                     if (force_changes and val is not None) or not mi.is_null(field):

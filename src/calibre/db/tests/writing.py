@@ -11,6 +11,7 @@ from functools import partial
 from io import BytesIO
 
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
 from polyglot.builtins import iteritems, itervalues, unicode_type
@@ -435,6 +436,12 @@ class WritingTest(BaseTest):
         mi.tags = [x.upper() for x in mi.tags]
         cache.set_metadata(3, mi)
         self.assertEqual(set(otags), set(cache.field_for('tags', 3)), 'case changes should not be allowed in set_metadata')
+
+        # test that setting authors without author sort results in an
+        # auto-generated authors sort
+        mi = Metadata('empty', ['a1', 'a2'])
+        cache.set_metadata(1, mi)
+        self.assertEqual('a1 & a2', cache.field_for('author_sort', 1))
 
     # }}}
 
