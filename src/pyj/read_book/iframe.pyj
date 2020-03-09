@@ -14,7 +14,7 @@ from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
     flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     handle_shortcut as flow_handle_shortcut, layout as flow_layout,
-    scroll_by_page as flow_scroll_by_page
+    scroll_by_page as flow_scroll_by_page, ensure_selection_visible
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -581,7 +581,9 @@ class IframeBoss:
 
     def show_search_result(self, data, from_load):
         if select_search_result(data.search_result):
-            if current_layout_mode() is not 'flow':
+            if current_layout_mode() is 'flow':
+                ensure_selection_visible()
+            else:
                 snap_to_selection()
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)

@@ -465,3 +465,15 @@ def auto_scroll_action(action):
     elif action is 'resume':
         auto_scroll_resume()
     return is_auto_scroll_active()
+
+
+def ensure_selection_visible():
+    s = window.getSelection()
+    if not s.anchorNode:
+        return
+    p = s.anchorNode
+    while p:
+        if p.scrollIntoView:
+            p.scrollIntoView()
+            return
+        p = p.parentNode
