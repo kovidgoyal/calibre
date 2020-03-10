@@ -67,6 +67,32 @@ def load_jxr_data(data):
 
 # }}}
 
+# png to gif {{{
+
+
+def png_data_to_gif_data(data):
+    from PIL import Image
+    img = Image.open(BytesIO(data))
+    buf = BytesIO()
+    if img.mode in ('p', 'P'):
+        transparency = img.info.get('transparency')
+        if transparency is not None:
+            img.save(buf, 'gif', transparency=transparency)
+        else:
+            img.save(buf, 'gif')
+    elif img.mode in ('rgba', 'RGBA'):
+        alpha = img.split()[3]
+        mask = Image.eval(alpha, lambda a: 255 if a <=128 else 0)
+        img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)
+        img.paste(255, mask)
+        img.save(buf, 'gif', transparency=255)
+    else:
+        img = img.convert('P', palette=Image.ADAPTIVE)
+        img.save(buf, 'gif')
+    return buf.getvalue()
+
+# }}}
+
 # Loading images {{{
 
 
@@ -140,11 +166,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
         w.setQuality(90)
         if not w.write(img):
             raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
-        from PIL import Image
-        im = Image.open(BytesIO(ba.data()))
-        buf = BytesIO()
-        im.save(buf, 'gif')
-        return buf.getvalue()
+        return png_data_to_gif_data(ba.data())
     is_jpeg = fmt in ('JPG', 'JPEG')
     w = QImageWriter(buf, fmt.encode('ascii'))
     if is_jpeg:
