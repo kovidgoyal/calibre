@@ -10,7 +10,7 @@ import shutil, os, re, struct, textwrap, io
 
 from lxml import html, etree
 
-from calibre import (xml_entity_to_unicode, entity_to_unicode)
+from calibre import xml_entity_to_unicode, entity_to_unicode, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -178,7 +178,7 @@ class MobiReader(object):
         self.processed_html = strip_encoding_declarations(self.processed_html)
         self.processed_html = re.sub(r'&(\S+?);', xml_entity_to_unicode,
             self.processed_html)
-        self.extract_images(processed_records, output_dir)
+        image_name_map = self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
 
@@ -272,7 +272,7 @@ class MobiReader(object):
             head.insert(0, title)
             head.text = '\n\t'
 
-        self.upshift_markup(root)
+        self.upshift_markup(root, image_name_map)
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
         metadata_elems = root.xpath('//metadata')
@@ -389,8 +389,9 @@ class MobiReader(object):
             raw += unit
         return raw
 
-    def upshift_markup(self, root):
+    def upshift_markup(self, root, image_name_map=None):
         self.log.debug('Converting style information to CSS...')
+        image_name_map = image_name_map or {}
         size_map = {
             'xx-small': '0.5',
             'x-small': '1',
@@ -510,10 +511,11 @@ class MobiReader(object):
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
                     try:
-                        recindex = '%05d'%int(recindex)
-                    except:
+                        recindex = int(recindex)
+                    except Exception:
                         pass
-                    attrib['src'] = 'images/%s.jpg' % recindex
+                    else:
+                        attrib['src'] = 'images/' + image_name_map.get(recindex, '%05d.jpg' % recindex)
                 for attr in ('width', 'height'):
                     if attr in attrib:
                         val = attrib[attr]
@@ -674,7 +676,7 @@ class MobiReader(object):
         for i in getattr(self, 'image_names', []):
             path = os.path.join(bp, 'images', i)
             added.add(path)
-            manifest.append((path, 'image/jpeg'))
+            manifest.append((path, guess_type(path)[0] or 'image/jpeg'))
         if cover_copied is not None:
             manifest.append((cover_copied, 'image/jpeg'))
 
@@ -870,6 +872,7 @@ class MobiReader(object):
             os.makedirs(output_dir)
         image_index = 0
         self.image_names = []
+        image_name_map = {}
         start = getattr(self.book_header, 'first_image_index', -1)
         if start > self.num_sections or start < 0:
             # BAEN PRC files have bad headers
@@ -882,18 +885,30 @@ class MobiReader(object):
             image_index += 1
             if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
-                # This record is a known non image type, not need to try to
+                # This record is a known non image type, no need to try to
                 # load the image
                 continue
 
-            path = os.path.join(output_dir, '%05d.jpg' % image_index)
             try:
-                if what(None, data) not in {'jpg', 'jpeg', 'gif', 'png', 'bmp'}:
-                    continue
-                save_cover_data_to(data, path, minify_to=(10000, 10000))
+                imgfmt = what(None, data)
             except Exception:
                 continue
+            if imgfmt not in {'jpg', 'jpeg', 'gif', 'png', 'bmp'}:
+                continue
+            if imgfmt == 'jpeg':
+                imgfmt = 'jpg'
+            path = os.path.join(output_dir, '%05d.%s' % (image_index, imgfmt))
+            image_name_map[image_index] = os.path.basename(path)
+            if imgfmt in ('gif', 'png'):
+                with open(path, 'wb') as f:
+                    f.write(data)
+            else:
+                try:
+                    save_cover_data_to(data, path, minify_to=(10000, 10000))
+                except Exception:
+                    continue
             self.image_names.append(os.path.basename(path))
+        return image_name_map
 
 
 def test_mbp_regex():
