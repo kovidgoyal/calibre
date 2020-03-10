@@ -21,7 +21,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
-from calibre.utils.img import save_cover_data_to
+from calibre.utils.img import save_cover_data_to, gif_data_to_png_data, AnimatedGIF
 from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, unicode_type, range, map
 
@@ -897,9 +897,15 @@ class MobiReader(object):
                 continue
             if imgfmt == 'jpeg':
                 imgfmt = 'jpg'
+            if imgfmt == 'gif':
+                try:
+                    data = gif_data_to_png_data(data)
+                    imgfmt = 'png'
+                except AnimatedGIF:
+                    pass
             path = os.path.join(output_dir, '%05d.%s' % (image_index, imgfmt))
             image_name_map[image_index] = os.path.basename(path)
-            if imgfmt in ('gif', 'png'):
+            if imgfmt == 'png':
                 with open(path, 'wb') as f:
                     f.write(data)
             else:

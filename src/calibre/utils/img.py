@@ -67,7 +67,7 @@ def load_jxr_data(data):
 
 # }}}
 
-# png to gif {{{
+# png <-> gif {{{
 
 
 def png_data_to_gif_data(data):
@@ -89,6 +89,20 @@ def png_data_to_gif_data(data):
     else:
         img = img.convert('P', palette=Image.ADAPTIVE)
         img.save(buf, 'gif')
+    return buf.getvalue()
+
+
+class AnimatedGIF(ValueError):
+    pass
+
+
+def gif_data_to_png_data(data, discard_animation=False):
+    from PIL import Image
+    img = Image.open(BytesIO(data))
+    if img.is_animated and not discard_animation:
+        raise AnimatedGIF()
+    buf = BytesIO()
+    img.save(buf, 'png')
     return buf.getvalue()
 
 # }}}
