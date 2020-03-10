@@ -48,16 +48,18 @@ def run_checks(container):
     xml_items, html_items, raster_images, stylesheets = [], [], [], []
     for name, mt in iteritems(container.mime_map):
         items = None
+        decode = False
         if mt in XML_TYPES:
             items = xml_items
         elif mt in OEB_DOCS:
             items = html_items
         elif mt in OEB_STYLES:
+            decode = True
             items = stylesheets
         elif is_raster_image(mt):
             items = raster_images
         if items is not None:
-            items.append((name, mt, container.open(name, 'rb').read()))
+            items.append((name, mt, container.raw_data(name, decode=decode)))
     errors.extend(run_checkers(check_html_size, html_items))
     errors.extend(run_checkers(check_xml_parsing, xml_items))
     errors.extend(run_checkers(check_xml_parsing, html_items))
