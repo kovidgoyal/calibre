@@ -41,4 +41,5 @@ available <https://calibre-ebook.com/help>`_.
    customize
    generated/en/cli-index
    develop
+   drm
    glossary

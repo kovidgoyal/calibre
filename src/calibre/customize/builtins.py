@@ -1738,15 +1738,6 @@ class StoreNextoStore(StoreBase):
     affiliate = True
 
 
-class StoreOpenBooksStore(StoreBase):
-    name = 'Open Books'
-    description = 'Comprehensive listing of DRM free e-books from a variety of sources provided by users of calibre.'
-    actual_plugin = 'calibre.gui2.store.stores.open_books_plugin:OpenBooksStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-
-
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
     description = 'e-books from OZON.ru'
@@ -1910,7 +1901,6 @@ plugins += [
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
-    StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
