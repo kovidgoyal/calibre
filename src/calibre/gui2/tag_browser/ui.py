@@ -114,7 +114,7 @@ class TagBrowserMixin(object):  # {{{
         if new_category_name is not None:
             new_name = new_category_name.replace('.', '')
         else:
-            new_name = _('New Category').replace('.', '')
+            new_name = _('New category').replace('.', '')
         n = new_name
         while True:
             new_cat = on_category_key[1:] + '.' + n

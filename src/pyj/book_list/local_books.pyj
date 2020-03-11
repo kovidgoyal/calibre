@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from book_list.globals import get_db
 from book_list.router import home, open_book
@@ -62,7 +62,10 @@ def confirm_delete_all():
             else:
                 close_modal()
 
-        msg = _('This will remove all {} downloaded books from local storage. Are you sure?').format(num_of_books)
+        msg = ngettext(
+            'This will remove the downloaded book from local storage. Are you sure?',
+            'This will remove all {} downloaded books from local storage. Are you sure?',
+            num_of_books).format(num_of_books)
         m = E.div()
         safe_set_inner_html(m, msg)
         parent.appendChild(E.div(
@@ -90,7 +93,11 @@ def delete_all(msg_parent, close_modal):
             refresh()
             return
         clear(msg_parent)
-        safe_set_inner_html(msg_parent, _('Deleting {} books, please wait...').format(books.length))
+        safe_set_inner_html(msg_parent, ngettext(
+            'Deleting one book, please wait...',
+            'Deleting {} books, please wait...',
+            books.length or 0).format(books.length)
+        )
         book_to_delete = books.pop()
         db.delete_book(book_list_data.book_data[book_to_delete], def(book, err_string):
             if err_string:
