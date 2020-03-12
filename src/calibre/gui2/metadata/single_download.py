@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
-    QCursor, QHBoxLayout, QPushButton, QSizePolicy)
+    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QSplitter)
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
@@ -317,8 +317,6 @@ class Comments(HTMLDisplay):  # {{{
     def __init__(self, parent=None):
         HTMLDisplay.__init__(self, parent)
         self.setAcceptDrops(False)
-        self.setMaximumWidth(300)
-        self.setMinimumWidth(300)
         self.wait_timer = QTimer(self)
         self.wait_timer.timeout.connect(self.update_wait)
         self.wait_timer.setInterval(800)
@@ -374,13 +372,6 @@ class Comments(HTMLDisplay):  # {{{
         <html>
         '''%(c,)
         self.setHtml(templ%html)
-
-    def sizeHint(self):
-        # This is needed, because on windows the dialog cannot be resized to
-        # so that this widgets height become < sizeHint().height(). Qt sets the
-        # sizeHint to (800, 600), which makes the dialog unusable on smaller
-        # screens.
-        return QSize(800, 300)
 # }}}
 
 
@@ -454,31 +445,41 @@ class IdentifyWidget(QWidget):  # {{{
         self.abort = Event()
         self.caches = {}
 
-        self.l = l = QGridLayout()
-        self.setLayout(l)
+        self.l = l = QVBoxLayout(self)
 
         names = ['<b>'+p.name+'</b>' for p in metadata_plugins(['identify']) if
                 p.is_configured()]
         self.top = QLabel('<p>'+_('calibre is downloading metadata from: ') +
             ', '.join(names))
         self.top.setWordWrap(True)
-        l.addWidget(self.top, 0, 0)
+        l.addWidget(self.top)
 
+        self.splitter = s = QSplitter(self)
+        s.setChildrenCollapsible(False)
+        l.addWidget(s, 100)
         self.results_view = ResultsView(self)
         self.results_view.book_selected.connect(self.emit_book_selected)
         self.get_result = self.results_view.get_result
-        l.addWidget(self.results_view, 1, 0)
+        s.addWidget(self.results_view)
 
         self.comments_view = Comments(self)
-        l.addWidget(self.comments_view, 1, 1)
+        s.addWidget(self.comments_view)
+        s.setStretchFactor(0, 2)
+        s.setStretchFactor(1, 1)
 
         self.results_view.show_details_signal.connect(self.comments_view.show_data)
 
         self.query = QLabel('download starting...')
         self.query.setWordWrap(True)
-        l.addWidget(self.query, 2, 0, 1, 2)
+        l.addWidget(self.query)
 
         self.comments_view.show_wait()
+        state = gprefs.get('metadata-download-identify-widget-splitter-state')
+        if state is not None:
+            s.restoreState(state)
+
+    def save_state(self):
+        gprefs['metadata-download-identify-widget-splitter-state'] = bytearray(self.splitter.saveState())
 
     def emit_book_selected(self, book):
         self.book_selected.emit(book, self.caches)
@@ -1091,6 +1092,7 @@ class FullFetch(QDialog):  # {{{
     def accept(self):
         # Prevent the usual dialog accept mechanisms from working
         gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
+        self.identify_widget.save_state()
         if DEBUG_DIALOG:
             if self.stack.currentIndex() == 2:
                 return QDialog.accept(self)
