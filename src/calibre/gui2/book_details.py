@@ -212,7 +212,7 @@ def add_format_entries(menu, data, book_info):
         else:
             m.addSeparator()
             m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
+            m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, book_info))
             menu.addMenu(m)
             menu.ow = m
         if fmt.upper() in SUPPORTED:

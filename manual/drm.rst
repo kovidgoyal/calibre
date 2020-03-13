@@ -16,7 +16,7 @@ the file or device, such as serial numbers or key-files. It can also refer to
 restrictions associated with specific instances of digital works or devices.
 DRM technologies attempt to control use of digital media by preventing access,
 copying or conversion to other formats by end users. See `wikipedia
-<http://en.wikipedia.org/wiki/Digital_rights_management>`_.
+<https://en.wikipedia.org/wiki/Digital_rights_management>`_.
 
 
 What does DRM imply for me personally?

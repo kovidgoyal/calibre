@@ -444,7 +444,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
             unique_name = application['uuid']
             func = partial(gui.open_with_action_triggerred, filetype, application)
             ac.triggered.connect(func)
-            gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open With'))
+            gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open with'))
             gui.addAction(ac)
             registered_shortcuts[unique_name] = ac
     if finalize:

@@ -1123,7 +1123,7 @@
     - title: "Content server: Fix editing metadata that affects multiple books causing all the metadata for all the books to become the same."
       tickets: [1812781]
 
-    - title: "Open With: Fix using .bat files as the program not working."
+    - title: "Open with: Fix using .bat files as the program not working."
       tickets: [1811045]
 
     - title: "ZIP Output: Fix an error when building the ToC on macOS for some books with non-ASCII ToC entries"
