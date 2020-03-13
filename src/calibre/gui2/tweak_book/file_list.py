@@ -206,7 +206,7 @@ class OpenWithHandler(object):  # {{{
         else:
             m.addSeparator()
             m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_name, fmt))
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, file_name))
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
             menu.addMenu(m)
             menu.ow = m
 
