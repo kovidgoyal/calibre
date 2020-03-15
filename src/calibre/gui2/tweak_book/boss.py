@@ -150,6 +150,8 @@ class Boss(QObject):
         self.gui.preview.split_requested.connect(self.split_requested)
         self.gui.preview.link_clicked.connect(self.link_clicked)
         self.gui.preview.render_process_restarted.connect(self.report_render_process_restart)
+        self.gui.preview.open_file_with.connect(self.open_file_with)
+        self.gui.preview.edit_file.connect(self.edit_file_requested)
         self.gui.check_book.item_activated.connect(self.check_item_activated)
         self.gui.check_book.check_requested.connect(self.check_requested)
         self.gui.check_book.fix_requested.connect(self.fix_requested)
@@ -1374,7 +1376,7 @@ class Boss(QObject):
         from calibre.gui2.open_with import run_program
         run_program(entry, dest.name, self)
         if question_dialog(self.gui, _('File opened'), _(
-            'When you are done editing {0} click "Update" to update'
+            'When you are done editing {0} click "Import" to update'
             ' the file in the book or "Discard" to lose any changes.').format(file_name),
             yes_text=_('Import'), no_text=_('Discard')
         ):

@@ -1049,12 +1049,15 @@ class GridView(QListView):
     def number_of_columns(self):
         # Number of columns currently visible in the grid
         if self._ncols is None:
+            dpr = self.device_pixel_ratio
+            width = int(dpr * self.delegate.cover_size.width())
+            height = int(dpr * self.delegate.cover_size.height())
             step = max(10, self.spacing())
-            for y in range(step, 500, step):
-                for x in range(step, 500, step):
+            for y in range(step, 2 * height, step):
+                for x in range(step, 2 * width, step):
                     i = self.indexAt(QPoint(x, y))
                     if i.isValid():
-                        for x in range(self.viewport().width() - step, self.viewport().width() - 300, -step):
+                        for x in range(self.viewport().width() - step, self.viewport().width() - width, -step):
                             j = self.indexAt(QPoint(x, y))
                             if j.isValid():
                                 self._ncols = j.row() - i.row() + 1
@@ -1070,7 +1073,8 @@ class GridView(QListView):
             if not ci.isValid():
                 return
             c = ci.row()
-            delta = {Qt.Key_Left: -1, Qt.Key_Right: 1, Qt.Key_Up: -self.number_of_columns(), Qt.Key_Down: self.number_of_columns()}[k]
+            ncols = self.number_of_columns() or 1
+            delta = {Qt.Key_Left: -1, Qt.Key_Right: 1, Qt.Key_Up: -ncols, Qt.Key_Down: ncols}[k]
             n = max(0, min(c + delta, self.model().rowCount(None) - 1))
             if n == c:
                 return

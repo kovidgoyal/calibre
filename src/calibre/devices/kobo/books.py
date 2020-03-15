@@ -7,16 +7,14 @@ import os, time, sys
 from functools import cmp_to_key
 
 from calibre.constants import preferred_encoding, DEBUG, ispy3
-from calibre import isbytestring, force_unicode
-from calibre.utils.icu import sort_key
+from calibre import isbytestring
 
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.devices.usbms.books import Book as Book_
-from calibre.devices.usbms.books import CollectionsBookList
+from calibre.devices.usbms.books import Book as Book_, CollectionsBookList, none_cmp
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import unicode_type, string_or_bytes, iteritems, itervalues, cmp
+from polyglot.builtins import unicode_type, iteritems, itervalues
 
 
 class Book(Book_):
@@ -72,6 +70,7 @@ class Book(Book_):
         self.can_put_on_shelves = True
         self.kobo_series        = None
         self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
+        self.kobo_series_id     = None
         self.kobo_subtitle      = None
 
         if thumbnail_name is not None:
@@ -85,6 +84,10 @@ class Book(Book_):
     def is_sideloaded(self):
         # If we don't have a content Id, we don't know what type it is.
         return self.contentID and self.contentID.startswith("file")
+
+    @property
+    def has_kobo_series(self):
+        return self.kobo_series is not None
 
     @property
     def is_purchased_kepub(self):
@@ -104,6 +107,8 @@ class Book(Book_):
             fmt('Content ID', self.contentID)
         if self.kobo_series:
             fmt('Kobo Series', self.kobo_series + ' #%s'%self.kobo_series_number)
+        if self.kobo_series_id:
+            fmt('Kobo Series ID', self.kobo_series_id)
         if self.kobo_subtitle:
             fmt('Subtitle', self.kobo_subtitle)
         if self.mime:
@@ -291,24 +296,6 @@ class KTCollectionsBookList(CollectionsBookList):
 
         # Sort collections
         result = {}
-
-        def none_cmp(xx, yy):
-            x = xx[1]
-            y = yy[1]
-            if x is None and y is None:
-                # No sort_key needed here, because defaults are ascii
-                return cmp(xx[2], yy[2])
-            if x is None:
-                return 1
-            if y is None:
-                return -1
-            if isinstance(x, string_or_bytes) and isinstance(y, string_or_bytes):
-                x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
-            c = cmp(x, y)
-            if c != 0:
-                return c
-            # same as above -- no sort_key needed here
-            return cmp(xx[2], yy[2])
 
         for category, lpaths in iteritems(collections):
             books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))

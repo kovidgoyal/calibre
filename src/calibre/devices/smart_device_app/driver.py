@@ -36,7 +36,7 @@ from calibre.utils.filenames import ascii_filename as sanitize, shorten_componen
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import unicode_type, iteritems, itervalues
+from polyglot.builtins import as_bytes, unicode_type, iteritems, itervalues
 from polyglot import queue
 
 
@@ -100,7 +100,7 @@ class ConnectionListener(Thread):
                         s = self.driver._json_encode(
                                         self.driver.opcodes['CALIBRE_BUSY'],
                                         {'otherDevice': d.get_gui_name()})
-                        self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
+                        self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + as_bytes(s))
                         sock.close()
                     except queue.Empty:
                         pass
@@ -636,7 +636,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             s = self._json_encode(self.opcodes[op], arg)
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
-            self._send_byte_string(self.device_socket, (b'%d' % len(s)) + s)
+            self._send_byte_string(self.device_socket, (b'%d' % len(s)) + as_bytes(s))
             if not wait_for_response:
                 return None, None
             return self._receive_from_client(print_debug_info=print_debug_info)
@@ -841,10 +841,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     json_metadata = defaultdict(dict)
                     json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
                     json_metadata[key]['last_used'] = book['last_used']
-                    result = json.dumps(json_metadata, indent=2, default=to_json)
-                    fd.write("%0.7d\n"%(len(result)+1))
+                    result = as_bytes(json.dumps(json_metadata, indent=2, default=to_json))
+                    fd.write(("%0.7d\n"%(len(result)+1)).encode('ascii'))
                     fd.write(result)
-                    fd.write('\n')
+                    fd.write(b'\n')
                     count += 1
             self._debug('wrote', count, 'entries, purged', purged, 'entries')
 

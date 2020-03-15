@@ -40,7 +40,7 @@ and then the :guilabel:`Add a custom news source` menu item and then the
 .. image:: images/custom_news.png
     :align: center
 
-First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds.
+First enter ``Calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds.
 
 The next two fields (:guilabel:`Oldest article` and :guilabel:`Max. number of articles`) allow you some control over how many articles should be downloaded from each feed, and they are pretty self explanatory.
 

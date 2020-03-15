@@ -293,6 +293,19 @@ def show_search_result(sr):
     if view:
         view.show_search_result(sr)
 
+@from_python
+def prepare_for_close():
+    if view:
+        view.prepare_for_close()
+    else:
+        ui_operations.close_prep_finished(None)
+
+
+@from_python
+def viewer_font_size_changed():
+    if view:
+        view.viewer_font_size_changed()
+
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
@@ -361,6 +374,8 @@ if window is window.top:
         sd.set('footer', defaults.footer)
         view.update_header_footer()
         to_python.reset_interface()
+    ui_operations.quit = def():
+        to_python.quit()
     ui_operations.toggle_lookup = def():
         to_python.toggle_lookup()
     ui_operations.selection_changed = def(selected_text):
@@ -401,6 +416,10 @@ if window is window.top:
         to_python.autoscroll_state_changed(active)
     ui_operations.search_result_not_found = def(sr):
         to_python.search_result_not_found(sr)
+    ui_operations.scrollbar_context_menu = def(x, y, frac):
+        to_python.scrollbar_context_menu(x, y, frac)
+    ui_operations.close_prep_finished = def(cfi):
+        to_python.close_prep_finished(cfi)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

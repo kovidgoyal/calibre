@@ -351,7 +351,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
+    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id, recurse=True):
         if not isinstance(node.tag, string_or_bytes) \
            or namespace(node.tag) != XHTML_NS:
             return
@@ -569,8 +569,9 @@ class CSSFlattener(object):
             del node.attrib['class']
         if 'style' in node.attrib:
             del node.attrib['style']
-        for child in node:
-            self.flatten_node(child, stylizer, names, styles, pseudo_styles, psize, item_id)
+        if recurse:
+            for child in node:
+                self.flatten_node(child, stylizer, names, styles, pseudo_styles, psize, item_id)
 
     def flatten_head(self, item, href, global_href):
         html = item.data
@@ -660,9 +661,9 @@ class CSSFlattener(object):
             stylizer = self.stylizers[item]
             if self.specializer is not None:
                 self.specializer(item, stylizer)
-            body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
-            self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
+            self.flatten_node(html, stylizer, names, styles, pseudo_styles, fsize, item.id, recurse=False)
+            self.flatten_node(html.find(XHTML('body')), stylizer, names, styles, pseudo_styles, fsize, item.id)
         items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x:numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles, key=lambda x :

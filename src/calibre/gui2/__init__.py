@@ -978,13 +978,16 @@ class Application(QApplication):
         if not geom:
             return
         restored = widget.restoreGeometry(geom)
+        self.ensure_window_on_screen(widget)
+        return restored
+
+    def ensure_window_on_screen(self, widget):
         screen_rect = self.desktop().availableGeometry(widget)
         if not widget.geometry().intersects(screen_rect):
             w = min(widget.width(), screen_rect.width() - 10)
             h = min(widget.height(), screen_rect.height() - 10)
             widget.resize(w, h)
             widget.move((screen_rect.width() - w) // 2, (screen_rect.height() - h) // 2)
-        return restored
 
     def setup_ui_font(self):
         f = QFont(QApplication.font())

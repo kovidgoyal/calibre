@@ -167,7 +167,7 @@ class DBusMenu(QObject):
     def eventFilter(self, obj, ev):
         ac = getattr(obj, 'menuAction', lambda : None)()
         ac_id = self.action_to_id(ac)
-        if ac_id is not None:
+        if ac_id is not None and hasattr(ev, 'action'):
             etype = ev.type()
             if etype == QEvent.ActionChanged:
                 ac_id = self.action_to_id(ev.action())

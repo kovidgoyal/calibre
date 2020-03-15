@@ -41,6 +41,7 @@ class ChooseFormatDialog(QDialog):
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         h.addStretch(10), h.addWidget(self.buttonBox)
 
+        formats = list(formats)
         for format in formats:
             self.formats.addItem(QListWidgetItem(file_icon_provider().icon_from_ext(format.lower()),
                                                  format.upper()))

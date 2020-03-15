@@ -20,6 +20,100 @@
 #   new recipes:
 #     - title:
 
+- version: 4.12.0
+  date: 2020-03-06
+
+  new features:
+    - title: "Kobo driver: Add support for new firmware with the series list on the device"
+
+    - title: "Automatically extract the source DOCX file from Kindle Create KPF files when adding them to calibre. If you prefer to preserve the KPF file you can disable the KPF Extract plugin in Preferences->Plugins"
+
+    - title: "Content server: Add a button to delete all locally cached books."
+      tickets: [1864305]
+
+    - title: "Edit Book: Allow selecting the contents of a tag with Ctrl+Alt+t"
+
+    - title: "Viewer: Save current position after 3 seconds of last position change. Useful if the viewer crashes on resume from sleep."
+
+    - title: "Viewer: Add a keyboard shortcut (Ctrl+w) to toggle the scrollbar."
+      tickets: [1864356]
+
+    - title: "Viewer: Keyboard shortcuts to change number of columns (Ctrl+[ and Ctrl+])"
+
+  bug fixes:
+    - title: "Fix the Douban metadata download plugin"
+      tickets: [1853091]
+
+    - title: "Viewer: Fix searching in Regex and Whole words mode not working well."
+
+    - title: "Viewer: Fix searching for multiple words in fixed layout books not working."
+      tickets: [1863464]
+
+    - title: "RTF Input: Fix handling of RTF files with invalid encoded text."
+      tickets: [1864719]
+
+    - title: "PDF Output: Add a hangcheck for loading HTML if there is no progress for sixty seconds abort"
+      tickets: [1865380]
+
+    - title: 'Viewer: When starting without a book allowing quitting the viewer by clicking the close button on the "Open book" page'
+      tickets: [1864343]
+
+  improved recipes:
+    - Wired
+    - ABC News Australia
+
+  new recipes:
+    - title: Spectator Australia
+      author: James Cridland
+
+- version: 4.11.2
+  date: 2020-02-21
+
+  new features:
+    - title: "Viewer: Allow right clicking on the scrollbar to easily access commonly used scrolling shortcuts"
+
+    - title: "Edit book: Preview panel: Allow right clicking on images to edit them"
+
+    - title: "Add a new Quick select action to quickly select a virtual library with a few keystrokes. Activated by Ctrl+t or the Virtual library menu"
+
+    - title: "Viewer: Calculate default column widths based on current font size"
+
+    - title: "Viewer: Add a control to quit the viewer useful on touchscreens."
+      tickets: [1862441]
+
+    - title: "Viewer: Add shortcut for showing metadata (Ctrl+n)"
+      tickets: [1862432]
+
+  bug fixes:
+    - title: "4.11.2 fixes a couple of regressions that broke the New bookmark button in the viewer and scrolling in the content server library view. Also fixes calculation of default column widths in viewer not changing when font size is changed."
+
+    - title: "Viewer: Fix a regression that broke detection of pop-up footnotes using EPUB 3 markup"
+
+    - title: "Viewer: Fix current reading position not preserved when changing preferences and auto scroll is active."
+      tickets: [1863438]
+
+    - title: "Viewer: Fix stopping autoscroll at end of chapter not stopping next chapter jump."
+      tickets: [1863487]
+
+    - title: "Fix for viewer window going off screen even when not restoring window geometry"
+
+    - title: "Edit book: Fix syntax highlighting for break-(before|after)"
+      tickets: [1863020]
+
+    - title: "Fix drag and drop of some image files onto edit metadata dialog not working"
+      tickets: [1862440]
+
+    - title: "Conversion pipeline: Fix styles applied via selectors to the <html> element being ignored"
+      tickets: [1862401]
+
+    - title: "Bulk metadata edit: Fix clear series not resetting series index"
+
+    - title: "Fix clicking on author name in book details panel to search in Goodreads not working if author has more than two parts in his name"
+
+
+  improved recipes:
+    - New York Times
+
 - version: 4.10.0
   date: 2020-02-07
 
@@ -955,7 +1049,7 @@
     - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected books from clipboard"
       tickets: [1815419]
 
-    - title: "Tag browser: When right clicking on a saved search add a menu option to search using the raw search expression."
+    - title: "Tag browser: When right clicking on a Saved search add a menu option to search using the raw search expression."
       tickets: [1816274]
 
     - title: "Tag browser: Have pressing the Enter key find the next match."
@@ -1029,7 +1123,7 @@
     - title: "Content server: Fix editing metadata that affects multiple books causing all the metadata for all the books to become the same."
       tickets: [1812781]
 
-    - title: "Open With: Fix using .bat files as the program not working."
+    - title: "Open with: Fix using .bat files as the program not working."
       tickets: [1811045]
 
     - title: "ZIP Output: Fix an error when building the ToC on macOS for some books with non-ASCII ToC entries"
@@ -2083,7 +2177,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Content server: Open links in the comments section from the book details page in new windows."
       tickets: [1737644]
 
-    - title: "Choose English as the User interface language when a locale related environment variable is set to the C locale"
+    - title: "Choose English as the user interface language when a locale related environment variable is set to the C locale"
 
     - title: "Linux installer: A nicer error message if the user tries to run the installer on an ARM machine"
 
@@ -2115,7 +2209,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Edit book: Pre-select existing cover image (if any) in add cover dialog"
 
-    - title: "Make the Manage saved searches dialog a little easier for new users."
+    - title: "Make the Manage Saved searches dialog a little easier for new users."
       tickets: [1733163]
 
     - title: "Add a tweak to control behavior of Enter on the book list"
@@ -2132,7 +2226,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Content server: Improve rendering of tags/categories with long words on small screens."
       tickets: [1734119]
 
-    - title: "Fix first added saved search not appearing in Tag browser until calibre restart."
+    - title: "Fix first added Saved search not appearing in Tag browser until calibre restart."
       tickets: [1733151]
 
     - title: "When checking added books for duplicates, also check on the language field. So books with the same title/authors but different languages are not considered duplicates."

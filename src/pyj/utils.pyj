@@ -252,21 +252,6 @@ def sandboxed_html(html, style, sandbox):
     return ans
 
 
-def clone_selection(sel):
-    ans = v'[]'
-    for i in range(sel.rangeCount):
-        ans.push(sel.getRangeAt(i).cloneRange())
-    return ans
-
-
-def apply_cloned_selection(ranges):
-    sel = window.getSelection()
-    sel.removeAllRanges()
-    for r in ranges:
-        sel.addRange(r)
-    return sel
-
-
 if __name__ is '__main__':
     from pythonize import strings
     strings()

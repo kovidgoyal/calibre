@@ -10,7 +10,7 @@ import struct, string, zlib, os
 from collections import OrderedDict
 from io import BytesIO
 
-from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image
+from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image, png_data_to_gif_data
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
 from polyglot.builtins import unicode_type, range, as_bytes, map
@@ -417,13 +417,8 @@ def to_base(num, base=32, min_num_digits=None):
 def mobify_image(data):
     'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
     fmt = what(None, data)
-
     if fmt == 'png':
-        from PIL import Image
-        im = Image.open(BytesIO(data))
-        buf = BytesIO()
-        im.save(buf, 'gif')
-        data = buf.getvalue()
+        data = png_data_to_gif_data(data)
     return data
 
 # Font records {{{

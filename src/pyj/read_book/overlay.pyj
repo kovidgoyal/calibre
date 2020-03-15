@@ -247,7 +247,7 @@ class MainOverlay:  # {{{
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         delete_action = ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
-        home_action = ac(_('Home'), _('Return to list of books'), def(): home();, 'home')
+        home_action = ac(_('Home'), _('Return to the home page'), def(): home();, 'home')
         back_action = ac(_('Back'), None, self.back, 'arrow-left')
         forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
         if runtime.is_standalone_viewer:
@@ -281,7 +281,7 @@ class MainOverlay:  # {{{
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
-                ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
+                ac(_('Preferences'), _('Configure the book viewer'), self.overlay.show_prefs, 'cogs'),
             ),
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS
@@ -339,7 +339,9 @@ class MainOverlay:  # {{{
                 ac(_('Inspector'), _('Show the content inspector'),
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug'),
                 ac(_('Reset interface'), _('Reset viewer panels, toolbars and scrollbars to defaults'),
-                   def(): self.overlay.hide(), ui_operations.reset_interface();, 'remove'),
+                   def(): self.overlay.hide(), ui_operations.reset_interface();, 'window-restore'),
+                ac(_('Quit'), _('Close the viewer'),
+                   def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
             ))
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
@@ -461,7 +463,7 @@ class PrefsOverlay: # {{{
     def on_hide(self):
         if self.changes_occurred:
             self.changes_occurred = False
-            ui_operations.redisplay_book()
+            self.overlay.view.preferences_changed()
 
 # }}}
 
@@ -479,20 +481,30 @@ class OpenBook: # {{{
     def __init__(self, overlay, closeable):
         self.overlay = overlay
         self.closeable = closeable
-        self.is_not_escapable = not closeable  # prevent Esc key from closing
+
+    def handle_escape(self):
+        if self.closeable:
+            self.overlay.hide_current_panel()
+        else:
+            ui_operations.quit()
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
-        close_button_style = '' if self.closeable else 'display: none'
         container.appendChild(E.div(
             style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
                 E.h2(_('Open a new book')),
                 E.div(
-                    svgicon('close'), style=f'cursor:pointer; {close_button_style}',
-                    onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);,
+                    svgicon('close'), style=f'cursor:pointer',
+                    onclick=def(event):
+                        event.preventDefault(), event.stopPropagation()
+                        if self.closeable:
+                            self.overlay.hide_current_panel(event)
+                        else:
+                            ui_operations.quit()
+                    ,
                     class_='simple-link'),
             ))
         create_open_book(container, self.overlay.view?.book)

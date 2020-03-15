@@ -18,6 +18,7 @@ add_extra_css(def():
     style = rule(QUICK, 'li.current', background_color=get_color('window-background2'))
     style += rule(QUICK, 'li:hover', background_color=get_color('window-background2'))
     style += rule(CONTAINER, 'a:hover', color=get_color('window-hover-foreground'))
+    style += rule(CONTAINER, 'a.calibre-push-button:hover', color=get_color('button-text'))
     return style
 )
 
@@ -40,7 +41,7 @@ def change_font_size_by(amt):
     sd = get_session_data()
     sz = sd.get('base_font_size')
     nsz = sz + amt
-    nsz = max(8, min(nsz, 40))
+    nsz = max(8, min(nsz, 80))
     change_font_size(nsz)
 
 def show_custom_size(ev):

@@ -102,7 +102,7 @@ class SourceForge(Base):  # {{{
             for i in range(5):
                 try:
                     check_call([
-                        'rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
+                        'rsync', '-h', '-zz', '--progress', '-e', 'ssh -x', x,
                         '%s,%s@frs.sourceforge.net:%s' %
                         (self.username, self.project, self.rdir + '/')
                     ])

@@ -40,7 +40,7 @@
 
 /* blocks */
 
-html, div, map, dt, isindex, form {
+div, map, dt, isindex, form {
   display: block;
 }
 

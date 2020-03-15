@@ -18,7 +18,7 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME
     style = build_rule(sel, text_align='right', user_select='none')
     sel += ' > div '
-    style += build_rule(sel, display='inline-flex', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
+    style += build_rule(sel, display='inline-flex', align_items='center', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
     return style
 )
 

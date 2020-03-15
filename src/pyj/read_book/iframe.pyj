@@ -9,11 +9,12 @@ from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from read_book.cfi import scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
+from read_book.find import reset_find_caches, select_search_result
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
     flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
     handle_shortcut as flow_handle_shortcut, layout as flow_layout,
-    scroll_by_page as flow_scroll_by_page
+    scroll_by_page as flow_scroll_by_page, ensure_selection_visible
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -24,13 +25,14 @@ from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    current_cfi, handle_gesture as paged_handle_gesture,
+    current_cfi, get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
     handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
     layout as paged_layout, onwheel as paged_onwheel,
     prepare_for_resize as paged_prepare_for_resize, progress_frac,
     reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
-    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection
+    scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection,
+    will_columns_per_screen_change
 )
 from read_book.referencing import (
     elem_for_ref, end_reference_mode, start_reference_mode
@@ -44,11 +46,11 @@ from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
 from read_book.toc import update_visible_toc_anchors
-from read_book.touch import create_handlers as create_touch_handlers
-from read_book.viewport import scroll_viewport
-from utils import (
-    apply_cloned_selection, clone_selection, debounce, html_escape, is_ios
+from read_book.touch import (
+    create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
+from read_book.viewport import scroll_viewport
+from utils import debounce, html_escape, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -98,6 +100,8 @@ class IframeBoss:
         handlers = {
             'change_color_scheme': self.change_color_scheme,
             'change_font_size': self.change_font_size,
+            'change_number_of_columns': self.change_number_of_columns,
+            'number_of_columns_changed': self.number_of_columns_changed,
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'find': self.find,
@@ -115,6 +119,7 @@ class IframeBoss:
             'window_size': self.received_window_size,
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
             'show_search_result': self.show_search_result,
+            'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -262,10 +267,44 @@ class IframeBoss:
         else:
             paged_scroll_by_page(backwards, data.all_pages_on_screen)
 
+
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             apply_font_size()
+            if not runtime.is_standalone_viewer:
+                # in the standalone viewer this is a separate event as
+                # apply_font_size() is a no-op
+                self.relayout_on_font_size_change()
+
+    def change_number_of_columns(self, data):
+        if current_layout_mode() is 'flow':
+            self.send_message('error', title=_('In flow mode'), msg=_(
+                'Cannot change number of pages per screen in flow mode, switch to paged mode first.'))
+            return
+        cdata = get_columns_per_screen_data()
+        delta = int(data.delta)
+        if delta is 0:
+            new_val = 0
+        else:
+            new_val = max(1, cdata.cps + delta)
+        opts.columns_per_screen[cdata.which] = new_val
+        self.relayout_on_font_size_change()
+        self.send_message('columns_per_screen_changed', which=cdata.which, cps=new_val)
+
+    def relayout_on_font_size_change(self):
+        if current_layout_mode() is not 'flow' and will_columns_per_screen_change():
+            self.do_layout(self.is_titlepage)
+            if self.last_cfi:
+                cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+                if cfi:
+                    paged_jump_to_cfi('/' + cfi)
+            self.update_cfi()
+            self.update_toc_position()
+
+    def number_of_columns_changed(self, data):
+        opts.columns_per_screen = data.columns_per_screen
+        self.relayout_on_font_size_change()
 
     def change_scroll_speed(self, data):
         if data.lines_per_sec_auto?:
@@ -299,6 +338,7 @@ class IframeBoss:
         self.content_loaded_stage2()
 
     def content_loaded_stage2(self):
+        reset_find_caches()
         self.connect_links()
         self.content_ready = True
         # this is the loading styles used to suppress scrollbars during load
@@ -334,6 +374,8 @@ class IframeBoss:
         self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
         self.auto_scroll_action('resume')
+        reset_touch_handlers() # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
+
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
 
@@ -455,6 +497,10 @@ class IframeBoss:
                 else:
                     self.send_message('handle_shortcut', name=sc_name)
 
+    def on_handle_navigation_shortcut(self, data):
+        self.handle_navigation_shortcut(data.name, data.key or {
+            'key': '', 'altKey': False, 'ctrlKey': False, 'shiftKey': False, 'metaKey': False})
+
     def oncontextmenu(self, evt):
         if self.content_ready:
             evt.preventDefault()
@@ -534,39 +580,13 @@ class IframeBoss:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
     def show_search_result(self, data, from_load):
-        sr = data.search_result
-        idx = -1
-        window.getSelection().removeAllRanges()
-        while idx < sr.index:
-            if not window.find(sr.text, True, False, False, False, False):
-                self.send_message('search_result_not_found', search_result=sr)
-                break
-            if sr.mode is not 'normal':
-                # verify we have the correct match since regexes can have
-                # boundary conditions
-                sel = window.getSelection()
-                ranges = clone_selection(sel)
-                r = ranges[0]
-                if sr.before:
-                    p = r.cloneRange()
-                    p.collapse(True)
-                    sel = apply_cloned_selection(v'[p]')
-                    sel.modify('extend', 'left', 'character')
-                    if sel.toString() is not sr.before[-1]:
-                        apply_cloned_selection(ranges)
-                        continue
-                if sr.after:
-                    p = r.cloneRange()
-                    p.collapse(False)
-                    sel = apply_cloned_selection(v'[p]')
-                    sel.modify('extend', 'right', 'character')
-                    if sel.toString() is not sr.after[0]:
-                        apply_cloned_selection(ranges)
-                        continue
-                apply_cloned_selection(ranges)
-            idx += 1
-        if idx > -1 and current_layout_mode() is not 'flow':
-            snap_to_selection()
+        if select_search_result(data.search_result):
+            if current_layout_mode() is 'flow':
+                ensure_selection_visible()
+            else:
+                snap_to_selection()
+        else:
+            self.send_message('search_result_not_found', search_result=data.search_result)
 
     def reference_item_changed(self, ref_num_or_none):
         self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)

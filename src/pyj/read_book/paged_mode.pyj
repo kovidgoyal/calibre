@@ -119,6 +119,26 @@ def fit_images():
         set_elem_data(img, 'height-limited', True)
 
 
+def cps_by_em_size():
+    ans = cps_by_em_size.ans
+    fs = window.getComputedStyle(document.body).fontSize
+    if not ans or cps_by_em_size.at_font_size is not fs:
+        d = document.createElement('span')
+        d.style.position = 'absolute'
+        d.style.visibility = 'hidden'
+        d.style.width = '1rem'
+        d.style.fontSize = '1rem'
+        d.style.paddingTop = d.style.paddingBottom = d.style.paddingLeft = d.style.paddingRight = '0'
+        d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
+        d.style.borderStyle = 'none'
+        document.body.appendChild(d)
+        w = d.clientWidth
+        document.body.removeChild(d)
+        ans = cps_by_em_size.ans = max(2, w)
+        cps_by_em_size.at_font_size = fs
+    return ans
+
+
 def calc_columns_per_screen():
     cps = opts.columns_per_screen or {}
     cps = cps.landscape if scroll_viewport.width() > scroll_viewport.height() else cps.portrait
@@ -127,9 +147,18 @@ def calc_columns_per_screen():
     except:
         cps = 0
     if not cps:
-        cps = int(Math.floor(scroll_viewport.width() / 500.0))
+        cps = int(Math.floor(scroll_viewport.width() / (35 * cps_by_em_size())))
     cps = max(1, min(cps or 1, 20))
     return cps
+
+
+def get_columns_per_screen_data():
+    which = 'landscape' if scroll_viewport.width() > scroll_viewport.height() else 'portrait'
+    return {'which': which, 'cps': calc_columns_per_screen()}
+
+
+def will_columns_per_screen_change():
+    return calc_columns_per_screen() != cols_per_screen
 
 
 def layout(is_single_page, on_resize):

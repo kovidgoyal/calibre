@@ -13,14 +13,14 @@ from session import defaults
 CONTAINER = unique_id('standalone-scrolling-settings')
 
 # Scroll speeds in lines/sec
-MIN_SCROLL_SPEED_AUTO = 0.25
+MIN_SCROLL_SPEED_AUTO = 0.05
 MAX_SCROLL_SPEED_AUTO = 5
 
 MIN_SCROLL_AUTO_DELAY = -1
-MAX_SCROLL_AUTO_DELAY = 10
+MAX_SCROLL_AUTO_DELAY = 50
 
-MIN_SCROLL_SPEED_SMOOTH = 10
-MAX_SCROLL_SPEED_SMOOTH = 50
+MIN_SCROLL_SPEED_SMOOTH = 5
+MAX_SCROLL_SPEED_SMOOTH = 80
 
 def restore_defaults():
     container = get_container()

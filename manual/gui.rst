@@ -94,7 +94,7 @@ Convert books
     :class: float-right-img
 
 |cei| E-books can be converted from a number of formats into whatever format your e-book reader prefers.
-Many e-books available for purchase will be protected by `Digital Rights Management <https://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
+Many e-books available for purchase will be protected by :doc:`Digital Rights Management <drm>` *(DRM)* technology.
 calibre will not convert these e-books. It is easy to remove the DRM from many formats, but as this may be illegal,
 you will have to find tools to liberate your books yourself and then use calibre to convert them.
 

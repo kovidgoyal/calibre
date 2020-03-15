@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
+    <width>614</width>
     <height>300</height>
    </rect>
   </property>
@@ -19,18 +19,38 @@
   <property name="subTitle">
    <string>The one stop solution to all your e-book needs.</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Choose your &amp;language:</string>
-     </property>
-     <property name="buddy">
-      <cstring>language</cstring>
-     </property>
-    </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Choose your &amp;language:</string>
+       </property>
+       <property name="buddy">
+        <cstring>language</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="language"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
-   <item row="1" column="0">
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -43,31 +63,45 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="button_change">
+   <item>
+    <widget class="QLabel" name="libloc_label1">
      <property name="text">
-      <string>&amp;Change</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
-    <widget class="QLabel" name="libloc_label2">
-     <property name="text">
-      <string>If a calibre library already exists at the new location, calibre will use it automatically.</string>
+      <string>&lt;p&gt;Choose a location for your books. When you add books to calibre, they will be copied here. Use an &lt;b&gt;empty folder&lt;/b&gt; for a new calibre library:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QLineEdit" name="location">
-     <property name="readOnly">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLineEdit" name="location">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_change">
+       <property name="text">
+        <string>&amp;Change</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="libloc_label2">
+     <property name="text">
+      <string>If a calibre library already exists at the newly selected location, calibre will use it automatically.</string>
+     </property>
+     <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item>
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -80,20 +114,7 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QComboBox" name="language"/>
-   </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QLabel" name="libloc_label1">
-     <property name="text">
-      <string>&lt;p&gt;Choose a location for your books. When you add books to calibre, they will be copied here. Use an &lt;b&gt;empty folder&lt;/b&gt; for a new calibre library:</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="3">
+   <item>
     <widget class="QLabel" name="move_lib_label">
      <property name="text">
       <string/>

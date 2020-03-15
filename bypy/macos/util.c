@@ -163,7 +163,6 @@ run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
     char *t = NULL;
     int ret = 0, i;
     PyObject *site, *mainf, *res;
-    uint32_t buf_size = PATH_MAX+1;
 
     for (i = 0; i < 3; i++) {
         t = rindex(full_exe_path, '/');

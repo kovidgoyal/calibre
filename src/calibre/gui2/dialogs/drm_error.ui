@@ -44,8 +44,7 @@
     <widget class="QLabel" name="msg">
      <property name="text">
       <string>&lt;p&gt;This book is locked by &lt;b&gt;DRM&lt;/b&gt;. To learn more about DRM and why you cannot read or convert this book in calibre, 
-          &lt;a href=&quot;https://drmfree.calibre-ebook.com/about#drm&quot;&gt;click here&lt;/a&gt;.&lt;p&gt;A large number of recent, DRM free releases are 
-          available at &lt;a href=&quot;https://drmfree.calibre-ebook.com&quot;&gt;Open Books&lt;/a&gt;.</string>
+          &lt;a href=&quot;https://manual.calibre-ebook.com/drm.html&quot;&gt;click here&lt;/a&gt;.&lt;p&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

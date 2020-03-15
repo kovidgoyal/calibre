@@ -83,7 +83,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 156
+    supported_dbversion = 158
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1349,7 +1349,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 157
+    supported_dbversion             = 158
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1357,11 +1357,12 @@ class KOBOTOUCH(KOBO):
     min_dbversion_images_on_sdcard  = 77
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
+    min_dbversion_seriesid          = 136
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 19, 14114)
+    max_supported_fwversion         = (4, 20, 14601)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1377,11 +1378,13 @@ class KOBOTOUCH(KOBO):
     min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
     min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
     min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
+    min_fwversion_serieslist        = (4, 20, 14601)  # Series list needs the SeriesID to be set.
 
     has_kepubs = True
 
     booklist_class = KTCollectionsBookList
     book_class = Book
+    kobo_series_dict = {}
 
     MAX_PATH_LEN = 185  # 250 - (len(" - N3_LIBRARY_SHELF.parsed") + len("F:\.kobo\images\"))
     KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
@@ -1610,7 +1613,8 @@ class KOBOTOUCH(KOBO):
             bl_cache[b.lpath] = idx
 
         def update_booklist(prefix, path, ContentID, ContentType, MimeType, ImageID,
-                            title, authors, DateCreated, Description, Publisher, series, seriesnumber,
+                            title, authors, DateCreated, Description, Publisher,
+                            series, seriesnumber, SeriesID, SeriesNumberFloat,
                             ISBN, Language, Subtitle,
                             readstatus, expired, favouritesindex, accessibility, isdownloaded,
                             userid, bookshelves
@@ -1747,9 +1751,15 @@ class KOBOTOUCH(KOBO):
                     bl[idx].kobo_metadata       = kobo_metadata
                     bl[idx].kobo_series         = series
                     bl[idx].kobo_series_number  = seriesnumber
+                    bl[idx].kobo_series_id      = SeriesID
                     bl[idx].kobo_subtitle       = Subtitle
                     bl[idx].can_put_on_shelves  = allow_shelves
                     bl[idx].mime                = MimeType
+
+                    if not bl[idx].is_sideloaded and bl[idx].has_kobo_series and SeriesID is not None:
+                        if show_debug:
+                            debug_print('KoboTouch:update_booklist - Have purchased kepub with series, saving SeriesID=', SeriesID)
+                        self.kobo_series_dict[series] = SeriesID
 
                     if lpath in playlist_map:
                         bl[idx].device_collections  = playlist_map.get(lpath,[])
@@ -1800,9 +1810,15 @@ class KOBOTOUCH(KOBO):
                     book.kobo_metadata      = kobo_metadata
                     book.kobo_series        = series
                     book.kobo_series_number = seriesnumber
+                    book.kobo_series_id     = SeriesID
                     book.kobo_subtitle      = Subtitle
                     book.can_put_on_shelves = allow_shelves
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
+
+                    if not book.is_sideloaded and book.has_kobo_series and SeriesID is not None:
+                        if show_debug:
+                            debug_print('KoboTouch:update_booklist - Have purchased kepub with series, saving SeriesID=', SeriesID)
+                        self.kobo_series_dict[series] = SeriesID
 
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
@@ -1863,6 +1879,10 @@ class KOBOTOUCH(KOBO):
                 columns += ", Series, SeriesNumber, ___UserID, ExternalId, Subtitle"
             else:
                 columns += ', null as Series, null as SeriesNumber, ___UserID, null as ExternalId, null as Subtitle'
+            if self.supports_series_list:
+                columns += ", SeriesID, SeriesNumberFloat"
+            else:
+                columns += ', null as SeriesID, null as SeriesNumberFloat'
 
             where_clause = ''
             if self.supports_kobo_archive() or self.supports_overdrive():
@@ -1957,7 +1977,8 @@ class KOBOTOUCH(KOBO):
                 prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
                 changed = update_booklist(prefix, path, row['ContentID'], row['ContentType'], row['MimeType'], row['ImageId'],
                                           row['Title'], row['Attribution'], row['DateCreated'], row['Description'], row['Publisher'],
-                                          row['Series'], row['SeriesNumber'], row['ISBN'], row['Language'], row['Subtitle'],
+                                          row['Series'], row['SeriesNumber'], row['SeriesID'], row['SeriesNumberFloat'],
+                                          row['ISBN'], row['Language'], row['Subtitle'],
                                           row['ReadStatus'], row['___ExpirationStatus'],
                                           int(row['FavouritesIndex']), row['Accessibility'], row['IsDownloaded'],
                                           row['___UserID'], bookshelves
@@ -1972,6 +1993,7 @@ class KOBOTOUCH(KOBO):
                 self.dump_bookshelves(connection)
             else:
                 debug_print("KoboTouch:books - automatically managing metadata")
+            debug_print("KoboTouch:books - self.kobo_series_dict=", self.kobo_series_dict)
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
@@ -3127,21 +3149,29 @@ class KOBOTOUCH(KOBO):
                 kobo_series_number = None
             series_number_changed = not (kobo_series_number == newmi.series_index)
 
-        if series_changed or series_number_changed:
-            if newmi.series is not None:
-                new_series = newmi.series
-                try:
-                    new_series_number = "%g" % newmi.series_index
-                except:
-                    new_series_number = None
-            else:
-                new_series = None
+        if newmi.series is not None:
+            new_series = newmi.series
+            try:
+                new_series_number = "%g" % newmi.series_index
+            except:
                 new_series_number = None
+        else:
+            new_series = None
+            new_series_number = None
 
+        if series_changed or series_number_changed:
             update_values.append(new_series)
             set_clause += ', Series = ? '
             update_values.append(new_series_number)
             set_clause += ', SeriesNumber = ? '
+        if self.supports_series_list and book.is_sideloaded:
+            series_id = self.kobo_series_dict.get(new_series, new_series)
+            if not book.kobo_series_id == series_id or series_changed or series_number_changed:
+                update_values.append(series_id)
+                set_clause += ', SeriesID = ? '
+                update_values.append(new_series_number)
+                set_clause += ', SeriesNumberFloat = ? '
+                debug_print("KoboTouch:set_core_metadata Setting SeriesID - new_series='%s', series_id='%s'" % (new_series, series_id))
 
         if not series_only:
             if not (newmi.title == kobo_metadata.title):
@@ -3536,6 +3566,10 @@ class KOBOTOUCH(KOBO):
 
     def supports_series(self):
         return self.dbversion >= self.min_dbversion_series
+
+    @property
+    def supports_series_list(self):
+        return self.dbversion >= self.min_dbversion_seriesid and self.fwversion >= self.min_fwversion_serieslist
 
     def supports_kobo_archive(self):
         return self.dbversion >= self.min_dbversion_archive

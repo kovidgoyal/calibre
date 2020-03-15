@@ -11,6 +11,7 @@ from functools import partial
 from io import BytesIO
 
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
 from polyglot.builtins import iteritems, itervalues, unicode_type
@@ -421,13 +422,13 @@ class WritingTest(BaseTest):
         cache.set_metadata(2, mi)
         nmi = cache.get_metadata(2, get_cover=True, cover_as_data=True)
         ae(oldmi.cover_data, nmi.cover_data)
-        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata'})
+        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata', 'formats'})
         cache.set_metadata(1, mi2, force_changes=True)
         nmi2 = cache.get_metadata(1, get_cover=True, cover_as_data=True)
         # The new code does not allow setting of #series_index to None, instead
         # it is reset to 1.0
         ae(nmi2.get_extra('#series'), 1.0)
-        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
+        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index', 'formats'})
 
         cache = self.init_cache(self.cloned_library)
         mi = cache.get_metadata(1)
@@ -435,6 +436,12 @@ class WritingTest(BaseTest):
         mi.tags = [x.upper() for x in mi.tags]
         cache.set_metadata(3, mi)
         self.assertEqual(set(otags), set(cache.field_for('tags', 3)), 'case changes should not be allowed in set_metadata')
+
+        # test that setting authors without author sort results in an
+        # auto-generated authors sort
+        mi = Metadata('empty', ['a1', 'a2'])
+        cache.set_metadata(1, mi)
+        self.assertEqual('a1 & a2', cache.field_for('author_sort', 1))
 
     # }}}
 

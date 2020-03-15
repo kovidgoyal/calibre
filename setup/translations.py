@@ -100,8 +100,12 @@ class POT(Command):  # {{{
             root = json.load(f)
         entries = root['639-3']
         ans = []
-        for x in sorted(entries, key=lambda x:(x.get('name') or '').lower()):
-            name = x.get('name')
+
+        def name_getter(x):
+            return x.get('inverted_name') or x.get('name')
+
+        for x in sorted(entries, key=lambda x:name_getter(x).lower()):
+            name = name_getter(x)
             if name:
                 ans.append(u'msgid "{}"'.format(name))
                 ans.append('msgstr ""')
@@ -849,7 +853,7 @@ class ISO639(Command):  # {{{
                 threeb = unicode_type(threeb)
             if threeb is None:
                 continue
-            name = x.get('name')
+            name = x.get('inverted_name') or x.get('name')
             if name:
                 name = unicode_type(name)
             if not name or name[0] in '!~=/\'"':

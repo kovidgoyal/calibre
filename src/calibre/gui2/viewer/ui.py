@@ -13,8 +13,8 @@ from hashlib import sha256
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QDockWidget, QEvent, QMimeData, QModelIndex, QPixmap, QScrollBar,
-    Qt, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCursor, QDockWidget, QEvent, QMenu, QMimeData, QModelIndex,
+    QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prints
@@ -78,13 +78,6 @@ def path_key(path):
     return sha256(as_bytes(path)).hexdigest()
 
 
-class ScrollBar(QScrollBar):
-
-    def paintEvent(self, ev):
-        if self.isEnabled():
-            return QScrollBar.paintEvent(self, ev)
-
-
 class EbookViewer(MainWindow):
 
     msg_from_anotherinstance = pyqtSignal(object)
@@ -94,11 +87,14 @@ class EbookViewer(MainWindow):
 
     def __init__(self, open_at=None, continue_reading=None, force_reload=False):
         MainWindow.__init__(self, None)
-        self.shutting_down = False
+        self.shutting_down = self.close_forced = False
         self.force_reload = force_reload
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
         self.maximized_at_last_fullscreen = False
+        self.save_pos_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(3000), t.setTimerType(Qt.VeryCoarseTimer)
+        connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
         self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
         self.setWindowTitle(self.base_window_title)
@@ -176,7 +172,10 @@ class EbookViewer(MainWindow):
         self.web_view.show_error.connect(self.show_error)
         self.web_view.print_book.connect(self.print_book, type=Qt.QueuedConnection)
         self.web_view.reset_interface.connect(self.reset_interface, type=Qt.QueuedConnection)
+        self.web_view.quit.connect(self.quit, type=Qt.QueuedConnection)
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
+        self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
+        self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
@@ -192,13 +191,39 @@ class EbookViewer(MainWindow):
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
 
-    def toggle_inspector(self):
-        visible = self.inspector_dock.toggleViewAction().isChecked()
-        self.inspector_dock.setVisible(not visible)
-
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
         return MainWindow.resizeEvent(self, ev)
+
+    def scrollbar_context_menu(self, x, y, frac):
+        m = QMenu(self)
+        amap = {}
+
+        def a(text, name):
+            m.addAction(text)
+            amap[text] = name
+
+        a(_('Scroll here'), 'here')
+        m.addSeparator()
+        a(_('Start of book'), 'start_of_book')
+        a(_('End of book'), 'end_of_book')
+        m.addSeparator()
+        a(_('Previous section'), 'previous_section')
+        a(_('Next section'), 'next_section')
+        m.addSeparator()
+        a(_('Start of current file'), 'start_of_file')
+        a(_('End of current file'), 'end_of_file')
+        m.addSeparator()
+        a(_('Hide this scrollbar'), 'toggle_scrollbar')
+
+        q = m.exec_(QCursor.pos())
+        if not q:
+            return
+        q = amap[q.text()]
+        if q == 'here':
+            self.web_view.goto_frac(frac)
+        else:
+            self.web_view.trigger_shortcut(q)
 
     # IPC {{{
     def handle_commandline_arg(self, arg):
@@ -244,6 +269,10 @@ class EbookViewer(MainWindow):
     # }}}
 
     # Docks (ToC, Bookmarks, Lookup, etc.) {{{
+
+    def toggle_inspector(self):
+        visible = self.inspector_dock.toggleViewAction().isChecked()
+        self.inspector_dock.setVisible(not visible)
 
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
@@ -508,6 +537,7 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{
             'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+        self.save_pos_timer.start()
     # }}}
 
     # State serialization {{{
@@ -536,6 +566,8 @@ class EbookViewer(MainWindow):
         geom = vprefs['main_window_geometry']
         if geom and get_session_pref('remember_window_geometry', default=False):
             QApplication.instance().safe_restore_geometry(self, geom)
+        else:
+            QApplication.instance().ensure_window_on_screen(self)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
             self.inspector_dock.setVisible(False)
@@ -543,7 +575,24 @@ class EbookViewer(MainWindow):
     def quit(self):
         self.close()
 
+    def force_close(self):
+        if not self.close_forced:
+            self.close_forced = True
+            self.quit()
+
+    def close_prep_finished(self, cfi):
+        if cfi:
+            self.cfi_changed(cfi)
+        self.force_close()
+
     def closeEvent(self, ev):
+        if self.current_book_data and self.web_view.view_is_ready and not self.close_forced:
+            ev.ignore()
+            if not self.shutting_down:
+                self.shutting_down = True
+                QTimer.singleShot(2000, self.force_close)
+                self.web_view.prepare_for_close()
+            return
         self.shutting_down = True
         self.search_widget.shutdown()
         try:

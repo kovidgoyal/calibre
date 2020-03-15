@@ -14,6 +14,12 @@ def elem_roles(elem):
     return {k.toLowerCase(): True for k in (elem.getAttribute('role') or '').split(' ')}
 
 
+def epub_type(elem):
+    for a in elem.attributes:
+        if a.nodeName.toLowerCase() == 'epub:type' and a.nodeValue:
+            return a.nodeValue
+
+
 def get_containing_block(node):
     while node and node.tagName and block_names[node.tagName.toLowerCase()] is not True:
         node = node.parentNode
@@ -26,6 +32,8 @@ def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
         return True
     if roles['doc-link']:
         return False
+    if epub_type(a) is 'noteref':
+        return True
 
     # Check if node or any of its first few parents have vertical-align set
     x, num = a, 3
@@ -50,7 +58,7 @@ def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
     eid = a.getAttribute('id') or a.getAttribute('name')
     files_linking_to_self = link_to_map[src_name]
     if eid and files_linking_to_self:
-        files_linking_to_anchor = files_linking_to_self[eid]
+        files_linking_to_anchor = files_linking_to_self[eid] or v'[]'
         if files_linking_to_anchor.length > 1 or (files_linking_to_anchor.length == 1 and files_linking_to_anchor[0] is not src_name):
             # An <a href="..." id="..."> link that is linked back from some other
             # file in the spine, most likely an endnote. We exclude links that are
@@ -77,6 +85,11 @@ is_footnote_link.vert_aligns = {'sub': True, 'super': True, 'top': True, 'bottom
 
 
 def is_epub_footnote(node):
+    et = epub_type(node)
+    if et:
+        et = et.toLowerCase()
+        if et is 'note' or et is 'footnote' or et is 'rearnote':
+            return True
     roles = elem_roles(node)
     if roles['doc-note'] or roles['doc-footnote'] or roles['doc-rearnote']:
         return True

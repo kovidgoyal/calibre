@@ -119,7 +119,7 @@
                <string>Restore your own subset of checked fields that you define using the 'Set as default' button</string>
               </property>
               <property name="text">
-               <string>&amp;Select default</string>
+               <string>Select &amp;default</string>
               </property>
              </widget>
             </item>

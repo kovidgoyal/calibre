@@ -44,15 +44,15 @@ selected author.
 You can switch back to the full library at any time by once again clicking the
 :guilabel:`Virtual library` and selecting the entry named :guilabel:`<None>`.
 
-Virtual libraries are based on *searches*. You can use any search as the 
-basis of a virtual library. The virtual library will contain only the 
-books matched by that search. First, type in the search you want to use 
-in the Search bar or build a search using the :guilabel:`Tag browser`. 
-When you are happy with the returned results, click the Virtual library 
-button, choose :guilabel:`Create library` and enter a name for the new virtual 
-library. The virtual library will then be created based on the search 
-you just typed in. Searches are very powerful, for examples of the kinds 
-of things you can do with them, see :ref:`search_interface`. 
+Virtual libraries are based on *searches*. You can use any search as the
+basis of a Virtual library. The Virtual library will contain only the
+books matched by that search. First, type in the search you want to use
+in the Search bar or build a search using the :guilabel:`Tag browser`.
+When you are happy with the returned results, click the :guilabel:`Virtual library`
+button, choose :guilabel:`Create library` and enter a name for the new Virtual
+library. The Virtual library will then be created based on the search
+you just typed in. Searches are very powerful, for examples of the kinds
+of things you can do with them, see :ref:`search_interface`.
 
 Examples of useful Virtual libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,7 +82,7 @@ You can edit a previously created virtual library or remove it, by clicking the
 
 You can tell calibre that you always want to apply a particular virtual library
 when the current library is opened, by going to
-:guilabel:`Preferences->Interface->Behavior`. 
+:guilabel:`Preferences->Interface->Behavior`.
 
 You can quickly use the current search as a temporary virtual library by
 clicking the :guilabel:`Virtual library` button and choosing the
@@ -103,7 +103,7 @@ example, ``vl:Read`` will find all the books in the *Read* virtual library. The 
 ``vl:Read and vl:"Science Fiction"`` will find all the books that are in both the *Read* and
 *Science Fiction* virtual libraries.
 
-The value following ``vl:`` must be the name of a virtual library. If the virtual library name 
+The value following ``vl:`` must be the name of a virtual library. If the virtual library name
 contains spaces then surround it with quotes.
 
 One use for a virtual library search is in the content server. In
@@ -124,4 +124,3 @@ saved search that shows you unread books, you can click the :guilabel:`Virtual
 Library` button and choose the :guilabel:`Additional restriction` option to
 show only unread Historical Fiction books. To learn about saved searches, see
 :ref:`saved_searches`.
-

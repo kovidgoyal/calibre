@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, json, subprocess, errno, hashlib
+import os, json, subprocess, errno, hashlib
 from setup import Command, build_cache_dir, edit_file, dump_json
 
 
@@ -82,10 +82,8 @@ class Check(Command):
             p = subprocess.Popen(['rapydscript', 'lint', f])
             return p.wait() != 0
         if ext == '.yaml':
-            sys.path.insert(0, self.wn_path)
-            import whats_new
-            whats_new.render_changelog(self.j(self.d(self.SRC), 'Changelog.yaml'))
-            sys.path.remove(self.wn_path)
+            p = subprocess.Popen(['python', self.j(self.wn_path, 'whats_new.py'), f])
+            return p.wait() != 0
 
     def run(self, opts):
         self.fhash_cache = {}

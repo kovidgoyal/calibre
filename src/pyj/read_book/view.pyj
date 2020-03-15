@@ -127,9 +127,23 @@ def show_controls_help():
 
 # }}}
 
+
+def maximum_font_size():
+    ans = maximum_font_size.ans
+    if not ans:
+        q = window.getComputedStyle(document.body).fontSize
+        if q and q.endsWith('px'):
+            q = parseInt(q)
+            if q and not isNaN(q):
+                ans = maximum_font_size.ans = q
+                return ans
+        ans = maximum_font_size.ans = 12
+    return ans
+
+
 def margin_elem(sd, which, id, onclick, oncontextmenu):
     sz = sd.get(which, 20)
-    fsz = min(max(0, sz - 6), 12)
+    fsz = min(max(0, sz - 6), maximum_font_size())
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
         style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center',
@@ -172,7 +186,7 @@ class View:
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.report_cfi_callbacks = {}
-        self.show_chrome_counter = 0
+        self.get_cfi_counter = 0
         self.show_loading_callback_timer = None
         self.timer_ids = {'clock': 0}
         self.book_scrollbar = BookScrollbar(self)
@@ -237,6 +251,7 @@ class View:
             'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'selectionchange': self.on_selection_change,
+            'columns_per_screen_changed': self.on_columns_per_screen_changed,
             'show_chrome': self.show_chrome,
             'show_footnote': self.on_show_footnote,
             'update_cfi': self.on_update_cfi,
@@ -268,6 +283,15 @@ class View:
     @property
     def reference_mode_overlay(self):
         return document.getElementById('reference-mode-overlay')
+
+    def set_scrollbar_visibility(self, visible):
+        sd = get_session_data()
+        sd.set('book_scrollbar', bool(visible))
+        self.book_scrollbar.apply_visibility()
+
+    def toggle_scrollbar(self):
+        sd = get_session_data()
+        self.set_scrollbar_visibility(not sd.get('book_scrollbar'))
 
     def on_lookup_word(self, data):
         if runtime.is_standalone_viewer:
@@ -388,6 +412,8 @@ class View:
             self.toggle_paged_mode()
         elif data.name is 'toggle_toolbar':
             self.toggle_toolbar()
+        elif data.name is 'toggle_scrollbar':
+            self.toggle_scrollbar()
         elif data.name is 'quit':
             ui_operations.quit()
         elif data.name is 'start_search':
@@ -425,7 +451,7 @@ class View:
         elif data.name is 'print':
             ui_operations.print_book()
         elif data.name is 'preferences':
-            self.overlay.show_prefs()
+            self.show_chrome({'initial_panel': 'show_prefs'})
         elif data.name is 'metadata':
             self.overlay.show_metadata()
         elif data.name is 'goto_location':
@@ -442,11 +468,25 @@ class View:
             self.toggle_autoscroll()
         elif data.name.startsWith('switch_color_scheme:'):
             self.switch_color_scheme(data.name.partition(':')[-1])
+        elif data.name is 'increase_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=1)
+        elif data.name is 'decrease_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=-1)
+        elif data.name is 'reset_number_of_columns':
+            self.iframe_wrapper.send_message('change_number_of_columns', delta=0)
+        else:
+            self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
         if ui_operations.selection_changed:
             ui_operations.selection_changed(data.text)
+
+    def on_columns_per_screen_changed(self, data):
+        sd = get_session_data()
+        cps = sd.get('columns_per_screen') or {}
+        cps[data.which] = int(data.cps)
+        sd.set('columns_per_screen', cps)
 
     def switch_color_scheme(self, name):
         get_session_data().set('current_color_scheme', name)
@@ -519,16 +559,26 @@ class View:
         self.iframe.contentWindow.focus()
 
     def show_chrome(self, data):
-        self.show_chrome_counter += 1
         elements = {}
         if data and data.elements:
             elements = data.elements
-        self.get_current_cfi('show-chrome-' + self.show_chrome_counter, self.do_show_chrome.bind(None, elements))
+        initial_panel = data?.initial_panel or None
+        self.get_current_cfi('show-chrome', self.do_show_chrome.bind(None, elements, initial_panel))
 
-    def do_show_chrome(self, elements, request_id, cfi_data):
+    def do_show_chrome(self, elements, initial_panel, request_id, cfi_data):
         self.hide_overlays()
         self.update_cfi_data(cfi_data)
-        self.overlay.show(elements)
+        if initial_panel:
+            getattr(self.overlay, initial_panel)()
+        else:
+            self.overlay.show(elements)
+
+    def prepare_for_close(self):
+
+        def close_prepared(request_id, cfi_data):
+            ui_operations.close_prep_finished(cfi_data.cfi)
+
+        self.get_current_cfi('prepare-close', close_prepared)
 
     def show_search(self):
         self.hide_overlays()
@@ -721,6 +771,10 @@ class View:
             show_controls_help()
             sd.set('controls_help_shown_count', c + 1)
 
+    def preferences_changed(self):
+        ui_operations.update_url_state(True)
+        ui_operations.redisplay_book()
+
     def redisplay_book(self):
         # redisplay_book() is called when settings are changed
         sd = get_session_data()
@@ -897,6 +951,8 @@ class View:
             self.goto_named_destination(toc_node.dest, toc_node.frag)
 
     def get_current_cfi(self, request_id, callback):
+        self.get_cfi_counter += 1
+        request_id += ':' + self.get_cfi_counter
         self.report_cfi_callbacks[request_id] = callback
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
@@ -917,7 +973,7 @@ class View:
     def on_report_cfi(self, data):
         cb = self.report_cfi_callbacks[data.request_id]
         if cb:
-            cb(data.request_id, {
+            cb(data.request_id.rpartition(':')[0], {
                 'cfi': data.cfi,
                 'progress_frac': data.progress_frac,
                 'file_progress_frac': data.file_progress_frac,
@@ -1018,7 +1074,6 @@ class View:
             self.iframe_wrapper.init()
 
     def show_spine_item_stage2(self, resource_data):
-        self.currently_showing.loading = False
         # We cannot encrypt this message because the resource data contains
         # Blob objects which do not survive encryption
         self.processing_spine_item_display = True
@@ -1032,6 +1087,7 @@ class View:
 
     def on_content_loaded(self, data):
         self.processing_spine_item_display = False
+        self.currently_showing.loading = False
         self.hide_loading()
         self.set_progress_frac(data.progress_frac, data.file_progress_frac)
         self.update_header_footer()
@@ -1051,6 +1107,9 @@ class View:
 
     def update_font_size(self):
         self.iframe_wrapper.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
+
+    def viewer_font_size_changed(self):
+        self.iframe_wrapper.send_message('viewer_font_size_changed', base_font_size=get_session_data().get('base_font_size'))
 
     def update_scroll_speed(self, amt):
         self.iframe_wrapper.send_message('change_scroll_speed', lines_per_sec_auto=change_scroll_speed(amt))

@@ -212,7 +212,7 @@ def add_format_entries(menu, data, book_info):
         else:
             m.addSeparator()
             m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
+            m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, book_info))
             menu.addMenu(m)
             menu.ow = m
         if fmt.upper() in SUPPORTED:
@@ -279,7 +279,7 @@ def add_item_specific_entries(menu, data, book_info):
 def details_context_menu_event(view, ev, book_info):
     url = view.anchorAt(ev.pos())
     menu = view.createStandardContextMenu()
-    menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, book_info))
+    menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, view))
     search_internet_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))

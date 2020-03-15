@@ -198,14 +198,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
     return bool(exts.intersection(frozenset(extensions)))
 
 
-def dnd_get_image(md, image_exts=None):
-    '''
-    Get the image in the QMimeData object md.
-
-    :return: None, None if no image is found
-             QPixmap, None if an image is found, the pixmap is guaranteed not null
-             url, filename if a URL that points to an image is found
-    '''
+def dnd_get_local_image_and_pixmap(md, image_exts=None):
     if md.hasImage():
         for x in md.formats():
             x = unicode_type(x)
@@ -214,14 +207,13 @@ def dnd_get_image(md, image_exts=None):
                 pmap = QPixmap()
                 pmap.loadFromData(cdata)
                 if not pmap.isNull():
-                    return pmap, None
-                break
+                    return pmap, cdata
     if md.hasFormat('application/octet-stream'):
         cdata = bytes(md.data('application/octet-stream'))
         pmap = QPixmap()
         pmap.loadFromData(cdata)
         if not pmap.isNull():
-            return pmap, None
+            return pmap, cdata
 
     if image_exts is None:
         image_exts = image_extensions()
@@ -229,23 +221,40 @@ def dnd_get_image(md, image_exts=None):
     # No image, look for an URL pointing to an image
     urls = urls_from_md(md)
     paths = [path_from_qurl(u) for u in urls]
-    # First look for a local file
+    # Look for a local file
     images = [xi for xi in paths if
             posixpath.splitext(unquote(xi))[1][1:].lower() in
             image_exts]
     images = [xi for xi in images if os.path.exists(xi)]
-    p = QPixmap()
     for path in images:
         try:
             with open(path, 'rb') as f:
-                p.loadFromData(f.read())
+                cdata = f.read()
         except Exception:
             continue
+        p = QPixmap()
+        p.loadFromData(cdata)
         if not p.isNull():
-            return p, None
+            return p, cdata
 
-    # No local images, look for remote ones
+    return None, None
 
+
+def dnd_get_image(md, image_exts=None):
+    '''
+    Get the image in the QMimeData object md.
+
+    :return: None, None if no image is found
+             QPixmap, None if an image is found, the pixmap is guaranteed not null
+             url, filename if a URL that points to an image is found
+    '''
+    if image_exts is None:
+        image_exts = image_extensions()
+    pmap, data = dnd_get_local_image_and_pixmap(md, image_exts)
+    if pmap is not None:
+        return pmap, None
+    # Look for a remote image
+    urls = urls_from_md(md)
     # First, see if this is from Firefox
     rurl, fname = get_firefox_rurl(md, image_exts)
 

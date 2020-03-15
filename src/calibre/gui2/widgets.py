@@ -23,7 +23,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
-    image_extensions, dnd_has_extension, DownloadDialog)
+    image_extensions, dnd_has_extension, dnd_get_local_image_and_pixmap, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import native_string_type, unicode_type, range
 
@@ -238,6 +238,10 @@ class ImageDropMixin(object):  # {{{
     def dropEvent(self, event):
         event.setDropAction(Qt.CopyAction)
         md = event.mimeData()
+        pmap, data = dnd_get_local_image_and_pixmap(md)
+        if pmap is not None:
+            self.handle_image_drop(pmap, data)
+            return
 
         x, y = dnd_get_image(md)
         if x is not None:
@@ -520,7 +524,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         if ev.type() == ev.ShortcutOverride and (
-                ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
+                hasattr(ev, 'key') and ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
             ev.accept()
         return QLineEdit.event(self, ev)
 

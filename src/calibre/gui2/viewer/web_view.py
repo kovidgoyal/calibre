@@ -34,7 +34,7 @@ from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 
 try:
     from PyQt5 import sip
@@ -270,7 +270,10 @@ class ViewerBridge(Bridge):
     print_book = from_js()
     clear_history = from_js()
     reset_interface = from_js()
+    quit = from_js()
     customize_toolbar = from_js()
+    scrollbar_context_menu = from_js(object, object, object)
+    close_prep_finished = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -284,6 +287,8 @@ class ViewerBridge(Bridge):
     trigger_shortcut = to_js()
     set_system_palette = to_js()
     show_search_result = to_js()
+    prepare_for_close = to_js()
+    viewer_font_size_changed = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -305,6 +310,8 @@ def apply_font_settings(page_or_view):
     sf = fs.get('standard_font') or 'serif'
     sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
     s.setFontFamily(s.StandardFont, s.fontFamily(sf))
+    old_minimum = s.fontSize(s.MinimumFontSize)
+    old_base = s.fontSize(s.DefaultFontSize)
     mfs = fs.get('minimum_font_size')
     if mfs is None:
         s.resetFontSize(s.MinimumFontSize)
@@ -313,6 +320,10 @@ def apply_font_settings(page_or_view):
     bfs = sd.get('base_font_size')
     if bfs is not None:
         s.setFontSize(s.DefaultFontSize, bfs)
+
+    font_size_changed = old_minimum != s.fontSize(s.MinimumFontSize) or old_base != s.fontSize(s.DefaultFontSize)
+    if font_size_changed and hasattr(page_or_view, 'execute_when_ready'):
+        page_or_view.execute_when_ready('viewer_font_size_changed')
 
     return s
 
@@ -440,7 +451,10 @@ class WebView(RestartingWebEngineView):
     show_error = pyqtSignal(object, object, object)
     print_book = pyqtSignal()
     reset_interface = pyqtSignal()
+    quit = pyqtSignal()
     customize_toolbar = pyqtSignal()
+    scrollbar_context_menu = pyqtSignal(object, object, object)
+    close_prep_finished = pyqtSignal(object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
@@ -459,6 +473,7 @@ class WebView(RestartingWebEngineView):
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
+        self.view_is_ready = False
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.view_created.connect(self.on_view_created)
         self.bridge.content_file_changed.connect(self.on_content_file_changed)
@@ -487,7 +502,10 @@ class WebView(RestartingWebEngineView):
         self.bridge.print_book.connect(self.print_book)
         self.bridge.clear_history.connect(self.clear_history)
         self.bridge.reset_interface.connect(self.reset_interface)
+        self.bridge.quit.connect(self.quit)
         self.bridge.customize_toolbar.connect(self.customize_toolbar)
+        self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
+        self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -572,6 +590,7 @@ class WebView(RestartingWebEngineView):
 
     def on_view_created(self, data):
         self.view_created.emit(data)
+        self.view_is_ready = True
 
     def on_content_file_changed(self, data):
         self.current_content_file = data
@@ -598,7 +617,7 @@ class WebView(RestartingWebEngineView):
     def set_session_data(self, key, val):
         if key == '*' and val is None:
             vprefs['session_data'] = {}
-            apply_font_settings(self._page)
+            apply_font_settings(self)
             self.paged_mode_changed.emit()
             self.standalone_misc_settings_changed.emit()
         elif key != '*':
@@ -606,7 +625,7 @@ class WebView(RestartingWebEngineView):
             sd[key] = val
             vprefs['session_data'] = sd
             if key in ('standalone_font_settings', 'base_font_size'):
-                apply_font_settings(self._page)
+                apply_font_settings(self)
             elif key == 'read_mode':
                 self.paged_mode_changed.emit()
             elif key == 'standalone_misc_settings':
@@ -621,7 +640,7 @@ class WebView(RestartingWebEngineView):
             vprefs['local_storage'] = sd
 
     def do_callback(self, func_name, callback):
-        cid = next(self.callback_id_counter)
+        cid = unicode_type(next(self.callback_id_counter))
         self.callback_map[cid] = callback
         self.execute_when_ready('get_current_cfi', cid)
 
@@ -663,3 +682,6 @@ class WebView(RestartingWebEngineView):
 
     def palette_changed(self):
         self.execute_when_ready('set_system_palette', system_colors())
+
+    def prepare_for_close(self):
+        self.execute_when_ready('prepare_for_close')

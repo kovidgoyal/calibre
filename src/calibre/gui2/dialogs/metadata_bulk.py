@@ -369,6 +369,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.clear_series:
             self.progress_next_step_range.emit(0)
             cache.set_field('series', {bid: '' for bid in self.ids})
+            cache.set_field('series_index', {bid:1.0 for bid in self.ids})
             self.progress_finished_cur_step.emit()
 
         if args.pubdate is not None:

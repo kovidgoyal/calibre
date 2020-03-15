@@ -392,7 +392,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.open_store(result)
 
     def download_book(self, result):
-        d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
+        d = ChooseFormatDialog(self, _('Choose format to download to your library.'), list(result.downloads.keys()))
         if d.exec_() == d.Accepted:
             ext = d.format()
             fname = result.title[:60] + '.' + ext.lower()

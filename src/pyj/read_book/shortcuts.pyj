@@ -51,10 +51,13 @@ def get_key_text(evt):
         cc = key.charCodeAt(0)
         # on windows in webengine pressing ctrl+ascii char gives us an ascii
         # control code
-        if (0 < cc < 32 or key is 'Enter') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
+        if (0 < cc < 32 or key is 'Enter' or key is 'Tab') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
             if key is 'Enter':
                 if evt.code and evt.code is not 'Enter':
                     key = 'm'
+            elif key is 'Tab':
+                if evt.code and evt.code is not 'Tab':
+                    key = 'i'
             else:
                 key = chr(96 + cc)
     return key
@@ -216,6 +219,24 @@ def shortcuts_definition():
         _('Decrease font size'),
     ),
 
+    'increase_number_of_columns': desc(
+        v"['Ctrl+]']",
+        'ui',
+        _('Increase number of pages per screen'),
+    ),
+
+    'decrease_number_of_columns': desc(
+        v"['Ctrl+[']",
+        'ui',
+        _('Decrease number of pages per screen'),
+    ),
+
+    'reset_number_of_columns': desc(
+        v"['Ctrl+Alt+c']",
+        'ui',
+        _('Make number of pages per screen automatic'),
+    ),
+
     'toggle_full_screen': desc(
         v"['F11', 'Ctrl+Shift+F']",
         'ui',
@@ -226,6 +247,12 @@ def shortcuts_definition():
         'Ctrl+m',
         'ui',
         _('Toggle between Paged mode and Flow mode for text layout')
+    ),
+
+    'toggle_scrollbar': desc(
+        'Ctrl+w',
+        'ui',
+        _('Toggle the scrollbar')
     ),
 
     'toggle_reference_mode': desc(

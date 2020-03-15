@@ -159,7 +159,7 @@ def create_toc_panel(book, container, onclick):
     t = _('Search Table of Contents')
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
-    container.appendChild(E.div(style='margin: 1ex 1em; display: flex;', search_bar, search_button))
+    container.appendChild(E.div(style='margin: 1ex 1em; display: flex; align-items: center', search_bar, search_button))
 
 
 def current_toc_anchor_map(tam, anchor_funcs):

@@ -7,6 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from functools import partial
 
 from PyQt5.Qt import Qt, QListWidgetItem
 
@@ -20,6 +21,13 @@ from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
 from polyglot.builtins import unicode_type, range
+
+
+def input_order_drop_event(self, ev):
+    ret = self.opt_input_order.__class__.dropEvent(self.opt_input_order, ev)
+    if ev.isAccepted():
+        self.changed_signal.emit()
+    return ret
 
 
 class OutputFormatSetting(Setting):
@@ -62,6 +70,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.input_up_button.clicked.connect(self.up_input)
         self.input_down_button.clicked.connect(self.down_input)
+        self.opt_input_order.dropEvent = partial(input_order_drop_event, self)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
@@ -147,7 +156,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.opt_input_order)
             item.setData(Qt.UserRole, (format))
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsDragEnabled)
 
     def up_input(self, *args):
         idx = self.opt_input_order.currentRow()
@@ -175,6 +184,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Interface', 'Behavior')

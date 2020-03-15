@@ -1,30 +1,32 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import datetime
 
 
 class Politics(BasicNewsRecipe):
-    title = u'Courier Mail'
+    title = u'The Courier-Mail'
+    description = 'Breaking news headlines for Brisbane and Queensland, Australia. The Courier-Mail is owned by News Corp Australia.'
     language = 'en_AU'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'Krittika Goyal, James Cridland'
     oldest_article = 3  # days
     max_articles_per_feed = 20
     use_embedded_content = False
 
+    d = datetime.datetime.today()
+    cover_url='http://mfeeds.news.com.au/smedia/NCCOURIER/NCCM_1_' + d.strftime('%Y_%m_%d') + '_thumb_big.jpg'
+    masthead_url='https://couriermail.digitaleditions.com.au/images/couriermail-logo.jpg'
+
     no_stylesheets = True
     auto_cleanup = True
+    handle_gzip = True
 
     feeds = [
-        ('Top Stories',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_top_stories_257.xml'),
-        ('Breaking News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_breaking_news_67.xml'),
-        ('Queensland News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_queensland_news_70.xml'),
-        ('Technology News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_technology_news_66.xml'),
-        ('Entertainment News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_entertainment_news_256.xml'),
-        ('Business News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_business_news_64.xml'),
-        ('Sport News',
-         'http://feeds.news.com.au/public/rss/2.0/bcm_sports_news_65.xml'),
+        ('Top Stories', 'http://www.couriermail.com.au/rss'),
+        ('Breaking', 'https://www.couriermail.com.au/news/breaking-news/rss'),
+        ('Queensland', 'https://www.couriermail.com.au/news/queensland/rss'),
+        ('Technology', 'https://www.couriermail.com.au/technology/rss'),
+        ('Entertainment', 'https://www.couriermail.com.au/entertainment/rss'),
+        ('Finance','https://www.couriermail.com.au/business/rss'),
+        ('Sport', 'https://www.couriermail.com.au/sport/rss'),
     ]
+
+# This isn't perfect, but works rather better than it once did. To do - remove links to subscription content.
