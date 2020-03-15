@@ -2,12 +2,8 @@
 
 import re
 from collections import defaultdict
-from pprint import pformat
 
-from calibre.utils.date import strptime, utcnow
 from calibre.web.feeds.news import BasicNewsRecipe
-
-DT_EPOCH = strptime('1970-01-01', '%Y-%m-%d', assume_utc=True)
 
 DIR_COLLECTIONS = [['world'],
                    ['nation'],
@@ -29,84 +25,22 @@ DIR_COLLECTIONS = [['world'],
                    ['travel'],
                    ['fashion']]
 
-SECTIONS=['THE WORLD',
-          'THE NATION',
-          'POLITICS',
-          'OPINION',
-          'CALIFORNIA',
-          'OBITUARIES',
-          'BUSINESS',
-          'HOLLYWOOD',
-          'SPORTS',
-          'ENTERTAINMENT',
-          'MOVIES',
-          'TELEVISION',
-          'BOOKS',
-          'FOOD',
-          'HEALTH',
-          'SCIENCE AND TECHNOLOGY',
-          'HOME',
-          'TRAVEL',
-          'FASHION',
-          'NEWSLETTERS'
-          'OTHER']
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
     if url.startswith('/'):
-        url = 'http://www.latimes.com' + url
+        url = 'https://www.latimes.com' + url
     return url
 
 
-def check_words(words):
-    return lambda x: x and frozenset(words.split()).intersection(x.split())
-
-
 def what_section(url):
-    if re.compile(r'^https?://www[.]latimes[.]com/local/obituaries').search(url):
-        return 'OBITUARIES'
-    elif re.compile(r'^https?://www[.]latimes[.]com/business/hollywood').search(url):
-        return 'HOLLYWOOD'
-    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment/movies').search(url):
-        return 'MOVIES'
-    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment/tv').search(url):
-        return 'TELEVISION'
-    elif re.compile(r'^https?://www[.]latimes[.]com/business/technology').search(url):
-        return 'SCIENCE AND TECHNOLOGY'
-    elif re.compile(r'^https?://www[.]latimes[.]com/world').search(url):
-        return 'THE WORLD'
-    elif re.compile(r'^https?://www[.]latimes[.]com/nation').search(url):
-        return 'THE NATION'
-    elif re.compile(r'^https?://www[.]latimes[.]com/politics').search(url):
-        return 'POLITICS'
-    elif re.compile(r'^https?://www[.]latimes[.]com/opinion').search(url):
-        return 'OPINION'
-    elif re.compile(r'^https?://www[.]latimes[.]com/(?:local|style)').search(url):
-        return 'CALIFORNIA'
-    elif re.compile(r'^https?://www[.]latimes[.]com/business').search(url):
-        return 'BUSINESS'
-    elif re.compile(r'^https?://www[.]latimes[.]com/sports').search(url):
-        return 'SPORTS'
-    elif re.compile(r'^https?://www[.]latimes[.]com/entertainment').search(url):
-        return 'ENTERTAINMENT'
-    elif re.compile(r'^https?://www[.]latimes[.]com/books').search(url):
-        return 'BOOKS'
-    elif re.compile(r'^https?://www[.]latimes[.]com/food').search(url):
-        return 'FOOD'
-    elif re.compile(r'^https?://www[.]latimes[.]com/health').search(url):
-        return 'HEALTH'
-    elif re.compile(r'^https?://www[.]latimes[.]com/science').search(url):
-        return 'SCIENCE AND TECHNOLOGY'
-    elif re.compile(r'^https?://www[.]latimes[.]com/home').search(url):
-        return 'HOME'
-    elif re.compile(r'^https?://www[.]latimes[.]com/travel').search(url):
-        return 'TRAVEL'
-    elif re.compile(r'^https?://www[.]latimes[.]com/fashion').search(url):
-        return 'FASHION'
-    elif re.compile(r'^https?://www[.]latimes[.]com/newsletter').search(url):
-        return 'NEWSLETTERS'
-    else:
-        return 'OTHER'
+    parts = url.split('/')
+    return parts[-4].capitalize()
 
 
 class LATimes(BasicNewsRecipe):
@@ -126,32 +60,25 @@ class LATimes(BasicNewsRecipe):
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
-        dict(name='header', attrs={'id': 'top'}),
-        dict(name='article'),
-        dict(name='div', attrs={'id': 'liveblog-story-wrapper'})
+        classes('ArticlePage-breadcrumbs ArticlePage-headline ArticlePage-mainContent'),
     ]
 
     remove_tags= [
-        dict(name='div', attrs={'class': check_words(
-            'hidden-tablet hidden-mobile hidden-desktop pb-f-ads-dfp')})
-    ]
-
-    remove_tags_after = [
-        dict(name='div', attrs={'class': check_words('pb-f-article-body')})
+        classes('ArticlePage-actions Enhancement hidden-tablet hidden-mobile hidden-desktop pb-f-ads-dfp')
     ]
 
     def parse_index(self):
-        index = 'http://www.latimes.com/'
-        pat = r'^(?:https?://www[.]latimes[.]com)?/[^#]+20[0-9]{6}-(?:html)?story[.]html'
+        index = 'https://www.latimes.com/'
+        pat = r'^https://www\.latimes\.com/[^/]+?/story/20\d{2}-\d{2}-\d{2}/\S+'
         articles = self.find_articles(index, pat)
         for collection in DIR_COLLECTIONS:
+            if self.test:
+                continue
             topdir = collection.pop(0)
-            index = 'http://www.latimes.com/' + topdir + '/'
-            pat = r'^(?:https?://www[.]latimes[.]com)?/' + \
-                      topdir + '/[^#]+20[0-9]{6}-(?:html)?story[.]html'
-            articles += self.find_articles(index, pat)
+            collection_index = index + topdir + '/'
+            articles += self.find_articles(collection_index, pat)
             for subdir in collection:
-                sub_index = index + subdir + '/'
+                sub_index = collection_index + subdir + '/'
                 articles += self.find_articles(sub_index, pat)
 
         feeds = defaultdict(list)
@@ -159,12 +86,7 @@ class LATimes(BasicNewsRecipe):
             section = what_section(article['url'])
             feeds[section].append(article)
 
-        keys = []
-        for key in SECTIONS:
-            if key in feeds.keys():
-                keys.append(key)
-        self.log(pformat(dict(feeds)))
-        return [(k, feeds[k]) for k in keys]
+        return [(k, feeds[k]) for k in sorted(feeds)]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
@@ -190,16 +112,6 @@ class LATimes(BasicNewsRecipe):
         alinks = [a for a in alinks if len(
             a.contents) == 1 and a.find(text=True, recursive=False)]
         articles = [
-            {'title': a.find(text=True), 'url': absurl(a['href'])} for a in alinks]
-        date_rx = re.compile(
-            r'^https?://www[.]latimes[.]com/[^#]+-(?P<date>20[0-9]{6})-(?:html)?story[.]html')
-        for article in articles:
-            mdate = date_rx.match(article['url'])
-            if mdate is not None:
-                try:
-                    article['timestamp'] = (strptime(mdate.group('date'),'%Y%m%d') - DT_EPOCH).total_seconds()
-                except Exception:
-                    article['timestamp'] = (utcnow() - DT_EPOCH).total_seconds()
-                article['url'] = mdate.group(0)
+            {'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
         self.log('Found: ', len(articles), ' articles.\n')
         return articles
