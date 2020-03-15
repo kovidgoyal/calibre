@@ -1049,7 +1049,7 @@
     - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected books from clipboard"
       tickets: [1815419]
 
-    - title: "Tag browser: When right clicking on a saved search add a menu option to search using the raw search expression."
+    - title: "Tag browser: When right clicking on a Saved search add a menu option to search using the raw search expression."
       tickets: [1816274]
 
     - title: "Tag browser: Have pressing the Enter key find the next match."
@@ -2209,7 +2209,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Edit book: Pre-select existing cover image (if any) in add cover dialog"
 
-    - title: "Make the Manage saved searches dialog a little easier for new users."
+    - title: "Make the Manage Saved searches dialog a little easier for new users."
       tickets: [1733163]
 
     - title: "Add a tweak to control behavior of Enter on the book list"
@@ -2226,7 +2226,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Content server: Improve rendering of tags/categories with long words on small screens."
       tickets: [1734119]
 
-    - title: "Fix first added saved search not appearing in Tag browser until calibre restart."
+    - title: "Fix first added Saved search not appearing in Tag browser until calibre restart."
       tickets: [1733151]
 
     - title: "When checking added books for duplicates, also check on the language field. So books with the same title/authors but different languages are not considered duplicates."
