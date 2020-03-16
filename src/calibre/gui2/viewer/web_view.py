@@ -34,7 +34,7 @@ from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, iteritems, unicode_type
+from polyglot.builtins import as_bytes, hasenv, iteritems, unicode_type
 
 try:
     from PyQt5 import sip
@@ -219,6 +219,8 @@ def create_profile():
         # DO NOT change the user agent as it is used to workaround
         # Qt bugs see workaround_qt_bug() in ajax.pyj
         ua = 'calibre-viewer {} {}'.format(__version__, osname)
+        if hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
+            ua += ' CALIBRE_ENABLE_DEVELOP_MODE'
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer

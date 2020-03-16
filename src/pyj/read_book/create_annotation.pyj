@@ -1,0 +1,34 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+class CreateAnnotation:
+
+    container_id = 'create-annotation-overlay'
+
+    def __init__(self, view):
+        self.view = view
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def show(self):
+        self.container.style.display = 'block'
+
+    def hide(self):
+        self.container.style.display = 'none'
+
+    def send_message(self, **kw):
+        self.view.iframe_wrapper.send_message('annotations', **kw)
+
+    def handle_message(self, msg):
+        if msg.type is 'create-annotation':
+            self.show()
+        else:
+            print('Ignoring annotations message with unknown type:', msg.type)

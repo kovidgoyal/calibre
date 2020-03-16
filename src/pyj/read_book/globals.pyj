@@ -79,6 +79,7 @@ register_callback(def():
 runtime = {
     'is_standalone_viewer': False,
     'viewer_in_full_screen': False,
+    'in_develop_mode': window.navigator.userAgent.indexOf('CALIBRE_ENABLE_DEVELOP_MODE') > 0,
 }
 
 

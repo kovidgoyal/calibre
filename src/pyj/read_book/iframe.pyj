@@ -494,6 +494,8 @@ class IframeBoss:
             if sc_name:
                 if self.handle_navigation_shortcut(sc_name, evt):
                     evt.preventDefault()
+                elif sc_name is 'create_annotation':
+                    self.send_message('annotations', type='create-annotation')
                 else:
                     self.send_message('handle_shortcut', name=sc_name)
 

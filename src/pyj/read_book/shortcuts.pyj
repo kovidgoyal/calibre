@@ -4,6 +4,8 @@ from __python__ import bound_methods, hash_literals
 
 from gettext import gettext as _
 
+from read_book.globals import runtime
+
 
 def parse_key_repr(sc):
     parts = sc.split('+')
@@ -381,6 +383,13 @@ def add_standalone_viewer_shortcuts():
         'ui',
         _('Toggle the toolbar'),
     )
+
+    if runtime.in_develop_mode:
+        sc['create_annotation'] = desc(
+            "a",
+            'ui',
+            _('Create a highlight'),
+        )
 
 
 def create_shortcut_map(custom_shortcuts):
