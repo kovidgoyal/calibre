@@ -13,7 +13,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
-    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics)
+    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication)
 
 from calibre.constants import islinux
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
@@ -959,6 +959,56 @@ class BooksView(QTableView):  # {{{
     def contextMenuEvent(self, event):
         self.show_context_menu(self.context_menu, event)
     # }}}
+
+    def handle_mouse_press_event(self, ev):
+        if QApplication.keyboardModifiers() & Qt.ShiftModifier:
+            # Shift-Click in QTableView is badly behaved.
+            index = self.indexAt(ev.pos())
+            if not index.isValid():
+                return QTableView.mousePressEvent(self, ev)
+            ci = self.currentIndex()
+            if not ci.isValid():
+                return QTableView.mousePressEvent(self, ev)
+            clicked_row = index.row()
+            current_row = ci.row()
+            sm = self.selectionModel()
+            if clicked_row == current_row:
+                sm.setCurrentIndex(index, sm.NoUpdate)
+                return
+            sr = sm.selectedRows()
+            if not len(sr):
+                sm.select(index, sm.Select | sm.Clear | sm.Current | sm.Rows)
+                return
+
+            m = self.model()
+
+            def new_selection(upper, lower):
+                top_left = m.index(upper, 0)
+                bottom_right = m.index(lower, m.columnCount(None) - 1)
+                return QItemSelection(top_left, bottom_right)
+
+            currently_selected = tuple(x.row() for x in sr)
+            min_row = min(currently_selected)
+            max_row = max(currently_selected)
+            outside_current_selection = clicked_row < min_row or clicked_row > max_row
+            existing_selection = sm.selection()
+            if outside_current_selection:
+                # We simply extend the current selection
+                if clicked_row < min_row:
+                    upper, lower = clicked_row, min_row
+                else:
+                    upper, lower = max_row, clicked_row
+                existing_selection.merge(new_selection(upper, lower), sm.Select)
+            else:
+                if current_row < clicked_row:
+                    upper, lower = current_row, clicked_row
+                else:
+                    upper, lower  = clicked_row, current_row
+                existing_selection.merge(new_selection(upper, lower), sm.Toggle)
+            sm.select(existing_selection, sm.ClearAndSelect)
+            sm.setCurrentIndex(index, sm.Select | sm.Rows)  # ensure clicked row is always selected
+        else:
+            return QTableView.mousePressEvent(self, ev)
 
     @property
     def column_map(self):
