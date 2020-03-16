@@ -494,8 +494,7 @@ class OpenBook: # {{{
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
         container.appendChild(E.div(
-            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: space-between',
-                E.h2(_('Open a new book')),
+            style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: flex-start',
                 E.div(
                     svgicon('close'), style=f'cursor:pointer',
                     onclick=def(event):
@@ -506,6 +505,7 @@ class OpenBook: # {{{
                             ui_operations.quit()
                     ,
                     class_='simple-link'),
+                E.h2(_('Open a new book'), style='margin-left: 1rem'),
             ))
         create_open_book(container, self.overlay.view?.book)
 # }}}
