@@ -336,7 +336,7 @@ class UploadUserManual(Command):  # {{{
         srcdir = self.j(gettempdir(), 'user-manual-build', 'en', 'html') + '/'
         check_call(
             ' '.join(
-                ['rsync', '-zrl', '--info=progress2', srcdir, 'main:/srv/manual/']
+                ['rsync', '-zz' '-rl', '--info=progress2', srcdir, 'main:/srv/manual/']
             ),
             shell=True
         )
