@@ -560,6 +560,7 @@ class View:
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
         self.reference_mode_overlay.style.display = 'none'
+        self.create_annotation.hide()
         self.focus_iframe()
 
     def focus_iframe(self):

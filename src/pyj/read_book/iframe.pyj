@@ -12,9 +12,9 @@ from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
-    flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
-    handle_shortcut as flow_handle_shortcut, layout as flow_layout,
-    scroll_by_page as flow_scroll_by_page, ensure_selection_visible
+    ensure_selection_visible, flow_onwheel, flow_to_scroll_fraction,
+    handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -50,7 +50,7 @@ from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
 from read_book.viewport import scroll_viewport
-from utils import debounce, html_escape, is_ios
+from utils import debounce, html_escape, is_ios, selection_extents
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -495,7 +495,7 @@ class IframeBoss:
                 if self.handle_navigation_shortcut(sc_name, evt):
                     evt.preventDefault()
                 elif sc_name is 'create_annotation':
-                    self.send_message('annotations', type='create-annotation')
+                    self.initiate_creation_of_annotation()
                 else:
                     self.send_message('handle_shortcut', name=sc_name)
 
@@ -599,6 +599,14 @@ class IframeBoss:
             start_reference_mode()
         else:
             end_reference_mode()
+
+    def initiate_creation_of_annotation(self):
+        self.send_message(
+            'annotations',
+            type='create-annotation',
+            in_flow_mode=current_layout_mode() is 'flow',
+            extents=selection_extents(),
+        )
 
 
 def main():

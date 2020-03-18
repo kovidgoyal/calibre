@@ -2,6 +2,31 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from dom import svgicon, ensure_id
+
+WAITING_FOR_CLICK = 0
+WAITING_FOR_DRAG = 1
+DRAGGING_LEFT = 2
+DRAGGING_RIGHT = 3
+
+
+def selection_handle(invert):
+    ans = svgicon('selection-handle')
+    s = ans.style
+    if invert:
+        s.transform = 'scaleX(-1)'
+    s.position = 'absolute'
+    s.boxSizing = 'border-box'
+    return ans
+
+
+def map_from_iframe_coords(point):
+    l = document.getElementById('book-left-margin')
+    point.x += l.offsetWidth
+    t = document.getElementById('book-top-margin')
+    point.y += t.offsetHeight
+    return point
+
 
 class CreateAnnotation:
 
@@ -9,10 +34,27 @@ class CreateAnnotation:
 
     def __init__(self, view):
         self.view = view
+        self.state = WAITING_FOR_CLICK
+        container = self.container
+
+        lh = selection_handle()
+        self.left_handle_id = ensure_id(lh, 'handle')
+        container.appendChild(lh)
+        rh = selection_handle(True)
+        self.right_handle_id = ensure_id(rh, 'handle')
+        container.appendChild(rh)
 
     @property
     def container(self):
         return document.getElementById(self.container_id)
+
+    @property
+    def left_handle(self):
+        return document.getElementById(self.left_handle_id)
+
+    @property
+    def right_handle(self):
+        return document.getElementById(self.right_handle_id)
 
     @property
     def is_visible(self):
@@ -29,6 +71,38 @@ class CreateAnnotation:
 
     def handle_message(self, msg):
         if msg.type is 'create-annotation':
+            if not self.is_visible:
+                self.view.hide_overlays()
+            self.state = WAITING_FOR_CLICK
             self.show()
+            self.hide_handles()
+            if msg.extents.start.x is not None:
+                self.place_handles(msg.extents)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
+
+    def hide_handles(self):
+        self.left_handle.style.display = 'none'
+        self.right_handle.style.display = 'none'
+
+    def place_handles(self, extents):
+        lh, rh = self.left_handle, self.right_handle
+
+        def do_it(handle, data):
+            map_from_iframe_coords(data)
+            s = handle.style
+            s.display = 'block'
+            height = data.height * 3
+            width = data.height * 2
+            s.width = f'{width}px'
+            s.height = f'{height}px'
+            bottom = min(max(0, data.y + data.height), window.innerHeight)
+            top = bottom - height
+            s.top = f'{top}px'
+            return s, width
+
+        style, width = do_it(lh, extents.start)
+        style.left = min(max(0, extents.start.x), window.innerWidth - width // 2) + 'px'
+        style, width = do_it(rh, extents.end)
+        style.left = (min(max(width // 2, extents.end.x), window.innerWidth) - width) + 'px'
+        self.state = WAITING_FOR_DRAG
