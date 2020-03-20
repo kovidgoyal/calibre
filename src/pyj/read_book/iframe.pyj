@@ -4,7 +4,9 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
-from select import selection_extents, selection_extents_at_point
+from select import (
+    selection_extents, selection_extents_at_point, set_selections_extents_to
+)
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -611,7 +613,9 @@ class IframeBoss:
         )
 
     def annotations_msg_received(self, data):
-        if data.type is 'position-handles-at-point':
+        if data.type is 'set-selection':
+            set_selections_extents_to(data.extents)
+        elif data.type is 'position-handles-at-point':
             self.send_message(
                 'annotations',
                 type='position-handles',

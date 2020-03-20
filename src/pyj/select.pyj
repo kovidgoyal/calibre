@@ -90,3 +90,16 @@ def selection_extents_at_point(x, y):
     ans.start.x = x
     ans.end.x = x + ans.start.height * 3
     return ans
+
+
+def set_selections_extents_to(extents):
+    start = range_from_point(extents.start.x, extents.start.y)
+    if start:
+        end = range_from_point(extents.end.x, extents.end.y)
+        if end:
+            r = document.createRange()
+            r.setStart(start.startContainer, start.startOffset)
+            r.setEnd(end.startContainer, end.startOffset)
+            sel = window.getSelection()
+            sel.removeAllRanges()
+            sel.addRange(r)
