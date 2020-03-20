@@ -46,10 +46,10 @@ class CreateAnnotation:
         self.state = WAITING_FOR_CLICK
         container = self.container
 
-        lh = selection_handle()
+        lh = selection_handle(True)
         self.left_handle_id = ensure_id(lh, 'handle')
         container.appendChild(lh)
-        rh = selection_handle(True)
+        rh = selection_handle(False)
         self.right_handle_id = ensure_id(rh, 'handle')
         container.appendChild(rh)
 
@@ -122,7 +122,7 @@ class CreateAnnotation:
             return s, width
 
         style, width = do_it(lh, extents.start)
-        style.left = min(max(0, extents.start.x), window.innerWidth - width // 2) + 'px'
+        style.left = (extents.start.x - width) + 'px'
         style, width = do_it(rh, extents.end)
-        style.left = (min(max(width // 2, extents.end.x), window.innerWidth) - width) + 'px'
+        style.left = extents.end.x + 'px'
         self.state = WAITING_FOR_DRAG
