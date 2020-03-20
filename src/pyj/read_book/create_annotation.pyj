@@ -45,21 +45,55 @@ class CreateAnnotation:
         self.view = view
         self.state = WAITING_FOR_CLICK
         container = self.container
+        self.position_in_handle = {'x': 0, 'y': 0}
 
         lh = selection_handle(True)
         self.left_handle_id = ensure_id(lh, 'handle')
+        lh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
         container.appendChild(lh)
         rh = selection_handle(False)
         self.right_handle_id = ensure_id(rh, 'handle')
+        rh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
         container.appendChild(rh)
 
-        container.addEventListener('click', self.container_clicked)
+        container.addEventListener('click', self.container_clicked, {'passive': False})
+        container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
+        container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
         if self.state is WAITING_FOR_CLICK:
             pt = map_to_iframe_coords({'x': ev.clientX, 'y': ev.clientY})
             self.send_message(type='position-handles-at-point', x=pt.x, y=pt.y)
+
+    def mousedown_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING_FOR_CLICK:
+            return
+        q = ev.currentTarget.id
+        if q is self.left_handle_id:
+            self.state = DRAGGING_LEFT
+            handle = self.left_handle
+        elif q is self.right_handle_id:
+            self.state = DRAGGING_RIGHT
+            handle = self.right_handle
+        r = handle.getBoundingClientRect()
+        self.position_in_handle.x = Math.round(ev.clientX - r.left)
+        self.position_in_handle.y = Math.round(ev.clientY - r.top)
+
+    def mouseup_on_container(self, ev):
+        if self.state in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            self.state = WAITING_FOR_DRAG
+            ev.preventDefault(), ev.stopPropagation()
+
+    def mousemove_on_container(self, ev):
+        if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        handle = self.left_handle if self.state is DRAGGING_LEFT else self.right_handle
+        s = handle.style
+        s.left = (ev.clientX - self.position_in_handle.x) + 'px'
+        s.top = (ev.clientY - self.position_in_handle.y) + 'px'
 
     @property
     def container(self):
