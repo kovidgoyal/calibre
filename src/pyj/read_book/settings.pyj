@@ -3,7 +3,8 @@
 from __python__ import hash_literals
 
 from elementmaker import E
-from read_book.globals import runtime
+
+from read_book.globals import dark_link_color, runtime
 from session import defaults
 
 opts = {}
@@ -62,6 +63,15 @@ def apply_colors():
         # we use the html > body form so that these selectors have higher
         # priority than the override all selectors above
         text += f'\nhtml > body :link, html > body :link * {{ color: {c} !important }} html > body :visited, html > body :visited * {{ color: {c} !important }}'
+
+    if opts.is_dark_theme:
+        selbg = dark_link_color
+        selfg = 'black'
+    else:
+        selbg = '#3297FD'
+        selfg = 'white'
+    text += f'\n::selection {{ background-color: {selbg}; color: {selfg} }}'
+    text += f'\n::selection:window-inactive {{ background-color: {selbg}; color: {selfg} }}'
 
     ss.textContent = text
 
