@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
+from select import selection_extents, selection_extents_at_point
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -50,7 +51,7 @@ from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
 from read_book.viewport import scroll_viewport
-from utils import debounce, html_escape, is_ios, selection_extents
+from utils import debounce, html_escape, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -120,6 +121,7 @@ class IframeBoss:
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
             'show_search_result': self.show_search_result,
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
+            'annotations': self.annotations_msg_received,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -607,6 +609,15 @@ class IframeBoss:
             in_flow_mode=current_layout_mode() is 'flow',
             extents=selection_extents(),
         )
+
+    def annotations_msg_received(self, data):
+        if data.type is 'position-handles-at-point':
+            self.send_message(
+                'annotations',
+                type='position-handles',
+                extents=selection_extents_at_point(data.x, data.y))
+        else:
+            console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 
 
 def main():

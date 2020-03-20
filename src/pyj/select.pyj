@@ -42,3 +42,51 @@ def word_at_point(x, y):
             r.setStart(r.startContainer, word_info.start)
             r.setEnd(r.startContainer, word_info.end)
             return r
+
+
+def range_extents(start, end):
+    ans = {'start': {'x': None, 'y': None, 'height': None}, 'end': {'x': None, 'y': None, 'height': None}}
+    if not start or not end:
+        return ans
+    start = start.cloneRange()
+    end = end.cloneRange()
+    start.collapse(True)
+    end.collapse(False)
+
+    def for_boundary(r, ans):
+        rects = r.getClientRects()
+        if not rects.length:
+            return
+        rect = rects[0]
+        ans.x = rect.left
+        ans.y = rect.top
+        ans.height = rect.bottom - rect.top
+
+    for_boundary(start, ans.start)
+    for_boundary(end, ans.end)
+    return ans
+
+
+
+def selection_extents():
+    sel = window.getSelection()
+    if not sel or not sel.rangeCount:
+        return range_extents()
+    start = sel.getRangeAt(0)
+    end = sel.getRangeAt(sel.rangeCount - 1)
+    return range_extents(start, end)
+
+
+def selection_extents_at_point(x, y):
+    r = word_at_point(x, y)
+    if r:
+        sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(r)
+        return selection_extents(r, r)
+    ans = range_extents()
+    ans.start.y = ans.end.y = y
+    ans.start.height = ans.end.height = parseInt(window.getComputedStyle(document.body).fontSize) + 4
+    ans.start.x = x
+    ans.end.x = x + ans.start.height * 3
+    return ans

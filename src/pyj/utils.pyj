@@ -252,30 +252,6 @@ def sandboxed_html(html, style, sandbox):
     return ans
 
 
-def selection_extents():
-    ans = {'start': {'x': None, 'y': None, 'height': None}, 'end': {'x': None, 'y': None, 'height': None}}
-    sel = window.getSelection()
-    if not sel or not sel.rangeCount:
-        return ans
-    start = sel.getRangeAt(0).cloneRange()
-    end = sel.getRangeAt(sel.rangeCount - 1).cloneRange()
-    start.collapse(True)
-    end.collapse(False)
-
-    def for_boundary(r, ans):
-        rects = r.getClientRects()
-        if not rects.length:
-            return
-        rect = rects[0]
-        ans.x = rect.left
-        ans.y = rect.top
-        ans.height = rect.bottom - rect.top
-
-    for_boundary(start, ans.start)
-    for_boundary(end, ans.end)
-    return ans
-
-
 if __name__ is '__main__':
     from pythonize import strings
     strings()

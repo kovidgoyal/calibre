@@ -4,10 +4,10 @@ from __python__ import bound_methods, hash_literals
 
 from dom import svgicon, ensure_id
 
-WAITING_FOR_CLICK = 0
-WAITING_FOR_DRAG = 1
-DRAGGING_LEFT = 2
-DRAGGING_RIGHT = 3
+WAITING_FOR_CLICK = 1
+WAITING_FOR_DRAG = 2
+DRAGGING_LEFT = 3
+DRAGGING_RIGHT = 4
 
 
 def selection_handle(invert):
@@ -17,6 +17,7 @@ def selection_handle(invert):
         s.transform = 'scaleX(-1)'
     s.position = 'absolute'
     s.boxSizing = 'border-box'
+    s.touchAction = 'none'
     return ans
 
 
@@ -25,6 +26,14 @@ def map_from_iframe_coords(point):
     point.x += l.offsetWidth
     t = document.getElementById('book-top-margin')
     point.y += t.offsetHeight
+    return point
+
+
+def map_to_iframe_coords(point):
+    l = document.getElementById('book-left-margin')
+    point.x -= l.offsetWidth
+    t = document.getElementById('book-top-margin')
+    point.y -= t.offsetHeight
     return point
 
 
@@ -43,6 +52,14 @@ class CreateAnnotation:
         rh = selection_handle(True)
         self.right_handle_id = ensure_id(rh, 'handle')
         container.appendChild(rh)
+
+        container.addEventListener('click', self.container_clicked)
+
+    def container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING_FOR_CLICK:
+            pt = map_to_iframe_coords({'x': ev.clientX, 'y': ev.clientY})
+            self.send_message(type='position-handles-at-point', x=pt.x, y=pt.y)
 
     @property
     def container(self):
@@ -77,6 +94,9 @@ class CreateAnnotation:
             self.show()
             self.hide_handles()
             if msg.extents.start.x is not None:
+                self.place_handles(msg.extents)
+        elif msg.type is 'position-handles':
+            if self.state is WAITING_FOR_CLICK:
                 self.place_handles(msg.extents)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
