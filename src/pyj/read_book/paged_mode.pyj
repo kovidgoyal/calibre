@@ -59,8 +59,11 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
+
+
 col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
 is_full_screen_layout = False
+
 
 def reset_paged_mode_globals():
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols, last_scrolled_to_column
@@ -197,12 +200,12 @@ def layout(is_single_page, on_resize):
     # Calculate the column width so that cols_per_screen columns fit exactly in
     # the window width, with their separator margins
     ww = col_width = screen_width = scroll_viewport.width()
-    gap = 0
+    sm = opts.margin_left + opts.margin_right
+    gap = sm
     if n > 1:
         # Adjust the side margin so that the window width satisfies
         # col_width * n + (n-1) * 2 * side_margin = window_width
-        sm = opts.margin_left + opts.margin_right
-        gap = sm + ((ww + sm) % n)  # Ensure ww + gap is a multiple of n
+        gap += ((ww + sm) % n)  # Ensure ww + gap is a multiple of n
         col_width = ((ww + gap) // n) - gap
 
     screen_height = scroll_viewport.height()
