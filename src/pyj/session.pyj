@@ -59,6 +59,7 @@ defaults = {
     'user_color_schemes': {},
     'user_stylesheet': '',
     'word_actions': v'[]',
+    'highlight_style': None,
 }
 
 is_local_setting = {
@@ -85,6 +86,7 @@ is_local_setting = {
     'standalone_misc_settings': True,
     'standalone_recently_opened': True,
     'user_stylesheet': True,
+    'highlight_style': True,
 }
 
 

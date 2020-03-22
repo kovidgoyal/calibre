@@ -36,6 +36,15 @@ def apply_font_size():
         document.documentElement.style.fontSize = '{}px'.format(opts.base_font_size)
 
 
+def default_selection_colors():
+    if opts.is_dark_theme:
+        return dark_link_color, '#111'
+    return '#3297FD', '#eee'
+
+
+styles_id = 'calibre-color-scheme-style-overrides'
+
+
 def apply_colors():
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
@@ -45,7 +54,7 @@ def apply_colors():
     document.documentElement.style.backgroundColor = opts.bg_image_fade
     ss = document.getElementById('calibre-color-scheme-style-overrides')
     if not ss:
-        ss = E.style(id='calibre-color-scheme-style-overrides', type='text/css')
+        ss = E.style(id=styles_id, type='text/css')
         document.documentElement.appendChild(ss)
     text = ''
     if opts.override_book_colors is not 'never':
@@ -64,16 +73,26 @@ def apply_colors():
         # priority than the override all selectors above
         text += f'\nhtml > body :link, html > body :link * {{ color: {c} !important }} html > body :visited, html > body :visited * {{ color: {c} !important }}'
 
-    if opts.is_dark_theme:
-        selbg = dark_link_color
-        selfg = 'black'
-    else:
-        selbg = '#3297FD'
-        selfg = 'white'
+    selbg, selfg = default_selection_colors()
     text += f'\n::selection {{ background-color: {selbg}; color: {selfg} }}'
     text += f'\n::selection:window-inactive {{ background-color: {selbg}; color: {selfg} }}'
 
     ss.textContent = text
+
+
+def set_selection_style(style):
+    if not style:
+        selbg, selfg = default_selection_colors()
+        style = {'color': selfg, 'background-color': selbg}
+    sheet = document.getElementById(styles_id)
+    if not sheet:
+        return
+    css_text = ''
+    for prop in Object.keys(style):
+        css_text += f'{prop}: {style[prop]}; '
+    for rule in sheet.sheet.cssRules:
+        if rule.type is rule.STYLE_RULE and rule.selectorText.indexOf('selection') > -1:
+            rule.style.cssText = css_text
 
 
 def set_color_scheme_class():

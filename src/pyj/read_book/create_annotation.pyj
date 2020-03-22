@@ -2,7 +2,12 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import ensure_id, svgicon
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.theme import get_color
+from dom import add_extra_css, ensure_id, svgicon, unique_id
 from read_book.shortcuts import shortcut_for_key_event
 
 WAITING_FOR_CLICK = 1
@@ -11,8 +16,35 @@ DRAGGING_LEFT = 3
 DRAGGING_RIGHT = 4
 
 
+add_extra_css(def():
+    ans = ''
+    ans += '.selection-handle { fill: #3cef3d; stroke: black }'
+    ans += '.selection-handle:active { fill: #FCE883; }'
+    return ans
+)
+
+
+dark_fg = '#111'
+light_fg = '#eee'
+highlight_colors = {
+    '#FCE2AE': dark_fg,
+    '#B6FFEA': dark_fg,
+    '#FFB3B3': dark_fg,
+    '#FFDCF7': dark_fg,
+    '#cae8d5': dark_fg,
+
+    '#204051': light_fg,
+    '#3b6978': light_fg,
+    '#2b580c': light_fg,
+    '#512b58': light_fg,
+}
+default_highlight_color = '#fce2ae'
+
+
 def selection_handle(invert):
     ans = svgicon('selection-handle')
+    use = ans.querySelector('use')
+    use.classList.add('selection-handle')
     s = ans.style
     if invert:
         s.transform = 'scaleX(-1)'
@@ -38,6 +70,14 @@ def map_to_iframe_coords(point):
     return point
 
 
+def create_bar(size=32):
+    ans = E.div(
+        id=unique_id('annot-bar'),
+        style=f'height: {size}px; width: 100vw; display: flex; justify-content: space-between;',
+    )
+    return ans
+
+
 class CreateAnnotation:
 
     container_id = 'create-annotation-overlay'
@@ -48,7 +88,39 @@ class CreateAnnotation:
         self.left_line_height = self.right_line_height = 8
         self.in_flow_mode = False
         container = self.container
+        container.style.display = 'flex'
+        container.style.flexDirection = 'column'
+        container.style.justifyContent = 'space-between'
         self.position_in_handle = {'x': 0, 'y': 0}
+
+        def button(bar, icon, tt, action):
+            cb = svgicon(icon, bar.style.height, bar.style.height, tt)
+            document.createElement
+            cb.setAttribute('title', tt)
+            cb.classList.add('annot-button')
+            cb.classList.add(f'annot-button-{icon}')
+            cb.style.backgroundColor = get_color('window-background')
+            cb.style.boxSizing = 'border-box'
+            cb.style.padding = '2px'
+            cb.classList.add('simple-link')
+            cb.addEventListener('click', def(ev):
+                ev.preventDefault(), ev.stopPropagation()
+                action()
+            )
+            bar.appendChild(cb)
+            return cb
+
+        tb = create_bar()
+        container.appendChild(tb)
+        button(tb, 'close', _('Cancel creation of highlight'), self.hide)
+        button(tb, 'chevron-up', _('Scroll up'), self.scroll_up)
+        button(tb, 'check', _('Finish creation of highlight'), self.accept)
+
+        bb = create_bar()
+        container.appendChild(bb)
+        button(bb, 'fg', _('Change highlight color'), self.choose_color)
+        button(bb, 'chevron-down', _('Scroll down'), self.scroll_down)
+        button(bb, 'pencil', _('Add a note'), self.add_text)
 
         lh = selection_handle(True)
         self.left_handle_id = ensure_id(lh, 'handle')
@@ -63,6 +135,25 @@ class CreateAnnotation:
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
+
+        sd = get_session_data()
+        style = sd.get('highlight_style') or {
+            'background-color': default_highlight_color,
+            'color': highlight_colors[default_highlight_color]
+        }
+        self.current_highlight_style = style
+
+    def scroll_up(self):
+        self.send_message('scroll', backwards=True)
+
+    def scroll_down(self):
+        self.send_message('scroll', backwards=False)
+
+    def choose_color(self):
+        pass
+
+    def accept(self):
+        pass
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -147,15 +238,25 @@ class CreateAnnotation:
             }
         }
 
+    @property
+    def current_highlight_style(self):
+        return JSON.parse(self.container.querySelector('.annot-button-fg').dataset.style)
+
+    @current_highlight_style.setter
+    def current_highlight_style(self, val):
+        b = self.container.querySelector('.annot-button-fg')
+        b.dataset.style = JSON.stringify(val)
+
     def show(self):
         c = self.container
-        c.style.display = 'block'
+        c.style.display = 'flex'
         c.focus()
 
     def hide(self):
         if self.is_visible:
             self.container.style.display = 'none'
             self.view.focus_iframe()
+            self.send_message('set-highlight-style', style=None)
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
@@ -170,6 +271,7 @@ class CreateAnnotation:
             if msg.extents.start.x is not None:
                 self.place_handles(msg.extents)
             self.in_flow_mode = msg.in_flow_mode
+            self.send_message('set-highlight-style', style=self.current_highlight_style)
         elif msg.type is 'position-handles':
             if self.state is WAITING_FOR_CLICK:
                 self.place_handles(msg.extents)

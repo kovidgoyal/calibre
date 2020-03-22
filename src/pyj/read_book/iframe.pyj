@@ -46,7 +46,7 @@ from read_book.referencing import (
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_colors, apply_font_size, apply_settings, apply_stylesheet, opts,
-    set_color_scheme_class, update_settings
+    set_color_scheme_class, set_selection_style, update_settings
 )
 from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
@@ -635,6 +635,8 @@ class IframeBoss:
         elif data.type is 'perp-scroll':
             if in_flow_mode and flow_annotation_scroll(data.backwards, True):
                 self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))
+        elif data.type is 'set-highlight-style':
+            set_selection_style(data.style)
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 
