@@ -140,6 +140,16 @@ def scroll_by_page(direction):
     h = scroll_viewport.height() - 10
     window.scrollBy(0, h * direction)
 
+def scroll_to_extend_annotation(backward, horizontal):
+    direction = -1 if backward else 1
+    if horizontal:
+        before = window.pageXOffset
+        window.scrollBy(15 * direction, 0)
+        return window.pageXOffset is not before
+    h = scroll_viewport.height() - 10
+    before = window.pageYOffset
+    window.scrollBy(0, h * direction)
+    return window.pageYOffset is not before
 
 def is_auto_scroll_active():
     return scroll_animator.is_active()

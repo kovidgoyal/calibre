@@ -2,7 +2,8 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import svgicon, ensure_id
+from dom import ensure_id, svgicon
+from read_book.shortcuts import shortcut_for_key_event
 
 WAITING_FOR_CLICK = 1
 WAITING_FOR_DRAG = 2
@@ -45,6 +46,7 @@ class CreateAnnotation:
         self.view = view
         self.state = WAITING_FOR_CLICK
         self.left_line_height = self.right_line_height = 8
+        self.in_flow_mode = False
         container = self.container
         self.position_in_handle = {'x': 0, 'y': 0}
 
@@ -60,6 +62,20 @@ class CreateAnnotation:
         container.addEventListener('click', self.container_clicked, {'passive': False})
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
+
+    def on_keydown(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if sc_name is 'show_chrome':
+            self.hide()
+        elif sc_name in ('up', 'down', 'pageup', 'pagedown'):
+            self.send_message('scroll', backwards=bool('up' in sc_name))
+        elif sc_name in ('left', 'right'):
+            if self.in_flow_mode:
+                self.send_message('perp-scroll', backwards=bool(sc_name is 'left'))
+            else:
+                self.send_message('scroll', backwards=bool(sc_name is 'left'))
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -118,17 +134,28 @@ class CreateAnnotation:
 
     @property
     def current_handle_position(self):
-        lh, rh = self.left_handle.getBoundingClientRect(), self.right_handle.getBoundingClientRect()
+        lh, rh = self.left_handle, self.right_handle
+        lbr, rbr = self.left_handle.getBoundingClientRect(), self.right_handle.getBoundingClientRect()
         return {
-            'start': {'x': Math.round(lh.right), 'y': Math.round(lh.bottom - self.left_line_height // 2)},
-            'end': {'x': Math.round(rh.left), 'y': Math.round(rh.bottom - self.right_line_height // 2)}
+            'start': {
+                'onscreen': lh.style.display is not 'none',
+                'x': Math.round(lbr.right), 'y': Math.round(lbr.bottom - self.left_line_height // 2)
+            },
+            'end': {
+                'onscreen': rh.style.display is not 'none',
+                'x': Math.round(rbr.left), 'y': Math.round(rbr.bottom - self.right_line_height // 2)
+            }
         }
 
     def show(self):
-        self.container.style.display = 'block'
+        c = self.container
+        c.style.display = 'block'
+        c.focus()
 
     def hide(self):
-        self.container.style.display = 'none'
+        if self.is_visible:
+            self.container.style.display = 'none'
+            self.view.focus_iframe()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
@@ -142,9 +169,12 @@ class CreateAnnotation:
             self.hide_handles()
             if msg.extents.start.x is not None:
                 self.place_handles(msg.extents)
+            self.in_flow_mode = msg.in_flow_mode
         elif msg.type is 'position-handles':
             if self.state is WAITING_FOR_CLICK:
                 self.place_handles(msg.extents)
+        elif msg.type is 'update-handles':
+            self.place_handles(msg.extents)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
@@ -158,12 +188,12 @@ class CreateAnnotation:
         def do_it(handle, data):
             map_from_iframe_coords(data)
             s = handle.style
-            s.display = 'block'
+            s.display = 'block' if data.onscreen else 'none'
             height = data.height * 3
             width = data.height * 2
             s.width = f'{width}px'
             s.height = f'{height}px'
-            bottom = min(max(0, data.y + data.height), window.innerHeight)
+            bottom = data.y + data.height
             top = bottom - height
             s.top = f'{top}px'
             return s, width

@@ -562,6 +562,14 @@ def scroll_by_page(backward, by_screen):
         scroll_to_xpos(pos)
 
 
+def scroll_to_extend_annotation(backward):
+    pos = previous_col_location() if backward else next_col_location()
+    if pos is -1:
+        return False
+    scroll_to_xpos(pos)
+    return True
+
+
 def handle_shortcut(sc_name, evt):
     if sc_name is 'up':
         scroll_by_page(True, True)
