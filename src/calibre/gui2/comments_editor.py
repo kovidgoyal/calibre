@@ -1058,7 +1058,7 @@ class Editor(QWidget):  # {{{
         tb.addWidget(self.toolbar3)
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
-        self.tabs.addTab(self.wyswyg, _('N&ormal view'))
+        self.tabs.addTab(self.wyswyg, _('&Normal view'))
         self.tabs.addTab(self.code_edit, _('&HTML source'))
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
