@@ -1,0 +1,106 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: NodeFilter, Range
+from __python__ import bound_methods, hash_literals
+
+
+def get_text_nodes(el):
+    el = el or document.body
+    doc = el.ownerDocument or document
+    walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT, None, False)
+    text_nodes = v'[]'
+    while True:
+        node = walker.nextNode()
+        if not node:
+            break
+        text_nodes.push(node)
+    return text_nodes
+
+
+def create_range_from_node(node):
+    ans = node.ownerDocument.createRange()
+    try:
+        ans.selectNode(node)
+    except:
+        ans.selectNodeContents(node)
+    return ans
+
+
+def is_non_empty_text_node(node):
+    return node.textContent.length > 0
+
+
+def text_nodes_in_range(r, predicate):
+    predicate = predicate or is_non_empty_text_node
+    container = r.commonAncestorContainer
+    nodes = get_text_nodes(container.parentNode or container)
+
+    def final_predicate(node):
+        return r.intersectsNode(node) and predicate(node)
+    return nodes.filter(final_predicate)
+
+
+def remove(node):
+    if node.parentNode:
+        node.parentNode.removeChild(node)
+
+
+def replace_node(replacement, node):
+    remove(replace_node)
+    node.parentNode.insertBefore(replacement, node)
+    remove(node)
+
+
+def unwrap(node):
+    r = (node.ownerDocument or document).createRange()
+    r.selectNodeContents(node)
+    replace_node(r.extractContents(), node)
+    p = node.parentNode
+    if p:
+        p.normalize()
+
+
+def create_wrapper_function(wrapper_elem, r):
+    start_node = r.startContainer
+    end_node = r.endContainer
+    start_offset = r.startOffset
+    end_offset = r.endOffset
+
+    def wrap_node(node):
+        nonlocal start_node, end_node, start_offset, end_offset
+        current_range = (node.ownerDocument or document).createRange()
+        current_wrapper = wrapper_elem.cloneNode()
+        current_range.selectNodeContents(node)
+        if node is start_node and start_node.nodeType is Node.TEXT_NODE:
+            current_range.setStart(node, start_offset)
+            start_node = current_wrapper
+            start_offset = 0
+        elif node is end_node and end_node.nodeType is Node.TEXT_NODE:
+            current_range.setEnd(node, end_offset)
+            end_node = current_wrapper
+            end_offset = 1
+
+        current_range.surroundContents(current_wrapper)
+        return current_wrapper
+
+    return wrap_node
+
+
+wrapper_counter = 0
+
+
+def wrap_text_in_range(r, style):
+    if not r:
+        r = window.getSelection().getRangeAt(0)
+    if r.isCollapsed:
+        return None
+
+    wrapper_elem = document.createElement('span')
+    wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
+    if style:
+        wrapper_elem.setAttribute('style', style)
+
+    wrap_node = create_wrapper_function(wrapper_elem, r)
+    nodes = get_text_nodes(r)
+    nodes = nodes.map(wrap_node)
+    return wrapper_elem.dataset.calibreRangeWrapper

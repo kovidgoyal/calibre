@@ -242,7 +242,7 @@ class CreateAnnotation:
             h.style.display = h.dataset.savedState
 
     def accept(self):
-        pass
+        self.send_message('apply-highlight', style=self.current_highlight_style)
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
