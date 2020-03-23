@@ -219,6 +219,8 @@ class CreateAnnotation:
             fg = light_fg if is_dark else dark_fg
         self.current_highlight_style = {'background-color': new_color, 'color': fg}
         self.send_message('set-highlight-style', style=self.current_highlight_style)
+        sd = get_session_data()
+        sd.set('highlight_style', self.current_highlight_style)
 
     def show_middle(self):
         self.save_handle_state()
