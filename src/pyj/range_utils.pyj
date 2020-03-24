@@ -75,7 +75,7 @@ def create_wrapper_function(wrapper_elem, r):
             current_range.setStart(node, start_offset)
             start_node = current_wrapper
             start_offset = 0
-        elif node is end_node and end_node.nodeType is Node.TEXT_NODE:
+        if node is end_node and end_node.nodeType is Node.TEXT_NODE:
             current_range.setEnd(node, end_offset)
             end_node = current_wrapper
             end_offset = 1
@@ -89,7 +89,7 @@ def create_wrapper_function(wrapper_elem, r):
 wrapper_counter = 0
 
 
-def wrap_text_in_range(r, style):
+def wrap_text_in_range(style, r):
     if not r:
         r = window.getSelection().getRangeAt(0)
     if r.isCollapsed:
@@ -101,6 +101,11 @@ def wrap_text_in_range(r, style):
         wrapper_elem.setAttribute('style', style)
 
     wrap_node = create_wrapper_function(wrapper_elem, r)
-    nodes = get_text_nodes(r)
+    nodes = text_nodes_in_range(r)
     nodes = nodes.map(wrap_node)
     return wrapper_elem.dataset.calibreRangeWrapper
+
+
+def reset_highlight_counter():
+    nonlocal wrapper_counter
+    wrapper_counter = 0

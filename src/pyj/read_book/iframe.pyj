@@ -11,6 +11,7 @@ from select import (
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
+from range_utils import reset_highlight_counter, wrap_text_in_range
 from read_book.cfi import scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
@@ -99,6 +100,7 @@ class IframeBoss:
         self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
         self.blob_url_map = {}
+        self.annot_id_uuid_map = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
         self.forward_keypresses = False
@@ -193,6 +195,8 @@ class IframeBoss:
     def display(self, data):
         self.length_before = None
         self.content_ready = False
+        self.annot_id_uuid_map = {}
+        reset_highlight_counter()
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
         self.reference_mode_enabled = data.reference_mode_enabled
@@ -637,6 +641,12 @@ class IframeBoss:
                 self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
+        elif data.type is 'apply-highlight':
+            annot_id = wrap_text_in_range(data.style)
+            if annot_id is not None:
+                window.getSelection().removeAllRanges()
+                self.annot_id_uuid_map[annot_id] = data.uuid
+            self.send_message('annotations', type='highlight-applied', uuid=data.uuid, ok=annot_id is not None)
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 

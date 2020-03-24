@@ -4,10 +4,12 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 from gettext import gettext as _
+from uuid import short_uuid
 
 from book_list.globals import get_session_data
-from book_list.theme import get_color, cached_color_to_rgba
+from book_list.theme import cached_color_to_rgba, get_color
 from dom import add_extra_css, clear, ensure_id, svgicon, unique_id
+from modals import error_dialog
 from read_book.shortcuts import shortcut_for_key_event
 
 WAITING_FOR_CLICK = 1
@@ -241,10 +243,19 @@ class CreateAnnotation:
             h.style.display = h.dataset.savedState
 
     def accept(self):
-        self.send_message('apply-highlight', style=self.current_highlight_style)
+        s = self.current_highlight_style
+        style = ''
+        for k in Object.keys(self.current_highlight_style):
+            style += f'{k}: {s[k]}; '
+        self.send_message(
+            'apply-highlight', style=style, uuid=short_uuid()
+        )
+        self.hide()
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
+        if ev.key is 'Enter':
+            return self.accept()
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if sc_name is 'show_chrome':
             self.hide()
@@ -366,6 +377,13 @@ class CreateAnnotation:
                 self.place_handles(msg.extents)
         elif msg.type is 'update-handles':
             self.place_handles(msg.extents)
+        elif msg.type is 'highlight-applied':
+            if not msg.ok:
+                return error_dialog(
+                    _('Highlighting failed'),
+                    _('Failed to apply highlighting, try adjusting extent of highlight')
+                )
+
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
