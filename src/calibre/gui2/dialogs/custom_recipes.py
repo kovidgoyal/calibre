@@ -38,6 +38,11 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         if row > -1 and row < self.rowCount():
             return self.recipe_model.custom_recipe_collection[row].get('title', '')
 
+    def urn(self, index):
+        row = index.row()
+        if row > -1 and row < self.rowCount():
+            return self.recipe_model.custom_recipe_collection[row].get('id')
+
     def has_title(self, title):
         for x in self.recipe_model.custom_recipe_collection:
             if x.get('title', False) == title:
@@ -194,6 +199,10 @@ class RecipeList(QWidget):  # {{{
         b.clicked.connect(self.remove)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
+        self.download_button = b = QPushButton(QIcon(I('download-metadata.png')), _('&Download this recipe'), w)
+        b.clicked.connect(self.download)
+        b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        l.addWidget(b)
 
         self.select_row()
         v.selectionModel().currentRowChanged.connect(self.recipe_selected)
@@ -246,6 +255,15 @@ class RecipeList(QWidget):  # {{{
             self.select_row()
             if self.model.rowCount() == 0:
                 self.stacks.setCurrentIndex(0)
+
+    def download(self):
+        idx = self.view.currentIndex()
+        if idx.isValid():
+            urn = self.model.urn(idx)
+            title = self.model.title(idx)
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            gui.iactions['Fetch News'].download_custom_recipe(title, urn)
 
     def has_title(self, title):
         return self.model.has_title(title)

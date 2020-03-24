@@ -48,6 +48,21 @@ class FetchNewsAction(InterfaceAction):
                 self.gui.library_view.model().delete_books_by_id,
                 type=Qt.QueuedConnection)
 
+    def download_custom_recipe(self, title, urn):
+        arg = {'title': title, 'urn': urn, 'username': None, 'password': None}
+        func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
+        job = self.gui.job_manager.run_job(
+                Dispatcher(self.custom_recipe_fetched), func, args=args, description=desc)
+        self.conversion_jobs[job] = (temp_files, fmt, arg)
+        self.gui.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
+
+    def custom_recipe_fetched(self, job):
+        temp_files, fmt, arg = self.conversion_jobs.pop(job)
+        fname = temp_files[0].name
+        if job.failed:
+            return self.gui.job_exception(job)
+        self.gui.library_view.model().add_news(fname, arg)
+
     def download_scheduled_recipe(self, arg):
         func, args, desc, fmt, temp_files = \
                 fetch_scheduled_recipe(arg)
