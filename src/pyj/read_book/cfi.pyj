@@ -670,6 +670,25 @@ def at_current():  # {{{
 
 # }}}
 
+def cfi_for_selection(r):  # {{{
+    if not r:
+        r = window.getSelection().getRangeAt(0)
+
+    def pos(container, offset):
+        nt = container.nodeType
+        if nt is Node.TEXT_NODE or nt is Node.CDATA_SECTION_NODE or nt is Node.COMMENT_NODE:
+            return container, offset
+        if nt is Node.ELEMENT_NODE:
+            return container.childNodes[offset], 0
+        return container, offset
+
+    return {
+        'start': encode(r.startContainer.ownerDocument, *pos(r.startContainer, r.startOffset)),
+        'end': encode(r.endContainer.ownerDocument, *(r.endContainer, r.endOffset)),
+    }
+
+# }}}
+
 if __name__ is '__main__':
     t = 'a^!,1'
     if unescape_from_cfi(escape_for_cfi(t)) is not t:

@@ -12,7 +12,7 @@ from select import (
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import reset_highlight_counter, wrap_text_in_range
-from read_book.cfi import scroll_to as scroll_to_cfi
+from read_book.cfi import cfi_for_selection, scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
 from read_book.flow_mode import (
@@ -642,11 +642,12 @@ class IframeBoss:
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
         elif data.type is 'apply-highlight':
+            bounds = cfi_for_selection()
             annot_id = wrap_text_in_range(data.style)
             if annot_id is not None:
                 window.getSelection().removeAllRanges()
                 self.annot_id_uuid_map[annot_id] = data.uuid
-            self.send_message('annotations', type='highlight-applied', uuid=data.uuid, ok=annot_id is not None)
+            self.send_message('annotations', type='highlight-applied', uuid=data.uuid, ok=annot_id is not None, bounds=bounds)
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 
