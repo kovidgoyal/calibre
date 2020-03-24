@@ -281,6 +281,14 @@ class ChooseLibraryAction(InterfaceAction):
         self.view_state_map = {}
         self.restore_view_state.connect(self._restore_view_state,
                 type=Qt.QueuedConnection)
+        ac = self.create_action(spec=(_('Switch to previous library'), 'lt.png',
+                                      None, None),
+                                      attr='action_previous_library')
+        ac.triggered.connect(self.switch_to_previous_library, type=Qt.QueuedConnection)
+        self.gui.keyboard.register_shortcut(
+            self.unique_name + '-' + 'action_previous_library',
+            ac.text(), action=ac, group=self.action_spec[0], default_keys=('Ctrl+Alt+p',))
+        self.gui.addAction(ac)
 
     @property
     def preserve_state_on_switch(self):
@@ -344,6 +352,15 @@ class ChooseLibraryAction(InterfaceAction):
 
     def initialization_complete(self):
         self.library_changed(self.gui.library_view.model().db)
+
+    def switch_to_previous_library(self):
+        db = self.gui.library_view.model().db
+        locations = list(self.stats.locations(db))
+        for name, loc in locations:
+            is_prev_lib = name == self.prev_lname
+            if is_prev_lib:
+                self.switch_requested(loc)
+                break
 
     def build_menus(self):
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
