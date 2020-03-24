@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
     QToolButton, QTreeView)
 
-from calibre.gui2 import error_dialog, open_local_file, choose_files
+from calibre.gui2 import error_dialog, open_local_file, choose_files, choose_save_file
 from calibre.gui2.widgets2 import Dialog
 from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -21,6 +21,7 @@ from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import iteritems, unicode_type, range, as_unicode
 from calibre.gui2.search_box import SearchBox2
+from polyglot.builtins import as_bytes
 
 
 def is_basic_recipe(src):
@@ -199,6 +200,10 @@ class RecipeList(QWidget):  # {{{
         b.clicked.connect(self.remove)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
+        self.export_button = b = QPushButton(QIcon(I('save.png')), _('&Save recipe as file'), w)
+        b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        b.clicked.connect(self.save_recipe)
+        l.addWidget(b)
         self.download_button = b = QPushButton(QIcon(I('download-metadata.png')), _('&Download this recipe'), w)
         b.clicked.connect(self.download)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
@@ -241,6 +246,21 @@ class RecipeList(QWidget):  # {{{
             src = self.model.script(idx)
             if src is not None:
                 self.edit_recipe.emit(idx.row(), src)
+
+    def save_recipe(self):
+        idx = self.view.currentIndex()
+        if idx.isValid():
+            src = self.model.script(idx)
+            if src is not None:
+                path = choose_save_file(
+                    self, 'save-custom-recipe', _('Save recipe'),
+                    filters=[(_('Recipes'), ['recipe'])],
+                    all_files=False,
+                    initial_filename='{}.recipe'.format(self.model.title(idx))
+                )
+                if path:
+                    with open(path, 'wb') as f:
+                        f.write(as_bytes(src))
 
     def item_activated(self, idx):
         if idx.isValid():
