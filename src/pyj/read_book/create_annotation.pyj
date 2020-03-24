@@ -91,7 +91,6 @@ class CreateAnnotation:
         self.left_line_height = self.right_line_height = 8
         self.in_flow_mode = False
         container = self.container
-        container.style.display = 'flex'
         container.style.flexDirection = 'column'
         container.style.justifyContent = 'space-between'
         self.position_in_handle = {'x': 0, 'y': 0}
