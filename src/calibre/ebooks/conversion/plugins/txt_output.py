@@ -67,17 +67,17 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove links within the document. This is only '
-            'useful when paired with a txt-output-formatting option that '
+            'useful when paired with a TXT output formatting option that '
             'is not none because links are always removed with plain text output.')),
         OptionRecommendation(name='keep_image_references',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove image references within the document. This is only '
-            'useful when paired with a txt-output-formatting option that '
+            'useful when paired with a TXT output formatting option that '
             'is not none because links are always removed with plain text output.')),
         OptionRecommendation(name='keep_color',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove font color from output. This is only useful when '
-                   'txt-output-formatting is set to textile. Textile is the only '
+                   'TXT output formatting is set to textile. Textile is the only '
                    'formatting that supports setting font color. If this option is '
                    'not specified font color will not be set and default to the '
                    'color displayed by the reader (generally this is black).')),
