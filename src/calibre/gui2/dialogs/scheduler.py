@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex, QApplication,
     QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
     QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
-    QScrollArea, QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
+    QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
     QRadioButton, QStackedWidget, QSpinBox, QPushButton, QDialogButtonBox
 )
 
@@ -250,12 +250,8 @@ class SchedulerDialog(QDialog):
         self.recipe_model.searched.connect(self.search_done)
 
         # Right Panel
-        self.scroll_area = sa = QScrollArea(self)
-        self.l.addWidget(sa, 0, 1, 2, 1)
-        sa.setFrameShape(QFrame.NoFrame)
-        sa.setWidgetResizable(True)
         self.scroll_area_contents = sac = QWidget(self)
-        sa.setWidget(sac)
+        self.l.addWidget(sac, 0, 1, 2, 1)
         sac.v = v = QVBoxLayout(sac)
         v.setContentsMargins(0, 0, 0, 0)
         self.detail_box = QTabWidget(self)
@@ -272,7 +268,6 @@ class SchedulerDialog(QDialog):
         self.blurb = la = QLabel('blurb')
         la.setWordWrap(True), la.setOpenExternalLinks(True)
         vt.addWidget(la)
-        vt.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
         self.frame = f = QFrame(self.tab)
         vt.addWidget(f)
         f.setFrameShape(f.StyledPanel)
@@ -297,7 +292,6 @@ class SchedulerDialog(QDialog):
         self.last_downloaded = la = QLabel(f)
         la.setWordWrap(True)
         vf.addWidget(la)
-        vt.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
         self.account = acc = QGroupBox(self.tab)
         acc.setTitle(_("&Account"))
         vt.addWidget(acc)
@@ -729,7 +723,8 @@ class Scheduler(QObject):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     d = SchedulerDialog(RecipeModel())
     d.exec_()
     del app
