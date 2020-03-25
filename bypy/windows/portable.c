@@ -1,10 +1,10 @@
 #ifndef UNICODE
 #define UNICODE
-#endif 
+#endif
 
 #ifndef _UNICODE
 #define _UNICODE
-#endif 
+#endif
 
 
 #include <windows.h>
@@ -24,9 +24,9 @@ void show_detailed_error(LPCTSTR preamble, LPCTSTR msg, int code) {
     buf = (LPTSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(TCHAR)*
             (_tcslen(msg) + _tcslen(preamble) + 80));
 
-    _sntprintf_s(buf, 
+    _sntprintf_s(buf,
         LocalSize(buf) / sizeof(TCHAR), _TRUNCATE,
-        _T("%s\r\n  %s (Error Code: %d)\r\n"), 
+        _T("%s\r\n  %s (Error Code: %d)\r\n"),
         preamble, msg, code);
 
     show_error(buf);
@@ -44,10 +44,10 @@ void show_last_error_crt(LPCTSTR preamble) {
 
 void show_last_error(LPCTSTR preamble) {
     TCHAR *msg = NULL;
-    DWORD dw = GetLastError(); 
+    DWORD dw = GetLastError();
 
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
@@ -85,6 +85,12 @@ LPTSTR get_app_dir() {
     }
 
     _sntprintf_s(buf3, BUFSIZE-1, _TRUNCATE, _T("%s%s"), drive, buf2);
+	if (_tcslen(buf3) > 58) {
+		_snwprintf_s(buf, 4*MAX_PATH, _TRUNCATE,
+			L"Path to Calibre Portable (%s) too long. Must be less than 59 characters.", buf3);
+        show_error(buf);
+        ExitProcess(1);
+	}
     free(buf); free(buf2);
     return buf3;
 }
@@ -93,7 +99,7 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir) {
     DWORD dwFlags=0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-    BOOL fSuccess; 
+    BOOL fSuccess;
 
     if (! SetEnvironmentVariable(_T("CALIBRE_CONFIG_DIRECTORY"), config_dir)) {
         show_last_error(_T("Failed to set environment variables"));
@@ -117,7 +123,7 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir) {
         FALSE,          // Set handle inheritance to FALSE
         dwFlags,        // Creation flags http://msdn.microsoft.com/en-us/library/ms684863(v=vs.85).aspx
         NULL,           // Use parent's environment block
-        NULL,           // Use parent's starting directory 
+        NULL,           // Use parent's starting directory
         &si,            // Pointer to STARTUPINFO structure
         &pi             // Pointer to PROCESS_INFORMATION structure
     );
@@ -146,9 +152,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     launch_calibre(exe, config_dir);
 
-    free(app_dir); free(config_dir); free(exe); 
+    free(app_dir); free(config_dir); free(exe);
 
     return 0;
 }
-
-
