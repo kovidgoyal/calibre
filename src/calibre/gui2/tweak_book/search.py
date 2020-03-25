@@ -208,7 +208,8 @@ class ModeBox(QComboBox):
             '''Select how the search expression is interpreted
             <dl>
             <dt><b>Normal</b></dt>
-            <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
+            <dd>The search expression is treated as normal text, calibre will look for the exact text,
+                except that spaces are allowed to match any number of spaces and line breaks.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
             <dt><b>Regex-function</b></dt>
@@ -1272,7 +1273,8 @@ def get_search_regex(state):
     raw = state['find']
     is_regex = state['mode'] != 'normal'
     if not is_regex:
-        raw = regex.escape(raw, special_only=True)
+        parts = (regex.escape(x, special_only=True) for x in raw.split())
+        raw = r'\s+'.join(parts)
     flags = REGEX_FLAGS
     if not state['case_sensitive']:
         flags |= regex.IGNORECASE
