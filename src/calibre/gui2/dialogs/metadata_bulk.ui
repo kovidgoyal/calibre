@@ -70,7 +70,7 @@ is completed. This can be slow on large libraries.</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>946</width>
+        <width>934</width>
         <height>661</height>
        </rect>
       </property>
@@ -1217,8 +1217,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>924</width>
-                <height>311</height>
+                <width>203</width>
+                <height>70</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1312,7 +1312,9 @@ not multiple and the destination field is multiple</string>
   <tabstop>swap_title_and_author</tabstop>
   <tabstop>author_sort</tabstop>
   <tabstop>rating</tabstop>
+  <tabstop>apply_rating</tabstop>
   <tabstop>publisher</tabstop>
+  <tabstop>clear_pub</tabstop>
   <tabstop>tags</tabstop>
   <tabstop>tag_editor_button</tabstop>
   <tabstop>remove_tags</tabstop>
@@ -1322,6 +1324,7 @@ not multiple and the destination field is multiple</string>
   <tabstop>autonumber_series</tabstop>
   <tabstop>series_numbering_restarts</tabstop>
   <tabstop>series_start_number</tabstop>
+  <tabstop>series_increment</tabstop>
   <tabstop>adddate</tabstop>
   <tabstop>clear_adddate_button</tabstop>
   <tabstop>apply_adddate</tabstop>
@@ -1330,22 +1333,19 @@ not multiple and the destination field is multiple</string>
   <tabstop>apply_pubdate</tabstop>
   <tabstop>languages</tabstop>
   <tabstop>clear_languages</tabstop>
+  <tabstop>remove_conversion_settings</tabstop>
   <tabstop>restore_original</tabstop>
+  <tabstop>read_file_metadata</tabstop>
+  <tabstop>change_title_to_title_case</tabstop>
+  <tabstop>casing_algorithm</tabstop>
+  <tabstop>update_title_sort</tabstop>
   <tabstop>cover_generate</tabstop>
   <tabstop>cover_remove</tabstop>
+  <tabstop>cover_trim</tabstop>
   <tabstop>cover_from_fmt</tabstop>
-  <tabstop>multiple_separator</tabstop>
-  <tabstop>test_text</tabstop>
-  <tabstop>test_result</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>central_widget</tabstop>
-  <tabstop>query_field</tabstop>
-  <tabstop>save_button</tabstop>
-  <tabstop>remove_button</tabstop>
-  <tabstop>search_field</tabstop>
-  <tabstop>search_mode</tabstop>
-  <tabstop>s_r_src_ident</tabstop>
-  <tabstop>s_r_template</tabstop>
+  <tabstop>cover_clone</tabstop>
+  <tabstop>button_config_cover_gen</tabstop>
+  <tabstop>comments_button</tabstop>
   <tabstop>search_for</tabstop>
   <tabstop>case_sensitive</tabstop>
   <tabstop>replace_with</tabstop>
@@ -1358,6 +1358,19 @@ not multiple and the destination field is multiple</string>
   <tabstop>starting_from</tabstop>
   <tabstop>multiple_separator</tabstop>
   <tabstop>scrollArea11</tabstop>
+  <tabstop>refresh_book_list</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>search_field</tabstop>
+  <tabstop>multiple_separator</tabstop>
+  <tabstop>query_field</tabstop>
+  <tabstop>test_result</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>search_mode</tabstop>
+  <tabstop>s_r_src_ident</tabstop>
+  <tabstop>s_r_template</tabstop>
+  <tabstop>test_text</tabstop>
+  <tabstop>central_widget</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>
