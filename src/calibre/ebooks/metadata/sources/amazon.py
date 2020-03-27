@@ -289,7 +289,7 @@ class Worker(Thread):  # Get details {{{
         '''
 
         self.ratings_pat = re.compile(
-            r'([0-9.]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren)){0,1}')
+            r'([0-9.,]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren)){0,1}')
         self.ratings_pat_cn = re.compile('平均([0-9.]+)')
 
         lm = {
@@ -540,26 +540,43 @@ class Worker(Thread):  # Get details {{{
             # ratings matches
             x.getparent().remove(x)
 
-        rating_paths = ('//div[@data-feature-name="averageCustomerReviews" or @id="averageCustomerReviews"]',
-                        '//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]',
-                        '//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]',
-                        '//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
+        rating_paths = (
+            '//div[@data-feature-name="averageCustomerReviews" or @id="averageCustomerReviews"]',
+            '//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+            '//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+            '//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]'
+        )
         ratings = None
         for p in rating_paths:
             ratings = root.xpath(p)
             if ratings:
                 break
+
+        def parse_ratings_text(text):
+            try:
+                m = self.ratings_pat.match(text)
+                return float(m.group(1).replace(',', '.')) / float(m.group(3)) * 5
+            except Exception:
+                pass
+
         if ratings:
-            for elem in ratings[0].xpath('descendant::*[@title]'):
+            ratings = ratings[0]
+            for elem in ratings.xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
                 if self.domain == 'cn':
                     m = self.ratings_pat_cn.match(t)
                     if m is not None:
                         return float(m.group(1))
                 else:
-                    m = self.ratings_pat.match(t)
-                    if m is not None:
-                        return float(m.group(1)) / float(m.group(3)) * 5
+                    ans = parse_ratings_text(t)
+                    if ans is not None:
+                        return ans
+            for elem in ratings.xpath('descendant::span[@class="a-icon-alt"]'):
+                t = self.tostring(
+                    elem, encoding='unicode', method='text', with_tail=False).strip()
+                ans = parse_ratings_text(t)
+                if ans is not None:
+                    return ans
 
     def _render_comments(self, desc):
         from calibre.library.comments import sanitize_comments_html
@@ -878,7 +895,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 11)
+    version = (1, 2, 12)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
