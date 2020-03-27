@@ -108,7 +108,7 @@
     - title: "PDF Output: Add a hangcheck for loading HTML if there is no progress for sixty seconds abort"
       tickets: [1865380]
 
-    - title: 'Viewer: When starting without a book allowing quitting the viewer by clicking the close button on the "Open book" page'
+    - title: 'Viewer: When starting without a book allowing quitting the viewer by clicking the Close button on the "Open book" page'
       tickets: [1864343]
 
   improved recipes:
@@ -161,7 +161,7 @@
 
     - title: "Bulk metadata edit: Fix clear series not resetting series index"
 
-    - title: "Fix clicking on author name in book details panel to search in Goodreads not working if author has more than two parts in his name"
+    - title: "Fix clicking on author name in Book details panel to search in Goodreads not working if author has more than two parts in his name"
 
 
   improved recipes:
@@ -180,7 +180,7 @@
     - title: "Linux: Fix a crash caused by broken/incompatible CUPS Qt system plugin."
       tickets: [1861741]
 
-    - title: "Viewer: Fix search shortcut button not focusing search input if the search panel is placed in a tab or a floating window"
+    - title: "Viewer: Fix Search shortcut button not focusing search input if the search panel is placed in a tab or a floating window"
 
     - title: "Update Google Images cover download plugin for website markup changes"
       tickets: [1862034]
@@ -460,7 +460,7 @@
     - title: "Viewer: improve appearance of controls on small screens."
       tickets: [1851921]
 
-    - title: "Move close button in viewer preferences to left to match the rest of the Content server UI."
+    - title: "Move Close button in viewer preferences to left to match the rest of the Content server UI."
       tickets: [1851937]
 
     - title: "Viewer: Fix restoring user stylesheet to default not being applied until a viewer restart"
@@ -1038,7 +1038,7 @@
     - title: "Content server: Fix using a bookmark to load the book list not working if server is password protected."
       tickets: [1819025]
 
-    - title: "Content server: Book details page: Fix close button not going back to book list after using Next/previous buttons."
+    - title: "Content server: Book details page: Fix Close button not going back to book list after using Next/previous buttons."
       tickets: [1819060]
 
     - title: "Kobo driver: Fix update device metadata setting not being saved. Also fix book language not being set correctly on newer firmware."
@@ -1933,7 +1933,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Browser viewer: Allow showing the time left in the current chapter/book in the header and footer areas of the book."
       description: "To use go to the preferences of the browser viewer and customize the headers and footers to display the time left. Note that time left in chapter only works correctly if chapters are in separate HTML files in the book."
 
-    - title: "Manage tags dialog: Searching now shows all matching tags and there is an undo button to undo changes."
+    - title: "Manage tags dialog: Searching now shows all matching tags and there is an Undo button to undo changes."
       tickets: [1743896]
 
     - title: "Add an output profile for the Kindle Oasis 2017"
@@ -2112,7 +2112,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
       type: major
       description: "Use the + icon in the top bar of the book list to add new books and the trash icon in the top bar of the book details page to a delete a book. Note that only authenticated users are allowed to perform these actions, so you have to setup user accounts for the server to use these features."
 
-    - title: "Allow removing the close button from tabs in the Virtual library tab bar. Right click the tab bar and choose 'Lock tabs' to do that."
+    - title: "Allow removing the Close button from tabs in the Virtual library tab bar. Right click the tab bar and choose 'Lock tabs' to do that."
 
     - title: "calibredb export: Add --progress option"
 
@@ -2315,7 +2315,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Wireless driver: Allow specifying extra file formats (unknown to calibre) to send"
 
   bug fixes:
-    - title: "Fix a regression that caused clicking the clear button in the main search bar to not unapply the current search until enter is pressed."
+    - title: "Fix a regression that caused clicking the Clear button in the main search bar to not unapply the current search until enter is pressed."
 
     - title: "Linux: Fix a regression causing calibre to fail to start on systems with no DBUS session bus"
 
@@ -2384,7 +2384,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Server: Fix adding expressions to the search always using AND instead of respecting the setting to use OR or AND."
       tickets: [1724405]
 
-    - title: "Browser viewer: Fix a regression that caused loading more than one book in the same session or using the back/forward browser buttons to require refreshing the browser."
+    - title: "Browser viewer: Fix a regression that caused loading more than one book in the same session or using the Back/forward browser buttons to require refreshing the browser."
 
     - title: "Jobs list: Fix killing of job killing the wrong job if other jobs are completed while waiting for kill confirmation."
 
@@ -2507,7 +2507,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
   new features:
     - title: "Allow searching for books in a virtual library using a new 'vl:' prefix"
 
-    - title: "Server: Show file sizes in the tooltips for the download buttons."
+    - title: "Server: Show file sizes in the tooltips for the Download buttons."
       tickets: [1708762]
 
     - title: "Server: Reduce the grid view minimum cover thumbnail size from 150px to 105px"

@@ -108,7 +108,7 @@
          <item>
           <widget class="QLineEdit" name="input_box">
            <property name="toolTip">
-            <string>Enter a category name, then use the add button or the rename button</string>
+            <string>Enter a category name, then use the Add button or the Rename button</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>

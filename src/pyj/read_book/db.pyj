@@ -142,7 +142,7 @@ class DB:
         idb.onversionchange = def(event):
             idb.close()
             self.show_error(_('Database upgraded!'), _(
-                'A newer version of calibre is available, please click the reload button in your browser.'))
+                'A newer version of calibre is available, please click the Reload button in your browser.'))
         self.callback()
 
     def display_error(self, msg, event):

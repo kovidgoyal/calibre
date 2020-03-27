@@ -497,7 +497,7 @@ class ConfigWidget(ConfigWidgetBase):
                 import traceback
                 return error_dialog(self, _('Failed'),
                     _('There was a syntax error in your tweak. Click '
-                        'the show details button for details.'), show=True,
+                        'the "Show details" button for details.'), show=True,
                     det_msg=traceback.format_exc())
             self.tweaks.set_plugin_tweaks(l)
             self.changed()

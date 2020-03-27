@@ -107,7 +107,7 @@ The value following ``vl:`` must be the name of a Virtual library. If the Virtua
 contains spaces then surround it with quotes.
 
 One use for a Virtual library search is in the content server. In
-:guilabel:`Preferences->Sharing over the net->Require username/password` you
+:guilabel:`Preferences->Sharing over the net->Require username and password` you
 can limit the calibre libraries visible to a user. For each visible library you
 can specify a search expression to further limit which books are seen. Use
 ``vl:"Virtual library name"`` to limit the books to those in a Virtual library.

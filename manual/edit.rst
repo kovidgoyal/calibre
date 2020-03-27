@@ -567,7 +567,7 @@ Splitting HTML files
 .. |spmb| image:: images/split-button.png
 
 One, perhaps non-obvious, use of the preview panel is to split long HTML files.
-While viewing the file you want to split, click the :guilabel:`split mode`
+While viewing the file you want to split, click the :guilabel:`Split mode`
 button under the preview panel |spmb|. Then simply move your mouse to the place
 where you want to split the file and click. A thick green line will show you
 exactly where the split will happen as you move your mouse. Once you have found

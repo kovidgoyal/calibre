@@ -259,7 +259,7 @@ class ReadUI:
             if manifest.version is not RENDER_VERSION:
                 print('calibre upgraded: RENDER_VERSION={} manifest.version={}'.format(RENDER_VERSION, manifest.version))
                 return self.show_error(_('calibre upgraded!'), _(
-                    'A newer version of calibre is available, please click the reload button in your browser.'))
+                    'A newer version of calibre is available, please click the Reload button in your browser.'))
             self.current_metadata = manifest.metadata
             self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
             return
@@ -402,7 +402,7 @@ class ReadUI:
             if manifest.etag is not MATHJAX_VERSION:
                 print('calibre upgraded: MATHJAX_VERSION={} manifest.etag={}'.format(MATHJAX_VERSION, manifest.etag))
                 return self.show_error(_('calibre upgraded!'), _(
-                    'A newer version of calibre is available, please click the reload button in your browser.'))
+                    'A newer version of calibre is available, please click the Reload button in your browser.'))
             mathjax_info.version = manifest.etag
             mathjax_info.files = manifest.files
             self.download_mathjax(mathjax_info, proceed)
