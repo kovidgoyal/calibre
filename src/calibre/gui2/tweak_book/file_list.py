@@ -661,7 +661,10 @@ class FileList(QTreeWidget, OpenWithHandler):
             move_to_start = question_dialog(self, _('Not first item'), _(
                 '%s is not the first text item. You should only mark the'
                 ' first text item as cover. Do you want to make it the'
-                ' first item?') % elided_text(name))
+                ' first item?') % elided_text(name),
+                skip_dialog_name='edit-book-mark-as-titlepage-move-confirm',
+                skip_dialog_skip_precheck=False
+            )
         self.mark_requested.emit(name, 'titlepage:%r' % move_to_start)
 
     def keyPressEvent(self, ev):
