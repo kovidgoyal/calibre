@@ -500,7 +500,7 @@ class CopyToLibraryAction(InterfaceAction):
                         'records in the target library. Click "Show '
                         'details" to see which ones. This behavior is '
                         'controlled by the Auto-merge option in '
-                        'Preferences->Import/export->Adding books.'), det_msg=books,
+                        'Preferences->Import/export->Adding books->Adding actions.'), det_msg=books,
                     show=True)
         done_ids = frozenset(self.worker.processed) - frozenset(self.worker.duplicate_ids)
         if delete_after and done_ids:
