@@ -163,13 +163,13 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
        <item row="8" column="1">
         <widget class="QComboBox" name="opt_automerge">
          <property name="toolTip">
-          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats automatically into
+          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats (files) automatically into
 existing book records. This box controls what happens when an existing record already has
 the incoming format:
 
-Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
-Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
-Create new record for each duplicate file - means that a new book entry will be created for each duplicate file
+Ignore duplicate incoming formats - means that existing formats in your calibre library will not be replaced
+Overwrite existing duplicate formats - means that existing formats in your calibre library will be replaced
+Create new record for each duplicate formats - means that a new book entry will be created for each duplicate formats
 
 Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
 Author matching is exact.</string>

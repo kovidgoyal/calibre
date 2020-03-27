@@ -1046,7 +1046,7 @@
 
     - title: "Tag browser: Category editor: Add a checkbox to restrict the entries shown to only those present in the current Virtual library"
 
-    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected books from clipboard"
+    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected book records from clipboard"
       tickets: [1815419]
 
     - title: "Tag browser: When right clicking on a Saved search add a menu option to search using the raw search expression."
