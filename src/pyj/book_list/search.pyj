@@ -509,7 +509,7 @@ def get_prefs():
     ]
 
 def tb_config_panel_handler():
-    return prefs_panel_handler(_('Configure Tag browser'), get_prefs)
+    return prefs_panel_handler(def(): return _('Configure Tag browser');, get_prefs)
 # }}}
 
 
