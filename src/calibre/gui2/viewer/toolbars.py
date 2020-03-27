@@ -250,7 +250,7 @@ class ActionsToolBar(ToolBar):
                     path = os.path.abspath(entry['pathtoebook'])
                 except Exception:
                     continue
-                if path == os.path.abspath(set_book_path.pathtoebook):
+                if hasattr(set_book_path, 'pathtoebook') and path == os.path.abspath(set_book_path.pathtoebook):
                     continue
                 m.addAction('{}\t {}'.format(
                     elided_text(entry['title'], pos='right', width=250),
