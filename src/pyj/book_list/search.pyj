@@ -239,7 +239,7 @@ def menu_clicked(i):
         container.appendChild(title)
         container.appendChild(E.div(
             style='margin-top:1ex; margin-bottom: 1ex',
-            _('Search for books based on this category (a search term will be added to the search box)')
+            _('Search for books based on this category (a search term will be added to the search field)')
         ))
 
         ul = E.ul(style='list-style:none; overflow:hidden', class_='tb-action-list')
@@ -502,7 +502,7 @@ def get_prefs():
             'to_storage': def(x): return 'yes' if x else 'no';,
             'tooltip':_('When checked, calibre will automatically hide any category'
                         ' (a column, custom or standard) that has no items to show. For example, some'
-                        ' categories might not have values when using virtual libraries. Checking this'
+                        ' categories might not have values when using Virtual libraries. Checking this'
                         ' box will cause these empty categories to be hidden.'),
         },
 

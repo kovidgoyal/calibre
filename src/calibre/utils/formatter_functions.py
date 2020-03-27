@@ -1507,7 +1507,7 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('virtual_libraries() -- return a comma-separated list of '
-                      'virtual libraries that contain this book. This function '
+                      'Virtual libraries that contain this book. This function '
                       'works only in the GUI. If you want to use these values '
                       'in save-to-disk or send-to-device templates then you '
                       'must make a custom "Column built from other columns", use '

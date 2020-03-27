@@ -460,7 +460,7 @@
     - title: "Viewer: improve appearance of controls on small screens."
       tickets: [1851921]
 
-    - title: "Move close button in viewer preferences to left to match the rest of the content server UI."
+    - title: "Move close button in viewer preferences to left to match the rest of the Content server UI."
       tickets: [1851937]
 
     - title: "Viewer: Fix restoring user stylesheet to default not being applied until a viewer restart"

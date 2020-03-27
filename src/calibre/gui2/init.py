@@ -412,12 +412,12 @@ class VLTabs(QTabBar):  # {{{
         self.previous_action = a = QAction(self)
         a.triggered.connect(partial(self.next_tab, delta=-1)), self.gui.addAction(a)
         self.gui.keyboard.register_shortcut(
-            'virtual-library-tab-bar-next', _('Next virtual library'), action=self.next_action,
+            'virtual-library-tab-bar-next', _('Next Virtual library'), action=self.next_action,
             default_keys=('Ctrl+Right',),
             description=_('Switch to the next Virtual library in the Virtual library tab bar')
         )
         self.gui.keyboard.register_shortcut(
-            'virtual-library-tab-bar-previous', _('Previous virtual library'), action=self.previous_action,
+            'virtual-library-tab-bar-previous', _('Previous Virtual library'), action=self.previous_action,
             default_keys=('Ctrl+Left',),
             description=_('Switch to the previous Virtual library in the Virtual library tab bar')
         )
@@ -501,7 +501,7 @@ class VLTabs(QTabBar):  # {{{
             self.addTab(vl.replace('&', '&&') or _('All books'))
             sexp = vl_map.get(vl, None)
             if sexp is not None:
-                self.setTabToolTip(i, _('Search expression for this virtual library:') + '\n\n' + sexp)
+                self.setTabToolTip(i, _('Search expression for this Virtual library:') + '\n\n' + sexp)
             self.setTabData(i, vl)
             if vl == current_lib:
                 current_idx = i
@@ -533,9 +533,9 @@ class VLTabs(QTabBar):  # {{{
                 s.addAction(x, partial(self.restore, x))
         m.addAction(_('Hide Virtual library tabs'), self.disable_bar)
         if gprefs['vl_tabs_closable']:
-            m.addAction(_('Lock virtual library tabs'), self.lock_tab)
+            m.addAction(_('Lock Virtual library tabs'), self.lock_tab)
         else:
-            m.addAction(_('Unlock virtual library tabs'), self.unlock_tab)
+            m.addAction(_('Unlock Virtual library tabs'), self.unlock_tab)
         i = self.tabAt(ev.pos())
         if i > -1:
             vl = unicode_type(self.tabData(i) or '')

@@ -987,7 +987,7 @@ then the tags will be displayed each on their own line.</string>
          <property name="toolTip">
           <string>When checked, calibre will automatically hide any category
  (a column, custom or standard) that has no items to show. For example, some
- categories might not have values when using virtual libraries. Checking this
+ categories might not have values when using Virtual libraries. Checking this
  box will cause these empty categories to be hidden.</string>
          </property>
          <property name="text">
@@ -1213,11 +1213,11 @@ them to all have the same width and height</string>
           <widget class="QCheckBox" name="opt_qv_respects_vls">
            <property name="toolTip">
             <string>Check this box to make Quickview show books only in the
-current virtual library. If unchecked, Quickview ignores virtual libraries. If
+current Virtual library. If unchecked, Quickview ignores Virtual libraries. If
 unchecked then only row changes are taken into account.</string>
            </property>
            <property name="text">
-            <string>&amp;Apply virtual libraries in Quickview panel</string>
+            <string>&amp;Apply Virtual libraries in Quickview panel</string>
            </property>
           </widget>
          </item>

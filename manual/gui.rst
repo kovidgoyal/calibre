@@ -400,11 +400,11 @@ The special field ``search`` is used for saved searches. So if you save a search
 "My spouse's books" you can enter ``search:"My spouse's books"`` in the Search bar to reuse the saved
 search. More about saving searches below.
 
-The special field ``vl`` is used to search for books in a virtual library. For
-example, ``vl:Read`` will find all the books in the *Read* virtual library. The search
+The special field ``vl`` is used to search for books in a Virtual library. For
+example, ``vl:Read`` will find all the books in the *Read* Virtual library. The search
 ``vl:Read and vl:"Science Fiction"`` will find all the books that are in both the *Read* and
-*Science Fiction* virtual libraries. The value following ``vl:`` must be the name of a
-virtual library. If the virtual library name contains spaces then surround it with quotes.
+*Science Fiction* Virtual libraries. The value following ``vl:`` must be the name of a
+Virtual library. If the Virtual library name contains spaces then surround it with quotes.
 
 You can search for the absence or presence of a field using the special "true" and "false" values. For example::
 
@@ -456,7 +456,7 @@ Virtual libraries
 A :guilabel:`Virtual library` is a way to pretend that your calibre library has
 only a few books instead of its full collection. This is an excellent way to
 partition your large collection of books into smaller, manageable chunks. To
-learn how to create and use virtual libraries, see the tutorial:
+learn how to create and use Virtual libraries, see the tutorial:
 :ref:`virtual_libraries`.
 
 .. _config_filename_metadata:
@@ -618,7 +618,7 @@ You can see if a column can be Quickview'ed by hovering your mouse over the colu
 
 Options (in :guilabel:`Preferences->Look & feel->Quickview`):
 
-	* Respect (or not) the current virtual library. If checked then Quickview shows only books in the current virtual library. Default: respect virtual libraries
+	* Respect (or not) the current Virtual library. If checked then Quickview shows only books in the current Virtual library. Default: respect Virtual libraries
 	* Change the Quickview window contents when the column is changed on the book list using the cursor keys. Default: don't follow changes made with cursor keys
 	* Change the column being "quickview'ed" when a cell in the Quickview window is double-clicked. Otherwise the book is changed but the column being examined is not. Default: change the column
 	* Change the column being "quickview'ed" to the current column when the return key is pressed in the Quickview panel. Otherwise the book is changed but the column being examined is not. Default: change the column
@@ -719,15 +719,15 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`Shift+Esc`
       - Focus the book list
     * - :kbd:`Ctrl+Esc`
-      - Clear the virtual library
+      - Clear the Virtual library
     * - :kbd:`Alt+Esc`
       - Clear the additional restriction
     * - :kbd:`Ctrl+*`
-      - Create a temporary virtual library based on the current search
+      - Create a temporary Virtual library based on the current search
     * - :kbd:`Ctrl+Right`
-      - Select the next virtual library tab
+      - Select the next Virtual library tab
     * - :kbd:`Ctrl+Left`
-      - Select the previous virtual library tab
+      - Select the previous Virtual library tab
     * - :kbd:`N or F3`
       - Find the next book that matches the current search (only works if search highlighting is turned on in search preferences)
     * - :kbd:`Shift+N or Shift+F3`

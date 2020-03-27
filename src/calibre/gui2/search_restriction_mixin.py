@@ -337,7 +337,7 @@ class SearchRestrictionMixin(object):
         self.clear_vl.clicked.connect(lambda x: (self.apply_virtual_library(), self.clear_additional_restriction()))
 
         self.virtual_library_tooltip = \
-            _('Use a "virtual library" to show only a subset of the books present in this library')
+            _('Use a "Virtual library" to show only a subset of the books present in this library')
         self.virtual_library.setToolTip(self.virtual_library_tooltip)
 
         self.search_restriction = ComboBoxWithHelp(self)
@@ -384,9 +384,9 @@ class SearchRestrictionMixin(object):
 
         if add_tabs_action:
             if gprefs['show_vl_tabs']:
-                m.addAction(_('Hide virtual library tabs'), self.vl_tabs.disable_bar)
+                m.addAction(_('Hide Virtual library tabs'), self.vl_tabs.disable_bar)
             else:
-                m.addAction(_('Show virtual libraries as tabs'), self.vl_tabs.enable_bar)
+                m.addAction(_('Show Virtual libraries as tabs'), self.vl_tabs.enable_bar)
 
         m.addSeparator()
 
@@ -493,7 +493,7 @@ class SearchRestrictionMixin(object):
 
     def remove_vl_triggered(self, name=None):
         if not confirm(
-            _('Are you sure you want to remove the virtual library <b>{0}</b>?').format(name),
+            _('Are you sure you want to remove the Virtual library <b>{0}</b>?').format(name),
             'confirm_vl_removal', parent=self):
             return
         self._remove_vl(name, reapply=True)
@@ -503,7 +503,7 @@ class SearchRestrictionMixin(object):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         if not virt_libs:
-            return error_dialog(self, _('No virtual libraries'), _(
+            return error_dialog(self, _('No Virtual libraries'), _(
                 'No Virtual libraries present, create some first'), show=True)
         example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
             '<span style="%s">' % emphasis_style(), '</span>')

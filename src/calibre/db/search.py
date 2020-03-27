@@ -505,7 +505,7 @@ class Parser(SearchQueryParser):  # {{{
         if location == 'vl':
             vl = self.dbcache._pref('virtual_libraries', {}).get(query) if query else None
             if not vl:
-                raise ParseException(_('No such virtual library: {}').format(query))
+                raise ParseException(_('No such Virtual library: {}').format(query))
             try:
                 return candidates & self.dbcache.books_in_virtual_library(query)
             except RuntimeError:

@@ -44,6 +44,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
+        self.blank.setText('\xa0')
 
         # I can't figure out how to get these into the .ui file
         self.gridLayout_2.setColumnMinimumWidth(0, 50)

@@ -9,7 +9,8 @@
     <width>628</width>
     <height>482</height>
    </rect>
-  </property>  <property name="windowTitle">
+  </property>
+  <property name="windowTitle">
    <string>User categories editor</string>
   </property>
   <property name="windowIcon">
@@ -148,26 +149,26 @@
         <widget class="QCheckBox" name="apply_vl_checkbox">
          <property name="toolTip">
           <string>&lt;p&gt;Show items in the Available items box only if they appear in the
-            current virtual library. Applied items not in the VL will be marked
+            current Virtual library. Applied items not in the VL will be marked
             &quot;not on any book&quot;.&lt;/p&gt;</string>
          </property>
          <property name="text">
-          <string>&amp;Show only available items in current virtual library</string>
+          <string>&amp;Show only available items in current Virtual library</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="blank">
          <property name="text">
-          <string> </string>
+          <string/>
          </property>
         </widget>
        </item>
       </layout>
      </item>
     </layout>
-    </item>
-    <item>
+   </item>
+   <item>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="1" column="0">
       <widget class="QLabel" name="label">

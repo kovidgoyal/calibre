@@ -172,7 +172,7 @@ you can using the Tag browser in the main program.
 
 A much loved feature of the main program, :guilabel:`Virtual libraries` is
 present in the server interface as well. Click the three vertical dots in the
-top right corner to choose a virtual library.
+top right corner to choose a Virtual library.
 
 The book reader
 ^^^^^^^^^^^^^^^^

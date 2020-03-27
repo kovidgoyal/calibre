@@ -252,7 +252,7 @@ If not checked, the values can be Yes or No.</string>
         </size>
        </property>
        <property name="toolTip">
-        <string>Use this virtual library on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
+        <string>Use this Virtual library on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>

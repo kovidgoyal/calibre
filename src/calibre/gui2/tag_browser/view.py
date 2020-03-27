@@ -536,7 +536,7 @@ class TagsView(QTreeView):  # {{{
                         # Add the 'rename' items
                         if self.model().get_in_vl():
                             self.context_menu.addAction(self.rename_icon,
-                                                    _('Rename %s in virtual library')%display_name(tag),
+                                                    _('Rename %s in Virtual library')%display_name(tag),
                                     partial(self.context_menu_handler, action='edit_item_in_vl',
                                             index=index))
                         self.context_menu.addAction(self.rename_icon,
@@ -547,7 +547,7 @@ class TagsView(QTreeView):  # {{{
                                 self._model.db.field_metadata.is_custom_field(key):
                             if self.model().get_in_vl():
                                 self.context_menu.addAction(self.delete_icon,
-                                                    _('Delete %s in virtual library')%display_name(tag),
+                                                    _('Delete %s in Virtual library')%display_name(tag),
                                 partial(self.context_menu_handler, action='delete_item_in_vl',
                                     key=key, index=tag))
 

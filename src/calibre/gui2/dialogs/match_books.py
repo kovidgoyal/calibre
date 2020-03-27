@@ -129,7 +129,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         query = unicode_type(self.search_text.text())
         if not query:
             d = error_dialog(self.gui, _('Match books'),
-                     _('You must enter a search expression into the search box'))
+                     _('You must enter a search expression into the search field'))
             d.exec_()
             return
         try:

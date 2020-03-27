@@ -25,7 +25,7 @@ def option_parser(get_parser, args):
 %prog clone path/to/new/library
 
 Create a clone of the current library. This creates a new, empty library that has all the
-same custom columns, virtual libraries and other settings as the current library.
+same custom columns, Virtual libraries and other settings as the current library.
 
 The cloned library will contain no books. If you want to create a full duplicate, including
 all books, then simply use your filesystem tools to copy the library folder.

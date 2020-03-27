@@ -318,7 +318,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.ctrl_esc_action = QAction(self)
         self.addAction(self.ctrl_esc_action)
         self.keyboard.register_shortcut('clear virtual library',
-                _('Clear the virtual library'), default_keys=('Ctrl+Esc',),
+                _('Clear the Virtual library'), default_keys=('Ctrl+Esc',),
                 action=self.ctrl_esc_action)
         self.ctrl_esc_action.triggered.connect(self.ctrl_esc)
 
