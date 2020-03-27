@@ -20,6 +20,59 @@
 #   new recipes:
 #     - title:
 
+- version: 4.13.0
+  date: 2020-03-27
+
+  new features:
+    - title: "Edit book: When searching in normal mode, have spaces in the search expression match multiple spaces and line breaks in the text."
+      tickets: [1868847]
+
+    - title: "When running calibre-portable.exe popup a more useful error message if it is placed in a location with a too long path."
+      tickets: [1866739]
+
+    - title: "Edit book: Allow skipping confirmation dialog when marking non-first file as cover page"
+
+    - title: "Add a shortcut [Ctrl+Alt+p] to switch to the previously opened library."
+      tickets: [1866742]
+
+  bug fixes:
+    - title: "Viewer: Fix searching in flow mode not scrolling to display the search results."
+      tickets: [1866519]
+
+    - title: "Viewer search: Fix jumping to next match sometimes selecting previous match if the searched for expression occurs with identical context in multiple places."
+      tickets: [1868633]
+
+    - title: "Viewer: Ensure there is no bleed between pages when using single page per screen"
+
+    - title: "Fix shift click not working reliably in the book list"
+
+    - title: "Fix edit open with applications not working from files browser in editor"
+
+    - title: "MOBI Input: Upshift non-animated GIF to PNG as it is a more widely supported format"
+
+    - title: "MOBI Input: Dont auto-convert images in PNG/GIF formats to JPEG"
+
+    - title: "MOBI Output: Improve conversion of PNG images with transparency to GIF"
+
+    - title: "Check Book: Do not fail if non-UTF-8 stylesheets are present in the book."
+      tickets: [1866701]
+
+    - title: "Viewer: Maximum font size for margin text should be the body font size not hardcoded to 12px"
+
+    - title: "PDF Output: Ignore glyph size mismatches when merging fonts for TTF."
+      tickets: [1866364]
+
+  improved recipes:
+    - Forbes
+    - LA Times
+    - Glasgow Herald
+    - Spectator Magazine
+    - Newsweek
+
+  new recipes:
+    - title: Istorias and Sardinia Post
+      author: tzium
+
 - version: 4.12.0
   date: 2020-03-06
 
