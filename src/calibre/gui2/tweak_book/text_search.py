@@ -30,8 +30,7 @@ class ModeBox(QComboBox):
             '''Select how the search expression is interpreted
             <dl>
             <dt><b>Normal</b></dt>
-            <dd>The search expression is treated as normal text, calibre will look for the exact text,
-                except that spaces are allowed to match any number of spaces and line breaks.</dd>
+            <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
             </dl>'''))

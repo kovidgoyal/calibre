@@ -203,13 +203,15 @@ class ModeBox(QComboBox):
 
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
-        self.addItems([_('Normal'), _('Regex'), _('Regex-function')])
+        self.addItems([_('Normal'), _('Fuzzy'), _('Regex'), _('Regex-function')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''Select how the search expression is interpreted
             <dl>
             <dt><b>Normal</b></dt>
-            <dd>The search expression is treated as normal text, calibre will look for the exact text,
-                except that spaces are allowed to match any number of spaces and line breaks.</dd>
+            <dd>The search expression is treated as normal text, calibre will look for the exact text</dd>
+            <dt><b>Fuzzy</b></dt>
+            <dd>The search expression is treated as "fuzzy" which means spaces will match any space character,
+            including tabs and line breaks. Plain quotes will match the typographical equivalents, etc.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
             <dt><b>Regex-function</b></dt>
@@ -218,11 +220,11 @@ class ModeBox(QComboBox):
 
     @property
     def mode(self):
-        return ('normal', 'regex', 'function')[self.currentIndex()]
+        return ('normal', 'fuzzy', 'regex', 'function')[self.currentIndex()]
 
     @mode.setter
     def mode(self, val):
-        self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
+        self.setCurrentIndex({'fuzzy': 1, 'regex':2, 'function':3}.get(val, 0))
 
 
 class SearchWidget(QWidget):
@@ -345,8 +347,8 @@ class SearchWidget(QWidget):
                 self.functions.setText('')
 
     def mode_changed(self, idx):
-        self.da.setVisible(idx > 0)
-        function_mode = idx == 2
+        self.da.setVisible(idx > 1)
+        function_mode = idx == 3
         self.rl.setVisible(not function_mode)
         self.rl2.setVisible(function_mode)
         self.replace_text.setVisible(not function_mode)
@@ -740,10 +742,12 @@ class EditSearch(QFrame):  # {{{
                 self.function.setText('')
 
     def mode_changed(self, idx):
-        self.dot_all.setVisible(idx > 0)
-        self.functions_container.setVisible(idx == 2)
-        self.la3.setVisible(idx < 2)
-        self.replace.setVisible(idx < 2)
+        mode = self.mode_box.mode
+        self.dot_all.setVisible(mode in ('regex', 'function'))
+        function_mode = mode == 'function'
+        self.functions_container.setVisible(function_mode)
+        self.la3.setVisible(not function_mode)
+        self.replace.setVisible(not function_mode)
 
     def show_search(self, search=None, search_index=-1, state=None):
         self.title.setText('<h2>' + (_('Add search') if search_index == -1 else _('Edit search')))
@@ -1271,10 +1275,13 @@ class InvalidRegex(regex.error):
 
 def get_search_regex(state):
     raw = state['find']
-    is_regex = state['mode'] != 'normal'
+    is_regex = state['mode'] not in ('normal', 'fuzzy')
     if not is_regex:
-        parts = (regex.escape(x, special_only=True) for x in raw.split())
-        raw = r'\s+'.join(parts)
+        if state['mode'] == 'fuzzy':
+            from calibre.gui2.viewer.search import text_to_regex
+            raw = text_to_regex(raw)
+        else:
+            raw = regex.escape(raw, special_only=True)
     flags = REGEX_FLAGS
     if not state['case_sensitive']:
         flags |= regex.IGNORECASE
@@ -1292,7 +1299,7 @@ def get_search_regex(state):
 
 def get_search_function(state):
     ans = state['replace']
-    is_regex = state['mode'] != 'normal'
+    is_regex = state['mode'] not in ('normal', 'fuzzy')
     if not is_regex:
         # We dont want backslash escape sequences interpreted in normal mode
         return lambda m: ans
