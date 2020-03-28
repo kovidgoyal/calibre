@@ -24,6 +24,7 @@ def qt_sources():
             'qtbase/src/gui/kernel/qplatformtheme.cpp',
             'qtbase/src/widgets/dialogs/qcolordialog.cpp',
             'qtbase/src/widgets/dialogs/qfontdialog.cpp',
+            'qtbase/src/widgets/widgets/qscrollbar.cpp',
     ]))
 
 
