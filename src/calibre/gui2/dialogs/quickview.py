@@ -273,6 +273,8 @@ class Quickview(QDialog, Ui_Quickview):
     def show_context_menu(self, point):
         index = self.books_table.indexAt(point)
         item = self.books_table.item(index.row(), 0)
+        if item is None:
+            return False;
         book_id = int(item.data(Qt.UserRole))
         self.context_menu = QMenu(self)
         self.context_menu.addAction(self.view_icon, _('View'),
