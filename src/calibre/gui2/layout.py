@@ -248,7 +248,7 @@ class SearchBar(QFrame):  # {{{
                 QSizePolicy.Minimum)
         self.search_button.clicked.connect(parent.do_search_button)
         self.search_button.setToolTip(
-            _('Do Quick Search (you can also press the Enter key)'))
+            _('Do quick search (you can also press the Enter key)'))
 
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)
