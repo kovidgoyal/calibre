@@ -1,10 +1,12 @@
-#!/usr/bin/env python2
+##!/usr/bin/env python2
+# vim:fileencoding=utf-8
 ##
 # Written:      October 2012 (new coding)
 # Version:      9.0
-# Last update:  2019-02-02
+# Last update:  2018-02-22
 ##
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = ''
 '''
@@ -24,7 +26,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class Spektrum(BasicNewsRecipe):
     title = u'Spektrum der Wissenschaft'
-    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2014-02-25, UDe 2019-02-02
+    __author__ = 'Armin Geller, Bratzzo, Rainer Zenz, update epubli'
     description = u'German  online portal of Spektrum der Wissenschaft'
     publisher = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category = 'science news, Germany'
@@ -59,10 +61,31 @@ class Spektrum(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('hide-for-print content__meta content__author content__video'),
+        classes('hide-for-print'),
+        classes('content__meta'),
+        classes('content__author'),
+        classes('content__video'),
         dict(name='div', attrs={'role': 'navigation'}),
         dict(name='span', attrs={'class': 'sr-only'}),
     ]
+
+    def parse_feeds(self):
+        # Call parent's method.
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        # Loop through all feeds.
+        for feed in feeds:
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+                if 'VIDEO' in article.title:
+                    feed.articles.remove(article)
+                # Remove articles with 'video','podcast' or 'rezension' in the url.
+                elif 'podcast' in article.url:
+                    feed.articles.remove(article)
+                elif 'video' in article.url:
+                    feed.articles.remove(article)
+                elif 'rezension' in article.url:
+                    feed.articles.remove(article)
+        return feeds
 
     def preprocess_html(self, soup, *a):
         for img in soup.findAll('img', attrs={'data-src': True}):
