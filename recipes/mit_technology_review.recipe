@@ -39,10 +39,11 @@ class MitTechnologyReview(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'article-topper__topic article-topper__title article-topper__media-wrap article-body__content'),
+            'article-topper__topic article-topper__title article-topper__media-wrap article-body__content storyContent'),
     ]
     remove_tags = [
-        classes('l-article-list'),
+        classes('l-article-list signup-wrapper'),
+        dict(name="svg")
     ]
 
     def parse_index(self):
