@@ -264,7 +264,7 @@ def shortcuts_definition():
     ),
 
     'metadata': desc(
-        'Ctrl+n',
+        v"['Ctrl+n', 'Ctrl+e']",
         'ui',
         _('Show the book metadata')
     ),
