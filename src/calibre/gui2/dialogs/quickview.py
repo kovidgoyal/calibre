@@ -425,7 +425,11 @@ class Quickview(QDialog, Ui_Quickview):
 
         try:
             bv_row = idx.row()
-            self.current_column = idx.column()
+            from calibre.gui2.ui import get_gui
+            view = get_gui().library_view.alternate_views.current_view.__class__.__name__
+            self.current_column = (
+                self.view.column_map.index('authors') if view == 'GridView'
+                                                      else idx.column())
             key = self.view.column_map[self.current_column]
             book_id = self.view.model().id(bv_row)
             if self.current_book_id == book_id and self.current_key == key:
