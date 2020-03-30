@@ -200,7 +200,7 @@ class RecipeList(QWidget):  # {{{
         b.clicked.connect(self.remove)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
-        self.export_button = b = QPushButton(QIcon(I('save.png')), _('&Save recipe as file'), w)
+        self.export_button = b = QPushButton(QIcon(I('save.png')), _('S&ave recipe as file'), w)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         b.clicked.connect(self.save_recipe)
         l.addWidget(b)
