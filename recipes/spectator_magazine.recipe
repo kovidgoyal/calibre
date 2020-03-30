@@ -11,6 +11,11 @@ from mechanize import Request
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 
 def absolutize(url):
     return 'https://spectator.co.uk' + url
@@ -50,7 +55,7 @@ class Spectator(BasicNewsRecipe):
                 ans += '&limit={}'.format(limit)
             for inc in includes:
                 ans += '&include[]=' + inc
-            ans += '&query=' + json.dumps(query)
+            ans += '&query=' + quote(json.dumps(query))
             return ans
 
         def get_result(url):
