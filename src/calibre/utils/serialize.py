@@ -110,7 +110,7 @@ def msgpack_decoder(code, data):
 def msgpack_loads(dump, use_list=True):
     # use_list controls whether msgpack arrays are unpacked as lists or tuples
     import msgpack
-    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, use_list=use_list)
+    return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, use_list=use_list, strict_map_key=False)
 
 
 def json_loads(data):
