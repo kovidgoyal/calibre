@@ -54,7 +54,7 @@ this command starts an embedded Python interpreter. You can also run the main
 calibre GUI, the calibre viewer and the calibre editor in debug mode.
 
 It also contains interfaces to various bits of calibre that do not have
-dedicated command line tools, such as font subsetting, the e-book diff tool and so
+dedicated command line tools, such as font subsetting, the E-book diff tool and so
 on.
 
 You can also use %prog to run standalone scripts. To do that use it like this:

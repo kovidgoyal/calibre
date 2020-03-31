@@ -670,8 +670,8 @@ common in your book and to run a simple search and replace on individual words.
 
 .. note::
     If you make any changes to the book by editing files while the spell check
-    tool is open, you should click the :guilabel:`Refresh` button in the spell
-    check tool. If you do not do this and continue to use the spell check tool,
+    tool is open, you should click the :guilabel:`Refresh` button in the Spell
+    check tool. If you do not do this and continue to use the Spell check tool,
     you could lose the changes you have made in the editor.
 
 Adding new dictionaries
