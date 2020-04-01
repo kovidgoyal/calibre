@@ -329,6 +329,59 @@ def atomic_write(base, name, content):
     atomic_rename(tname, name)
 
 
+def run_rapydscript_tests():
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+    from PyQt5.Qt import QApplication, QEventLoop
+    from calibre.gui2.webengine import secure_webengine
+    from calibre.gui2 import must_use_qt
+    must_use_qt()
+    base = base_dir()
+    rapydscript_dir = os.path.join(base, 'src', 'pyj')
+    fname = os.path.join(rapydscript_dir, 'test.pyj')
+    with lopen(fname, 'rb') as f:
+        js = compile_fast(f.read(), fname)
+
+    def create_script(src, name):
+        s = QWebEngineScript()
+        s.setName(name)
+        s.setInjectionPoint(QWebEngineScript.DocumentReady)
+        s.setWorldId(QWebEngineScript.ApplicationWorld)
+        s.setRunsOnSubFrames(False)
+        s.setSourceCode(src)
+        return s
+
+    class Tester(QWebEnginePage):
+
+        def __init__(self):
+            QWebEnginePage.__init__(self)
+            self.titleChanged.connect(self.title_changed)
+            secure_webengine(self)
+            self.scripts().insert(create_script(js, 'test-rapydscript.js'))
+            self.setHtml('<p>initialize')
+            self.working = True
+
+        def title_changed(self, title):
+            if title == 'initialized':
+                self.titleChanged.disconnect()
+                self.runJavaScript('window.main()', QWebEngineScript.ApplicationWorld, self.callback)
+
+        def spin_loop(self):
+            while self.working:
+                QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
+            return self.result
+
+        def callback(self, result):
+            self.result = result
+            self.working = False
+
+        def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
+            print(msg, file=sys.stderr if level > 0 else sys.stdout)
+
+    tester = Tester()
+    result = tester.spin_loop()
+    raise SystemExit(int(result))
+
+
 def compile_editor():
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')

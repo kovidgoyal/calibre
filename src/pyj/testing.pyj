@@ -1,0 +1,78 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from dom import clear
+
+def raise_fail(preamble, msg):
+    if msg:
+        msg = '. ' + msg
+    else:
+        msg = ''
+    raise AssertionError(preamble + msg)
+
+
+def assert_equal(a, b, msg):
+
+    def fail():
+        raise_fail(f'{a} != {b}', msg)
+
+    atype = jstype(a)
+    btype = jstype(b)
+    base_types = {'number': True, 'boolean': True, 'string': True, 'undefined': True}
+    if base_types[a] or base_types[b] or a is None or b is None:
+        if a is not b:
+            fail()
+        return
+    if a.__eq__:
+        if not a.__eq__(b):
+            fail()
+        return
+    if b.__eq__:
+        if not b.__eq__(a):
+            fail()
+        return
+    if a.length? or b.length?:
+        if a.length is not b.length:
+            fail()
+        for i in range(a.length):
+            assert_equal(a[i], b[i])
+        return
+    if atype is 'object':
+        for key in Object.keys(a):
+            assert_equal(a[key], b[key])
+    if btype is 'object':
+        for key in Object.keys(b):
+            assert_equal(a[key], b[key])
+
+    if a is not b:
+        fail()
+
+
+def assert_true(x, msg):
+    if not x:
+        raise_fail(f'{x} is not truthy', msg)
+
+
+def assert_fale(x, msg):
+    if x:
+        raise_fail(f'{x} is truthy', msg)
+
+
+def reset_dom():
+    html = document.documentElement
+    clear(html)
+    head = document.createElement('head')
+    body = document.createElement('body')
+    html.appendChild(head)
+    html.appendChild(body)
+
+
+registered_tests = {}
+
+
+def test(f):
+    mod = f.__module__ or 'unknown_test_module'
+    f.test_name = mod + '.' + f.name
+    registered_tests[f.test_name] = f
+    return f

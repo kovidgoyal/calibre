@@ -1,0 +1,47 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+import traceback
+
+from testing import registered_tests, reset_dom
+
+
+def get_matching_tests_for_name(name):
+    ans = []
+    for k in Object.keys(registered_tests):
+        q = k.split('.')[-1]
+        if not name or q is name:
+            ans.append(registered_tests[k])
+    return ans
+
+
+def run_tests(tests):
+    failed_tests = []
+    count = 0
+    for f in tests:
+        print(f.test_name, '...')
+        reset_dom()
+        try:
+            f()
+            count += 1
+        except:
+            traceback.print_stack()
+            failed_tests.append((f.test_name, traceback.format_stack()))
+    return failed_tests, count
+
+
+def main():
+    tests = get_matching_tests_for_name()
+    st = window.performance.now()
+    failed_tests, total = run_tests(tests)
+    time = window.performance.now() - st
+    if failed_tests.length:
+        console.error(f'{failed_tests.length} out of {total} failed in {time:.1f} seconds')
+    else:
+        print(f'Ran {total} tests in {time:.1f} seconds')
+    return 1 if failed_tests.length else 0
+
+
+window.main = main
+document.title = 'initialized'
