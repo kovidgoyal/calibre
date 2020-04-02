@@ -192,6 +192,7 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.
@@ -284,6 +285,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Turn style into strings for putting in the tag.
@@ -376,6 +378,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.
