@@ -175,3 +175,12 @@ class Test(Command):
         if opts.exclude_test_name:
             tests = remove_tests_by_name(tests, *opts.exclude_test_name)
         run_cli(tests, verbosity=opts.test_verbosity)
+
+
+class TestRS(Command):
+
+    description = 'Run tests for RapydScript code'
+
+    def run(self, opts):
+        from calibre.utils.rapydscript import run_rapydscript_tests
+        run_rapydscript_tests()

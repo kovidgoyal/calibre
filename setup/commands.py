@@ -13,7 +13,7 @@ __all__ = [
     'git_version',
     'develop', 'install',
     'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
-    'check', 'to3', 'unicode_check', 'iterators_check', 'test',
+    'check', 'to3', 'unicode_check', 'iterators_check', 'test', 'test_rs',
     'sdist', 'bootstrap', 'extdev',
     'manual', 'tag_release',
     'upload_to_server',
@@ -70,8 +70,9 @@ to3 = To3()
 unicode_check = UnicodeCheck()
 iterators_check = IteratorsCheck()
 
-from setup.test import Test
+from setup.test import Test, TestRS
 test = Test()
+test_rs = TestRS()
 
 from setup.resources import Resources, Kakasi, CACerts, RapydScript, RecentUAs
 resources = Resources()
