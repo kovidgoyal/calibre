@@ -314,6 +314,8 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
         if child.n is 'head':
             process_children(child, document.head)
         elif child.n is 'body':
+            if not document.body:
+                document.documentElement.appendChild(document.createElement('body'))
             if not body_done:
                 body_done = True
                 apply_attributes(child, document.body, ns_map)
