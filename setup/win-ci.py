@@ -72,10 +72,12 @@ def build():
 
 def test():
     sanitize_path()
-    cmd = [python_exe(), 'setup.py', 'test']
-    printf(*cmd)
-    p = subprocess.Popen(cmd)
-    raise SystemExit(p.wait())
+    for q in ('test', 'test_rs'):
+        cmd = [python_exe(), 'setup.py', q]
+        printf(*cmd)
+        p = subprocess.Popen(cmd)
+        if p.wait() != 0:
+            raise SystemExit(p.returncode)
 
 
 def setup_env():

@@ -60,4 +60,5 @@ jobs:
             - name: Test calibre
               run: |
                   runuser -u ci -- python setup.py test
+                  runuser -u ci -- python setup.py test_rs
                   chmod +777 .git .git/config

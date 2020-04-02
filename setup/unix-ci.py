@@ -123,6 +123,7 @@ def main():
 
         install_env()
         run_python('setup.py test')
+        run_python('setup.py test_rs')
     else:
         raise SystemExit('Unknown action: {}'.format(action))
 
