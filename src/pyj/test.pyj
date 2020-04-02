@@ -54,7 +54,7 @@ def main():
     tests = get_matching_tests_for_name()
     st = window.performance.now()
     failed_tests, total = run_tests(tests)
-    time = window.performance.now() - st
+    time = (window.performance.now() - st) / 1000
     if failed_tests.length:
         console.error(f'{failed_tests.length} out of {total} failed in {time:.1f} seconds')
     else:
