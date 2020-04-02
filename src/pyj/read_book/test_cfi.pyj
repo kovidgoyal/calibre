@@ -1,0 +1,12 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.cfi import escape_for_cfi, unescape_from_cfi
+from testing import test, assert_equal
+
+
+@test
+def cfi_escaping():
+    t = 'a^!,1'
+    assert_equal(t, unescape_from_cfi(escape_for_cfi(t)))

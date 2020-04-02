@@ -99,11 +99,6 @@ fd_function_index = {
     'A': fd_format_ampm,
 }
 
-def test_fd(date, fmt, ans):
-    q = format_date(date, fmt, as_utc=True)
-    if q is not ans:
-        raise Exception(str.format('Failed to format {} with {}: {} is not {}', date, fmt, q, ans))
-
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
     ampm = 'ap' in fmt.toLowerCase()
@@ -122,9 +117,3 @@ def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
             return ''
     )
 # }}}
-
-if __name__ is '__main__':
-    test_fd('1101-01-01T09:00:00+00:00', 'hh h', '09 9')
-    test_fd('1101-01-01T09:05:01+00:00', 'hh h mm m ss s ap AP yy yyyy', '09 9 05 5 01 1 am AM 01 1101')
-    test_fd('2001-01-02T09:00:00+00:00', 'M MM MMM MMMM', '1 01 Jan January')
-    test_fd('2001-01-01T12:00:00+00:00', 'd dd ddd dddd', '1 01 Mon Monday')

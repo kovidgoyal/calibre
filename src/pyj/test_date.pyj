@@ -1,0 +1,18 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from date import format_date
+from testing import test, assert_equal
+
+
+def test_fd(date, fmt, ans):
+    q = format_date(date, fmt, as_utc=True)
+    assert_equal(ans, q)
+
+@test
+def date_formatting():
+    test_fd('1101-01-01T09:00:00+00:00', 'hh h', '09 9')
+    test_fd('1101-01-01T09:05:01+00:00', 'hh h mm m ss s ap AP yy yyyy', '09 9 05 5 01 1 am AM 01 1101')
+    test_fd('2001-01-02T09:00:00+00:00', 'M MM MMM MMMM', '1 01 Jan January')
+    test_fd('2001-01-01T12:00:00+00:00', 'd dd ddd dddd', '1 01 Mon Monday')

@@ -4,6 +4,11 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 
+import initialize  # noqa: unused-import
+import test_date  # noqa: unused-import
+import test_utils  # noqa: unused-import
+import read_book.test_cfi  # noqa: unused-import
+
 from testing import registered_tests, reset_dom
 
 
@@ -16,6 +21,19 @@ def get_matching_tests_for_name(name):
     return ans
 
 
+def get_traceback(lines):
+    lines = traceback.format_exception()
+    last_line = lines[-1]
+    final_lines = v'[]'
+    pat = /at assert_\w+ \(/
+    for line in lines:
+        if pat.test(line):
+            break
+        final_lines.push(line)
+    final_lines.push(last_line)
+    return final_lines.join('')
+
+
 def run_tests(tests):
     failed_tests = []
     count = 0
@@ -26,8 +44,9 @@ def run_tests(tests):
             f()
             count += 1
         except:
-            traceback.print_stack()
-            failed_tests.append((f.test_name, traceback.format_stack()))
+            tb = get_traceback()
+            console.error(tb)
+            failed_tests.append((f.test_name, tb))
     return failed_tests, count
 
 

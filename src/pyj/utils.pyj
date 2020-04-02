@@ -250,11 +250,3 @@ def sandboxed_html(html, style, sandbox):
     # Microsoft Edge does not support srcdoc not does it work using a data URI.
     ans.srcdoc = final_html
     return ans
-
-
-if __name__ is '__main__':
-    from pythonize import strings
-    strings()
-    print(rating_to_stars(3, True))
-    print(fmt_sidx(10), fmt_sidx(1.2))
-    print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))

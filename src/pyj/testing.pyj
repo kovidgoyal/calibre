@@ -4,23 +4,26 @@ from __python__ import bound_methods, hash_literals
 
 from dom import clear
 
-def raise_fail(preamble, msg):
+def raise_fail(preamble, msg, call_site):
     if msg:
         msg = '. ' + msg
     else:
         msg = ''
+    if call_site?.module_name:
+        msg += f' [in module {call_site.module_name}:{call_site.line}:{call_site.col}]'
     raise AssertionError(preamble + msg)
 
 
-def assert_equal(a, b, msg):
+def assert_equal(a, b, msg, call_site=None):
 
     def fail():
-        raise_fail(f'{a} != {b}', msg)
+        p = f'{a} != {b}'
+        raise_fail(p, msg, call_site)
 
     atype = jstype(a)
     btype = jstype(b)
     base_types = {'number': True, 'boolean': True, 'string': True, 'undefined': True}
-    if base_types[a] or base_types[b] or a is None or b is None:
+    if base_types[atype] or base_types[btype] or a is None or b is None:
         if a is not b:
             fail()
         return
@@ -49,14 +52,14 @@ def assert_equal(a, b, msg):
         fail()
 
 
-def assert_true(x, msg):
+def assert_true(x, msg, call_site=None):
     if not x:
-        raise_fail(f'{x} is not truthy', msg)
+        raise_fail(f'{x} is not truthy', msg, call_site)
 
 
-def assert_fale(x, msg):
+def assert_fale(x, msg, call_site=None):
     if x:
-        raise_fail(f'{x} is truthy', msg)
+        raise_fail(f'{x} is truthy', msg, call_site)
 
 
 def reset_dom():

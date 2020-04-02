@@ -688,8 +688,3 @@ def cfi_for_selection(r):  # {{{
     }
 
 # }}}
-
-if __name__ is '__main__':
-    t = 'a^!,1'
-    if unescape_from_cfi(escape_for_cfi(t)) is not t:
-        raise Exception('Failed to properly roundtrip cfi')
