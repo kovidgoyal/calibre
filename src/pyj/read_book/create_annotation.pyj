@@ -8,7 +8,7 @@ from uuid import short_uuid
 
 from book_list.globals import get_session_data
 from book_list.theme import cached_color_to_rgba, get_color
-from dom import add_extra_css, clear, ensure_id, svgicon, unique_id
+from dom import clear, ensure_id, svgicon, unique_id
 from modals import error_dialog
 from read_book.shortcuts import shortcut_for_key_event
 
@@ -16,15 +16,6 @@ WAITING_FOR_CLICK = 1
 WAITING_FOR_DRAG = 2
 DRAGGING_LEFT = 3
 DRAGGING_RIGHT = 4
-
-
-add_extra_css(def():
-    ans = ''
-    ans += '.selection-handle { fill: #3cef3d; stroke: black }'
-    ans += '.selection-handle:active { fill: #FCE883; }'
-    return ans
-)
-
 
 dark_fg = '#111'
 light_fg = '#eee'
@@ -43,10 +34,11 @@ highlight_colors = {
 default_highlight_color = '#fce2ae'
 
 
-def selection_handle(invert):
+def selection_handle(invert, style):
     ans = svgicon('selection-handle')
     use = ans.querySelector('use')
-    use.classList.add('selection-handle')
+    use.style.stroke = style['color']
+    use.style.fill = style['background-color']
     s = ans.style
     if invert:
         s.transform = 'scaleX(-1)'
@@ -130,11 +122,18 @@ class CreateAnnotation:
         button(bb, 'chevron-down', _('Scroll down'), self.scroll_down)
         button(bb, 'pencil', _('Add a note'), self.add_text)
 
-        lh = selection_handle(True)
+        sd = get_session_data()
+        style = sd.get('highlight_style') or {
+            'background-color': default_highlight_color,
+            'color': highlight_colors[default_highlight_color]
+        }
+        self.current_highlight_style = style
+
+        lh = selection_handle(False, style)
         self.left_handle_id = ensure_id(lh, 'handle')
         lh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
         container.appendChild(lh)
-        rh = selection_handle(False)
+        rh = selection_handle(True, style)
         self.right_handle_id = ensure_id(rh, 'handle')
         rh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
         container.appendChild(rh)
@@ -143,13 +142,6 @@ class CreateAnnotation:
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
-
-        sd = get_session_data()
-        style = sd.get('highlight_style') or {
-            'background-color': default_highlight_color,
-            'color': highlight_colors[default_highlight_color]
-        }
-        self.current_highlight_style = style
 
     def scroll_up(self):
         self.send_message('scroll', backwards=True)
@@ -222,6 +214,15 @@ class CreateAnnotation:
         self.send_message('set-highlight-style', style=self.current_highlight_style)
         sd = get_session_data()
         sd.set('highlight_style', self.current_highlight_style)
+        self.update_handle_colors()
+
+    def update_handle_colors(self):
+        fill = self.current_highlight_style['background-color']
+        stroke = self.current_highlight_style['color']
+        for handle in (self.left_handle, self.right_handle):
+            use = handle.querySelector('use')
+            use.style.stroke = stroke
+            use.style.fill = fill
 
     def show_middle(self):
         self.save_handle_state()
