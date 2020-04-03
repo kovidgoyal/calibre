@@ -53,6 +53,7 @@ def get_key_text(evt):
         cc = key.charCodeAt(0)
         # on windows in webengine pressing ctrl+ascii char gives us an ascii
         # control code
+        # see https://bugreports.qt.io/browse/QTBUG-81783
         if (0 < cc < 32 or key is 'Enter' or key is 'Tab') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
             if key is 'Enter':
                 if evt.code and evt.code is not 'Enter':
