@@ -209,50 +209,61 @@ def load_po(path):
     return buf
 
 
-def set_translators():
-    global _lang_trans, lcdata
-    # To test different translations invoke as
-    # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
-    lang = get_lang()
-    t = buf = iso639 = None
-
+def translator_for_lang(lang):
+    t = buf = iso639 = lcdata = None
     if 'CALIBRE_TEST_TRANSLATION' in os.environ:
         buf = load_po(os.path.expanduser(os.environ['CALIBRE_TEST_TRANSLATION']))
 
-    if lang:
-        mpath = get_lc_messages_path(lang)
-        if buf is None and mpath and os.access(mpath + '.po', os.R_OK):
-            buf = load_po(mpath + '.po')
+    mpath = get_lc_messages_path(lang)
+    if buf is None and mpath and os.access(mpath + '.po', os.R_OK):
+        buf = load_po(mpath + '.po')
 
-        if mpath is not None:
-            from zipfile import ZipFile
-            with ZipFile(P('localization/locales.zip',
-                allow_user_override=False), 'r') as zf:
-                if buf is None:
-                    buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
-                if mpath == 'nds':
-                    mpath = 'de'
-                isof = mpath + '/iso639.mo'
+    if mpath is not None:
+        from zipfile import ZipFile
+        with ZipFile(P('localization/locales.zip',
+            allow_user_override=False), 'r') as zf:
+            if buf is None:
+                buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
+            if mpath == 'nds':
+                mpath = 'de'
+            isof = mpath + '/iso639.mo'
+            try:
+                iso639 = io.BytesIO(zf.read(isof))
+            except:
+                pass  # No iso639 translations for this lang
+            if buf is not None:
+                from calibre.utils.serialize import msgpack_loads
                 try:
-                    iso639 = io.BytesIO(zf.read(isof))
+                    lcdata = msgpack_loads(zf.read(mpath + '/lcdata.calibre_msgpack'))
                 except:
-                    pass  # No iso639 translations for this lang
-                if buf is not None:
-                    from calibre.utils.serialize import msgpack_loads
-                    try:
-                        lcdata = msgpack_loads(zf.read(mpath + '/lcdata.calibre_msgpack'))
-                    except:
-                        pass  # No lcdata
+                    pass  # No lcdata
 
     if buf is not None:
         t = GNUTranslations(buf)
         if iso639 is not None:
-            iso639 = _lang_trans = GNUTranslations(iso639)
+            iso639 = GNUTranslations(iso639)
             t.add_fallback(iso639)
 
     if t is None:
         t = NullTranslations()
 
+    return {'translator': t, 'iso639_translator': iso639, 'lcdata': lcdata}
+
+
+def set_translators():
+    global _lang_trans, lcdata
+    # To test different translations invoke as
+    # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
+    lang = get_lang()
+
+    if lang:
+        q = translator_for_lang(lang)
+        t = q['translator']
+        _lang_trans = q['iso639_translator']
+        if q['lcdata']:
+            lcdata = q['lcdata']
+    else:
+        t = NullTranslations()
     try:
         set_translators.lang = t.info().get('language')
     except Exception:
@@ -386,15 +397,17 @@ def get_iso_language(lang_trans, lang):
     return lang_trans(ans)
 
 
-def get_language(lang):
-    translate = _
+def get_language(lang, gettext_func=None):
+    translate = gettext_func or _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
         return translate(_extra_lang_codes[lang])
-    attr = 'gettext' if sys.version_info.major > 2 else 'ugettext'
-    return get_iso_language(getattr(_lang_trans, attr, translate), lang)
+    if gettext_func is None:
+        attr = 'gettext' if sys.version_info.major > 2 else 'ugettext'
+        gettext_func = getattr(_lang_trans, attr, translate)
+    return get_iso_language(gettext_func, lang)
 
 
 def calibre_langcode_to_name(lc, localize=True):
