@@ -373,7 +373,7 @@ class MTP_DEVICE(MTPDeviceBase):
         e = parent.folder_named(name)
         if e is not None:
             return e
-        ename = name.encode('utf-8') if isinstance(name, unicode_type) else name
+        ename = name if ispy3 else as_bytes(name)
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0
