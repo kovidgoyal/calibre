@@ -94,7 +94,7 @@ authors_split_regex = r'(?i),?\s+(and|with)\s+'
 categories_use_field_for_author_name = 'author'
 
 #: Control partitioning of Tag browser
-# When partitioning the tags browser, the format of the subcategory label is
+# When partitioning the Tag browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
 # name, categories_collapsed_rating_template if sorting by average rating, and
 # categories_collapsed_popularity_template if sorting by popularity. There are
