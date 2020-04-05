@@ -418,24 +418,23 @@ class Quickview(QDialog, Ui_Quickview):
     def refresh(self, idx):
         '''
         Given a cell in the library view, display the information. This method
-        converts the index into the lookup ken
+        converts the index into the lookup key
         '''
         if self.lock_qv.isChecked():
             return
 
         try:
-            bv_row = idx.row()
-            from calibre.gui2.ui import get_gui
-            view = get_gui().library_view.alternate_views.current_view.__class__.__name__
             self.current_column = (
-                self.view.column_map.index('authors') if view == 'GridView'
-                                                      else idx.column())
+                self.view.column_map.index('authors') if
+                    self.current_column is None and self.view.column_map[idx.column()] == 'title'
+                else idx.column())
             key = self.view.column_map[self.current_column]
-            book_id = self.view.model().id(bv_row)
+            book_id = self.view.model().id(idx.row())
             if self.current_book_id == book_id and self.current_key == key:
                 return
             self._refresh(book_id, key)
         except:
+            traceback.print_exc()
             self.indicate_no_items()
 
     def _refresh(self, book_id, key):
