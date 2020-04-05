@@ -196,6 +196,12 @@ def cleanup_qt_markup(root):
         if tag.tag == 'p' and style_map[tag].get('-qt-paragraph-type') == 'empty':
             del tag[:]
             tag.text = '\xa0'
+        if tag.tag in ('ol', 'ul'):
+            for li in tag.iterdescendants('li'):
+                ts = style_map.get(li)
+                if ts:
+                    remove_margins(li, ts)
+                    remove_zero_indents(ts)
     for style in itervalues(style_map):
         filter_qt_styles(style)
     for tag, style in iteritems(style_map):
@@ -236,7 +242,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
-        self.document().setDefaultStyleSheet(css())
+        self.document().setDefaultStyleSheet(css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
