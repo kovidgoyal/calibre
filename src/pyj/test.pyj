@@ -25,8 +25,8 @@ def get_traceback(lines):
     lines = traceback.format_exception()
     last_line = lines[-1]
     final_lines = v'[]'
-    pat = /at assert_\w+ \(/
-    for line in lines:
+    pat = /at assert_[0-9a-zA-Z_]+ \(/
+    for line in lines[:-1]:
         if pat.test(line):
             break
         final_lines.push(line)

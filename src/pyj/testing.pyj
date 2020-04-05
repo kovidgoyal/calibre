@@ -14,10 +14,21 @@ def raise_fail(preamble, msg, call_site):
     raise AssertionError(preamble + msg)
 
 
+def repr_of(a):
+    if not a:
+        return a
+    q = a.outerHTML
+    if q:
+        return q.split('>')[0] + '>'
+    return a
+
+
 def assert_equal(a, b, msg, call_site=None):
 
     def fail():
-        p = f'{a} != {b}'
+        ra = repr_of(a)
+        rb = repr_of(b)
+        p = f'{ra} != {rb}'
         raise_fail(p, msg, call_site)
 
     atype = jstype(a)
@@ -31,8 +42,16 @@ def assert_equal(a, b, msg, call_site=None):
         if not a.__eq__(b):
             fail()
         return
+    if a.isSameNode:
+        if not a.isSameNode(b):
+            fail()
+        return
     if b.__eq__:
         if not b.__eq__(a):
+            fail()
+        return
+    if b.isSameNode:
+        if not b.isSameNode(a):
             fail()
         return
     if a.length? or b.length?:
@@ -48,7 +67,7 @@ def assert_equal(a, b, msg, call_site=None):
         for key in Object.keys(b):
             assert_equal(a[key], b[key])
 
-    if a is not b:
+    if atype is not 'object' and btype is not 'object':
         fail()
 
 

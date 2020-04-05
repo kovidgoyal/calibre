@@ -136,7 +136,9 @@ def encode(doc, node, offset, tail):  # {{{
     # Handle the offset, if any
     if node.nodeType is Node.ELEMENT_NODE:
         if jstype(offset) is 'number':
-            node = node.childNodes.item(offset)
+            q = node.childNodes.item(offset)
+            if q and q.nodeType is Node.ELEMENT_NODE:
+                node = q
     elif Node.TEXT_NODE <= node.nodeType <= Node.ENTITY_NODE:
         offset = offset or 0
         while True:
@@ -212,7 +214,7 @@ def decode(cfi, doc): # {{{
                     cfi = cfi.substr(r[0].length)
                     break
                 index |= 1 # Increment index by 1 if it is even
-                if child.nodeType is 1:
+                if child.nodeType is Node.ELEMENT_NODE:
                     index += 1
                 if index is target:
                     cfi = cfi.substr(r[0].length)
@@ -276,8 +278,6 @@ def decode(cfi, doc): # {{{
             # TODO: Handle text assertion
 
     # Find the text node that contains the offset
-    if node and node.parentNode:
-        node.parentNode.normalize()
     if offset is not None:
         while True:
             l = node.nodeValue.length

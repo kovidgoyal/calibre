@@ -2,11 +2,46 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from read_book.cfi import escape_for_cfi, unescape_from_cfi
-from testing import test, assert_equal
+from elementmaker import E
+
+from read_book.cfi import encode, decode, escape_for_cfi, unescape_from_cfi
+from testing import assert_equal, test
 
 
 @test
 def cfi_escaping():
     t = 'a^!,1'
     assert_equal(t, unescape_from_cfi(escape_for_cfi(t)))
+
+
+@test
+def cfi_roundtripping():
+    idc = 0
+    def nid():
+        nonlocal idc
+        idc += 1
+        return idc + ''
+
+    document.body.appendChild(E.p('abc'))
+    p = document.body.firstChild
+    path_to_p = '/2/4/2'
+    assert_equal(encode(document, p), path_to_p)
+    assert_equal(decode(path_to_p), {'node': p})
+
+    assert_equal(encode(document, p.firstChild), f'{path_to_p}/1:0')
+    assert_equal(decode(f'{path_to_p}/1:0'), {'node': p.firstChild, 'offset': 0})
+
+    assert_equal(encode(document, p.firstChild, 1), f'{path_to_p}/1:1')
+    assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
+
+    p.appendChild(document.createTextNode('def'))
+    assert_equal(encode(document, p.firstChild, 5), f'{path_to_p}/1:5')
+    assert_equal(p.childNodes.length, 2)
+    assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:4')
+    assert_equal(decode(f'{path_to_p}/1:5'), {'node': p.lastChild, 'offset': 2})
+    assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
+
+    p.appendChild(E.span('123', id=nid()))
+    p.appendChild(document.createTextNode('456'))
+    assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:7')
+    assert_equal(decode(f'{path_to_p}/1:7'), {'node': p.lastChild, 'offset': 1})
