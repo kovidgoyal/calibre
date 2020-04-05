@@ -176,7 +176,7 @@ def encode(doc, node, offset, tail):  # {{{
             child = child.nextSibling
 
         # Add id assertions for robustness where possible
-        id = node.getAttribute('id') if node.getAttribute else None
+        id = node.id
         idspec = ('[' + escape_for_cfi(id) + ']') if id else ''
         cfi = '/' + index + idspec + cfi
         node = p
