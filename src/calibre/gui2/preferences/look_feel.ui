@@ -1228,7 +1228,7 @@ unchecked then only row changes are taken into account.</string>
 when the column in the book list is changed using the cursor arrow keys</string>
            </property>
            <property name="text">
-            <string>&amp;Change QV item when book list column changes</string>
+            <string>&amp;Change Quickview item when book list column changes</string>
            </property>
           </widget>
          </item>
