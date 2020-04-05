@@ -42,6 +42,12 @@ def cfi_roundtripping():
     assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
 
     p.appendChild(E.span('123', id=nid()))
+    span = p.lastChild
+    path_to_span = f'{path_to_p}/2[{span.id}]'
     p.appendChild(document.createTextNode('456'))
     assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:7')
     assert_equal(decode(f'{path_to_p}/1:7'), {'node': p.lastChild, 'offset': 1})
+    assert_equal(encode(document, span), path_to_span)
+    assert_equal(decode(path_to_span), {'node': span})
+    assert_equal(encode(document, span.firstChild, 1), f'{path_to_span}/1:1')
+    assert_equal(decode(f'{path_to_span}/1:1'), {'node': span.firstChild, 'offset': 1})
