@@ -4,15 +4,28 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Fetch Zeit-Online.de
 '''
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import date
+from datetime import datetime
+try:
+    from http.cookiejar import Cookie
+except ImportError:
+    from cookielib import Cookie
+
+try:
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import Request, urlopen, HTTPError
+
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class ZeitDe(BasicNewsRecipe):
 
-    __author__ = 'Armin Geller'    # AGe 2014-02-26
+    __author__ = 'Armin Geller, Thomas Hollstegge'    # AGe 2014-02-26
     title = u'Zeit Online'
-    description = u'German  online portal of newspaper Die Zeit'
+    description = u'German online portal of newspaper Die Zeit'
     publisher = 'ZEIT ONLINE GmbH'
     category = 'news, Germany'
     timefmt = ' [%a, %d %b %Y]'
@@ -24,50 +37,94 @@ class ZeitDe(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_empty_feeds = True
     auto_cleanup = True
+    auto_cleanup_keep = '//header[@class="article-header"]|//div[@class="gallery__media-container"]|//div[@class="article__media-container"]'
 
-    masthead_url = 'http://images.zeit.de/static/img/logo_247x30.png'
+    masthead_url = 'https://static.zeit.de/assets/3.538/images/structured-data-publisher-logo-zon.png'
 
-    # [0]=year [1]=week number [2]=week day
-    year = str(date.today().isocalendar()[0])
-    # week = str(date.today().isocalendar()[1]+1).zfill(3) # AGE 2014-01-09:
-    # week needs 3 digits with prefix 0
-    week = str(date.today().isocalendar()[1]).zfill(3)  # AGE 2014-02-26: week
-    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/' + \
-        year + '/' + week + '_001.jpg'  # AGE 2014-01-09
+    extra_css = '.figure__text { font-size: 0.9em; font-style: italic; } \
+                 .figure__copyright { font-size: 0.9em; font-style: italic; color: #888; } \
+                 .article-heading__kicker { font-size: 0.5em; display: block; margin-bottom: 1em; } \
+                 p.summary { font-size: 1.3em; font-style: italic; } '
 
-    extra_css = '.caption {font-size: 0.9em; font-style: italic; } \
-                 .excerpt {font-size: 1.3em; font-style: italic; } '
+    remove_tags = [
+        dict(name='aside', class_='topicbox'),
+        dict(name='aside', class_='article-toc'),
+        dict(class_='visually-hidden'),
+        dict(name='a', class_='faq-link'),
+    ]
 
     feeds = [
         (u'Startseite – Die wichtigsten Themen auf einen Blick',
-         u'http://newsfeed.zeit.de/index_xml'),
+         u'https://newsfeed.zeit.de/index'),
         (u'Politik – Ausland und Deutschland',
-         u'http://newsfeed.zeit.de/politik/index'),
-        (u'Wirtschaft – Wirtschaft und Unternehmen',
-         u'http://newsfeed.zeit.de/wirtschaft/index'),
-        (u'Meinung – Autoren kommentieren',
-         u'http://newsfeed.zeit.de/meinung/index'),
+         u'https://newsfeed.zeit.de/politik/index'),
         (u'Gesellschaft – Gesellschaft und soziales Leben',
-         u'http://newsfeed.zeit.de/gesellschaft/index'),
+         u'https://newsfeed.zeit.de/gesellschaft/index'),
+        (u'Wirtschaft – Wirtschaft und Unternehmen',
+         u'https://newsfeed.zeit.de/wirtschaft/index'),
         (u'Kultur – Literatur, Kunst, Film und Musik',
-         u'http://newsfeed.zeit.de/kultur/index'),
+         u'https://newsfeed.zeit.de/kultur/index'),
         (u'Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte',
-         u'http://newsfeed.zeit.de/wissen/index'),
+         u'https://newsfeed.zeit.de/wissen/index'),
         (u'Digital – Hardware, Software, Internet, Datenschutz',
-         u'http://newsfeed.zeit.de/digital/index'),
-        (u'Studium – ZEIT ONLINE für Studenten',
-         u'http://newsfeed.zeit.de/studium/index'),
-        (u'Karriere – Für Ein-, Um- und Aufsteiger',
-         u'http://newsfeed.zeit.de/karriere/index'),
-        (u'Lebensart – Freizeit und Leben',
-         u'http://newsfeed.zeit.de/lebensart/index'),
-        (u'Reisen – All inclusive und individuell',
-         u'http://newsfeed.zeit.de/reisen/index'),
+         u'https://newsfeed.zeit.de/digital/index'),
+        (u'ZEIT Campus Online - Studieren, arbeiten, leben',
+         u'https://newsfeed.zeit.de/campus/index'),
+        (u'Arbeit - Umbruch, Neuanfang, Erfolg, Zweifel',
+         u'https://newsfeed.zeit.de/arbeit/index'),
+        (u'Entdecken - Die Poesie des Alltäglichen',
+         u'https://newsfeed.zeit.de/entdecken/index'),
         (u'Mobilität – Wie wir uns fortbewegen',
-         u'http://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
+         u'https://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
         (u'Sport – Sieg und Niederlage',
-         u'http://newsfeed.zeit.de/sport/index')
+         u'https://newsfeed.zeit.de/sport/index')
     ]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+
+        # Add a cookie indicating we have accepted the cookie
+        # policy
+        ck = Cookie(
+            version=0, name='zonconsent', value=datetime.now().isoformat(), port=None,
+            port_specified=False, domain='.zeit.de',
+            domain_specified=False, domain_initial_dot=True, path='/',
+            path_specified=False, secure=True, expires=None, discard=False,
+            comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        br.cookiejar.set_cookie(ck)
+        return br
+
     def print_version(self, url):
-        return url + '/komplettansicht?print=true'
+        # If there is a complete page, use that one
+        req = Request(url=url+'/komplettansicht')
+        req.get_method = lambda : 'HEAD'
+        try:
+            urlopen(req)
+            return url + '/komplettansicht'
+        except HTTPError:
+            return url
+
+    def preprocess_raw_html(self, raw_html, url):
+        soup = BeautifulSoup(raw_html)
+
+        # Skip articles behind paywall
+        if soup.find('meta', property='lp:paywall'):
+            self.abort_article()
+
+        # Readability may strip the header for multipage articles, so simply
+        # include it in the main tag
+        if soup.find('body')['data-page-type'] == 'article':
+            body = soup.find('div', {'class': 'article-body'})
+            header = soup.find('header', {'class': 'article-header'})
+            if header is not None:
+                header.extract()
+                body.insert(0, header)
+
+        # Add real img tags for images
+        for container in soup.findAll(class_=re.compile('__media-container$')):
+            img = container.find('noscript')
+            if img is not None:
+                img.name = 'div'
+                img['data-src'] = ''
+
+        return soup.prettify()
