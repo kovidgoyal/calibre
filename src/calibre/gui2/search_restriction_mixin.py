@@ -150,7 +150,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             you do will only search within the books in the Virtual library. This
             is a good way to partition your large library into smaller and easier to work with subsets.</p>
 
-            <p>For example you can use a Virtual library to only show you books with the Tag <i>"Unread"</i>
+            <p>For example you can use a Virtual library to only show you books with the tag <i>"Unread"</i>
             or only books by <i>"My favorite author"</i> or only books in a particular series.</p>
 
             <p>More information and examples are available in the
