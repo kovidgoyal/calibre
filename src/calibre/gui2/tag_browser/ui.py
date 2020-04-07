@@ -37,7 +37,7 @@ class TagBrowserMixin(object):  # {{{
         for text, func, args, cat_name in (
              (_('Authors'),
                         self.do_author_sort_edit, (self, None), 'authors'),
-             (_('Series'),
+             (ngettext('Series', 'Series', 2),
                         self.do_tags_list_edit, (None, 'series'), 'series'),
              (_('Publishers'),
                         self.do_tags_list_edit, (None, 'publisher'), 'publisher'),

@@ -349,7 +349,7 @@ class CatalogBuilder(object):
         if self.opts.generate_titles:
             self.generate_ncx_by_title(_("Titles"))
         if self.opts.generate_series:
-            self.generate_ncx_by_series(_("Series"))
+            self.generate_ncx_by_series(ngettext('Series', 'Series', 2))
         if self.opts.generate_genres:
             self.generate_ncx_by_genre(_("Genres"))
         if self.opts.generate_recently_added:
@@ -2354,7 +2354,7 @@ class CatalogBuilder(object):
          content/BySeries.html (file)
 
         """
-        friendly_name = _("Series")
+        friendly_name = ngettext('Series', 'Series', 2)
         self.update_progress_full_step("%s HTML" % friendly_name)
 
         self.opts.sort_by = 'series'

@@ -133,7 +133,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             '<a href="publisher.{2}">{2}</a>, '
             '<a href="series.{3}">{3}</a>, '
             '<a href="search.{4}">{4}</a>.').format(_('Authors'), _('Tags'),
-                                            _('Publishers'), _('Series'), _('Saved searches')))
+                                            _('Publishers'), ngettext('Series', 'Series', 2), _('Saved searches')))
         sl.setWordWrap(True)
         sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
         sl.linkActivated.connect(self.link_activated)

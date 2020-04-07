@@ -232,7 +232,7 @@ class CreateCustomColumn(QDialog):
         text = '<p>'+_('Quick create:')
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('yesno', _('Yes/No')),
-                ('tags', _('Tags')), ('series', _('Series')), ('rating',
+                ('tags', _('Tags')), ('series', ngettext('Series', 'Series', 1)), ('rating',
                     _('Rating')), ('people', _("Names")), ('text', _('Short text'))]:
             text += ' <a href="col:%s">%s</a>,'%(col, name)
         text = text[:-1]
