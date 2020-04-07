@@ -161,7 +161,7 @@ class FieldsModel(QAbstractListModel):  # {{{
                 'rating' : _('Rating'),
                 'tags' : _('Tags'),
                 'title': _('Title'),
-                'series': _('Series'),
+                'series': ngettext('Series', 'Series', 1),
                 'languages': _('Languages'),
         }
         self.overrides = {}
