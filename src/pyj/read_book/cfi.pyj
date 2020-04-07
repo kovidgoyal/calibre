@@ -213,6 +213,10 @@ def encode(doc, node, offset, tail):
                         if not node.firstChild:
                             node.appendChild(document.createTextNode(''))
                         node = node.firstChild
+        elif node.dataset.calibreRangeWrapper:
+            if not node.firstChild:
+                node.appendChild(document.createTextNode(''))
+            node = node.firstChild
     if is_text_node(node):
         offset = offset or 0
         if node.parentNode and node.parentNode.dataset.calibreRangeWrapper:
