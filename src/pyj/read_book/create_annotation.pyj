@@ -378,6 +378,15 @@ class CreateAnnotation:
                 self.place_handles(msg.extents)
         elif msg.type is 'update-handles':
             self.place_handles(msg.extents)
+            if msg.from_scroll and not msg.selection_extended:
+                middle = map_from_iframe_coords({
+                    'x': msg.page_rect.left + msg.page_rect.width // 2,
+                    'y': msg.page_rect.top + msg.page_rect.height // 2
+                })
+                handle = self.left_handle if msg.backwards else self.right_handle
+                handle.style.display = 'block'
+                handle.style.left = f'{middle.x}px'
+                handle.style.top = f'{middle.y}px'
         elif msg.type is 'highlight-applied':
             if not msg.ok:
                 return error_dialog(

@@ -31,11 +31,11 @@ from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    current_cfi, get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
-    handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
-    layout as paged_layout, onwheel as paged_onwheel,
-    prepare_for_resize as paged_prepare_for_resize, progress_frac,
-    reset_paged_mode_globals, resize_done as paged_resize_done,
+    current_cfi, current_page_width, get_columns_per_screen_data,
+    handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
+    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
+    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
+    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_extend_annotation as paged_annotation_scroll,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection,
@@ -634,8 +634,12 @@ class IframeBoss:
                 extents=selection_extents_at_point(data.x, data.y, in_flow_mode))
         elif data.type is 'scroll':
             if self.scroll_to_extend_annotation(data.backwards):
-                extend_selection_after_scroll(data.backwards, in_flow_mode)
-                self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))
+                page_rect = {'width': current_page_width()}
+                extended = extend_selection_after_scroll(data.backwards, in_flow_mode, page_rect)
+                self.send_message(
+                    'annotations', type='update-handles', extents=selection_extents(in_flow_mode),
+                    backwards=data.backwards, from_scroll=True, selection_extended=extended, page_rect=page_rect
+                )
         elif data.type is 'perp-scroll':
             if in_flow_mode and flow_annotation_scroll(data.backwards, True):
                 self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))

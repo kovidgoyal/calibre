@@ -164,6 +164,10 @@ def will_columns_per_screen_change():
     return calc_columns_per_screen() != cols_per_screen
 
 
+def current_page_width():
+    return col_width
+
+
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
     body_style = window.getComputedStyle(document.body)
