@@ -20,7 +20,9 @@ def repr_of(a):
     q = a.outerHTML
     if q:
         return q.split('>')[0] + '>'
-    return a
+    if a.nodeType is Node.TEXT_NODE:
+        return repr(a.nodeValue)
+    return str(a)
 
 
 def assert_equal(a, b, msg, call_site=None):

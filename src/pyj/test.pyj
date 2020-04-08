@@ -21,7 +21,7 @@ def get_matching_tests_for_name(name):
     return ans
 
 
-def get_traceback(lines):
+def get_traceback():
     lines = traceback.format_exception()
     last_line = lines[-1]
     final_lines = v'[]'
