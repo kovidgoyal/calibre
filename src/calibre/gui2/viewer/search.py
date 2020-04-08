@@ -58,6 +58,8 @@ spat = regex.compile(r'(\s+)')
 def text_to_regex(text):
     has_leading = text.lstrip() != text
     has_trailing = text.rstrip() != text
+    if text and not text.strip():
+        return r'\s+'
     ans = []
     for wpart in spat.split(text.strip()):
         if not wpart.strip():
