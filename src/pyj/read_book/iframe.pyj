@@ -648,6 +648,7 @@ class IframeBoss:
                 window.getSelection().removeAllRanges()
                 self.annot_id_uuid_map[annot_id] = data.uuid
             self.send_message('annotations', type='highlight-applied', uuid=data.uuid, ok=annot_id is not None, bounds=bounds)
+            reset_find_caches()
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 
