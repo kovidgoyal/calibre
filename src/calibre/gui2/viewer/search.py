@@ -56,8 +56,10 @@ spat = regex.compile(r'(\s+)')
 
 
 def text_to_regex(text):
+    has_leading = text.lstrip() != text
+    has_trailing = text.rstrip() != text
     ans = []
-    for wpart in spat.split(text):
+    for wpart in spat.split(text.strip()):
         if not wpart.strip():
             ans.append(r'\s+')
         else:
@@ -67,6 +69,10 @@ def text_to_regex(text):
                     ans.append('[' + r + ']')
                 else:
                     ans.append(regex.escape(part))
+    if has_leading:
+        ans.insert(0, r'\s+')
+    if has_trailing:
+        ans.append(r'\s+')
     return ''.join(ans)
 
 
@@ -282,14 +288,14 @@ class SearchInput(QWidget):  # {{{
             vprefs['saved-search-settings'] = sss
 
     def save_search_type(self):
-        text = self.search_box.currentText().strip()
+        text = self.search_box.currentText()
         if text and not self.ignore_search_type_changes:
             sss = vprefs.get('saved-search-settings') or {}
             sss[text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
             vprefs['saved-search-settings'] = sss
 
     def saved_search_selected(self):
-        text = self.search_box.currentText().strip()
+        text = self.search_box.currentText()
         if text:
             s = (vprefs.get('saved-search-settings') or {}).get(text)
             if s:
@@ -304,7 +310,7 @@ class SearchInput(QWidget):  # {{{
             self.find_next()
 
     def search_query(self, backwards=False):
-        text = self.search_box.currentText().strip()
+        text = self.search_box.currentText()
         if text:
             return Search(
                 text, self.query_type.currentData() or 'normal',
