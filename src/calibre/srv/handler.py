@@ -108,7 +108,7 @@ class Context(object):
 
     def check_for_write_access(self, request_data):
         if not request_data.username:
-            if request_data.is_local_connection and self.opts.local_write:
+            if request_data.is_trusted_ip:
                 return
             raise HTTPForbidden('Anonymous users are not allowed to make changes')
         if self.user_manager.is_readonly(request_data.username):

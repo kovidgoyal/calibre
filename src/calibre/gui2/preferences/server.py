@@ -29,6 +29,7 @@ from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.srv.code import custom_list_template as default_custom_list_template
 from calibre.srv.embedded import custom_list_template, search_the_net_urls
+from calibre.srv.loop import parse_trusted_ips
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import (
@@ -1380,6 +1381,14 @@ class ConfigWidget(ConfigWidgetBase):
                 )
                 self.tabs_widget.setCurrentWidget(self.users_tab)
                 return False
+        if settings['trusted_ips']:
+            try:
+                tuple(parse_trusted_ips(settings['trusted_ips']))
+            except Exception as e:
+                error_dialog(
+                    self, _('Invalid trusted IPs'), str(e), show=True)
+                return False
+
         if not self.custom_list_tab.commit():
             return False
         if not self.search_net_tab.commit():

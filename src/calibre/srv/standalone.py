@@ -16,7 +16,7 @@ from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.library_broker import load_gui_libraries
-from calibre.srv.loop import ServerLoop
+from calibre.srv.loop import BadIPSpec, ServerLoop
 from calibre.srv.manage_users_cli import manage_users_cli
 from calibre.srv.opts import opts_to_parser
 from calibre.srv.users import connect
@@ -222,7 +222,10 @@ def main(args=sys.argv):
         raise SystemExit('The --log option must point to a file, not a directory')
     if opts.access_log and os.path.isdir(opts.access_log):
         raise SystemExit('The --access-log option must point to a file, not a directory')
-    server = Server(libraries, opts)
+    try:
+        server = Server(libraries, opts)
+    except BadIPSpec as e:
+        raise SystemExit('{}'.format(e))
     if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
             raise SystemExit(

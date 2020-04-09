@@ -219,7 +219,7 @@ class RequestData(object):  # {{{
     username = None
 
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, is_local_connection, translator_cache,
+                 static_cache, opts, remote_addr, remote_port, is_trusted_ip, translator_cache,
                  tdir, forwarded_for, request_original_uri=None):
 
         (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
@@ -228,7 +228,7 @@ class RequestData(object):  # {{{
             response_protocol, static_cache, translator_cache
         )
 
-        self.remote_addr, self.remote_port, self.is_local_connection = remote_addr, remote_port, is_local_connection
+        self.remote_addr, self.remote_port, self.is_trusted_ip = remote_addr, remote_port, is_trusted_ip
         self.forwarded_for = forwarded_for
         self.request_original_uri = request_original_uri
         self.opts = opts
@@ -446,7 +446,7 @@ class HTTPConnection(HTTPRequest):
         data = RequestData(
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port, self.is_local_connection,
+            self.remote_addr, self.remote_port, self.is_trusted_ip,
             self.translator_cache, self.tdir, self.forwarded_for, self.request_original_uri
         )
         self.queue_job(self.run_request_handler, data)

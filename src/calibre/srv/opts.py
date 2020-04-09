@@ -155,6 +155,17 @@ raw_options = (
       ' turning on this option means any program running on the computer'
       ' can make changes to your calibre libraries.'),
 
+    _('Allow un-authenticated connections from specific IP addresses to make changes'),
+    'trusted_ips', None,
+    _('Normally, if you do not turn on authentication, the server operates in'
+      ' read-only mode, so as to not allow anonymous users to make changes to your'
+      ' calibre libraries. This option allows anybody connecting from the specified'
+      ' IP addresses to make changes. Must be a comma separated list of address or network specifications.'
+      ' This is useful if you want to run the server without authentication but still'
+      ' use calibredb to make changes to your calibre libraries. Note that'
+      ' turning on this option means anyone connecting from the specified IP addresses'
+      ' can make changes to your calibre libraries.'),
+
     _('Path to user database'),
     'userdb', None,
     _('Path to a file in which to store the user and password information. Normally a'

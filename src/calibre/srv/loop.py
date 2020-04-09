@@ -25,6 +25,11 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
 from polyglot.builtins import iteritems, unicode_type
 from polyglot.queue import Empty, Full
+try:
+    import ipaddress
+except ImportError:
+    from backports import ipaddress
+
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'
@@ -119,6 +124,33 @@ class ReadBuffer(object):  # {{{
     # }}}
 
 
+class BadIPSpec(ValueError):
+    pass
+
+
+def parse_trusted_ips(spec):
+    for part in as_unicode(spec).split(','):
+        part = part.strip()
+        try:
+            if '/' in part:
+                yield ipaddress.ip_network(part)
+            else:
+                yield ipaddress.ip_address(part)
+        except Exception as e:
+            raise BadIPSpec(_('{0} is not a valid IP address/network, with error: {1}').format(part, e))
+
+
+def is_ip_trusted(remote_addr, trusted_ips):
+    for tip in trusted_ips:
+        if hasattr(tip, 'hosts'):
+            if remote_addr in tip:
+                return True
+        else:
+            if tip == remote_addr:
+                return True
+    return False
+
+
 class Connection(object):  # {{{
 
     def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
@@ -126,10 +158,13 @@ class Connection(object):  # {{{
         try:
             self.remote_addr = addr[0]
             self.remote_port = addr[1]
+            self.parsed_remote_addr = ipaddress.ip_address(as_unicode(self.remote_addr))
         except Exception:
-            # In case addr is None, which can occassionally happen
-            self.remote_addr = self.remote_port = None
-        self.is_local_connection = self.remote_addr in ('127.0.0.1', '::1')
+            # In case addr is None, which can occasionally happen
+            self.remote_addr = self.remote_port = self.parsed_remote_addr = None
+        self.is_trusted_ip = bool(self.opts.local_write and getattr(self.parsed_remote_addr, 'is_loopback', False))
+        if not self.is_trusted_ip and self.opts.trusted_ips and self.parsed_remote_addr is not None:
+            self.is_trusted_ip = is_ip_trusted(self.parsed_remote_addr, self.opts.trusted_ips)
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.wait_for = READ
@@ -347,6 +382,8 @@ class ServerLoop(object):
         self.ready = False
         self.handler = handler
         self.opts = opts or Options()
+        if self.opts.trusted_ips:
+            self.opts.trusted_ips = tuple(parse_trusted_ips(self.opts.trusted_ips))
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
