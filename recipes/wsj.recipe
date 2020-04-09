@@ -238,7 +238,7 @@ class WSJ(BasicNewsRecipe):
                 break
 
         feeds = []
-        for a in CSSSelect('.WSJTheme--nav-container--sPVwT3Fi .WSJTheme--section-link--XGDsdx5q'):
+        for a in CSSSelect('.WSJTheme--nav-container--2qF6xQnZ .WSJTheme--section-link--3VznjgTM'):
             frontpage = a.get('href').endswith('frontpage')
             title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
             if not title:
