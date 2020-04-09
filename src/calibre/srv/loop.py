@@ -5,31 +5,31 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, select, os, traceback
-from io import BytesIO
+import ipaddress
+import os
+import select
+import socket
+import ssl
+import traceback
 from functools import partial
+from io import BytesIO
 
 from calibre import as_unicode
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import JobQueueFull
-from calibre.srv.pool import ThreadPool, PluginPool
-from calibre.srv.opts import Options
 from calibre.srv.jobs import JobsManager
+from calibre.srv.opts import Options
+from calibre.srv.pool import PluginPool, ThreadPool
 from calibre.srv.utils import (
-    socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
-    socket_errors_eintr, start_cork, stop_cork, DESIRED_SEND_BUFFER_SIZE,
-    create_sock_pair)
-from calibre.utils.socket_inheritance import set_socket_inherit
+    DESIRED_SEND_BUFFER_SIZE, HandleInterrupt, create_sock_pair, socket_errors_eintr,
+    socket_errors_nonblocking, socket_errors_socket_closed, start_cork, stop_cork
+)
 from calibre.utils.logging import ThreadSafeLog
-from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
+from calibre.utils.monotonic import monotonic
+from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import iteritems, unicode_type
 from polyglot.queue import Empty, Full
-try:
-    import ipaddress
-except ImportError:
-    from backports import ipaddress
-
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'
