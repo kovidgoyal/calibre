@@ -180,7 +180,11 @@ def create_date_tab(self, db):
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iter_items() if v.get('datatype', None) == 'datetime']
+    vals = [((v['search_terms'] or [k])[0], v['name'] or k)
+                for k, v in db.field_metadata.iter_items()
+                    if v.get('datatype', None) == 'datetime' or
+                       (v.get('datatype', None) == 'composite' and
+                        v.get('display', {}).get('composite_sort', None) == 'date')]
     for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
