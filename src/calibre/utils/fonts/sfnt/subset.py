@@ -115,7 +115,12 @@ def safe_ord(x):
 def subset(raw, individual_chars, ranges=(), warnings=None):
     warn = partial(do_warn, warnings)
 
-    chars = set(map(safe_ord, individual_chars))
+    chars = set()
+    for ic in individual_chars:
+        try:
+            chars.add(safe_ord(ic))
+        except ValueError:
+            continue
     for r in ranges:
         chars |= set(range(safe_ord(r[0]), safe_ord(r[1])+1))
 
