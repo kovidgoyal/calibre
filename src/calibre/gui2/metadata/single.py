@@ -361,7 +361,7 @@ class MetadataSingleDialogBase(QDialog):
             tprefs.refresh()  # In case they were changed in a Tweak Book process
             from calibre.gui2 import question_dialog
             if tprefs['update_metadata_from_calibre'] and question_dialog(
-                    self, _('Save Changed Metadata?'),
+                    self, _('Save changed metadata?'),
                     _("You've changed the metadata for this book."
                       " Edit book is set to update embedded metadata when opened."
                       " You need to save your changes for them to be included."),

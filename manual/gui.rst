@@ -68,7 +68,7 @@ To add an additional format for an existing book you can do any of three things:
 
     2. Right click the :guilabel:`Add books` button and choose :guilabel:`Add files to selected books`.
 
-    3. Click the :guilabel:`Add books` button in the top right area of the :guilabel:`Edit Metadata` dialog, accessed by the :ref:`edit_meta_information` action.
+    3. Click the :guilabel:`Add books` button in the top right area of the :guilabel:`Edit metadata` dialog, accessed by the :ref:`edit_meta_information` action.
 
 .. _edit_meta_information:
 

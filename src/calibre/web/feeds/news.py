@@ -110,7 +110,7 @@ class BasicNewsRecipe(Recipe):
     #: If True stylesheets are not downloaded and processed
     no_stylesheets         = False
 
-    #: Convenient flag to strip all javascript tags from the downloaded HTML
+    #: Convenient flag to strip all JavaScript tags from the downloaded HTML
     remove_javascript      = True
 
     #: If True the GUI will ask the user for a username and password

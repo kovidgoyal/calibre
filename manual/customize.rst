@@ -71,7 +71,7 @@ Overriding icons, templates, et cetera
     available for calibre, that you can use by going to :guilabel:`Preferences->Interface->Look & Feel->Change Icon theme`.
     The icon themes use the same mechanism as described below for overriding static resources.
 
-calibre allows you to override the static resources, like icons, javascript and
+calibre allows you to override the static resources, like icons, JavaScript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
 you like.  All static resources are stored in the resources sub-folder of the
 calibre install location. On Windows, this is usually :file:`C:\\Program Files\\Calibre2\\app\\resources`.

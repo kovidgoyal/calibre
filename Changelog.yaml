@@ -992,7 +992,7 @@
 
     - title: "Fix a regression that broke completion for ebook-convert"
 
-    - title: "News fetching: Fix a regression that broke removal of attributes/javascript/srcset because of bugs in the new BeautifulSoup"
+    - title: "News fetching: Fix a regression that broke removal of attributes/JavaScript/srcset because of bugs in the new BeautifulSoup"
 
     - title: "TXT Output: Fix Vietnamese Â character being stripped from output."
       tickets: [1825770]
@@ -1718,7 +1718,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Fix Tweaks help string not being displayed translated"
 
-    - title: "Edit metadata dialog: Fix distorted rendering of some labels in the custom metadata tab in rare circumstances."
+    - title: "Edit metadata dialog: Fix distorted rendering of some labels in the Custom metadata tab in rare circumstances."
       tickets: [1766762]
 
     - title: "version 3.26.1 prevents dropping of a book onto itself from triggering the merge dialog, which should reduce accidental triggers"
@@ -2470,7 +2470,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Linux: Fix regression that broke using calibre on some older VNC servers"
 
-    - title: "Browser viewer: Do not fail if the book contains javascript that has errors."
+    - title: "Browser viewer: Do not fail if the book contains JavaScript that has errors."
       tickets: [1715781]
 
     - title: "Linux: Fix file open dialog on older KDE desktops not working correctly."

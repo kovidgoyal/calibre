@@ -434,7 +434,7 @@ this case the simplest solution is to adjust your router to forward requests on 
 
 Also some devices do not have browsers advanced enough to run the app-like
 interface used by the content server. For such devices, you can simply add
-``/mobile`` to the server URL to get a simplified, non-javascript interface.
+``/mobile`` to the server URL to get a simplified, non-JavaScript interface.
 
 
 I cannot send emails using calibre?
