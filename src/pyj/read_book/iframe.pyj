@@ -663,6 +663,7 @@ class IframeBoss:
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
                     removed_highlights[self.annot_id_uuid_map[crw]] = True
+                    v'delete self.annot_id_uuid_map[crw]'
             self.send_message(
                 'annotations',
                 type='highlight-applied',
