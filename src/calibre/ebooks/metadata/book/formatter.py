@@ -16,7 +16,7 @@ class SafeFormat(TemplateFormatter):
         TemplateFormatter.__init__(self)
 
     def get_value(self, orig_key, args, kwargs):
-        if not orig_key:
+        if not orig_key or isinstance(orig_key, int):
             return ''
         key = orig_key = orig_key.lower()
         if (key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and
