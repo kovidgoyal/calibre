@@ -664,12 +664,16 @@ class IframeBoss:
                     unwrap_crw(crw)
                     removed_highlights[self.annot_id_uuid_map[crw]] = True
                     v'delete self.annot_id_uuid_map[crw]'
+            removed_highlights = Object.keys(removed_highlights)
+            if removed_highlights.length is 1:
+                data.uuid = removed_highlights[0]
+                removed_highlights = v'[]'
             self.send_message(
                 'annotations',
                 type='highlight-applied',
                 uuid=data.uuid, ok=annot_id is not None,
                 bounds=bounds,
-                removed_highlights=Object.keys(removed_highlights),
+                removed_highlights=removed_highlights,
                 highlighted_text=text,
             )
             reset_find_caches()
