@@ -11,7 +11,10 @@ from select import (
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
-from range_utils import reset_highlight_counter, wrap_text_in_range
+from range_utils import (
+    range_wrappers_intersecting_selection, reset_highlight_counter, unwrap_crw,
+    wrap_text_in_range
+)
 from read_book.cfi import cfi_for_selection, scroll_to as scroll_to_cfi
 from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
@@ -646,12 +649,28 @@ class IframeBoss:
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
         elif data.type is 'apply-highlight':
+            sel = window.getSelection()
+            text = ''
+            if sel:
+                text = sel.toString()
             bounds = cfi_for_selection()
+            intersecting_wrappers = range_wrappers_intersecting_selection()
             annot_id = wrap_text_in_range(data.style)
+            removed_highlights = {}
             if annot_id is not None:
-                window.getSelection().removeAllRanges()
+                sel.removeAllRanges()
                 self.annot_id_uuid_map[annot_id] = data.uuid
-            self.send_message('annotations', type='highlight-applied', uuid=data.uuid, ok=annot_id is not None, bounds=bounds)
+                for crw in intersecting_wrappers:
+                    unwrap_crw(crw)
+                    removed_highlights[self.annot_id_uuid_map[crw]] = True
+            self.send_message(
+                'annotations',
+                type='highlight-applied',
+                uuid=data.uuid, ok=annot_id is not None,
+                bounds=bounds,
+                removed_highlights=Object.keys(removed_highlights),
+                highlighted_text=text,
+            )
             reset_find_caches()
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)

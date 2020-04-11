@@ -60,6 +60,11 @@ def unwrap(node):
         p.normalize()
 
 
+def unwrap_crw(crw):
+    for node in document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]'):
+        unwrap(node)
+
+
 def create_wrapper_function(wrapper_elem, r):
     start_node = r.startContainer
     end_node = r.endContainer
@@ -109,3 +114,33 @@ def wrap_text_in_range(style, r):
 def reset_highlight_counter():
     nonlocal wrapper_counter
     wrapper_counter = 0
+
+
+def is_text_node(node):
+    return node.nodeType is Node.TEXT_NODE or node.nodeType is Node.CDATA_SECTION_NODE
+
+
+def range_wrappers_intersecting_selection(sel):
+    ans = {}
+    sel = sel or window.getSelection()
+    if not sel:
+        return ans
+    r = sel.getRangeAt(0)
+    if not r:
+        return ans
+    walker = document.createTreeWalker(r.commonAncestorContainer, NodeFilter.SHOW_ALL, None, False)
+    in_selection = False
+    while True:
+        node = walker.nextNode()
+        if not node:
+            break
+        if not in_selection and node is not r.startContainer:
+            continue
+        in_selection = True
+        if node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
+            ans[node.dataset.calibreRangeWrapper] = True
+        elif is_text_node(node) and node.parentNode.dataset.calibreRangeWrapper:
+            ans[node.parentNode.dataset.calibreRangeWrapper] = True
+        if node is r.endContainer:
+            break
+    return Object.keys(ans)
