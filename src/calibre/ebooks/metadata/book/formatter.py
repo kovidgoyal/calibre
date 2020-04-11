@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS
 
 from calibre.utils.formatter import TemplateFormatter
+from numbers import Number
 
 
 class SafeFormat(TemplateFormatter):
@@ -16,7 +17,7 @@ class SafeFormat(TemplateFormatter):
         TemplateFormatter.__init__(self)
 
     def get_value(self, orig_key, args, kwargs):
-        if not orig_key:
+        if not orig_key or isinstance(orig_key, Number):
             return ''
         key = orig_key = orig_key.lower()
         if (key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and
@@ -42,5 +43,3 @@ class SafeFormat(TemplateFormatter):
         if v == '':
             return ''
         return v
-
-
