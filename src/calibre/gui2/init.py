@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt5.Qt import (
-    QAction, QApplication, QFont, QIcon, QLabel, QMenu, QPainter, QSizePolicy,
+    QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy,
     QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
     QToolButton, QVBoxLayout, QWidget
 )
@@ -271,11 +271,7 @@ class StatusBar(QStatusBar):  # {{{
         self.total = self.current = self.selected = self.library_total = 0
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
-        self._font = QFont()
-        self._font.setBold(True)
-        self.setFont(self._font)
         self.defmsg = VersionLabel(self)
-        self.defmsg.setFont(self._font)
         self.addWidget(self.defmsg)
         self.set_label()
 
