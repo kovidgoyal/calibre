@@ -4,40 +4,28 @@
 from __python__ import bound_methods, hash_literals
 
 
-def get_text_nodes(el):
-    el = el or document.body
-    doc = el.ownerDocument or document
-    walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT, None, False)
-    text_nodes = v'[]'
+def is_non_empty_text_node(node):
+    return (node.nodeType is Node.TEXT_NODE or node.nodeType is Node.CDATA_SECTION_NODE) and node.nodeValue.length > 0
+
+
+def text_nodes_in_range(r):
+    parent = r.commonAncestorContainer
+    doc = parent.ownerDocument or document
+    iterator = doc.createNodeIterator(parent)
+    in_range = False
+    ans = v'[]'
     while True:
-        node = walker.nextNode()
+        node = iterator.nextNode()
         if not node:
             break
-        text_nodes.push(node)
-    return text_nodes
-
-
-def create_range_from_node(node):
-    ans = node.ownerDocument.createRange()
-    try:
-        ans.selectNode(node)
-    except:
-        ans.selectNodeContents(node)
+        if not in_range and node.isSameNode(r.startContainer):
+            in_range = True
+        if in_range:
+            if is_non_empty_text_node(node):
+                ans.push(node)
+            if node.isSameNode(r.endContainer):
+                break
     return ans
-
-
-def is_non_empty_text_node(node):
-    return node.textContent.length > 0
-
-
-def text_nodes_in_range(r, predicate):
-    predicate = predicate or is_non_empty_text_node
-    container = r.commonAncestorContainer
-    nodes = get_text_nodes(container.parentNode or container)
-
-    def final_predicate(node):
-        return r.intersectsNode(node) and predicate(node)
-    return nodes.filter(final_predicate)
 
 
 def remove(node):
@@ -65,7 +53,7 @@ def unwrap_crw(crw):
         unwrap(node)
 
 
-def create_wrapper_function(wrapper_elem, r):
+def create_wrapper_function(wrapper_elem, r, intersecting_wrappers):
     start_node = r.startContainer
     end_node = r.endContainer
     start_offset = r.startOffset
@@ -76,15 +64,17 @@ def create_wrapper_function(wrapper_elem, r):
         current_range = (node.ownerDocument or document).createRange()
         current_wrapper = wrapper_elem.cloneNode()
         current_range.selectNodeContents(node)
-        if node is start_node and start_node.nodeType is Node.TEXT_NODE:
+        if node.isSameNode(start_node):
             current_range.setStart(node, start_offset)
             start_node = current_wrapper
             start_offset = 0
-        if node is end_node and end_node.nodeType is Node.TEXT_NODE:
+        if node.isSameNode(end_node):
             current_range.setEnd(node, end_offset)
             end_node = current_wrapper
             end_offset = 1
-
+        crw = node.parentNode.dataset.calibreRangeWrapper
+        if crw:
+            intersecting_wrappers[crw] = True
         current_range.surroundContents(current_wrapper)
         return current_wrapper
 
@@ -98,49 +88,21 @@ def wrap_text_in_range(style, r):
     if not r:
         r = window.getSelection().getRangeAt(0)
     if r.isCollapsed:
-        return None
+        return None, v'[]'
 
     wrapper_elem = document.createElement('span')
     wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
     if style:
         wrapper_elem.setAttribute('style', style)
 
-    wrap_node = create_wrapper_function(wrapper_elem, r)
-    nodes = text_nodes_in_range(r)
-    nodes = nodes.map(wrap_node)
-    return wrapper_elem.dataset.calibreRangeWrapper
+    intersecting_wrappers = {}
+    wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers)
+    text_nodes_in_range(r).map(wrap_node)
+    crw = wrapper_elem.dataset.calibreRangeWrapper
+    v'delete intersecting_wrappers[crw]'
+    return crw, Object.keys(intersecting_wrappers)
 
 
 def reset_highlight_counter():
     nonlocal wrapper_counter
     wrapper_counter = 0
-
-
-def is_text_node(node):
-    return node.nodeType is Node.TEXT_NODE or node.nodeType is Node.CDATA_SECTION_NODE
-
-
-def range_wrappers_intersecting_selection(sel):
-    ans = {}
-    sel = sel or window.getSelection()
-    if not sel:
-        return ans
-    r = sel.getRangeAt(0)
-    if not r:
-        return ans
-    walker = document.createTreeWalker(r.commonAncestorContainer, NodeFilter.SHOW_ALL, None, False)
-    in_selection = False
-    while True:
-        node = walker.nextNode()
-        if not node:
-            break
-        if not in_selection and node is not r.startContainer:
-            continue
-        in_selection = True
-        if node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
-            ans[node.dataset.calibreRangeWrapper] = True
-        elif is_text_node(node) and node.parentNode.dataset.calibreRangeWrapper:
-            ans[node.parentNode.dataset.calibreRangeWrapper] = True
-        if node is r.endContainer:
-            break
-    return Object.keys(ans)

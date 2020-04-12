@@ -21,15 +21,15 @@ def parse_annotations(raw):
     return list(_parse_annotations(raw))
 
 
-def merge_annots_with_identical_titles(annots):
+def merge_annots_with_identical_field(annots, field='title'):
     title_groups = defaultdict(list)
     for a in annots:
-        title_groups[a['title']].append(a)
+        title_groups[a[field]].append(a)
     for tg in itervalues(title_groups):
         tg.sort(key=itemgetter('timestamp'), reverse=True)
     seen = set()
     for a in annots:
-        title = a['title']
+        title = a[field]
         if title not in seen:
             seen.add(title)
             yield title_groups[title][0]
@@ -42,13 +42,14 @@ def merge_annotations(annots, annots_map):
     lr = annots_map['last-read']
     if lr:
         lr.sort(key=itemgetter('timestamp'), reverse=True)
-    for annot_type in ('bookmark',):
+    for annot_type, field in {'bookmark': 'title', 'highlight': 'uuid'}.items():
         a = annots_map.get(annot_type)
         if a and len(a) > 1:
-            annots_map[annot_type] = list(merge_annots_with_identical_titles(a))
+            annots_map[annot_type] = list(merge_annots_with_identical_field(a, field=field))
 
 
 def serialize_annotation(annot):
+    annot = annot.copy()
     annot['timestamp'] = annot['timestamp'].isoformat()
     return annot
 
@@ -57,7 +58,7 @@ def serialize_annotations(annots_map):
     ans = []
     for atype, annots in iteritems(annots_map):
         for annot in annots:
-            annot = serialize_annotation(annot.copy())
+            annot = serialize_annotation(annot)
             annot['type'] = atype
             ans.append(annot)
     return json_dumps(ans)

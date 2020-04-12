@@ -13,12 +13,12 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
+from read_book.create_annotation import AnnotationsManager, CreateAnnotation
 from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
 from read_book.goto import get_next_section
 from read_book.open_book import add_book_to_recently_viewed
-from read_book.create_annotation import CreateAnnotation
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
@@ -278,6 +278,7 @@ class View:
         self.pending_load = None
         self.currently_showing = {}
         self.book_scrollbar.apply_visibility()
+        self.annotations_manager = AnnotationsManager(self)
         self.create_annotation = CreateAnnotation(self)
 
     @property
@@ -740,6 +741,7 @@ class View:
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)
         self.book = current_book.book = book
+        self.annotations_manager.set_highlights(book.highlights or v'[]')
         if runtime.is_standalone_viewer:
             add_book_to_recently_viewed(book)
         if ui_operations.update_last_read_time:
@@ -827,10 +829,13 @@ class View:
             return
         self.processing_spine_item_display = False
         initial_position = initial_position or {'replace_history':False}
-        self.currently_showing = {'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position, 'loading':True}
-        self.show_loading()
         spine = self.book.manifest.spine
         idx = spine.indexOf(name)
+        self.currently_showing = {
+            'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
+            'loading':True, 'spine_index': idx
+        }
+        self.show_loading()
         set_current_spine_item(name)
         if idx > -1:
             self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
@@ -1091,6 +1096,7 @@ class View:
             initial_position=self.currently_showing.initial_position,
             settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
+            highlights=self.annotations_manager.highlights_for_currently_showing(),
         )
 
     def on_content_loaded(self, data):

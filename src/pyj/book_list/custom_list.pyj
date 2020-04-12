@@ -202,10 +202,10 @@ def render_part(part, template, book_id, metadata):
     count = rendered_count = 0
     ans = E.div()
     ans.innerHTML = part
-    walk = document.createTreeWalker(ans, NodeFilter.SHOW_TEXT, None, False)
+    iterator = document.createNodeIterator(ans, NodeFilter.SHOW_TEXT)
     replacements = v'[]'
     while True:
-        n = walk.nextNode()
+        n = iterator.nextNode()
         if not n:
             break
         rendered = E.span()

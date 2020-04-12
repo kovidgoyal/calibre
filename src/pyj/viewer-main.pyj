@@ -138,7 +138,7 @@ def show_error(title, msg, details):
     to_python.show_error(title, msg, details)
 
 
-def manifest_received(key, initial_position, pathtoebook, end_type, xhr, ev):
+def manifest_received(key, initial_position, pathtoebook, highlights, end_type, xhr, ev):
     nonlocal book
     end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'load':
@@ -147,6 +147,7 @@ def manifest_received(key, initial_position, pathtoebook, end_type, xhr, ev):
         book.manifest = data[0]
         book.metadata = book.manifest.metadata = data[1]
         book.manifest.pathtoebook = pathtoebook
+        book.highlights = highlights
         book.stored_files = {}
         book.is_complete = True
         v'delete book.manifest["metadata"]'
@@ -243,8 +244,8 @@ def show_home_page():
 
 
 @from_python
-def start_book_load(key, initial_position, pathtoebook):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook), ok_code=0)
+def start_book_load(key, initial_position, pathtoebook, highlights):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 
@@ -420,6 +421,8 @@ if window is window.top:
         to_python.scrollbar_context_menu(x, y, frac)
     ui_operations.close_prep_finished = def(cfi):
         to_python.close_prep_finished(cfi)
+    ui_operations.highlights_changed = def(highlights):
+        to_python.highlights_changed(highlights)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

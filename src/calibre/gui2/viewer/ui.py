@@ -25,7 +25,8 @@ from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
-    merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotations
+    merge_annotations, parse_annotations, save_annots_to_epub, serialize_annotation,
+    serialize_annotations
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import (
@@ -43,6 +44,7 @@ from calibre.gui2.viewer.web_view import (
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.monotonic import monotonic
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import as_bytes, iteritems, itervalues
@@ -176,6 +178,7 @@ class EbookViewer(MainWindow):
         self.web_view.shortcuts_changed.connect(self.shortcuts_changed)
         self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.web_view.close_prep_finished.connect(self.close_prep_finished)
+        self.web_view.highlights_changed.connect(self.highlights_changed)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
@@ -486,7 +489,10 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'ref', 'data': open_at[len('ref:'):]}
             elif is_float(open_at):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
-        self.web_view.start_book_load(initial_position=initial_position)
+        self.web_view.start_book_load(
+            initial_position=initial_position,
+            highlights=list(map(serialize_annotation, self.current_book_data['annotations_map']['highlight']))
+        )
 
     def load_book_data(self):
         self.load_book_annotations()
@@ -555,6 +561,15 @@ class EbookViewer(MainWindow):
                 before_stat = os.stat(path)
                 save_annots_to_epub(path, annots)
                 update_book(path, before_stat, {'calibre-book-annotations.json': annots})
+
+    def highlights_changed(self, highlights):
+        if not self.current_book_data:
+            return
+        for h in highlights:
+            h['timestamp'] = parse_iso8601(h['timestamp'], assume_utc=True)
+        amap = self.current_book_data['annotations_map']
+        amap['highlight'] = highlights
+        self.save_annotations()
 
     def save_state(self):
         with vprefs:

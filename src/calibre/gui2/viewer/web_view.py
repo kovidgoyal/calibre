@@ -276,6 +276,7 @@ class ViewerBridge(Bridge):
     customize_toolbar = from_js()
     scrollbar_context_menu = from_js(object, object, object)
     close_prep_finished = from_js(object)
+    highlights_changed = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -457,6 +458,7 @@ class WebView(RestartingWebEngineView):
     customize_toolbar = pyqtSignal()
     scrollbar_context_menu = pyqtSignal(object, object, object)
     close_prep_finished = pyqtSignal(object)
+    highlights_changed = pyqtSignal(object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
@@ -508,6 +510,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.customize_toolbar.connect(self.customize_toolbar)
         self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
+        self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -597,9 +600,9 @@ class WebView(RestartingWebEngineView):
     def on_content_file_changed(self, data):
         self.current_content_file = data
 
-    def start_book_load(self, initial_position=None):
+    def start_book_load(self, initial_position=None, highlights=None):
         key = (set_book_path.path,)
-        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook)
+        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [])
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

@@ -776,3 +776,14 @@ def cfi_for_selection(r):  # {{{
     }
 
 # }}}
+
+def range_from_cfi(start, end):  # {{{
+    start = decode(start)
+    end = decode(end)
+    if not start or start.error or not end or end.error:
+        return
+    r = document.createRange()
+    r.setStart(start.node, start.offset)
+    r.setEnd(end.node, end.offset)
+    return r
+# }}}
