@@ -75,7 +75,7 @@ def range_extents(start, end, in_flow_mode):
 
 def selection_extents(in_flow_mode):
     sel = window.getSelection()
-    if not sel or not sel.rangeCount:
+    if not sel or not sel.rangeCount or sel.isCollapsed:
         return range_extents()
     start = sel.getRangeAt(0)
     end = sel.getRangeAt(sel.rangeCount - 1)

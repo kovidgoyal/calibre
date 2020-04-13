@@ -435,7 +435,7 @@ class CreateAnnotation:
             self.state = WAITING_FOR_CLICK
             self.show()
             self.hide_handles()
-            if msg.extents.start.x is not None:
+            if msg.extents and msg.extents.start.x is not None:
                 self.place_handles(msg.extents)
             self.in_flow_mode = msg.in_flow_mode
             self.send_message('set-highlight-style', style=self.current_highlight_style)
