@@ -259,8 +259,9 @@ class View:
             'update_cfi': self.on_update_cfi,
             'update_progress_frac': self.on_update_progress_frac,
             'update_toc_position': self.on_update_toc_position,
-            'search_result_not_found': def (data): if ui_operations.search_result_not_found:
-                ui_operations.search_result_not_found(data.search_result)
+            'search_result_not_found': def (data):
+                if ui_operations.search_result_not_found:
+                    ui_operations.search_result_not_found(data.search_result)
             ,
             'annotations': self.on_annotations_message,
             'copy_text_to_clipboard': def(data):
