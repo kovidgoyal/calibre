@@ -131,6 +131,7 @@ class IframeBoss:
             'show_search_result': self.show_search_result,
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
+            'copy_selection': self.copy_selection,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -697,6 +698,11 @@ class IframeBoss:
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
                     v'delete self.annot_id_uuid_map[crw]'
+
+    def copy_selection(self):
+        text = window.getSelection().toString()
+        if text:
+            self.send_message('copy_text_to_clipboard', text=text)
 
 def main():
     main.boss = IframeBoss()

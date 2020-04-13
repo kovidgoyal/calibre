@@ -126,7 +126,7 @@ BAR_SIZE = 32
 def create_bar():
     ans = E.div(
         id=unique_id('annot-bar'),
-        style=f'height: {BAR_SIZE}px; width: 100vw; display: flex; justify-content: space-between;',
+        style=f'height: {BAR_SIZE}px; max-height: {BAR_SIZE}px; width: 100vw; display: flex; justify-content: space-between;',
     )
     return ans
 
@@ -167,7 +167,11 @@ class CreateAnnotation:
         container.appendChild(tb)
         button(tb, 'close', _('Cancel creation of highlight'), self.hide)
         button(tb, 'chevron-up', _('Scroll up'), self.scroll_up)
-        button(tb, 'check', _('Finish creation of highlight'), self.accept)
+        tb.appendChild(E.span(style=f'height: {tb.style.height}'))
+        if ui_operations.copy_selection:
+            button(tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
+            tb.lastChild.appendChild(E.span('\xa0'))
+        button(tb.lastChild, 'check', _('Finish creation of highlight'), self.accept)
 
         middle = E.div(id=unique_id('middle'), style='display: none')
         self.middle_id = middle.id
@@ -199,6 +203,9 @@ class CreateAnnotation:
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
+
+    def copy_to_clipboard(self):
+        self.view.iframe_wrapper.send_message('copy_selection')
 
     def scroll_up(self):
         self.send_message('scroll', backwards=True)

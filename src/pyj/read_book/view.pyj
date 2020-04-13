@@ -263,6 +263,10 @@ class View:
                 ui_operations.search_result_not_found(data.search_result)
             ,
             'annotations': self.on_annotations_message,
+            'copy_text_to_clipboard': def(data):
+                if ui_operations.copy_selection:
+                    ui_operations.copy_selection(data.text)
+            ,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
         if runtime.is_standalone_viewer:
