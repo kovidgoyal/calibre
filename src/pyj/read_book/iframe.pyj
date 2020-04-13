@@ -11,7 +11,10 @@ from select import (
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
-from range_utils import reset_highlight_counter, unwrap_crw, wrap_text_in_range
+from range_utils import (
+    reset_highlight_counter, set_selection_to_highlight, unwrap_crw,
+    wrap_text_in_range
+)
 from read_book.cfi import (
     cfi_for_selection, range_from_cfi, scroll_to as scroll_to_cfi
 )
@@ -635,10 +638,12 @@ class IframeBoss:
         if data.type is 'set-selection':
             set_selections_extents_to(data.extents)
         elif data.type is 'position-handles-at-point':
+            extents = selection_extents_at_point(data.x, data.y, in_flow_mode)
+            annot_id = set_selection_to_highlight()
+            if annot_id:
+                extents = selection_extents(in_flow_mode)
             self.send_message(
-                'annotations',
-                type='position-handles',
-                extents=selection_extents_at_point(data.x, data.y, in_flow_mode))
+                'annotations', type='position-handles', extents=extents, existing=self.annot_id_uuid_map[annot_id])
         elif data.type is 'scroll':
             if self.scroll_to_extend_annotation(data.backwards):
                 page_rect = {'width': current_page_width()}
@@ -667,6 +672,9 @@ class IframeBoss:
                     unwrap_crw(crw)
                     removed_highlights[self.annot_id_uuid_map[crw]] = True
                     v'delete self.annot_id_uuid_map[crw]'
+            if data.existing and removed_highlights[data.existing]:
+                data.uuid = data.existing
+                v'delete removed_highlights[data.existing]'
             removed_highlights = Object.keys(removed_highlights)
             if removed_highlights.length is 1:
                 data.uuid = removed_highlights[0]
