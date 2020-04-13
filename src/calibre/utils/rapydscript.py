@@ -235,7 +235,6 @@ def compile_pyj(
     libdir=None,
     omit_baselib=False,
     js_version=5,
-    add_call_site_to_functions=''
 ):
     if isinstance(data, bytes):
         data = data.decode('utf-8')
@@ -245,7 +244,6 @@ def compile_pyj(
         'keep_baselib': not omit_baselib,
         'filename': filename,
         'js_version': js_version,
-        'add_call_site_to_functions': '',
     }
     if not ok_to_import_webengine():
         from calibre.debug import run_calibre_debug
@@ -291,13 +289,12 @@ def compile_fast(
     libdir=None,
     omit_baselib=False,
     js_version=None,
-    add_call_site_to_functions='assert_'
 ):
     global has_external_compiler
     if has_external_compiler is None:
         has_external_compiler = detect_external_compiler()
     if not has_external_compiler:
-        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6, add_call_site_to_functions)
+        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6)
     args = ['--cache-dir', module_cache_dir()]
     if libdir:
         args += ['--import-path', libdir]
@@ -309,8 +306,6 @@ def compile_fast(
         args.append('--omit-baselib')
     if js_version:
         args.append('--js-version={}'.format(js_version or 6))
-    if add_call_site_to_functions:
-        args.append('--add-call-site-to-functions=' + add_call_site_to_functions)
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     if filename:
