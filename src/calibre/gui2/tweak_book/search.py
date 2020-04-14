@@ -923,8 +923,8 @@ class SavedSearches(QWidget):
                 (_('&Find'), 'find', _('Run the search using the selected entries.') + mulmsg),
                 (_('&Replace'), 'replace', _('Run replace using the selected entries.') + mulmsg),
                 (_('Replace a&nd Find'), 'replace-find', _('Run replace and then find using the selected entries.') + mulmsg),
-                (_('Replace &all'), 'replace-all', _('Run Replace All for all selected entries in the order selected')),
-                (_('&Count all'), 'count', _('Run Count All for all selected entries')),
+                (_('Replace &all'), 'replace-all', _('Run Replace all for all selected entries in the order selected')),
+                (_('&Count all'), 'count', _('Run Count all for all selected entries')),
         ]:
             self.action_button_map[action] = b = pb(text, tooltip, action)
             v.addWidget(b)
