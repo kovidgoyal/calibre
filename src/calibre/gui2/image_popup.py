@@ -82,6 +82,9 @@ class ImageView(QDialog):
         h.addWidget(i), h.addStretch(), h.addWidget(bb)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
+        geom = gprefs.get(self.geom_name)
+        if geom is not None:
+            self.restoreGeometry(geom)
 
     def set_to_viewport_size(self):
         page_size = self.scrollarea.size()
