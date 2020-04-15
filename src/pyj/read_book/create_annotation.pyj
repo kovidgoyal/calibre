@@ -177,6 +177,8 @@ class CreateAnnotation:
             cb.style.backgroundColor = get_color('window-background')
             cb.style.boxSizing = 'border-box'
             cb.style.padding = '2px'
+            cb.style.border = 'solid 2px currentColor'
+            cb.style.borderRadius = '4px'
             cb.classList.add('simple-link')
             cb.addEventListener('click', def(ev):
                 ev.preventDefault(), ev.stopPropagation()
