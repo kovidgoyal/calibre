@@ -120,7 +120,7 @@ def reset_highlight_counter():
 
 def set_selection_to_highlight():
     sel = window.getSelection()
-    if not sel or not sel.getRangeAt(0):
+    if not sel or not sel.rangeCount:
         return
     r = sel.getRangeAt(0)
     crw = None

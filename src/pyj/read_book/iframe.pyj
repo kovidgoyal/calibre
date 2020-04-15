@@ -659,26 +659,30 @@ class IframeBoss:
             set_selection_style(data.style)
         elif data.type is 'apply-highlight':
             sel = window.getSelection()
-            text = ''
-            if sel:
-                text = sel.toString()
+            text = sel.toString()
+            if not sel.rangeCount:
+                return
             bounds = cfi_for_selection()
             annot_id, intersecting_wrappers = wrap_text_in_range(data.style)
-            removed_highlights = {}
+            removed_highlights = v'[]'
             if annot_id is not None:
-                sel.removeAllRanges()
-                self.annot_id_uuid_map[annot_id] = data.uuid
+                intersecting_uuids = [self.annot_id_uuid_map[x] for x in intersecting_wrappers]
+                if data.existing and intersecting_uuids.indexOf(data.existing) > -1:
+                    idx = intersecting_uuids.indexOf(data.existing)
+                    intersecting_wrappers.splice(idx, 1)
+                    data.uuid = data.existing
+                elif intersecting_wrappers.length is 1 and self.annot_id_uuid_map[intersecting_wrappers[0]]:
+                    data.uuid = self.annot_id_uuid_map[intersecting_wrappers[0]]
+                    intersecting_wrappers = v'[]'
+                removed_highlights = {}
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
-                    removed_highlights[self.annot_id_uuid_map[crw]] = True
-                    v'delete self.annot_id_uuid_map[crw]'
-            if data.existing and removed_highlights[data.existing]:
-                data.uuid = data.existing
-                v'delete removed_highlights[data.existing]'
-            removed_highlights = Object.keys(removed_highlights)
-            if removed_highlights.length is 1:
-                data.uuid = removed_highlights[0]
-                removed_highlights = v'[]'
+                    if self.annot_id_uuid_map[crw]:
+                        removed_highlights[self.annot_id_uuid_map[crw]] = True
+                        v'delete self.annot_id_uuid_map[crw]'
+                removed_highlights = Object.keys(removed_highlights)
+                sel.removeAllRanges()
+                self.annot_id_uuid_map[annot_id] = data.uuid
             self.send_message(
                 'annotations',
                 type='highlight-applied',
