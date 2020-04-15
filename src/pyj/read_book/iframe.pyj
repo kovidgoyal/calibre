@@ -12,7 +12,7 @@ from select import (
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
-    reset_highlight_counter, set_selection_to_highlight, unwrap_crw,
+    reset_highlight_counter, select_crw, set_selection_to_highlight, unwrap_crw,
     wrap_text_in_range
 )
 from read_book.cfi import (
@@ -591,6 +591,12 @@ class IframeBoss:
         if refnum?:
             self.scroll_to_ref(refnum)
 
+    def ensure_selection_visible(self):
+        if current_layout_mode() is 'flow':
+            ensure_selection_visible()
+        else:
+            snap_to_selection()
+
     def find(self, data, from_load):
         if data.searched_in_spine:
             window.getSelection().removeAllRanges()
@@ -606,10 +612,7 @@ class IframeBoss:
 
     def show_search_result(self, data, from_load):
         if select_search_result(data.search_result):
-            if current_layout_mode() is 'flow':
-                ensure_selection_visible()
-            else:
-                snap_to_selection()
+            self.ensure_selection_visible()
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)
 
@@ -623,7 +626,7 @@ class IframeBoss:
         else:
             end_reference_mode()
 
-    def initiate_creation_of_annotation(self):
+    def initiate_creation_of_annotation(self, existing):
         self.auto_scroll_action('stop')
         in_flow_mode = current_layout_mode() is 'flow'
         self.send_message(
@@ -631,6 +634,7 @@ class IframeBoss:
             type='create-annotation',
             in_flow_mode=in_flow_mode,
             extents=selection_extents(in_flow_mode),
+            existing=existing or None,
         )
 
     def annotations_msg_received(self, data):
@@ -657,13 +661,19 @@ class IframeBoss:
                 self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
+        elif data.type is 'edit-highlight':
+            crw_ = {v: k for k, v in Object.entries(self.annot_id_uuid_map)}[data.uuid]
+            if crw_:
+                select_crw(crw_)
+                self.ensure_selection_visible()
+                self.initiate_creation_of_annotation(data.uuid)
         elif data.type is 'apply-highlight':
             sel = window.getSelection()
             text = sel.toString()
             if not sel.rangeCount:
                 return
             bounds = cfi_for_selection()
-            annot_id, intersecting_wrappers = wrap_text_in_range(data.style)
+            annot_id, intersecting_wrappers = wrap_text_in_range(data.style, None, self.add_highlight_listeners)
             removed_highlights = v'[]'
             if annot_id is not None:
                 intersecting_uuids = [self.annot_id_uuid_map[x] for x in intersecting_wrappers]
@@ -704,12 +714,21 @@ class IframeBoss:
             if not r:
                 continue
             style = f'color: {h.style.color}; background-color: {h.style["background-color"]}'
-            annot_id, intersecting_wrappers = wrap_text_in_range(style, r)
+            annot_id, intersecting_wrappers = wrap_text_in_range(style, r, self.add_highlight_listeners)
             if annot_id is not None:
                 self.annot_id_uuid_map[annot_id] = h.uuid
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
                     v'delete self.annot_id_uuid_map[crw]'
+
+    def add_highlight_listeners(self, wrapper):
+        wrapper.addEventListener('click', self.highlight_wrapper_clicked)
+
+    def highlight_wrapper_clicked(self, ev):
+        crw = ev.currentTarget.dataset.calibreRangeWrapper
+        uuid = self.annot_id_uuid_map[crw]
+        if uuid:
+            self.send_message('annotations', type='annotation-activated', uuid=uuid)
 
     def copy_selection(self):
         text = window.getSelection().toString()

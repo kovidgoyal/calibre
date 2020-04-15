@@ -63,7 +63,7 @@ def select_crw(crw):
     sel.addRange(r)
 
 
-def create_wrapper_function(wrapper_elem, r, intersecting_wrappers):
+def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper):
     start_node = r.startContainer
     end_node = r.endContainer
     start_offset = r.startOffset
@@ -86,6 +86,8 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers):
         if crw:
             intersecting_wrappers[crw] = True
         current_range.surroundContents(current_wrapper)
+        if process_wrapper:
+            process_wrapper(current_wrapper)
         return current_wrapper
 
     return wrap_node
@@ -94,9 +96,12 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers):
 wrapper_counter = 0
 
 
-def wrap_text_in_range(style, r):
+def wrap_text_in_range(style, r, process_wrapper):
     if not r:
-        r = window.getSelection().getRangeAt(0)
+        sel = window.getSelection()
+        if not sel or not sel.rangeCount:
+            return None, v'[]'
+        r = sel.getRangeAt(0)
     if r.isCollapsed:
         return None, v'[]'
 
@@ -106,7 +111,7 @@ def wrap_text_in_range(style, r):
         wrapper_elem.setAttribute('style', style)
 
     intersecting_wrappers = {}
-    wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers)
+    wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper)
     text_nodes_in_range(r).map(wrap_node)
     crw = wrapper_elem.dataset.calibreRangeWrapper
     v'delete intersecting_wrappers[crw]'
