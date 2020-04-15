@@ -1,0 +1,115 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+__license__ = 'GPL v3'
+__copyright__ = 'Ralf Hein - ralfhein at GMX dot DE'
+'''
+Heise Select Magazine - ct
+'''
+
+
+class heise_select(BasicNewsRecipe):
+    issue = None
+    # overwrite this for easy download of previous issues
+    # issue = '/select/ct/2020/8'
+
+    title = 'Heise ct'
+    timefmt = ''
+    __author__ = 'Ralf Hein'
+    needs_subscription = True
+    description = 'Das ct Magazin als ePaper. Benötigt Heise Plus Digitalabo (siehe https://www.heise.de/plus/)'
+    publisher = 'Heise Verlag'
+    authors = 'Heise Verlag'
+    category = 'it'
+    tags = 'Magazin, IT, computer, ct'
+    publication_type = 'magazine'
+    no_stylesheets = True
+    use_embedded_content = False
+    compress_news_images = True
+    encoding = 'utf-8'
+    language = 'de'
+
+    conversion_options = {
+        'base_font_size': 10,
+        'no_inline_navbars': True,
+        'language': language,
+        'publisher': publisher,
+        'authors': publisher
+    }
+
+    remove_tags = [
+        dict(name='meta'),
+        dict(name='link', attrs={'rel': 'icon'}),
+        dict(name='link', attrs={'rel': 'dns-prefetch'}),
+        dict(name='link', attrs={'rel': 'preconnect'}),
+        dict(name='div', attrs={'class': 'meta__group--issue'}),
+        dict(name='p', attrs={'class': 'comment'}),
+        dict(name='div', attrs={'class': 'pswp'}),
+        dict(name='div', attrs={'class': 'bottom-links'}),
+    ]
+
+    remove_tags_before = [dict(name='main')]
+    remove_tags_after = [dict(name='main')]
+
+    def parse_index(self):
+        baseref = 'https://www.heise.de'
+        # find current issue if not defined
+        if self.issue is None:
+            soup = self.index_to_soup(baseref + '/select')
+            sec = soup.find('section', attrs={'class': 'magazine--ct'})
+            self.issue = sec.find('a',
+                                  attrs={'class': 'magazine__link--issue'},
+                                  href=True)['href']
+
+        issue_num = self.issue.replace('/select/ct/', '')
+        # fix title with issue number to keep them neatly organised
+        self.title += ' ' + issue_num.replace('/', '-')
+        self.cover_url = 'https://www.heise.de/select/thumbnail/ct/' + issue_num
+
+        soup = self.index_to_soup(baseref + self.issue)
+        toc = []
+
+        for h3 in soup.findAll('h3', attrs={'class': 'xp__inhalt__title'}):
+            section_title = h3.text
+            articles = []
+            ul = h3.find_next('ul')
+
+            for li in ul.findAll('li', attrs={'class': 'xp__toc__item'}):
+                article_uri = li.find('a', attrs={'class': 'xp__link'})['href']
+                article_title = li.find('span',
+                                        attrs={
+                                            'class': 'xp__toc__item-subtitle'
+                                        }).text
+                article = {
+                    'title': article_title,
+                    'url': baseref + article_uri
+                }
+                articles.append(article)
+            toc.append((section_title, articles))
+
+        return toc
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            loginURL = 'https://www.heise.de/sso/login?forward=%2Fselect'
+            br.open(loginURL)
+            br.select_form(action='/sso/login/login')
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+
+        return br
+
+    def preprocess_html(self, soup):
+        # images are dynamically sized via js + a-img tag, epub can not work with this
+        # construct ordinary img from it
+        for aimg in soup.findAll('a', attrs={'class': 'js-pswp-image'}):
+            if aimg['href'] is not None and aimg['data-pswp-bu'] is not None:
+                img = soup.new_tag('img',
+                                   src=aimg['href'],
+                                   alt=aimg['data-pswp-bu'],
+                                   style="display: block;")
+            if img is not None:
+                aimg.replaceWith(img)
+
+        return soup
