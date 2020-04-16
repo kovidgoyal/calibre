@@ -29,8 +29,8 @@ from read_book.flow_mode import (
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
-    current_book, current_layout_mode, current_spine_item, runtime, set_boss,
-    set_current_spine_item, set_layout_mode
+    annot_id_uuid_map, clear_annot_id_uuid_map, current_book, current_layout_mode,
+    current_spine_item, runtime, set_boss, set_current_spine_item, set_layout_mode
 )
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
@@ -105,7 +105,6 @@ class IframeBoss:
         self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
         self.blob_url_map = {}
-        self.annot_id_uuid_map = {}
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
         self.forward_keypresses = False
@@ -201,7 +200,7 @@ class IframeBoss:
     def display(self, data):
         self.length_before = None
         self.content_ready = False
-        self.annot_id_uuid_map = {}
+        clear_annot_id_uuid_map()
         reset_highlight_counter()
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
@@ -675,7 +674,7 @@ class IframeBoss:
             if annot_id:
                 extents = selection_extents(in_flow_mode)
             self.send_message(
-                'annotations', type='position-handles', extents=extents, existing=self.annot_id_uuid_map[annot_id])
+                'annotations', type='position-handles', extents=extents, existing=annot_id_uuid_map[annot_id])
         elif data.type is 'scroll':
             if self.scroll_to_extend_annotation(data.backwards):
                 page_rect = {'width': current_page_width()}
@@ -690,7 +689,7 @@ class IframeBoss:
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
         elif data.type is 'edit-highlight':
-            crw_ = {v: k for k, v in Object.entries(self.annot_id_uuid_map)}[data.uuid]
+            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_:
                 select_crw(crw_)
                 self.ensure_selection_visible()
@@ -704,23 +703,23 @@ class IframeBoss:
             annot_id, intersecting_wrappers = wrap_text_in_range(data.style, None, self.add_highlight_listeners)
             removed_highlights = v'[]'
             if annot_id is not None:
-                intersecting_uuids = [self.annot_id_uuid_map[x] for x in intersecting_wrappers]
+                intersecting_uuids = [annot_id_uuid_map[x] for x in intersecting_wrappers]
                 if data.existing and intersecting_uuids.indexOf(data.existing) > -1:
                     idx = intersecting_uuids.indexOf(data.existing)
                     intersecting_wrappers.splice(idx, 1)
                     data.uuid = data.existing
-                elif intersecting_wrappers.length is 1 and self.annot_id_uuid_map[intersecting_wrappers[0]]:
-                    data.uuid = self.annot_id_uuid_map[intersecting_wrappers[0]]
+                elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
+                    data.uuid = annot_id_uuid_map[intersecting_wrappers[0]]
                     intersecting_wrappers = v'[]'
                 removed_highlights = {}
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
-                    if self.annot_id_uuid_map[crw]:
-                        removed_highlights[self.annot_id_uuid_map[crw]] = True
-                        v'delete self.annot_id_uuid_map[crw]'
+                    if annot_id_uuid_map[crw]:
+                        removed_highlights[annot_id_uuid_map[crw]] = True
+                        v'delete annot_id_uuid_map[crw]'
                 removed_highlights = Object.keys(removed_highlights)
                 sel.removeAllRanges()
-                self.annot_id_uuid_map[annot_id] = data.uuid
+                annot_id_uuid_map[annot_id] = data.uuid
             self.send_message(
                 'annotations',
                 type='highlight-applied',
@@ -734,7 +733,7 @@ class IframeBoss:
             console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
 
     def apply_highlights_on_load(self, highlights):
-        self.annot_id_uuid_map = {}
+        clear_annot_id_uuid_map()
         strcmp = v'new Intl.Collator().compare'
         highlights.sort(def (a, b): return strcmp(a.timestamp, b.timestamp);)
         for h in highlights:
@@ -744,10 +743,10 @@ class IframeBoss:
             style = f'color: {h.style.color}; background-color: {h.style["background-color"]}'
             annot_id, intersecting_wrappers = wrap_text_in_range(style, r, self.add_highlight_listeners)
             if annot_id is not None:
-                self.annot_id_uuid_map[annot_id] = h.uuid
+                annot_id_uuid_map[annot_id] = h.uuid
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
-                    v'delete self.annot_id_uuid_map[crw]'
+                    v'delete annot_id_uuid_map[crw]'
 
     def add_highlight_listeners(self, wrapper):
         wrapper.addEventListener('dblclick', self.highlight_wrapper_dblclicked)
@@ -760,7 +759,7 @@ class IframeBoss:
     def highlight_wrapper_dblclicked(self, ev):
         crw = ev.currentTarget.dataset.calibreRangeWrapper
         ev.preventDefault(), ev.stopPropagation()
-        self.activate_annotation(self.annot_id_uuid_map[crw])
+        self.activate_annotation(annot_id_uuid_map[crw])
 
     def copy_selection(self):
         text = window.getSelection().toString()

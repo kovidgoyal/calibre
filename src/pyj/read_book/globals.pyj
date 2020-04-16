@@ -100,3 +100,12 @@ ui_operations = {
     'toggle_toc': None,
     'toggle_full_screen': None,
 }
+
+
+
+annot_id_uuid_map = {}
+
+
+def clear_annot_id_uuid_map():
+    nonlocal annot_id_uuid_map
+    annot_id_uuid_map = {}
