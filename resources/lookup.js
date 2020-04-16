@@ -29,5 +29,7 @@
         if (promo) promo.parentNode.removeChild(promo);
     }
 
-    if (window.location.hostname === 'www.google.com') fix_google_markup();
+    if (window.location.hostname === 'www.google.com') {
+        window.addEventListener('DOMContentLoaded', fix_google_markup);
+    }
 })();

@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineWidgets import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineView
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 
 from calibre import prints, random_user_agent
@@ -193,7 +193,7 @@ def create_profile():
         ans.setHttpUserAgent(random_user_agent(allow_ie=False))
         ans.setCachePath(os.path.join(cache_dir(), 'ev2vl'))
         js = P('lookup.js', data=True, allow_user_override=False)
-        insert_scripts(ans, create_script('lookup.js', js))
+        insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.DocumentCreation))
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
         create_profile.ans = ans
