@@ -271,6 +271,9 @@ class IframeBoss:
         if elements.img:
             self.send_message('view_image', calibre_src=elements.img)
             return
+        if elements.highlight:
+            self.activate_annotation(elements.highlight)
+            return
         r = word_at_point(gesture.viewport_x, gesture.viewport_y)
         if r:
             s = document.getSelection()
@@ -747,13 +750,17 @@ class IframeBoss:
                     v'delete self.annot_id_uuid_map[crw]'
 
     def add_highlight_listeners(self, wrapper):
-        wrapper.addEventListener('click', self.highlight_wrapper_clicked)
+        wrapper.addEventListener('dblclick', self.highlight_wrapper_dblclicked)
 
-    def highlight_wrapper_clicked(self, ev):
-        crw = ev.currentTarget.dataset.calibreRangeWrapper
-        uuid = self.annot_id_uuid_map[crw]
+    def activate_annotation(self, uuid):
         if uuid:
             self.send_message('annotations', type='annotation-activated', uuid=uuid)
+            window.getSelection().removeAllRanges()
+
+    def highlight_wrapper_dblclicked(self, ev):
+        crw = ev.currentTarget.dataset.calibreRangeWrapper
+        ev.preventDefault(), ev.stopPropagation()
+        self.activate_annotation(self.annot_id_uuid_map[crw])
 
     def copy_selection(self):
         text = window.getSelection().toString()

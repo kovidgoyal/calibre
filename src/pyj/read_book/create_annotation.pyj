@@ -275,7 +275,7 @@ class CreateAnnotation:
                         ta.focus()
                 ),
                 E.div(
-                    _('To view the notes for a highlight, tap or click on it.'),
+                    _('To view the notes for a highlight, long-tap or double click on it.'),
                     style='font-size-smaller; margin-left: 1rem; margin-right: 1rem'
                 ),
                 E.a(

@@ -3,13 +3,19 @@
 from __python__ import bound_methods, hash_literals
 
 
+from read_book.globals import get_boss
+
 
 def get_elements(x, y):
     nonlocal img_id_counter
-    ans = {'link': None, 'img': None}
+    ans = {'link': None, 'img': None, 'highlight': None}
     for elem in document.elementsFromPoint(x, y):
         if elem.tagName.toLowerCase() is 'a' and elem.getAttribute('href') and not ans.link:
             ans.link = elem.getAttribute('href')
         elif elem.tagName.toLowerCase() is 'img' and elem.getAttribute('data-calibre-src') and not ans.img:
             ans.img = elem.getAttribute('data-calibre-src')
+        elif elem.dataset?.calibreRangeWrapper:
+            annot_id = get_boss().annot_id_uuid_map[elem.dataset.calibreRangeWrapper]
+            if annot_id:
+                ans.highlight = annot_id
     return ans
