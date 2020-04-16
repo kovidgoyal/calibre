@@ -9,9 +9,9 @@ import sys
 import textwrap
 
 from PyQt5.Qt import (
-    QApplication, QComboBox, QDialog, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSize, Qt, QTimer, QUrl,
-    QVBoxLayout, QWidget
+    QApplication, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout,
+    QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSize, Qt,
+    QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineView
@@ -210,10 +210,10 @@ class Page(QWebEnginePage):
             sys.stderr.flush()
 
     def zoom_in(self):
-        self.setZoomFactor(min(self.zoomFactor() + 0.25, 5))
+        self.setZoomFactor(min(self.zoomFactor() + 0.2, 5))
 
     def zoom_out(self):
-        self.setZoomFactor(max(0.25, self.zoomFactor() - 0.25))
+        self.setZoomFactor(max(0.25, self.zoomFactor() - 0.2))
 
     def default_zoom(self):
         self.setZoomFactor(1)
@@ -221,18 +221,22 @@ class Page(QWebEnginePage):
 
 class View(QWebEngineView):
 
+    inspect_element = pyqtSignal()
+
     def contextMenuEvent(self, ev):
         menu = self.page().createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Zoom in'), self.page().zoom_in)
         menu.addAction(_('Zoom out'), self.page().zoom_out)
         menu.addAction(_('Default zoom'), self.page().default_zoom)
+        menu.addAction(self.page().action(QWebEnginePage.InspectElement).text(), self.do_inspect_element)
         menu.exec_(ev.globalPos())
+
+    def do_inspect_element(self):
+        self.inspect_element.emit()
 
 
 class Lookup(QWidget):
-
-    enable_devtools = False
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -249,22 +253,12 @@ class Lookup(QWidget):
         self.label = la = QLabel(_('Lookup &in:'))
         h.addWidget(la), h.addWidget(sb), la.setBuddy(sb)
         self.view = View(self)
+        self.view.inspect_element.connect(self.show_devtools)
         self._page = Page(create_profile(), self.view)
         apply_font_settings(self._page)
         secure_webengine(self._page, for_viewer=True)
         self.view.setPage(self._page)
         l.addWidget(self.view)
-        if self.enable_devtools:
-            self._devtools_page = QWebEnginePage()
-            self._devtools_view = QWebEngineView(self)
-            self._devtools_view.setPage(self._devtools_page)
-            self._page.setDevToolsPage(self._devtools_page)
-            d = QDialog(self)
-            v = QVBoxLayout(d)
-            v.addWidget(self._devtools_view)
-            d.resize(QSize(800, 600))
-            d.show()
-
         self.populate_sources()
         self.source_box.currentIndexChanged.connect(self.source_changed)
         self.view.setHtml('<p>' + _('Double click on a word in the book\'s text'
@@ -272,6 +266,24 @@ class Lookup(QWidget):
         self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add more sources'))
         b.clicked.connect(self.add_sources)
         l.addWidget(b)
+
+    def show_devtools(self):
+        if not hasattr(self, '_devtools_page'):
+            self._devtools_page = QWebEnginePage()
+            self._devtools_view = QWebEngineView(self)
+            self._devtools_view.setPage(self._devtools_page)
+            self._page.setDevToolsPage(self._devtools_page)
+            self._devtools_dialog = d = QDialog(self)
+            d.setWindowTitle('Inspect Lookup page')
+            v = QVBoxLayout(d)
+            v.addWidget(self._devtools_view)
+            d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+            d.bb.rejected.connect(d.reject)
+            v.addWidget(d.bb)
+            d.resize(QSize(800, 600))
+            d.setAttribute(Qt.WA_DeleteOnClose, False)
+        self._devtools_dialog.show()
+        self._page.triggerAction(QWebEnginePage.InspectElement)
 
     def add_sources(self):
         if SourcesEditor(self).exec_() == QDialog.Accepted:
