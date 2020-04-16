@@ -690,3 +690,7 @@ class WebView(RestartingWebEngineView):
 
     def prepare_for_close(self):
         self.execute_when_ready('prepare_for_close')
+
+    def contextMenuEvent(self, ev):
+        ev.accept()
+        self.trigger_shortcut('show_chrome')
