@@ -112,10 +112,16 @@ class Rule(object):  # {{{
             return "test(ondevice(), '', '1')"
 
     def bool_condition(self, col, action, val):
-        test = {'is true': 'True',
-                'is false': 'False',
-                'is undefined': 'None'}[action]
-        return "strcmp('%s', raw_field('%s'), '', '1', '')"%(test, col)
+        from calibre.gui2.ui import get_gui
+        if get_gui().current_db.prefs.get('bools_are_tristate'):
+            test = {'is true': 'True',
+                    'is false': 'False',
+                    'is undefined': 'None'}[action]
+            return "strcmp('%s', raw_field('%s'), '', '1', '')"%(test, col)
+        else:
+            if action == 'is true':
+                return "strcmp('True', raw_field('%s'), '', '1', '')"%(col)
+            return "strcmp('True', raw_field('%s'), '1', '', '1')"%(col)
 
     def number_condition(self, col, action, val):
         lt, eq, gt = {

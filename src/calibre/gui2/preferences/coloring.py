@@ -38,6 +38,10 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
 class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
+            'bool2' : (
+                    (_('is true'), 'is true',),
+                    (_('is false'), 'is false'),
+            ),
             'bool' : (
                     (_('is true'), 'is true',),
                     (_('is false'), 'is false'),
@@ -200,6 +204,10 @@ class ConditionEditor(QWidget):  # {{{
         if col:
             m = self.fm[col]
             dt = m['datatype']
+            if dt == 'bool':
+                from calibre.gui2.ui import get_gui
+                if not get_gui().current_db.prefs.get('bools_are_tristate'):
+                        dt = 'bool2'
             if dt in self.action_map:
                 actions = self.action_map[dt]
             else:
