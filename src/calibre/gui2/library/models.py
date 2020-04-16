@@ -928,10 +928,6 @@ class BooksModel(QAbstractTableModel):  # {{{
             id_ = self.id(index)
             self.column_color.mi = None
 
-            if self.color_row_fmt_cache is None:
-                self.color_row_fmt_cache = tuple(fmt for key, fmt in
-                    self.db.prefs['column_color_rules'] if key == color_row_key)
-
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
                     ccol = self.column_color(id_, key, fmt, self.db,
@@ -954,6 +950,9 @@ class BooksModel(QAbstractTableModel):  # {{{
                     except:
                         pass
 
+            if self.color_row_fmt_cache is None:
+                self.color_row_fmt_cache = tuple(fmt for key, fmt in
+                    self.db.prefs['column_color_rules'] if key == color_row_key)
             for fmt in self.color_row_fmt_cache:
                 ccol = self.column_color(id_, color_row_key, fmt, self.db,
                                          self.color_cache, self.color_template_cache)
