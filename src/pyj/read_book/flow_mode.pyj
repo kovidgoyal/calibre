@@ -2,8 +2,6 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from select import word_at_point
-
 from dom import set_css
 from read_book.globals import current_spine_item, get_boss
 from read_book.settings import opts
@@ -429,13 +427,6 @@ def handle_gesture(gesture):
         scroll_by_page(-1)
     elif gesture.type is 'next-page':
         scroll_by_page(1)
-    elif gesture.type is 'long-tap':
-        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
-        if r:
-            s = document.getSelection()
-            s.removeAllRanges()
-            s.addRange(r)
-            get_boss().send_message('lookup_word', word=str(r))
 
 
 anchor_funcs = {

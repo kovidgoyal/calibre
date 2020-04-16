@@ -6,7 +6,7 @@ import traceback
 from gettext import gettext as _
 from select import (
     extend_selection_after_scroll, selection_extents, selection_extents_at_point,
-    set_selections_extents_to
+    set_selections_extents_to, word_at_point
 )
 
 from fs_images import fix_fullscreen_svg_images
@@ -261,8 +261,22 @@ class IframeBoss:
             self.send_message('show_chrome')
         elif gesture.type is 'pinch':
             self.send_message('bump_font_size', increase=gesture.direction is 'out')
+        elif gesture.type is 'long-tap':
+            self.handle_long_tap(gesture)
         else:
             self._handle_gesture(gesture)
+
+    def handle_long_tap(self, gesture):
+        elements = get_elements(gesture.viewport_x, gesture.viewport_y)
+        if elements.img:
+            self.send_message('view_image', calibre_src=elements.img)
+            return
+        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
+        if r:
+            s = document.getSelection()
+            s.removeAllRanges()
+            s.addRange(r)
+            self.send_message('lookup_word', word=str(r))
 
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
@@ -363,6 +377,8 @@ class IframeBoss:
     def content_loaded_stage2(self):
         reset_find_caches()
         self.connect_links()
+        if runtime.is_standalone_viewer:
+            self.listen_for_image_double_clicks()
         self.content_ready = True
         # this is the loading styles used to suppress scrollbars during load
         # added in unserialize_html
@@ -542,6 +558,15 @@ class IframeBoss:
             # links with a target get turned into requests to open a new window by Qt
             for a in document.body.querySelectorAll('a[target]'):
                 a.removeAttribute('target')
+
+    def listen_for_image_double_clicks(self):
+        for img in document.querySelectorAll('img, image'):
+            img.addEventListener('dblclick', self.image_double_clicked, {'passive': True})
+
+    def image_double_clicked(self, ev):
+        img = ev.currentTarget
+        if img.dataset.calibreSrc:
+            self.send_message('view_image', calibre_src=img.dataset.calibreSrc)
 
     def link_activated(self, evt):
         link_attr = 'data-' + self.book.manifest.link_uid
