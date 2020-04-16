@@ -11,6 +11,9 @@
     function fix_google_markup() {
         var cc = document.getElementById('center_col');
         cc.style.marginLeft = '0';
+        cc.style.position = 'absolute';
+        cc.style.top = '0';
+        cc.style.left = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
         var params = new URLSearchParams(document.location.search.substring(1));
@@ -22,6 +25,8 @@
                 if (elem) elem.style.display = 'none';
             });
         }
+        var promo = document.getElementById('promos');
+        if (promo) promo.parentNode.removeChild(promo);
     }
 
     if (window.location.hostname === 'www.google.com') fix_google_markup();
