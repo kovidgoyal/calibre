@@ -421,6 +421,8 @@ class View:
             window.history.forward()
         elif data.name is 'show_chrome':
             self.show_chrome()
+        elif data.name is 'show_chrome_force':
+            self.show_chrome_force()
         elif data.name is 'toggle_toc':
             ui_operations.toggle_toc()
         elif data.name is 'toggle_bookmarks':
@@ -589,6 +591,10 @@ class View:
             elements = data.elements
         initial_panel = data?.initial_panel or None
         self.get_current_cfi('show-chrome', self.do_show_chrome.bind(None, elements, initial_panel))
+
+    def show_chrome_force(self):
+        self.hide_overlays()
+        self.show_chrome()
 
     def do_show_chrome(self, elements, initial_panel, request_id, cfi_data):
         self.hide_overlays()
