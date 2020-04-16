@@ -229,7 +229,7 @@ class View(QWebEngineView):
         menu.addAction(_('Zoom in'), self.page().zoom_in)
         menu.addAction(_('Zoom out'), self.page().zoom_out)
         menu.addAction(_('Default zoom'), self.page().default_zoom)
-        menu.addAction(self.page().action(QWebEnginePage.InspectElement).text(), self.do_inspect_element)
+        menu.addAction(_('Inspect'), self.do_inspect_element)
         menu.exec_(ev.globalPos())
 
     def do_inspect_element(self):
