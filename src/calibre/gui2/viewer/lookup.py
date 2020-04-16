@@ -10,7 +10,7 @@ import textwrap
 
 from PyQt5.Qt import (
     QApplication, QComboBox, QDialog, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QPushButton, Qt, QTimer, QUrl,
+    QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSize, Qt, QTimer, QUrl,
     QVBoxLayout, QWidget
 )
 from PyQt5.QtWebEngineWidgets import (
@@ -232,6 +232,8 @@ class View(QWebEngineView):
 
 class Lookup(QWidget):
 
+    enable_devtools = False
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.is_visible = False
@@ -252,6 +254,17 @@ class Lookup(QWidget):
         secure_webengine(self._page, for_viewer=True)
         self.view.setPage(self._page)
         l.addWidget(self.view)
+        if self.enable_devtools:
+            self._devtools_page = QWebEnginePage()
+            self._devtools_view = QWebEngineView(self)
+            self._devtools_view.setPage(self._devtools_page)
+            self._page.setDevToolsPage(self._devtools_page)
+            d = QDialog(self)
+            v = QVBoxLayout(d)
+            v.addWidget(self._devtools_view)
+            d.resize(QSize(800, 600))
+            d.show()
+
         self.populate_sources()
         self.source_box.currentIndexChanged.connect(self.source_changed)
         self.view.setHtml('<p>' + _('Double click on a word in the book\'s text'
