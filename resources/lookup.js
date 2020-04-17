@@ -8,8 +8,11 @@
 (function() {
     "use strict";
 
+    var num_tries = 0;
+
     function fix_google_markup() {
         var cc = document.getElementById('center_col');
+        if (!cc && ++num_tries < 10) { setTimeout(fix_google_markup, 100); }
         cc.style.marginLeft = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
