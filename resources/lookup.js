@@ -12,7 +12,11 @@
 
     function fix_google_markup() {
         var cc = document.getElementById('center_col');
-        if (!cc && ++num_tries < 10) { setTimeout(fix_google_markup, 100); }
+        if (!cc) {
+            if (++num_tries > 10) return;
+            setTimeout(fix_google_markup, 100);
+            return;
+        }
         cc.style.marginLeft = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
