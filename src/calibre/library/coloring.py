@@ -120,10 +120,13 @@ class Rule(object):  # {{{
             return "test(ondevice(), '', '1')"
 
     def bool_condition(self, col, action, val):
-        test = {'is true': 'True',
-                'is false': 'False',
-                'is undefined': 'None'}[action]
-        return "strcmp('%s', raw_field('%s'), '', '1', '')"%(test, col)
+        test = {'is true':      '0, 0, 1',
+                'is not true':  '1, 1, 0',
+                'is false':     '0, 1, 0',
+                'is not false': '1, 0, 1',
+                'is undefined': '1, 0, 0',
+                'is defined':   '0, 1, 1'}[action]
+        return "check_yes_no('%s', %s)"%(col, test)
 
     def number_condition(self, col, action, val):
         lt, eq, gt = {

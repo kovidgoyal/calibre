@@ -1602,12 +1602,42 @@ class BuiltinAuthorSorts(BuiltinFormatterFunction):
         names = [sort_data.get(n) for n in mi.authors if n.strip()]
         return val_sep.join(n for n in names)
 
+class BuiltinCheckYesNo(BuiltinFormatterFunction):
+    name = 'check_yes_no'
+    arg_count = 4
+    category = 'If-then-else'
+    __doc__ = doc = _('check_yes_no(field_name, is_undefined, is_false, is_true) '
+                      '-- checks the value of the yes/no field named by the '
+                      'lookup key field_name for a value specified by the '
+                      'parameters, returning "yes" if a match is found, otherwise '
+                      'returning an empty string. Set the parameter is_undefined, '
+                      'is_false, or is_true to 1 (the number) to check that '
+                      'condition, otherwise set it to 0. Example: '
+                      'check_yes_no("#bool", 1, 0, 1) returns "yes" if the '
+                      'yes/no field "#bool" is either undefined (neither True '
+                      'nor False) or True. More than one of is_undefined, '
+                      'is_false, or is_true can be set to 1.  This function '
+                      'is usually used by the test() or is_empty() functions.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
+        res = getattr(mi, field, None)
+        if res is None:
+            if is_undefined == '1':
+                return 'yes'
+            return ""
+        if not isinstance(res, bool):
+            raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))
+        if is_false == '1' and not res:
+            return 'yes'
+        if is_true == '1' and res:
+            return 'yes'
+        return ""
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
-    BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
-    BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
+    BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCmp(), BuiltinContains(),
+    BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(),
     BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
