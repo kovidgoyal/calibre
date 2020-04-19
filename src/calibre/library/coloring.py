@@ -62,14 +62,22 @@ class Rule(object):  # {{{
             return None
         conditions = [x for x in map(self.apply_condition, self.conditions) if x is not None]
         conditions = (',\n' + ' '*9).join(conditions)
-        return dedent('''\
-                program:
-                {sig}
-                test(and(
-                         {conditions}
-                    ), '{color}', '');
-                ''').format(sig=self.signature, conditions=conditions,
-                        color=self.color)
+        if len(self.conditions) > 1:
+            return dedent('''\
+                    program:
+                    {sig}
+                    test(and(
+                             {conditions}
+                        ), '{color}', '');
+                    ''').format(sig=self.signature, conditions=conditions,
+                            color=self.color)
+        else:
+            return dedent('''\
+                    program:
+                    {sig}
+                    test({conditions}, '{color}', '');
+                    ''').format(sig=self.signature, conditions=conditions,
+                            color=self.color)
 
     def apply_condition(self, condition):
         col, action, val = condition
@@ -112,10 +120,13 @@ class Rule(object):  # {{{
             return "test(ondevice(), '', '1')"
 
     def bool_condition(self, col, action, val):
-        test = {'is true': 'True',
-                'is false': 'False',
-                'is undefined': 'None'}[action]
-        return "strcmp('%s', raw_field('%s'), '', '1', '')"%(test, col)
+        test = {'is true':      '0, 0, 1',
+                'is not true':  '1, 1, 0',
+                'is false':     '0, 1, 0',
+                'is not false': '1, 0, 1',
+                'is undefined': '1, 0, 0',
+                'is defined':   '0, 1, 1'}[action]
+        return "check_yes_no('%s', %s)"%(col, test)
 
     def number_condition(self, col, action, val):
         lt, eq, gt = {

@@ -164,12 +164,13 @@ class Bool(Base):
         l.addWidget(c)
         c.clicked.connect(self.set_to_no)
 
-        t = _('Clear')
-        c = QPushButton(t, parent)
-        width = c.fontMetrics().boundingRect(t).width() + 7
-        c.setMaximumWidth(width)
-        l.addWidget(c)
-        c.clicked.connect(self.set_to_cleared)
+        if self.db.prefs.get('bools_are_tristate'):
+            t = _('Clear')
+            c = QPushButton(t, parent)
+            width = c.fontMetrics().boundingRect(t).width() + 7
+            c.setMaximumWidth(width)
+            l.addWidget(c)
+            c.clicked.connect(self.set_to_cleared)
 
         c = QLabel('', parent)
         c.setMaximumWidth(1)
