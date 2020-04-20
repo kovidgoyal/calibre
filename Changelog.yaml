@@ -1627,7 +1627,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Kobo driver: Add support for new firmware"
 
-    - title: 'Bulk metadata edit dialog: Add an "edit tags" button for tags like custom columns.'
+    - title: 'Bulk metadata edit dialog: Add an "Edit tags" button for tags like custom columns.'
       tickets: [1779299]
 
     - title: "Add an option in Preferences->Look & feel to disable the new 'drag and drop to merge books feature'"

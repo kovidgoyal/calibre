@@ -589,22 +589,22 @@ clicking the :guilabel:`Edit metadata` button to bring up the bulk metadata
 edit dialog, near the bottom of the dialog is an option to remove stored
 conversion settings.
 
-When you Bulk Convert a set of books, settings are taken in the following order (last one wins):
+When you Bulk convert a set of books, settings are taken in the following order (last one wins):
 
     * From the defaults set in Preferences->Conversion
 
     * From the saved conversion settings for each book being converted (if
       any). This can be turned off by the option in the top left corner of the
-      Bulk Conversion dialog.
+      Bulk conversion dialog.
 
     * From the settings set in the Bulk conversion dialog
 
-Note that the final settings for each book in a Bulk Conversion will be saved
+Note that the final settings for each book in a Bulk conversion will be saved
 and re-used if the book is converted again. Since the highest priority in Bulk
-Conversion is given to the settings in the Bulk Conversion dialog, these will
+Conversion is given to the settings in the Bulk conversion dialog, these will
 override any book specific settings. So you should only bulk convert books
 together that need similar settings. The exceptions are metadata and input
-format specific settings. Since the Bulk Conversion dialog does not have
+format specific settings. Since the Bulk conversion dialog does not have
 settings for these two categories, they will be taken from book specific
 settings (if any) or the defaults.
 
