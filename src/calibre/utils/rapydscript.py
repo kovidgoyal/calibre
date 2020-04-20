@@ -17,9 +17,7 @@ from calibre.constants import (
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import (
-    as_bytes, as_unicode, exec_path, itervalues, unicode_type, zip
-)
+from polyglot.builtins import as_bytes, as_unicode, exec_path, unicode_type, zip
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 special_title = '__webengine_messages_pending__'
@@ -318,20 +316,6 @@ def compile_fast(
     return js.decode('utf-8')
 
 
-def create_manifest(html):
-    import hashlib
-    from calibre.library.field_metadata import category_icon_map
-    h = hashlib.sha256(html)
-    for ci in itervalues(category_icon_map):
-        h.update(I(ci, data=True))
-    icons = {'icon/' + x for x in itervalues(category_icon_map)}
-    icons.add('favicon.png')
-    h.update(I('lt.png', data=True))
-    manifest = '\n'.join(sorted(icons))
-    return 'CACHE MANIFEST\n# {}\n{}\n\nNETWORK:\n*'.format(
-        h.hexdigest(), manifest).encode('utf-8')
-
-
 def base_dir():
     d = os.path.dirname
     return d(d(d(d(os.path.abspath(__file__)))))
@@ -456,9 +440,7 @@ def compile_srv():
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
-    manifest = create_manifest(html)
     atomic_write(base, 'index-generated.html', html)
-    atomic_write(base, 'calibre.appcache', manifest)
 
 # }}}
 

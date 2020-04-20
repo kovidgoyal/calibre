@@ -39,11 +39,6 @@ def index(ctx, rd):
     return lopen(P('content-server/index-generated.html'), 'rb')
 
 
-@endpoint('/calibre.appcache', auth_required=False, cache_control='no-cache')
-def appcache(ctx, rd):
-    return lopen(P('content-server/calibre.appcache'), 'rb')
-
-
 @endpoint('/robots.txt', auth_required=False)
 def robots(ctx, rd):
     return b'User-agent: *\nDisallow: /'

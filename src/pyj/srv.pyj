@@ -3,18 +3,14 @@
 # globals: ρσ_get_module
 from __python__ import hash_literals
 
-from gettext import gettext as _
-
 import initialize  # noqa: unused-import
 from ajax import ajax, console_print, set_default_timeout
 from autoreload import create_auto_reload_watcher
 from book_list.globals import main_js
 from book_list.main import main
-from book_list.constants import has_offline_support
 
 is_running_in_iframe = False  # Changed before script is loaded in the iframe
 autoreload_enabled = False
-asked_appcache_update = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
 
 if is_running_in_iframe:
@@ -30,31 +26,6 @@ if is_running_in_iframe:
 else:
     start_time = window.performance.now()
 
-    on_appcache_ready = def ():
-        nonlocal asked_appcache_update
-        if asked_appcache_update:
-            return
-        if window.applicationCache.status is window.applicationCache.UPDATEREADY:
-            asked_appcache_update = True
-            try:
-                window.applicationCache.swapCache()
-                time_since_start = window.performance.now() - start_time
-                if time_since_start <= AUTO_UPDATE_THRESHOLD or autoreload_enabled or window.confirm(_(
-                    'The calibre web application has been updated. Do you want reload the site?')):
-                    window.location.reload()
-            except Exception as e:
-                # For some reason swapCache occasionally fails even though status is UPDATEREADY
-                print('WARNING: failed to swap applicationCache')
-                console.log(e)
-
-    if window.applicationCache:
-        window.applicationCache.addEventListener('updateready', on_appcache_ready)
-        if window.applicationCache.status is window.applicationCache.UPDATEREADY:
-            on_appcache_ready()
-        has_offline_support(True)
-    else:
-        has_offline_support(False)
-        console.warn("Your browser does not have a working Application Cache, offline access will not work")
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
