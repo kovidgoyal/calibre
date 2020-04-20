@@ -6,7 +6,6 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax_send
-from book_list.constants import has_offline_support
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
 from book_list.library_data import last_virtual_library_for, sync_library_books, all_libraries
@@ -255,13 +254,5 @@ def init(container_id):
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
-
-    if not has_offline_support():
-        container.appendChild(E.div(
-            style='margin-top: 1rem; padding: 1rem; border-top: solid 1px currentColor',
-            _('WARNING: This browser does not support Application Cache so offline access'
-              ' to calibre will not work. Some browsers only enable Application Cache over HTTPS'
-              ' connections, so you may have to setup HTTPS for your calibre server.')))
-
 
 set_default_panel_handler(init)
