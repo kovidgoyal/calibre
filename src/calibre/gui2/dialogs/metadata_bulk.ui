@@ -34,6 +34,9 @@
       <number>0</number>
      </property>
      <widget class="QScrollArea" name="scrollArea1">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -45,8 +48,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>933</width>
-         <height>637</height>
+         <width>935</width>
+         <height>639</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -688,6 +691,9 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
       </widget>
      </widget>
      <widget class="QScrollArea" name="scrollArea2">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -699,13 +705,16 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>933</width>
-         <height>637</height>
+         <width>935</width>
+         <height>639</height>
         </rect>
        </property>
       </widget>
      </widget>
      <widget class="QScrollArea" name="scrollArea3">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -717,8 +726,8 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>933</width>
-         <height>637</height>
+         <width>935</width>
+         <height>639</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="vargrid">
@@ -1196,8 +1205,8 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>915</width>
-             <height>317</height>
+             <width>917</width>
+             <height>319</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="testgrid">
