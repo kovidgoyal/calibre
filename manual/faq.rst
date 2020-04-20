@@ -370,10 +370,10 @@ Using a USB cable
 
 Simply plug your device into the computer with a USB cable. calibre should
 automatically detect the device and then you can transfer books to it by
-clicking the :guilabel:`Send to device` button. calibre does not have support for every
-single android device out there, so if your device is not automatically
-detected, follow the instructions at :ref:`devsupport` to get your device
-supported in calibre.
+clicking the :guilabel:`Send to device` button. Note that on macOS and Linux
+only a single program can connect to an Android device at a time, so make
+sure the device is not opened in the OS File manager, or the Android File Transfer
+utility, etc.
 
 .. note:: With newer Android devices, you might have to jump through a few hoops
     to get the connection working, as Google really does not want you to be
