@@ -27,7 +27,6 @@ resources/editor.js
 resources/viewer.js
 resources/viewer.html
 resources/content-server/index-generated.html
-resources/content-server/calibre.appcache
 resources/content-server/locales.zip
 resources/mathjax
 resources/mozilla-ca-certs.pem
