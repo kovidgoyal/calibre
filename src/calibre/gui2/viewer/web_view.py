@@ -219,8 +219,6 @@ def create_profile():
         # DO NOT change the user agent as it is used to workaround
         # Qt bugs see workaround_qt_bug() in ajax.pyj
         ua = 'calibre-viewer {} {}'.format(__version__, osname)
-        if hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
-            ua += ' CALIBRE_ENABLE_DEVELOP_MODE'
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer
@@ -229,6 +227,8 @@ def create_profile():
         js = P('viewer.js', data=True, allow_user_override=False)
         translations_json = get_translations_data() or b'null'
         js = js.replace(b'__TRANSLATIONS_DATA__', translations_json, 1)
+        if hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
+            js = js.replace(b'__IN_DEVELOP_MODE__', os.environ['CALIBRE_ENABLE_DEVELOP_MODE'].encode('ascii'))
         insert_scripts(ans, create_script('viewer.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)

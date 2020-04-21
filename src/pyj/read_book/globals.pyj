@@ -76,10 +76,11 @@ register_callback(def():
         set_system_colors({'background': '#111', 'foreground': '#ddd', 'link': dark_link_color})
 )
 
+IN_DEVELOP_MODE = '__IN_DEVELOP_MODE__'
 runtime = {
     'is_standalone_viewer': False,
     'viewer_in_full_screen': False,
-    'in_develop_mode': window.navigator.userAgent.indexOf('CALIBRE_ENABLE_DEVELOP_MODE') > 0,
+    'in_develop_mode': IN_DEVELOP_MODE is '1',
 }
 
 

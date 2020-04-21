@@ -331,6 +331,14 @@ def shortcuts_definition():
     ),
 
     }
+    if runtime.in_develop_mode:
+        ans.create_annotation = desc(
+            "a",
+            'ui',
+            _('Create a highlight'),
+        )
+
+
     return ans
 
 
@@ -384,13 +392,6 @@ def add_standalone_viewer_shortcuts():
         'ui',
         _('Toggle the toolbar'),
     )
-
-    if runtime.in_develop_mode:
-        sc['create_annotation'] = desc(
-            "a",
-            'ui',
-            _('Create a highlight'),
-        )
 
 
 def create_shortcut_map(custom_shortcuts):

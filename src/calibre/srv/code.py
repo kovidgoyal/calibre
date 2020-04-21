@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import hashlib
+import os
 import random
 import shutil
 import sys
@@ -25,18 +26,23 @@ from calibre.srv.metadata import (
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.icu import sort_key, numeric_sort_key
-from calibre.utils.localization import get_lang, lang_map_for_ui, localize_website_link
+from calibre.utils.icu import numeric_sort_key, sort_key
+from calibre.utils.localization import (
+    get_lang, lang_map_for_ui, localize_website_link
+)
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems, itervalues, hasenv
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
 @endpoint('', auth_required=False)
 def index(ctx, rd):
-    return lopen(P('content-server/index-generated.html'), 'rb')
+    ans_file = lopen(P('content-server/index-generated.html'), 'rb')
+    if not hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
+        return ans_file
+    return ans_file.read().replace(b'__IN_DEVELOP_MODE__', os.environ['CALIBRE_ENABLE_DEVELOP_MODE'].encode('ascii'))
 
 
 @endpoint('/robots.txt', auth_required=False)
