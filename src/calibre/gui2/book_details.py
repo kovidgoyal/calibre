@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re
+import re, os
 from collections import namedtuple
 from functools import partial
 
@@ -220,6 +220,8 @@ def add_format_entries(menu, data, book_info):
             menu.addAction(_('Edit %s...') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
     path = data['path']
     if path:
+        if data.get('fname'):
+            path = os.path.join(path, data['fname'] + '.' + data['fmt'].lower())
         ac = book_info.copy_link_action
         ac.current_url = path
         ac.setText(_('&Copy path to file'))
