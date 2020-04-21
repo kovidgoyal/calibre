@@ -8,5 +8,7 @@ from polyglot.builtins import is_py3
 
 if is_py3:
     from plistlib import loads, dumps, Data  # noqa
+    loads_binary_or_xml = loads
 else:
     from plistlib import readPlistFromString as loads, writePlistToString as dumps, Data  # noqa
+    from backports.biplist import readPlistFromString as loads_binary_or_xml  # noqa
