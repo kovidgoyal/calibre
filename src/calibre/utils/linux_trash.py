@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os, stat
 import os.path as op
 from datetime import datetime
+import shutil
 
 from polyglot.builtins import unicode_type
 from polyglot.urllib import quote
@@ -89,7 +90,7 @@ def trash_move(src, dst, topdir=None):
     check_create(filespath)
     check_create(infopath)
 
-    os.rename(src, op.join(filespath, destname))
+    shutil.move(src, op.join(filespath, destname))
     with open(op.join(infopath, destname + INFO_SUFFIX), 'wb') as f:
         data = info_for(src, topdir)
         if not isinstance(data, bytes):
