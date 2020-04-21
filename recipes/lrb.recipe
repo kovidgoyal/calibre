@@ -51,6 +51,13 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
                 raise ValueError('Failed to login check username and password')
         return br
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            for x in img['data-srcset'].split():
+                if '/' in x:
+                    img['src'] = x
+        return soup
+
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
