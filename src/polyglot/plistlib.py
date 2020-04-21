@@ -9,3 +9,4 @@ def wrap_bytes(x):
     return x
 
 from plistlib import loads, dumps, Data  # noqa
+loads_binary_or_xml = loads
