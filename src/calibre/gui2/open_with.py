@@ -178,8 +178,9 @@ elif isosx:
             if os.path.isdir(ans):
                 app = get_bundle_data(ans)
                 if app is None:
-                    return error_dialog(parent, _('Invalid Application'), _(
+                    error_dialog(parent, _('Invalid Application'), _(
                         '%s is not a valid macOS application bundle.') % ans, show=True)
+                    return
                 return app
             if not os.access(ans, os.X_OK):
                 error_dialog(parent, _('Cannot execute'), _(
