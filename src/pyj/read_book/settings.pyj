@@ -24,6 +24,7 @@ def update_settings(settings):
     opts.margin_right = max(0, settings.margin_right)
     opts.override_book_colors = settings.override_book_colors
     opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.paged_taps_scroll_by_screen = v'!!settings.paged_taps_scroll_by_screen'
     opts.scroll_auto_boundary_delay = settings.scroll_auto_boundary_delay
     opts.scroll_stop_boundaries = v'!!settings.scroll_stop_boundaries'
     opts.user_stylesheet = settings.user_stylesheet

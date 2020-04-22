@@ -63,11 +63,13 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         ans.valueAsNumber = sd.get(name, defaults[name])
         return E.label("for"=name, text), ans
 
-    container.appendChild(E.div(style='margin-top:1ex', _('Control how mouse based scrolling works in paged mode')))
+    container.appendChild(E.div(style='margin-top:1ex', _('Control how scrolling works in paged mode')))
     container.appendChild(cb(
         'paged_wheel_scrolls_by_screen', _('Mouse wheel scrolls by screen fulls instead of pages')))
     container.appendChild(cb(
         'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
+    container.appendChild(cb(
+        'paged_taps_scroll_by_screen', _('Tapping scrolls by screen fulls instead of pages')))
 
     container.appendChild(E.hr())
     container.appendChild(E.div(style='margin-top:1ex', _('Control how smooth scrolling works in flow mode')))

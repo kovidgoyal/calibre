@@ -50,6 +50,7 @@ defaults = {
     'override_book_colors': 'never',
     'paged_margin_clicks_scroll_by_screen': True,
     'paged_wheel_scrolls_by_screen': False,
+    'paged_taps_scroll_by_screen': False,
     'read_mode': 'paged',
     'scroll_auto_boundary_delay': 5,
     'scroll_stop_boundaries': False,
