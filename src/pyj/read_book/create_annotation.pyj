@@ -157,6 +157,7 @@ class CreateAnnotation:
 
     def __init__(self, view):
         self.view = view
+        self.active_touch = None
         self.editing_annot_uuid = None
         self.current_notes = ''
         self.annotations_manager = self.view.annotations_manager
@@ -214,15 +215,20 @@ class CreateAnnotation:
         lh = selection_handle(False, style)
         self.left_handle_id = ensure_id(lh, 'handle')
         lh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
+        lh.addEventListener('touchstart', self.touchstart_on_handle, {'passive': False})
         container.appendChild(lh)
         rh = selection_handle(True, style)
         self.right_handle_id = ensure_id(rh, 'handle')
         rh.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
+        rh.addEventListener('touchstart', self.touchstart_on_handle, {'passive': False})
         container.appendChild(rh)
 
         container.addEventListener('click', self.container_clicked, {'passive': False})
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
+        container.addEventListener('touchmove', self.touchmove_on_container, {'passive': False})
+        container.addEventListener('touchend', self.touchend_on_container, {'passive': False})
+        container.addEventListener('touchcancel', self.touchend_on_container, {'passive': False})
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
 
     def copy_to_clipboard(self):
@@ -422,11 +428,7 @@ class CreateAnnotation:
             pt = map_to_iframe_coords({'x': ev.clientX, 'y': ev.clientY})
             self.send_message('position-handles-at-point', x=pt.x, y=pt.y)
 
-    def mousedown_on_handle(self, ev):
-        ev.stopPropagation(), ev.preventDefault()
-        if self.state is WAITING_FOR_CLICK:
-            return
-        q = ev.currentTarget.id
+    def start_handle_drag(self, ev, q):
         if q is self.left_handle_id:
             self.state = DRAGGING_LEFT
             handle = self.left_handle
@@ -437,15 +439,36 @@ class CreateAnnotation:
         self.position_in_handle.x = Math.round(ev.clientX - r.left)
         self.position_in_handle.y = Math.round(ev.clientY - r.top)
 
+    def mousedown_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING_FOR_CLICK:
+            return
+        self.start_handle_drag(ev, ev.currentTarget.id)
+
+    def touchstart_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING_FOR_CLICK:
+            return
+        for touch in ev.changedTouches:
+            self.active_touch = touch.identifier
+            self.start_handle_drag(touch, ev.currentTarget.id)
+            break
+
     def mouseup_on_container(self, ev):
         if self.state in (DRAGGING_RIGHT, DRAGGING_LEFT):
             self.state = WAITING_FOR_DRAG
             ev.preventDefault(), ev.stopPropagation()
 
-    def mousemove_on_container(self, ev):
-        if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
-            return
-        ev.stopPropagation(), ev.preventDefault()
+    def touchend_on_container(self, ev):
+        if self.state in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            ev.preventDefault(), ev.stopPropagation()
+            for touch in ev.changedTouches:
+                if touch.identifier is self.active_touch:
+                    self.active_touch = None
+                    self.state = WAITING_FOR_DRAG
+                    return
+
+    def handle_moved(self, ev):
         handle = self.left_handle if self.state is DRAGGING_LEFT else self.right_handle
         s = handle.style
         s.left = (ev.clientX - self.position_in_handle.x) + 'px'
@@ -454,6 +477,21 @@ class CreateAnnotation:
         pos.start = map_to_iframe_coords(pos.start)
         pos.end = map_to_iframe_coords(pos.end)
         self.send_message('set-selection', extents=pos)
+
+    def mousemove_on_container(self, ev):
+        if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        self.handle_moved(ev)
+
+    def touchmove_on_container(self, ev):
+        if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        for touch in ev.changedTouches:
+            if touch.identifier is self.active_touch:
+                self.handle_moved(touch)
+                return
 
     @property
     def container(self):
