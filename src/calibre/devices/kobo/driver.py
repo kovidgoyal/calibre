@@ -125,11 +125,11 @@ class KOBO(USBMS):
             ' in the database.  With this option calibre will show the '
             'expired records and allow you to delete them with '
             'the new delete logic.'),
-        _('Show Previews') + ':::'+_(
+        _('Show previews') + ':::'+_(
             'Kobo previews are included on the Touch and some other versions'
             ' by default they are no longer displayed as there is no good reason to '
             'see them.  Enable if you wish to see/delete them.'),
-        _('Show Recommendations') + ':::'+_(
+        _('Show recommendations') + ':::'+_(
             'Kobo now shows recommendations on the device. In some cases these have '
             'files but in other cases they are just pointers to the web site to buy. '
             'Enable if you wish to see/delete them.'),

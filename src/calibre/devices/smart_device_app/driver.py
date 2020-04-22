@@ -172,7 +172,7 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = _('Wireless Device')
+    gui_name = _('Wireless device')
     gui_name_template = '%s: %s'
 
     icon = I('devices/tablet.png')
