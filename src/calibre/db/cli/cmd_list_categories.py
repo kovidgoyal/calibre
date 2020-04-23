@@ -7,10 +7,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import csv
 import sys
 from textwrap import TextWrapper
-from polyglot.io import PolyglotBytesIO
 
 from calibre import prints
-from polyglot.builtins import unicode_type, map
+from polyglot.builtins import as_bytes, map, unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -123,16 +122,22 @@ def do_list(fields, data, opts):
             print()
 
 
+class StdoutWriter:
+
+    def __init__(self):
+        self.do_write = getattr(sys.stdout, 'buffer', sys.stdout).write
+
+    def write(self, x):
+        x = as_bytes(x)
+        self.do_write(x)
+
+
 def do_csv(fields, data, opts):
-    buf = PolyglotBytesIO()
-    csv_print = csv.writer(buf, opts.dialect)
+    csv_print = csv.writer(StdoutWriter(), opts.dialect)
     csv_print.writerow(fields)
     for d in data:
         row = [d[f] for f in fields]
-        csv_print.writerow([
-            x if isinstance(x, bytes) else unicode_type(x).encode('utf-8') for x in row
-        ])
-    print(buf.getvalue())
+        csv_print.writerow(row)
 
 
 def main(opts, args, dbctx):
