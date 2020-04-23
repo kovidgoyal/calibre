@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import csv
 import sys
 from textwrap import TextWrapper
-from io import BytesIO
+from polyglot.io import PolyglotBytesIO
 
 from calibre import prints
 from polyglot.builtins import unicode_type, map
@@ -124,7 +124,7 @@ def do_list(fields, data, opts):
 
 
 def do_csv(fields, data, opts):
-    buf = BytesIO()
+    buf = PolyglotBytesIO()
     csv_print = csv.writer(buf, opts.dialect)
     csv_print.writerow(fields)
     for d in data:
