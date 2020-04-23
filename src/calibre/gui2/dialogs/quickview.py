@@ -274,7 +274,7 @@ class Quickview(QDialog, Ui_Quickview):
         index = self.books_table.indexAt(point)
         item = self.books_table.item(index.row(), 0)
         if item is None:
-            return False;
+            return False
         book_id = int(item.data(Qt.UserRole))
         self.context_menu = QMenu(self)
         self.context_menu.addAction(self.view_icon, _('View'),
@@ -425,8 +425,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         try:
             self.current_column = (
-                self.view.column_map.index('authors') if
-                    self.current_column is None and self.view.column_map[idx.column()] == 'title'
+                self.view.column_map.index('authors') if self.current_column is None and self.view.column_map[idx.column()] == 'title'
                 else idx.column())
             key = self.view.column_map[self.current_column]
             book_id = self.view.model().id(idx.row())

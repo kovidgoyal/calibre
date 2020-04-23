@@ -1602,6 +1602,7 @@ class BuiltinAuthorSorts(BuiltinFormatterFunction):
         names = [sort_data.get(n) for n in mi.authors if n.strip()]
         return val_sep.join(n for n in names)
 
+
 class BuiltinCheckYesNo(BuiltinFormatterFunction):
     name = 'check_yes_no'
     arg_count = 4
@@ -1632,6 +1633,7 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
         if is_true == '1' and res:
             return 'yes'
         return ""
+
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
