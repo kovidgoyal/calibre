@@ -13,6 +13,7 @@ from io import BytesIO
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.lock import ExclusiveFile
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
 
@@ -79,10 +80,12 @@ def extract_dicts(cache_path):
 def is_cache_up_to_date(cache_path):
     if getattr(is_cache_up_to_date, 'updated', False):
         return True
-    hsh = P('hyphenation/sha1sum', data=True)
+    hsh = P('hyphenation/sha1sum', data=True, allow_user_override=False)
     try:
         with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
-            return f.read() == hsh
+            if f.read() == hsh:
+                is_cache_up_to_date.updated = True
+                return True
     except EnvironmentError:
         pass
     return False
@@ -102,8 +105,9 @@ def get_cache_path(cd):
 def path_to_dictionary(dictionary_name, cache_callback=None):
     cd = getattr(path_to_dictionary, 'cache_dir', None) or cache_dir()
     cache_path = get_cache_path(cd)
-    if not is_cache_up_to_date(cache_path):
-        extract_dicts(cache_path)
-        if cache_callback is not None:
-            cache_callback()
+    with ExclusiveFile(os.path.join(cache_path, 'lock')):
+        if not is_cache_up_to_date(cache_path):
+            extract_dicts(cache_path)
+            if cache_callback is not None:
+                cache_callback()
     return os.path.join(cache_path, 'f', dictionary_name)
