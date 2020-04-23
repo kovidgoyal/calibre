@@ -168,7 +168,7 @@ class TOCItem(QStandardItem):
         self.setFlags(Qt.ItemIsEnabled)
         self.is_current_search_result = False
         self.depth = depth
-        self.is_being_viewed = False
+        self.set_being_viewed(False)
 
     def set_being_viewed(self, is_being_viewed):
         self.is_being_viewed = is_being_viewed
