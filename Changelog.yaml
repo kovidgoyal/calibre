@@ -20,6 +20,69 @@
 #   new recipes:
 #     - title:
 
+- version: 4.14.0
+  date: 2020-04-23
+
+  new features:
+    - title: "Viewer: Add an option to have taps turn by screen fulls instead of pages, under Scrolling behavior"
+
+    - title: "Viewer: Allow double clicking or long tapping on images to view then in a new window."
+      tickets: [1872759]
+
+    - title: "Edit Book: Add a new fuzzy search mode in which typographical quotes and various space types are matched by the plain equivalents"
+
+    - title: "Content server: Add a new setting to allow un-authenticated users from specific IP addresses to make changes to the calibre library"
+
+    - title: "Quick view: Double click in a column to show that column in the main book list"
+
+  bug fixes:
+    - title: "Book details panel: Fix copy path to file not copying full path to file when right clicking on a format entry"
+
+    - title: "Windows: Fix error when applying hyphenation in bulk with Polish books."
+      tickets: [1873949]
+
+    - title: "macOS: Fix selecting applications that use binary plist files such as Kindle.app with Open With not working."
+      tickets: [1873972]
+
+    - title: "DOCX Output: Fix images that use URL unsafe characters in their filenames being dropped during conversion."
+      tickets: [1873571]
+
+    - title: "DOCX Output: Fix internal links not working when converted files contain URL unsafe characters in their filenames"
+
+    - title: "Viewer: Fix view image popup not remembering its geometry"
+
+    - title: "Viewer: Allow leading and trailing whitespace in search expressions"
+
+    - title: "HTMLZ Output: Fix SVG images that use xlink:href not working."
+      tickets: [1869856]
+
+    - title: "Windows: Fix drag and drop from SMB shares to the edit metadata dialog formats list not working."
+      tickets: [1869471]
+
+    - title: "Comments editor: Dont insert blank lines between list elements"
+
+    - title: "Allow using Quick view from the Book grid view."
+      tickets: [1869550]
+
+    - title: "Fix tri-state booleans not working with color/icon rules and undefined values"
+      tickets: [1873106]
+
+  improved recipes:
+    - London Review of Books
+    - Seattle Times
+    - MIT Technology Review
+    - Zeit Online
+    - Handelsblatt
+    - Spectator Magazine
+    - Spektrum der Wissenschaft
+
+  new recipes:
+    - title: "Heise ct and iX"
+      author: Ralf Hein
+
+    - title: "Saechsische Zeitung"
+      author: by epubli
+
 - version: 4.13.0
   date: 2020-03-27
 
