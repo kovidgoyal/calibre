@@ -173,6 +173,10 @@ class CalibreStyle: public QProxyStyle {
                     return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
                 case SH_ScrollBar_Transient:
                     return transient_scroller;
+#ifdef Q_OS_MAC
+				case SH_UnderlineShortcut:
+					return 0;
+#endif
 				default:
                     break;
             }
