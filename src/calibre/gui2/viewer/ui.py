@@ -161,6 +161,7 @@ class EbookViewer(MainWindow):
         self.search_widget.show_search_result.connect(self.web_view.show_search_result)
         self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
+        self.web_view.new_bookmark.connect(self.bookmarks_widget.create_requested)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
         self.web_view.quit.connect(self.quit)

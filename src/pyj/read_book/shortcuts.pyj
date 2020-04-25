@@ -362,6 +362,12 @@ def add_standalone_viewer_shortcuts():
         _('Show/hide bookmarks'),
     )
 
+    sc['new_bookmark'] = desc(
+        v"['Ctrl+Alt+b']",
+        'ui',
+        _('Create a new bookmark'),
+    )
+
     sc['toggle_inspector'] = desc(
         v"['Ctrl+i']",
         'ui',

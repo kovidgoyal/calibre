@@ -294,7 +294,11 @@ class BookmarkManager(QWidget):
         self.edited.emit(bookmarks)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Escape or get_shortcut_for(self, ev) == 'toggle_bookmarks':
+        sc = get_shortcut_for(self, ev)
+        if ev.key() == Qt.Key_Escape or sc == 'toggle_bookmarks':
             self.toggle_requested.emit()
+            return
+        if sc == 'new_bookmark':
+            self.create_requested.emit()
             return
         return QWidget.keyPressEvent(self, ev)

@@ -427,6 +427,8 @@ class View:
             ui_operations.toggle_toc()
         elif data.name is 'toggle_bookmarks':
             ui_operations.toggle_bookmarks()
+        elif data.name is 'new_bookmark':
+            ui_operations.new_bookmark()
         elif data.name is 'toggle_inspector':
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
