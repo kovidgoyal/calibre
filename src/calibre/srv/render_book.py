@@ -882,5 +882,15 @@ def profile():
         )
 
 
+def develop():
+    from calibre.ptempfile import TemporaryDirectory
+    path = sys.argv[-1]
+    with TemporaryDirectory() as tdir:
+        return render(
+            path, tdir, serialize_metadata=True,
+            extract_annotations=True, virtualize_resources=False, max_workers=1
+        )
+
+
 if __name__ == '__main__':
-    profile()
+    develop()
