@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 from PyQt5.Qt import (
-    Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal,
+    Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QKeySequence,
     QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget)
 try:
     from PyQt5 import sip
@@ -423,12 +423,17 @@ if isosx:
 
         @property
         def native_menubar(self):
-            return self.gui.native_menubar
+            mb = self.gui.native_menubar
+            if mb.parent() is None:
+                # Without this the menubar does not update correctly with Qt >=
+                # 5.6. See the last couple of lines in updateMenuBarImmediately
+                # in qcocoamenubar.mm
+                mb.setParent(self.gui)
+            return mb
 
         def __init__(self, location_manager, parent):
             QObject.__init__(self, parent)
             self.gui = parent
-
             self.location_manager = location_manager
             self.added_actions = []
             self.last_actions = []
@@ -440,14 +445,30 @@ if isosx:
             self.refresh_timer = t = QTimer(self)
             t.setInterval(200), t.setSingleShot(True), t.timeout.connect(self.refresh_bar)
 
-        def init_bar(self, actions):
+        def adapt_for_dialog(self, enter):
+
+            def ac(text, key, role=QAction.TextHeuristicRole):
+                ans = QAction(text, self)
+                ans.setMenuRole(role)
+                ans.setShortcut(QKeySequence(key))
+                self.edit_menu.addAction(ans)
+                return ans
+
             mb = self.native_menubar
-            if mb.parent() is None:
-                # Without this the menubar does not update correctly with Qt >=
-                # 5.6. See the last couple of lines in updateMenuBarImmediately
-                # in qcocoamenubar.mm
-                mb.setParent(self.gui)
-            self.last_actions = actions
+            if enter:
+                self.clear_bar(mb)
+                self.edit_menu = QMenu()
+                self.edit_action = QAction(_('Edit'), self)
+                self.edit_action.setMenu(self.edit_menu)
+                ac(_('Copy'), QKeySequence.Copy),
+                ac(_('Paste'), QKeySequence.Paste),
+                ac(_('Select all'), QKeySequence.SelectAll),
+                mb.addAction(self.edit_action)
+                self.added_actions = [self.edit_action]
+            else:
+                self.refresh_bar()
+
+        def clear_bar(self, mb):
             for ac in self.added_actions:
                 m = ac.menu()
                 if m is not None:
@@ -459,6 +480,11 @@ if isosx:
                     ac.setMenu(None)
                     ac.deleteLater()
             self.added_actions = []
+
+        def init_bar(self, actions):
+            mb = self.native_menubar
+            self.last_actions = actions
+            self.clear_bar(mb)
 
             for what in actions:
                 if what is None:
@@ -585,6 +611,20 @@ else:
 # }}}
 
 
+class AdaptMenuBarForDialog(object):
+
+    def __init__(self, menu_bar):
+        self.menu_bar = menu_bar
+
+    def __enter__(self):
+        if isosx and self.menu_bar.is_native_menubar:
+            self.menu_bar.adapt_for_dialog(True)
+
+    def __exit__(self, *a):
+        if isosx and self.menu_bar.is_native_menubar:
+            self.menu_bar.adapt_for_dialog(False)
+
+
 class BarsManager(QObject):
 
     def __init__(self, donate_action, location_manager, parent):
@@ -598,6 +638,7 @@ class BarsManager(QObject):
 
         self.menu_bar = MenuBar(self.location_manager, self.parent())
         is_native_menubar = self.menu_bar.is_native_menubar
+        self.adapt_menu_bar_for_dialog = AdaptMenuBarForDialog(self.menu_bar)
         self.menubar_fallback = native_menubar_defaults['action-layout-menubar'] if is_native_menubar else ()
         self.menubar_device_fallback = native_menubar_defaults['action-layout-menubar-device'] if is_native_menubar else ()
 

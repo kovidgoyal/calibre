@@ -24,6 +24,15 @@ def select_initial_dir(q):
     return os.path.expanduser(u'~')
 
 
+class Dummy(object):
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *a):
+        pass
+
+
 class FileDialog(QObject):
 
     def __init__(self, title=_('Choose Files'),
@@ -38,6 +47,9 @@ class FileDialog(QObject):
                        combine_file_and_saved_dir=False
                        ):
         from calibre.gui2 import dynamic, sanitize_env_vars
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        adapt_menubar = gui.bars_manager.adapt_menu_bar_for_dialog if gui is not None else Dummy()
         QObject.__init__(self)
         ftext = ''
         if filters:
@@ -82,18 +94,21 @@ class FileDialog(QObject):
             if not use_native_dialog:
                 opts |= QFileDialog.DontUseNativeDialog
             if mode == QFileDialog.AnyFile:
-                f = QFileDialog.getSaveFileName(parent, title,
-                    initial_dir, ftext, "", opts)
+                with adapt_menubar:
+                    f = QFileDialog.getSaveFileName(parent, title,
+                        initial_dir, ftext, "", opts)
                 if f and f[0]:
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.ExistingFile:
-                f = QFileDialog.getOpenFileName(parent, title,
-                    initial_dir, ftext, "", opts)
+                with adapt_menubar:
+                    f = QFileDialog.getOpenFileName(parent, title,
+                        initial_dir, ftext, "", opts)
                 if f and f[0] and os.path.exists(f[0]):
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.ExistingFiles:
-                fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
-                        ftext, "", opts)
+                with adapt_menubar:
+                    fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
+                            ftext, "", opts)
                 if fs and fs[0]:
                     for f in fs[0]:
                         f = unicode_type(f)
@@ -108,7 +123,8 @@ class FileDialog(QObject):
             else:
                 if mode == QFileDialog.Directory:
                     opts |= QFileDialog.ShowDirsOnly
-                f = unicode_type(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+                with adapt_menubar:
+                    f = unicode_type(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
                     self.selected_files.append(f)
         if self.selected_files:
