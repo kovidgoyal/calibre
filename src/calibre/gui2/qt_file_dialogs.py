@@ -35,17 +35,18 @@ class Dummy(object):
 
 class FileDialog(QObject):
 
-    def __init__(self, title=_('Choose Files'),
-                       filters=[],
-                       add_all_files_filter=True,
-                       parent=None,
-                       modal=True,
-                       name='',
-                       mode=QFileDialog.ExistingFiles,
-                       default_dir=u'~',
-                       no_save_dir=False,
-                       combine_file_and_saved_dir=False
-                       ):
+    def __init__(
+        self, title=_('Choose Files'),
+        filters=[],
+        add_all_files_filter=True,
+        parent=None,
+        modal=True,
+        name='',
+        mode=QFileDialog.ExistingFiles,
+        default_dir=u'~',
+        no_save_dir=False,
+        combine_file_and_saved_dir=False
+    ):
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
         gui = get_gui()
