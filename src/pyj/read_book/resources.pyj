@@ -27,13 +27,13 @@ def load_resources(book, root_name, previous_resources, proceed):
     link_pat = create_link_pat(book)
 
     def do_one():
-        if not pending_resources.length:
+        name = pending_resources.shift()
+        if not name:
             for k in previous_resources:
                 v'delete previous_resources[k]'
             if book.manifest.files[root_name].has_maths:
                 return load_mathjax(book, ans, proceed)
             return proceed(ans)
-        name = pending_resources.shift()
         if ans[name]:
             return setTimeout(do_one, 0)
         if previous_resources[name]:
