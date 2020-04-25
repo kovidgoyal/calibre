@@ -222,6 +222,7 @@ class IframeBoss:
             self.anchor_funcs = flow_anchor_funcs
             self.auto_scroll_action = flow_auto_scroll_action
             self.scroll_to_extend_annotation = flow_annotation_scroll
+            self.ensure_selection_visible = ensure_selection_visible
             paged_auto_scroll_action('stop')
         else:
             self.do_layout = paged_layout
@@ -233,6 +234,7 @@ class IframeBoss:
             self.anchor_funcs = paged_anchor_funcs
             self.auto_scroll_action = paged_auto_scroll_action
             self.scroll_to_extend_annotation = paged_annotation_scroll
+            self.ensure_selection_visible = snap_to_selection
             flow_auto_scroll_action('stop')
         update_settings(data.settings)
         self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
@@ -619,12 +621,6 @@ class IframeBoss:
         refnum = data.refnum
         if refnum?:
             self.scroll_to_ref(refnum)
-
-    def ensure_selection_visible(self):
-        if current_layout_mode() is 'flow':
-            ensure_selection_visible()
-        else:
-            snap_to_selection()
 
     def find(self, data, from_load):
         if data.searched_in_spine:
