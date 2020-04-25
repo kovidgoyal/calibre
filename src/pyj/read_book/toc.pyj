@@ -181,7 +181,7 @@ def current_toc_anchor_map(tam, anchor_funcs):
         # stable sort by position in document
         anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
-        current_map = {'layout_mode': current_layout_mode, 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
+        current_map = {'layout_mode': current_layout_mode(), 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
         set_toc_anchor_map(current_map)
     return current_map
 
