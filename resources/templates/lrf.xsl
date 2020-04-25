@@ -11,7 +11,7 @@
     <xsl:output method="xml" indent="yes"/>
 
     <xsl:template match="/">
-        <package version="2.0">
+        <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
             <metadata>
                 <xsl:call-template name="make-metadata"/>
             </metadata>
@@ -133,34 +133,34 @@
 
     <xsl:template name="make-manifest">
         <xsl:for-each select='//Page'>
-            <xsl:element name="item">
+            <xsl:element name="opf:item">
                 <xsl:attribute name="id"><xsl:value-of select="@objid"/></xsl:attribute>
                 <xsl:attribute name="media-type"><xsl:text>application/xhtml+xml</xsl:text></xsl:attribute>
                 <xsl:attribute name="href"><xsl:value-of select="@objid"/><xsl:text>.xhtml</xsl:text></xsl:attribute>
             </xsl:element>
         </xsl:for-each>
         <xsl:for-each select="//ImageStream">
-            <xsl:element name="item">
+            <xsl:element name="opf:item">
                 <xsl:attribute name="id"><xsl:value-of select="@objid"/></xsl:attribute>
                 <xsl:attribute name="media-type"><c:media-type/></xsl:attribute>
                 <xsl:attribute name="href"><xsl:value-of select="@file"/></xsl:attribute>
             </xsl:element>
         </xsl:for-each>
         <xsl:for-each select="//RegistFont">
-            <xsl:element name="item">
+            <xsl:element name="opf:item">
                 <xsl:attribute name="id"><xsl:value-of select="@objid"/></xsl:attribute>
                 <xsl:attribute name="media-type"><c:media-type/></xsl:attribute>
                 <xsl:attribute name="href"><xsl:value-of select="@file"/></xsl:attribute>
             </xsl:element>
         </xsl:for-each>
-        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-        <item id="styles" href="styles.css" media-type="text/css" />
+        <opf:item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+        <opf:item id="styles" href="styles.css" media-type="text/css" />
 
     </xsl:template>
 
     <xsl:template name="make-spine">
         <xsl:for-each select='//Page'>
-            <xsl:element name="itemref">
+            <xsl:element name="opf:itemref">
                 <xsl:attribute name="idref"><xsl:value-of select="@objid"/></xsl:attribute>
             </xsl:element>
         </xsl:for-each>
