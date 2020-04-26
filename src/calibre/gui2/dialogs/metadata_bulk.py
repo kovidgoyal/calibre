@@ -1073,7 +1073,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     # }}}
 
     def create_custom_column_editors(self):
-        w = self.central_widget.widget(1)
+        w = self.tab
         layout = QGridLayout()
         self.custom_column_widgets, self.__cc_spacers = \
             populate_metadata_page(layout, self.db, self.ids, parent=w,
