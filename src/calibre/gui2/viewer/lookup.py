@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import sys
-import textwrap
 
 from PyQt5.Qt import (
     QApplication, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout,
@@ -57,6 +56,7 @@ class SourceEditor(Dialog):
             self.initial_name = source_to_edit['name']
             self.initial_url = source_to_edit['url']
         Dialog.__init__(self, _('Edit lookup source'), 'viewer-edit-lookup-location', parent=parent)
+        self.resize(self.sizeHint())
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
@@ -70,11 +70,13 @@ class SourceEditor(Dialog):
         self.url_edit = u = QLineEdit(self)
         u.setPlaceholderText(_('The URL template of the source'))
         u.setMinimumWidth(n.minimumWidth())
-        u.setToolTip(textwrap.fill(_(
-            'The URL template must starts with https:// and have {word} in it which will be replaced by the actual query')))
         l.addRow(_('&URL:'), u)
         if self.initial_url:
             u.setText(self.initial_url)
+        la = QLabel(_(
+            'The URL template must starts with https:// and have {word} in it which will be replaced by the actual query'))
+        la.setWordWrap(True)
+        l.addRow(la)
         l.addRow(self.bb)
         if self.initial_name:
             u.setFocus(Qt.OtherFocusReason)
