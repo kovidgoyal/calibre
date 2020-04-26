@@ -101,15 +101,24 @@ class ImageView(QDialog):
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
 
+    def factor_from_fit(self):
+        scaled_height = self.label.size().height()
+        actual_height = self.current_img.size().height()
+        return scaled_height / actual_height
+
     def zoom_in(self):
         if self.fit_image.isChecked():
+            factor = self.factor_from_fit()
             self.fit_image.setChecked(False)
+            self.factor = factor
         self.factor *= 1.25
         self.adjust_image(1.25)
 
     def zoom_out(self):
         if self.fit_image.isChecked():
+            factor = self.factor_from_fit()
             self.fit_image.setChecked(False)
+            self.factor = factor
         self.factor *= 0.8
         self.adjust_image(0.8)
 
