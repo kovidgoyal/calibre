@@ -450,7 +450,6 @@ class Quickview(QDialog, Ui_Quickview):
         label_text = _('&Item: {0} ({1})')
         if self.is_pane:
             label_text = label_text.replace('&', '')
-        self.items_label.setText(label_text.format(self.fm[key]['name'], key))
 
         self.items.blockSignals(True)
         self.items.clear()
@@ -458,6 +457,24 @@ class Quickview(QDialog, Ui_Quickview):
 
         mi = self.db.get_metadata(book_id, index_is_id=True, get_user_categories=False)
         vals = mi.get(key, None)
+
+        try:
+            # Check if we are in the GridView and there are no values for the
+            # selected column. In this case switch the column to 'authors'
+            # because there isn't an easy way to switch columns in GridView
+            # when the QV box is empty.
+            if not vals:
+                is_grid_view = (self.gui.current_view().alternate_views.current_view !=
+                                self.gui.current_view().alternate_views.main_view)
+                if is_grid_view:
+                    key = 'authors'
+                    vals = mi.get(key, None)
+        except:
+            traceback.print_exc()
+
+        self.current_book_id = book_id
+        self.current_key = key
+        self.items_label.setText(label_text.format(self.fm[key]['name'], key))
 
         if vals:
             self.no_valid_items = False
@@ -474,9 +491,6 @@ class Quickview(QDialog, Ui_Quickview):
                 a = QListWidgetItem(v)
                 self.items.addItem(a)
             self.items.setCurrentRow(0)
-
-            self.current_book_id = book_id
-            self.current_key = key
 
             self.fill_in_books_box(vals[0])
         else:
