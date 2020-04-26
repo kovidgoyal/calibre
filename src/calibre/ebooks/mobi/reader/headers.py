@@ -127,6 +127,8 @@ class EXTHHeader(object):  # {{{
                     self.mi.authors.append(m.group())
                 if self.mi.is_null('author_sort'):
                     self.mi.author_sort = m.group()
+                else:
+                    self.mi.author_sort += ' & ' + m.group()
             else:
                 self.mi.authors.append(au)
         elif idx == 101:
