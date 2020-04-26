@@ -81,7 +81,7 @@ def main(args=sys.argv):
             allowed_plugins=allowed_plugins or None)
 
     if not results:
-        print(log, file=sys.stderr)
+        prints(buf.getvalue(), file=sys.stderr)
         prints('No results found', file=sys.stderr)
         raise SystemExit(1)
     result = results[0]
@@ -96,15 +96,14 @@ def main(args=sys.argv):
             save_cover_data_to(cover[-1], opts.cover)
             result.cover = cf = opts.cover
 
-    log = buf.getvalue()
-
-    result = (metadata_to_opf(result) if opts.opf else
-                    unicode_type(result).encode('utf-8'))
-
     if opts.verbose:
-        print(log, file=sys.stderr)
+        prints(buf.getvalue(), file=sys.stderr)
 
-    print(result)
+    if opts.opf:
+        getattr(sys.stdout, 'buffer', sys.stdout).write(metadata_to_opf(result))
+        print()
+    else:
+        prints(unicode_type(result))
     if not opts.opf and opts.cover:
         prints('Cover               :', cf)
 
