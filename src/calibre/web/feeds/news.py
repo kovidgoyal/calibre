@@ -33,6 +33,12 @@ from polyglot.builtins import unicode_type, string_or_bytes, getcwd
 from polyglot.urllib import urlparse, urlsplit
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class LoginFailed(ValueError):
     pass
 
