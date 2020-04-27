@@ -113,6 +113,7 @@ class IframeBoss:
         handlers = {
             'change_color_scheme': self.change_color_scheme,
             'change_font_size': self.change_font_size,
+            'viewer_font_size_changed': self.viewer_font_size_changed,
             'change_number_of_columns': self.change_number_of_columns,
             'number_of_columns_changed': self.number_of_columns_changed,
             'change_scroll_speed': self.change_scroll_speed,
@@ -316,6 +317,9 @@ class IframeBoss:
                 # in the standalone viewer this is a separate event as
                 # apply_font_size() is a no-op
                 self.relayout_on_font_size_change()
+
+    def viewer_font_size_changed(self, data):
+        self.relayout_on_font_size_change()
 
     def change_number_of_columns(self, data):
         if current_layout_mode() is 'flow':
