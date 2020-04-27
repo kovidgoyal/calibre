@@ -133,6 +133,11 @@ def create_link_replacer(container, link_uid, changed):
 
 
 page_break_properties = ('page-break-before', 'page-break-after', 'page-break-inside')
+absolute_font_sizes = {
+    'xx-small': '0.5rem', 'x-small': '0.625rem', 'small': '0.8rem',
+    'medium': '1rem',
+    'large': '1.125rem', 'x-large': '1.5rem', 'xx-large': '2rem', 'xxx-large': '2.55rem'
+}
 
 
 def transform_declaration(decl):
@@ -148,7 +153,13 @@ def transform_declaration(decl):
                 decl.set_property(prefix + name, prop.value, prop.priority)
             decl.remove_property(prop, parent_prop)
         elif prop.name == 'font-size':
-            l, unit = parse_css_length(prop.value)
+            raw = prop.value
+            afs = absolute_font_sizes.get(raw)
+            if afs is not None:
+                changed = True
+                decl.change_property(prop, parent_prop, afs)
+                continue
+            l, unit = parse_css_length(raw)
             if unit in absolute_units:
                 changed = True
                 l = convert_fontsize(l, unit)
