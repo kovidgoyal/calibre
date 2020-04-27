@@ -149,7 +149,7 @@
         <widget class="QCheckBox" name="apply_vl_checkbox">
          <property name="toolTip">
           <string>&lt;p&gt;Show items in the Available items box only if they appear in the
-            current Virtual library. Applied items not in the VL will be marked
+            current Virtual library. Applied items not in the Virtual library will be marked
             &quot;not on any book&quot;.&lt;/p&gt;</string>
          </property>
          <property name="text">

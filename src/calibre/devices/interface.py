@@ -315,7 +315,7 @@ class DevicePlugin(Plugin):
         """
         Ask device for device information. See L{DeviceInfoQuery}.
 
-        :return: (device name, device version, software version on device, mime type)
+        :return: (device name, device version, software version on device, MIME type)
                  The tuple can optionally have a fifth element, which is a
                  drive information dictionary. See usbms.driver for an example.
 

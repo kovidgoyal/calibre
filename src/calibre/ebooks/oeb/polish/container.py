@@ -598,7 +598,7 @@ class Container(ContainerBase):  # {{{
         '''
         Return the raw data corresponding to the file specified by name
 
-        :param decode: If True and the file has a text based mimetype, decode it and return a unicode object instead of raw bytes.
+        :param decode: If True and the file has a text based MIME type, decode it and return a unicode object instead of raw bytes.
         :param normalize_to_nfc: If True the returned unicode object is normalized to the NFC normal form as is required for the EPUB and AZW3 file formats.
         '''
         ans = self.open(name).read()

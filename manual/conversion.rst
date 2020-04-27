@@ -589,7 +589,7 @@ clicking the :guilabel:`Edit metadata` button to bring up the bulk metadata
 edit dialog, near the bottom of the dialog is an option to remove stored
 conversion settings.
 
-When you Bulk convert a set of books, settings are taken in the following order (last one wins):
+When you bulk convert a set of books, settings are taken in the following order (last one wins):
 
     * From the defaults set in Preferences->Conversion
 

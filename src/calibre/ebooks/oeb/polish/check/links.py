@@ -206,17 +206,17 @@ class MimetypeMismatch(BaseError):
     def __init__(self, container, name, opf_mt, ext_mt):
         self.opf_mt, self.ext_mt = opf_mt, ext_mt
         self.file_name = name
-        BaseError.__init__(self, _('The file %s has a mimetype that does not match its extension') % name, container.opf_name)
+        BaseError.__init__(self, _('The file %s has a MIME type that does not match its extension') % name, container.opf_name)
         ext = name.rpartition('.')[-1]
-        self.HELP = _('The file {0} has its mimetype specified as {1} in the OPF file.'
-                      ' The recommended mimetype for files with the extension "{2}" is {3}.'
-                      ' You should change either the file extension or the mimetype in the OPF.').format(
+        self.HELP = _('The file {0} has its MIME type specified as {1} in the OPF file.'
+                      ' The recommended MIME type for files with the extension "{2}" is {3}.'
+                      ' You should change either the file extension or the MIME type in the OPF.').format(
                           name, opf_mt, ext, ext_mt)
         if opf_mt in OEB_DOCS and name in {n for n, l in container.spine_names}:
             self.INDIVIDUAL_FIX = _('Change the file extension to .xhtml')
             self.change_ext_to = 'xhtml'
         else:
-            self.INDIVIDUAL_FIX = _('Change the mimetype for this file in the OPF to %s') % ext_mt
+            self.INDIVIDUAL_FIX = _('Change the MIME type for this file in the OPF to %s') % ext_mt
             self.change_ext_to = None
 
     def __call__(self, container):

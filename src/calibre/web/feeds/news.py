@@ -343,20 +343,20 @@ class BasicNewsRecipe(Recipe):
     ignore_duplicate_articles = None
 
     # The following parameters control how the recipe attempts to minimize
-    # jpeg image sizes
+    # JPEG image sizes
 
     #: Set this to False to ignore all scaling and compression parameters and
     #: pass images through unmodified. If True and the other compression
-    #: parameters are left at their default values, jpeg images will be scaled to fit
+    #: parameters are left at their default values, JPEG images will be scaled to fit
     #: in the screen dimensions set by the output profile and compressed to size at
     #: most (w * h)/16 where w x h are the scaled image dimensions.
     compress_news_images = False
 
-    #: The factor used when auto compressing jpeg images. If set to None,
+    #: The factor used when auto compressing JPEG images. If set to None,
     #: auto compression is disabled. Otherwise, the images will be reduced in size to
     #: (w * h)/compress_news_images_auto_size bytes if possible by reducing
     #: the quality level, where w x h are the image dimensions in pixels.
-    #: The minimum jpeg quality will be 5/100 so it is possible this constraint
+    #: The minimum JPEG quality will be 5/100 so it is possible this constraint
     #: will not be met.  This parameter can be overridden by the parameter
     #: compress_news_images_max_size which provides a fixed maximum size for images.
     #: Note that if you enable scale_news_images_to_device then the image will
@@ -365,9 +365,9 @@ class BasicNewsRecipe(Recipe):
     #: other words, this compression happens after scaling.
     compress_news_images_auto_size = 16
 
-    #: Set jpeg quality so images do not exceed the size given (in KBytes).
+    #: Set JPEG quality so images do not exceed the size given (in KBytes).
     #: If set, this parameter overrides auto compression via compress_news_images_auto_size.
-    #: The minimum jpeg quality will be 5/100 so it is possible this constraint
+    #: The minimum JPEG quality will be 5/100 so it is possible this constraint
     #: will not be met.
     compress_news_images_max_size = None
 

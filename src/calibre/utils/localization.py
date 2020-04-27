@@ -285,7 +285,7 @@ set_translators.lang = None
 _iso639 = None
 _extra_lang_codes = {
         'pt_BR' : _('Brazilian Portuguese'),
-        'en_GB' : _('English (UK)'),
+        'en_GB' : _('English (United Kingdom)'),
         'zh_CN' : _('Simplified Chinese'),
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
@@ -332,10 +332,10 @@ _extra_lang_codes = {
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
         'es_CO' : _('Spanish (Colombia)'),
-        'de_AT' : _('German (AT)'),
-        'fr_BE' : _('French (BE)'),
-        'nl'    : _('Dutch (NL)'),
-        'nl_BE' : _('Dutch (BE)'),
+        'de_AT' : _('German (Austria)'),
+        'fr_BE' : _('French (Belgium)'),
+        'nl'    : _('Dutch (Netherlands)'),
+        'nl_BE' : _('Dutch (Belgium)'),
         'und'   : _('Unknown')
         }
 

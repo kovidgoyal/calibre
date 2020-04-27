@@ -1245,9 +1245,9 @@
     - title: "ZIP Output: Fix an error when building the ToC on macOS for some books with non-ASCII ToC entries"
       tickets: [1813905]
 
-    - title: "Edit book: Check book: Follow recent releases of epubcheck in expecting .ttf files to have the mime-type application/vnd.ms-opentype in EPUB 3 books"
+    - title: "Edit book: Check book: Follow recent releases of epubcheck in expecting .ttf files to have the MIME type application/vnd.ms-opentype in EPUB 3 books"
 
-    - title: "Fix font mime-types not being auto-corrected when upgrading EPUBs from 2 to 3"
+    - title: "Fix font MIME types not being auto-corrected when upgrading EPUBs from 2 to 3"
 
     - title: "Content server: Try to detect if a book file has been edited outside of calibre and serve the updated copy"
 
@@ -1466,7 +1466,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Edit book: Insert image: remember size of displayed thumbnails."
       tickets: [1795845]
 
-    - title: "Edit book: Compress images losslessly: Remember the last used compression quality for jpeg compression."
+    - title: "Edit book: Compress images losslessly: Remember the last used compression quality for JPEG compression."
       tickets: [1796950]
 
   bug fixes:
@@ -2246,7 +2246,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Edit Book: Use the cache directory rather than the temp directory to store working files. Hopefully prevents temp file cleaners from destroying books."
       tickets: [1740460]
 
-    - title: "EPUB input: Handle books that erroneously set the mimetype for font files to text/plain"
+    - title: "EPUB input: Handle books that erroneously set the MIME type for font files to text/plain"
 
     - title: "AZW3 input: Do not fail to process files with invalid internal flow references."
       tickets: [1740140]

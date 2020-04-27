@@ -429,7 +429,7 @@ metadata_edit_custom_column_order = []
 
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
-# public email server like gmx/hotmail/gmail. Default is: 5 minutes
+# public email server like GMX/Hotmail/Gmail. Default is: 5 minutes
 # Setting it to lower may cause the server's SPAM controls to kick in,
 # making email sending fail. Changes will take effect only after a restart of
 # calibre. You can also change the list of hosts that calibre considers

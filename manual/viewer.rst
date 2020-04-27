@@ -142,7 +142,7 @@ Zooming in on images
 
 You can zoom in to show an image at full size in a separate window by either
 double clicking or long tapping on it. You can also right click on it and
-choose :guilabel:`View Image`.
+choose :guilabel:`View image`.
 
 
 Non re-flowable content
