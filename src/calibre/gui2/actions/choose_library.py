@@ -542,7 +542,7 @@ class ChooseLibraryAction(InterfaceAction):
         if d.error is None:
             if not question_dialog(self.gui, _('Success'),
                     _('Found no errors in your calibre library database.'
-                        ' Do you want calibre to check if the files in your '
+                        ' Do you want calibre to check if the files in your'
                         ' library match the information in the database?')):
                 return
         else:
