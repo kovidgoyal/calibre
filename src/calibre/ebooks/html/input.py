@@ -115,7 +115,7 @@ class HTMLFile(object):
                 encoding = detect_xml_encoding(src)[1]
                 if encoding:
                     try:
-                        header = header.decode(encoding)
+                        header = header.decode(encoding, errors='ignore')
                     except ValueError:
                         pass
                 self.is_binary = level > 0 and not bool(self.HTML_PAT.search(header))
