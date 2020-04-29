@@ -91,6 +91,7 @@ class HTMLFile(object):
     '''
 
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
+    HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
     TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
     LINK_PAT  = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
@@ -115,10 +116,13 @@ class HTMLFile(object):
                 encoding = detect_xml_encoding(src)[1]
                 if encoding:
                     try:
-                        header = header.decode(encoding, errors='ignore')
+                        header = header.decode(encoding, errors='replace')
                     except ValueError:
                         pass
-                self.is_binary = level > 0 and not bool(self.HTML_PAT.search(header))
+                self.is_binary = False
+                if level > 0:
+                    pat = self.HTML_PAT_BIN if isinstance(header, bytes) else self.HTML_PAT
+                    self.is_binary = not bool(pat.search(header))
                 if not self.is_binary:
                     src += f.read()
         except IOError as err:
