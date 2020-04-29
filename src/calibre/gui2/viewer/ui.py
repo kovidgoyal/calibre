@@ -32,6 +32,7 @@ from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import (
     clean_running_workers, prepare_book, update_book
 )
+from calibre.gui2.viewer.highlights import HighlightsPanel
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
@@ -73,6 +74,7 @@ def dock_defs():
     d(_('Bookmarks'), 'bookmarks', Qt.RightDockWidgetArea)
     d(_('Search'), 'search', Qt.LeftDockWidgetArea)
     d(_('Inspector'), 'inspector', Qt.RightDockWidgetArea, Qt.AllDockWidgetAreas)
+    d(_('Highlights'), 'highlights', Qt.RightDockWidgetArea)
     return ans
 
 
@@ -152,6 +154,9 @@ class EbookViewer(MainWindow):
         w.toggle_requested.connect(self.toggle_bookmarks)
         self.bookmarks_dock.setWidget(w)
 
+        self.highlights_widget = w = HighlightsPanel(self)
+        self.highlights_dock.setWidget(w)
+
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
         self.web_view.reload_book.connect(self.reload_book)
@@ -161,6 +166,7 @@ class EbookViewer(MainWindow):
         self.search_widget.show_search_result.connect(self.web_view.show_search_result)
         self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
+        self.web_view.toggle_highlights.connect(self.toggle_highlights)
         self.web_view.new_bookmark.connect(self.bookmarks_widget.create_requested)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
@@ -300,6 +306,14 @@ class EbookViewer(MainWindow):
             self.web_view.setFocus(Qt.OtherFocusReason)
         else:
             self.bookmarks_widget.bookmarks_list.setFocus(Qt.OtherFocusReason)
+
+    def toggle_highlights(self):
+        is_visible = self.highlights_dock.isVisible()
+        self.highlights_dock.setVisible(not is_visible)
+        if is_visible:
+            self.web_view.setFocus(Qt.OtherFocusReason)
+        else:
+            self.highlights_widget.focus()
 
     def toggle_lookup(self):
         self.lookup_dock.setVisible(not self.lookup_dock.isVisible())
@@ -490,9 +504,11 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'ref', 'data': open_at[len('ref:'):]}
             elif is_float(open_at):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
+        highlights = self.current_book_data['annotations_map']['highlight']
+        self.highlights_widget.load(highlights)
         self.web_view.start_book_load(
             initial_position=initial_position,
-            highlights=list(map(serialize_annotation, self.current_book_data['annotations_map']['highlight']))
+            highlights=list(map(serialize_annotation, highlights))
         )
 
     def load_book_data(self):

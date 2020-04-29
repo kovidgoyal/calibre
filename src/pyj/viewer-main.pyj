@@ -357,6 +357,8 @@ if window is window.top:
         to_python.toggle_toc()
     ui_operations.toggle_bookmarks = def():
         to_python.toggle_bookmarks()
+    ui_operations.toggle_highlights = def():
+        to_python.toggle_highlights()
     ui_operations.new_bookmark = def():
         to_python.new_bookmark()
     ui_operations.toggle_inspector = def():

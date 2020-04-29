@@ -225,7 +225,7 @@ class SearchInput(QWidget):  # {{{
 
     do_search = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, panel_name='search'):
         QWidget.__init__(self, parent)
         self.ignore_search_type_changes = False
         self.l = l = QVBoxLayout(self)
@@ -235,7 +235,8 @@ class SearchInput(QWidget):  # {{{
         l.addLayout(h)
 
         self.search_box = sb = SearchBox(self)
-        sb.initialize('viewer-search-panel-expression')
+        self.panel_name = panel_name
+        sb.initialize('viewer-{}-panel-expression'.format(panel_name))
         sb.item_selected.connect(self.saved_search_selected)
         sb.history_saved.connect(self.history_saved)
         sb.lineEdit().setPlaceholderText(_('Search'))
@@ -271,35 +272,35 @@ class SearchInput(QWidget):  # {{{
             '<li><b>Whole words</b> will search for whole words that equal the entered text.'
             '<li><b>Regex</b> will interpret the text as a regular expression.'
         )))
-        qt.setCurrentIndex(qt.findData(vprefs.get('viewer-search-mode', 'normal') or 'normal'))
+        qt.setCurrentIndex(qt.findData(vprefs.get('viewer-{}-mode'.format(self.panel_name), 'normal') or 'normal'))
         qt.currentIndexChanged.connect(self.save_search_type)
         h.addWidget(qt)
 
         self.case_sensitive = cs = QCheckBox(_('&Case sensitive'), self)
         cs.setFocusPolicy(Qt.NoFocus)
-        cs.setChecked(bool(vprefs.get('viewer-search-case-sensitive', False)))
+        cs.setChecked(bool(vprefs.get('viewer-{}-case-sensitive'.format(self.panel_name), False)))
         cs.stateChanged.connect(self.save_search_type)
         h.addWidget(cs)
 
     def history_saved(self, new_text, history):
         if new_text:
-            sss = vprefs.get('saved-search-settings') or {}
+            sss = vprefs.get('saved-{}-settings'.format(self.panel_name)) or {}
             sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
             history = frozenset(history)
             sss = {k: v for k, v in iteritems(sss) if k in history}
-            vprefs['saved-search-settings'] = sss
+            vprefs['saved-{}-settings'.format(self.panel_name)] = sss
 
     def save_search_type(self):
         text = self.search_box.currentText()
         if text and not self.ignore_search_type_changes:
-            sss = vprefs.get('saved-search-settings') or {}
+            sss = vprefs.get('saved-{}-settings'.format(self.panel_name)) or {}
             sss[text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
-            vprefs['saved-search-settings'] = sss
+            vprefs['saved-{}-settings'.format(self.panel_name)] = sss
 
     def saved_search_selected(self):
         text = self.search_box.currentText()
         if text:
-            s = (vprefs.get('saved-search-settings') or {}).get(text)
+            s = (vprefs.get('saved-{}-settings'.format(self.panel_name)) or {}).get(text)
             if s:
                 self.ignore_search_type_changes = True
                 if 'case_sensitive' in s:
@@ -320,8 +321,8 @@ class SearchInput(QWidget):  # {{{
             )
 
     def emit_search(self, backwards=False):
-        vprefs['viewer-search-case-sensitive'] = self.case_sensitive.isChecked()
-        vprefs['viewer-search-mode'] = self.query_type.currentData()
+        vprefs['viewer-{}-case-sensitive'.format(self.panel_name)] = self.case_sensitive.isChecked()
+        vprefs['viewer-{}-mode'.format(self.panel_name)] = self.query_type.currentData()
         sq = self.search_query(backwards)
         if sq is not None:
             self.do_search.emit(sq)
