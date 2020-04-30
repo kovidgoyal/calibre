@@ -1043,7 +1043,7 @@ For many reasons:
     to see if you want to update once a year or so. There is a check box to
     turn off the update notification, on the update notification itself.
 
-  * calibre downloads currently use `about 100TB of bandwidth a month
+  * calibre downloads currently use `about 150TB of bandwidth a month
     <https://calibre-ebook.com/dynamic/downloads>`_. Implementing automatic
     updates would greatly increase that and end up costing thousands of dollars
     a month, which someone has to pay.
