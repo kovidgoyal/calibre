@@ -24,7 +24,7 @@ class Highlights(QListWidget):
 
     def load(self, highlights):
         self.clear()
-        for h in highlights:
+        for h in highlights or ():
             i = QListWidgetItem(h['highlighted_text'], self)
             i.setData(Qt.UserRole, h)
 
