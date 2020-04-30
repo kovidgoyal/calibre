@@ -16,6 +16,11 @@ DEFAULT_MINIMUM_FONT_SIZE = 8
 DEFAULT_ZOOM_STEP_SIZE = 20
 
 
+def current_zoom_step_size():
+    s = get_session_data().get('standalone_font_settings')
+    return s.zoom_step_size or DEFAULT_ZOOM_STEP_SIZE
+
+
 def font_select(name, settings):
     ans = E.select(name=name)
     ans.appendChild(E.option(_('— Choose a font —'), value=''))

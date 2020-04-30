@@ -13,7 +13,9 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
-from read_book.create_annotation import AnnotationsManager, CreateAnnotation, ViewAnnotation
+from read_book.create_annotation import (
+    AnnotationsManager, CreateAnnotation, ViewAnnotation
+)
 from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
@@ -22,6 +24,7 @@ from read_book.open_book import add_book_to_recently_viewed
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
+from read_book.prefs.fonts import current_zoom_step_size
 from read_book.prefs.head_foot import render_head_foot
 from read_book.prefs.scrolling import (
     MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
@@ -570,8 +573,11 @@ class View:
         )
 
     def bump_font_size(self, data):
-        delta = 2 if data.increase else -2
-        change_font_size_by(delta)
+        mult = 1 if data.increase else -1
+        frac = 0.2
+        if runtime.is_standalone_viewer:
+            frac = current_zoom_step_size() / 100
+        change_font_size_by(mult * frac)
 
     def on_show_footnote(self, data):
         self.show_content_popup()

@@ -37,9 +37,10 @@ def set_custom_size(ev):
     sz = int(element(CONTAINER, 'input').value)
     change_font_size(sz)
 
-def change_font_size_by(amt):
+def change_font_size_by(frac):
     sd = get_session_data()
     sz = sd.get('base_font_size')
+    amt = sz * frac
     nsz = sz + amt
     nsz = max(8, min(nsz, 80))
     change_font_size(nsz)
