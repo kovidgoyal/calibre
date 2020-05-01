@@ -105,17 +105,64 @@ class PreserveMIMEDefaults(object):  # {{{
 
 
 UNINSTALL = '''\
+#!/bin/sh
+# Copyright (C) 2018 Kovid Goyal <kovid at kovidgoyal.net>
+
+search_for_python() {{
+    # We have to search for python as Ubuntu, in its infinite wisdom decided
+    # to release 18.04 with no python symlink, making it impossible to run polyglot
+    # python scripts.
+
+    # We cannot use command -v as it is not implemented in the posh shell shipped with
+    # Ubuntu/Debian. Similarly, there is no guarantee that which is installed.
+    # Shell scripting is a horrible joke, thank heavens for python.
+    local IFS=:
+    if [ $ZSH_VERSION ]; then
+        # zsh does not split by default
+        setopt sh_word_split
+    fi
+    local candidate_path
+    local candidate_python
+    local pythons=python3:python2
+    # disable pathname expansion (globbing)
+    set -f
+    for candidate_path in $PATH
+    do
+        if [ ! -z $candidate_path ]
+        then
+            for candidate_python in $pythons
+            do
+                if [ ! -z "$candidate_path" ]
+                then
+                    if [ -x "$candidate_path/$candidate_python" ]
+                    then
+                        printf "$candidate_path/$candidate_python"
+                        return
+                    fi
+                fi
+            done
+        fi
+    done
+    set +f
+    printf "python"
+}}
+
+PYTHON=$(search_for_python)
+echo Using python executable: $PYTHON
+
+$PYTHON -c "import sys; exec(sys.stdin.read());" "$0" <<'CALIBRE_LINUX_INSTALLER_HEREDOC'
 #!{python}
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# vim:fileencoding=UTF-8
 from __future__ import print_function, unicode_literals
 euid = {euid}
 
-import os, subprocess, shutil, tempfile
+import os, subprocess, shutil, tempfile, sys
 
 try:
     raw_input
 except NameError:
     raw_input = input
+sys.stdin = open('/dev/tty')
 
 if os.geteuid() != euid:
     print ('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
@@ -138,7 +185,7 @@ for f in {mime_resources!r}:
     if ret != 0:
         print ('WARNING: Failed to remove mime resource', f)
 
-for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path, dummy_mime_path):
+for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (sys.argv[-1], frozen_path, dummy_mime_path):
     if not x or not os.path.exists(x):
         continue
     print ('Removing', x)
@@ -182,6 +229,7 @@ print ()
 if mimetype_icons and raw_input('Remove the e-book format icons? [y/n]:').lower() in ['', 'y']:
     for i, (name, size) in enumerate(mimetype_icons):
         remove_icon('mimetypes', name, size, update=i == len(mimetype_icons) - 1)
+CALIBRE_LINUX_INSTALLER_HEREDOC
 '''
 
 # }}}
