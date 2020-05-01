@@ -198,10 +198,10 @@ def generate_ebook_convert_help(preamble, app):
 
 
 def update_cli_doc(name, raw, app):
-    if isinstance(raw, type(u'')):
-        raw = raw.encode('utf-8')
+    if isinstance(raw, bytes):
+        raw = raw.decode('utf-8')
     path = 'generated/%s/%s.rst' % (app.config.language, name)
-    old_raw = open(path, 'rb').read() if os.path.exists(path) else ''
+    old_raw = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
     if not os.path.exists(path) or old_raw != raw:
         import difflib
         print(path, 'has changed')
@@ -214,7 +214,7 @@ def update_cli_doc(name, raw, app):
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
-        open(path, 'wb').write(raw)
+        open(path, 'wb').write(raw.encode('utf-8'))
 
 
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
