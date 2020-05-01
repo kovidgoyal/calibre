@@ -32,7 +32,6 @@ get_paths(char *path) {
     for (unsigned i = 0; i < 3; i++) {
         char *t = rindex(path, '/');
         if (t == NULL) fatal("Failed to determine bundle path.");
->>>>>>> The Apple build is working
         *t = '\0';
     }
     if (strstr(path, "/calibre.app/Contents/") != NULL) {
