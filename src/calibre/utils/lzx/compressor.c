@@ -7,7 +7,9 @@
 #include <Python.h>
 #include <structmember.h>
 #include <lzxc.h>
-#include <lzxmodule.h>
+
+extern PyObject *LZXError;
+extern PyTypeObject CompressorType;
 
 #define BUFFER_INIT(buffer)                                             \
     do {                                                                \
