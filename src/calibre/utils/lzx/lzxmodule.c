@@ -9,7 +9,8 @@
 #include <mspack.h>
 #include <lzxd.h>
 
-#include <lzxmodule.h>
+extern PyObject *LZXError;
+extern PyTypeObject CompressorType;
 
 static char lzx_doc[] =
     "Provide basic LZX compression and decompression using the code from\n"
