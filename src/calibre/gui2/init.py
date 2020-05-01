@@ -401,7 +401,6 @@ class VLTabs(QTabBar):  # {{{
         self.currentChanged.connect(self.tab_changed)
         self.tabMoved.connect(self.tab_moved, type=Qt.QueuedConnection)
         self.tabCloseRequested.connect(self.tab_close)
-        self.setStyleSheet('QTabBar::tab:selected { font-weight: bold } QTabBar::tab { text-align: center }')
         self.setVisible(gprefs['show_vl_tabs'])
         self.next_action = a = QAction(self)
         a.triggered.connect(partial(self.next_tab, delta=1)), self.gui.addAction(a)
