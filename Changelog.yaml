@@ -2378,7 +2378,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Wireless driver: Allow specifying extra file formats (unknown to calibre) to send"
 
   bug fixes:
-    - title: "Fix a regression that caused clicking the Clear button in the main search bar to not unapply the current search until enter is pressed."
+    - title: "Fix a regression that caused clicking the Clear button in the main search bar to not unapply the current search until the Enter key is pressed."
 
     - title: "Linux: Fix a regression causing calibre to fail to start on systems with no DBUS session bus"
 
