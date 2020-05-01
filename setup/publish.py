@@ -113,7 +113,7 @@ class Publish(Command):
 
 class PublishBetas(Command):
 
-    sub_commands = ['rapydscript', 'stage2', 'sdist']
+    sub_commands = ['stage1', 'stage2', 'sdist']
 
     def pre_sub_commands(self, opts):
         require_clean_git()
