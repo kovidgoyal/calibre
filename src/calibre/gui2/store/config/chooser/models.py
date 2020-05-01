@@ -44,7 +44,7 @@ class Matches(QAbstractItemModel):
 
     HEADERS = [_('Enabled'), _('Name'), _('No DRM'), _('Headquarters'), _('Affiliate'), _('Formats')]
     HTML_COLS = (1,)
-    CENTERED_COLUMNS = (2, 3, 4)
+    CENTERED_COLUMNS = (0, 2, 3, 4)
 
     def __init__(self, plugins):
         QAbstractItemModel.__init__(self)
