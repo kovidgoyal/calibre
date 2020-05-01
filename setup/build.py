@@ -200,7 +200,7 @@ def init_env():
 
     if iswindows:
         cc = cxx = msvc.cc
-        cflags = '/c /nologo /MD /W3 /EHsc /DNDEBUG'.split()
+        cflags = '/c /nologo /MD /W3 /EHsc /utf-8 /DNDEBUG'.split()
         ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
         # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
         # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
