@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 Job management.
 '''
 
-import re, time
+import time
 
 from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
@@ -31,7 +31,7 @@ from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import range
 from polyglot.queue import Empty, Queue
 
 
@@ -500,10 +500,12 @@ class JobsButton(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.num_jobs = 0
         self.mouse_over = False
         self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PM_ToolBarIconSize))
-        self._jobs = QLabel('<b>'+_('Jobs:')+' 0 ')
+        self._jobs = QLabel('')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
+        self.update_label()
         self.shortcut = 'Alt+Shift+J'
 
         self.l = l = QHBoxLayout(self)
@@ -521,6 +523,11 @@ class JobsButton(QWidget):  # {{{
         self.action_toggle.triggered.connect(self.toggle)
         if hasattr(parent, 'keyboard'):
             parent.keyboard.register_shortcut('toggle jobs list', _('Show/hide the Jobs List'), default_keys=(self.shortcut,), action=self.action_toggle)
+
+    def update_label(self):
+        n = self.jobs()
+        prefix = '<b>' if n > 0 else ''
+        self._jobs.setText(prefix + _('Jobs:') + ' {} '.format(n))
 
     def event(self, ev):
         m = None
@@ -560,8 +567,7 @@ class JobsButton(QWidget):  # {{{
         self.pi.stopAnimation()
 
     def jobs(self):
-        src = unicode_type(self._jobs.text())
-        return int(re.search(r'\d+', src).group())
+        return self.num_jobs
 
     def tray_tooltip(self, num=0):
         if num == 0:
@@ -575,20 +581,14 @@ class JobsButton(QWidget):  # {{{
         return text
 
     def job_added(self, nnum):
-        jobs = self._jobs
-        src = unicode_type(jobs.text())
-        num = self.jobs()
-        text = src.replace(unicode_type(num), unicode_type(nnum))
-        jobs.setText(text)
+        self.num_jobs = nnum
+        self.update_label()
         self.start()
         self.tray_tooltip_updated.emit(self.tray_tooltip(nnum))
 
     def job_done(self, nnum):
-        jobs = self._jobs
-        src = unicode_type(jobs.text())
-        num = self.jobs()
-        text = src.replace(unicode_type(num), unicode_type(nnum))
-        jobs.setText(text)
+        self.num_jobs = nnum
+        self.update_label()
         if nnum == 0:
             self.no_more_jobs()
         self.tray_tooltip_updated.emit(self.tray_tooltip(nnum))
