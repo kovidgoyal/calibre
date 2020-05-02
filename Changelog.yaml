@@ -5,7 +5,7 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# - version: 4.?.?
+# - version: 4.?.0
 #   date: 2020-??-??
 #
 #   new features:
@@ -19,6 +19,47 @@
 #
 #   new recipes:
 #     - title:
+
+- version: 4.15.0
+  date: 2020-05-02
+
+  new features:
+    - title: "Viewer: Improve the interface for changing font sizes"
+
+    - title: "Viewer: Add a keyboard shortcut (Ctrl+Alt+b) for adding a bookmark"
+
+  bug fixes:
+    - title: "Bulk metadata edit: Fix a regression causing scrollbars to not appear in Custom metadata tab."
+      tickets: [1875090]
+
+    - title: "Viewer: Fix a regression that broke searching in flow mode."
+      tickets: [1874877]
+
+    - title: "BibTeX Catalog: Dont output comment describing the catalog as Zotero fails to process it."
+      tickets: [1876302]
+
+    - title: "Linux: Fix uninstaller not working on Linux distros that have no python symlink."
+      tickets: [1876164]
+
+    - title: "Viewer: Fix zoom step size setting ignored."
+      tickets: [1875840]
+
+    - title: "Viewer: Fix text that has font sizes specified using keywords not being scaleable by the viewer's font size controls."
+      tickets: [1875021]
+
+    - title: "Viewer: Fix LRF files not opening"
+
+    - title: "MOBI metadata: When reading author sort from MOBI files, construct the final value from all author fields"
+
+    - title: "macOS: hide accelerator key underlines since they dont work anyway as Apple does not believe in them"
+
+    - title: "macOS: Fix keyboard shortcuts for select all, copy and paste not working in file dialogs."
+      tickets: [1874499]
+
+  improved recipes:
+    - The Nation
+    - Animal Politico
+
 
 - version: 4.14.0
   date: 2020-04-23
