@@ -107,7 +107,8 @@ if islinux:
             Listener.__init__(self, *args, **kwargs)
             # multiprocessing tries to call unlink even on abstract
             # named sockets, prevent it from doing so.
-            self._listener._unlink.cancel()
+            if self._listener._unlink is not None:
+                self._listener._unlink.cancel()
             # Prevent child processes from inheriting this socket
             # If we dont do this child processes not created by calibre, will
             # inherit this socket, preventing the calibre GUI from being restarted.
