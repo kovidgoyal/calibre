@@ -103,6 +103,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.search_replace.setCurrentCell(row if row < self.search_replace.rowCount() else row-1, 0)
             self.sr_search.clear()
             self.sr_replace.clear()
+            self.changed_signal.emit()
 
     def sr_load_clicked(self):
         files = choose_files(self, 'sr_saved_patterns',
