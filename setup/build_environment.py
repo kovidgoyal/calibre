@@ -14,14 +14,26 @@ is64bit
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = None
 if iswindows:
-    from distutils import msvc9compiler
-    msvc = msvc9compiler.MSVCCompiler()
-    msvc.initialize()
-    NMAKE = msvc.find_exe('nmake.exe')
-    RC = msvc.find_exe('rc.exe')
-    MT = msvc.find_exe('mt.exe')
-    win_inc = [x for x in os.environ['include'].split(';') if x]
-    win_lib = [x for x in os.environ['lib'].split(';') if x]
+    try:
+        from distutils.ccompiler import new_compiler
+        msvc = new_compiler('nt', 'msvc')
+        msvc.initialize()
+        RC = msvc.rc
+        MT = msvc.mt
+        # hackish solution (see https://bugs.python.org/issue40478)
+        NMAKE = os.path.dirname(msvc.cc) + os.sep + 'nmake.exe'
+        win_inc = msvc.include_dirs
+        win_lib = msvc.library_dirs
+    except:
+        # Fallback to older version.
+        from distutils import msvc9compiler
+        msvc = msvc9compiler.MSVCCompiler()
+        msvc.initialize()
+        NMAKE = msvc.find_exe('nmake.exe')
+        RC = msvc.find_exe('rc.exe')
+        MT = msvc.find_exe('mt.exe')
+        win_inc = [x for x in os.environ['include'].split(';') if x]
+        win_lib = [x for x in os.environ['lib'].split(';') if x]
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
