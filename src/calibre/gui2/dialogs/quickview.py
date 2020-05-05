@@ -11,7 +11,8 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
-    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu)
+    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu,
+    QShortcut)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -134,7 +135,7 @@ class Quickview(QDialog, Ui_Quickview):
     tab_pressed_signal       = pyqtSignal(object, object)
     quickview_closed         = pyqtSignal()
 
-    def __init__(self, gui, row):
+    def __init__(self, gui, row, toggle_shortcut):
         self.is_pane = gprefs.get('quickview_is_pane', False)
 
         if not self.is_pane:
@@ -149,6 +150,8 @@ class Quickview(QDialog, Ui_Quickview):
 
         if self.is_pane:
             self.main_grid_layout.setContentsMargins(0, 0, 0, 0)
+        else:
+            self.setWindowIcon(self.windowIcon())
 
         self.books_table_column_widths = None
         try:
@@ -160,13 +163,6 @@ class Quickview(QDialog, Ui_Quickview):
                     QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except:
             pass
-
-        if not self.is_pane:
-            # Remove the help button from the window title bar
-            icon = self.windowIcon()
-            self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
-            self.setWindowFlags(self.windowFlags()|Qt.WindowStaysOnTopHint)
-            self.setWindowIcon(icon)
 
         self.view = gui.library_view
         self.db = self.view.model().db
@@ -270,6 +266,17 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.books_table.customContextMenuRequested.connect(self.show_context_menu)
 
+        # Add the quickview toggle as a shortcut for the close button
+        # Don't add it if it identical to the current &X shortcut because that
+        # breaks &X
+        if (not self.is_pane and toggle_shortcut and
+                             self.close_button.shortcut() != toggle_shortcut):
+            toggle_sc = QShortcut(toggle_shortcut, self.close_button)
+            toggle_sc.activated.connect(lambda: self.close_button_clicked())
+            toggle_sc.setEnabled(True)
+            self.close_button.setToolTip(_('Alternate shortcut: ') +
+                                         toggle_shortcut.toString())
+
     def show_context_menu(self, point):
         index = self.books_table.indexAt(point)
         item = self.books_table.item(index.row(), 0)
@@ -312,10 +319,9 @@ class Quickview(QDialog, Ui_Quickview):
             self.search_button.setEnabled(False)
         self.last_search = txt
 
-    def set_shortcuts(self, search_sc, qv_sc):
+    def set_search_shortcut_tooltip(self, search_sc):
         if self.is_pane:
             self.search_button.setToolTip(self.search_button_tooltip + ' (' + search_sc + ')')
-            self.close_button.setToolTip(self.close_button_tooltip.format(qv_sc))
 
     def focus_entered(self, obj):
         if obj == self.books_table:
