@@ -29,11 +29,13 @@ class TheWashingtonPost(BasicNewsRecipe):
     publication_type = 'newspaper'
 
     keep_only_tags = [
-            dict(itemprop=['headline', 'articleBody']),
+        dict(name=['h1', 'figure']),
+        classes('byline article-body'),
     ]
     remove_tags = [
-            dict(name=['meta', 'link']),
-            classes('inline-video'),
+        dict(name=['meta', 'link']),
+        classes('inline-video author-tooltip author-image'),
+        dict(attrs={'data-qa': 'article-body-ad'}),
     ]
 
     feeds = [
@@ -51,6 +53,6 @@ class TheWashingtonPost(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup, *a):
-        for img in soup.findAll('img', attrs={'data-low-res-src': True}):
-            img['src'] = img['data-low-res-src']
+        for img in soup.findAll('img', srcset=True):
+            img['src'] = img['srcset'].split()[0]
         return soup
