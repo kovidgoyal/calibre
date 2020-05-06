@@ -38,7 +38,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     If you add a category, it is permissible to set v to zero. If you delete
     a category, ensure that both the name and the category match.
     '''
-    category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
+    category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags', 'languages']
 
     def __init__(self, window, db, on_category=None, book_ids=None):
         QDialog.__init__(self, window)
@@ -68,7 +68,8 @@ class TagCategories(QDialog, Ui_TagCategories):
 
         self.category_labels = self.category_labels_orig[:]
         self.category_icons  = [None, QIcon(I('user_profile.png')), QIcon(I('series.png')),
-                           QIcon(I('publisher.png')), QIcon(I('tags.png'))]
+                           QIcon(I('publisher.png')), QIcon(I('tags.png')),
+                           QIcon(I('languages.png'))]
         self.category_values = [None,
                            lambda: [t.original_name.replace('|', ',') for t in self.db_categories['authors']],
                            lambda: [t.original_name for t in self.db_categories['series']],
