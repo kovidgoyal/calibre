@@ -353,7 +353,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
             return
         self.dead_renderer_error_shown = True
         error_dialog(self, _('Render process crashed'), _(
-            'The Qt WebEngine Render process has crashed so Preview/Live css will not work.'
+            'The Qt WebEngine Render process has crashed so Preview/Live CSS will not work.'
             ' You should try restarting the editor.')
 , show=True)
 
