@@ -86,6 +86,7 @@ class ToolBar(QToolBar):
 
     def __init__(self, parent=None):
         QToolBar.__init__(self, parent)
+        self.setWindowTitle(_('Toolbar'))
         self.shortcut_actions = {}
         self.setToolButtonStyle(Qt.ToolButtonIconOnly)
         self.setVisible(False)
