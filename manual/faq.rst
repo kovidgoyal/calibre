@@ -390,6 +390,12 @@ utility, etc.
     might get a popup on the device every time calibre or the operating system
     actually tries to connect to it, asking for permission, tap OK.
 
+
+.. note:: With the Kindle Fire 8 or newer there is an icon that shows up when
+   the USB cable is plugged in, showing that the device is charging. Tap that
+   and switch the device to data transfer mode, and then start calibre, it
+   should then be detected.
+
 Over the air
 ^^^^^^^^^^^^^^
 
