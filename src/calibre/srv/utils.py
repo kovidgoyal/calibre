@@ -13,7 +13,6 @@ from operator import itemgetter
 from calibre import prints
 from calibre.constants import iswindows, ispy3
 from calibre.srv.errors import HTTPNotFound
-from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
@@ -298,14 +297,7 @@ class Cookie(SimpleCookie):
 
 
 def custom_fields_to_display(db):
-    ckeys = set(db.field_metadata.ignorable_field_keys())
-    yes_fields = set(tweaks['content_server_will_display'])
-    no_fields = set(tweaks['content_server_wont_display'])
-    if '*' in yes_fields:
-        yes_fields = ckeys
-    if '*' in no_fields:
-        no_fields = ckeys
-    return frozenset(ckeys & (yes_fields - no_fields))
+    return frozenset(db.field_metadata.ignorable_field_keys())
 
 # Logging {{{
 
