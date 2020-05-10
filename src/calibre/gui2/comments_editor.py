@@ -805,6 +805,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible
             menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')), parent.toggle_toolbars)
+        menu.addSeparator()
+        menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec_(ev.globalPos())
 
 # }}}
@@ -1191,6 +1193,13 @@ class Editor(QWidget):  # {{{
 
     def hide_tabs(self):
         self.tabs.tabBar().setVisible(False)
+
+    def smarten_punctuation(self):
+        from calibre.ebooks.conversion.preprocess import smarten_punctuation
+        html = self.html
+        newhtml = smarten_punctuation(html)
+        if html != newhtml:
+            self.html = newhtml
 
 # }}}
 
