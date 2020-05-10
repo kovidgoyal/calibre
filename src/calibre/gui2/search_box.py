@@ -35,6 +35,7 @@ class AsYouType(unicode_type):
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
+    clear_history = pyqtSignal()
     select_on_mouse_press = None
 
     def keyPressEvent(self, event):
@@ -49,14 +50,18 @@ class SearchLineEdit(QLineEdit):  # {{{
         self.parent().normalize_state()
         menu = self.createStandardContextMenu()
         menu.setAttribute(Qt.WA_DeleteOnClose)
-        for action in menu.actions():
-            if action.text().startswith(_('&Paste') + '\t'):
-                break
         ac = menu.addAction(_('Paste and &search'))
         ac.setEnabled(bool(QApplication.clipboard().text()))
         ac.setIcon(QIcon(I('search.png')))
         ac.triggered.connect(self.paste_and_search)
-        menu.insertAction(action, ac)
+        for action in menu.actions():
+            if action.text().startswith(_('&Paste') + '\t'):
+                menu.insertAction(action, ac)
+                break
+        else:
+            menu.addAction(ac)
+        menu.addSeparator()
+        menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
         menu.exec_(ev.globalPos())
 
     def paste_and_search(self):
@@ -110,6 +115,7 @@ class SearchBox2(QComboBox):  # {{{
         QComboBox.__init__(self, parent)
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
+        self.line_edit.clear_history.connect(self.clear_history)
         if add_clear_action:
             self.lineEdit().setClearButtonEnabled(True)
             ac = self.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
@@ -150,6 +156,10 @@ class SearchBox2(QComboBox):  # {{{
         self.addItems(items)
         self.line_edit.setPlaceholderText(help_text)
         self.colorize = colorize
+        self.clear()
+
+    def clear_search_history(self):
+        config[self.opt_name] = []
         self.clear()
 
     def hide_completer_popup(self):
