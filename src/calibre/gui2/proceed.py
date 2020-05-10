@@ -269,7 +269,14 @@ class ProceedQuestion(QWidget):
         dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
         p = QImage(dpr * self.size(), QImage.Format_ARGB32_Premultiplied)
         p.setDevicePixelRatio(dpr)
-        self.render(p)
+        # For some reason, Qt scrolls the book view when rendering this widget,
+        # for the very first time, so manually preserve its position
+        pr = getattr(self.parent(), 'library_view', None)
+        if not hasattr(pr, 'preserve_state'):
+            self.render(p)
+        else:
+            with pr.preserve_state():
+                self.render(p)
         self.rendered_pixmap = QPixmap.fromImage(p)
         self.original_visibility = v = []
         for child in self.findChildren(QWidget):
