@@ -245,7 +245,7 @@ class MainOverlay:  # {{{
             return E.li(icon, text, onclick=action, title=tooltip)
 
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
-        delete_action = ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash')
+        delete_action = ac(_('Delete'), _('Delete this book from local storage'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
         home_action = ac(_('Home'), _('Return to the home page'), def(): home();, 'home')
         back_action = ac(_('Back'), None, self.back, 'arrow-left')
