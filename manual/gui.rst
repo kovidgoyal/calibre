@@ -661,7 +661,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`A`
       - Add Books
     * - :kbd:`Shift+A`
-      - Add Formats to the selected books
+      - Add formats to the selected books
     * - :kbd:`C`
       - Convert selected Books
     * - :kbd:`D`
