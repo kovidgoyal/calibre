@@ -276,6 +276,13 @@ class CybookMuse(CybookOpus):
     output_profile = 'tablet'
 
 
+class BookeenDiva(CybookOpus):
+
+    name = 'Bookeen Diva HD'
+    id = 'bookeen_diva'
+    output_profile = 'tablet'
+
+
 class PocketBook360(CybookOpus):
 
     manufacturer = 'PocketBook'
