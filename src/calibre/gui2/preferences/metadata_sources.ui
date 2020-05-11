@@ -90,11 +90,29 @@
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0" colspan="2">
              <widget class="QListView" name="fields_view">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="toolTip">
                <string>If you uncheck any fields, metadata for those fields will not be downloaded</string>
               </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QAbstractScrollArea::AdjustToContents</enum>
+              </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+              <property name="flow">
+               <enum>QListView::LeftToRight</enum>
+              </property>
+              <property name="isWrapping" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="resizeMode">
+               <enum>QListView::Adjust</enum>
               </property>
              </widget>
             </item>
@@ -146,7 +164,7 @@
               <x>0</x>
               <y>0</y>
               <width>356</width>
-              <height>321</height>
+              <height>462</height>
              </rect>
             </property>
             <property name="sizePolicy">
