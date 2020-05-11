@@ -39,8 +39,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Disable any metadata sources you do not want by unchecking them. You can also set the cover priority. Covers from sources that have a higher (smaller) priority will be preferred when bulk downloading metadata.
-</string>
+             <string>Disable any metadata sources you do not want by unchecking them. You can also set the cover priority. Covers from sources that have a higher (smaller) priority will be preferred when bulk downloading metadata.</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -146,8 +145,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>373</width>
-              <height>333</height>
+              <width>356</width>
+              <height>321</height>
              </rect>
             </property>
             <property name="sizePolicy">
