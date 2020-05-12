@@ -82,7 +82,6 @@ class Highlights(QListWidget):
 class HighlightsPanel(QWidget):
 
     jump_to_cfi = pyqtSignal(object)
-    add_highlight = pyqtSignal()
     request_highlight_action = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
@@ -145,3 +144,6 @@ class HighlightsPanel(QWidget):
         if h is None:
             return self.no_selected_highlight()
         self.request_highlight_action.emit(h['uuid'], 'delete')
+
+    def add_highlight(self):
+        self.request_highlight_action.emit(None, 'create')

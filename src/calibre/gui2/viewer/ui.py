@@ -155,7 +155,6 @@ class EbookViewer(MainWindow):
         self.bookmarks_dock.setWidget(w)
 
         self.highlights_widget = w = HighlightsPanel(self)
-        w.add_highlight.connect(self.add_highlight)
         self.highlights_dock.setWidget(w)
 
         self.web_view = WebView(self)
@@ -338,9 +337,6 @@ class EbookViewer(MainWindow):
 
     def bookmark_activated(self, cfi):
         self.web_view.goto_cfi(cfi)
-
-    def add_highlight(self):
-        self.web_view.trigger_shortcut('create_annotation')
 
     def view_image(self, name):
         path = get_path_for_name(name)

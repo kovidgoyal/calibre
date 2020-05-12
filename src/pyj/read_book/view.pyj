@@ -1191,6 +1191,9 @@ class View:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
 
     def highlight_action(self, uuid, which):
+        if which is 'create':
+            self.iframe_wrapper.send_message('create_annotation')
+            return
         spine = self.book.manifest.spine
         spine_index = self.annotations_manager.spine_index_for_highlight(uuid, spine)
         if spine_index < 0 or spine_index >= spine.length:
