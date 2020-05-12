@@ -12,7 +12,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.constants import plugins
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.viewer.search import SearchInput
 from polyglot.builtins import range
 
@@ -143,7 +143,10 @@ class HighlightsPanel(QWidget):
         h = self.highlights.current_highlight
         if h is None:
             return self.no_selected_highlight()
-        self.request_highlight_action.emit(h['uuid'], 'delete')
+        if question_dialog(self, _('Are you sure?'), _(
+            'Are you sure you want to delete this highlight permanently?')
+        ):
+            self.request_highlight_action.emit(h['uuid'], 'delete')
 
     def add_highlight(self):
         self.request_highlight_action.emit(None, 'create')
