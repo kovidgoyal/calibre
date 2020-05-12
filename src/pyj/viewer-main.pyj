@@ -241,6 +241,12 @@ def set_system_palette(system_colors):
 
 
 @from_python
+def highlight_action(uuid, spine_index, which):
+    if view:
+        view.highlight_action(uuid, spine_index, which)
+
+
+@from_python
 def show_home_page():
     view.overlay.open_book(False)
 

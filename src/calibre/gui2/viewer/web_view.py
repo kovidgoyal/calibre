@@ -291,6 +291,7 @@ class ViewerBridge(Bridge):
     goto_frac = to_js()
     trigger_shortcut = to_js()
     set_system_palette = to_js()
+    highlight_action = to_js()
     show_search_result = to_js()
     prepare_for_close = to_js()
     viewer_font_size_changed = to_js()
@@ -693,6 +694,9 @@ class WebView(RestartingWebEngineView):
 
     def prepare_for_close(self):
         self.execute_when_ready('prepare_for_close')
+
+    def highlight_action(self, uuid, spine_index, which):
+        self.execute_when_ready('highlight_action', uuid, spine_index, which)
 
     def contextMenuEvent(self, ev):
         ev.accept()

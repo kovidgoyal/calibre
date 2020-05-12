@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from itertools import chain
 
 from PyQt5.Qt import (
-    QItemSelectionModel, QLabel, QListWidget, QListWidgetItem, Qt, QVBoxLayout,
-    QWidget, pyqtSignal
+    QHBoxLayout, QIcon, QItemSelectionModel, QLabel, QListWidget, QListWidgetItem,
+    QPushButton, Qt, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import plugins
@@ -40,7 +40,6 @@ class Highlights(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
-        self.setFocusPolicy(Qt.NoFocus)
         self.setSpacing(2)
         pi = plugins['progress_indicator'][0]
         pi.set_no_activate_on_click(self)
@@ -77,20 +76,29 @@ class Highlights(QListWidget):
     def item_activated(self, item):
         self.jump_to_highlight.emit(item.data(Qt.UserRole))
 
+    @property
+    def current_highlight(self):
+        i = self.currentItem()
+        if i is not None:
+            return i.data(Qt.UserRole)
+
 
 class HighlightsPanel(QWidget):
 
     jump_to_cfi = pyqtSignal(object)
+    add_highlight = pyqtSignal()
+    request_highlight_action = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.setFocusPolicy(Qt.NoFocus)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.search_input = si = SearchInput(self, 'highlights-search')
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
 
-        la = QLabel(_('Double click on an entry to jump to it'))
+        la = QLabel(_('Double click to jump to an entry'))
         la.setWordWrap(True)
         l.addWidget(la)
 
@@ -98,6 +106,21 @@ class HighlightsPanel(QWidget):
         l.addWidget(h)
         h.jump_to_highlight.connect(self.jump_to_highlight)
         self.load = h.load
+
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+
+        def button(icon, text, tt, target):
+            b = QPushButton(QIcon(I(icon)), text, self)
+            b.setToolTip(tt)
+            b.setFocusPolicy(Qt.NoFocus)
+            b.clicked.connect(target)
+            return b
+
+        self.add_button = button('plus.png', _('Add'), _('Create a new highlight'), self.add_highlight)
+        self.edit_button = button('edit_input.png', _('Edit'), _('Edit the selected highlight'), self.edit_highlight)
+        self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlight'), self.remove_highlight)
+        h.addWidget(self.add_button), h.addWidget(self.edit_button), h.addWidget(self.remove_button)
 
     def search_requested(self, query):
         if not self.highlights.find_query(query):
@@ -112,3 +135,19 @@ class HighlightsPanel(QWidget):
         idx = spine_index_for_highlight(highlight)
         cfi = 'epubcfi(/{}{})'.format(2*(idx + 1), cfi)
         self.jump_to_cfi.emit(cfi)
+
+    def no_selected_highlight(self):
+        error_dialog(self, _('No selected highlight'), _(
+            'No highlight is currently selected'), show=True)
+
+    def edit_highlight(self):
+        h = self.highlights.current_highlight
+        if h is None:
+            return self.no_selected_highlight()
+        self.request_highlight_action.emit(h['uuid'], spine_index_for_highlight(h), 'edit')
+
+    def remove_highlight(self):
+        h = self.highlights.current_highlight
+        if h is None:
+            return self.no_selected_highlight()
+        self.request_highlight_action.emit(h['uuid'], spine_index_for_highlight(h), 'delete')

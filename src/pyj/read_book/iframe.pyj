@@ -128,6 +128,7 @@ class IframeBoss:
             'scroll_to_frac': self.on_scroll_to_frac,
             'scroll_to_ref': self.on_scroll_to_ref,
             'set_reference_mode': self.set_reference_mode,
+            'create_annotation': self.create_annotation,
             'toggle_autoscroll': self.toggle_autoscroll,
             'wheel_from_margin': self.wheel_from_margin,
             'window_size': self.received_window_size,
@@ -410,6 +411,10 @@ class IframeBoss:
                 self.show_search_result(ipos, True)
             elif ipos.type is 'search':
                 self.find(ipos.search_data, True)
+            elif ipos.type is 'edit_annotation':
+                window.setTimeout(def():
+                    self.annotations_msg_received({'type': 'edit-highlight', 'uuid': ipos.uuid})
+                , 5)
         spine = self.book.manifest.spine
         files = self.book.manifest.files
         spine_index = csi.index
@@ -654,6 +659,9 @@ class IframeBoss:
             start_reference_mode()
         else:
             end_reference_mode()
+
+    def create_annotation(self, data):
+        self.initiate_creation_of_annotation()
 
     def initiate_creation_of_annotation(self, existing):
         self.auto_scroll_action('stop')
