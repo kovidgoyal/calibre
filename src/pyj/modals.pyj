@@ -10,6 +10,7 @@ from book_list.theme import get_color, get_font_size
 from dom import add_extra_css, build_rule, clear, set_css, svgicon
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
+from widgets import create_button
 
 modal_container = None
 modal_count = 0
@@ -32,9 +33,10 @@ add_extra_css(def():
 
 class Modal:
 
-    def __init__(self, create_func, on_close, show_close):
+    def __init__(self, create_func, on_close, show_close, onkeydown):
         nonlocal modal_count
         self.create_func, self.on_close, self.show_close = create_func, on_close, show_close
+        self.onkeydown = onkeydown
         modal_count += 1
         self.id = modal_count
 
@@ -86,8 +88,8 @@ class ModalContainer:
     def modal_container(self):
         return document.getElementById('modal-container')
 
-    def show_modal(self, create_func, on_close=None, show_close=True):
-        self.modals.push(Modal(create_func, on_close, show_close))
+    def show_modal(self, create_func, on_close=None, show_close=True, onkeydown=None):
+        self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
         self.modal_container.focus()
@@ -138,6 +140,8 @@ class ModalContainer:
             self.close_current_modal()
 
     def onkeydown(self, event):
+        if self.current_modal is not None and self.current_modal.onkeydown:
+            return self.current_modal.onkeydown(event, self.clear_current_modal.bind(self))
         if (event.key is 'Escape' or event.key is 'Esc') and not event.altKey and not event.ctrlKey and not event.metaKey and not event.shiftKey:
             event.preventDefault(), event.stopPropagation()
             self.close_current_modal(event)
@@ -185,7 +189,7 @@ def create_simple_dialog(title, msg, details, icon, prefix, on_close=None):
     show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix), on_close=on_close)
 
 
-def create_custom_dialog(title, content_generator_func):
+def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown=None):
     def create_func(parent, close_modal):
         content_div = E.div()
         content_generator_func(content_div, close_modal)
@@ -195,7 +199,48 @@ def create_custom_dialog(title, content_generator_func):
                 E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
                 E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
         ))
-    show_modal(create_func)
+    show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
+
+
+def question_dialog(title, msg, callback, yes_text=None, no_text=None):
+    yes_text = yes_text or _('Yes')
+    no_text = no_text or _('No')
+    called = {}
+
+    def keyaction(yes, close_modal):
+        if called.done:
+            return
+        called.done = True
+        if close_modal:
+            close_modal()
+        callback(yes)
+
+    def on_keydown(event, close_modal):
+        if event.altKey or event.ctrlKey or event.metaKey or event.shiftKey:
+            return
+        if event.key is 'Escape' or event.key is 'Esc':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(False, close_modal)
+        if event.key is 'Enter' or event.key is 'Return' or event.key is 'Space':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(True, close_modal)
+
+    create_custom_dialog(
+        title, def(parent, close_modal):
+            parent.appendChild(E.div(
+                E.div(msg),
+                E.div(class_='button-box',
+                    create_button(yes_text, 'check', keyaction.bind(None, True, close_modal), highlight=True),
+                    '\xa0',
+                    create_button(no_text, 'close', keyaction.bind(None, False, close_modal))
+                ))
+            )
+            parent.lastChild.focus()
+    ,
+    on_close=keyaction.bind(None, False, None),
+    onkeydown=on_keydown
+    )
+
 
 
 def create_progress_dialog(msg, on_close):
@@ -244,8 +289,8 @@ def create_modal_container():
     # , 10)
     return modal_container
 
-def show_modal(create_func, on_close=None, show_close=True):
-    return modal_container.show_modal(create_func, on_close, show_close)
+def show_modal(create_func, on_close=None, show_close=True, onkeydown=None):
+    return modal_container.show_modal(create_func, on_close, show_close, onkeydown)
 
 
 def close_all_modals():
