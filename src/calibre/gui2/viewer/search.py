@@ -333,7 +333,9 @@ class SearchInput(QWidget):  # {{{
     def find_previous(self):
         self.emit_search(backwards=True)
 
-    def focus_input(self):
+    def focus_input(self, text=None):
+        if text and hasattr(text, 'rstrip'):
+            self.search_box.setText(text)
         self.search_box.setFocus(Qt.OtherFocusReason)
         le = self.search_box.lineEdit()
         le.end(False)
@@ -454,8 +456,8 @@ class SearchPanel(QWidget):  # {{{
     def update_hidden_message(self):
         self.hidden_message.setVisible(self.results.current_result_is_hidden)
 
-    def focus_input(self):
-        self.search_input.focus_input()
+    def focus_input(self, text=None):
+        self.search_input.focus_input(text)
 
     def start_search(self, search_query, current_name):
         if self.current_search is not None and search_query == self.current_search:
