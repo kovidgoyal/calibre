@@ -625,8 +625,7 @@ Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 calibre can automatically convert ``.docx`` files created by Microsoft Word 2007 and
-newer. Just add the file to calibre and click convert (make sure you are running
-the latest version of calibre as support for ``.docx`` files is very new).
+newer. Just add the file to calibre and click convert.
 
 .. note::
     There is a `demo .docx file <https://calibre-ebook.com/downloads/demos/demo.docx>`_
@@ -915,7 +914,7 @@ changes you like.
 Custom page margins for individual HTML files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are converting an EPUB of AZW3 file with multiple individual HTML files
+If you are converting an EPUB or AZW3 file with multiple individual HTML files
 inside it and you want to change the page margins for a particular HTML file
 you can add the following style block to the HTML file using the calibre
 editor:

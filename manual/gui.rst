@@ -659,15 +659,15 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`F2 (Enter in macOS)`
       - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A`
-      - Add Books
+      - Add books
     * - :kbd:`Shift+A`
       - Add formats to the selected books
     * - :kbd:`C`
-      - Convert selected Books
+      - Convert selected books
     * - :kbd:`D`
       - Send to device
     * - :kbd:`Del`
-      - Remove selected Books
+      - Remove selected books
     * - :kbd:`E`
       - Edit metadata of selected books
     * - :kbd:`G`
