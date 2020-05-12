@@ -704,6 +704,11 @@ class IframeBoss:
                 select_crw(crw_)
                 self.ensure_selection_visible()
                 self.initiate_creation_of_annotation(data.uuid)
+        elif data.type is 'remove-highlight':
+            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
+            if crw_:
+                unwrap_crw(crw_)
+                v'delete annot_id_uuid_map[crw_]'
         elif data.type is 'apply-highlight':
             sel = window.getSelection()
             text = sel.toString()

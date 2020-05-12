@@ -595,6 +595,7 @@ class EbookViewer(MainWindow):
             h['timestamp'] = parse_iso8601(h['timestamp'], assume_utc=True)
         amap = self.current_book_data['annotations_map']
         amap['highlight'] = highlights
+        self.highlights_widget.refresh(highlights)
         self.save_annotations()
 
     def save_state(self):

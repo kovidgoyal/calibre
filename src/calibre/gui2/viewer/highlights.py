@@ -44,12 +44,25 @@ class Highlights(QListWidget):
         pi = plugins['progress_indicator'][0]
         pi.set_no_activate_on_click(self)
         self.itemActivated.connect(self.item_activated)
+        self.uuid_map = {}
 
     def load(self, highlights):
         self.clear()
+        self.uuid_map = {}
         for h in highlights or ():
-            i = QListWidgetItem(h['highlighted_text'], self)
-            i.setData(Qt.UserRole, h)
+            txt = h.get('highlighted_text')
+            if not h.get('removed') and txt:
+                i = QListWidgetItem(txt, self)
+                i.setData(Qt.UserRole, h)
+                self.uuid_map[h['uuid']] = self.count() - 1
+
+    def refresh(self, highlights):
+        h = self.current_highlight
+        self.load(highlights)
+        if h is not None:
+            idx = self.uuid_map.get(h['uuid'])
+            if idx is not None:
+                self.set_current_row(idx)
 
     def find_query(self, query):
         cr = self.currentRow()
@@ -106,6 +119,7 @@ class HighlightsPanel(QWidget):
         l.addWidget(h)
         h.jump_to_highlight.connect(self.jump_to_highlight)
         self.load = h.load
+        self.refresh = h.refresh
 
         self.h = h = QHBoxLayout()
         l.addLayout(h)

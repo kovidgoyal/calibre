@@ -1198,4 +1198,4 @@ class View:
                 name = self.book.manifest.spine[spine_index]
                 self.show_name(name, initial_position={'type':'edit_annotation', 'uuid': uuid, 'replace_history':True})
         elif which is 'delete':
-            pass
+            self.create_annotation.remove_highlight(uuid)

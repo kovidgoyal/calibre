@@ -36,6 +36,12 @@ class AnnotationsManager:
             v'delete h.notes'
             v'delete h.spine_name'
             v'delete h.spine_index'
+            return True
+
+    def delete_highlight(self, uuid):
+        if self.remove_highlight(uuid):
+            if ui_operations.highlights_changed:
+                ui_operations.highlights_changed(Object.values(self.highlights))
 
     def notes_for_highlight(self, uuid):
         h = self.highlights[uuid]
@@ -551,6 +557,11 @@ class CreateAnnotation:
     def edit_highlight(self, uuid):
         self.send_message('edit-highlight', uuid=uuid)
         self.show()
+
+    def remove_highlight(self, uuid):
+        self.send_message('remove-highlight', uuid=uuid)
+        self.annotations_manager.delete_highlight(uuid)
+        self.hide()
 
     def handle_message(self, msg):
         if msg.type is 'create-annotation':
