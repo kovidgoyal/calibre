@@ -14,24 +14,7 @@ from PyQt5.Qt import (
 from calibre.constants import plugins
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.search import SearchInput
-from calibre.gui2.viewer.web_view import get_manifest
 from polyglot.builtins import range
-
-
-def spine_index_for_highlight(highlight):
-    ans = highlight['spine_index']
-    manifest = get_manifest()
-    if manifest is not None:
-        spine = manifest['spine']
-        name = highlight.get('spine_name')
-        if name:
-            try:
-                idx = spine.index(name)
-            except Exception:
-                pass
-            else:
-                ans = idx
-    return ans
 
 
 class Highlights(QListWidget):
@@ -100,7 +83,7 @@ class HighlightsPanel(QWidget):
 
     jump_to_cfi = pyqtSignal(object)
     add_highlight = pyqtSignal()
-    request_highlight_action = pyqtSignal(object, object, object)
+    request_highlight_action = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -145,10 +128,7 @@ class HighlightsPanel(QWidget):
         self.highlights.setFocus(Qt.OtherFocusReason)
 
     def jump_to_highlight(self, highlight):
-        cfi = highlight['start_cfi']
-        idx = spine_index_for_highlight(highlight)
-        cfi = 'epubcfi(/{}{})'.format(2*(idx + 1), cfi)
-        self.jump_to_cfi.emit(cfi)
+        self.request_highlight_action.emit(highlight['uuid'], 'goto')
 
     def no_selected_highlight(self):
         error_dialog(self, _('No selected highlight'), _(
@@ -158,10 +138,10 @@ class HighlightsPanel(QWidget):
         h = self.highlights.current_highlight
         if h is None:
             return self.no_selected_highlight()
-        self.request_highlight_action.emit(h['uuid'], spine_index_for_highlight(h), 'edit')
+        self.request_highlight_action.emit(h['uuid'], 'edit')
 
     def remove_highlight(self):
         h = self.highlights.current_highlight
         if h is None:
             return self.no_selected_highlight()
-        self.request_highlight_action.emit(h['uuid'], spine_index_for_highlight(h), 'delete')
+        self.request_highlight_action.emit(h['uuid'], 'delete')

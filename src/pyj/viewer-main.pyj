@@ -241,9 +241,9 @@ def set_system_palette(system_colors):
 
 
 @from_python
-def highlight_action(uuid, spine_index, which):
+def highlight_action(uuid, which):
     if view:
-        view.highlight_action(uuid, spine_index, which)
+        view.highlight_action(uuid, which)
 
 
 @from_python

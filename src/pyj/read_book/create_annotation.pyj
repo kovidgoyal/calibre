@@ -56,6 +56,24 @@ class AnnotationsManager:
     def data_for_highlight(self, uuid):
         return self.highlights[uuid]
 
+    def spine_index_for_highlight(self, uuid, spine):
+        h = self.highlights[uuid]
+        if not h:
+            return -1
+        ans = h.spine_index
+        name = h.spine_name
+        if name:
+            idx = spine.indexOf(name)
+            if idx > -1:
+                ans = idx
+        return ans
+
+    def cfi_for_highlight(self, uuid, spine_index):
+        h = self.highlights[uuid]
+        if h:
+            x = 2 * (spine_index + 1)
+            return f'epubcfi(/{x}{h.start_cfi})'
+
     def add_highlight(self, msg, style, notes):
         now = Date().toISOString()
         for uuid in msg.removed_highlights:

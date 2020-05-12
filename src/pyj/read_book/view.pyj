@@ -1190,12 +1190,19 @@ class View:
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
 
-    def highlight_action(self, uuid, spine_index, which):
+    def highlight_action(self, uuid, which):
+        spine = self.book.manifest.spine
+        spine_index = self.annotations_manager.spine_index_for_highlight(uuid, spine)
+        if spine_index < 0 or spine_index >= spine.length:
+            return
         if which is 'edit':
             if self.currently_showing.spine_index is spine_index:
                 self.create_annotation.edit_highlight(uuid)
             else:
-                name = self.book.manifest.spine[spine_index]
-                self.show_name(name, initial_position={'type':'edit_annotation', 'uuid': uuid, 'replace_history':True})
+                self.show_name(spine[spine_index], initial_position={'type':'edit_annotation', 'uuid': uuid, 'replace_history':True})
         elif which is 'delete':
             self.create_annotation.remove_highlight(uuid)
+        elif which is 'goto':
+            cfi = self.annotations_manager.cfi_for_highlight(uuid, spine_index)
+            if cfi:
+                self.goto_cfi(cfi)

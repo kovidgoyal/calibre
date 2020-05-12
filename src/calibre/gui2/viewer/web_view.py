@@ -695,8 +695,8 @@ class WebView(RestartingWebEngineView):
     def prepare_for_close(self):
         self.execute_when_ready('prepare_for_close')
 
-    def highlight_action(self, uuid, spine_index, which):
-        self.execute_when_ready('highlight_action', uuid, spine_index, which)
+    def highlight_action(self, uuid, which):
+        self.execute_when_ready('highlight_action', uuid, which)
 
     def contextMenuEvent(self, ev):
         ev.accept()
