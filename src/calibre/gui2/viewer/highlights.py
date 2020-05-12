@@ -7,20 +7,44 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from itertools import chain
 
 from PyQt5.Qt import (
-    QItemSelectionModel, QListWidget, QListWidgetItem, Qt, QVBoxLayout, QWidget
+    QItemSelectionModel, QLabel, QListWidget, QListWidgetItem, Qt, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
+from calibre.constants import plugins
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.search import SearchInput
+from calibre.gui2.viewer.web_view import get_manifest
 from polyglot.builtins import range
 
 
+def spine_index_for_highlight(highlight):
+    ans = highlight['spine_index']
+    manifest = get_manifest()
+    if manifest is not None:
+        spine = manifest['spine']
+        name = highlight.get('spine_name')
+        if name:
+            try:
+                idx = spine.index(name)
+            except Exception:
+                pass
+            else:
+                ans = idx
+    return ans
+
+
 class Highlights(QListWidget):
+
+    jump_to_highlight = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
         self.setSpacing(2)
+        pi = plugins['progress_indicator'][0]
+        pi.set_no_activate_on_click(self)
+        self.itemActivated.connect(self.item_activated)
 
     def load(self, highlights):
         self.clear()
@@ -50,8 +74,13 @@ class Highlights(QListWidget):
     def set_current_row(self, row):
         self.setCurrentRow(row, QItemSelectionModel.ClearAndSelect)
 
+    def item_activated(self, item):
+        self.jump_to_highlight.emit(item.data(Qt.UserRole))
+
 
 class HighlightsPanel(QWidget):
+
+    jump_to_cfi = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -61,8 +90,13 @@ class HighlightsPanel(QWidget):
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
 
+        la = QLabel(_('Double click on an entry to jump to it'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
         self.highlights = h = Highlights(self)
         l.addWidget(h)
+        h.jump_to_highlight.connect(self.jump_to_highlight)
         self.load = h.load
 
     def search_requested(self, query):
@@ -71,4 +105,10 @@ class HighlightsPanel(QWidget):
                 'No highlights match the search: {}').format(query.text), show=True)
 
     def focus(self):
-        self.highlights_list.setFocus(Qt.OtherFocusReason)
+        self.highlights.setFocus(Qt.OtherFocusReason)
+
+    def jump_to_highlight(self, highlight):
+        cfi = highlight['start_cfi']
+        idx = spine_index_for_highlight(highlight)
+        cfi = 'epubcfi(/{}{})'.format(2*(idx + 1), cfi)
+        self.jump_to_cfi.emit(cfi)
