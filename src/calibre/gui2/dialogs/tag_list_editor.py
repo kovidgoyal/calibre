@@ -82,15 +82,26 @@ class EditColumnDelegate(QItemDelegate):
     def __init__(self, table):
         QItemDelegate.__init__(self)
         self.table = table
+        self.completion_data = None
+
+    def set_completion_data(self, data):
+        self.completion_data = data
 
     def createEditor(self, parent, option, index):
-        item = self.table.item(index.row(), 0)
         if index.column() == 0:
             item = self.table.item(index.row(), 0)
             if item.is_deleted:
                 return None
-            return QItemDelegate.createEditor(self, parent, option, index)
-
+            if self.completion_data:
+                from calibre.gui2.complete2 import EditWithComplete
+                editor = EditWithComplete(parent)
+                editor.set_separator(None)
+                editor.update_items_cache(self.completion_data)
+            else:
+                from calibre.gui2.widgets import EnLineEdit
+                editor = EnLineEdit(parent)
+            return editor
+        return None
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
@@ -139,7 +150,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.count_order = 1
         self.was_order = 1
 
-        self.table.setItemDelegate(EditColumnDelegate(self.table))
+        self.edit_delegate = EditColumnDelegate(self.table)
+        self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
         # Add the data
         select_item = self.fill_in_table(None, tag_to_match)
@@ -185,6 +197,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
                                 'is_deleted': k in self.to_delete}
             self.original_names[k] = v
+        self.edit_delegate.set_completion_data(self.original_names.values())
+
         self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
         if tags is None:
             tags = self.ordered_tags

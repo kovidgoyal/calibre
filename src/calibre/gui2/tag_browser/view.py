@@ -18,8 +18,10 @@ from PyQt5.Qt import (
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
+from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
@@ -33,6 +35,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.old_look = False
         self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
         self.rating_font = QFont(rating_font())
+        self.completion_data = None
 
     def draw_average_rating(self, item, style, painter, option, widget):
         rating = item.average_rating
@@ -117,6 +120,18 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.drawLine(r.bottomLeft(), r.bottomRight())
         if item.type == TagTreeItem.TAG and item.tag.state == 0 and config['show_avg_rating']:
             self.draw_average_rating(item, style, painter, option, widget)
+
+    def set_completion_data(self, data):
+        self.completion_data = data
+
+    def createEditor(self, parent, option, index):
+        if self.completion_data:
+            editor = EditWithComplete(parent)
+            editor.set_separator(None)
+            editor.update_items_cache(self.completion_data)
+        else:
+            editor = EnLineEdit(parent)
+        return editor
 
     # }}}
 
@@ -403,14 +418,23 @@ class TagsView(QTreeView):  # {{{
                 self.recount()
                 return
 
+            def set_completion_data(category):
+                try:
+                    completion_data = self.db.new_api.all_field_names(category)
+                except:
+                    completion_data = None
+                self.itemDelegate().set_completion_data(completion_data)
+
             if action == 'edit_item_no_vl':
                 item = self.model().get_node(index)
                 item.use_vl = False
+                set_completion_data(category)
                 self.edit(index)
                 return
             if action == 'edit_item_in_vl':
                 item = self.model().get_node(index)
                 item.use_vl = True
+                set_completion_data(category)
                 self.edit(index)
                 return
             if action == 'delete_item_in_vl':
@@ -538,11 +562,11 @@ class TagsView(QTreeView):  # {{{
                             self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s in Virtual library')%display_name(tag),
                                     partial(self.context_menu_handler, action='edit_item_in_vl',
-                                            index=index))
+                                            index=index, category=key))
                         self.context_menu.addAction(self.rename_icon,
                                                 _('Rename %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='edit_item_no_vl',
-                                        index=index))
+                                        index=index, category=key))
                         if key in ('tags', 'series', 'publisher') or \
                                 self._model.db.field_metadata.is_custom_field(key):
                             if self.model().get_in_vl():

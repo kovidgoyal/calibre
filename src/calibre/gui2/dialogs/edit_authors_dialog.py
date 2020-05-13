@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
-                  QByteArray)
+                  QByteArray, QItemDelegate)
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
@@ -24,6 +24,24 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
 
+class EditColumnDelegate(QItemDelegate):
+
+    def __init__(self, completion_data):
+        QItemDelegate.__init__(self)
+        self.completion_data = completion_data
+
+    def createEditor(self, parent, option, index):
+        if index.column() == 0:
+            if self.completion_data:
+                from calibre.gui2.complete2 import EditWithComplete
+                editor = EditWithComplete(parent)
+                editor.set_separator(None)
+                editor.update_items_cache(self.completion_data)
+            else:
+                from calibre.gui2.widgets import EnLineEdit
+                editor = EnLineEdit(parent)
+            return editor
+        return QItemDelegate.createEditor(self, parent, option, index)
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
@@ -70,23 +88,27 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         auts = db.get_authors_with_ids()
         self.table.setRowCount(len(auts))
         select_item = None
-        for row, (id, author, sort, link) in enumerate(auts):
+        completion_data = []
+        for row, (_id, author, sort, link) in enumerate(auts):
             author = author.replace('|', ',')
-            self.authors[id] = (author, sort, link)
+            self.authors[_id] = (author, sort, link)
+            completion_data.append(author)
             aut = tableItem(author)
-            aut.setData(Qt.UserRole, id)
+            aut.setData(Qt.UserRole, _id)
             sort = tableItem(sort)
             link = tableItem(link)
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
             self.table.setItem(row, 2, link)
-            if id_to_select in (id, author):
+            if id_to_select in (_id, author):
                 if select_sort:
                     select_item = sort
                 elif select_link:
                     select_item = link
                 else:
                     select_item = aut
+        self.table.setItemDelegate(EditColumnDelegate(completion_data))
+
         self.table.resizeColumnsToContents()
         if self.table.columnWidth(2) < 200:
             self.table.setColumnWidth(2, 200)
