@@ -616,11 +616,14 @@ class TagBrowserWidget(QFrame):  # {{{
         self.item_search.lineEdit().blockSignals(False)
 
         key = None
-        colon = txt.rfind(':') if len(txt) > 2 else 0
+        colon = txt.find(':') if len(txt) > 2 else 0
         if colon > 0:
             key = self._parent.library_view.model().db.\
                         field_metadata.search_term_to_field_key(txt[:colon])
-            txt = txt[colon+1:]
+            if self._parent.library_view.model().db.field_metadata.has_key(key):
+                txt = txt[colon+1:]
+            else:
+                key = None
 
         self.current_find_position = \
             model.find_item_node(key, txt, self.current_find_position)
