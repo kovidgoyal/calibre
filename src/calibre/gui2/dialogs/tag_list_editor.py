@@ -4,10 +4,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication)
+                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
+                      QKeyEvent, pyqtSignal, QEvent)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
 from polyglot.builtins import unicode_type
@@ -76,8 +79,9 @@ class CountTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         return self._count < other._count
 
-
 class EditColumnDelegate(QItemDelegate):
+    editing_abandoned = pyqtSignal()
+    editing_started   = pyqtSignal(int)
 
     def __init__(self, table):
         QItemDelegate.__init__(self)
@@ -88,21 +92,28 @@ class EditColumnDelegate(QItemDelegate):
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
+        self.editing_started.emit(index.row())
         if index.column() == 0:
-            item = self.table.item(index.row(), 0)
-            if item.is_deleted:
+            self.item = self.table.item(index.row(), 0)
+            if self.item.is_deleted:
                 return None
             if self.completion_data:
-                from calibre.gui2.complete2 import EditWithComplete
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
             else:
-                from calibre.gui2.widgets import EnLineEdit
                 editor = EnLineEdit(parent)
             return editor
         return None
 
+    def eventFilter(self, editor, event):
+        if isinstance(event, QKeyEvent):
+            if event.type() == QEvent.KeyPress:
+                k = event.key()
+                if k == Qt.Key_Escape or k == Qt.Key_Tab or (
+                        k == Qt.Key_Return and self.item.text() == self.item.initial_text()):
+                    self.editing_abandoned.emit()
+        return super(EditColumnDelegate, self).eventFilter(editor, event)
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
@@ -152,6 +163,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.was_order = 1
 
         self.edit_delegate = EditColumnDelegate(self.table)
+        self.edit_delegate.editing_abandoned.connect(self.abandon_edit)
+        self.edit_delegate.editing_started.connect(self.start_edit)
         self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
         # Add the data
@@ -187,6 +200,21 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
+
+    def start_edit(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row:
+                item.setText(_('*** EDITING ***'))
+        self.table.blockSignals(False)
+
+    def abandon_edit(self):
+        items = self.table.selectedItems()
+        for item in items:
+            self.table.blockSignals(True)
+            item.setText(item.initial_text())
+            self.table.blockSignals(False)
 
     def vl_box_changed(self):
         self.fill_in_table(None, None)
@@ -299,15 +327,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.blockSignals(False)
             return
         items = self.table.selectedItems()
+        self.table.blockSignals(True)
         for item in items:
-            if edited_item.text() != item.initial_text():
-                id_ = int(item.data(Qt.UserRole))
-                self.to_rename[id_] = unicode_type(item.text())
-                orig = self.table.item(item.row(), 2)
-                self.table.blockSignals(True)
-                item.setText(edited_item.text())
-                orig.setData(Qt.DisplayRole, item.initial_text())
-                self.table.blockSignals(False)
+            id_ = int(item.data(Qt.UserRole))
+            self.to_rename[id_] = unicode_type(edited_item.text())
+            orig = self.table.item(item.row(), 2)
+            item.setText(edited_item.text())
+            orig.setData(Qt.DisplayRole, item.initial_text())
+        self.table.blockSignals(False)
 
     def undo_edit(self):
         indexes = self.table.selectionModel().selectedRows()
