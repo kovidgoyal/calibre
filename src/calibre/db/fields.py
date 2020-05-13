@@ -192,6 +192,13 @@ class OneToOneField(Field):
         dk = self._default_sort_key
         sk = self._sort_key
         if sk is IDENTITY:
+            if dk is not None:
+                def none_safe_key(book_id):
+                    ans = bcmg(book_id, dk)
+                    if ans is None:
+                        ans = dk
+                    return ans
+                return none_safe_key
             return lambda book_id:bcmg(book_id, dk)
         return lambda book_id:sk(bcmg(book_id, dk))
 
