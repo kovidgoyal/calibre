@@ -20,7 +20,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
-from polyglot.builtins import iteritems, unicode_type
+from polyglot.builtins import iteritems, unicode_type, map
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
 
@@ -53,6 +53,7 @@ class BusySpinner(QWidget):  # {{{
 quote_map= {'"':'"“”', "'": "'‘’"}
 qpat = regex.compile(r'''(['"])''')
 spat = regex.compile(r'(\s+)')
+invisible_chars = '(?:[\u00ad\u200d]{0,1})'
 
 
 def text_to_regex(text):
@@ -70,7 +71,8 @@ def text_to_regex(text):
                 if r is not None:
                     ans.append('[' + r + ']')
                 else:
-                    ans.append(regex.escape(part))
+                    part = invisible_chars.join(map(regex.escape, part))
+                    ans.append(part)
     if has_leading:
         ans.insert(0, r'\s+')
     if has_trailing:
