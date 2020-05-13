@@ -103,6 +103,7 @@ class EditColumnDelegate(QItemDelegate):
             return editor
         return None
 
+
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter):

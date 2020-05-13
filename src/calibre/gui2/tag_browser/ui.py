@@ -620,7 +620,7 @@ class TagBrowserWidget(QFrame):  # {{{
         if colon > 0:
             key = self._parent.library_view.model().db.\
                         field_metadata.search_term_to_field_key(txt[:colon])
-            if self._parent.library_view.model().db.field_metadata.has_key(key):
+            if key in self._parent.library_view.model().db.field_metadata:
                 txt = txt[colon+1:]
             else:
                 key = None

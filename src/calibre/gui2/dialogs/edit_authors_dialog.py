@@ -24,6 +24,7 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
 
+
 class EditColumnDelegate(QItemDelegate):
 
     def __init__(self, completion_data):
@@ -42,6 +43,7 @@ class EditColumnDelegate(QItemDelegate):
                 editor = EnLineEdit(parent)
             return editor
         return QItemDelegate.createEditor(self, parent, option, index)
+
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
