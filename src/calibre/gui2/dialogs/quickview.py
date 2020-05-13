@@ -179,6 +179,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
         self.items.setProperty('highlight_current_item', 150)
+        self.items.itemDoubleClicked.connect(self.item_doubleclicked)
 
         focus_filter = WidgetFocusFilter(self.items)
         focus_filter.focus_entered_signal.connect(self.focus_entered)
@@ -276,6 +277,12 @@ class Quickview(QDialog, Ui_Quickview):
             toggle_sc.setEnabled(True)
             self.close_button.setToolTip(_('Alternate shortcut: ') +
                                          toggle_shortcut.toString())
+
+    def item_doubleclicked(self, item):
+        tb = self.gui.stack.tb_widget
+        tb.set_focus_to_find_box()
+        tb.item_search.lineEdit().setText(self.current_key + ':' + item.text())
+        tb.do_find()
 
     def show_context_menu(self, point):
         index = self.books_table.indexAt(point)
@@ -495,6 +502,10 @@ class Quickview(QDialog, Ui_Quickview):
 
             for v in vals:
                 a = QListWidgetItem(v)
+                a.setToolTip('<p>' +
+                             _('Click to show only books with this item. '
+                             'Double click to search for this item in the tag browser')
+                             + '</p>')
                 self.items.addItem(a)
             self.items.setCurrentRow(0)
 
