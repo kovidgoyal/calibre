@@ -290,19 +290,24 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
-    def finish_editing(self, item):
-        if not item.text():
+    def finish_editing(self, edited_item):
+        if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
                 'An item cannot be set to nothing. Delete it instead.'), show=True)
-            item.setText(item.initial_text())
-            return
-        if item.text() != item.initial_text():
-            id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode_type(item.text())
-            orig = self.table.item(item.row(), 2)
             self.table.blockSignals(True)
-            orig.setData(Qt.DisplayRole, item.initial_text())
+            edited_item.setText(edited_item.initial_text())
             self.table.blockSignals(False)
+            return
+        items = self.table.selectedItems()
+        for item in items:
+            if edited_item.text() != item.initial_text():
+                id_ = int(item.data(Qt.UserRole))
+                self.to_rename[id_] = unicode_type(item.text())
+                orig = self.table.item(item.row(), 2)
+                self.table.blockSignals(True)
+                item.setText(edited_item.text())
+                orig.setData(Qt.DisplayRole, item.initial_text())
+                self.table.blockSignals(False)
 
     def undo_edit(self):
         indexes = self.table.selectionModel().selectedRows()
