@@ -27,7 +27,9 @@ class ProfileModel(QAbstractListModel):
     def data(self, index, role):
         profile = self.profiles[index.row()]
         if role == Qt.DisplayRole:
-            return (profile.name)
+            if profile.name.startswith('Default '):
+                return _('Default profile')
+            return profile.name
         if role in (Qt.ToolTipRole, Qt.StatusTipRole, Qt.WhatsThisRole):
             w, h = profile.screen_size
             if w >= 10000:
