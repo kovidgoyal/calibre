@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
-                      QKeyEvent, pyqtSignal, QEvent)
+                      pyqtSignal)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.complete2 import EditWithComplete
@@ -23,6 +23,7 @@ class NameTableWidgetItem(QTableWidgetItem):
         self.initial_value = ''
         self.current_value = ''
         self.is_deleted = False
+        self.is_placeholder = False
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -57,8 +58,22 @@ class NameTableWidgetItem(QTableWidgetItem):
         return self.current_value
 
     def setText(self, txt):
+        self.is_placeholder = False
         self.current_value = txt
         QTableWidgetItem.setText(self, txt)
+
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def set_placeholder(self, txt):
+        self.text_before_placeholder = self.current_value
+        self.setText(txt);
+        self.is_placeholder = True
+
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def reset_placeholder(self):
+        if self.is_placeholder:
+            self.setText(self.text_before_placeholder)
 
     def __ge__(self, other):
         return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
@@ -80,8 +95,8 @@ class CountTableWidgetItem(QTableWidgetItem):
         return self._count < other._count
 
 class EditColumnDelegate(QItemDelegate):
-    editing_abandoned = pyqtSignal()
-    editing_started   = pyqtSignal(int)
+    editing_finished = pyqtSignal(int)
+    editing_started  = pyqtSignal(int)
 
     def __init__(self, table):
         QItemDelegate.__init__(self)
@@ -94,7 +109,7 @@ class EditColumnDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         self.editing_started.emit(index.row())
         if index.column() == 0:
-            self.item = self.table.item(index.row(), 0)
+            self.item = self.table.itemFromIndex(index)
             if self.item.is_deleted:
                 return None
             if self.completion_data:
@@ -106,14 +121,9 @@ class EditColumnDelegate(QItemDelegate):
             return editor
         return None
 
-    def eventFilter(self, editor, event):
-        if isinstance(event, QKeyEvent):
-            if event.type() == QEvent.KeyPress:
-                k = event.key()
-                if k == Qt.Key_Escape or k == Qt.Key_Tab or (
-                        k == Qt.Key_Return and self.item.text() == self.item.initial_text()):
-                    self.editing_abandoned.emit()
-        return super(EditColumnDelegate, self).eventFilter(editor, event)
+    def destroyEditor(self, editor, index):
+        self.editing_finished.emit(index.row())
+        QItemDelegate.destroyEditor(self, editor, index)
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
@@ -147,6 +157,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.ordered_tags = []
         self.sorter = sorter
         self.get_book_ids = get_book_ids
+        self.text_before_editing = ''
 
         # Set up the column headings
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
@@ -163,8 +174,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.was_order = 1
 
         self.edit_delegate = EditColumnDelegate(self.table)
-        self.edit_delegate.editing_abandoned.connect(self.abandon_edit)
-        self.edit_delegate.editing_started.connect(self.start_edit)
+        self.edit_delegate.editing_finished.connect(self.stop_editing)
+        self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
         # Add the data
@@ -200,21 +211,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
-
-    def start_edit(self, on_row):
-        items = self.table.selectedItems()
-        self.table.blockSignals(True)
-        for item in items:
-            if item.row() != on_row:
-                item.setText(_('*** EDITING ***'))
-        self.table.blockSignals(False)
-
-    def abandon_edit(self):
-        items = self.table.selectedItems()
-        for item in items:
-            self.table.blockSignals(True)
-            item.setText(item.initial_text())
-            self.table.blockSignals(False)
 
     def vl_box_changed(self):
         self.fill_in_table(None, None)
@@ -318,12 +314,30 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
+    def start_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row:
+                item.set_placeholder(_('*** EDITING ***'))
+            else:
+                self.text_before_editing = item.text()
+        self.table.blockSignals(False)
+
+    def stop_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row and item.is_placeholder:
+                item.reset_placeholder()
+        self.table.blockSignals(False)
+
     def finish_editing(self, edited_item):
         if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
                 'An item cannot be set to nothing. Delete it instead.'), show=True)
             self.table.blockSignals(True)
-            edited_item.setText(edited_item.initial_text())
+            edited_item.setText(self.text_before_editing)
             self.table.blockSignals(False)
             return
         items = self.table.selectedItems()
