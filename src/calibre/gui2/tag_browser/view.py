@@ -154,6 +154,7 @@ class TagsView(QTreeView):  # {{{
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
     tag_item_delete         = pyqtSignal(object, object, object, object)
+    apply_tag_to_selected   = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -177,6 +178,7 @@ class TagsView(QTreeView):  # {{{
         self.search_icon = QIcon(I('search.png'))
         self.search_copy_icon = QIcon(I("search_copy_saved.png"))
         self.user_category_icon = QIcon(I('tb_folder.png'))
+        self.edit_metadata_icon = QIcon(I('edit_input.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
 
@@ -510,12 +512,32 @@ class TagsView(QTreeView):  # {{{
                     gprefs['tags_browser_partition_method'] = category
             elif action == 'defaults':
                 self.hidden_categories.clear()
+            elif action == 'add_tag':
+                item = self.model().get_node(index)
+                if item is not None:
+                    self.apply_to_selected_books(item)
+                return
+            elif action == 'remove_tag':
+                item = self.model().get_node(index)
+                if item is not None:
+                    self.apply_to_selected_books(item, True)
+                return
             self.db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
             if reset_filter_categories:
                 self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
-        except:
+        except Exception:
+            import traceback
+            traceback.print_exc()
             return
+
+    def apply_to_selected_books(self, item, remove=False):
+        if item.type != item.TAG:
+            return
+        tag = item.tag
+        if not tag.category or not tag.original_name:
+            return
+        self.apply_tag_to_selected.emit(tag.category, tag.original_name, remove)
 
     def show_context_menu(self, point):
         def display_name(tag):
@@ -551,6 +573,7 @@ class TagsView(QTreeView):  # {{{
                 # Verify that we are working with a field that we know something about
                 if key not in self.db.field_metadata:
                     return True
+                fm = self.db.field_metadata[key]
 
                 # Did the user click on a leaf node?
                 if tag:
@@ -589,9 +612,9 @@ class TagsView(QTreeView):  # {{{
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a User category'
-                        m = self.context_menu.addMenu(self.user_category_icon,
-                                        _('Add %s to User category')%display_name(tag))
-                        nt = self.model().user_category_node_tree
+                        m = QMenu(_('Add %s to User category')%display_name(tag), self.context_menu)
+                        m.setIcon(self.user_category_icon)
+                        added = [False]
 
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
@@ -602,12 +625,28 @@ class TagsView(QTreeView):  # {{{
                                     partial(self.context_menu_handler,
                                             'add_to_category',
                                             category='.'.join(p), index=tag_item))
+                                added[0] = True
                                 if len(tree_dict[k]):
                                     tm = m.addMenu(self.user_category_icon,
                                                    _('Children of %s')%n)
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
-                        add_node_tree(nt, m, [])
+                        add_node_tree(self.model().user_category_node_tree, m, [])
+                        if added[0]:
+                            self.context_menu.addMenu(m)
+
+                        # is_editable also means the tag can be applied/removed
+                        # from selected books
+                        if fm['datatype'] != 'rating':
+                            m = self.context_menu.addMenu(self.edit_metadata_icon,
+                                            _('Apply %s to selected books')%display_name(tag))
+                            m.addAction(QIcon(I('plus.png')),
+                                _('Add %s to selected books') % display_name(tag),
+                                partial(self.context_menu_handler, action='add_tag', index=index))
+                            m.addAction(QIcon(I('minus.png')),
+                                _('Remove %s from selected books') % display_name(tag),
+                                partial(self.context_menu_handler, action='remove_tag', index=index))
+
                     elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),

@@ -22,7 +22,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, iteritems
 
 
 class TagBrowserMixin(object):  # {{{
@@ -87,6 +87,7 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
+        self.tags_view.apply_tag_to_selected.connect(self.apply_tag_to_selected)
         self.populate_tb_manage_menu(db)
         self.tags_view.model().user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
@@ -298,6 +299,48 @@ class TagBrowserMixin(object):  # {{{
         # Clean up the library view
         self.do_tag_item_renamed()
         self.tags_view.recount()
+
+    def apply_tag_to_selected(self, field_name, item_name, remove):
+        db = self.current_db.new_api
+        fm = db.field_metadata.get(field_name)
+        if fm is None:
+            return
+        book_ids = self.library_view.get_selected_ids()
+        if not book_ids:
+            return error_dialog(self.library_view, _('No books selected'), _(
+                'You must select some books to apply {} to').format(item_name), show=True)
+        existing_values = db.all_field_for(field_name, book_ids)
+        series_index_field = None
+        if fm['datatype'] == 'series':
+            series_index_field = field_name + '_index'
+        changes = {}
+        for book_id, existing in iteritems(existing_values):
+            if isinstance(existing, tuple):
+                existing = list(existing)
+                if remove:
+                    try:
+                        existing.remove(item_name)
+                    except ValueError:
+                        continue
+                    changes[book_id] = existing
+                else:
+                    if item_name not in existing:
+                        changes[book_id] = existing + [item_name]
+            else:
+                if remove:
+                    if existing == item_name:
+                        changes[book_id] = None
+                else:
+                    if existing != item_name:
+                        changes[book_id] = item_name
+        if changes:
+            db.set_field(field_name, changes)
+            if series_index_field is not None:
+                for book_id in changes:
+                    si = db.get_next_series_num_for(item_name, field=field_name)
+                    db.set_field(series_index_field, {book_id: si})
+            self.library_view.model().refresh_ids(set(changes), current_row=self.library_view.currentIndex().row())
+            self.tags_view.recount_with_position_based_index()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
