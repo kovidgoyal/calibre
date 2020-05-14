@@ -1014,7 +1014,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 if ht == 'timestamp':  # change help text because users know this field as 'date'
                     ht = 'date'
                 if fm['is_category']:
-                    is_cat = '\n\n' + _('Click in this column and press Q to Quickview books with the same %s') % ht
+                    is_cat = '\n\n' + _('Click in this column and press Q to Quickview books with the same "%s"') % ht
                 else:
                     is_cat = ''
                 cust_desc = ''

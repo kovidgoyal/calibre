@@ -16,7 +16,7 @@ Editing the metadata of one book at a time
 
 Click the book you want to edit and then click the :guilabel:`Edit metadata` button or press the ``E`` key. A dialog opens that allows you to edit all aspects of the metadata. It has various features to make editing faster and more efficient. A list of the commonly used tips:
 
-    * You can click the button in between title and authors to swap them automatically. 
+    * You can click the button in between title and authors to swap them automatically.
     * You can click the button next to author sort to have calibre automatically fill it in using the sort values stored with each author. Use the :guilabel:`Manage authors` dialog to see and change the authors' sort values. This dialog can be opened by clicking and holding the button next to author sort.
     * You can click the button next to tags to use the :guilabel:`Tag editor` to manage the tags associated with the book.
     * The "Ids" box can be used to enter an ISBN (and many other types of id), it will have a red background if you enter an invalid ISBN. It will be green for valid ISBNs.
@@ -45,9 +45,9 @@ In addition, there is a button to automatically trim borders from the cover, in 
 Editing the metadata of many books at a time
 ---------------------------------------------
 
-First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause a new *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. This dialog is very powerful, for example, it has a Search and Replace tab that you can use to perform bulk operations on metadata and even copy metadata from one column to another.
+First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause the *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. This dialog is very powerful, for example, it has a Search and Replace tab that you can use to perform bulk operations on metadata and even copy metadata from one column to another.
 
-The normal edit metadata dialog also has :guilabel:`Next` and :guilabel:`Previous` buttons that you can use to edit the metadata of several books one after the other. 
+The normal edit metadata dialog also has :guilabel:`Next` and :guilabel:`Previous` buttons that you can use to edit the metadata of several books one after the other.
 
 Search and replace
 ^^^^^^^^^^^^^^^^^^^^
@@ -82,5 +82,3 @@ Bulk downloading of metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to download the metadata for multiple books at once, right-click the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata`. You can choose to download only metadata, only covers, or both.
-
-
