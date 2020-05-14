@@ -4,10 +4,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication)
+                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
+                      pyqtSignal)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.icu import sort_key
 from polyglot.builtins import unicode_type
@@ -20,6 +23,7 @@ class NameTableWidgetItem(QTableWidgetItem):
         self.initial_value = ''
         self.current_value = ''
         self.is_deleted = False
+        self.is_placeholder = False
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -54,8 +58,22 @@ class NameTableWidgetItem(QTableWidgetItem):
         return self.current_value
 
     def setText(self, txt):
+        self.is_placeholder = False
         self.current_value = txt
         QTableWidgetItem.setText(self, txt)
+
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def set_placeholder(self, txt):
+        self.text_before_placeholder = self.current_value
+        self.setText(txt)
+        self.is_placeholder = True
+
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def reset_placeholder(self):
+        if self.is_placeholder:
+            self.setText(self.text_before_placeholder)
 
     def __ge__(self, other):
         return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
@@ -78,6 +96,8 @@ class CountTableWidgetItem(QTableWidgetItem):
 
 
 class EditColumnDelegate(QItemDelegate):
+    editing_finished = pyqtSignal(int)
+    editing_started  = pyqtSignal(int)
 
     def __init__(self, table):
         QItemDelegate.__init__(self)
@@ -88,20 +108,23 @@ class EditColumnDelegate(QItemDelegate):
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
+        self.editing_started.emit(index.row())
         if index.column() == 0:
-            item = self.table.item(index.row(), 0)
-            if item.is_deleted:
+            self.item = self.table.itemFromIndex(index)
+            if self.item.is_deleted:
                 return None
             if self.completion_data:
-                from calibre.gui2.complete2 import EditWithComplete
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
             else:
-                from calibre.gui2.widgets import EnLineEdit
                 editor = EnLineEdit(parent)
             return editor
         return None
+
+    def destroyEditor(self, editor, index):
+        self.editing_finished.emit(index.row())
+        QItemDelegate.destroyEditor(self, editor, index)
 
 
 class TagListEditor(QDialog, Ui_TagListEditor):
@@ -136,6 +159,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.ordered_tags = []
         self.sorter = sorter
         self.get_book_ids = get_book_ids
+        self.text_before_editing = ''
 
         # Set up the column headings
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
@@ -152,6 +176,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.was_order = 1
 
         self.edit_delegate = EditColumnDelegate(self.table)
+        self.edit_delegate.editing_finished.connect(self.stop_editing)
+        self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
         # Add the data
@@ -290,19 +316,41 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
-    def finish_editing(self, item):
-        if not item.text():
+    def start_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row:
+                item.set_placeholder(_('Editing...'))
+            else:
+                self.text_before_editing = item.text()
+        self.table.blockSignals(False)
+
+    def stop_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row and item.is_placeholder:
+                item.reset_placeholder()
+        self.table.blockSignals(False)
+
+    def finish_editing(self, edited_item):
+        if not edited_item.text():
             error_dialog(self, _('Item is blank'), _(
                 'An item cannot be set to nothing. Delete it instead.'), show=True)
-            item.setText(item.initial_text())
-            return
-        if item.text() != item.initial_text():
-            id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode_type(item.text())
-            orig = self.table.item(item.row(), 2)
             self.table.blockSignals(True)
-            orig.setData(Qt.DisplayRole, item.initial_text())
+            edited_item.setText(self.text_before_editing)
             self.table.blockSignals(False)
+            return
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            id_ = int(item.data(Qt.UserRole))
+            self.to_rename[id_] = unicode_type(edited_item.text())
+            orig = self.table.item(item.row(), 2)
+            item.setText(edited_item.text())
+            orig.setData(Qt.DisplayRole, item.initial_text())
+        self.table.blockSignals(False)
 
     def undo_edit(self):
         indexes = self.table.selectionModel().selectedRows()
