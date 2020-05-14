@@ -471,6 +471,8 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         ans.addAction(_('Shrink column if it is too wide to fit'),
                 partial(self.resize_column_to_fit, view, col))
+        ans.addAction(_('Resize column to fit contents'),
+                partial(self.fit_column_to_contents, view, col))
         ans.addAction(_('Restore default layout'), partial(handler, action='defaults'))
         if self.can_add_columns:
             ans.addAction(
@@ -828,6 +830,10 @@ class BooksView(QTableView):  # {{{
         col = self.column_map.index(column)
         w = view.columnWidth(col)
         restrict_column_width(view, col, w, w)
+
+    def fit_column_to_contents(self, view, column):
+        col = self.column_map.index(column)
+        view.resizeColumnToContents(col)
 
     def column_resized(self, col, old_size, new_size):
         restrict_column_width(self, col, old_size, new_size)
