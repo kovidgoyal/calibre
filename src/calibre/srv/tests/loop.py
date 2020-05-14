@@ -93,7 +93,7 @@ class LoopTest(BaseTest):
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
                 res = conn.getresponse()
-                if unicode_type(res.status) == unicode_type(http_client.REQUEST_TIMEOUT):
+                if int(res.status) == int(http_client.REQUEST_TIMEOUT):
                     raise socket.timeout('Timeout')
                 raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
                     res.status, res.reason, res.getheaders(), res.read()))
