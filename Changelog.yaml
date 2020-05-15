@@ -30,6 +30,8 @@
     - title: 'Tag browser: Allow adding/removing tags/authors/etc. to the currently selected book by right clicking on that tag and choosing "Apply to selected books".'
       tickets: [1878308]
 
+    - title: "Kobo driver: Add support for updated firmware"
+
     - title: "Manage categories dialog: When editing a value with multiple values selected, change them all"
 
     - title: "Book list column header context menu: Add an entry to resize the column to fit its current contents."

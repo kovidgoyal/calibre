@@ -83,7 +83,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 158
+    supported_dbversion = 159
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1349,7 +1349,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 158
+    supported_dbversion             = 159
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1362,7 +1362,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 20, 14601)
+    max_supported_fwversion         = (4, 21, 15015)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2023,7 +2023,7 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
         return bl
 
-    def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId):
+    def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId=None):
         path = ContentID
 
         if not externalId:
@@ -2032,7 +2032,7 @@ class KOBOTOUCH(KOBO):
         if oncard == 'cardb':
             print('path from_contentid cardb')
         else:
-            if (ContentType == "6" or ContentType == "10"):  # and MimeType == 'application/x-kobo-epub+zip':
+            if (ContentType == "6" or ContentType == "10"):
                 if path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
                 elif path.startswith("file:///mnt/sd/"):
@@ -3726,7 +3726,11 @@ class KOBOTOUCH(KOBO):
 
         if not self.debugging_title and not self.debugging_title == '':
             self.debugging_title = self.get_debugging_title()
-        is_debugging = len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0
+        try:
+            is_debugging = len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0
+        except:
+            debug_print(("KoboTouch::is_debugging_title - Exception checking debugging title for title '{0}'.").format(title))
+            is_debugging = False
 
         return is_debugging
 
