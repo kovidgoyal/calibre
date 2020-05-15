@@ -17,9 +17,12 @@ class ReadFileWithProgressReporting:  # {{{
     def __init__(self, path, mode='rb'):
         self.fobj = open(path, mode)
         self.fobj.seek(0, os.SEEK_END)
-        self._total = self.tell()
+        self._total = self.fobj.tell()
         self.fobj.seek(0)
         self.start_time = time.time()
+
+    def tell(self, *a):
+        return self.fobj.tell(*a)
 
     def __enter__(self):
         return self
