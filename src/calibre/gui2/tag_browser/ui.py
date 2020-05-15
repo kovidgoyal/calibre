@@ -642,6 +642,7 @@ class TagBrowserWidget(QFrame):  # {{{
         txt = self.find_text
 
         if txt.startswith('*'):
+            self.tags_view.collapseAll()
             model.set_categories_filter(txt[1:])
             self.tags_view.recount()
             self.current_find_position = None
