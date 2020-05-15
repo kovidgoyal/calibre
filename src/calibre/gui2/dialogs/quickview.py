@@ -505,7 +505,7 @@ class Quickview(QDialog, Ui_Quickview):
                 a.setToolTip(
                     '<p>' + _(
                         'Click to show only books with this item. '
-                        'Double click to search for this item in the tag browser') + '</p>')
+                        'Double click to search for this item in the Tag browser') + '</p>')
                 self.items.addItem(a)
             self.items.setCurrentRow(0)
 
