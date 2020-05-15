@@ -463,7 +463,7 @@ def cli_parser():
     )
     a(
         'file_map',
-        type=FileType('rb'),
+        type=FileType('r'),
         help='A file containing a mapping of files to be uploaded to '
         'descriptions of the files. The descriptions will be visible '
         'to users trying to get the file from the hosting service. '
