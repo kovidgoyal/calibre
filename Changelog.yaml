@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title:
 
+- version: 4.16.0
+  date: 2020-05-15
+
+  new features:
+    - title: "Viewer/Edit book fuzzy search: Ignore soft hyphens and zero-width joiner characters when searching for text."
+      tickets: [1878046]
+
+    - title: 'Tag browser: Allow adding/removing tags/authors/etc. to the currently selected book by right clicking on that tag and choosing "Apply to selected books".'
+      tickets: [1878308]
+
+    - title: "Manage categories dialog: When editing a value with multiple values selected, change them all"
+
+    - title: "Book list column header context menu: Add an entry to resize the column to fit its current contents."
+      tickets: [1878450]
+
+    - title: "Show completions when editing tags/authors/series etc in the Tag browser and Manage tags dialog."
+      tickets: [1878302]
+
+    - title: "Quickview: Double clicking an item now searches for it"
+      tickets: [1878393]
+
+    - title: "Comments editor: Add an action to the context menu to smarten punctuation."
+      tickets: [1876381]
+
+    - title: "FB2 metadata: Add support for setting publisher and publish year"
+
+  bug fixes:
+    - title: "Edit book: Fix compress images losslessly failing for a few images on windows when there are a lot of images in the book."
+      tickets: [1877066]
+
+    - title: "Fix a regression in 4.13 that broke the user category editor for all custom columns."
+      tickets: [1877101]
+
+    - title: "Viewer: Fix font size changes not applying to monospaced fonts."
+      tickets: [1876580]
+
+  improved recipes:
+    - Ars Technica
+    - Washington Post
+
+
 - version: 4.15.0
   date: 2020-05-02
 
