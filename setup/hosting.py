@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,27 +12,34 @@ from subprocess import check_call
 from collections import OrderedDict
 
 
-class ReadFileWithProgressReporting(file):  # {{{
+class ReadFileWithProgressReporting:  # {{{
 
     def __init__(self, path, mode='rb'):
-        file.__init__(self, path, mode)
-        self.seek(0, os.SEEK_END)
+        self.fobj = open(path, mode)
+        self.fobj.seek(0, os.SEEK_END)
         self._total = self.tell()
-        self.seek(0)
+        self.fobj.seek(0)
         self.start_time = time.time()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        self.fobj.close()
+        del self.fobj
 
     def __len__(self):
         return self._total
 
     def read(self, size):
-        data = file.read(self, size)
+        data = self.fobj.read(size)
         if data:
             self.report_progress(len(data))
         return data
 
     def report_progress(self, size):
-        sys.stdout.write(b'\x1b[s')
-        sys.stdout.write(b'\x1b[K')
+        sys.stdout.write('\x1b[s')
+        sys.stdout.write('\x1b[K')
         frac = float(self.tell()) / self._total
         mb_pos = self.tell() / float(1024**2)
         mb_tot = self._total / float(1024**2)
@@ -46,7 +52,7 @@ class ReadFileWithProgressReporting(file):  # {{{
             '  %.1f%%   %.1f/%.1fMB %.1f KB/sec    %d minutes, %d seconds left' %
             (frac * 100, mb_pos, mb_tot, kb_rate, eta_m, eta_s)
         )
-        sys.stdout.write(b'\x1b[u')
+        sys.stdout.write('\x1b[u')
         if self.tell() >= self._total:
             sys.stdout.write('\n')
             t = int(time.time() - self.start_time) + 1

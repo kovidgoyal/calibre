@@ -149,7 +149,7 @@ def run_remote_upload(args):
     print('Running remotely:', ' '.join(args))
     subprocess.check_call([
         'ssh', '-x', '%s@%s' % (STAGING_USER, STAGING_HOST), 'cd', STAGING_DIR, '&&',
-        'python2', 'hosting.py'
+        'python', 'hosting.py'
     ] + args)
 
 
