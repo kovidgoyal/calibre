@@ -281,7 +281,7 @@ class Quickview(QDialog, Ui_Quickview):
     def item_doubleclicked(self, item):
         tb = self.gui.stack.tb_widget
         tb.set_focus_to_find_box()
-        tb.item_search.lineEdit().setText(self.current_key + ':' + item.text())
+        tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
         tb.do_find()
 
     def show_context_menu(self, point):

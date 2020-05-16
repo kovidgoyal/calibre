@@ -429,13 +429,16 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
-        self.item_search.setToolTip(_(
-        'Search for items. This is a "contains" search; items containing the\n'
-        'text anywhere in the name will be found. You can limit the search\n'
-        'to particular categories using syntax similar to search. For example,\n'
-        'tags:foo will find foo in any tag, but not in authors etc. Entering\n'
-        '*foo will filter all categories at once, showing only those items\n'
-        'containing the text "foo"'))
+        self.item_search.setToolTip(
+            '<p>' +_(
+                'Search for items. If the text begins with equals (=) the search is '
+                'exact match, otherwise it is "contains" finding items containing '
+                'the text anywhere in the item name. Both exact and contains '
+                'searches ignore case. You can limit the search to particular '
+                'categories using syntax similar to search. For example, '
+                'tags:foo will find foo in any tag, but not in authors etc. Entering '
+                '*foo will collapse all categories then showing only those categories '
+                'with items containing the text "foo"') + '</p')
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
@@ -639,8 +642,32 @@ class TagBrowserWidget(QFrame):  # {{{
     def find(self):
         model = self.tags_view.model()
         model.clear_boxed()
-        txt = self.find_text
 
+        # When a key is specified don't use the auto-collapsing search.
+        # A colon separates the lookup key from the search string.
+        # A leading colon says not to use autocollapsing search but search all keys
+        txt = self.find_text
+        colon = txt.find(':')
+        if colon >= 0:
+            key = self._parent.library_view.model().db.\
+                        field_metadata.search_term_to_field_key(txt[:colon])
+            if key in self._parent.library_view.model().db.field_metadata:
+                txt = txt[colon+1:]
+            else:
+                key = ''
+                txt = txt[1:] if colon == 0 else txt
+        else:
+            key = None
+
+        # key is None indicates that no colon was found.
+        # key == '' means either a leading : was found or the key is invalid
+
+        # At this point the txt might have a leading =, in which case do an
+        # exact match search
+
+        if (gprefs.get('tag_browser_always_autocollapse', False) and
+                key is None and not txt.startswith('*')):
+            txt = '*' + txt
         if txt.startswith('*'):
             self.tags_view.collapseAll()
             model.set_categories_filter(txt[1:])
@@ -659,18 +686,14 @@ class TagBrowserWidget(QFrame):  # {{{
         self.search_button.setFocus(True)
         self.item_search.lineEdit().blockSignals(False)
 
-        key = None
-        colon = txt.find(':') if len(txt) > 2 else 0
-        if colon > 0:
-            key = self._parent.library_view.model().db.\
-                        field_metadata.search_term_to_field_key(txt[:colon])
-            if key in self._parent.library_view.model().db.field_metadata:
-                txt = txt[colon+1:]
-            else:
-                key = None
-
+        if txt.startswith('='):
+            equals_match = True
+            txt = txt[1:]
+        else:
+            equals_match = False
         self.current_find_position = \
-            model.find_item_node(key, txt, self.current_find_position)
+            model.find_item_node(key, txt, self.current_find_position,
+                                 equals_match=equals_match)
 
         if self.current_find_position:
             self.tags_view.show_item_at_path(self.current_find_position, box=True)
