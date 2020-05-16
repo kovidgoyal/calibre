@@ -101,6 +101,7 @@ class EbookViewer(MainWindow):
         connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
         self.pending_open_at = open_at
         self.base_window_title = _('E-book viewer')
+        self.setDockOptions(MainWindow.AnimatedDocks | MainWindow.AllowTabbedDocks | MainWindow.AllowNestedDocks)
         self.setWindowTitle(self.base_window_title)
         self.in_full_screen_mode = None
         self.image_popup = ImagePopup(self)
