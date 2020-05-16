@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
-    QTimer, QMenu, QActionGroup, QAction, QSizePolicy)
+    QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.widgets import HistoryLineEdit
@@ -406,9 +406,12 @@ class FindBox(HistoryLineEdit):  # {{{
 
 class TagBrowserBar(QWidget):  # {{{
 
-    def __init__(self, parent):
+    clear_find = pyqtSignal()
+
+    def __init__(self, parent, reset_find):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.clear_find.connect(reset_find)
         parent = parent.parent()
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -477,6 +480,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setCurrentIndex(0)
         self.item_search.setCurrentText('')
         self.toggle_search_button.click()
+        self.clear_find.emit()
 
     def set_focus_to_find_box(self):
         self.toggle_search_button.setChecked(True)
@@ -521,7 +525,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self._layout.setContentsMargins(0,0,0,0)
 
         # Set up the find box & button
-        self.tb_bar = tbb = TagBrowserBar(self)
+        self.tb_bar = tbb = TagBrowserBar(self, self.reset_find)
         self.alter_tb, self.item_search, self.search_button = tbb.alter_tb, tbb.item_search, tbb.search_button
         self.toggle_search_button = tbb.toggle_search_button
         self._layout.addWidget(tbb)
@@ -640,6 +644,13 @@ class TagBrowserWidget(QFrame):  # {{{
     @property
     def find_text(self):
         return unicode_type(self.item_search.currentText()).strip()
+
+    def reset_find(self):
+        model = self.tags_view.model()
+        if model.get_categories_filter():
+            model.set_categories_filter(None)
+            self.tags_view.recount()
+            self.current_find_position = None
 
     def find(self):
         model = self.tags_view.model()
