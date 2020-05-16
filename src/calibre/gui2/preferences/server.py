@@ -758,14 +758,20 @@ class User(QWidget):
         username, user_data = self.username, self.user_data
         r = user_data[username]['restriction']
         if r['allowed_library_names']:
-            m = _(
-                '{} is currently only allowed to access the libraries named: {}'
-            ).format(username, ', '.join(r['allowed_library_names']))
+            libs = r['allowed_library_names']
+            m = ngettext(
+                '{} is currently only allowed to access the library named: {}',
+                '{} is currently only allowed to access the libraries named: {}',
+                len(libs)
+            ).format(username, ', '.join(libs))
             b = _('Change the allowed libraries')
         elif r['blocked_library_names']:
-            m = _(
-                '{} is currently not allowed to access the libraries named: {}'
-            ).format(username, ', '.join(r['blocked_library_names']))
+            libs = r['blocked_library_names']
+            m = ngettext(
+                '{} is currently not allowed to access the library named: {}',
+                '{} is currently not allowed to access the libraries named: {}',
+                len(libs)
+            ).format(username, ', '.join(libs))
             b = _('Change the blocked libraries')
         else:
             m = _('{} is currently allowed access to all libraries')

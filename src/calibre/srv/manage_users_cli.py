@@ -133,13 +133,19 @@ def manage_users_cli(path=None):
         if r is None:
             raise SystemExit('The user {} does not exist'.format(username))
         if r['allowed_library_names']:
+            libs = r['allowed_library_names']
             prints(
-                _('{} is currently only allowed to access the libraries named: {}')
-                .format(username, ', '.join(r['allowed_library_names'])))
+                ngettext(
+                    '{} is currently only allowed to access the library named: {}',
+                    '{} is currently only allowed to access the libraries named: {}',
+                    len(libs)).format(username, ', '.join(libs)))
         if r['blocked_library_names']:
+            libs = r['blocked_library_names']
             prints(
-                _('{} is currently not allowed to access the libraries named: {}')
-                .format(username, ', '.join(r['blocked_library_names'])))
+                ngettext(
+                    '{} is currently not allowed to access the library named: {}',
+                    '{} is currently not allowed to access the libraries named: {}',
+                    len(libs)).format(username, ', '.join(libs)))
         if r['library_restrictions']:
             prints(
                 _('{} has the following additional per-library restrictions:')

@@ -257,7 +257,7 @@ class ChooseLibrary(Dialog):  # {{{
 
     def browse(self):
         d = choose_dir(self, 'choose_library_for_copy',
-                       _('Choose Library'))
+                       _('Choose library'))
         if d:
             self.le.setText(d)
 
