@@ -22,7 +22,7 @@ def create_open_book(container, book):
         container.appendChild(E.div(id=unique_id()))
         c = container.lastChild
         items = []
-        c.appendChild(E.div(style='margin-top: 1rem', _('Recently viewed books')))
+        c.appendChild(E.h2(style='margin-top: 1rem', _('Recently viewed books')))
         c.appendChild(E.div())
         for entry in rl:
             if book and book.manifest.pathtoebook is entry.pathtoebook:
