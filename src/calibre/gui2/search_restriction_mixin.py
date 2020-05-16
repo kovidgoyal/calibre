@@ -32,7 +32,7 @@ class SelectNames(QDialog):  # {{{
 
         self._names = QListWidget(self)
         self._names.addItems(sorted(names, key=sort_key))
-        self._names.setSelectionMode(self._names.ExtendedSelection)
+        self._names.setSelectionMode(self._names.MultiSelection)
         l.addWidget(self._names)
 
         self._or = QRadioButton(_('Match any of the selected %s')%txt)
