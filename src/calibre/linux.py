@@ -1081,7 +1081,7 @@ VIEWER = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=LRF Viewer
+Name=LRF viewer
 GenericName=Viewer for LRF files
 Comment=Viewer for LRF files (SONY ebook format files)
 TryExec=lrfviewer
@@ -1095,7 +1095,7 @@ EVIEWER = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=E-book Viewer
+Name=E-book viewer
 GenericName=Viewer for E-books
 Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
@@ -1108,7 +1108,7 @@ ETWEAK = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=E-book Editor
+Name=E-book editor
 GenericName=Editor for E-books
 Comment=Edit E-books in various formats
 TryExec=ebook-edit
