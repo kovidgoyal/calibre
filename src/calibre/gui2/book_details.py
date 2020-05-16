@@ -278,7 +278,7 @@ def add_item_specific_entries(menu, data, book_info):
     return search_internet_added
 
 
-def details_context_menu_event(view, ev, book_info):
+def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
     menu = view.createStandardContextMenu()
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, view))
@@ -298,6 +298,10 @@ def details_context_menu_event(view, ev, book_info):
     for ac in tuple(menu.actions()):
         if not ac.isEnabled():
             menu.removeAction(ac)
+    if add_popup_action:
+        menu.addSeparator()
+        ac = menu.addAction(_('Open the Book details window'))
+        ac.triggered.connect(book_info.show_book_info)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
@@ -633,7 +637,7 @@ class BookInfo(HTMLDisplay):
             return HTMLDisplay.mouseDoubleClickEvent(self, ev)
 
     def contextMenuEvent(self, ev):
-        details_context_menu_event(self, ev, self)
+        details_context_menu_event(self, ev, self, True)
 
     def open_with(self, book_id, fmt, entry):
         self.open_fmt_with.emit(book_id, fmt, entry)
@@ -825,6 +829,7 @@ class BookDetails(QWidget):  # {{{
         self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
+        self.book_info.show_book_info = self.show_book_info
         self.book_info.search_internet = self.search_internet
         self.book_info.search_requested = self.search_requested.emit
         self._layout.addWidget(self.book_info)
