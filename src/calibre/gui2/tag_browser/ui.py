@@ -408,10 +408,9 @@ class TagBrowserBar(QWidget):  # {{{
 
     clear_find = pyqtSignal()
 
-    def __init__(self, parent, reset_find):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
-        self.clear_find.connect(reset_find)
         parent = parent.parent()
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -525,7 +524,8 @@ class TagBrowserWidget(QFrame):  # {{{
         self._layout.setContentsMargins(0,0,0,0)
 
         # Set up the find box & button
-        self.tb_bar = tbb = TagBrowserBar(self, self.reset_find)
+        self.tb_bar = tbb = TagBrowserBar(self)
+        tbb.clear_find.connect(self.reset_find)
         self.alter_tb, self.item_search, self.search_button = tbb.alter_tb, tbb.item_search, tbb.search_button
         self.toggle_search_button = tbb.toggle_search_button
         self._layout.addWidget(tbb)
