@@ -231,6 +231,15 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.recount()
         self.user_categories_edited()
 
+    def get_book_ids(self, use_virtual_library, db, category):
+        book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
+        data = db.new_api.get_categories(book_ids=book_ids)
+        if category in data:
+            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+        else:
+            result = None
+        return result
+
     def do_tags_list_edit(self, tag, category):
         '''
         Open the 'manage_X' dialog where X == category. If tag is not None, the
@@ -238,23 +247,15 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.current_db
-
-        def get_book_ids(use_virtual_library):
-            book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
-            data = db.new_api.get_categories(book_ids=book_ids)
-            if category in data:
-                result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
-            else:
-                result = None
-            return result
-
         if category == 'series':
             key = lambda x:sort_key(title_sort(x))
         else:
             key = sort_key
 
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
-                          tag_to_match=tag, get_book_ids=get_book_ids, sorter=key)
+                          tag_to_match=tag,
+                          get_book_ids=partial(self.get_book_ids, db=db, category=category),
+                          sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -361,7 +362,8 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.library_view.model().db
-        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link)
+        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
+                                   partial(self.get_book_ids, db=db, category='authors'))
         if editor.exec_() == editor.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
