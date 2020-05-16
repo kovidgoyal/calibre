@@ -13,6 +13,7 @@ from string import ascii_letters, digits
 
 from lxml import etree
 
+from calibre import strftime
 from calibre.utils.date import parse_only_date
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -369,7 +370,7 @@ def _set_pubdate(publish_info, mi, ctx):
         return
     ctx.clear_meta_tags(publish_info, 'year')
     tag = ctx.create_tag(publish_info, 'year')
-    tag.text = mi.pubdate.strftime('%Y')
+    tag.text = strftime('%Y', mi.pubdate)
 
 
 def _set_tags(title_info, mi, ctx):
