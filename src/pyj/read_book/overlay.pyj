@@ -486,7 +486,8 @@ class OpenBook: # {{{
         if self.closeable:
             self.overlay.hide_current_panel()
         else:
-            ui_operations.quit()
+            if self.overlay.handling_context_menu_event is None:
+                ui_operations.quit()
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
@@ -516,6 +517,7 @@ class Overlay:
 
     def __init__(self, view):
         self.view = view
+        self.handling_context_menu_event = None
         c = self.clear_container()
         c.addEventListener('click', self.container_clicked)
         c.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
@@ -525,7 +527,9 @@ class Overlay:
         if evt.target and evt.target.tagName and evt.target.tagName.toLowerCase() in ('input', 'textarea'):
             return
         evt.preventDefault()
+        self.handling_context_menu_event = evt
         self.handle_escape()
+        self.handling_context_menu_event = None
 
     def clear_container(self):
         c = self.container
