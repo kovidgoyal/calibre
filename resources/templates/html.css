@@ -124,7 +124,7 @@ h6 {
 pre {
   display: block;
   font-family: monospace;
-  white-space: pre;
+  white-space: pre-wrap;
   margin: 1em 0;
 }
 
