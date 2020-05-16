@@ -64,6 +64,19 @@ class BookmarksList(QListWidget):
                 return
         return QListWidget.keyPressEvent(self, ev)
 
+    def activate_related_bookmark(self, delta=1):
+        if self.count() > 0:
+            row = self.currentRow()
+            nrow = (row + delta + self.count()) % self.count()
+            self.setCurrentRow(nrow)
+            self.bookmark_activated.emit(self.currentItem())
+
+    def next_bookmark(self):
+        self.activate_related_bookmark()
+
+    def previous_bookmark(self):
+        self.activate_related_bookmark(-1)
+
 
 class BookmarkManager(QWidget):
 
@@ -104,6 +117,14 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
+        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('P&revious'), self)
+        b.clicked.connect(self.bookmarks_list.previous_bookmark)
+        l.addWidget(b)
+
+        self.button_next = b = QPushButton(QIcon(I('forward.png')), _('Nex&t'), self)
+        b.clicked.connect(self.bookmarks_list.next_bookmark)
+        l.addWidget(b, l.rowCount() - 1, 1)
+
         self.button_delete = b = QPushButton(_('Sort by na&me'), self)
         b.setToolTip(_('Sort bookmarks by name'))
         b.clicked.connect(self.sort_by_name)
@@ -114,11 +135,11 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.sort_by_pos)
         l.addWidget(b, l.rowCount() - 1, 1)
 
-        self.button_export = b = QPushButton(QIcon(I('back.png')), _('E&xport'), self)
+        self.button_export = b = QPushButton(_('E&xport'), self)
         b.clicked.connect(self.export_bookmarks)
         l.addWidget(b)
 
-        self.button_import = b = QPushButton(QIcon(I('forward.png')), _('&Import'), self)
+        self.button_import = b = QPushButton(_('&Import'), self)
         b.clicked.connect(self.import_bookmarks)
         l.addWidget(b, l.rowCount() - 1, 1)
 
