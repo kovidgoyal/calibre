@@ -370,16 +370,21 @@ class SearchRestrictionMixin(object):
 
         a = m.addAction(_('Create Virtual library'))
         a.triggered.connect(partial(self.do_create_edit, name=None))
+        db = self.current_db
+        virt_libs = db.prefs.get('virtual_libraries', {})
 
         a = self.edit_menu
         self.build_virtual_library_list(a, self.do_create_edit)
-        m.addMenu(a)
+        if virt_libs:
+            m.addMenu(a)
 
         a = self.rm_menu
         self.build_virtual_library_list(a, self.remove_vl_triggered)
-        m.addMenu(a)
+        if virt_libs:
+            m.addMenu(a)
 
-        m.addAction(_('Quick select Virtual library'), self.choose_vl_triggerred)
+        if virt_libs:
+            m.addAction(_('Quick select Virtual library'), self.choose_vl_triggerred)
 
         if add_tabs_action:
             if gprefs['show_vl_tabs']:
@@ -388,8 +393,6 @@ class SearchRestrictionMixin(object):
                 m.addAction(_('Show Virtual libraries as tabs'), self.vl_tabs.enable_bar)
 
         m.addSeparator()
-
-        db = self.library_view.model().db
 
         a = self.ar_menu
         a.clear()
@@ -418,7 +421,6 @@ class SearchRestrictionMixin(object):
 
         m.addSeparator()
 
-        virt_libs = db.prefs.get('virtual_libraries', {})
         for vl in sorted(virt_libs.keys(), key=sort_key):
             is_current = vl == current_lib
             a = m.addAction(self.checked if is_current else self.empty, vl.replace('&', '&&'))
