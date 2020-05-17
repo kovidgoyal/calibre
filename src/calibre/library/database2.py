@@ -494,7 +494,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
 
         if len(saved_searches().names()):
-            self.field_metadata.add_search_category(label='search', name=_('Searches'))
+            self.field_metadata.add_search_category(label='search', name=_('Saved searches'))
 
         self.field_metadata.add_grouped_search_terms(
                                     self.prefs.get('grouped_search_terms', {}))
