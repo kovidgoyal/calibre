@@ -125,6 +125,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.vl_text.textChanged.connect(self.search_text_changed)
         la2.setBuddy(self.vl_text)
         gl.addWidget(self.vl_text, 1, 1)
+        # Trigger the textChanged signal to initialize the saved searches box
+        self.vl_text.setText(' ')
         self.vl_text.setText(_build_full_search_string(self.gui))
 
         self.sl = sl = QLabel('<p>'+_('Create a Virtual library based on: ')+
@@ -213,10 +215,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                     txt = ''
             else:
                 txt = ''
-        if len(searches) > 1:
-            self.saved_searches_label.setPlainText('\n'.join(searches))
-        else:
-            self.saved_searches_label.setPlainText('')
+        self.saved_searches_label.setPlainText('\n'.join(searches))
 
     def name_text_edited(self, new_name):
         self.new_name = unicode_type(new_name)

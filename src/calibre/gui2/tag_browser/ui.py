@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
-    QTimer, QMenu, QActionGroup, QAction, QSizePolicy)
+    QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.widgets import HistoryLineEdit
@@ -231,6 +231,15 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.recount()
         self.user_categories_edited()
 
+    def get_book_ids(self, use_virtual_library, db, category):
+        book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
+        data = db.new_api.get_categories(book_ids=book_ids)
+        if category in data:
+            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+        else:
+            result = None
+        return result
+
     def do_tags_list_edit(self, tag, category):
         '''
         Open the 'manage_X' dialog where X == category. If tag is not None, the
@@ -238,23 +247,15 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.current_db
-
-        def get_book_ids(use_virtual_library):
-            book_ids = None if not use_virtual_library else self.tags_view.model().get_book_ids_to_use()
-            data = db.new_api.get_categories(book_ids=book_ids)
-            if category in data:
-                result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
-            else:
-                result = None
-            return result
-
         if category == 'series':
             key = lambda x:sort_key(title_sort(x))
         else:
             key = sort_key
 
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
-                          tag_to_match=tag, get_book_ids=get_book_ids, sorter=key)
+                          tag_to_match=tag,
+                          get_book_ids=partial(self.get_book_ids, db=db, category=category),
+                          sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -361,7 +362,8 @@ class TagBrowserMixin(object):  # {{{
         '''
 
         db = self.library_view.model().db
-        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link)
+        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
+                                   partial(self.get_book_ids, db=db, category='authors'))
         if editor.exec_() == editor.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
@@ -404,6 +406,8 @@ class FindBox(HistoryLineEdit):  # {{{
 
 class TagBrowserBar(QWidget):  # {{{
 
+    clear_find = pyqtSignal()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
@@ -429,13 +433,16 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
-        self.item_search.setToolTip(_(
-        'Search for items. This is a "contains" search; items containing the\n'
-        'text anywhere in the name will be found. You can limit the search\n'
-        'to particular categories using syntax similar to search. For example,\n'
-        'tags:foo will find foo in any tag, but not in authors etc. Entering\n'
-        '*foo will filter all categories at once, showing only those items\n'
-        'containing the text "foo"'))
+        self.item_search.setToolTip(
+            '<p>' +_(
+                'Search for items. If the text begins with equals (=) the search is '
+                'exact match, otherwise it is "contains" finding items containing '
+                'the text anywhere in the item name. Both exact and contains '
+                'searches ignore case. You can limit the search to particular '
+                'categories using syntax similar to search. For example, '
+                'tags:foo will find foo in any tag, but not in authors etc. Entering '
+                '*foo will collapse all categories then showing only those categories '
+                'with items containing the text "foo"') + '</p')
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',
@@ -472,6 +479,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setCurrentIndex(0)
         self.item_search.setCurrentText('')
         self.toggle_search_button.click()
+        self.clear_find.emit()
 
     def set_focus_to_find_box(self):
         self.toggle_search_button.setChecked(True)
@@ -517,6 +525,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
         # Set up the find box & button
         self.tb_bar = tbb = TagBrowserBar(self)
+        tbb.clear_find.connect(self.reset_find)
         self.alter_tb, self.item_search, self.search_button = tbb.alter_tb, tbb.item_search, tbb.search_button
         self.toggle_search_button = tbb.toggle_search_button
         self._layout.addWidget(tbb)
@@ -636,11 +645,42 @@ class TagBrowserWidget(QFrame):  # {{{
     def find_text(self):
         return unicode_type(self.item_search.currentText()).strip()
 
+    def reset_find(self):
+        model = self.tags_view.model()
+        if model.get_categories_filter():
+            model.set_categories_filter(None)
+            self.tags_view.recount()
+            self.current_find_position = None
+
     def find(self):
         model = self.tags_view.model()
         model.clear_boxed()
-        txt = self.find_text
 
+        # When a key is specified don't use the auto-collapsing search.
+        # A colon separates the lookup key from the search string.
+        # A leading colon says not to use autocollapsing search but search all keys
+        txt = self.find_text
+        colon = txt.find(':')
+        if colon >= 0:
+            key = self._parent.library_view.model().db.\
+                        field_metadata.search_term_to_field_key(txt[:colon])
+            if key in self._parent.library_view.model().db.field_metadata:
+                txt = txt[colon+1:]
+            else:
+                key = ''
+                txt = txt[1:] if colon == 0 else txt
+        else:
+            key = None
+
+        # key is None indicates that no colon was found.
+        # key == '' means either a leading : was found or the key is invalid
+
+        # At this point the txt might have a leading =, in which case do an
+        # exact match search
+
+        if (gprefs.get('tag_browser_always_autocollapse', False) and
+                key is None and not txt.startswith('*')):
+            txt = '*' + txt
         if txt.startswith('*'):
             self.tags_view.collapseAll()
             model.set_categories_filter(txt[1:])
@@ -659,18 +699,14 @@ class TagBrowserWidget(QFrame):  # {{{
         self.search_button.setFocus(True)
         self.item_search.lineEdit().blockSignals(False)
 
-        key = None
-        colon = txt.find(':') if len(txt) > 2 else 0
-        if colon > 0:
-            key = self._parent.library_view.model().db.\
-                        field_metadata.search_term_to_field_key(txt[:colon])
-            if key in self._parent.library_view.model().db.field_metadata:
-                txt = txt[colon+1:]
-            else:
-                key = None
-
+        if txt.startswith('='):
+            equals_match = True
+            txt = txt[1:]
+        else:
+            equals_match = False
         self.current_find_position = \
-            model.find_item_node(key, txt, self.current_find_position)
+            model.find_item_node(key, txt, self.current_find_position,
+                                 equals_match=equals_match)
 
         if self.current_find_position:
             self.tags_view.show_item_at_path(self.current_find_position, box=True)

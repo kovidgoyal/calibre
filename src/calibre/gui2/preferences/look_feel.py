@@ -412,6 +412,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
+        r('tag_browser_always_autocollapse', gprefs)
         r('tag_browser_show_tooltips', gprefs)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)

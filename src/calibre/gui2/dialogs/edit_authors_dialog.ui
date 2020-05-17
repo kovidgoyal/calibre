@@ -62,6 +62,18 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QCheckBox" name="apply_vl_checkbox">
+       <property name="toolTip">
+        <string>&lt;p&gt;Show authors only if they appear in the
+          current Virtual library. Edits already done may be hidden but will
+          not be forgotten.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Show only available items in current Virtual library</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -79,20 +91,6 @@
    </item>
    <item>
     <layout class="QGridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="sort_by_author">
-       <property name="text">
-        <string>Sort by &amp;author</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="sort_by_author_sort">
-       <property name="text">
-        <string>Sort by author &amp;sort</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QPushButton" name="recalc_author_sort">
        <property name="toolTip">

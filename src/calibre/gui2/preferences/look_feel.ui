@@ -995,6 +995,18 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
+       <item row="13" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_tag_browser_always_autocollapse">
+         <property name="toolTip">
+          <string>When checked, Find in the Tag browser will show all items
+ that match the search instead of the first one. If Hide empty categories is
+ also checked then only categories containing a matched item will be shown.</string>
+         </property>
+         <property name="text">
+          <string>Find &amp;shows all items that match in the Tag browser</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="opt_tags_browser_partition_method">
          <property name="toolTip">

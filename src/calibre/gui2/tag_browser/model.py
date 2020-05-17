@@ -994,9 +994,19 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.restriction_error.emit()
 
         if self.filter_categories_by:
+            if self.filter_categories_by.startswith('='):
+                use_exact_match = True
+                filter_by = self.filter_categories_by[1:]
+            else:
+                use_exact_match = False
+                filter_by = self.filter_categories_by
             for category in data.keys():
-                data[category] = [t for t in data[category]
-                        if lower(t.name).find(self.filter_categories_by) >= 0]
+                if use_exact_match:
+                    data[category] = [t for t in data[category]
+                        if lower(t.name) == filter_by]
+                else:
+                    data[category] = [t for t in data[category]
+                        if lower(t.name).find(filter_by) >= 0]
 
         # Build a dict of the keys that have data
         tb_categories = self.db.field_metadata
