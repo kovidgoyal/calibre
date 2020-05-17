@@ -361,7 +361,7 @@ class CreateCustomColumn(QDialog):
 
         # Rating allow half stars
         self.allow_half_stars = ahs = QCheckBox(_('Allow half stars'))
-        ahs.setToolTip(_('Allow half star ratings, for example: ') + '<span style="font-family:calibre Symbols">★★★½</span>')
+        ahs.setToolTip(_('Allow half star ratings, for example: ') + '★★★⯨')
         add_row(None, ahs)
 
         # Composite display properties

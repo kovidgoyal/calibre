@@ -432,7 +432,7 @@ def check_doi(doi):
     return None
 
 
-def rating_to_stars(value, allow_half_stars=False, star='★', half='½'):
+def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     r = max(0, min(int(value or 0), 10))
     ans = star * (r // 2)
     if allow_half_stars and r % 2:

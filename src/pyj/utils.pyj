@@ -121,7 +121,7 @@ def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
         return int(val) + ''
     return fmt.format(float(val))
 
-def rating_to_stars(value, allow_half_stars=False, star='★', half='½'):
+def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     r = max(0, min(int(value or 0), 10))
     if allow_half_stars:
         ans = star.repeat(r // 2)
