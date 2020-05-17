@@ -132,7 +132,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.original_authors[id_] = {'name': name, 'sort': v['sort'],
                                           'link': v['link']}
 
-        self.edited_icon = QIcon(I('edit_input.png'))
+        self.edited_icon = QIcon(I('modified.png'))
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
         self.up_arrow_icon = QIcon(I('arrow-up.png'))
         self.blank_icon = QIcon(I('blank.png'))
@@ -147,7 +147,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def show_table(self, id_to_select, select_sort, select_link):
         auts_to_show = [t[0] for t in
-            self.find_aut_func(use_virtual_library = self.apply_vl_checkbox.isChecked())]
+            self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked())]
         self.table.blockSignals(True)
         self.table.clear()
         self.table.setColumnCount(3)
